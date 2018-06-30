@@ -1,0 +1,2 @@
+name	Yeast Genome 2.0 Array
+acc	A-AFFY-47

@@ -1,0 +1,2 @@
+name	Arabidopsis Thaliana (ATH1)
+acc	A-AFFY-2

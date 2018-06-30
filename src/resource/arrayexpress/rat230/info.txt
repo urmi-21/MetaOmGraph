@@ -1,0 +1,2 @@
+name	Rat Genome (230 2.0)
+acc	A-AFFY-43

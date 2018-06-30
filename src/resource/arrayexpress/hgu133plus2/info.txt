@@ -1,0 +1,2 @@
+name	Homo Sapiens (HG-U133 Plus 2.0)
+acc	A-AFFY-44

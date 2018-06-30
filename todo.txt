@@ -1,0 +1,8 @@
+1)Let user choose a rep column and based on that get reps. This assumes reps in different samples. 
+2)Allows Spliting Sample attributes in MOG e.g. (a1:v1||a2:v2||a3:v3) should add three attribute a1, a2, a3 with values v1, v2, v3
+3)Make windows part of project windows
+4)Make links to SRA and GEO databases
+5)Filter plots by list of sample etc.
+6)Export loaded data and metadata as csv
+7)Make table more radable
+8)Push annotations far from mouse to allow click

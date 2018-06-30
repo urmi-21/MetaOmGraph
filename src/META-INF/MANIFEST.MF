@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+SplashScreen-Image: oris.png
+Main-Class: edu.iastate.metnet.metaomgraph.MetaOmGraph
+
