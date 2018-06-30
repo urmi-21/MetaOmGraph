@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Experiments>
+  <Experiment name="exp1">
+    <experiment_name>EXP1AtGenExpress: Developmental series</experiment_name>
+    <experiment_description>AtGenExpress: A multinational coordinated effort to uncover the transcriptome of the multicellular model organism Arabidopsis thaliana.</experiment_description>
+    <experimenter_name>AtGenExpress Consortium</experimenter_name>
+    <lab_head>Prof. Dr. Lutz  Nover (AFGN)</lab_head>
+    <experiment_type>genetic_modification_design;  organism_part_comparison_design; development_or_differentiation_design</experiment_type>
+    <chip name="s1">
+      <chip_name>s1_name</chip_name>
+      <organism>Arabidopsis thaliana</organism>
+      <alias_or_genotype>Col-0</alias_or_genotype>
+      <sample_or_organ>flowers stage 9</sample_or_organ>
+      <plant_ontology>PO:0009046: flower</plant_ontology>
+    </chip>
+  </Experiment>
+<Experiment name="exp2">
+    <experiment_name>EXP2AtGenExpress: Developmental series</experiment_name>
+    <experiment_description>EXP2AtGenExpress: A multinational coordinated effort to uncover the transcriptome of the multicellular model organism Arabidopsis thaliana.</experiment_description>
+    <experimenter_name>EXP2AtGenExpress Consortium</experimenter_name>
+    <lab_head>EXP2Prof. Dr. Lutz  Nover (AFGN)</lab_head>
+    <experiment_type>genetic_modification_design;  organism_part_comparison_design; development_or_differentiation_design</experiment_type>
+    <chip name="s2">
+      <chip_name>s2_name</chip_name>
+      <organism>EXP2Arabidopsis thaliana</organism>
+      <alias_or_genotype>Col-0</alias_or_genotype>
+      <sample_or_organ>flowers stage 9</sample_or_organ>
+      <plant_ontology>PO:0009046: flower</plant_ontology>
+    </chip>
+  </Experiment>
+<Experiment name="exp3">
+    <experiment_name>EXP3AtGenExpress: Developmental series</experiment_name>
+    <experiment_description>AtGenExpress: A multinational coordinated effort to uncover the transcriptome of the multicellular model organism Arabidopsis thaliana.</experiment_description>
+    <experimenter_name>EXP3AtGenExpress Consortium</experimenter_name>
+    <lab_head>Prof. Dr. Lutz  Nover (AFGN)</lab_head>
+    <experiment_type>genetic_modification_design;  organism_part_comparison_design; development_or_differentiation_design</experiment_type>
+    <chip name="s3">
+      <chip_name>s3_name</chip_name>
+      <organism>EXP3Arabidopsis thaliana</organism>
+      <alias_or_genotype>Col-0</alias_or_genotype>
+      <sample_or_organ>flowers stage 9</sample_or_organ>
+      <plant_ontology>PO:0009046: flower</plant_ontology>
+    </chip>
+  </Experiment>
+</Experiments>
+
