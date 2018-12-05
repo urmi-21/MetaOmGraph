@@ -97,23 +97,28 @@ public class MetadataRemoveCols extends JFrame {
 				}
 				String[] newheaders = headervals;
 				boolean[] toKeep = new boolean[newheaders.length];
+				java.util.List<String> removed=new ArrayList<>();
 				// get data from table
 				DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
 				for (int i = 0; i < tablemodel.getRowCount(); i++) {
 					if (tablemodel.getValueAt(i, 2).toString().equals("Keep")) {
 						toKeep[i] = true;
 					} else {
+						removed.add(tablemodel.getValueAt(i, 1).toString());
 						toKeep[i] = false;
 					}
 
 				}
 
 				obj.setHeaders(newheaders, toKeep);
-				p.updateTable();
+				
 				p.updateHeaders();
+				p.updateRemovedCols(removed);
 				getThisframe().dispose();
 				p.setEnabled(true);
 				p.toFront();
+				p.updateTable();
+				
 			}
 		});
 		panel_1.add(btnDone);
@@ -141,13 +146,13 @@ public class MetadataRemoveCols extends JFrame {
 		for (int i = 0; i < headervals.length; i++) {
 			tablemodel.addRow(new String[] { String.valueOf(i + 1), headervals[i], "Keep" });
 		}
-		// TableColumn sportColumn = table.getColumnModel().getColumn(2);
-		TableColumn sportColumn = table.getColumnModel().getColumn(2);
+	
+		TableColumn optionColumn = table.getColumnModel().getColumn(2);
 		JComboBox comboBox = new JComboBox();
 		comboBox.addItem("Keep");
 		comboBox.addItem("Remove");
 		comboBox.setSelectedIndex(0);
-		sportColumn.setCellEditor(new DefaultCellEditor(comboBox));
+		optionColumn.setCellEditor(new DefaultCellEditor(comboBox));
 
 		table.setFont(new Font("Times New Roman", Font.PLAIN, 14));
 		table.setForeground(Color.RED);
@@ -233,13 +238,13 @@ public class MetadataRemoveCols extends JFrame {
 				tablemodel.addRow(new String[] { String.valueOf(i + 1), allHeaders[i], "Remove" });
 			}
 		}
-		// TableColumn sportColumn = table.getColumnModel().getColumn(2);
-		TableColumn sportColumn = table.getColumnModel().getColumn(2);
+		
+		TableColumn optionColumn = table.getColumnModel().getColumn(2);
 		JComboBox comboBox = new JComboBox();
 		comboBox.addItem("Keep");
 		comboBox.addItem("Remove");
 		comboBox.setSelectedIndex(0);
-		sportColumn.setCellEditor(new DefaultCellEditor(comboBox));
+		optionColumn.setCellEditor(new DefaultCellEditor(comboBox));
 
 		table.setFont(new Font("Times New Roman", Font.PLAIN, 14));
 		table.setForeground(Color.RED);
@@ -276,14 +281,14 @@ public class MetadataRemoveCols extends JFrame {
 					obj.setHeaders(allHeaders, toKeep);
 					// update data in table panel
 					p.resetData();
-					p.updateTable();
+					p.updateTable(true);
 					p.updateHeaders();
-					MetaOmGraph.getActiveProject().getMetadataHybrid().setCurrentHeaders(null);
+					MetaOmGraph.getActiveProject().getMetadataHybrid().setCurrentHeaders(obj.getHeaders());
 
 				} else {
 					String[] newHeaders = removeExcluded(toKeep, allHeaders);
 					p.setHeaders(newHeaders);
-					p.updateTable();
+					p.updateTable(true);
 					p.updateHeaders();
 					MetaOmGraph.getActiveProject().getMetadataHybrid().setCurrentHeaders(newHeaders);
 				}

@@ -170,11 +170,9 @@ public class WelcomePanel extends JPanel {
         downloadPanel.setLayout(new GridBagLayout());
         c2.gridy = 0;
         c2.insets = new Insets(0, 0, 0, 0);
-        downloadPanel.add(new WelcomeHeader("MetNet Projects", ImageIO
-                        .read(this.getClass().getResourceAsStream(
-                                "/resource/tango/32x32/actions/document-save.png"))),
-                c2);
-        try {
+        //urmi remove metnet panel
+        //downloadPanel.add(new WelcomeHeader("MetNet Projects", ImageIO.read(this.getClass().getResourceAsStream("/resource/tango/32x32/actions/document-save.png"))),c2);
+        /*try {
             long startTime = System.currentTimeMillis();
             Collection<DownloadableProject> projects = getDownloadableProjects();
 //			System.out.println("Projects took "
@@ -206,6 +204,7 @@ public class WelcomePanel extends JPanel {
         c.gridx = 0;
         c.gridheight = 1;
         this.add(downloadPanel, c);
+        */
         JPanel helpPanel = new JPanel();
         helpPanel.setLayout(new GridBagLayout());
         c2.gridy = 0;
@@ -239,6 +238,7 @@ public class WelcomePanel extends JPanel {
         c.gridx = 0;
         c.gridwidth = 2;
         this.add(exitButton, c);
+        //setSize(500,500);
     }
 
     public void oldWelcomePanel() throws IOException {
@@ -413,7 +413,7 @@ public class WelcomePanel extends JPanel {
         BufferedReader in;
         try {
             website = new URL(
-                    "http://www.metnetdb.org/MetaOmGraph/projectlist.txt");
+                    "http://metnetweb.gdcb.iastate.edu/MetaOmGraph/projectlist.txt");
         } catch (MalformedURLException e) {
             e.printStackTrace();
             return null;

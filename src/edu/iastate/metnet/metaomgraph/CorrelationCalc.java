@@ -3,6 +3,8 @@ package edu.iastate.metnet.metaomgraph;
 import java.io.PrintStream;
 import java.util.Arrays;
 
+import javax.swing.JOptionPane;
+
 import org.apache.commons.math3.ml.distance.ManhattanDistance;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
@@ -175,6 +177,7 @@ public class CorrelationCalc {
 
     public double pearsonCorrelation(double[] b, boolean hasSkips, Double blankValue) {
         if ((hasSkips) || (hasBlanks)) {
+        	
             return pearsonCorrelationWithSkips(b, blankValue);
         }
         //return new PearsonsCorrelation().correlation(a, b);
@@ -265,7 +268,7 @@ public class CorrelationCalc {
     public double pearsonCorrelationWithSkips(double[] b, Double blankValue) {
         if ((b == null) || (a == null)) return 0.0D;
         if (b.length != a.length) {
-            System.out.println("Original: " + a.length + " elements.  New: " + b.length + " elements.");
+            //System.out.println("Original: " + a.length + " elements.  New: " + b.length + " elements.");
             return 0.0D;
         }
         int n = a.length;
@@ -397,11 +400,21 @@ public class CorrelationCalc {
         return result;
     }
 
+    //not used for now, needs fixing
     public double newSpearmanCorrelation(double[] b, boolean hasSkips, Double blankValue) {
-        if ((hasSkips) || (hasBlanks)) {
+    	SpearmansCorrelation spc = new SpearmansCorrelation();
+    	JOptionPane.showMessageDialog(null, "a:"+Arrays.toString(a));
+    	JOptionPane.showMessageDialog(null, "b:"+Arrays.toString(b));
+    	double thisVal = 0.0D + spc.correlation(a, b);
+    	if (Double.isNaN(thisVal)) {
+    		thisVal = 0.0D;
+		}
+    	return thisVal;
+    	
+        /*if ((hasSkips) || (hasBlanks)) {
             return newspearmanCorrelationWithSkips(b, blankValue);
         }
-        return newspearmanCorrelationStandard(b);
+        return newspearmanCorrelationStandard(b);*/
     }
 
     private double newspearmanCorrelationStandard(double[] b) {

@@ -81,6 +81,11 @@ public class ReadMetadata extends JFrame {
 	private JTextField textField_4;
 	private int missinginMD;
 	private int missinginD;
+	private JScrollPane scrollPane;
+
+	private List<String> missingDC;
+	private List<String> extraDC;
+	private List<String> removedCols;
 
 	/**
 	 * Launch the application.
@@ -122,6 +127,7 @@ public class ReadMetadata extends JFrame {
 				.getImage(MetadataImportWizard.class.getResource("/resource/MetaOmicon16.png")));
 		this.setTitle("Read metadata file");
 		this.toFront();
+		this.pack();
 	}
 
 	/**
@@ -139,10 +145,11 @@ public class ReadMetadata extends JFrame {
 			public void actionPerformed(ActionEvent ae) {
 				// check whether there is any selection
 				if (comboBox_1.getSelectedIndex() != -1) {
-					//JOptionPane.showMessageDialog(null, "Now selected:"+comboBox_1.getSelectedItem().toString());
+					// JOptionPane.showMessageDialog(null, "Now
+					// selected:"+comboBox_1.getSelectedItem().toString());
 					int[] missingextra = getMissingDC();
-					missinginD=missingextra[1];
-					missinginMD=missingextra[0];
+					missinginD = missingextra[1];
+					missinginMD = missingextra[0];
 					textField_3.setText(String.valueOf(missingextra[1]));
 					textField_4.setText(String.valueOf(missingextra[0]));
 
@@ -207,30 +214,34 @@ public class ReadMetadata extends JFrame {
 				EventQueue.invokeLater(new Runnable() {
 					public void run() {
 						try {
-							
-							
-							
+
 							obj.setDatacol(dataColumnName);
 							// add all data_col values as included
 							obj.initializeIncludedList();
 							// JOptionPane.showMessageDialog(null, "init:"+obj.getIncluded().toString());
 							// JOptionPane.showMessageDialog(null, "init ex:"+obj.getExcluded().toString());
-							if(missinginD>0) {
-								removeMissingfromD();
+
+							if (missinginD > 0) {
+								// JOptionPane.showMessageDialog(null, "removing");
+								removeExtraRowsfromMD();
 							}
-							
-							if(missinginMD>0) {
-								removeMissingfromMD();
+							if (missinginMD > 0) {
+								// removeMissingfromD();
+								// add null metadata for missing cols
+								// add missing Data after making the tree
+								addMissingMD();
 							}
+
 							JOptionPane.showMessageDialog(getThisFrame(),
 									"Data column selected is: " + obj.getDatacol(), "Data column",
 									JOptionPane.INFORMATION_MESSAGE);
-							MetadataImportWizard frame = new MetadataImportWizard(obj, headers,
-									getThisFrame().getSize(), getThisFrame().getLocationOnScreen(), getThisFrame());
+							MetadataImportWizard frame = new MetadataImportWizard(obj, headers, getThisFrame().getSize(), getThisFrame().getLocationOnScreen(), getThisFrame(),
+									missingDC, extraDC, null, true, removedCols);
 							frame.setVisible(true);
 							getThisFrame().dispose();
 						} catch (Exception e) {
 							e.printStackTrace();
+							JOptionPane.showMessageDialog(null, "Error....");
 						}
 					}
 				});
@@ -263,13 +274,13 @@ public class ReadMetadata extends JFrame {
 		textField = new JTextField();
 		topButtonPanel.add(textField);
 		textField.setColumns(10);
-		//textField.setText("D:\\MOGdata\\mog_testdata\\xml\\sample_metadata2.csv");
+		// textField.setText("D:\\MOGdata\\mog_testdata\\xml\\sample_metadata2.csv");
 
 		btnBrowse = new JButton("Browse");
 		btnBrowse.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser fileChooser = new JFileChooser(edu.iastate.metnet.metaomgraph.utils.Utils.getLastDir());
-				//MetaOmGraph.
+				// MetaOmGraph.
 				int rVal = fileChooser.showOpenDialog(null);
 				if (rVal == JFileChooser.APPROVE_OPTION) {
 					metadataFile = fileChooser.getSelectedFile();
@@ -288,7 +299,8 @@ public class ReadMetadata extends JFrame {
 
 		JComboBox comboBox = new JComboBox();
 		comboBox.setFont(new Font("Times New Roman", Font.PLAIN, 13));
-		comboBox.setModel(new DefaultComboBoxModel(new String[] { "Tab (\\t)", "Comma (,)", "Semicolon (;)", "Space" }));
+		comboBox.setModel(
+				new DefaultComboBoxModel(new String[] { "Tab (\\t)", "Comma (,)", "Semicolon (;)", "Space" }));
 		comboBox.setForeground(Color.BLACK);
 		comboBox.setBackground(Color.GRAY);
 		topButtonPanel.add(comboBox);
@@ -303,8 +315,8 @@ public class ReadMetadata extends JFrame {
 
 				// read metadata file and display in table first 20 lines
 				obj = new MetadataCollection();
-				//read file into obj
-				
+				// read file into obj
+
 				metadataDelim = metadatadelims[comboBox.getSelectedIndex()];
 				loadMetadata(textField.getText(), metadataDelim);
 				/*
@@ -413,7 +425,6 @@ public class ReadMetadata extends JFrame {
 		btnBut.setEnabled(false);
 		btnBut.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
 				// if no metadata read
 				if (metadata == null) {
 					JOptionPane.showMessageDialog(panel, "Error!!! No file read...", "Error",
@@ -426,13 +437,19 @@ public class ReadMetadata extends JFrame {
 						try {
 							MetadataHearderEdit frame = new MetadataHearderEdit(headers, obj, getThisFrame());
 							setEnabled(false);
+							frame.addWindowListener(new java.awt.event.WindowAdapter() {
+								@Override
+								public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+									setEnabled(true);
+								}
+							});
+							frame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 							frame.setVisible(true);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					}
 				});
-
 			}
 		});
 		btnBut.setFont(new Font("Times New Roman", Font.PLAIN, 13));
@@ -447,6 +464,13 @@ public class ReadMetadata extends JFrame {
 						try {
 							MetadataRemoveCols frame = new MetadataRemoveCols(headers, obj, getThisFrame());
 							setEnabled(false);
+							frame.addWindowListener(new java.awt.event.WindowAdapter() {
+								@Override
+								public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+									setEnabled(true);
+								}
+							});
+							frame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 							frame.setVisible(true);
 						} catch (Exception e) {
 							e.printStackTrace();
@@ -459,7 +483,7 @@ public class ReadMetadata extends JFrame {
 		panel_5.add(btnBut_1);
 
 		btnBut_2 = new JButton("Split columns");
-		//btnBut_2.setEnabled(false);
+		// btnBut_2.setEnabled(false);
 		btnBut_2.setEnabled(true);
 		btnBut_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -476,7 +500,15 @@ public class ReadMetadata extends JFrame {
 					public void run() {
 						try {
 							MetadataSplitcol frame = new MetadataSplitcol(obj, getThisFrame());
-							//setEnabled(false);
+							// setEnabled(false);
+							frame.addWindowListener(new java.awt.event.WindowAdapter() {
+								@Override
+								public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+									setEnabled(true);
+									enableNext();
+								}
+							});
+							frame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 							frame.setVisible(true);
 							disableNext();
 
@@ -485,7 +517,6 @@ public class ReadMetadata extends JFrame {
 						}
 					}
 
-					
 				});
 
 			}
@@ -496,19 +527,20 @@ public class ReadMetadata extends JFrame {
 		btnTranspose = new JButton("Transpose");
 		btnTranspose.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				
+
 			}
 		});
 		btnTranspose.setEnabled(false);
 		btnTranspose.setFont(new Font("Times New Roman", Font.PLAIN, 13));
-		//panel_5.add(btnTranspose);
+		// panel_5.add(btnTranspose);
 
 		btnFindAndReplace = new JButton("Find and replace");
 		btnFindAndReplace.setEnabled(false);
 		btnFindAndReplace.setFont(new Font("Times New Roman", Font.PLAIN, 13));
-		//panel_5.add(btnFindAndReplace);
+		// panel_5.add(btnFindAndReplace);
 
-		JScrollPane scrollPane = new JScrollPane();
+		scrollPane = new JScrollPane(table, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scrollPane.setFont(new Font("Times New Roman", Font.PLAIN, 13));
 		scrollPane.setBackground(Color.BLACK);
 		scrollPane.setBorder(null);
@@ -520,7 +552,6 @@ public class ReadMetadata extends JFrame {
 		table.setColumnSelectionAllowed(true);
 		table.setCellSelectionEnabled(true);
 		table.setIntercellSpacing(new Dimension(2, 2));
-		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		table.setToolTipText("Preview of first 50 lines in metadata file");
 		table.setRowMargin(2);
 		table.setRowHeight(25);
@@ -535,9 +566,11 @@ public class ReadMetadata extends JFrame {
 						{ null, "cx", null, null }, { null, null, null, null }, { null, null, "bxc", null },
 						{ null, null, null, "cxz" }, { "vc", null, null, null }, },
 				new String[] { "New column", "New column", "New column", "New column" }));
-		//table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
-		table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+		// table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+		// table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		scrollPane.setViewportView(table);
+
 		this.setSize(900, 600);
 	}
 
@@ -552,6 +585,14 @@ public class ReadMetadata extends JFrame {
 		// }
 	}
 
+	public void updateRemovedCols(List<String> removed) {
+		if (this.removedCols == null) {
+			removedCols = new ArrayList<>();
+		}
+		this.removedCols.addAll(removed);
+		// JOptionPane.showMessageDialog(null, "now removed:"+removedCols.toString());
+	}
+
 	public void updateTable() {
 		// Update preview in table
 		metadata = new ArrayList<>();
@@ -560,7 +601,8 @@ public class ReadMetadata extends JFrame {
 		comboBox_1.setModel(new DefaultComboBoxModel(headers));
 		String[] colNames = obj.getHeaders();
 		DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
-		table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+		// table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		// AbstractTableModel tablemodel = (DefaultTableModel) table.getModel();
 		// clear table model
 		tablemodel.setRowCount(0);
@@ -608,7 +650,7 @@ public class ReadMetadata extends JFrame {
 		this.metadataDelim = delim;
 		// comboBox_1.setModel(new DefaultComboBoxModel(obj.getHeaders()));
 		updateTable();
-		//comboBox_1.setSelectedIndex(guessDatacolumnIndex());
+		// comboBox_1.setSelectedIndex(guessDatacolumnIndex());
 		btnNext.setEnabled(true);
 		btnBut.setEnabled(true);
 		btnBut_1.setEnabled(true);
@@ -621,8 +663,8 @@ public class ReadMetadata extends JFrame {
 		// find missing and extra datacolumns
 
 		int[] missingextra = getMissingDC();
-		missinginD=missingextra[1];
-		missinginMD=missingextra[0];
+		missinginD = missingextra[1];
+		missinginMD = missingextra[0];
 		textField_3.setText(String.valueOf(missingextra[1]));
 		textField_4.setText(String.valueOf(missingextra[0]));
 
@@ -630,19 +672,26 @@ public class ReadMetadata extends JFrame {
 
 	public int[] getMissingDC() {
 		int[] res = new int[2];
-		String[] datacolheaders = MetaOmGraph.getActiveProject().getDataColumnHeaders();
+		List<String> datacolheaders = Arrays.asList(MetaOmGraph.getActiveProject().getDataColumnHeaders());
 		List<String> mdcolheaders = obj.getDatabyAttributes(null, comboBox_1.getSelectedItem().toString(), true);
+		List<String> missingDCnames = new ArrayList<>();
 		int common = 0;
-		for (int i = 0; i < datacolheaders.length; i++) {
-			if (mdcolheaders.contains(datacolheaders[i])) {
+		for (int i = 0; i < datacolheaders.size(); i++) {
+			if (mdcolheaders.contains(datacolheaders.get(i))) {
 				common++;
+			} else {
+				// get names of columns which have missing metadata
+				missingDCnames.add(datacolheaders.get(i));
 			}
 		}
 
-		int missing = datacolheaders.length - common;
+		int missing = datacolheaders.size() - common;
 		int extra = mdcolheaders.size() - common;
+
 		res[0] = missing;
 		res[1] = extra;
+		// store missing DC names to class
+		this.missingDC = missingDCnames;
 		return res;
 	}
 
@@ -667,45 +716,63 @@ public class ReadMetadata extends JFrame {
 		btnNext.setEnabled(true);
 		btnBut.setEnabled(true);
 		btnBut_1.setEnabled(true);
-		//btnBut_2.setEnabled(true);
-		//btnFindAndReplace.setEnabled(true);
-		//btnTranspose.setEnabled(true);
+		// btnBut_2.setEnabled(true);
+		// btnFindAndReplace.setEnabled(true);
+		// btnTranspose.setEnabled(true);
 		// show info
 		textField_1.setText(String.valueOf(obj.getNumRows()));
 		textField_2.setText(String.valueOf(this.headers.length));
 		// find missing and extra datacolumns
 
 		int[] missingextra = getMissingDC();
-		missinginD=missingextra[1];
-		missinginMD=missingextra[0];
-		textField_3.setText(String.valueOf(missingextra[1]));
-		textField_4.setText(String.valueOf(missingextra[0]));
+		missinginD = missingextra[1];
+		missinginMD = missingextra[0];
+		textField_3.setText(String.valueOf(missinginD));
+		textField_4.setText(String.valueOf(missinginMD));
 
 	}
 
 	public MetadataCollection getCollectionobj() {
 		return this.obj;
 	}
-	
-	private void removeMissingfromMD() {
-		//delete rows in MD file
-		JOptionPane.showMessageDialog(null, "Rows from metadata file which don't match data columns in datafile will be removed.");
+
+	/**
+	 * Remove rows from metadata which don't match any column in data file
+	 */
+	public void removeExtraRowsfromMD() {
+		// delete rows in MD file
+		JOptionPane.showMessageDialog(null,
+				"Rows from metadata file which don't match data columns in datafile will be removed.");
 		String[] datacolheaders = MetaOmGraph.getActiveProject().getDataColumnHeaders();
-		List<String> datacolheadersList=Arrays.asList(datacolheaders);
+		List<String> datacolheadersList = Arrays.asList(datacolheaders);
 		List<String> mdcolheaders = obj.getDatabyAttributes(null, comboBox_1.getSelectedItem().toString(), true);
-		List<String> dataToremove=new ArrayList<>();
+		List<String> dataToremove = new ArrayList<>();
 		for (int i = 0; i < mdcolheaders.size(); i++) {
-			if(!datacolheadersList.contains(mdcolheaders.get(i))) {
+			if (!datacolheadersList.contains(mdcolheaders.get(i))) {
 				dataToremove.add(mdcolheaders.get(i));
 			}
 		}
-		obj.removeDataPermanently(dataToremove);
-		
+		this.extraDC = dataToremove;
+		obj.removeDataPermanently(extraDC);
+
 	}
-	
+
 	private void removeMissingfromD() {
-		//delete cols in data file
-		//JOptionPane.showMessageDialog(null, "Removing from d");
+		// delete cols in data file
+		// JOptionPane.showMessageDialog(null, "Removing from d");
+
+	}
+
+	/**
+	 * Add null data for data column not present in metadata file
+	 */
+	private void addMissingMD() {
+		if (this.missingDC == null || this.missingDC.size() < 1) {
+			return;
+		}
+		// JOptionPane.showMessageDialog(null, "adding null" + missingDC.toString());
+		obj.addNullData(missingDC);
+
 	}
 
 	// get the index of data column by matchin data column from data file
@@ -752,16 +819,17 @@ public class ReadMetadata extends JFrame {
 		status = true;
 		return status;
 	}
-	
+
 	public void disableNext() {
 		// TODO Auto-generated method stub
 		btnNext.setEnabled(false);
-		
+
 	}
+
 	public void enableNext() {
 		// TODO Auto-generated method stub
 		btnNext.setEnabled(true);
-		
+
 	}
 
 }

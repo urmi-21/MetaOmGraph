@@ -2,6 +2,7 @@ package edu.iastate.metnet.metaomgraph;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Event;
 import java.awt.EventQueue;
@@ -26,9 +27,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -51,6 +56,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
@@ -65,6 +71,7 @@ import javax.swing.event.MenuListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.filechooser.FileFilter;
 
+import com.apple.eawt.Application;
 import com.l2fprod.common.swing.JTipOfTheDay;
 
 import edu.iastate.metnet.arrayexpress.v2.AEImportDialog;
@@ -80,27 +87,39 @@ import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
 import edu.iastate.metnet.metaomgraph.ui.ClickableLabel;
 import edu.iastate.metnet.metaomgraph.ui.DisplayMetadataEditor;
 import edu.iastate.metnet.metaomgraph.ui.ListMergePanel;
+import edu.iastate.metnet.metaomgraph.ui.MenuButton;
 import edu.iastate.metnet.metaomgraph.ui.MetNet3ListExporter;
 import edu.iastate.metnet.metaomgraph.ui.MetNet3ListImportPanel;
 import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel;
 import edu.iastate.metnet.metaomgraph.ui.MetadataEditor;
+import edu.iastate.metnet.metaomgraph.ui.MetadataFilter;
+import edu.iastate.metnet.metaomgraph.ui.MetadataImportWizard;
 import edu.iastate.metnet.metaomgraph.ui.Metadataviewer;
 import edu.iastate.metnet.metaomgraph.ui.NewProjectDialog;
 import edu.iastate.metnet.metaomgraph.ui.ProjectPropertiesPanel;
 import edu.iastate.metnet.metaomgraph.ui.ReadMetadata;
 import edu.iastate.metnet.metaomgraph.ui.RepInfoPanel;
+import edu.iastate.metnet.metaomgraph.ui.SearchByExpressionFrame;
+import edu.iastate.metnet.metaomgraph.ui.SetColTypes;
+import edu.iastate.metnet.metaomgraph.ui.SetProgramParameters;
 import edu.iastate.metnet.metaomgraph.ui.WelcomePanel;
+import edu.iastate.metnet.metaomgraph.ui.WelcomePanelWin10;
 import edu.iastate.metnet.metaomgraph.ui.NewProjectDialog.FileBrowseListener;
 import edu.iastate.metnet.metaomgraph.utils.DataNormalizer;
 import edu.iastate.metnet.metaomgraph.utils.DataNormalizer.MeanResult;
 import edu.iastate.metnet.metaomgraph.utils.ExceptionHandler;
 import edu.iastate.metnet.metaomgraph.utils.ProjectMerger;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
+import edu.iastate.metnet.metaomgraph.utils.VersionCheck;
 import edu.iastate.metnet.my.EntityList;
 import edu.iastate.metnet.my.EntityListPart;
 import edu.iastate.metnet.soft.SOFTFile;
 import edu.iastate.metnet.soft.SOFTParser;
 import edu.iastate.metnet.soft.SOFTParserOptionPanel;
+import edu.stanford.ejalbert.BrowserLauncher;
+import edu.stanford.ejalbert.BrowserLauncherRunner;
+import edu.stanford.ejalbert.exceptionhandler.BrowserLauncherDefaultErrorHandler;
+import edu.stanford.ejalbert.exceptionhandler.BrowserLauncherErrorHandler;
 
 /**
  * The main class of the MetaOmGraph. Handles all non-project-specific
@@ -110,8 +129,117 @@ import edu.iastate.metnet.soft.SOFTParserOptionPanel;
  */
 public class MetaOmGraph implements ActionListener {
 
-	private static final String VERSION = "Development Version";
-	private static final String DATE = "October 8th, 2017";
+	// save hyperlink columns while loading project
+	// initialize to -1 and only be updated if read in project file
+	public static int _SRR = -1;
+	public static int _SRP = -1;
+	public static int _SRX = -1;
+	public static int _SRS = -1;
+	public static int _GSE = -1;
+	public static int _GSM = -1;
+
+	// urmi functions and vars to manage system RPath
+	public static String getOsName() {
+		String OS = null;
+		if (OS == null) {
+			OS = System.getProperty("os.name");
+		}
+		return OS;
+	}
+
+	public static String getdefaulrRPath() {
+		String res = "NA";
+		String OS = getOsName();
+		if (OS.indexOf("win") >= 0 || OS.indexOf("Win") >= 0) {
+			res = "C:\\Program Files\\R\\R-3.4.3\\bin\\Rscript.exe";
+		} else if (OS.indexOf("mac") >= 0 || OS.indexOf("Mac") >= 0) {
+			res = "/usr/local/bin/Rscript";
+		} else if (OS.indexOf("nix") >= 0 || OS.indexOf("nux") >= 0 || OS.indexOf("aix") > 0) {
+			res = "/usr/local/bin/Rscript";
+		}
+		return res;
+	}
+
+	public static String getRPath() {
+		if (defaultRpath) {
+			return getdefaulrRPath();
+		} else {
+			return userRPath;
+		}
+	}
+
+	public static void setUserRPath(String path) {
+		if (path.equals(getdefaulrRPath())) {
+			defaultRpath = true;
+			return;
+		}
+		userRPath = path;
+		defaultRpath = false;
+	}
+
+	public static void useDefaultRPath() {
+		userRPath = "";
+		defaultRpath = true;
+	}
+
+	public static boolean defaultRpath = true;
+	private static String userRPath = "";
+	private static String pathtoRscrips = "";
+
+	public static String getpathtoRscrips() {
+		return pathtoRscrips;
+	}
+
+	public static void setpathtoRscrips(String s) {
+		pathtoRscrips = s;
+	}
+
+	// some default parameters
+	private static int _N = 100; // num permutations
+	private static int _T = 6; // num of threads
+	private static int _M = 10; // num bins in MI
+	private static int _k = 3; // order in MI
+
+	public static int getNumBins() {
+		return _M;
+	}
+
+	public static void setNumBins(int X) {
+		_M = X;
+	}
+
+	public static int getOrder() {
+		return _k;
+	}
+
+	public static void setOrder(int X) {
+		_k = X;
+	}
+
+	public static int getNumPermutations() {
+		return _N;
+	}
+
+	public static void setNumPermutations(int X) {
+		_N = X;
+		
+	}
+
+	public static int getNumThreads() {
+		return _T;
+	}
+
+	public static void setNumThreads(int X) {
+		_T = X;
+	}
+
+	/////////////////////
+	private static final String VERSION = "1.7.1";
+	private static final String DATE = "Dec 05, 2018";
+
+	public static String getVersion() {
+		return VERSION;
+	}
 
 	public static final String NEW_PROJECT_DELIMITED_COMMAND = "New project from a delimited text file";
 
@@ -227,10 +355,31 @@ public class MetaOmGraph implements ActionListener {
 	/** The Project menu */
 	private static JMenu projectMenu;
 
+	// tools menu urmi
+	private static JMenu toolsMenu;
+	private static JMenu infoButtonMenu;
+	private static JMenuItem ensemblItem;
+	private static JMenuItem ensemblPItem;
+	private static JMenuItem refseqItem;
+	private static JMenuItem atgsItem;
+	private static JMenuItem tairItem;
+	private static JMenuItem thaleMineItem;
+	private static JMenuItem jBrowseItem;
+	public static final String ATGENESEARCH_COMMAND = "atgenesearch";
+	public static final String ENSEMBL_COMMAND = "ensemblsearch";
+	public static final String ENSEMBL_PLANTSCOMMAND = "ensemblplantsearch";
+	public static final String REFSEQ_COMMAND = "refseqsearch";
+	public static final String TAIR_COMMAND = "tair";
+	public static final String ARAPORT_THALEMINE_COMMAND = "ThaleMine";
+	public static final String ARAPORT_JBROWSE_COMMAND = "JBrowse";
+	private static JMenuItem findSamples;
+	public static final String REPORT_COMMAND = "report";
+
 	/** Items on the Project menu */
 	private static JMenuItem closeProjectItem, loadInfoItem, projectPropertiesItem, excludeSamplesItem;
 	// urmi
-	private static JMenuItem openMetadataStructureItem, metadataViewerItem, loadInfoItem2, loadTree;
+	private static JMenuItem openMDColTypes, openInfoColTypes, openMetadataStructureItem, metadataViewerItem,
+			loadInfoItem2, loadTree;
 
 	private static JCheckBoxMenuItem logDataItem;
 
@@ -247,8 +396,11 @@ public class MetaOmGraph implements ActionListener {
 	private static JMenuItem importRatItem1, importRatItem2, importRatItem3, importRatItem4, importRatItem5;
 
 	private static JMenu importListsMenu;
-
 	private static JMenuItem importListsFileItem, importListsMetNet3Item;
+
+	// urmi
+	private static JMenu dataTransformMenu;
+	private static JMenuItem noneItem, log2Item, log10Item, logeItem, sqrtItem;
 
 	private static JMenu exportListsMenu;
 
@@ -268,7 +420,7 @@ public class MetaOmGraph implements ActionListener {
 	private static JMenu helpMenu;
 
 	/** Items on the Help menu */
-	private static JMenuItem overviewItem, contextItem, tipsItem, aboutItem, contactItem;
+	private static JMenuItem checkUpdateitem, overviewItem, contextItem, tipsItem, aboutItem, contactItem;
 
 	/** An instance of this class created by the main() method */
 	private static MetaOmGraph myself;
@@ -383,7 +535,12 @@ public class MetaOmGraph implements ActionListener {
 
 		try {
 			myIcon = ImageIO.read(myself.getClass().getResourceAsStream("/resource/MetaOmicon.png"));
-			mainWindow.setIconImage(myIcon);
+			if (getOsName().indexOf("Mac") >= 0) {
+				Application application = Application.getApplication();
+				application.setDockIconImage(myIcon);
+			} else {
+				mainWindow.setIconImage(myIcon);
+			}
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
@@ -420,6 +577,7 @@ public class MetaOmGraph implements ActionListener {
 		// newProjectMenu.add(newSOFTItem);
 		// newProjectMenu.add(newMetabolomicsItem);
 		// newProjectMenu.add(newArrayExpressItem);
+
 		openProjectItem = new JMenuItem("Open Project...");
 		openProjectItem.setActionCommand(OPEN_COMMAND);
 		openProjectItem.addActionListener(myself);
@@ -430,6 +588,7 @@ public class MetaOmGraph implements ActionListener {
 		recentProjectsMenu = new JMenu("Recent Projects");
 		recentProjectsMenu.setMnemonic(KeyEvent.VK_R);
 		initRecentProjectsMenu();
+
 		saveProjectItem = new JMenuItem("Save Project");
 		saveProjectItem.setActionCommand(SAVE_COMMAND);
 		saveProjectItem.addActionListener(myself);
@@ -451,7 +610,7 @@ public class MetaOmGraph implements ActionListener {
 		mergeItem.addActionListener(myself);
 		mergeItem.setMnemonic(KeyEvent.VK_M);
 
-		quitItem = new JMenuItem("Quit");
+		quitItem = new JMenuItem("Quit MOG");
 		quitItem.setActionCommand(QUIT_COMMAND);
 		quitItem.addActionListener(myself);
 		quitItem.setMnemonic(KeyEvent.VK_Q);
@@ -468,7 +627,7 @@ public class MetaOmGraph implements ActionListener {
 		fileMenu.add(quitItem);
 		mainMenuBar.add(fileMenu);
 
-		projectMenu = new JMenu("Project");
+		projectMenu = new JMenu("Edit");
 		projectMenu.setMnemonic(KeyEvent.VK_P);
 		projectMenu.setEnabled(false);
 		closeProjectItem = new JMenuItem("Close project");
@@ -483,11 +642,11 @@ public class MetaOmGraph implements ActionListener {
 		loadInfoItem.setActionCommand(LOAD_INFO_COMMAND);
 		loadInfoItem.addActionListener(myself);
 		loadInfoItem.setMnemonic(KeyEvent.VK_L);
-		//projectMenu.add(loadInfoItem);
+		// projectMenu.add(loadInfoItem);
 
 		// urmi
 
-		loadInfoItem2 = new JMenuItem("Load Metadata (csv)");
+		loadInfoItem2 = new JMenuItem("Import Metadata");
 		loadInfoItem2.setActionCommand(LOAD_INFO_COMMAND_csv);
 		loadInfoItem2.addActionListener(myself);
 		// loadInfoItem2.setMnemonic(KeyEvent.VK_L);
@@ -498,19 +657,31 @@ public class MetaOmGraph implements ActionListener {
 		loadTree.addActionListener(myself);
 		// loadInfoItem2.setMnemonic(KeyEvent.VK_L);
 		// projectMenu.add(loadTree);
-		projectMenu.addSeparator();
+		// projectMenu.addSeparator();
 
 		openMetadataStructureItem = new JMenuItem("Edit Metadata structure");
 		openMetadataStructureItem.setActionCommand("structure");
 		openMetadataStructureItem.addActionListener(myself);
-		openMetadataStructureItem.setMnemonic(KeyEvent.VK_L);
-		//projectMenu.add(openMetadataStructureItem);
-		metadataViewerItem = new JMenuItem("View metadata");
-		metadataViewerItem.setActionCommand("viewmetadata");
-		metadataViewerItem.addActionListener(myself);
-		metadataViewerItem.setMnemonic(KeyEvent.VK_L);
+		// openMetadataStructureItem.setMnemonic(KeyEvent.VK_L);
+
+		openInfoColTypes = new JMenuItem("Edit Info Columns type");
+		openInfoColTypes.setActionCommand("coltypes");
+		openInfoColTypes.addActionListener(myself);
+
+		openMDColTypes = new JMenuItem("Edit Info Columns type");
+		openMDColTypes.setActionCommand("coltypesMD");
+		openMDColTypes.addActionListener(myself);
+
+		projectMenu.add(openMetadataStructureItem);
+		projectMenu.add(openInfoColTypes);
+
+		projectMenu.addSeparator();
+		// metadataViewerItem = new JMenuItem("View metadata");
+		// metadataViewerItem.setActionCommand("viewmetadata");
+		// metadataViewerItem.addActionListener(myself);
+		// metadataViewerItem.setMnemonic(KeyEvent.VK_L);
 		// projectMenu.add(metadataViewerItem);
-		//projectMenu.addSeparator();
+		// projectMenu.addSeparator();
 
 		projectPropertiesItem = new JMenuItem("Properties");
 		projectPropertiesItem.setActionCommand(PROPERTIES_COMMAND);
@@ -520,15 +691,47 @@ public class MetaOmGraph implements ActionListener {
 				KeyStroke.getKeyStroke(KeyEvent.VK_P, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 		projectMenu.add(projectPropertiesItem);
 		projectMenu.addSeparator();
-		excludeSamplesItem = new JMenuItem("Exclude Samples");
+		excludeSamplesItem = new JMenuItem("Manage DataColumns");
 		excludeSamplesItem.setActionCommand(EXCLUDE_SAMPLES_COMMAND);
 		excludeSamplesItem.addActionListener(myself);
 		excludeSamplesItem.setMnemonic(KeyEvent.VK_S);
 		projectMenu.add(excludeSamplesItem);
 
-		logDataItem = new JCheckBoxMenuItem("log2 data");
-		logDataItem.setMnemonic(KeyEvent.VK_L);
-		projectMenu.add(logDataItem);
+		// logDataItem = new JCheckBoxMenuItem("log2 data");
+		// logDataItem.setMnemonic(KeyEvent.VK_L);
+		// projectMenu.add(logDataItem);
+
+		// urmi add data transformation
+		dataTransformMenu = new JMenu("Transform data");
+
+		noneItem = new JCheckBoxMenuItem("None");
+		noneItem.setActionCommand("noTransform");
+		noneItem.addActionListener(myself);
+		noneItem.setSelected(true);
+
+		log2Item = new JCheckBoxMenuItem("<html>log<sub>2</sub></html>");
+		log2Item.setActionCommand("log2");
+		log2Item.addActionListener(myself);
+
+		log10Item = new JCheckBoxMenuItem("<html>log<sub>10</sub></html>");
+		log10Item.setActionCommand("log10");
+		log10Item.addActionListener(myself);
+
+		logeItem = new JCheckBoxMenuItem("<html>log<sub>e</sub></html>");
+		logeItem.setActionCommand("loge");
+		logeItem.addActionListener(myself);
+
+		sqrtItem = new JCheckBoxMenuItem("sqrt data");
+		sqrtItem.setActionCommand("sqrt");
+		sqrtItem.addActionListener(myself);
+
+		dataTransformMenu.add(noneItem);
+		dataTransformMenu.add(log2Item);
+		dataTransformMenu.add(log10Item);
+		dataTransformMenu.add(logeItem);
+		dataTransformMenu.add(sqrtItem);
+
+		projectMenu.add(dataTransformMenu);
 
 		findRepsItem = new JMenuItem("Find Replicates");
 		findRepsItem.setActionCommand(FIND_REPS_COMMAND);
@@ -661,7 +864,8 @@ public class MetaOmGraph implements ActionListener {
 		importCustomItem.setToolTipText("Import annotations from a custom .csv or tab-delimited text file");
 		importAnnotationsMenu.addSeparator();
 		importAnnotationsMenu.add(importCustomItem);
-		projectMenu.add(importAnnotationsMenu);
+		// urmi remove annotation menu
+		// projectMenu.add(importAnnotationsMenu);
 
 		importListsMenu = new JMenu("Import Lists");
 		importListsFileItem = new JMenuItem("From file...");
@@ -674,7 +878,8 @@ public class MetaOmGraph implements ActionListener {
 		importListsMetNet3Item.setActionCommand(IMPORT_METNET3_LISTS_COMMAND);
 		importListsMetNet3Item.addActionListener(myself);
 		importListsMetNet3Item.setToolTipText("Import lists from a MetNet Online account");
-		importListsMenu.add(importListsMetNet3Item);
+		// urmi remove this item
+		// importListsMenu.add(importListsMetNet3Item);
 		projectMenu.add(importListsMenu);
 
 		exportListsMenu = new JMenu("Export Lists");
@@ -688,7 +893,8 @@ public class MetaOmGraph implements ActionListener {
 		exportListsMetNet3Item.setActionCommand(EXPORT_METNET3_LISTS_COMMAND);
 		exportListsMetNet3Item.addActionListener(myself);
 		exportListsMetNet3Item.setToolTipText("Export lists to a MetNet Online account");
-		exportListsMenu.add(exportListsMetNet3Item);
+		// urmi remove this item
+		// exportListsMenu.add(exportListsMetNet3Item);
 		projectMenu.add(exportListsMenu);
 
 		mergeListsItem = new JMenuItem("Merge Lists...");
@@ -699,6 +905,62 @@ public class MetaOmGraph implements ActionListener {
 		projectMenu.add(mergeListsItem);
 
 		mainMenuBar.add(projectMenu);
+
+		// urmi add tools in menu
+		toolsMenu = new JMenu("Tools");
+		// adddd to tools menu
+
+		ensemblItem = new JMenuItem("Ensembl");
+		ensemblItem.setActionCommand(ENSEMBL_COMMAND);
+		ensemblItem.addActionListener(myself);
+		ensemblItem.setToolTipText("Connect to Ensembl for information on selected genes");
+
+		ensemblPItem = new JMenuItem("EnsemblPlants");
+		ensemblPItem.setActionCommand(ENSEMBL_PLANTSCOMMAND);
+		ensemblPItem.addActionListener(myself);
+		ensemblPItem.setToolTipText("Connect to EnsemblPlants for information on selected genes");
+
+		refseqItem = new JMenuItem("RefSeq");
+		refseqItem.setActionCommand(REFSEQ_COMMAND);
+		refseqItem.addActionListener(myself);
+		refseqItem.setToolTipText("Connect to RefSeq for information on selected genes");
+
+		atgsItem = new JMenuItem("AtGeneSearch");
+		atgsItem.setActionCommand(ATGENESEARCH_COMMAND);
+		atgsItem.addActionListener(myself);
+		atgsItem.setToolTipText("Connect to AtGeneSearch for information on selected genes");
+		tairItem = new JMenuItem("TAIR");
+		tairItem.setActionCommand(TAIR_COMMAND);
+		tairItem.addActionListener(myself);
+		tairItem.setToolTipText("Connect to TAIR for information on the first selected gene");
+
+		thaleMineItem = new JMenuItem("Araport-ThaleMine");
+		thaleMineItem.setActionCommand(ARAPORT_THALEMINE_COMMAND);
+		thaleMineItem.addActionListener(myself);
+		thaleMineItem.setToolTipText("Connect to Araport-ThaleMine for information on the first selected gene");
+
+		jBrowseItem = new JMenuItem("Araport-JBrowse");
+		jBrowseItem.setActionCommand(ARAPORT_JBROWSE_COMMAND);
+		jBrowseItem.addActionListener(myself);
+		jBrowseItem.setToolTipText("Connect to Araport-JBrowse for information on the first selected gene");
+
+		infoButtonMenu = new JMenu("External web applications");
+		infoButtonMenu.setToolTipText("Connect to an external website for more info on the selected genes");
+		infoButtonMenu.add(ensemblItem);
+		infoButtonMenu.add(ensemblPItem);
+		infoButtonMenu.add(refseqItem);
+		infoButtonMenu.add(atgsItem);
+		infoButtonMenu.add(tairItem);
+		infoButtonMenu.add(thaleMineItem);
+		infoButtonMenu.add(jBrowseItem);
+		toolsMenu.add(infoButtonMenu);
+
+		findSamples = new JMenuItem("Search by expression level");
+		findSamples.setActionCommand(REPORT_COMMAND);
+		findSamples.addActionListener(myself);
+		toolsMenu.add(findSamples);
+		mainMenuBar.add(toolsMenu);
+		///////////// end tool menu//////////////////
 
 		cascadeItem = new JMenuItem("Arrange Windows");
 		cascadeItem.setActionCommand(CASCADE_WINDOWS_COMMAND);
@@ -829,6 +1091,13 @@ public class MetaOmGraph implements ActionListener {
 
 		helpMenu = new JMenu("Help");
 		helpMenu.setMnemonic(KeyEvent.VK_H);
+		checkUpdateitem = new JMenuItem("Check for updates");
+
+		checkUpdateitem.setName("update");
+		checkUpdateitem.setActionCommand("update");
+		checkUpdateitem.addActionListener(myself);
+		helpMenu.add(checkUpdateitem);
+
 		overviewItem = new JMenuItem("Overview");
 		overviewItem.setMnemonic(KeyEvent.VK_O);
 		helpListener = new MetaOmHelpListener();
@@ -908,9 +1177,18 @@ public class MetaOmGraph implements ActionListener {
 			}
 			tipper.showDialog(mainWindow, showTips);
 		}
+
+		// urmi: check for updates and notify if updates are available
+		checkUpdates(false);
 		// Once the tip window is closed
 		// Welcome dialog is shown
-		showWelcomeDialog();
+		try {
+			showWelcomeDialog();
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
 	}
 
 	/*
@@ -926,6 +1204,7 @@ public class MetaOmGraph implements ActionListener {
 	 * 
 	 */
 	private static void appInit() {
+		JOptionPane.showMessageDialog(null, "Splashinit");
 		// splash screen for 3 secs
 		for (int i = 1; i <= 3; i++) {
 
@@ -944,7 +1223,7 @@ public class MetaOmGraph implements ActionListener {
 	private static void initsplashscreen() {
 		// the splash screen object is created by the JVM, if it is displaying a splash
 		// image
-
+		JOptionPane.showMessageDialog(null, "SplashinitSCREEN");
 		mySplash = SplashScreen.getSplashScreen();
 		// if there are any problems displaying the splash image
 		// the call to getSplashScreen will returned null
@@ -960,12 +1239,15 @@ public class MetaOmGraph implements ActionListener {
 	public static void main(String[] args) {
 
 		// for Splash screen: urmi
-		initsplashscreen(); // initialize splash screen drawing parameters
-		appInit(); // Show splash image for some time or show a message
-		if (mySplash != null) // check if we really had a spash screen
-		{
-			mySplash.close(); // we're done with it
-		}
+		/*
+		 * initsplashscreen(); // initialize splash screen drawing parameters appInit();
+		 * // Show splash image for some time or show a message if (mySplash != null) //
+		 * check if we really had a spash screen { mySplash.close(); // we're done with
+		 * it }
+		 */
+
+		// begin with the interactive portion of the program
+		/////////////////////////////////////////////////////////////////////////////
 
 		ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
 		System.setProperty("apple.laf.useScreenMenuBar", "true");
@@ -1346,6 +1628,16 @@ public class MetaOmGraph implements ActionListener {
 					desktop.validate();
 					mainWindow.validate();
 					return;
+				} else if (!activeProject.isUniqueDataCols()) {
+					JOptionPane.showMessageDialog(getMainWindow(),
+							source.getName()
+									+ " contains duplicate column names for data columns.\nPlease check your file.",
+							"Error", JOptionPane.ERROR_MESSAGE);
+					activeProject = null;
+					closeProject();
+					desktop.validate();
+					mainWindow.validate();
+					return;
 				}
 				// System.out.print("Setting row names... ");
 				if (rowNames != null) {
@@ -1353,8 +1645,10 @@ public class MetaOmGraph implements ActionListener {
 				}
 				// System.out.println("Done!");
 				// System.out.print("Setting column headers... ");
-				if (colNames != null)
+				if (colNames != null) {
 					activeProject.setDataColumnHeaders(colNames);
+				}
+
 				// System.out.println("Done!");
 				// System.out.print("Loading extended info... ");
 				if (!extInfoFile.exists())
@@ -1368,19 +1662,36 @@ public class MetaOmGraph implements ActionListener {
 					}
 					if (this.readcsv == 1) {
 						// JOptionPane.showMessageDialog(null, "Loading csv");
-						
+
 						activeProject.loadMetadata_csv(extInfoFile);
-						
+
 					}
 
 				} catch (IOException ioe) {
 					ioe.printStackTrace();
 				}
 				// System.out.println("Done!");
-				mainWindow.setTitle(
-						"MetaOmGraph - New Project (" + getActiveProject().getDataColumnCount() + " samples)");
 
+				//mainWindow.setTitle("MetaOmGraph - New Project (" + getActiveProject().getDataColumnCount() + " samples)");
+				//urmi
+				fixTitle();
 				projectOpened();
+
+				// if metadata is being read wait for the metadata read window to show up other
+				// wise just proceed with the data file to the main table
+				if (this.readcsv == 1) {
+					while (activeProject.getActiveReadmetadataForm() == null) {
+
+					}
+					activeProject.getActiveReadmetadataForm().toFront();
+				}
+
+				// init col type
+				if (MetaOmGraph.getActiveTable() != null) {
+					activeProject.initColTypes();
+
+				}
+
 			} else {
 				// No need to report errors since MetaOmProject does it for
 				// us.
@@ -1445,7 +1756,23 @@ public class MetaOmGraph implements ActionListener {
 		 * Creates the project.
 		 */
 		public Object construct() {
-			activeProject = new MetaOmProject(source);
+			// hide welcome dialog
+			if (welcomeDialog != null) {
+				welcomeDialog.setVisible(false);
+			}
+			// invokeAndWait to fix problems of swing in mac (doesn't fix the issue)
+			try {
+				EventQueue.invokeAndWait(new Runnable() {
+					@Override
+					public void run() {
+						activeProject = new MetaOmProject(source);
+					}
+				});
+			} catch (InvocationTargetException | InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// activeProject = new MetaOmProject(source);
 			return null;
 		}
 
@@ -1455,11 +1782,18 @@ public class MetaOmGraph implements ActionListener {
 		 */
 		public void finished() {
 			if (activeProject.isInitialized()) {
-				mainWindow.setTitle("MetaOmGraph - " + source.getName() + " (" + getActiveProject().getDataColumnCount()
-						+ " samples)");
+				//mainWindow.setTitle("MetaOmGraph - " + source.getName() + " (" + getActiveProject().getDataColumnCount()+ " samples)");
+				//urmi
+				fixTitle();
 				activeProjectFile = source;
 				addRecentProject(activeProjectFile);
 				projectOpened();
+				// init col types when opening a new project
+				activeProject.initColTypes();
+				//init default reps
+				MetadataHybrid ob=activeProject.getMetadataHybrid();
+				ob.setDefaultRepsMap(ob.buildRepsMap(ob.getDefaultRepCol()));
+				
 			} else {
 				JOptionPane
 						.showMessageDialog(MetaOmGraph.getMainWindow(),
@@ -1490,8 +1824,9 @@ public class MetaOmGraph implements ActionListener {
 		activeProject = myProject;
 		File source = activeProject.getSourceFile();
 		if (source != null) {
-			mainWindow.setTitle(
-					"MetaOmGraph - " + source.getName() + " (" + getActiveProject().getDataColumnCount() + " samples)");
+			//mainWindow.setTitle("MetaOmGraph - " + source.getName() + " (" + getActiveProject().getDataColumnCount() + " samples)");
+			//urmi
+			fixTitle();
 		} else {
 			mainWindow.setTitle("MetaOmGraph - New Project (" + getActiveProject().getDataColumnCount() + " samples)");
 		}
@@ -1613,21 +1948,18 @@ public class MetaOmGraph implements ActionListener {
 		// Close the active project
 		if (CLOSE_PROJECT_COMMAND.equals(e.getActionCommand())) {
 			closeProject();
-			showWelcomeDialog();
+			try {
+				showWelcomeDialog();
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
 
 		// Open a previously saved project
 		if (OPEN_COMMAND.equals(e.getActionCommand())) {
-			File source = Utils.chooseFileToOpen(new GraphFileFilter(GraphFileFilter.PROJECT), getMainWindow());
-			if (source == null)
-				return;
-			if (activeProject != null)
-				if (!closeProject())
-					return;
-			Utils.setLastDir(source.getParentFile());
-			new OpenProjectWorker(source).start();
+			openAnotherProject();
 
-			return;
 		}
 
 		// Save the active project to a new file
@@ -1638,29 +1970,6 @@ public class MetaOmGraph implements ActionListener {
 
 		// Save the active project
 		if (SAVE_COMMAND.equals(e.getActionCommand())) {
-			// If the user hasn't saved this project before, this operation
-			// should be treated as Save As...
-			new AnimatedSwingWorker("Saving...", true) {
-
-				@Override
-				public Object construct() {
-					if (activeProjectFile == null)
-						saveAs();
-					else
-						activeProject.saveProject(activeProjectFile);
-					return null;
-				}
-
-			}.start();
-
-			return;
-		}
-
-		// Save the active project
-		/**
-		 * urmi
-		 */
-		if ("save2".equals(e.getActionCommand())) {
 			// If the user hasn't saved this project before, this operation
 			// should be treated as Save As...
 			new AnimatedSwingWorker("Saving...", true) {
@@ -1717,7 +2026,7 @@ public class MetaOmGraph implements ActionListener {
 		if (LOAD_INFO_COMMAND_csv.equals(e.getActionCommand())) {
 
 			// read csv file and set MOGcollection objects
-			//s
+			// s
 			// choose file
 			JFileChooser fChooser = new JFileChooser(edu.iastate.metnet.metaomgraph.utils.Utils.getLastDir());
 			int rVal = fChooser.showOpenDialog(MetaOmGraph.getMainWindow());
@@ -1725,16 +2034,17 @@ public class MetaOmGraph implements ActionListener {
 				File source = fChooser.getSelectedFile();
 				// choose delimiter
 				String[] delims = { "Tab", ",", ";", "Space" };
-				String metadataDelim = (String) JOptionPane.showInputDialog(null, "Please choose delimiter for the file...", "Please choose delimiter",
+				String metadataDelim = (String) JOptionPane.showInputDialog(null,
+						"Please choose delimiter for the file...", "Please choose delimiter",
 						JOptionPane.QUESTION_MESSAGE, null, delims, delims[0]);
 				String delim;
-				if(metadataDelim.equals("Tab")) {
-					delim="\t";
-					
-				}else if(metadataDelim.equals("Space")) {
-					delim=" ";
-				}else {
-					delim=metadataDelim;
+				if (metadataDelim.equals("Tab")) {
+					delim = "\t";
+
+				} else if (metadataDelim.equals("Space")) {
+					delim = " ";
+				} else {
+					delim = metadataDelim;
 				}
 
 				new AnimatedSwingWorker("Working...", true) {
@@ -1745,7 +2055,8 @@ public class MetaOmGraph implements ActionListener {
 							public void run() {
 								try {
 
-									final ReadMetadata readMetadataframe = new ReadMetadata(source.getAbsolutePath(), delim);
+									final ReadMetadata readMetadataframe = new ReadMetadata(source.getAbsolutePath(),
+											delim);
 									readMetadataframe.setVisible(true);
 									readMetadataframe.toFront();
 								} catch (Exception e) {
@@ -1793,12 +2104,69 @@ public class MetaOmGraph implements ActionListener {
 		if ("structure".equals(e.getActionCommand())) {
 			// check if csv is loaded
 			try {
-				DisplayMetadataEditor obj = new DisplayMetadataEditor();
-				obj.setVisible(true);
+				// DisplayMetadataEditor obj = new DisplayMetadataEditor();
+				// obj.setVisible(true);
+
+				MetadataImportWizard frame = new MetadataImportWizard(getActiveProject().getMetadataHybrid(),
+						getActiveProject().getMetadataHybrid().getTreeStucture(), false);
+				frame.setVisible(true);
 			} catch (NullPointerException ne) {
-				JOptionPane.showMessageDialog(null, "No .csv metadata read. ERROR");
+				JOptionPane.showMessageDialog(null, "No metadata found. ERROR");
 
 			}
+		}
+
+		if ("coltypes".equals(e.getActionCommand())) {
+			EventQueue.invokeLater(new Runnable() {
+				public void run() {
+					try {
+
+						SetColTypes f = new SetColTypes(activeProject.getInfoColumnNames(), false);
+						f.setDefaultCloseOperation(2);
+						f.setClosable(true);
+						f.setResizable(true);
+						f.pack();
+						// JOptionPane.showMessageDialog(null, "addd f");
+						f.setSize(MetaOmGraph.getMainWindow().getWidth() / 2,
+								MetaOmGraph.getMainWindow().getHeight() / 2);
+						MetaOmGraph.getDesktop().add(f);
+						f.setVisible(true);
+						f.toFront();
+					} catch (Exception e) {
+						JOptionPane.showMessageDialog(null, "Error");
+						e.printStackTrace();
+					}
+				}
+			});
+
+		}
+
+		if ("coltypesMD".equals(e.getActionCommand())) {
+			if (getActiveProject().getMetadataHybrid() == null) {
+				JOptionPane.showMessageDialog(null, "No metadata found", "No Metadata", JOptionPane.ERROR_MESSAGE);
+			}
+			EventQueue.invokeLater(new Runnable() {
+				public void run() {
+					try {
+
+						SetColTypes f = new SetColTypes(activeProject.getInfoColumnNames(), true);
+						f.setDefaultCloseOperation(2);
+						f.setClosable(true);
+						f.setResizable(true);
+						f.pack();
+						// JOptionPane.showMessageDialog(null, "addd f");
+						f.setSize(MetaOmGraph.getMainWindow().getWidth() / 2,
+								MetaOmGraph.getMainWindow().getHeight() / 2);
+						MetaOmGraph.getDesktop().add(f);
+						f.setVisible(true);
+						f.toFront();
+					} catch (Exception e) {
+						JOptionPane.showMessageDialog(null, "Error");
+						e.printStackTrace();
+					}
+				}
+			});
+
 		}
 
 		if ("viewmetadata".equals(e.getActionCommand())) {
@@ -1827,6 +2195,7 @@ public class MetaOmGraph implements ActionListener {
 			propertiesFrame.getContentPane().add(ppp, BorderLayout.CENTER);
 			propertiesFrame.setDefaultCloseOperation(JInternalFrame.DISPOSE_ON_CLOSE);
 			propertiesFrame.pack();
+			propertiesFrame.setSize(400, 400);
 			MetaOmGraph.getDesktop().add(propertiesFrame);
 			propertiesFrame.setVisible(true);
 			propertiesFrame.setName("projectproperties.php");
@@ -1835,6 +2204,11 @@ public class MetaOmGraph implements ActionListener {
 
 		if (CONTACT_COMMAND.equals(e.getActionCommand())) {
 			ExceptionHandler.getInstance(mainWindow).contact();
+			return;
+		}
+
+		if ("update".equals(e.getActionCommand())) {
+			checkUpdates(true);
 			return;
 		}
 
@@ -1858,20 +2232,10 @@ public class MetaOmGraph implements ActionListener {
 		// Create a new project from a delimited text file
 
 		if (NEW_PROJECT_DELIMITED_COMMAND.equals(e.getActionCommand())) {
-			if (!closeProject())
-				return;
-			NewProjectDialog npd = new NewProjectDialog(getMainWindow());
-			npd.toFront();
-			//npd.setAlwaysOnTop(true);
-			npd.setVisible(true);
-			
-			if (!npd.isCancelled()) {
-
-				// urmi call NewProjectWorker with new arguments
-				new NewProjectWorker(npd.getSourceFile(), npd.getInfoColumns(), npd.getDelimiter(), npd.getRowArray(),
-						npd.getColArray(), npd.getExtendedInfoFile(), npd.getIgnoreConsecutiveDelimiters(),
-						npd.getBlankValue(), npd.csvFlag, npd.getMetadataDelimiter()).start();
+			if (welcomeDialog != null) {
+				welcomeDialog.setVisible(false);
 			}
+			startNewFromDelimited();
 		}
 
 		// Create a new project from a SOFT file
@@ -2126,30 +2490,6 @@ public class MetaOmGraph implements ActionListener {
 			}
 			new OpenProjectWorker(source).start();
 
-			// urmi open tree file
-			/*
-			 * MetadataTreeStructure obj = null; String
-			 * fname=source.getAbsolutePath().replaceFirst("[.][^.]+$", "")+".tree";
-			 * //JOptionPane.showMessageDialog(null, "reading f: "+fname); File sourceTree =
-			 * new File(fname); //read the tree object file FileInputStream fin=null; try {
-			 * fin = new FileInputStream(sourceTree.getAbsolutePath()); ObjectInputStream
-			 * objectinputstream = new ObjectInputStream(fin); obj = (MetadataTreeStructure)
-			 * objectinputstream.readObject(); } catch (Exception e1) {
-			 * e1.printStackTrace(); JOptionPane.showMessageDialog(null, "Tree file "
-			 * +fname+" not found.\nPlease choose it manually under Project->Load Metadata structure if available"
-			 * ); }
-			 * 
-			 * //wait so that MetaOmGraph.getActiveProject() is not null //bad way to do try
-			 * { TimeUnit.SECONDS.sleep(5); } catch (InterruptedException e1) { // TODO
-			 * Auto-generated catch block e1.printStackTrace(); } //set tree object
-			 * if(MetaOmGraph.getActiveProject()==null) { JOptionPane.showMessageDialog(
-			 * null,"Please load the tree file manually under Project->Load Metadata structure."
-			 * ); } MetaOmGraph.getActiveProject().setTreeStructure(obj);
-			 * JOptionPane.showMessageDialog(null,
-			 * "Please load the tab-delimited metadata file(.csv or .txt) if the project was created with tab-delimited metadata file.\nPlease choose it manually under Project->Load Metadata (csv)"
-			 * );
-			 */
-
 			return;
 		}
 
@@ -2254,6 +2594,7 @@ public class MetaOmGraph implements ActionListener {
 			FileFilter xmlFilter = Utils.createFileFilter("xml", "XML Files");
 			final File dest = Utils.chooseFileToSave(xmlFilter, "xml", MetaOmGraph.getMainWindow(), true);
 			new AnimatedSwingWorker("Exporting...", true) {
+
 				public Object construct() {
 					getActiveProject().exportLists(dest, idCol);
 					return null;
@@ -2356,7 +2697,9 @@ public class MetaOmGraph implements ActionListener {
 				dialog.pack();
 				dialog.setLocationRelativeTo(null);
 				dialog.setVisible(true);
-			} catch (IOException e1) {
+			} catch (
+
+			IOException e1) {
 				e1.printStackTrace();
 			}
 			return;
@@ -2365,6 +2708,67 @@ public class MetaOmGraph implements ActionListener {
 			ListMergePanel.showMergeDialog(getActiveProject());
 			return;
 		}
+
+		if (ENSEMBL_COMMAND.equals(e.getActionCommand()) || ENSEMBL_PLANTSCOMMAND.equals(e.getActionCommand())) {
+			try {
+				if (ENSEMBL_PLANTSCOMMAND.equals(e.getActionCommand())) {
+					getActiveTable().launchEnsembl("plants");
+				} else {
+					getActiveTable().launchEnsembl("all");
+				}
+			} catch (URISyntaxException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			return;
+		}
+
+		if (REFSEQ_COMMAND.equals(e.getActionCommand())) {
+			try {
+
+				getActiveTable().launchRefSeq();
+
+			} catch (URISyntaxException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			return;
+		}
+
+		if (ATGENESEARCH_COMMAND.equals(e.getActionCommand())) {
+			getActiveTable().launchAtGeneSearch();
+			return;
+		}
+		if (TAIR_COMMAND.equals(e.getActionCommand())) {
+			getActiveTable().launchTAIR();
+			return;
+		}
+		if (ARAPORT_JBROWSE_COMMAND.equals(e.getActionCommand())) {
+			getActiveTable().launchAraportJbrowse();
+
+			return;
+		}
+		if (ARAPORT_THALEMINE_COMMAND.equals(e.getActionCommand())) {
+			getActiveTable().launchAraportThaleMine();
+			return;
+		}
+		if (REPORT_COMMAND.equals(e.getActionCommand())) {
+			// getActiveTable().makeReport();
+			SearchByExpressionFrame frame = new SearchByExpressionFrame(getActiveProject());
+			frame.setSize(900, 700);
+			frame.setTitle("Search by expression level");
+			MetaOmGraph.getDesktop().add(frame);
+			frame.setVisible(true);
+
+			return;
+		}
+
 		if (CASCADE_WINDOWS_COMMAND.equals(e.getActionCommand())) {
 			JInternalFrame[] frames = desktop.getAllFrames();
 			SortableData[] sortOrder = new SortableData[frames.length];
@@ -2389,442 +2793,79 @@ public class MetaOmGraph implements ActionListener {
 		if (SWITCH_WINDOW_COMMAND.equals(e.getActionCommand())) {
 			try {
 				int index = Integer.parseInt(((JMenuItem) e.getSource()).getName());
+
 				getDesktop().getAllFrames()[index].toFront();
 				getDesktop().setSelectedFrame(getDesktop().getAllFrames()[index]);
 				getDesktop().getAllFrames()[index].setSelected(true);
-			} catch (Exception ex) {
+			} catch (
+
+			Exception ex) {
 				ex.printStackTrace();
 				return;
 			}
 		}
 		if (EXCLUDE_SAMPLES_COMMAND.equals(e.getActionCommand())) {
-			MetaOmAnalyzer.showExcludeDialog(getActiveProject(), getMainWindow());
+			EventQueue.invokeLater(new Runnable() {
+				public void run() {
+					try {
+						MetadataFilter frame = new MetadataFilter(
+								getActiveProject().getMetadataHybrid().getMetadataCollection());
+						frame.setVisible(true);
+
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			});
+			// MetaOmAnalyzer.showExcludeDialog(getActiveProject(), getMainWindow());
 			return;
 		}
-		// if (FIND_REPS_COMMAND.equals(e.getActionCommand())) {
-		// RepInfo reps = getActiveProject().getReps();
-		// if (reps == null) {
-		// reps = new RepInfo(getActiveProject());
-		// getActiveProject().setReps(reps);
-		// }
-		// // JPanel panel = reps.getRepPanel();
-		// RepInfoPanel panel = new RepInfoPanel(getActiveProject());
-		// // JPanel panel = RepFinder.getRepPanel(getActiveProject());
-		// if (panel == null) {
-		// return;
-		// }
-		// final JInternalFrame f = new JInternalFrame("Reps", true, true,
-		// true, true);
-		// f.getContentPane().setLayout(new BorderLayout());
-		// f.getContentPane().add(panel, BorderLayout.CENTER);
-		//
-		// JButton refreshButton = new JButton(new AbstractAction("Revert") {
-		//
-		// public void actionPerformed(ActionEvent e) {
-		// int result = JOptionPane
-		// .showConfirmDialog(
-		// getMainWindow(),
-		// "WARNING: Any changes you have made to the replicate groups will be undone.
-		// Continue?",
-		// "Revert Changes",
-		// JOptionPane.OK_CANCEL_OPTION,
-		// JOptionPane.WARNING_MESSAGE);
-		// if (result != JOptionPane.OK_OPTION) {
-		// return;
-		// }
-		// getActiveProject().setReps(null);
-		// f.dispose();
-		// MetaOmGraph.getInstance().actionPerformed(
-		// new ActionEvent(this, 0, FIND_REPS_COMMAND));
-		// }
-		//
-		// });
-		//
-		// JButton outputButton = new JButton(new AbstractAction(
-		// "Create Averaged Rep File") {
-		//
-		// public void actionPerformed(ActionEvent e) {
-		// JPanel panel = new JPanel(new GridBagLayout());
-		// GridBagConstraints c = new GridBagConstraints();
-		// c.gridx = 0;
-		// c.gridy = 0;
-		// c.weightx = 1.0;
-		// c.weighty = .5;
-		// c.anchor = GridBagConstraints.LINE_START;
-		// c.fill = GridBagConstraints.BOTH;
-		// c.gridwidth = 2;
-		// final JRadioButton includeAllButton, removeBadButton;
-		// includeAllButton = new JRadioButton(
-		// "Include all replicates");
-		// removeBadButton = new JRadioButton(
-		// "Remove replicates with a correlation less than: ");
-		// ButtonGroup group = new ButtonGroup();
-		// group.add(includeAllButton);
-		// group.add(removeBadButton);
-		// includeAllButton.setSelected(true);
-		// final SpinnerNumberModel spinModel = new SpinnerNumberModel(
-		// 0.9, -1.0, 1.0, .01);
-		// final JSpinner cutoffSpinner = new JSpinner(spinModel);
-		// // cutoffSpinner.setMinimumSize(new Dimension(150,
-		// // cutoffSpinner.getPreferredSize().height));
-		// cutoffSpinner.setPreferredSize(new Dimension(75,
-		// cutoffSpinner.getPreferredSize().height));
-		//
-		// cutoffSpinner.setEnabled(false);
-		// removeBadButton.addActionListener(new ActionListener() {
-		//
-		// public void actionPerformed(ActionEvent e) {
-		// cutoffSpinner.setEnabled(removeBadButton
-		// .isSelected());
-		// }
-		//
-		// });
-		// panel.add(includeAllButton, c);
-		// c.weightx = .5;
-		// c.gridwidth = 1;
-		// c.gridy = 1;
-		// panel.add(removeBadButton, c);
-		// c.gridx = 1;
-		// panel.add(cutoffSpinner, c);
-		// int result = JOptionPane.showConfirmDialog(getMainWindow(),
-		// panel, "Filter out bad replicates?",
-		// JOptionPane.OK_CANCEL_OPTION,
-		// JOptionPane.QUESTION_MESSAGE);
-		// if (result != JOptionPane.OK_OPTION) {
-		// return;
-		// }
-		// final File dest = Utils.chooseFileToSave();
-		// if (dest == null) {
-		// return;
-		// }
-		// final BlockingProgressDialog progress = new BlockingProgressDialog(
-		// getMainWindow(), "Writing",
-		// "Filtering out bad replicates...", 0,
-		// getActiveProject().getRowCount(), true);
-		// new Thread() {
-		// @Override
-		// public void run() {
-		// try {
-		// RepInfo reps = getActiveProject().getReps();
-		// Collection<Integer> groupIDs = null;
-		// if (removeBadButton.isSelected()) {
-		// try {
-		// groupIDs = reps.getValidGroups(
-		// getActiveProject(),
-		// Double.parseDouble(cutoffSpinner
-		// .getValue() + ""));
-		// } catch (IOException ioe) {
-		// ioe.printStackTrace();
-		// }
-		// } else {
-		// groupIDs = reps.getValidGroups(
-		// getActiveProject(), -2.0);
-		// }
-		// if (groupIDs == null) {
-		// JOptionPane.showMessageDialog(
-		// getMainWindow(),
-		// "No valid replicate groups found.",
-		// "Error", JOptionPane.ERROR_MESSAGE);
-		// return;
-		// }
-		// BufferedWriter out = new BufferedWriter(
-		// new FileWriter(dest));
-		// out.write(getActiveProject()
-		// .getInfoColumnNames()[0]);
-		// for (int i = 1; i < getActiveProject()
-		// .getInfoColumnCount(); i++) {
-		// String thisName = getActiveProject()
-		// .getInfoColumnNames()[i];
-		// if (thisName == null) {
-		// thisName = "";
-		// } else if (thisName.contains("html")) {
-		// thisName.replaceAll("<html>", "");
-		// thisName.replaceAll("</html>", "");
-		// thisName.replaceAll("html>", "");
-		// }
-		// out.write("\t" + thisName);
-		// }
-		// for (Integer group : groupIDs) {
-		// out.write("\t"
-		// + reps.getRepGroupName(group));
-		// }
-		// out.write("\r\n");
-		// for (int i = 0; i < getActiveProject()
-		// .getRowCount()
-		// && !progress.isCanceled(); i++) {
-		// out.write(getActiveProject().getRowName(i)[0]
-		// + "");
-		// for (int j = 1; j < getActiveProject()
-		// .getInfoColumnCount(); j++) {
-		// out.write("\t"
-		// + getActiveProject()
-		// .getRowName(i)[j]);
-		// }
-		// RepAveragedData data = reps
-		// .getRepAveragedData(
-		// getActiveProject(), i);
-		// for (int j = 0; j < data.values.length; j++) {
-		// // if (data.values[j]==null) {
-		// // out.write("\t");
-		// // } else {
-		// out.write("\t");
-		// if (!Double.isNaN(data.values[j])) {
-		// out.write("" + data.values[j]);
-		// }
-		// // }
-		// }
-		// out.write("\r\n");
-		// progress.increaseProgress(1);
-		// }
-		// out.close();
-		// if (progress.isCanceled()) {
-		// if (!dest.delete()) {
-		// dest.deleteOnExit();
-		// }
-		// return;
-		// }
-		// } catch (IOException ioe) {
-		// ioe.printStackTrace();
-		// }
-		// progress.dispose();
-		// }
-		// }.start();
-		// progress.setVisible(true);
-		// final File metadataDest = new File(dest.getAbsolutePath()
-		// + ".metadata.xml");
-		// new AnimatedSwingWorker("Writing Metadata...", true) {
-		//
-		// @Override
-		// public Object construct() {
-		// try {
-		// getActiveProject().getReps()
-		// .createMetadataFile(getActiveProject(),
-		// metadataDest);
-		// } catch (IOException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-		// return null;
-		// }
-		// }.start();
-		//
-		// }
-		//
-		// });
-		//
-		// JButton metadataButton = new JButton(new AbstractAction(
-		// "Output Metadata") {
-		//
-		// public void actionPerformed(ActionEvent e) {
-		// final File dest = Utils.chooseFileToSave(
-		// Utils.createFileFilter("xml", "XML files"), "xml",
-		// getMainWindow(), true);
-		// if (dest == null) {
-		// return;
-		// }
-		// new AnimatedSwingWorker("Writing Metadata...", true) {
-		//
-		// @Override
-		// public Object construct() {
-		// try {
-		// getActiveProject().getReps()
-		// .createMetadataFile(getActiveProject(),
-		// dest);
-		// } catch (IOException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-		// return null;
-		// }
-		// }.start();
-		// }
-		//
-		// });
-		//
-		// JPanel buttonPanel = new JPanel();
-		// buttonPanel.add(refreshButton);
-		// buttonPanel.add(outputButton);
-		// buttonPanel.add(metadataButton);
-		// f.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
-		// // f.pack();
-		// f.setSize(800, 600);
-		// f.setLocation(getMainWindow().getSize().width / 2 - f.getWidth()
-		// / 2, getMainWindow().getSize().height / 2 - f.getHeight()
-		// / 2);
-		// getDesktop().add(f);
-		// f.setVisible(true);
-		// }
-		/**
-		 * added by Mohammed Alabsi - June 6th, 2006 Used to call HiveMind service used
-		 * to send data to BirdsEyeView
-		 */
-		/*
-		 * if (e.getActionCommand().equals("BirdsEyeView")) {
-		 *
-		 * Registry registry = RegistryBuilder.constructDefaultRegistry();
-		 *
-		 * ExportToBirdsEyeView toBirdsEyeView = (ExportToBirdsEyeView) registry
-		 * .getService("integration.ExportToBirdsEyeView", ExportToBirdsEyeView.class);
-		 * toBirdsEyeView.FromMetaOmGraph(activeProject);
-		 *
-		 * return; }
-		 */
 
-		/**
-		 * Added by Mohammed Alabsi - June 6th, 2006 Used to call HiveMind service used
-		 * to send data to PathBinder
-		 */
-		/*
-		 * if (e.getActionCommand().equalsIgnoreCase("PathBinder")) {
-		 *
-		 * JTable listDisplay = activeTablePanel.getListDisplay(); if
-		 * (listDisplay.getSelectedRowCount() != 2) { String title = "Action
-		 * Error"; JOptionPane.showMessageDialog(mainWindow, "Please select two genes to
-		 * compare using PathBinder", title, JOptionPane.ERROR_MESSAGE); } else {
-		 * ArrayList<String> genes = getSelectedGenes(listDisplay);
-		 *
-		 * if (genes.size() < 1) { JOptionPane.showMessageDialog(mainWindow,
-		 * "Unable to find gene IDs in the selected rows", "Error",
-		 * JOptionPane.ERROR_MESSAGE); } else { Registry registry = RegistryBuilder
-		 * .constructDefaultRegistry();
-		 *
-		 * CompareInPathBinder compareInPathBinder = (CompareInPathBinder) registry
-		 * .getService("integration.CompareInPathBinder", CompareInPathBinder.class);
-		 *
-		 * compareInPathBinder.findByGeneId((String) genes.get(0), (String)
-		 * genes.get(0)); } } }
-		 */
+		if ("noTransform".equals(e.getActionCommand())) {
+			noneItem.setSelected(true);
+			log2Item.setSelected(false);
+			logeItem.setSelected(false);
+			log10Item.setSelected(false);
+			sqrtItem.setSelected(false);
+			return;
+		}
 
-		/**
-		 * Added by Mohammed Alabsi - Sept 7th, 2006. Used to call HiveMind Serivce to
-		 * send selected genes to BirdsEyeView.
-		 */
-		/*
-		 * if (e.getActionCommand().equalsIgnoreCase("BirdsEyeViewSubset")) { JTable
-		 * listDisplay = activeTablePanel.getListDisplay(); if
-		 * (listDisplay.getSelectedRowCount() < 1) { String title = "Action
-		 * Error"; JOptionPane .showMessageDialog( mainWindow, "Please select at least
-		 * one entry to send to BirdsEyeView", title, JOptionPane.ERROR_MESSAGE); } else
-		 * {
-		 *
-		 * ArrayList<String> genes = getSelectedGenes(listDisplay);
-		 *
-		 * if (genes.size() < 1) { JOptionPane.showMessageDialog(mainWindow,
-		 * "Unable to find gene IDs in the selected rows", "Error",
-		 * JOptionPane.ERROR_MESSAGE); } else { Registry registry = RegistryBuilder
-		 * .constructDefaultRegistry();
-		 *
-		 * ExportToBirdsEyeView toBirdsEyeView = (ExportToBirdsEyeView) registry
-		 * .getService("integration.ExportToBirdsEyeView", ExportToBirdsEyeView.class);
-		 * toBirdsEyeView.subsetToBirdsEyeView(activeProject, genes,
-		 * listDisplay.getSelectedRows(), listDisplay); } } }
-		 */
-		/**
-		 * added by Mohammed Alabsi - June 6th, 2006 Used to call HiveMind Service to
-		 * send Gene to PubMed
-		 */
-		/*
-		 * if (e.getActionCommand().equalsIgnoreCase("PubMed")) {
-		 *
-		 * JTable listDisplay = activeTablePanel.getListDisplay(); if
-		 * (listDisplay.getSelectedRowCount() < 1) { String title = "Error";
-		 * JOptionPane.showMessageDialog(mainWindow, "Please select a gene to search for
-		 * in PubMet", title, JOptionPane.ERROR_MESSAGE); } else {
-		 *
-		 * ArrayList<String> genes = getSelectedGenes(listDisplay);
-		 *
-		 * if (genes.get(0) == null) { JOptionPane .showMessageDialog( mainWindow,
-		 * "Unable to find any gene IDs in the selected row(s)", "Error",
-		 * JOptionPane.ERROR_MESSAGE); } else { Registry registry = RegistryBuilder
-		 * .constructDefaultRegistry();
-		 *
-		 * SearchByPubMed searchByPubMed = (SearchByPubMed) registry
-		 * .getService("integration.SearchByPubMed", SearchByPubMed.class);
-		 *
-		 * searchByPubMed.searchGeneById((String) genes.get(0)); } } }
-		 */
+		if ("log2".equals(e.getActionCommand())) {
+			noneItem.setSelected(false);
+			log2Item.setSelected(true);
+			logeItem.setSelected(false);
+			log10Item.setSelected(false);
+			sqrtItem.setSelected(false);
+			return;
+		}
 
-		/**
-		 * added by Mohammed Alabsi - Sept 28th, 2006 Used to call HiveMind Service to
-		 * lookup gene data
-		 */
-		/*
-		 * if (e.getActionCommand().equalsIgnoreCase("atGeneSearch")) { JTable
-		 * listDisplay = activeTablePanel.getListDisplay(); if
-		 * (listDisplay.getSelectedRowCount() < 1) { String title = "Error"; JOptionPane
-		 * .showMessageDialog( mainWindow, "Please select gene(s) to view their pathwyas
-		 * in cytoscape", title, JOptionPane.ERROR_MESSAGE); } else { ArrayList<String>
-		 * genes = getSelectedGenes(listDisplay);
-		 *
-		 * if (genes.size() < 1) { JOptionPane.showMessageDialog(mainWindow,
-		 * "Unable to find gene IDs in the selected rows", "Error",
-		 * JOptionPane.ERROR_MESSAGE); } else { Iterator iterator = genes.iterator();
-		 * String search = ""; while (iterator.hasNext()) { search += iterator.next();
-		 * if (iterator.hasNext()) { search += ","; } }
-		 *
-		 * Registry registry = RegistryBuilder .constructDefaultRegistry(); Browser
-		 * browser = (Browser) registry.getService( "integration.Browser",
-		 * Browser.class); browser.geneSearch(search); } } }
-		 */
-		/**
-		 * added by Mohammed Alabsi - July 22th, 2006 Used to call HiveMind Service to
-		 * view gene pathway in cytoscape
-		 */
-		/*
-		 * if (e.getActionCommand().equalsIgnoreCase("cytoscape")) {
-		 *
-		 * JTable listDisplay = activeTablePanel.getListDisplay(); if
-		 * (listDisplay.getSelectedRowCount() < 1) { String title = "Error"; JOptionPane
-		 * .showMessageDialog( mainWindow, "Please select gene(s) to view their pathwyas
-		 * in cytoscape", title, JOptionPane.ERROR_MESSAGE); } else {
-		 *
-		 * ArrayList<String> genes = getSelectedGenes(listDisplay); if (genes.size() <
-		 * 1) { JOptionPane.showMessageDialog(mainWindow,
-		 * "Unable to find gene IDs in the selected rows", "Error",
-		 * JOptionPane.ERROR_MESSAGE); } else { Registry registry = RegistryBuilder
-		 * .constructDefaultRegistry(); RequestGeneData geneDataService =
-		 * (RequestGeneData) registry .getService("integration.RequestGeneData",
-		 * RequestGeneData.class);
-		 *
-		 * ArrayList<Gene> geneList = new ArrayList<Gene>(); ArrayList<GobiNode>
-		 * gobiNodeList = new ArrayList<GobiNode>(); for (int i = 0; i < genes.size();
-		 * i++) { geneList.add(geneDataService.getGeneByID( (String)
-		 * genes.get(i)).get(0)); gobiNodeList.add(new GobiNodeImpl(geneList.get(i)
-		 * .getLocusid(), "gene")); }
-		 */
-		/*
-		 * getting all Genes in List
-		 */
-		/*
-		 * ArrayList<Gene> allGenes = new ArrayList<Gene>(); ArrayList<String>
-		 * allGenesLocusID = new ArrayList<String>(); Gene gene = null; int rows =
-		 * listDisplay.getRowCount(); for (int x = 0; x < rows; x++) { for (int y = 0; y
-		 * < listDisplay.getColumnCount(); y++) { int type = Utils.getIDType((String)
-		 * listDisplay .getValueAt(x, y));
-		 *
-		 * if (type == 1) {
-		 *
-		 * gene = geneDataService.getGeneByID( (String) listDisplay.getValueAt(x, y))
-		 * .get(0); allGenes.add(gene); allGenesLocusID.add(gene.getLocusid()); } else
-		 * if (type == 2) {
-		 *
-		 * gene = geneDataService.getGeneByID( (String) listDisplay.getValueAt(x, y))
-		 * .get(0); allGenes.add(gene); allGenesLocusID.add(gene.getLocusid()); } else
-		 * if (type == 3) {
-		 *
-		 * gene = geneDataService.getGeneByID( (String) listDisplay.getValueAt(x, y))
-		 * .get(0); allGenes.add(gene); allGenesLocusID.add(gene.getLocusid()); } } } //
-		 * /////////////////////////
-		 *
-		 * GraphExporter graphExporter = GraphExporterImpl .getInstance(); Map
-		 * pathwayMap = graphExporter .getPathwayMapByEntityList(gobiNodeList); if
-		 * (pathwayMap.size() < 1) { JOptionPane .showMessageDialog( mainWindow, "Genes
-		 * Selected do not have pathways. Please refine your selection", "Error",
-		 * JOptionPane.ERROR_MESSAGE); } else {
-		 * CytoscapeHMService.setSelectedRows(listDisplay .getSelectedRows());
-		 * PathwaySelectionFrame frame = PathwaySelectionFrame .getInstance();
-		 * frame.init(pathwayMap, gobiNodeList, allGenesLocusID); } } } }
-		 */
+		if ("log10".equals(e.getActionCommand())) {
+			noneItem.setSelected(false);
+			log2Item.setSelected(false);
+			logeItem.setSelected(false);
+			log10Item.setSelected(true);
+			sqrtItem.setSelected(false);
+			return;
+		}
+
+		if ("loge".equals(e.getActionCommand())) {
+			noneItem.setSelected(false);
+			log2Item.setSelected(false);
+			logeItem.setSelected(true);
+			log10Item.setSelected(false);
+			sqrtItem.setSelected(false);
+			return;
+		}
+
+		if ("sqrt".equals(e.getActionCommand())) {
+			noneItem.setSelected(false);
+			log2Item.setSelected(false);
+			logeItem.setSelected(false);
+			log10Item.setSelected(false);
+			sqrtItem.setSelected(true);
+			return;
+		}
+
 	}
 
 	/**
@@ -2935,29 +2976,59 @@ public class MetaOmGraph implements ActionListener {
 	/**
 	 * Setup welcome dialog panel
 	 */
-	public static void showWelcomeDialog() {
-		try {
-			welcomeDialog = new JDialog(getMainWindow(), "Welcome to MetaOmGraph", true);
-			welcomeDialog.setName("welcome.php");
-			welcomeDialog.getContentPane().add(new WelcomePanel());
-			welcomeDialog.setResizable(false);
-			welcomeDialog.pack();
-			welcomeDialog.setLocationRelativeTo(MetaOmGraph.getMainWindow());
-			AbstractAction action = new AbstractAction() {
+	public static void showWelcomeDialog() throws InterruptedException {
+		EventQueue.invokeLater(new Runnable() {
+			@Override
+			public void run() {
 
-				public void actionPerformed(ActionEvent e) {
-					ActionEvent e2 = new ActionEvent(welcomeDialog, ActionEvent.ACTION_PERFORMED, "welcome.php");
-					MetaOmGraph.getHelpListener().actionPerformed(e2);
+				try {
+					welcomeDialog = new JDialog(getMainWindow(), "Welcome to MetaOmGraph", true);
+					String OS = getOsName();
+					if (OS.indexOf("swin") >= 0 || OS.indexOf("sWin") >= 0) {
+						// show new welcome dialog
+						WelcomePanelWin10 d1 = new WelcomePanelWin10();
+						// JDialog welcomeDialog = new JDialog(getMainWindow(), "Welcome to
+						// MetaOmGraph", true);
+						welcomeDialog.setSize(600, 500);
+						welcomeDialog.setUndecorated(true);
+						welcomeDialog.setLocationRelativeTo(MetaOmGraph.getMainWindow());
+						welcomeDialog.setResizable(false);
+						welcomeDialog.setContentPane(d1);
+						d1.setVisible(true);
+						welcomeDialog.setVisible(true);
+
+					} else {
+
+						// welcomeDialog = new JDialog(getMainWindow(), "Welcome to MetaOmGraph", true);
+						welcomeDialog.setName("welcome.php");
+						welcomeDialog.getContentPane().add(new WelcomePanel());
+						welcomeDialog.setResizable(false);
+						welcomeDialog.pack();
+						welcomeDialog.setLocationRelativeTo(MetaOmGraph.getMainWindow());
+						AbstractAction action = new AbstractAction() {
+
+							public void actionPerformed(ActionEvent e) {
+								ActionEvent e2 = new ActionEvent(welcomeDialog, ActionEvent.ACTION_PERFORMED,
+										"welcome.php");
+								MetaOmGraph.getHelpListener().actionPerformed(e2);
+							}
+
+						};
+						welcomeDialog.getRootPane().getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0),
+								"help");
+						welcomeDialog.getRootPane().getActionMap().put("help", action);
+						// System.out.println(welcomeDialog.getSize());
+						welcomeDialog.setVisible(true);
+					}
+
+				} catch (
+
+				IOException ioe) {
+					ioe.printStackTrace();
 				}
 
-			};
-			welcomeDialog.getRootPane().getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0), "help");
-			welcomeDialog.getRootPane().getActionMap().put("help", action);
-			// System.out.println(welcomeDialog.getSize());
-			welcomeDialog.setVisible(true);
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
+			}
+		});
 	}
 
 	/**
@@ -2983,19 +3054,16 @@ public class MetaOmGraph implements ActionListener {
 			aboutFrame.setIconifiable(false);
 			aboutFrame.setMaximizable(false);
 			desktop.add(aboutFrame);
+			// remove titlebas
+			((javax.swing.plaf.basic.BasicInternalFrameUI) aboutFrame.getUI()).setNorthPane(null);
+			aboutFrame.setSize(800, 800);
+			// position in middle
+			Dimension desktopSize = desktop.getSize();
+			Dimension aboutFrameSize = aboutFrame.getSize();
+			aboutFrame.setLocation((desktopSize.width - aboutFrameSize.width) / 2,
+					(desktopSize.height - aboutFrameSize.height) / 2);
 			aboutFrame.setVisible(true);
-			// new Thread() {
-			// public void run() {
-			// // Make the window big, display it, then return to
-			// // its original size. This allocates a bit more
-			// // memory (~5kb) to the animation, which makes it
-			// // run more smoothly.
-			// Dimension origSize = aboutFrame.getSize();
-			// aboutFrame.setVisible(true);
-			// aboutFrame.setSize(MetaOmGraph.getMainWindow().getSize());
-			// aboutFrame.setSize(origSize);
-			// }
-			// }.start();
+
 		}
 		return;
 	}
@@ -3042,6 +3110,58 @@ public class MetaOmGraph implements ActionListener {
 		return logDataItem.isSelected();
 	}
 
+	public boolean isLog2() {
+		return log2Item.isSelected();
+	}
+
+	public boolean isLog10() {
+		return log10Item.isSelected();
+	}
+
+	public boolean isSqrt() {
+		return sqrtItem.isSelected();
+	}
+
+	/**
+	 * retun a type of data transform
+	 * 
+	 * @return
+	 */
+	public String getTransform() {
+		if (log2Item.isSelected()) {
+			return "log2";
+		} else if (log10Item.isSelected()) {
+			return "log10";
+		} else if (logeItem.isSelected()) {
+			return "loge";
+		} else if (sqrtItem.isSelected()) {
+			return "sqrt";
+		} else {
+			return "NONE";
+		}
+	}
+
+	public static void setTransform(String val) {
+		log2Item.setSelected(false);
+		log10Item.setSelected(false);
+		logeItem.setSelected(false);
+		sqrtItem.setSelected(false);
+		noneItem.setSelected(false);
+
+		if (val.equals("log2")) {
+			log2Item.setSelected(true);
+		} else if (val.equals("log10")) {
+			log10Item.setSelected(true);
+		} else if (val.equals("loge")) {
+			logeItem.setSelected(true);
+		} else if (val.equals("sqrt")) {
+			sqrtItem.setSelected(true);
+		} else {
+			noneItem.setSelected(true);
+		}
+
+	}
+
 	/**
 	 * Sets title to the active project window
 	 * 
@@ -3053,7 +3173,7 @@ public class MetaOmGraph implements ActionListener {
 		}
 		StringBuilder title = new StringBuilder();
 		if (activeProject.isChanged()) {
-			title.append("*");
+			title.append("* ");
 		}
 		title.append("MetaOmGraph - ");
 		// String fname=activeProjectFile.getName();
@@ -3064,12 +3184,105 @@ public class MetaOmGraph implements ActionListener {
 		}
 		title.append(" (" + activeProject.getDataColumnCount() + " samples");
 		int excluded = MetaOmAnalyzer.getExcludeCount();
+		int included=activeProject.getDataColumnCount() -excluded;
 		if (excluded > 0) {
-			title.append(", " + excluded + " excluded");
+			title.append(", "+ included + " included, "+ excluded + " excluded");
 		}
 		title.append(")");
+		//add info about rows
+		int totalRows=activeProject.getRowCount();
+		title.append("; "+totalRows+ " rows");
 		getMainWindow().setTitle(title.toString());
 
 		return title.toString();
 	}
+
+	// rewriting wlcome menu commands as functions can be invoked from outside
+	public static void startNewFromDelimited() {
+		if (!closeProject()) {
+			return;
+		}
+
+		// invokeLater to fix swing issue in mac
+		EventQueue.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				NewProjectDialog npd = new NewProjectDialog(getMainWindow());
+				npd.toFront();
+				// npd.setAlwaysOnTop(true);
+				npd.setVisible(true);
+				if (!npd.isCancelled()) {
+					// urmi call NewProjectWorker with new arguments
+					new NewProjectWorker(npd.getSourceFile(), npd.getInfoColumns(), npd.getDelimiter(),
+							npd.getRowArray(), npd.getColArray(), npd.getExtendedInfoFile(),
+							npd.getIgnoreConsecutiveDelimiters(), npd.getBlankValue(), npd.csvFlag,
+							npd.getMetadataDelimiter()).start();
+				} else {
+					if (welcomeDialog != null)
+						welcomeDialog.setVisible(true);
+				}
+			}
+		});
+
+	}
+
+	public static void openAnotherProject() {
+		File source = Utils.chooseFileToOpen(new GraphFileFilter(GraphFileFilter.PROJECT), getMainWindow());
+		if (source == null)
+			return;
+		if (activeProject != null)
+			if (!closeProject())
+				return;
+		Utils.setLastDir(source.getParentFile());
+		new OpenProjectWorker(source).start();
+
+		return;
+	}
+
+	public static void openRecentProject(String name) {
+		if (activeProject != null)
+			if (!closeProject())
+				return;
+
+		File source = new File(name);
+		if (!source.exists()) {
+			JOptionPane.showMessageDialog(getMainWindow(), source.getAbsolutePath() + "\nwas not found.",
+					"File not found", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		new OpenProjectWorker(source).start();
+
+		return;
+	}
+
+	/**
+	 * Function to check MOG updates
+	 */
+	public static void checkUpdates(boolean showCurrentMessage) {
+		VersionCheck ob = new VersionCheck(getVersion());
+		if (!ob.isLatestMOG()) {
+
+			Object[] options = { "Yes, please take me to the download.", "No, thanks" };
+			int response = JOptionPane.showOptionDialog(null,
+					"A newer version of MOG is available for download. We highly recommend you to use the latest version.",
+					"New version available!", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+					options, options[0]);
+			if (response == 0) {
+				// open metnet download
+				try {
+					java.awt.Desktop.getDesktop()
+							.browse(new URI("http://metnetweb.gdcb.iastate.edu/MetNet_MetaOmGraph.htm"));
+				} catch (IOException | URISyntaxException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		} else {
+			if (showCurrentMessage) {
+				JOptionPane.showMessageDialog(null, "Your MOG is already the latest version (" + getVersion() + ")",
+						"No updates available", JOptionPane.INFORMATION_MESSAGE);
+			}
+		}
+	}
+
 }

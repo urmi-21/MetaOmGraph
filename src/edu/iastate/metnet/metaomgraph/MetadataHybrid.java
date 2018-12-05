@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -40,18 +42,27 @@ import edu.iastate.metnet.metaomgraph.utils.qdxml.SimpleXMLElement;
 public class MetadataHybrid {
 	private MetadataCollection mogCollection;
 	private Element XMLroot;
-	private JTree treeStructure;
+	private JTree treeStructure; // tree structure created by user
 	private List<Document> metadata;
 	private String dataColumn;
-	private String[] metadataHeaders; // only those columns imported in tree structure subset of metadata headers
+	private String[] metadataHeaders; // only those columns imported in tree structure subset of metadata headers from
+										// MOGcollection object
 	// objects corresponding to filtered data
 	private String[] currentmetadataHeaders;
-	private MetadataCollection currentmogCollection;
+	// private MetadataCollection currentmogCollection;
+
+	// excluded rows in metadata
+	private Set<String> excludedMDRows;
+	private Set<String> missingMDRows;
+	// removed columns from metadata file, not in tree structure
+	private Set<String> removedColsfromMD;
+
 	/**
 	 * @author urmi defaultrepsMap maps a "Rep-name" (parent name of data col by
 	 *         default) to a list of columns which are in that rep.
 	 */
-	private TreeMap<String, List<Integer>> defaultrepsMap; // default reps are under common parent
+	private TreeMap<String, List<Integer>> defaultrepsMap; // default reps
+	private String defaultrepsColumn;
 
 	/*
 	 * to make backward compatible with some fumctions knownCols: maps int to
@@ -66,13 +77,16 @@ public class MetadataHybrid {
 	public TreeMap<Integer, Element> knownCols;
 	// public LinkedHashMap<String, Integer> fields;
 
+	// HashMap<String, Class> mdColType;
+
 	// create blank metadata
 	public MetadataHybrid() {
 
 	}
 
 	public MetadataHybrid(MetadataCollection mogCollection, Element XMLroot, TreeMap<Integer, Element> tm,
-			String colName, String[] mdheaders, JTree treeStructure, TreeMap<String, List<Integer>> defaultrepsMap) {
+			String colName, String[] mdheaders, JTree treeStructure, TreeMap<String, List<Integer>> defaultrepsMap,
+			String defaultrepsCol, List<String> missingDC, List<String> extraDC, List<String> removedColsfromMD) {
 		this.mogCollection = mogCollection;
 		this.XMLroot = XMLroot;
 		this.metadata = this.mogCollection.returnallData();
@@ -82,6 +96,31 @@ public class MetadataHybrid {
 		// treestructure is the tree created by the user that defines the structure
 		this.treeStructure = treeStructure;
 		this.defaultrepsMap = defaultrepsMap;
+		this.defaultrepsColumn = defaultrepsCol;
+		// build default reps map
+		this.defaultrepsMap = buildRepsMap(defaultrepsCol);
+
+		if (extraDC != null) {
+			this.excludedMDRows = new HashSet<>(extraDC);
+		} else {
+			this.excludedMDRows = new HashSet<>();
+		}
+
+		if (missingDC != null) {
+			this.missingMDRows = new HashSet<>(missingDC);
+		} else {
+			this.missingMDRows = new HashSet<>();
+		}
+
+		if (removedColsfromMD != null) {
+			this.removedColsfromMD = new HashSet<>(removedColsfromMD);
+		} else {
+			this.removedColsfromMD = new HashSet<>();
+		}
+		
+		
+		// add missing DC
+		// if (missingDC.size() > 0) { this.mogCollection.addNullData(missingDC); }
 
 	}
 
@@ -93,6 +132,22 @@ public class MetadataHybrid {
 		this.treeStructure = tree;
 	}
 
+	public String getDefaultRepCol() {
+		return this.defaultrepsColumn;
+	}
+
+	public void setDefaultRepCol(String newCol) {
+		this.defaultrepsColumn = newCol;
+		// change default reps map
+		this.defaultrepsMap = buildRepsMap(defaultrepsColumn);
+	}
+
+	/**
+	 * convert JTree to XML structure to save to file
+	 * 
+	 * @param tree
+	 * @return
+	 */
 	public Element jtreetoXML(JTree tree) {
 
 		DefaultTreeModel tmodel = (DefaultTreeModel) tree.getModel();
@@ -109,7 +164,7 @@ public class MetadataHybrid {
 		for (int i = 0; i < numchild; i++) {
 			DefaultMutableTreeNode thisNode = (DefaultMutableTreeNode) node.getChildAt(i);
 			Element newNode = new Element(thisNode.toString());
-			newNode.setAttribute("name",newNode.getName());
+			newNode.setAttribute("name", newNode.getName());
 			buildXMLfromJTree(thisNode, newNode);
 			element.addContent(newNode);
 		}
@@ -277,8 +332,39 @@ public class MetadataHybrid {
 		Map<String, Collection<Integer>> result = new TreeMap();
 		// knowncols are data columns or Runs
 		Set<Integer> cols = knownCols.keySet();
-		for (Iterator localIterator = cols.iterator(); localIterator.hasNext();) {
 
+		// if its datacolumn each column is in single bin
+		if (field.equals(dataColumn)) {
+			for (Iterator localIterator = cols.iterator(); localIterator.hasNext();) {
+				int col = ((Integer) localIterator.next()).intValue();
+				// JOptionPane.showMessageDialog(null, "curr col:" + col);
+				// skip cols not in data file
+				if (col < 0) {
+					continue;
+				}
+				Element thisNode = knownCols.get(col);
+				String val = null;
+				int numChild = thisNode.getChildren().size();
+				if (numChild < 1) {
+					val = thisNode.getContent(0).getValue().toString();
+				} else {
+					val = thisNode.getAttributeValue("name").toString();
+				}
+
+				if (val == null) {
+					val = "";
+				}
+				Collection<Integer> thisBin = result.get(val);
+				if (thisBin == null) {
+					thisBin = new ArrayList();
+				}
+				thisBin.add(Integer.valueOf(col));
+				result.put(val, thisBin);
+			}
+			return result;
+		}
+
+		for (Iterator localIterator = cols.iterator(); localIterator.hasNext();) {
 			int col = ((Integer) localIterator.next()).intValue();
 			// JOptionPane.showMessageDialog(null, "curr col:" + col);
 			// skip cols not in data file
@@ -331,6 +417,7 @@ public class MetadataHybrid {
 		String[] allfields = new String[queries.length];
 		String[] toSearch = new String[queries.length];
 		boolean[] isExact = new boolean[queries.length];
+		boolean[] matchCase = new boolean[queries.length];
 		// search using Metadatacollection object and return indices of matching data
 		// columns from knownCols
 		// do for all queries
@@ -339,10 +426,11 @@ public class MetadataHybrid {
 			allfields[i] = queries[i].getField();
 			toSearch[i] = queries[i].getTerm();
 			isExact[i] = queries[i].isExact();
+			matchCase[i] = queries[i].isCaseSensitive();
 			// JOptionPane.showMessageDialog(null, "search f:" + fields[i]);
 
 		}
-		colVals.addAll(searchByValue(allfields, toSearch, this.dataColumn, isExact, matchAll, false));
+		colVals.addAll(searchByValue(allfields, toSearch, this.dataColumn, isExact, matchAll, matchCase));
 		// find all keys with value in colVals
 		for (Entry<Integer, Element> entry : knownCols.entrySet()) {
 			Integer key = entry.getKey();
@@ -380,11 +468,12 @@ public class MetadataHybrid {
 	 * @param matchAll
 	 * @return
 	 */
-	//public List<String> getMatchingRows(MetadataQuery[] queries, boolean matchAll) {
-	//	return getMatchingRows(queries, matchAll, false);
-	//}
-	
-	public List<String> getMatchingRows(MetadataQuery[] queries, boolean matchAll, boolean matchCase) {
+	// public List<String> getMatchingRows(MetadataQuery[] queries, boolean
+	// matchAll) {
+	// return getMatchingRows(queries, matchAll, false);
+	// }
+
+	public List<String> getMatchingRows(MetadataQuery[] queries, boolean matchAll) {
 		Set<Integer> cols = knownCols.keySet();
 		ArrayList<Integer> result = new ArrayList();
 		Integer[] toReturn;
@@ -392,6 +481,7 @@ public class MetadataHybrid {
 		String[] allfields = new String[queries.length];
 		String[] toSearch = new String[queries.length];
 		boolean[] isExact = new boolean[queries.length];
+		boolean[] matchCase = new boolean[queries.length];
 		// search using Metadatacollection object and return indices of matching data
 		// columns from knownCols
 		// do for all queries
@@ -400,6 +490,7 @@ public class MetadataHybrid {
 			allfields[i] = queries[i].getField();
 			toSearch[i] = queries[i].getTerm();
 			isExact[i] = queries[i].isExact();
+			matchCase[i] = queries[i].isCaseSensitive();
 			// JOptionPane.showMessageDialog(null, "search f:" + fields[i]);
 
 		}
@@ -421,28 +512,29 @@ public class MetadataHybrid {
 	 * @return values under toReturn column where field column has value toSearch
 	 */
 	public List<String> searchByValue(String[] field, String[] toSearch, String toReturn, boolean[] exact,
-			boolean matchAll, boolean matchCase) {
+			boolean matchAll, boolean[] matchCase) {
 		List<String> res = new ArrayList<>();
 
 		List<List<String>> specialCaseRes = new ArrayList<List<String>>();
 		// Filter[] farray = new Filter[toSearch.length];
 		Filter comboFilter;
 		List<Filter> filterList = new ArrayList<>();
-		String caseFlag = "";
-		if (!matchCase) {
-			caseFlag = "(?i)";
-		}
+
 		for (int i = 0; i < toSearch.length; i++) {
+			String caseFlag = "";
+			if (!matchCase[i]) {
+				caseFlag = "(?i)";
+			}
 
 			if (field[i] == "All Fields") {
 
 				// List<String> res2 = new ArrayList<>();
 
-				specialCaseRes.add(searchByValue(toSearch[i], toReturn, exact[i], true, matchCase));
+				specialCaseRes.add(searchByValue(toSearch[i], toReturn, exact[i], true, matchCase[i]));
 
 			} else if (field[i] == "Any Field") {
 
-				specialCaseRes.add(searchByValue(toSearch[i], toReturn, exact[i], false, matchCase));
+				specialCaseRes.add(searchByValue(toSearch[i], toReturn, exact[i], false, matchCase[i]));
 
 			} else {
 				if (exact[i]) {
@@ -452,7 +544,7 @@ public class MetadataHybrid {
 
 				} else {
 
-					filterList.add(Filters.regex(field[i], caseFlag +toSearch[i]));
+					filterList.add(Filters.regex(field[i], caseFlag + toSearch[i]));
 
 				}
 			}
@@ -486,7 +578,7 @@ public class MetadataHybrid {
 	public List<String> searchByValue(String field, String toSearch, String toReturn, boolean exact, boolean matchAll,
 			boolean matchCase) {
 		return searchByValue(new String[] { field }, new String[] { toSearch }, toReturn, new boolean[] { exact },
-				matchAll, matchCase);
+				matchAll, new boolean[] { matchCase });
 
 	}
 
@@ -529,6 +621,24 @@ public class MetadataHybrid {
 	}
 
 	/**
+	 * return all columns in a given rep
+	 * 
+	 * @param repName
+	 * @return
+	 */
+	public List<Integer> getColumnsinRep(String repName, TreeMap<String, List<Integer>> reps) {
+		List<Integer> res = new ArrayList<>();
+		List<Integer> temp = reps.get(repName);
+		for (int i = 0; i < temp.size(); i++) {
+			if (temp.get(i) >= 0) {
+				res.add(temp.get(i));
+			}
+		}
+		// JOptionPane.showMessageDialog(null, "Fount "+res.size()+" cols in:"+repName);
+		return res;
+	}
+
+	/**
 	 * Return xth element in a rep
 	 * 
 	 * @param repName
@@ -537,9 +647,9 @@ public class MetadataHybrid {
 	 *            to return
 	 * @return
 	 */
-	public int getXColumninRep(String repName, int x) {
+	public int getXColumninRep(String repName, int x, TreeMap<String, List<Integer>> reps) {
 		// JOptionPane.showMessageDialog(null, "Finding xth col in"+repName);
-		List<Integer> res = getColumnsinRep(repName);
+		List<Integer> res = getColumnsinRep(repName, reps);
 		if (res.size() == 0) {
 			return -1;
 		}
@@ -550,9 +660,9 @@ public class MetadataHybrid {
 		}
 	}
 
-	public String getXColumnNameRep(String repName, int x) {
+	public String getXColumnNameRep(String repName, int x, TreeMap<String, List<Integer>> reps) {
 		// JOptionPane.showMessageDialog(null, "Finding xth col in"+repName);
-		List<Integer> res = getColumnsinRep(repName);
+		List<Integer> res = getColumnsinRep(repName, reps);
 		if (res.size() == 0) {
 			return null;
 		}
@@ -563,6 +673,28 @@ public class MetadataHybrid {
 		}
 	}
 
+	public String[] getAllColumnNameRep(String repName, TreeMap<String, List<Integer>> reps) {
+		// JOptionPane.showMessageDialog(null, "Finding xth col in"+repName);
+		List<Integer> res = getColumnsinRep(repName, reps);
+		if (res.size() == 0) {
+			return null;
+		}
+		List<String> names = new ArrayList<>();
+		for (int i = 0; i < res.size(); i++) {
+			if (res.get(i) >= 0) {
+				names.add(getColnamebyIndex(res.get(i)));
+			}
+		}
+		return names.toArray(new String[0]);
+	}
+
+	/**
+	 * use default reps
+	 * 
+	 * @param repName
+	 * @param reps
+	 * @return
+	 */
 	public String[] getAllColumnNameRep(String repName) {
 		// JOptionPane.showMessageDialog(null, "Finding xth col in"+repName);
 		List<Integer> res = getColumnsinRep(repName);
@@ -597,6 +729,25 @@ public class MetadataHybrid {
 		return names.toArray(new String[0]);
 	}
 
+	public String[] getIncludedColumnNameRep(String repName, TreeMap<String, List<Integer>> reps) {
+		boolean[] excluded = MetaOmAnalyzer.getExclude();
+		if (excluded == null) {
+			return getAllColumnNameRep(repName, reps);
+		}
+		List<Integer> res = getColumnsinRep(repName, reps);
+		if (res.size() == 0) {
+			return null;
+		}
+		List<String> names = new ArrayList<>();
+		for (int i = 0; i < res.size(); i++) {
+			// add positive and included cols only
+			if (res.get(i) >= 0 && !excluded[res.get(i)]) {
+				names.add(getColnamebyIndex(res.get(i)));
+			}
+		}
+		return names.toArray(new String[0]);
+	}
+
 	/**
 	 * @author urmi Return name of a data column by index
 	 * @param index
@@ -608,6 +759,13 @@ public class MetadataHybrid {
 		return MetaOmGraph.getActiveProject().getDataColumnHeader(index);
 	}
 
+	/**
+	 * Get index of a column as it appears in datafile. This index is used in
+	 * knowncols map
+	 * 
+	 * @param name
+	 * @return
+	 */
 	public int getColIndexbyName(String name) {
 		// order is same as in known cols, searching on String is faster
 		String[] allcols = MetaOmGraph.getActiveProject().getDataColumnHeaders();
@@ -674,6 +832,287 @@ public class MetadataHybrid {
 		outter.setFormat(Format.getPrettyFormat());
 		res.setRootElement(root);
 		return res;
+	}
+
+	/**
+	 * Function to build custom reps map.
+	 * 
+	 * @param parentName
+	 *            The columnname which will be used to group the datacolumn
+	 * @return
+	 */
+	public TreeMap<String, List<Integer>> buildRepsMapOldnSLOW(String parentName) {
+		TreeMap<String, List<Integer>> repsMap = new TreeMap<>();
+
+		for (Map.Entry<Integer, Element> entry : knownCols.entrySet()) {
+			Integer key = entry.getKey();
+			Element e = entry.getValue();
+			int thisIndex = key;
+			// get the index of datacolumn from header list
+			// if data col has children
+			String thisNodeValue = "";
+			if (e.getAttributeValue("name") != null) {
+				thisNodeValue = e.getAttributeValue("name");
+			} else {
+				thisNodeValue = e.getContent(0).getValue().toString();
+			}
+			String thisRepname = mogCollection.getDatabyAttributes(thisNodeValue, parentName, true, true, false, true)
+					.get(0);
+			Set<String> addedReps = repsMap.keySet();
+			if (addedReps.contains(thisRepname)) {
+				// append this col
+				List<Integer> temp = repsMap.get(thisRepname);
+				temp.add(thisIndex);
+				repsMap.put(thisRepname, temp);
+			} else {
+				List<Integer> temp = new ArrayList<>();
+				temp.add(thisIndex);
+				repsMap.put(thisRepname, temp);
+			}
+		}
+
+		return repsMap;
+	}
+
+	/**
+	 * @author urmi Search rowToMatch under datacolumn in metadata and return value
+	 *         under colToreturn column if more than one match is found return only
+	 *         first match
+	 * @param rowToMatch
+	 * @param colToreturn
+	 * @return
+	 */
+	public String getColValueMatchingRow(String rowToMatch, String colToreturn) {
+
+		int thisColindex = MetaOmGraph.getActiveProject().findDataColumnHeader(rowToMatch);
+		if (thisColindex < 0) {
+			JOptionPane.showMessageDialog(null, "Error in search. " + rowToMatch + " not found in data",
+					"Error in search", JOptionPane.ERROR_MESSAGE);
+			return null;
+		}
+		Element thisNode = knownCols.get(thisColindex);
+		// if col to return is data column
+		if (colToreturn.equals(dataColumn)) {
+			int numChild = thisNode.getChildren().size();
+			if (numChild < 1) {
+				return thisNode.getContent(0).getValue().toString();
+			} else {
+				return thisNode.getAttributeValue("name").toString();
+			}
+		}
+		String[][] thisMetadata = getNodeMetadata(thisNode);
+		String toReturn = "";
+		for (int i = 0; i < thisMetadata.length; i++) {
+			if (thisMetadata[i][0].equals(colToreturn)) {
+				toReturn = thisMetadata[i][1];
+				break;
+			}
+		}
+
+		return toReturn;
+	}
+
+	public void setDefaultRepsMap(TreeMap<String, List<Integer>> repsMap) {
+		this.defaultrepsMap = repsMap;
+	}
+
+	/**
+	 * Much faster Build default reps map where each rep is outermost parent in the
+	 * tree
+	 * 
+	 * @param parentName
+	 * @return
+	 */
+	public TreeMap<String, List<Integer>> buildRepsMap(String repColName) {
+		MetaOmProject myProj = MetaOmGraph.getActiveProject();
+		if (myProj == null) {
+			return null;
+		}
+
+		TreeMap<String, List<Integer>> repsMap = new TreeMap<>();
+		// JOptionPane.showMessageDialog(null, "this kc:" + knownCols.get(1).toString()
+		// );
+		new AnimatedSwingWorker("Working...", true) {
+			@Override
+			public Object construct() {
+				for (Map.Entry<Integer, Element> entry : knownCols.entrySet()) {
+					Integer key = entry.getKey();
+					Element e = entry.getValue();
+					int thisIndex = key;
+					// if datacolumn doesn't exist in data don;t add
+					if (key == -1) {
+						continue;
+					}
+
+					String thisRepname = "";
+					String thisDCheader = myProj.getDataColumnHeader(key);
+					String valExpected = searchByValue(thisDCheader, repColName, true, false, true).get(0);
+					/**
+					 * using getNodeMetadata is faster but give ambigous results when multiple
+					 * datacolumns have same parent
+					 */
+					// String[][] thisMetadata = getNodeMetadata(e);
+					// JOptionPane.showMessageDialog(null, "expec for col:"+thisDCheader+ "
+					// under:"+repColName+" :"+valExpected);
+					/*
+					 * for (int i = 0; i < thisMetadata.length; i++) {
+					 * JOptionPane.showMessageDialog(null, "this md:" + thisMetadata[i][0] + ":" +
+					 * thisMetadata[i][1]); if (thisMetadata[i][0].equals(repColName) &&
+					 * thisMetadata[i][1].equals(valExpected) ) { thisRepname = thisMetadata[i][1];
+					 * break; } }
+					 */
+					thisRepname = valExpected;
+					Set<String> addedReps = repsMap.keySet();
+					if (addedReps.contains(thisRepname)) {
+						// append this col
+						List<Integer> temp = repsMap.get(thisRepname);
+						temp.add(thisIndex);
+						repsMap.put(thisRepname, temp);
+					} else {
+						List<Integer> temp = new ArrayList<>();
+						temp.add(thisIndex);
+						repsMap.put(thisRepname, temp);
+					}
+
+				}
+				return null;
+			}
+
+			@Override
+			public void finished() {
+
+			}
+
+		}.start();
+
+		return repsMap;
+	}
+
+	/**
+	 * After reading metadata file save list of excluded rows from metadata file
+	 * 
+	 * @param rows
+	 */
+	public void setExcludedMDRows(List<String> rows) {
+		this.excludedMDRows = new HashSet<>(rows);
+	}
+
+	/**
+	 * Add datacolumns deleted from metadata to Excluded list
+	 * 
+	 * @param rows
+	 */
+	public void addExcludedMDRows(Set<String> rows) {
+
+		if (rows == null || rows.size() < 1) {
+
+			return;
+		}
+		if (this.excludedMDRows == null) {
+
+			this.excludedMDRows = rows;
+		} else {
+
+			this.excludedMDRows.addAll(rows);
+		}
+
+	}
+
+	/**
+	 * Add Missing data columns
+	 * 
+	 * @param rows
+	 */
+	public void addMissingMDRows(Set<String> rows) {
+
+		if (rows == null || rows.size() < 1) {
+
+			return;
+		}
+		if (this.missingMDRows == null) {
+
+			this.missingMDRows = rows;
+		} else {
+
+			this.missingMDRows.addAll(rows);
+		}
+
+	}
+
+	/**
+	 * After reading metadata file save list of missing rows from metadata file
+	 * 
+	 * @param rows
+	 */
+	public void setMissingMDRows(List<String> rows) {
+		this.missingMDRows = new HashSet<>(rows);
+	}
+
+	public Set<String> getMissingMDRows() {
+		return missingMDRows;
+	}
+
+	public Set<String> getExcludedMDRows() {
+		return excludedMDRows;
+	}
+
+	public Set<String> getRemovedMDCols() {
+		return removedColsfromMD;
+	}
+
+	public void setRemovedMDCols(List<String> mdCols) {
+		removedColsfromMD = new HashSet<>(mdCols);
+	}
+
+	// return columns in metadataheader which are not included in the tree
+	// structure.
+	public String[] getColumnsNotinTree() {
+		List<String> resList = new ArrayList<>();
+		List<String> inTree = new ArrayList<>();
+		// get headers included in tree
+		Enumeration en = ((DefaultMutableTreeNode) treeStructure.getModel().getRoot()).preorderEnumeration();
+		String[] allHeaders = mogCollection.getHeaders();
+		while (en.hasMoreElements()) {
+			inTree.add(en.nextElement().toString());
+		}
+		for (int i = 0; i < allHeaders.length; i++) {
+			if (!inTree.contains(allHeaders[i])) {
+				resList.add(allHeaders[i]);
+			}
+		}
+		return resList.toArray(new String[0]);
+	}
+
+	public void removeExcludedMDRows() {
+		if (excludedMDRows != null)
+			mogCollection.removeDataPermanently(excludedMDRows);
+	}
+
+	public void initMissingMDRows() {
+		// pass as list to access elements by index
+		if (missingMDRows != null) {
+			List<String> temp = new ArrayList<>(missingMDRows);
+			mogCollection.addNullData(temp);
+		}
+	}
+
+	/**
+	 * Convert a list to an XML object
+	 * 
+	 * @param list
+	 * @return
+	 */
+	public Element listToXML(Set<String> list) {
+		Element root = new Element("Root");
+		if (list == null) {
+			return root;
+		}
+		for (String s : list) {
+			Element newNode = new Element(s);
+			newNode.setAttribute("name", newNode.getName());
+			root.addContent(newNode);
+		}
+		return root;
 	}
 
 }

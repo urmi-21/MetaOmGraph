@@ -9,6 +9,7 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.MenuBar;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -16,8 +17,11 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
 
@@ -34,17 +38,29 @@ import javax.swing.plaf.ColorUIResource;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
-
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.swing.table.TableCellRenderer;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
+import com.sun.xml.internal.ws.api.streaming.XMLStreamReaderFactory.Default;
+
+import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
+import edu.iastate.metnet.metaomgraph.GraphFileFilter;
+import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
+import edu.iastate.metnet.metaomgraph.MetadataCollection;
+import edu.iastate.metnet.metaomgraph.MetadataHybrid;
+import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
+import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -69,21 +85,31 @@ public class MetadataTreeDisplayPanel extends JPanel {
 	private JPanel panel;
 	private Element XMLroot;
 	private TreeMap<Integer, DefaultMutableTreeNode> knownColstoTreeNode;
+	private TreeMap<Integer, Element> knownCols;
 	// panel menubar
 	private JMenuBar menuBar;
 	private JMenu mnFile;
 	private JMenu mnEdit;
 	private JMenu mnHelp;
 	private JMenu mnFilter;
-	private JMenuItem mntmByNodeLabels;
 	private JMenuItem mntmByMetadata;
 	private JMenuItem mntmExportXml;
-	private JMenu mnSearch;
-	private JMenuItem mntmSimple;
+	//private JMenu mnSearch;
+	//private JMenuItem mntmSimple;
 	private JMenuItem mntmClearLastSearch;
 	private JMenu mnView;
 	private JMenuItem mntmSwitchToTable;
-	private List<String> excludedDatacols;
+	private Set<String> excludedDatacols;
+	private Set<String> includedDatacols;
+	private String dataColname;
+	private JMenu mnSearch_1;
+	private JMenuItem mntmSearch;
+	private JMenuItem mntmReset;
+
+	private MetadataCollection obj;
+	private MetadataHybrid mdhobj;
+
+	private List<DefaultMutableTreeNode> toHighlightNodes;
 
 	/**
 	 * Create the panel.
@@ -92,12 +118,16 @@ public class MetadataTreeDisplayPanel extends JPanel {
 		this(null);
 	}
 
-	public MetadataTreeDisplayPanel(Element XMLroot) {
+	public MetadataTreeDisplayPanel(MetadataHybrid mdh) {
 
 		// set tree background fill to true otherwise it sets both foregraound and
 		// background white
 		UIManager.put("Tree.rendererFillBackground", true);
 		setLayout(new BorderLayout(0, 0));
+		mdhobj = mdh;
+		Element XMLrootOrig = mdhobj.getXMLRoot();
+		obj = mdhobj.getMetadataCollection();
+		this.dataColname = mdhobj.getDataColName();
 		// initialize table
 		table = new JTable();
 		table.setAutoCreateRowSorter(true);
@@ -149,11 +179,15 @@ public class MetadataTreeDisplayPanel extends JPanel {
 			}
 
 		});
+		table.getColumnModel().getColumn(0).setPreferredWidth(150);
+		table.getColumnModel().getColumn(1).setPreferredWidth(800);
 		// table.setForeground(Color.white);
 
-		this.XMLroot = XMLroot;
+		// this.XMLroot = XMLroot;
+		this.XMLroot = (Element) XMLrootOrig.clone();
+
 		// load data into tree and table to display
-		initDisplay();
+		initDisplay(XMLroot);
 		panel = new JPanel();
 		add(panel, BorderLayout.NORTH);
 		panel.setLayout(new BorderLayout(0, 0));
@@ -167,42 +201,101 @@ public class MetadataTreeDisplayPanel extends JPanel {
 			public void actionPerformed(ActionEvent arg0) {
 				// save to file
 				// JOptionPane.showMessageDialog(null, "saving file");
-				JFileChooser fileChooser = new JFileChooser();
-				int rVal = fileChooser.showSaveDialog(MetaOmGraph.getMainWindow());
-				if (rVal == JFileChooser.APPROVE_OPTION) {
-					File file = fileChooser.getSelectedFile();
-					// JOptionPane.showMessageDialog(null, "fname:" +
-					// fileChooser.getSelectedFile().getName());
-					// save xml to file
-					XMLOutputter outter = new XMLOutputter();
-					outter.setFormat(Format.getPrettyFormat());
-					org.jdom.Document res = new org.jdom.Document();
-
-					Element xmlRootclone = (Element) XMLroot.clone();
-					res.setRootElement(xmlRootclone);
-					String resDoc = outter.outputString(res);
-
-					try (PrintWriter out = new PrintWriter(file.getAbsolutePath())) {
-						out.println(resDoc);
-					} catch (FileNotFoundException e) {
-					}
-
+				File file = Utils.chooseFileToSave(new GraphFileFilter(GraphFileFilter.XML), "xml",
+						MetaOmGraph.getMainWindow(), true);
+				if (file == null) {
+					return;
 				}
+				// save xml to file
+				XMLOutputter outter = new XMLOutputter();
+				outter.setFormat(Format.getPrettyFormat());
+				org.jdom.Document res = new org.jdom.Document();
+
+				Element xmlRootclone = (Element) XMLroot.clone();
+				res.setRootElement(xmlRootclone);
+				String resDoc = outter.outputString(res);
+
+				try (PrintWriter out = new PrintWriter(file.getAbsolutePath())) {
+					out.println(resDoc);
+				} catch (FileNotFoundException e) {
+				}
+
 			}
 		});
 		mnFile.add(mntmExportXml);
 
+		mnSearch_1 = new JMenu("Search");
+		menuBar.add(mnSearch_1);
+
+		mntmSearch = new JMenuItem("Search");
+		mntmSearch.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				List<String> result = getQueryResults();
+				if(result==null || result.size()<1 || result.get(0).equals("NULL")) {
+					JOptionPane.showMessageDialog(null, "No hits found", "No hits", JOptionPane.INFORMATION_MESSAGE);
+					return;
+				}
+				
+				expandNodes(result);
+
+			}
+		});
+		mnSearch_1.add(mntmSearch);
+		
+		mntmClearLastSearch = new JMenuItem("Clear Last Search");
+		mntmClearLastSearch.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				toHighlightNodes=new ArrayList<>();
+			}
+		});
+		mnSearch_1.add(mntmClearLastSearch);
 		mnEdit = new JMenu("Edit");
 		menuBar.add(mnEdit);
 
 		mnFilter = new JMenu("Filter");
 		mnEdit.add(mnFilter);
 
-		mntmByNodeLabels = new JMenuItem("By node labels");
-		mnFilter.add(mntmByNodeLabels);
-
 		mntmByMetadata = new JMenuItem("By Metadata");
+		mntmByMetadata.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				List<String> result = getQueryResults();
+				if(result==null || result.size()<1 || result.get(0).equals("NULL")) {
+					JOptionPane.showMessageDialog(null, "No hits found", "No hits", JOptionPane.INFORMATION_MESSAGE);
+					return;
+				}
+				
+				boolean keep = false;
+				Object[] options = { "Remove", "Keep", "Cancel" };
+				JPanel optPanel = new JPanel();
+				optPanel.add(new JLabel("Remove or keep searched nodes ?"));
+				int option = JOptionPane.showOptionDialog(null, optPanel, "Choose an option",
+						JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, null);
+				if (option == JOptionPane.YES_OPTION) {
+					keep = false;
+				} else if (option == JOptionPane.NO_OPTION) {
+					keep = true;
+				}
+				// if invert then invert here
+				if (!keep) {
+					filterXMLRoot(result);
+
+				} else {
+					List<String> result2 = obj.invertSelectedDataCols(result);
+					filterXMLRoot(result2);
+				}
+			}
+		});
 		mnFilter.add(mntmByMetadata);
+
+		mntmReset = new JMenuItem("Reset");
+		mntmReset.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				// update excluded included
+				obj.resetRowFilter();
+				updateTree();
+			}
+		});
+		mnFilter.add(mntmReset);
 
 		mnView = new JMenu("View");
 		mnEdit.add(mnView);
@@ -212,13 +305,12 @@ public class MetadataTreeDisplayPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				// get current selected node
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-				/*
-				 * //get the column name using node level and tree structure //int
-				 * nodeLevel=node.getLevel(); //JOptionPane.showMessageDialog(null,
-				 * "node:"+node.toString()+"lev:"+nodeLevel); //JTree
-				 * mstruct=MetaOmGraph.getActiveProject().getMetadataHybrid().getTreeStucture();
-				 */
-
+				if (node == null) {
+					JOptionPane.showMessageDialog(null, "No node selected", "Please selcet a node",
+							JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				
 				// search anyfield in the metadata table that matched node name and highlight it
 				MetaOmGraph.getActiveTable().selecTabRow(node.toString());
 
@@ -226,15 +318,10 @@ public class MetadataTreeDisplayPanel extends JPanel {
 		});
 		mnView.add(mntmSwitchToTable);
 
-		mnSearch = new JMenu("Search");
-		menuBar.add(mnSearch);
+		
 
-		mntmSimple = new JMenuItem("Search");
-		mnSearch.add(mntmSimple);
-
-		mntmClearLastSearch = new JMenuItem("Clear Last Search");
-		mnSearch.add(mntmClearLastSearch);
-
+		
+		
 		mnHelp = new JMenu("Help");
 		menuBar.add(mnHelp);
 
@@ -243,7 +330,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 		scrollPane = new JScrollPane();
 		splitPane.setRightComponent(scrollPane);
 		splitPane.setDividerSize(2);
-		splitPane.setResizeWeight(.31d);
+		splitPane.setResizeWeight(.3d);
 
 		scrollPane.setViewportView(table);
 		scrollPane_1 = new JScrollPane();
@@ -263,7 +350,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 	 */
 	public void buildTreemaptoNode() {
 		this.knownColstoTreeNode = new TreeMap<Integer, DefaultMutableTreeNode>();
-		TreeMap<Integer, Element> knownCols = MetaOmGraph.getActiveProject().getMetadataHybrid().knownCols;
+		this.knownCols = mdhobj.knownCols;
 		// for all mappings in knownCols, map same to tree nodes
 		List<DefaultMutableTreeNode> treeNodes = new ArrayList<DefaultMutableTreeNode>();
 		DefaultMutableTreeNode root = (DefaultMutableTreeNode) this.tree.getModel().getRoot();
@@ -355,8 +442,8 @@ public class MetadataTreeDisplayPanel extends JPanel {
 			aVector.addElement(node.getName().toString());
 			// if content has no value it returns null. Do if to handle cols with missing
 			// values
-			if(node.getContent(0)==null) {
-				JOptionPane.showMessageDialog(null, "Error with content Nodename:"+node.getName().toString());
+			if (node.getContent(0) == null) {
+				JOptionPane.showMessageDialog(null, "Error with content Nodename:" + node.getName().toString());
 			}
 			if (node.getContent(0).getValue().toString() != null) {
 				aVector.addElement(node.getContent(0).getValue().toString());
@@ -448,24 +535,20 @@ public class MetadataTreeDisplayPanel extends JPanel {
 		}
 
 		result = currnode;
-		// System.out.println("final:" + result.getAttributeValue("name"));
-		// System.out.println("final:" + result.getContent(0).getValue().toString());
-		// JOptionPane.showMessageDialog(null, "final:" +
-		// result.getContent(0).getValue().toString());
-		// JOptionPane.showMessageDialog(null, "final name:" +
-		// result.getAttributeValue("name"));
 		return result;
 	}
 
-	private void initDisplay() {
+	private void initDisplay(Element XMLroot) {
 
 		// add XML root data to jtree, tree nodes should display only XMLnode's
 		// attribute name or content value for child node
+		//new list of nodes which will be highlighted
+		toHighlightNodes = new ArrayList<>();
 		initExcludedDataCols();
+		removeExcludedFromTree(XMLroot);
 		tree = new JTree();
 		tree.setModel(createTreeModel(XMLroot));
 		tree.addTreeSelectionListener(new TreeSelectionListener() {
-
 			@Override
 			public void valueChanged(TreeSelectionEvent se) {
 				// TODO Auto-generated method stub
@@ -490,8 +573,30 @@ public class MetadataTreeDisplayPanel extends JPanel {
 					}
 				};
 				buildTableData(getXMLnodeFromPath(strPath, XMLroot), model);
+
 				table.setModel(model);
+				table.getColumnModel().getColumn(0).setPreferredWidth(150);
+				table.getColumnModel().getColumn(1).setPreferredWidth(800);
 				table.repaint();
+			}
+		});
+
+		tree.setCellRenderer(new DefaultTreeCellRenderer() {
+			@Override
+			public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded,
+					boolean leaf, int row, boolean hasFocus) {
+				JLabel label = (JLabel) super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row,
+						hasFocus);
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
+				if (toHighlightNodes.contains(node)) {
+					//TreeNode[] pathNodes = node.getPath();
+					//TreePath path = new TreePath(pathNodes);
+					//tree.setSelectionPath(path);
+					//Rectangle rect = tree.getPathBounds(path);
+					label.setForeground(Color.RED);
+				}
+
+				return label;
 			}
 		});
 
@@ -530,19 +635,16 @@ public class MetadataTreeDisplayPanel extends JPanel {
 		}
 
 		for (Element c : cList) {
-			if (this.excludedDatacols != null || this.excludedDatacols.size() > 0) {
-				if (!(c.getAttribute("name") == null) && excludedDatacols.contains(c.getAttributeValue("name"))) {
-					// JOptionPane.showMessageDialog(null, "1skipping:" +
-					// c.getAttributeValue("name"));
-					continue;
-				}
-				if (c.getAttribute("name") == null
-						&& excludedDatacols.contains(c.getContent(0).getValue().toString())) {
-					// JOptionPane.showMessageDialog(null, "2skipping:" +
-					// c.getContent(0).getValue().toString());
-					continue;
-				}
-			}
+			/*
+			 * if (this.excludedDatacols != null || this.excludedDatacols.size() > 0) { if
+			 * (!(c.getAttribute("name") == null) &&
+			 * excludedDatacols.contains(c.getAttributeValue("name"))) { //
+			 * JOptionPane.showMessageDialog(null, "1skipping:" + //
+			 * c.getAttributeValue("name")); continue; } if (c.getAttribute("name") == null
+			 * && excludedDatacols.contains(c.getContent(0).getValue().toString())) { //
+			 * JOptionPane.showMessageDialog(null, "2skipping:" + //
+			 * c.getContent(0).getValue().toString()); continue; } }
+			 */
 
 			DefaultMutableTreeNode newNode;
 			if (!(c.getAttribute("name") == null)) {
@@ -595,19 +697,207 @@ public class MetadataTreeDisplayPanel extends JPanel {
 	}
 
 	public void initExcludedDataCols() {
-		this.excludedDatacols = MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataCollection()
-				.getExcluded();
+		this.excludedDatacols = obj.getExcluded();
 		if (this.excludedDatacols == null) {
-			this.excludedDatacols = new ArrayList<>();
+			this.excludedDatacols = new HashSet<>();
 		}
-		// JOptionPane.showMessageDialog(null, "ex:" + excludedDatacols.toString());
+		this.includedDatacols = obj.getIncluded();
+		if (this.includedDatacols == null) {
+			this.includedDatacols = new HashSet<>();
+		}
+
 	}
 
 	public void updateTree() {
-		initDisplay();
+		// get original xml root
+		XMLroot = (Element) mdhobj.getXMLRoot().clone();
+		// filter the tree
+		initDisplay(XMLroot);
 		tree.setShowsRootHandles(true);
 		tree.setRootVisible(false);
 		scrollPane_1.setViewportView(tree);
+
+		// update exclude list
+		MetaOmAnalyzer.updateExcluded(obj.getExcluded());
+		MetaOmGraph.getActiveTable().updateMetadataTable();
+
+	}
+
+	/**
+	 * Update the excluded and included datacolumns
+	 * 
+	 * @param resColumns
+	 */
+	public void filterXMLRoot(List<String> resColumns) {
+
+		List<Element> nodesToFilter = new ArrayList<>();
+		List<Element> clist = XMLroot.getChildren();
+		Set<String> inc = obj.getIncluded();
+		Set<String> exc = obj.getExcluded();
+		for (int i = 0; i < resColumns.size(); i++) {
+			String temp = resColumns.get(i);
+			exc.add(temp);
+			inc.remove(temp);
+		}
+		// update included and excluded in mog collection
+		obj.setExcluded(exc);
+		obj.setIncluded(inc);
+		updateTree();
+
+	}
+
+	/**
+	 * remove excluded nodes from current tree
+	 */
+	public void removeExcludedFromTree(Element XMLrootNode) {
+		List<Element> nodesToFilter = new ArrayList<>();
+		List<Element> clist = XMLrootNode.getChildren();
+		for (int i = 0; i < clist.size(); i++) {
+			Element thisNode = clist.get(i);
+			createfilterXMLNodeList(thisNode, this.excludedDatacols, nodesToFilter);
+		}
+
+		// JOptionPane.showMessageDialog(null,"exc len:" + this.excludedDatacols.size()
+		// + " " + this.excludedDatacols.toString());
+		// JOptionPane.showMessageDialog(null, "ntr:" + nodesToFilter.size());
+		// filter nodes
+		for (int i = 0; i < nodesToFilter.size(); i++) {
+			Element thisNode = nodesToFilter.get(i);
+			// remove all children
+			clist = thisNode.getChildren();
+			for (Iterator it = clist.iterator(); it.hasNext();) {
+				Element thisChild = (Element) it.next();
+				it.remove();
+			}
+			// remove parents if they dont have any other children
+			Element thisParent = thisNode.getParentElement();
+			Element singleParent = thisNode;
+			while (thisParent != null) {
+				List<Element> thisPclist = thisParent.getChildren();
+				int countC = 0;
+				for (int k = 0; k < thisPclist.size(); k++) {
+					if (thisPclist.get(k).getName().equals(singleParent.getName())) {
+						countC++;
+					}
+					if (countC > 1) {
+						break;
+					}
+				}
+				// remove parent if no other children exist
+				if (countC == 1) {
+					singleParent = thisParent;
+					thisParent = thisParent.getParentElement();
+				} else {
+					// remove single parent from this parent
+					// JOptionPane.showMessageDialog(null,
+					// "removing:"+singleParent.getAttributeValue("name").toString());
+					// thisParent.removeChild(singleParent.getAttributeValue("name").toString());
+					singleParent.detach();
+					break;
+
+				}
+			} // end while
+
+		} // end outer for
+	}
+
+	/**
+	 * Create a list of Elements to be removed
+	 * 
+	 * @param thisNode
+	 * @param resColumns
+	 * @param toRemove
+	 */
+	public void createfilterXMLNodeList(Element thisNode, Set<String> resColumns, List<Element> toRemove) {
+		List<Element> thisclist = thisNode.getChildren();
+		if (thisNode.getName().equals(dataColname)) {
+			String thisDataCol = "";
+			if (thisclist.size() > 0) {
+				thisDataCol = thisNode.getAttributeValue("name").toString();
+			} else {
+
+				thisDataCol = thisNode.getContent(0).getValue().toString();
+			}
+			if (resColumns.contains(thisDataCol)) {
+				// JOptionPane.showMessageDialog(null,"adding:"+ thisNode.toString()+"
+				// "+thisDataCol);
+				toRemove.add(thisNode);
+			}
+
+			return;
+		}
+
+		for (int i = 0; i < thisclist.size(); i++) {
+			createfilterXMLNodeList(thisclist.get(i), resColumns, toRemove);
+		}
+
+	}
+
+	/**
+	 * Display search panel and return search results as a list
+	 * 
+	 * @return
+	 */
+	public List<String> getQueryResults() {
+		final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(
+				MetaOmGraph.getActiveProject(), false);
+		final MetadataQuery[] queries;
+		queries = tsp.showSearchDialog();
+		if (tsp.getQueryCount() <= 0) {
+			// System.out.println("Search dialog cancelled");
+			// User didn't enter any queries
+			return null;
+		}
+		// final int[] result = new
+		// int[MetaOmGraph.getActiveProject().getDataColumnCount()];
+		final List<String> result = new ArrayList<>();
+		new AnimatedSwingWorker("Searching...", true) {
+			@Override
+			public Object construct() {
+				List<String> hits = mdhobj.getMatchingRows(queries, tsp.matchAll());
+				// return if no hits
+				if (hits.size() == 0) {
+					// JOptionPane.showMessageDialog(null, "hits len:"+hits.length);
+					// nohits=true;
+					result.add("NULL");
+					return null;
+				} else {
+					for (int i = 0; i < hits.size(); i++) {
+						result.add(hits.get(i));
+					}
+				}
+
+				return null;
+			}
+
+		}.start();
+
+		return result;
+
+	}
+
+	/**
+	 * Expand and highlight all the nodes matching names in a given list
+	 * 
+	 * @param nodes
+	 */
+	public void expandNodes(List<String> nodes) {
+		//remove previous searches
+		toHighlightNodes=new ArrayList<>();
+		DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel().getRoot();
+		Enumeration en = root.preorderEnumeration();
+		while (en.hasMoreElements()) {
+			DefaultMutableTreeNode thisNode = (DefaultMutableTreeNode) en.nextElement();
+			String thisName=thisNode.toString();
+			if(nodes.contains(thisName)) {
+				toHighlightNodes.add(thisNode);
+				//expand node
+				int thisInd=MetaOmGraph.getActiveProject().getMetadataHybrid().getColIndexbyName(thisName);
+				//second argument select parent of the node
+				MetaOmGraph.getActiveTable().selectNode(thisInd,false);
+			}
+			
+		}
 
 	}
 

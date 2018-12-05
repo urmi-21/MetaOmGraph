@@ -19,7 +19,9 @@ import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
@@ -198,6 +200,16 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 
 	public boolean repPlot = false;
 
+	// private TreeMap<String, List<Integer>> repsMapUsed;
+
+	// urmi for data transformation
+	JMenu dataTransformMenu = new JMenu("Data transform");
+	JCheckBoxMenuItem log2Item = new JCheckBoxMenuItem("<html>log<sub>2</sub></html>");
+	JCheckBoxMenuItem log10Item = new JCheckBoxMenuItem("<html>log<sub>10</sub></html>");
+	JCheckBoxMenuItem logeItem = new JCheckBoxMenuItem("<html>log<sub>e</sub></html>");
+	JCheckBoxMenuItem sqrtItem = new JCheckBoxMenuItem("<html>sqrt</html>");
+	JCheckBoxMenuItem noneItem = new JCheckBoxMenuItem("<html>None</html>");
+
 	/**
 	 * Constructs a chart panel using the given values.
 	 *
@@ -218,7 +230,8 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 	 */
 	public MetaOmChartPanel(int[] selected, String xaxisLabel, String yaxisLabel, String title, Color color1,
 			Color color2, MetaOmProject project) {
-		this(selected, xaxisLabel, yaxisLabel, title, color1, color2, project, null, null, null, null, null, false);
+		this(selected, xaxisLabel, yaxisLabel, title, color1, color2, project, null, null, null, null, null, false,
+				null);
 	}
 
 	/**
@@ -239,9 +252,11 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 	 */
 	public MetaOmChartPanel(int[] selected, String xaxisLabel, String yaxisLabel, String title, Color color1,
 			Color color2, MetaOmProject project, ArrayList<double[]> myValues, final ArrayList<double[]> stddev,
-			ArrayList<int[]> repCounts, String[] groupNames, String[] sampleNames, boolean repFlag) {
+			ArrayList<int[]> repCounts, String[] groupNames, String[] sampleNames, boolean repFlag,
+			TreeMap<String, List<Integer>> repsUsed) {
 
 		this.repFlag = repFlag;
+		// this.repsMapUsed=repsUsed;
 		if ((selected == null) || (selected.length <= 0))
 			return;
 		if (selected.length >= 500) {
@@ -277,8 +292,8 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 
 		props = new ChartProperties();
 		normalizeMode = "none";
-		if (MetaOmGraph.getInstance() != null && MetaOmGraph.getInstance().isLogging()) {
-			normalizeMode = "log2";
+		if (MetaOmGraph.getInstance() != null) {
+			normalizeMode = MetaOmGraph.getInstance().getTransform();
 		}
 		selectedSeries = -1;
 		sorter = new DataSorter(this);
@@ -362,12 +377,10 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 					g2d.setColor(new Color(Color.WHITE.getRGB() - bg.getRGB()));
 					// urmi
 					if (getDataSorter().getRangeMarkers() != null && getDataSorter().getRangeMarkers().size() > 0) {
-
 						// setup
 						g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 						AlphaComposite alpha = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.4f); // mhhur
 						g2d.setComposite(alpha);
-
 						//
 						drawRangeMarkers(g2d, getDataSorter().getRangeMarkers());
 					}
@@ -600,6 +613,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 					ChartEntity entity = myChartPanel.getChartRenderingInfo().getEntityCollection()
 							.getEntity(event.getPoint().getX(), event.getPoint().getY());
 					if (!(entity instanceof XYItemEntity)) {
+						
 						return null;
 					}
 					XYItemEntity item = (XYItemEntity) entity;
@@ -612,19 +626,28 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 					// plotting reps
 					// change to display metadata of group
 					if (stddev != null) {
-
+						int maxrowsinMD = 40;
+						int maxStringLen=500;
+						int maxGrpStringLen=100;
 						// find group name for a sample in default reps
 						String thisSampname = getFormatter().format(itemX);
 						String thisGname = getGroupName(thisSampname);
 						// Get data cols used in this average plot
 						String dataColsinGroup = String.join(",",
-								getProject().getMetadataHybrid().getIncludedColumnNameRep(thisGname));
+								getProject().getMetadataHybrid().getIncludedColumnNameRep(thisGname, repsUsed));
+						// truncate repsused string
+						if (dataColsinGroup.length() > maxGrpStringLen) {
+							dataColsinGroup = dataColsinGroup.substring(0, maxGrpStringLen) + "...";
+						}
+
 						// get the index of a sample in group to find metadata of the group
 						int thisSampIndex = getProject().getMetadataHybrid().getColIndexbyName(thisSampname);
 						// get all metadata for this Gname
 						String[][] tableData = getProject().getMetadataHybrid()
 								.getNodeMetadata(getProject().getMetadataHybrid().getParentNodeForCol(thisSampIndex));
-						String text = "<html><table bgcolor=\"#FFFFFF\">";
+						String text = "<html><table bgcolor=\"#FFFFFF\">" + " <tr>\n"
+								+ "            <th>Attribute</th>\n" + "            <th>Value</th>\n" + "        </tr>";
+
 						String bgColor = "#FFFFFF";
 						String bgColorAlt = "#"
 								+ Integer.toHexString(StripedTable.alternateRowColor.getRGB()).substring(2);
@@ -635,10 +658,23 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 						String[] rowColors = { bgColor, bgColorAlt };
 						int colorIndex = 0;
 						for (int i = 0; i < tableData.length; i++) {
+							if (i == maxrowsinMD) {
+								text += "<tr bgcolor=" + rowColors[colorIndex] + ">";
+								text += "<td><font size=-2>" + "..." + "</font></td>";
+								text += "<td><font size=-2>" + "..." + "</font></td>";
+								text += "</tr>";
+								break;
+							}
+							String thisAtt=tableData[i][0];
+							String thisData=tableData[i][1];
+							if (thisData.length() > maxStringLen) {
+								thisData = thisData.substring(0, maxStringLen) + "...";
+							}
+							
 							text += "<tr bgcolor=" + rowColors[colorIndex] + ">";
-							text += "<td><font size=-2>" + Utils.wrapText(tableData[i][0].trim(), 50, "<br>")
+							text += "<td><font size=-2>" + Utils.wrapText(thisAtt.trim(), 100, "<br>")
 									+ "</font></td>";
-							text += "<td><font size=-2>" + Utils.wrapText(tableData[i][1].trim(), 50, "<br>")
+							text += "<td><font size=-2>" + Utils.wrapText(thisData.trim(), 100, "<br>")
 									+ "</font></td>";
 							text += "</tr>";
 							colorIndex = (colorIndex + 1) % rowColors.length;
@@ -657,20 +693,40 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 
 					String[][] tableData = getProject().getMetadataHybrid()
 							.getMetadataForCol(sortOrder[plottedColumns[(int) itemX]]);
-					String text = "<html><table bgcolor=\"#FFFFFF\">";
+					int maxrowsinMD = 40;
+					int maxStringLen=500;
+					String text = "<html><head> " + "<style>" + ".scrollit {\n" + "    overflow:scroll;\n"
+							+ "    height:100px;\n" + "}" + "</style></head><body>"
+
+							+ "<div class=\"scrollit\"> <table bgcolor=\"#FFFFFF\" width=\"400\">" + " <tr>\n"
+							+ "            <th>Attribute</th>\n" + "            <th >Value</th>\n" + "        </tr>";
 					String bgColor = "#FFFFFF";
 					String bgColorAlt = "#" + Integer.toHexString(StripedTable.alternateRowColor.getRGB()).substring(2);
 					String[] rowColors = { bgColor, bgColorAlt };
 					int colorIndex = 0;
 					for (int i = 0; i < tableData.length; i++) {
+						if (i == maxrowsinMD) {
+							text += "<tr bgcolor=" + rowColors[colorIndex] + ">";
+							text += "<td><font size=-2>" + "..." + "</font></td>";
+							text += "<td><font size=-2>" + "..." + "</font></td>";
+							text += "</tr>";
+							break;
+						}
+						String thisAtt=tableData[i][0];
+						String thisData=tableData[i][1];
+						if (thisData.length() > maxStringLen) {
+							thisData = thisData.substring(0, maxStringLen) + "...";
+						}
+						
 						text += "<tr bgcolor=" + rowColors[colorIndex] + ">";
-						text += "<td><font size=-2>" + Utils.wrapText(tableData[i][0].trim(), 50, "<br>")
+						text += "<td><font size=-2>" + Utils.wrapText(thisAtt.trim(), 100, "<br>")
 								+ "</font></td>";
-						text += "<td><font size=-2>" + Utils.wrapText(tableData[i][1].trim(), 50, "<br>")
+						text += "<td><font size=-2>" + Utils.wrapText(thisData.trim(), 100, "<br>")
 								+ "</font></td>";
+						
 						text += "</tr>";
 						colorIndex = (colorIndex + 1) % rowColors.length;
-						// JOptionPane.showMessageDialog(null," message"); //urmi
+
 					}
 
 					// added by mhhur
@@ -682,10 +738,37 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 						text += "</tr>";
 					}
 
-					text += "</table></html>";
+					text += "</table> </div> </body></html>";
 					// System.out.println(text);
 
 					return text;
+				}
+
+				// urmi display tooltip away from point
+				@Override
+				public Point getToolTipLocation(MouseEvent event) {
+					Point thisPoint = event.getPoint();
+					Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+					// int maxWidth=(int) screenSize.getWidth();
+					int maxWidth = getWidth();
+					// define horizontal space between tooltip and point
+					int xMargin = 25;
+
+					int y = thisPoint.y;
+					int newy = 100;
+					/*
+					 * select appropriate y if(y-200<=0) { newy=10; }else { newy=y-200; }
+					 */
+					int x = thisPoint.x;
+					// JOptionPane.showMessageDialog(null, "mw:"+maxWidth+" x:"+x);
+					// if point is far right of scree show tool tip to the left
+					if (maxWidth - x <= 450) {
+						// JOptionPane.showMessageDialog(null, "mw:"+maxWidth+" x:"+x);
+						// return new Point(x-300, 5);
+						// table width is 400
+						return new Point(x - (400 + xMargin), newy);
+					}
+					return new Point(x + xMargin, newy);
 				}
 
 			};
@@ -712,6 +795,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 			manageAnnotationsItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					myAnnotator.manageAnnotations();
+					// s
 				}
 
 			});
@@ -740,17 +824,92 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 			});
 			manageMenu.add(manageAnnotationsItem);
 			manageMenu.add(manageColumnsItem);
-			myChartPanel.getPopupMenu().add(manageMenu);
-			JCheckBoxMenuItem log2Item = new JCheckBoxMenuItem("<html>log<sub>2</sub> Scaling</html>");
+			//urmi add manage range markers
+			JMenuItem manageMarkersItem = new JMenuItem("Markers...");
+			manageAnnotationsItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					myAnnotator.manageAnnotations();
+					 
+				}
+
+			});
+			//manageMenu.add(manageMarkersItem);
+
+			// transform data from chart right click menu
+
 			log2Item.setSelected("log2".equals(normalizeMode));
 			log2Item.addActionListener(new ActionListener() {
-
 				public void actionPerformed(ActionEvent arg0) {
-					normalizeMode = (normalizeMode.equals("none") ? "log2" : "none");
+					log2Item.setSelected(true);
+					log10Item.setSelected(false);
+					logeItem.setSelected(false);
+					sqrtItem.setSelected(false);
+					noneItem.setSelected(false);
+					doTransformation();
 					initializeDataset();
 				}
 			});
-			myChartPanel.getPopupMenu().add(log2Item);
+
+			log10Item.setSelected("log10".equals(normalizeMode));
+			log10Item.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					log2Item.setSelected(false);
+					log10Item.setSelected(true);
+					logeItem.setSelected(false);
+					sqrtItem.setSelected(false);
+					noneItem.setSelected(false);
+					doTransformation();
+					initializeDataset();
+				}
+			});
+
+			logeItem.setSelected("loge".equals(normalizeMode));
+			logeItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					log2Item.setSelected(false);
+					log10Item.setSelected(false);
+					logeItem.setSelected(true);
+					sqrtItem.setSelected(false);
+					noneItem.setSelected(false);
+					doTransformation();
+					initializeDataset();
+				}
+			});
+
+			sqrtItem.setSelected("sqrt".equals(normalizeMode));
+			sqrtItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					log2Item.setSelected(false);
+					log10Item.setSelected(false);
+					logeItem.setSelected(false);
+					sqrtItem.setSelected(true);
+					noneItem.setSelected(false);
+					doTransformation();
+					initializeDataset();
+				}
+			});
+
+			noneItem.setSelected("NONE".equals(normalizeMode));
+			noneItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					log2Item.setSelected(false);
+					log10Item.setSelected(false);
+					logeItem.setSelected(false);
+					sqrtItem.setSelected(false);
+					noneItem.setSelected(true);
+					doTransformation();
+					initializeDataset();
+				}
+			});
+
+			dataTransformMenu.add(log2Item);
+			dataTransformMenu.add(log10Item);
+			dataTransformMenu.add(logeItem);
+			dataTransformMenu.add(sqrtItem);
+			dataTransformMenu.add(noneItem);
+
+			myChartPanel.getPopupMenu().add(dataTransformMenu);
+			myChartPanel.getPopupMenu().add(manageMenu);
 
 			// Construct the chart annotation bar
 			annotationField = new JTextField();
@@ -891,10 +1050,12 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 					// else if (normalizeMode.equals("log10"))
 					// for (int x = 0; x < thisData.length; x++)
 					// thisData[x] = (Math.log(thisData[x]) / Math.log(10));
-					if (normalizeMode.equals("log2"))
-						for (int x = 0; x < thisData.length; x++)
-							if ((thisData[x] != 0) && (thisData[x] != Double.NaN))
-								thisData[x] = (Math.log(thisData[x]) / Math.log(2));
+
+					/*
+					 * if (normalizeMode.equals("log2")) for (int x = 0; x < thisData.length; x++)
+					 * if ((thisData[x] != 0) && (thisData[x] != Double.NaN)) thisData[x] =
+					 * (Math.log(thisData[x]) / Math.log(2));
+					 */
 					int chartX = 0;
 					plottedColumns = new int[visibleColumns];
 					boolean[] exclude = MetaOmAnalyzer.getExclude();
@@ -929,11 +1090,11 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 				} else {
 
 					XYIntervalSeries mySeries = new XYIntervalSeries(seriesName, false, false);
-
-					if (normalizeMode.equals("log2"))
-						for (int x = 0; x < thisData.length; x++)
-							if ((thisData[x] != 0) && (thisData[x] != Double.NaN))
-								thisData[x] = (Math.log(thisData[x]) / Math.log(2));
+					/*
+					 * if (normalizeMode.equals("log2")) for (int x = 0; x < thisData.length; x++)
+					 * if ((thisData[x] != 0) && (thisData[x] != Double.NaN)) thisData[x] =
+					 * (Math.log(thisData[x]) / Math.log(2));
+					 */
 					int chartX = 0;
 					plottedColumns = new int[visibleColumns];
 					boolean[] exclude = MetaOmAnalyzer.getExclude();
@@ -1104,9 +1265,10 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 		myParent.setName("plotwindow.php");
 		myParent.show();
 
+		// urmi
 		// set exception listener
 		if (this.myParent == null) {
-			JOptionPane.showMessageDialog(null, "NULL");
+			JOptionPane.showMessageDialog(null, "setting exception listener: NULL");
 		}
 		ExceptionHandler.getInstance(this.myParent).setUseBuffer(true);
 		Thread.setDefaultUncaughtExceptionHandler(ExceptionHandler.getInstance(this.myParent));
@@ -1972,13 +2134,16 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 		if (this.sampleNames == null || this.groupNames == null) {
 			return "NA";
 		}
-		//JOptionPane.showMessageDialog(null, "Tosearch:" + sName);
+		// JOptionPane.showMessageDialog(null, "Tosearch:" + sName);
 		// JOptionPane.showMessageDialog(null, "snames:"+Arrays.toString(sampleNames));
 		// JOptionPane.showMessageDialog(null, "gnames:"+Arrays.toString(groupNames));
 		for (int i = 0; i < sampleNames.length; i++) {
+			try {
+				if (sampleNames[i].equals(sName)) {
+					return groupNames[i];
+				}
+			} catch (java.lang.NullPointerException e) {
 
-			if (sampleNames[i].equals(sName)) {
-				return groupNames[i];
 			}
 
 		}
@@ -2032,5 +2197,25 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 	 */
 	public ChartToolBar getToolbar() {
 		return myToolbar;
+	}
+
+	public void doTransformation() {
+		
+		if (log2Item.isSelected()) {
+			MetaOmGraph.setTransform("log2");
+			log2Item.setSelected(true);
+		} else if (log10Item.isSelected()) {
+			MetaOmGraph.setTransform("log10");
+			log10Item.setSelected(true);
+		} else if (logeItem.isSelected()) {
+			MetaOmGraph.setTransform("loge");
+			logeItem.setSelected(true);
+		} else if (sqrtItem.isSelected()) {
+			MetaOmGraph.setTransform("sqrt");
+			sqrtItem.setSelected(true);
+		} else if (noneItem.isSelected()) {
+			MetaOmGraph.setTransform("NONE");
+			noneItem.setSelected(true);
+		}
 	}
 }

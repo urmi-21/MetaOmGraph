@@ -1,8 +1,83 @@
-1)Let user choose a rep column and based on that get reps. This assumes reps in different samples. 
-2)Allows Spliting Sample attributes in MOG e.g. (a1:v1||a2:v2||a3:v3) should add three attribute a1, a2, a3 with values v1, v2, v3
-3)Make windows part of project windows
-4)Make links to SRA and GEO databases
-5)Filter plots by list of sample etc.
-6)Export loaded data and metadata as csv
-7)Make table more radable
-8)Push annotations far from mouse to allow click
+$add data transformation other than log
+$add external web apps to chart bottom panel
+$add match case for all queries in TreeSearchQueryConstructionPanel
+$add null metadata to missing metadata columns while reading metadata file
+$add relatedness to menu
+$Adding null values to metadata
+$after reading data file add widow to select types of infocolumns
+$change default rep to outermost/Let user choose a rep column and based on that get reps. This assumes reps in different samples. 
+$Change MI matrix
+$check joint entropy
+$check MI code
+$compute p-val for spearman using fisher from wiki https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient
+$delete unused columns in MD
+$deleting/removing/shifting columns change hyperlink columns
+$fix open project locate file //works on windows
+$handle defaultRpath flag
+$Handle missing data
+$Horizontal scroll import metadata
+$improve clicking on chart point/Push annotations far from mouse to allow click
+$improve searching speed
+$list search or and and not working
+$locate tsv files
+$mac npd to front
+$make "finding samples" interface
+$Make links to SRA and GEO databases
+$make scatter plot for two selected rows
+$manage rangemarkers
+$metadata table remove new proj with selected
+$metadata view functionality
+$MI z values
+$move external application option to menu
+$move search results together
+$remove blank row from metadata
+$Remove correlation columns from main table
+$save a list of extra rows in metadata and remove them when project is reopened
+$save all properties correlation p vals etc to project
+$save main table to file
+$save SRA links
+$Search in tree metadata
+$shift annotation to left of points are on right of chart
+$Show p val on mouse hover
+$Sort by x axis labels
+$spearman corr p value
+$transform data from chart right click menu
+?add "and" option to quick filter
+?Add advance filter in main table for genemetadata
+?Add splash screen/using j exe
+?avoid light colors
+?improve pval skip smaller associations
+?include gephi graph toolkit
+?load gene metadata
+?Make table more readable
+?Make windows part of project windows
+?MCL clustering
+?save prog params with mog params not with project
+?use Lucene for reading files
+?use of ND4J
+add chart annotator for replicate plot
+add mean lines to plot
+add scroll in annotation table
+add xml read support for metadata
+?allow changing info cols in project
+Allows Spliting Sample attributes in MOG e.g. (a1:v1||a2:v2||a3:v3) should add three attribute a1, a2, a3 with values v1, v2, v3
+$check for auto updates
+check shuff in group when repsmap is data column
+fix email send without pass
+plot as series xaxis label
+Sort in chart while grouped by metadata
+Test tree building algorithm thoroughly
+try plotly
+MI,spearman,PC, test all
+$double stars in project title
+in pearson corr no pval, if data is missing it skips the cols with missing data. Change this to return 0 if a column is missing for a row.
+pvalue doesn't show in list
+fix shuff in group/order is different
+add grouping var name in corr detail
+convert to internal frames
+show header name on hover
+wrap text in metadta tree/table
+reset rows update title
+show num of cd used in rep plot metadata
+change def rep col set to current selected col, only call func if changed
+build reps column is slow again

@@ -3,7 +3,10 @@ package edu.iastate.metnet.metaomgraph.ui;
 import edu.iastate.metnet.metaomgraph.*;
 import edu.iastate.metnet.metaomgraph.SwingWorker;
 import edu.iastate.metnet.metaomgraph.MetaOmProject.RepAveragedData;
+import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
+import edu.iastate.metnet.metaomgraph.chart.MakeChartWithR;
 import edu.iastate.metnet.metaomgraph.chart.MetaOmChartPanel;
+import edu.iastate.metnet.metaomgraph.chart.ScatterPlotChart;
 import edu.iastate.metnet.metaomgraph.test.BoxPlotter;
 import edu.iastate.metnet.metaomgraph.test.GeneHistogram;
 import edu.iastate.metnet.metaomgraph.throbber.MetaOmThrobber;
@@ -22,25 +25,35 @@ import javax.swing.Timer;
 import javax.swing.border.Border;
 import javax.swing.event.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
+import org.biomage.Array.Array;
 import org.jdom.Element;
 
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class MetaOmTablePanel extends JPanel implements ActionListener, ListSelectionListener, ChangeListener {
+
 	public static final String GRAPH_LIST_COMMAND = "graph list";
 	public static final String GRAPH_SELECTED_COMMAND = "graph selected";
 	public static final String GRAPH_FILTERED_COMMAND = "graph filter";
@@ -71,22 +84,44 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	public static final String GRAPH_BOXPLOT_COMMAND = "make boxplot";
 	public static final String GRAPH_BOXPLOT_COLS_COMMAND = "col boxplot";
 	public static final String MAKE_HISTOGRAM_COMMAND = "create histogram";
+	// private static int _N = MetaOmGraph.getNumPermutations();
+	// private static int _T = MetaOmGraph.getNumThreads();
 	private JButton reportButton;
 	private JButton listFromFilterButton;
+	// urmi
+	private JButton saveMainTableButton;
 	private MenuButton plotButton;
 	private JMenuItem plotListItem;
 	private JMenuItem plotRowsItem;
+	// urmi
+	private JMenuItem plotPairRowsItem;
 	private JMenuItem plotFilterItem;
 	private JMenuItem plotRepsItem;
+	private JMenuItem plotRepsChoose;
 	private JMenuItem plotBoxRowItem;
 	private JMenuItem plotBoxColItem;
 	private JMenuItem plotHistogramItem;
+	// urmi
+	private JMenuItem plotHeatMapItem;
 	private MenuButton analyzeMenuButton;
 	private JMenuItem pearsonItem;
 	// urmi
 	private JMenuItem pearsonItem2;
+	private JMenuItem pearsonItem3;
 	private JMenuItem pearsonItemPool;
+	private JMenuItem pearsonItemPoolFEM;
+	private JMenuItem pearsonItemPoolREM;
+	private JMenuItem mutualInformationItem;
+	private JMenuItem mutualInformationItem2; // pava
+	private JMenuItem mutualInformationItem3; // pval
+	private JMenuItem mutualInformationItemPairwise;
+	private JMenuItem relatednessItem;
+	private JMenuItem relatednessPairwise;
+
 	private JMenuItem spearmanItem;
+	// urmi
+	private JMenuItem spearmanItem2;
+	private JMenuItem spearmanItem3;
 	private JMenuItem euclideanItem;
 	private JMenuItem canberraItem;
 	private JMenuItem manhattanItem;
@@ -98,6 +133,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	private JMenu removeCorrelationMenu;
 	private JMenu selectedRowsMenu;
 	private MenuButton infoButton;
+	// urmi
+	private JButton metabutton;
+	private JMenuItem viewCorrStats;
+	private JButton advFilterButton;
+
 	private JMenuItem atgsItem;
 	private JMenuItem tairItem;
 	private JMenuItem thaleMineItem;
@@ -166,33 +206,54 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 		plotRowsItem = new JMenuItem("Line Chart");
 		plotFilterItem = new JMenuItem("Filtered List");
+		plotPairRowsItem = new JMenuItem("Scatter Plot");
 
-		plotRepsItem = new JMenuItem("Line Chart with Averaged Replicates");
+		JMenu plotRepsMenu = new JMenu("Line Chart with Averaged Replicates");
+		plotRepsItem = new JMenuItem("Default grouping");
+		plotRepsChoose = new JMenuItem("Choose grouping");
 
 		plotBoxRowItem = new JMenuItem("Box Plot");
 		plotBoxColItem = new JMenuItem("Box Plot Samples");
 
 		plotHistogramItem = new JMenuItem("Histogram");
+		// urmi
+		plotHeatMapItem = new JMenuItem("Heatmap");
+
 		plotListItem.setActionCommand(GRAPH_LIST_COMMAND);
 		plotListItem.addActionListener(this);
+
 		plotRowsItem.setActionCommand(GRAPH_SELECTED_COMMAND);
 		plotRowsItem.addActionListener(this);
 		plotFilterItem.setActionCommand(GRAPH_FILTERED_COMMAND);
 		plotFilterItem.addActionListener(this);
 		plotFilterItem.setEnabled(false);
+
+		plotPairRowsItem.setActionCommand("scatterplot");
+		plotPairRowsItem.addActionListener(this);
+
 		plotRepsItem.setActionCommand("plot reps");
 		plotRepsItem.addActionListener(this);
+		plotRepsChoose.setActionCommand("choose reps");
+		plotRepsChoose.addActionListener(this);
+
 		plotBoxRowItem.setActionCommand("make boxplot");
 		plotBoxRowItem.addActionListener(this);
 		plotBoxColItem.setActionCommand("col boxplot");
 		plotBoxColItem.addActionListener(this);
 		plotHistogramItem.setActionCommand("create histogram");
 		plotHistogramItem.addActionListener(this);
+		// urmi
+		plotHeatMapItem.setActionCommand("create heatmap");
+		plotHeatMapItem.addActionListener(this);
 		JPopupMenu plotPopupMenu = new JPopupMenu();
 		selectedRowsMenu.add(plotRowsItem);
-		selectedRowsMenu.add(plotRepsItem);
+		selectedRowsMenu.add(plotPairRowsItem);
+		plotRepsMenu.add(plotRepsItem);
+		plotRepsMenu.add(plotRepsChoose);
+		selectedRowsMenu.add(plotRepsMenu);
 		selectedRowsMenu.add(plotBoxRowItem);
 		selectedRowsMenu.add(plotHistogramItem);
+		selectedRowsMenu.add(plotHeatMapItem);
 		plotPopupMenu.add(selectedRowsMenu);
 
 		plotPopupMenu.add(plotFilterItem);
@@ -208,22 +269,87 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		});
 		dataToolbar.add(plotButton);
 
+		// urmi
+		// add button to access meta-analysis data
+		metabutton = new JButton("Correlation Stats", theme.getReport());
+		// add action to view for with metadata
+		metabutton.setActionCommand("viewmetaform");
+		metabutton.addActionListener(this);
+
+		viewCorrStats = new JMenuItem("View correlation details");
+		viewCorrStats.setActionCommand("viewmetaform");
+		viewCorrStats.addActionListener(this);
+
 		JPopupMenu analyzePopupMenu = new JPopupMenu();
-		pearsonItem = new JMenuItem("Pearson Correlation");
+		// urmi Add menu and sub menu
+		JMenu corrMenu = new JMenu("Correlation");
+		JMenu pcorrMenu = new JMenu("Pearson's");
+		JMenu scorrMenu = new JMenu("Spearman's");
+		JMenu poolcorrMenu = new JMenu("Weighted Pearson's");
+		JMenu informationMenu = new JMenu("Mutual Information");
+		JMenu distMenu = new JMenu("Distance");
+
+		//////////////////////////
+		pearsonItem = new JMenuItem("Pearson Correlation(No pval)");
 		pearsonItem.setActionCommand("pearson correlation");
 		pearsonItem.addActionListener(this);
 		// urmi
-		pearsonItem2 = new JMenuItem("Pearson Correlation2");
+		pearsonItem2 = new JMenuItem("Pearson Correlation(permute within groups)");
 		pearsonItem2.setActionCommand("pearson correlation2");
 		pearsonItem2.addActionListener(this);
+		// urmi
+		pearsonItem3 = new JMenuItem("Pearson Correlation(permute all)");
+		pearsonItem3.setActionCommand("pearson correlation3");
+		pearsonItem3.addActionListener(this);
 
-		pearsonItemPool = new JMenuItem("Pearson Correlation Pooled");
+		pearsonItemPool = new JMenuItem("Pearson Correlation(Meta-analysis)");
 		pearsonItemPool.setActionCommand("pearson correlationP");
 		pearsonItemPool.addActionListener(this);
 
-		spearmanItem = new JMenuItem("Spearman Correlation");
+		pearsonItemPoolFEM = new JMenuItem("Pooled Pearson Correlation(Fixed effects model)");
+		pearsonItemPoolFEM.setActionCommand("FEMcorrelationP");
+		pearsonItemPoolFEM.addActionListener(this);
+
+		pearsonItemPoolREM = new JMenuItem("Pooled Pearson Correlation(Random effects model)");
+		pearsonItemPoolREM.setActionCommand("REMcorrelationP");
+		pearsonItemPoolREM.addActionListener(this);
+
+		mutualInformationItem = new JMenuItem("Mutual Information(No pval)");
+		mutualInformationItem.setActionCommand("mutualInformation");
+		mutualInformationItem.addActionListener(this);
+
+		mutualInformationItem2 = new JMenuItem("Mutual Information(permute within groups)");
+		mutualInformationItem2.setActionCommand("mutualInformation2");
+		mutualInformationItem2.addActionListener(this);
+
+		mutualInformationItem3 = new JMenuItem("Mutual Information(permute all)");
+		mutualInformationItem3.setActionCommand("mutualInformation3");
+		mutualInformationItem3.addActionListener(this);
+
+		relatednessItem = new JMenuItem("Relatedness");
+		relatednessItem.setActionCommand("relatedness");
+		relatednessItem.addActionListener(this);
+
+		mutualInformationItemPairwise = new JMenuItem("Mutual Information matrix");
+		mutualInformationItemPairwise.setActionCommand("mutualInformationPairs");
+		mutualInformationItemPairwise.addActionListener(this);
+
+		relatednessPairwise = new JMenuItem("Relatedness matrix");
+		relatednessPairwise.setActionCommand("relatednessPairs");
+		relatednessPairwise.addActionListener(this);
+
+		spearmanItem = new JMenuItem("Spearman Correlation(No pval)");
 		spearmanItem.setActionCommand("spearman correlation");
 		spearmanItem.addActionListener(this);
+		// urmi
+		spearmanItem2 = new JMenuItem("Spearman Correlation(permute within groups)");
+		spearmanItem2.setActionCommand("spearman correlation2");
+		spearmanItem2.addActionListener(this);
+		// urmi
+		spearmanItem3 = new JMenuItem("Spearman Correlation(permute all)");
+		spearmanItem3.setActionCommand("spearman correlation3");
+		spearmanItem3.addActionListener(this);
+
 		euclideanItem = new JMenuItem("Euclidean distance");
 		euclideanItem.setActionCommand("euclidean distance");
 		euclideanItem.addActionListener(this);
@@ -242,31 +368,77 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		saveCorrelationItem = new JMenuItem("Keep Previous Correlation");
 		saveCorrelationItem.setActionCommand("save correlation");
 		saveCorrelationItem.addActionListener(this);
-		pairwisePearsonItem = new JMenuItem("Pairwise Pearson Correlation");
+		pairwisePearsonItem = new JMenuItem("Pearson Correlation matrix");
 		pairwisePearsonItem.setActionCommand("pairwise pearson");
 		pairwisePearsonItem.addActionListener(this);
-		pairwiseSpearmanItem = new JMenuItem("Pairwise Spearman Correlation");
+		pairwiseSpearmanItem = new JMenuItem("Spearman Correlation matrix");
 		pairwiseSpearmanItem.setActionCommand("pairwise spearman");
 		pairwiseSpearmanItem.addActionListener(this);
 
 		removeCorrelationMenu = new JMenu("Remove Correlation");
 
-		analyzePopupMenu.add(pearsonItem);
-		analyzePopupMenu.add(pearsonItem2);
-		analyzePopupMenu.add(pearsonItemPool);
-		analyzePopupMenu.add(spearmanItem);
-		analyzePopupMenu.add(euclideanItem);
-		analyzePopupMenu.add(weightedEuclideanItem);
-		analyzePopupMenu.add(manhattanItem);
-		analyzePopupMenu.add(weightedManhattanItem);
+		pcorrMenu.add(pearsonItem);
+		pcorrMenu.add(pearsonItem2);
+		pcorrMenu.add(pearsonItem3);
+		scorrMenu.add(spearmanItem);
+		scorrMenu.add(spearmanItem2);
+		scorrMenu.add(spearmanItem3);
 
-		analyzePopupMenu.add(saveCorrelationItem);
+		poolcorrMenu.add(pearsonItemPool);
+		// poolcorrMenu.add(pearsonItemPoolFEM);
+		// poolcorrMenu.add(pearsonItemPoolREM);
+		corrMenu.add(pcorrMenu);
+		corrMenu.add(scorrMenu);
+		corrMenu.add(poolcorrMenu);
+
+		corrMenu.addSeparator();
+		// corrMenu.add(spearmanItem);
+		corrMenu.add(pairwisePearsonItem);
+		corrMenu.add(pairwiseSpearmanItem);
+		analyzePopupMenu.add(corrMenu);
+
+		informationMenu.add(mutualInformationItem);
+		informationMenu.add(mutualInformationItem2);
+		informationMenu.add(mutualInformationItem3);
+		// informationMenu.add(relatednessItem);
+		informationMenu.addSeparator();
+		informationMenu.add(mutualInformationItemPairwise);
+		informationMenu.add(relatednessPairwise);
+		analyzePopupMenu.add(informationMenu);
+
+		distMenu.add(euclideanItem);
+		distMenu.add(canberraItem);
+		distMenu.add(manhattanItem);
+		distMenu.add(weightedEuclideanItem);
+		distMenu.add(weightedManhattanItem);
+		analyzePopupMenu.add(distMenu);
+
 		analyzePopupMenu.addSeparator();
+		analyzePopupMenu.add(viewCorrStats);
+		analyzePopupMenu.addSeparator();
+		analyzePopupMenu.add(saveCorrelationItem);
 		analyzePopupMenu.add(removeCorrelationMenu);
 
-		analyzePopupMenu.add(pairwisePearsonItem);
-		analyzePopupMenu.add(pairwiseSpearmanItem);
+		// analyzePopupMenu.add(pairwisePearsonItem);
+		// analyzePopupMenu.add(pairwiseSpearmanItem);
+
+		/*
+		 * analyzePopupMenu.add(pearsonItem); analyzePopupMenu.add(pearsonItem2);
+		 * analyzePopupMenu.add(pearsonItem3); analyzePopupMenu.add(pearsonItemPool);
+		 * analyzePopupMenu.add(mutualInformationItem);
+		 * analyzePopupMenu.add(spearmanItem); analyzePopupMenu.add(euclideanItem);
+		 * analyzePopupMenu.add(weightedEuclideanItem);
+		 * analyzePopupMenu.add(manhattanItem);
+		 * analyzePopupMenu.add(weightedManhattanItem);
+		 * 
+		 * analyzePopupMenu.add(saveCorrelationItem); analyzePopupMenu.addSeparator();
+		 * analyzePopupMenu.add(removeCorrelationMenu);
+		 * 
+		 * analyzePopupMenu.add(pairwisePearsonItem);
+		 * analyzePopupMenu.add(pairwiseSpearmanItem);
+		 */
 		analyzeMenuButton = new MenuButton("Statistical analysis", theme.getMath(), analyzePopupMenu);
+
 		analyzeMenuButton.addFocusListener(new FocusAdapter() {
 			public void focusGained(FocusEvent e) {
 				saveCorrelationItem.setEnabled(myProject.hasLastCorrelation());
@@ -278,11 +450,19 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		analyzeMenuButton.setToolTipText(
 				"Statistically analyze the selected data set against the other sets in the selected list");
 		dataToolbar.add(analyzeMenuButton);
+
+		dataToolbar.add(new Separator());
+		saveMainTableButton = new JButton(theme.getExcel());
+		saveMainTableButton.setActionCommand("savemaintab");
+		saveMainTableButton.addActionListener(this);
+		dataToolbar.add(saveMainTableButton);
+
 		reportButton = new JButton("Finding samples", theme.getReport());
 		reportButton.setToolTipText("Generate report");
 		reportButton.setActionCommand(REPORT_COMMAND);
 		reportButton.addActionListener(this);
-		dataToolbar.add(reportButton);
+		// reportButton added to projrct menu
+		// dataToolbar.add(reportButton);
 		JPopupMenu infoPopupMenu = new JPopupMenu();
 		atgsItem = new JMenuItem("AtGeneSearch");
 		atgsItem.setActionCommand(ATGENESEARCH_COMMAND);
@@ -309,7 +489,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		infoPopupMenu.add(jBrowseItem);
 		infoButton = new MenuButton("External web applications", theme.getExternalSource(), infoPopupMenu);
 		infoButton.setToolTipText("Connect to an external website for more info on the selected genes");
-		dataToolbar.add(infoButton);
+
+		// infoButton is moved to project menu in the main filemenu
+		// dataToolbar.add(infoButton);
+		// dataToolbar.add(metabutton);
+
 		String[] listNames = myProject.getGeneListNames();
 		Arrays.sort(listNames, new ListNameComparator());
 		geneLists = new JList(listNames);
@@ -330,11 +514,26 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		filterModel = new FilterableTableModel(mainModel);
 		sorter = new TableSorter(filterModel);
 		MyComparator comparator = new MyComparator();
+		MyAlphanumericComparator comparator2 = new MyAlphanumericComparator();
 		sorter.setColumnComparator(String.class, comparator);
 		sorter.setColumnComparator(CorrelationValue.class, comparator);
+		sorter.setColumnComparator(double.class, new MyAlphanumericComparator());
 		sorter.setColumnComparator(null, comparator);
 		listDisplay = new StripedTable(sorter);
 		sorter.setTableHeader(listDisplay.getTableHeader());
+
+		// fix col width
+		/*
+		 * TableColumnModel columnModel = listDisplay.getColumnModel(); for (int column
+		 * = 0; column < listDisplay.getColumnCount(); column++) { int width = 15; //
+		 * Min width for (int row = 0; row < listDisplay.getRowCount(); row++) {
+		 * TableCellRenderer renderer = listDisplay.getCellRenderer(row, column);
+		 * Component comp = listDisplay.prepareRenderer(renderer, row, column); width =
+		 * Math.max(comp.getPreferredSize().width +1 , width); } if(width > 300)
+		 * width=300; columnModel.getColumn(column).setPreferredWidth(width); }
+		 * listDisplay.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		 */
+
 		geneListDisplayPane = new JScrollPane(listDisplay);
 		JPanel searchPanel = new JPanel(new BorderLayout());
 		searchPanel.add(new JLabel("Filter:"), "Before");
@@ -349,6 +548,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		});
 		filterField.getDocument().addDocumentListener(new FilterFieldListener());
 		filterField.setDefaultText("Use semicolon (;) for multiple filters");
+		filterField.setColumns(20);
 		searchPanel.add(filterField, "Center");
 
 		try {
@@ -359,7 +559,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			throbber = new MetaOmThrobber();
 		}
 		searchPanel.add(throbber, "After");
-		listFromFilterButton = new JButton(">> Add to List");
+		listFromFilterButton = new JButton(theme.getListSave());
 		listFromFilterButton.setActionCommand("list from filter");
 		listFromFilterButton.addActionListener(this);
 		listFromFilterButton.setEnabled(false);
@@ -367,13 +567,22 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		dataToolbar.add(new Separator());
 		dataToolbar.add(searchPanel);
 		dataToolbar.add(listFromFilterButton);
+
+		// add advance filter button
+		// s
+		advFilterButton = new JButton("Advance filter");
+		advFilterButton.setActionCommand("advancefilter");
+		advFilterButton.addActionListener(this);
+		advFilterButton.setToolTipText("Filter/search the table with multiple queries");
+		dataToolbar.add(advFilterButton);
+
 		geneListPanel.setMinimumSize(listToolbar.getPreferredSize());
 		listSplitPane = new JSplitPane(1, true, geneListPanel, geneListDisplayPane);
 		listSplitPane.setDividerSize(1);
 		listPanel.add(dataToolbar, "First");
 		listPanel.add(listSplitPane, "Center");
 		tabby = new JTabbedPane();
-		tabby.addTab("Data", listPanel);
+		tabby.addTab("Gene Metadata", listPanel);
 		if (myProject.getMetadataHybrid() != null)
 			addExtInfoTab();
 		add(tabby, "Center");
@@ -464,6 +673,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		listDisplay.setAutoResizeMode(0);
 		sorter.setTableHeader(listDisplay.getTableHeader());
 		sorter.setColumnComparator(String.class, new MyComparator());
+		// urmi add comparator for double when state changed
+		sorter.setColumnComparator(CorrelationValue.class, new MyComparator());
+		sorter.setColumnComparator(double.class, new MyAlphanumericComparator());
+		sorter.setColumnComparator(null, new MyComparator());
+
 		sorter.setSortingStatus(myProject.getDefaultColumn(), 1);
 		geneListDisplayPane.setViewportView(listDisplay);
 		filterField.setText("");
@@ -480,6 +694,71 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			listRenameButton.setEnabled(false);
 		}
 		getTable().requestFocus();
+	}
+
+	/**
+	 * @author urmi launch ensemble website
+	 * @throws URISyntaxException
+	 * @throws IOException
+	 */
+	public void launchEnsembl(String db) throws URISyntaxException, IOException {
+		int[] selected = listDisplay.getSelectedRows();
+		if (selected.length >= 10) {
+			int dialogButton = JOptionPane.YES_NO_OPTION;
+			int dialogResult = JOptionPane.showConfirmDialog(null,
+					"This will open " + selected.length + " web pages. Do you want to continue?", "Continue?",
+					dialogButton);
+			if (dialogResult == JOptionPane.NO_OPTION) {
+				return;
+			}
+		}
+		URI ns = null;
+		for (int i = 0; i < selected.length; i++) {
+			String selectedID = listDisplay.getValueAt(selected[i], myProject.getDefaultColumn()) + "";
+			// check if this id is transcript or gene
+			if (db == "all") {
+				ns = new URI("https://www.ensembl.org/Multi/Search/Results?q=" + selectedID + ";site=ensembl_all");
+			} else if (db == "plants") {
+				ns = new URI("https://plants.ensembl.org/Multi/Search/Results?species=all;idx=;q=" + selectedID
+						+ ";site=ensemblunit");
+			}
+			java.awt.Desktop.getDesktop().browse(ns);
+
+		}
+
+	}
+
+	/**
+	 * @author urmi launch refseq website
+	 * @throws URISyntaxException
+	 * @throws IOException
+	 */
+	public void launchRefSeq() throws URISyntaxException, IOException {
+		int[] selected = listDisplay.getSelectedRows();
+		if (selected.length >= 10) {
+			int dialogButton = JOptionPane.YES_NO_OPTION;
+			int dialogResult = JOptionPane.showConfirmDialog(null,
+					"This will open " + selected.length + " web pages. Do you want to continue?", "Continue?",
+					dialogButton);
+			if (dialogResult == JOptionPane.NO_OPTION) {
+				return;
+			}
+		}
+		URI ns = null;
+		for (int i = 0; i < selected.length; i++) {
+			String selectedID = listDisplay.getValueAt(selected[i], myProject.getDefaultColumn()) + "";
+			if (selectedID.contains(".")) {
+				// JOptionPane.showMessageDialog(null, "thisID:"+selectedID);
+				selectedID = selectedID.split("\\.")[0];
+			}
+			// JOptionPane.showMessageDialog(null, "thisID:"+selectedID);
+			// check if this id is transcript or gene
+			ns = new URI(
+					"https://www.ncbi.nlm.nih.gov/nuccore/?term=" + selectedID + "[Text+Word]+AND+srcdb_refseq[PROP]");
+			java.awt.Desktop.getDesktop().browse(ns);
+
+		}
+
 	}
 
 	public void launchAtGeneSearch() {
@@ -502,17 +781,21 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		String geneList = "";
 		boolean found = false;
 		for (int x = 0; x < selected.length; x++) {
-			for (int y = 0; (y < listDisplay.getColumnCount()) && (!found); y++) {
+			for (int y = 0; (y < listDisplay.getColumnCount()); y++) {
 				if (Utils.isGeneID(listDisplay.getValueAt(selected[x], y) + "")) {
-					found = true;
-					geneList = listDisplay.getValueAt(selected[x], y) + "";
+					// found = true;
+					// pass all selected genes as query
+					geneList += listDisplay.getValueAt(selected[x], y) + ";";
 				}
 			}
 		}
+
+		// JOptionPane.showMessageDialog(null, "this gene:"+geneList);
 		if (geneList.equals("")) {
 			JOptionPane.showMessageDialog(getParent(), "Unable to find any locus IDs in the selected rows", "Error", 0);
 			return;
 		}
+
 		String urlString = url + geneList;
 		if (option != "")
 			urlString = url + geneList + "/" + option;
@@ -620,6 +903,41 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						.createInternalFrame();
 	}
 
+	public void graphPairs() {
+		int[] selected = getSelectedRowsInList();
+		if (selected.length < 1) {
+			JOptionPane.showMessageDialog(null, "Please select two or more rows and try again to plot a scatterplot.",
+					"Invalid number of rows selected", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {// get data for selected rows
+
+					ScatterPlotChart f = new ScatterPlotChart(selected, 0, myProject);
+					MetaOmGraph.getDesktop().add(f);
+					f.setDefaultCloseOperation(2);
+					f.setClosable(true);
+					f.setResizable(true);
+					f.pack();
+					f.setSize(1000, 700);
+					f.setVisible(true);
+					f.toFront();
+
+				} catch (Exception e) {
+					JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
+							JOptionPane.ERROR_MESSAGE);
+
+					e.printStackTrace();
+					return;
+				}
+			}
+		});
+
+		return;
+	}
+
 	public void graphSelectedList() {
 		int[] selected = myProject.getGeneListRowNumbers((String) geneLists.getSelectedValue());
 		new MetaOmChartPanel(selected, myProject.getDefaultXAxis(), myProject.getDefaultYAxis(),
@@ -678,14 +996,14 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			return;
 		}
 		for (int x = 0; x < tabby.getTabCount(); x++) {
-			if (tabby.getTitleAt(x).equals("MetadataTree")) {
+			if (tabby.getTitleAt(x).equals("Sample Metadata Tree")) {
 				tabby.remove(x);
 				break;
 			}
 		}
 
 		for (int x = 0; x < tabby.getTabCount(); x++) {
-			if (tabby.getTitleAt(x).equals("MetadataTable")) {
+			if (tabby.getTitleAt(x).equals("Sample Metadata Table")) {
 				tabby.remove(x);
 				break;
 			}
@@ -699,12 +1017,20 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 		MetadataHybrid mdhObj = MetaOmGraph.getActiveProject().getMetadataHybrid();
 		if (mdhObj != null) {
-			extInfoPanel2 = new MetadataTreeDisplayPanel(mdhObj.getXMLRoot());
-			tabby.addTab("MetadataTree", extInfoPanel2);
+			extInfoPanel2 = new MetadataTreeDisplayPanel(mdhObj);
+			tabby.addTab("Sample Metadata Tree", extInfoPanel2);
 			// build the treemap to map data col index to nodes in Jtree displaying data
 			// extInfoPanel2.buildTreemaptoNode();
 			mdtablepanel = new MetadataTableDisplayPanel(mdhObj.getMetadataCollection());
-			tabby.addTab("MetadataTable", mdtablepanel);
+			// set hyperlink columns
+			mdtablepanel.setsrrColumn(MetaOmGraph._SRR);
+			mdtablepanel.setsrpColumn(MetaOmGraph._SRP);
+			mdtablepanel.setsrxColumn(MetaOmGraph._SRX);
+			mdtablepanel.setsrsColumn(MetaOmGraph._SRS);
+			mdtablepanel.setgseColumn(MetaOmGraph._GSE);
+			mdtablepanel.setgsmColumn(MetaOmGraph._GSM);
+			tabby.addTab("Sample Metadata Table", mdtablepanel);
+			mdtablepanel.updateTable();
 		}
 
 		// extInfoPanel.getSplitPane().setDividerLocation(0.5D);
@@ -758,13 +1084,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				// field.", "MetaOmGraph", JOptionPane.INFORMATION_MESSAGE);
 				return;
 			}
-			/*
-			 * long currtime=System.currentTimeMillis(); JOptionPane.showMessageDialog(null,
-			 * "X:"+rect.x+" Y:"+rect.y+" time"+currtime); MouseEvent me = new
-			 * MouseEvent(tree, 500, currtime, 0, rect.x, rect.y, 1, true);
-			 * for(MouseListener ml: tree.getMouseListeners()){ ml.mousePressed(me); }
-			 */
-
 			rect.width += rect.x;
 			rect.x = 0;
 			tree.scrollRectToVisible(rect);
@@ -774,14 +1093,16 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 	public void selecTabRow(String value) {
 		// select first val
-		java.util.List<String> hits = MetaOmGraph.getActiveProject().getMetadataHybrid().searchByValue(value,
-				MetaOmGraph.getActiveProject().getMetadataHybrid().getDataColName(), true, false, true);
-		// JOptionPane.showMessageDialog(null, "hits:"+hits.toString());
+		/*
+		 * java.util.List<String> hits =
+		 * MetaOmGraph.getActiveProject().getMetadataHybrid().searchByValue(value,
+		 * MetaOmGraph.getActiveProject().getMetadataHybrid().getDataColName(), true,
+		 * false, true); JOptionPane.showMessageDialog(null, "hits:"+hits.toString());
+		 */
 
 		///// set selected rows /////////
-		JTable tab = mdtablepanel.getTable();
-		DefaultTableModel model = (DefaultTableModel) tab.getModel();
-		// tab.setRowSelectionInterval(0, 0);
+
+		mdtablepanel.setSelectedRowWithValue(value);
 		tabby.setSelectedComponent(mdtablepanel);
 	}
 
@@ -857,6 +1178,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			graphFilteredList();
 			return;
 		}
+		if ("scatterplot".equals(e.getActionCommand())) {
+			graphPairs();
+			return;
+		}
+
 		if ("plotrepsold".equals(e.getActionCommand())) {
 			// if no reps find reps
 			if (!myProject.getMetadata().hasRepGroups()) {
@@ -886,7 +1212,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			}
 			MetaOmChartPanel ob = new MetaOmChartPanel(getSelectedRowsInList(), myProject.getDefaultXAxis(),
 					myProject.getDefaultYAxis(), myProject.getDefaultTitle(), myProject.getColor1(),
-					myProject.getColor2(), myProject, myVals, myStddevs, repCounts, sampleNames, sampleNames, true);
+					myProject.getColor2(), myProject, myVals, myStddevs, repCounts, sampleNames, sampleNames, true,
+					null);
 			ob.repFlag = true;
 			ob.createInternalFrame();
 			/*
@@ -909,41 +1236,79 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			}
 			// plot reps
 			int[] selected = getSelectedRowsInList();
+			// JOptionPane.showMessageDialog(null, "Selected rows:" +
+			// Arrays.toString(selected));
 			ArrayList<double[]> myVals = new ArrayList();
 			ArrayList<double[]> myStddevs = new ArrayList();
 			ArrayList<int[]> repCounts = new ArrayList();
 			String[] sampleNames = null;
 			String[] groupNames = null;
+			TreeMap<String, List<Integer>> repsMapDefault = myProject.getMetadataHybrid().getDefaultRepsMap();
 			for (int thisRow : selected) {
-				ReplicateGroups result = new ReplicateGroups(myProject.getMetadataHybrid().getDefaultRepsMap(),
-						thisRow);
+				ReplicateGroups result = new ReplicateGroups(repsMapDefault, thisRow);
 				myVals.add(result.getValues());
 				myStddevs.add(result.getStdDev());
 				repCounts.add(result.getRepCounts());
 				sampleNames = result.getSampnames();
 				groupNames = result.getGroupnames();
-				// sampleNames= MetaOmGraph.getActiveProject().getDataColumnHeaders();
-				// sampleNames = result.getGroupnames();
-				// JOptionPane.showMessageDialog(null, "sampnames:" +
-				// Arrays.toString(sampleNames));
-				// JOptionPane.showMessageDialog(null, "gnames:" +
-				// Arrays.toString(result.getGroupnames()));
-				// JOptionPane.showMessageDialog(null, "new data:" +
-				// Arrays.toString(result.getValues()));
-				// JOptionPane.showMessageDialog(null, "new stddev:" +
-				// Arrays.toString(result.getStdDev()));
 				if (sampleNames.length == 0) {
 					JOptionPane.showMessageDialog(this, "There are no sample names!");
 					return;
 				}
 			}
 
-			// set the replicate names in project
-			// MetaOmGraph.getActiveProject().setCurrentRepNames(sampleNames);
-			// JOptionPane.showMessageDialog(null, "defcol"+myProject.getDefaultXAxis());
+			// plot
 			MetaOmChartPanel ob = new MetaOmChartPanel(getSelectedRowsInList(), "Groups", myProject.getDefaultYAxis(),
 					myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject, myVals,
-					myStddevs, repCounts, groupNames, sampleNames, true);
+					myStddevs, repCounts, groupNames, sampleNames, true, repsMapDefault);
+			ob.createInternalFrame();
+			return;
+		}
+
+		if ("choose reps".equals(e.getActionCommand())) {
+			// if no reps find reps
+			if (myProject.getMetadataHybrid() == null) {
+				JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "No data to calculate rep information...");
+				return;
+			}
+
+			// show jdialog to show all metadata attributes
+			String[] headers = myProject.getMetadataHybrid().getMetadataHeaders();
+			String input = (String) JOptionPane.showInputDialog(null, "Please choose attribute to group by",
+					"Please choose", JOptionPane.PLAIN_MESSAGE, null, headers, headers[1]);
+			if (input == null || input.length() < 1) {
+				return;
+			}
+			TreeMap<String, List<Integer>> repsMap = myProject.getMetadataHybrid().buildRepsMap(input);
+			// JOptionPane.showMessageDialog(null, "thisTM:"+repsMap.toString());
+			// JOptionPane.showMessageDialog(null, "all keys:"+repsMap.keySet().toString());
+
+			// plot reps
+			int[] selected = getSelectedRowsInList();
+
+			ArrayList<double[]> myVals = new ArrayList();
+			ArrayList<double[]> myStddevs = new ArrayList();
+			ArrayList<int[]> repCounts = new ArrayList();
+			String[] sampleNames = null;
+			String[] groupNames = null;
+			for (int thisRow : selected) {
+				ReplicateGroups result = new ReplicateGroups(repsMap, thisRow);
+				if (result.getErrorStatus()) {
+					return;
+				}
+				myVals.add(result.getValues());
+				myStddevs.add(result.getStdDev());
+				repCounts.add(result.getRepCounts());
+				sampleNames = result.getSampnames();
+				groupNames = result.getGroupnames();
+				if (sampleNames.length == 0) {
+					JOptionPane.showMessageDialog(this, "There are no sample names!");
+					return;
+				}
+			}
+			MetaOmChartPanel ob = new MetaOmChartPanel(getSelectedRowsInList(), "Groups", myProject.getDefaultYAxis(),
+					myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject, myVals,
+					myStddevs, repCounts, groupNames, sampleNames, true, repsMap);
 			ob.createInternalFrame();
 			return;
 		}
@@ -987,8 +1352,82 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			}
 			return;
 		}
+		if ("create heatmap".equals(e.getActionCommand())) {
+			// create heat map for selected rows over all included columns
+			// temp solution
+			// 1 write selected data as tabdelimited file
+			// 2 use r script to create a plot
+			// get data of selected rows
+			List<double[]> dataRows = new ArrayList<>();
+			int[] selected = getSelectedRowsInList();
+			String[] rowNames = new String[selected.length];
+			String[] colNames = myProject.getIncludedDataColumnHeaders();
+			// s
+			for (int i = 0; i < selected.length; i++) {
+				try {
+					dataRows.add(myProject.getIncludedData(selected[i]));
+					rowNames[i] = myProject.getRowName(selected[i])[myProject.getDefaultColumn()].toString();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+
+			// JOptionPane.showMessageDialog(null, "RN:"+Arrays.toString(rowNames));
+			// JOptionPane.showMessageDialog(null, "CN:"+Arrays.toString(colNames));
+			String chartFileName = JOptionPane.showInputDialog(this, "Please enter name to save heatmap to file",
+					"Please enter name", JOptionPane.INFORMATION_MESSAGE);
+			if (chartFileName == null || chartFileName.length() < 1) {
+				return;
+			}
+			String datafilePath = "";
+			MakeChartWithR ob = new MakeChartWithR();
+			try {
+				datafilePath = ob.saveDatatoFile(dataRows, rowNames, colNames, chartFileName);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+			// execute rscript to make plot and save to chartFileName.png
+			try {
+				ob.makeHeatmap(datafilePath, chartFileName);
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+		}
 		if (REPORT_COMMAND.equals(e.getActionCommand())) {
 			makeReport();
+			return;
+		}
+		if ("viewmetaform".equals(e.getActionCommand())) {
+			// JOptionPane.showMessageDialog(null, "showmwta...");
+			EventQueue.invokeLater(new Runnable() {
+				public void run() {
+					try {
+
+						HashMap<String, CorrelationMetaCollection> metaCorrRes = myProject.getMetaCorrRes();
+						if (metaCorrRes == null || metaCorrRes.size() < 1) {
+							JOptionPane.showMessageDialog(null, "No correlations found...");
+							return;
+						}
+						CorrelationMetaTable frame = new CorrelationMetaTable(metaCorrRes);
+						frame.setVisible(true);
+						frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2,
+								MetaOmGraph.getMainWindow().getHeight() / 2);
+						MetaOmGraph.getDesktop().add(frame);
+						frame.setSelected(true);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			});
+
 			return;
 		}
 		if (ATGENESEARCH_COMMAND.equals(e.getActionCommand())) {
@@ -997,6 +1436,58 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 		if ("list from filter".equals(e.getActionCommand())) {
 			makeListFromFilter();
+			return;
+		}
+
+		if ("savemaintab".equals(e.getActionCommand())) {
+
+			Utils.saveJTabletofile(listDisplay);
+			return;
+		}
+		if ("advancefilter".equals(e.getActionCommand())) {
+			// show advance filter options
+			final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(
+					MetaOmGraph.getActiveProject(), true);
+			final MetadataQuery[] queries;
+			queries = tsp.showSearchDialog();
+			// boolean matchCase=tsp.matchCase();
+			boolean matchAll = tsp.matchAll();
+			if (tsp.getQueryCount() <= 0) {
+				// System.out.println("Search dialog cancelled");
+				// User didn't enter any queries
+				return;
+			}
+
+			String[] headers = myProject.getInfoColumnNames();
+			List<String> headersList = Arrays.asList(headers);
+
+			// JOptionPane.showMessageDialog(null, "h:"+headersList);
+
+			// convert queries to filter string
+			String allFilter = "";
+			for (int i = 0; i < queries.length; i++) {
+
+				String thisFilter = "";
+				String thisField = queries[i].getField();
+				boolean thismatchCase = queries[i].isCaseSensitive();
+				String thisTerm = queries[i].getTerm();
+				// JOptionPane.showMessageDialog(null,"F:" + queries[i].getField() + " T:" +
+				// queries[i].getTerm() + " isE:" + queries[i].isExact()+ "mC:"+thismatchCase);
+				if (thismatchCase) {
+					thisTerm += "--C";
+				}
+				if (thisField.equals("Any Field") || thisField.equals("All Fields")) {
+					thisFilter = thisTerm;
+				} else {
+					int thisCol = headersList.indexOf(thisField);
+					thisFilter = thisTerm + ":::" + String.valueOf(thisCol);
+				}
+
+				allFilter += thisFilter + ";";
+			}
+
+			filterField.setText(allFilter);
+
 			return;
 		}
 		if (("edit list".equals(e.getActionCommand())) || ("new list".equals(e.getActionCommand()))) {
@@ -1032,8 +1523,15 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 		if (("pearson correlation".equals(e.getActionCommand()))
 				|| ("pearson correlationP".equals(e.getActionCommand()))
+				|| ("FEMcorrelationP".equals(e.getActionCommand())) || ("REMcorrelationP".equals(e.getActionCommand()))
 				|| ("pearson correlation2".equals(e.getActionCommand()))
+				|| ("pearson correlation3".equals(e.getActionCommand()))
+				|| ("mutualInformation".equals(e.getActionCommand()))
+				|| ("mutualInformation2".equals(e.getActionCommand()))
+				|| ("mutualInformation3".equals(e.getActionCommand()))
 				|| ("spearman correlation".equals(e.getActionCommand()))
+				|| ("spearman correlation2".equals(e.getActionCommand()))
+				|| ("spearman correlation3".equals(e.getActionCommand()))
 				|| ("euclidean distance".equals(e.getActionCommand()))
 				|| ("canberra distance".equals(e.getActionCommand()))
 				|| ("manhattan distance".equals(e.getActionCommand()))
@@ -1044,170 +1542,281 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						0);
 				return;
 			}
-			// JOptionPane.showMessageDialog(null, "selected
-			// count="+listDisplay.getSelectedRowCount());
-			// JOptionPane.showMessageDialog(null, "selected target="+getTrueSelectedRow()+"
-			// name="+getSelectedGeneName());
-			// JOptionPane.showMessageDialog(null, "selected
-			// target="+getTrueSelectedRows()+" name="+getSelectedGeneName());
-			// JOptionPane.showMessageDialog(null,
-			// "genelist:"+geneLists.getSelectedValue().toString());
 
 			int target = getTrueSelectedRow();
 			String targetName = getSelectedGeneName();
+			/*
+			 * if (myProject.hasLastCorrelation()) { int result =
+			 * JOptionPane.showConfirmDialog(MetaOmGraph.getMainWindow(),
+			 * "Do you want to keep the results of the last correlation? (If no, the new results will overwrite the old)"
+			 * ); if (result == 2) return; if ((result == 0) && (!keepLastCorrelation()))
+			 * return; }
+			 */
 			if (myProject.hasLastCorrelation()) {
-				int result = JOptionPane.showConfirmDialog(MetaOmGraph.getMainWindow(),
-						"Do you want to keep the results of the last correlation? (If no, the new results will overwrite the old)");
-				if (result == 2)
-					return;
-				if ((result == 0) && (!keepLastCorrelation()))
-					return;
+				keepLastCorrelation();
+			}
+			String methodName = "";
+			if ("pearson correlation".equals(e.getActionCommand())) {
+				methodName = "pearson correlation";
+			} else if ("pearson correlationP".equals(e.getActionCommand())) {
+				methodName = "weighted pearson correlation";
+			} else if ("FEMcorrelationP".equals(e.getActionCommand())) {
+				methodName = "weighted pearson correlation(FEM)";
+			} else if ("REMcorrelationP".equals(e.getActionCommand())) {
+				methodName = "weighted pearson correlation(REM)";
+			} else if ("pearson correlation2".equals(e.getActionCommand())) {
+				methodName = "pearson correlation (shuffle in-group)";
+			} else if ("pearson correlation3".equals(e.getActionCommand())) {
+				methodName = "pearson correlation (shuffle all)";
+			} else if ("mutualInformation".equals(e.getActionCommand())) {
+				methodName = "mutual information";
+			} else if ("mutualInformation2".equals(e.getActionCommand())) {
+				methodName = "mutual information (shuffle in-group)";
+			} else if ("mutualInformation3".equals(e.getActionCommand())) {
+				methodName = "mutual information (shuffle all)";
+			} else if ("spearman correlation".equals(e.getActionCommand())) {
+				methodName = "spearman correlation";
+			} else if ("spearman correlation2".equals(e.getActionCommand())) {
+				methodName = "spearman correlation (shuffle in-group)";
+			} else if ("spearman correlation3".equals(e.getActionCommand())) {
+				methodName = "spearman correlation (shuffle all)";
+			} else if ("euclidean distance".equals(e.getActionCommand())) {
+				methodName = "euclidean distance";
+			} else if ("canberra distance".equals(e.getActionCommand())) {
+				methodName = "canberra distance";
+			} else if ("manhattan distance".equals(e.getActionCommand())) {
+				methodName = "manhattan distance";
+			} else if ("weighted euclidean distance".equals(e.getActionCommand())) {
+				methodName = "weighted euclidean distance";
+			} else if ("weighted manhattan distance".equals(e.getActionCommand())) {
+				methodName = "weighted manhattan distance";
 			}
 
 			String name = (String) JOptionPane.showInputDialog(MetaOmGraph.getDesktop(),
-					"Please enter a name for the correlation", "Store Correlation", 3, null, null,
-					targetName + " Correlation");
+					"Please enter a name for the correlation", "Save Correlation", 3, null, null,
+					targetName + " " + methodName);
 			if (name == null)
 				return;
 
 			name = name.trim();
+			// check if this name already exists in saved correlations
+			if (myProject.correlatioNameExists(name)) {
+				while (myProject.correlatioNameExists(name)) {
+					name = (String) JOptionPane.showInputDialog(MetaOmGraph.getDesktop(),
+							"A previous analysis exists with same name. Please enter a different name for the correlation",
+							"Store Correlation", 3, null, null, targetName + " " + methodName);
+				}
+			}
 			try {
 				if ("pearson correlation".equals(e.getActionCommand())) {
-					long startTime = System.currentTimeMillis();
 					MetaOmAnalyzer.doAnalysis(myProject, geneLists.getSelectedValue().toString(), target, name, 1);
-					// MetaOmAnalyzer.doComputation(myProject,
-					// geneLists.getSelectedValue().toString(), target, name, 1);
-					long stopTime = System.currentTimeMillis();
-					long elapsedTime = stopTime - startTime;
-					// JOptionPane.showMessageDialog(null, "Time elapsed newmethod:" + elapsedTime);
 
 				} else if ("pearson correlationP".equals(e.getActionCommand())) {
-					JOptionPane.showMessageDialog(null, "Pooled corr");
-
-					// by default use parent of data column to get groups
-					// or display all parents of data column as option
+					// Meta-analysis model
+					// store all the meta corr results in a list of objects
+					List<CorrelationMeta> corrMetaResList = new ArrayList<>();
+					if (myProject.getMetadataHybrid() == null) {
+						JOptionPane.showMessageDialog(null, "No metadata loaded", "Metadata not found",
+								JOptionPane.INFORMATION_MESSAGE);
+						return;
+					}
 					TreeMap<String, List<Integer>> groupsMap = myProject.getMetadataHybrid().getDefaultRepsMap();
-					//JOptionPane.showMessageDialog(null, "reps map:" + groupsMap.toString());
-
 					// for each row in data file calculate corr coeff within groups
 					// get entries in a gene list for complete list get all
 					final int[] entries = myProject.getGeneListRowNumbers(geneLists.getSelectedValue().toString());
 					double[] sourceData = myProject.getIncludedData(entries[target]);
-					
-
+					double[] sourceDataAll = myProject.getAllData(entries[target]);
+					boolean[] exclude = MetaOmAnalyzer.getExclude();
 					// create list of source data into groups
-					List<double[]> sourceGrouped = new ArrayList<>();
-					for (Map.Entry<String, List<Integer>> entry : groupsMap.entrySet()) {
-						String key = entry.getKey();
-						List<Integer> value = entry.getValue();
-						double[] thisVals = new double[value.size()];
-						for (int i = 0; i < value.size(); i++) {
-							thisVals[i] = sourceData[value.get(i)];
-						}
-						sourceGrouped.add(thisVals);
-						// JOptionPane.showMessageDialog(null,"gr:"+entry+"
-						// vals:"+Arrays.toString(thisVals));
-					}
+					List<double[]> sourceGrouped = groupDatabyRepColumn(groupsMap, sourceDataAll, exclude);
 					
-					
-					
-					//do for each row compute correlations in groups
-					int j = 0;
-					do {
 
-						double[] data = myProject.getIncludedData(entries[j]);
-						//split data into groups
-						List<double[]> dataGrouped = new ArrayList<>();
-						for (Map.Entry<String, List<Integer>> entry : groupsMap.entrySet()) {
-							String key = entry.getKey();
-							List<Integer> value = entry.getValue();
-							double[] thisVals = new double[value.size()];
-							for (int i = 0; i < value.size(); i++) {
-								thisVals[i] = data[value.get(i)];
+					final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(),
+							"Computing p-vals...", "", 0L, entries.length, true);
+					final String nameSave = name;
+
+					Object[] options = { "Random effects model", "Fixed effect model" };
+					final int n = JOptionPane.showOptionDialog(null, "Please choose a model", "Please choose a model",
+							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+
+					SwingWorker analyzeWorker = new SwingWorker() {
+						boolean errored = false;
+						List<Double> pvres = new ArrayList<>();
+						List<Double> corres = new ArrayList<>();
+
+						public Object construct() {
+							try {
+								int j = 0;
+								do {
+									progress.setProgress(j);
+									double[] data = myProject.getAllData(entries[j]);
+									List<double[]> dataGrouped = groupDatabyRepColumn(groupsMap, data, exclude);
+									
+									try {
+										CorrelationGrouped ob = new CorrelationGrouped(sourceGrouped, dataGrouped, MetaOmGraph.getNumThreads());
+										CorrelationMeta temp;
+										if (n == JOptionPane.YES_OPTION) {
+											temp = ob.doComputation(true);
+										} else {
+											temp = ob.doComputation(false);
+										}
+										// CorrelationMeta temp = ob.doComputation(remFlag);
+										// target gene name to correlation meta object
+										String thisgeneName = myProject.getRowName(entries[j])[myProject
+												.getDefaultColumn()].toString();
+										// JOptionPane.showMessageDialog(null, "this gene name:"+thisgeneName);
+										// add gene name in corrmeta obj
+										temp.settargetName(thisgeneName);
+										corrMetaResList.add(temp);
+										double thisrVal = temp.getrVal();
+										corres.add(thisrVal);
+										// JOptionPane.showMessageDialog(null, "thisrval:" + thisrVal);
+									} catch (InterruptedException e1) {
+										// TODO Auto-generated catch block
+										JOptionPane.showMessageDialog(null, "InterruptedException!");
+										e1.printStackTrace();
+									} catch (ExecutionException e2) {
+										// TODO Auto-generated catch block
+										JOptionPane.showMessageDialog(null, "ExecutionException!");
+										e2.printStackTrace();
+									}
+
+									// JOptionPane.showMessageDialog(null, "Corrvals for:"+j+"
+									// :"+Arrays.toString(result));
+
+									j++;
+									if (j >= entries.length)
+										break;
+
+								} while (!progress.isCanceled());
+
+							} catch (IOException ioe) {
+								JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Error reading project data",
+										"IOException", 0);
+								ioe.printStackTrace();
+								progress.dispose();
+								errored = true;
+								return null;
+							} catch (ArrayIndexOutOfBoundsException oob) {
+								progress.dispose();
+								errored = true;
+								return null;
 							}
-							dataGrouped.add(thisVals);
-						}
-						
-						//JOptionPane.showMessageDialog(null, "this da:"+dataGrouped.toString());
-						
-						try {
-							CorrelationGrouped ob =new CorrelationGrouped(sourceGrouped, dataGrouped, 6);
-							double thisrVal=ob.doComputation();
-							JOptionPane.showMessageDialog(null, "thisrval:"+thisrVal);
-						} catch (InterruptedException e1) {
-							// TODO Auto-generated catch block
-							JOptionPane.showMessageDialog(null, "InterruptedException!");
-							e1.printStackTrace();
-						} catch (ExecutionException e2) {
-							// TODO Auto-generated catch block
-							JOptionPane.showMessageDialog(null, "ExecutionException!");
-							e2.printStackTrace();
+							return null;
 						}
 
-						// JOptionPane.showMessageDialog(null, "Corrvals for:"+j+"
-						// :"+Arrays.toString(result));
+						public void finished() {
 
-						j++;
-						if (j >= entries.length)
-							break;
-					} while (j < entries.length);
-					
-					JOptionPane.showMessageDialog(null, "done");
+							if ((!progress.isCanceled()) && (!errored)) {
+								String corrModel = "";
+								if (n == JOptionPane.YES_OPTION) {
+									corrModel = "Random effects model";
+								} else {
+									corrModel = "Fixed effects model";
+								}
+								CorrelationMetaCollection cmcObj = new CorrelationMetaCollection(nameSave, 0, corrModel,
+										targetName, corrMetaResList);
+								myProject.addMetaCorrRes(nameSave, cmcObj);
+
+								final Number[] result = new Number[myProject.getRowCount()];
+								for (int i = 0; i < corres.size(); i++) {
+
+									result[entries[i]] = new CorrelationValue(corres.get(i));
+
+								}
+								myProject.setLastCorrelation(result, nameSave);
+
+							}
+							progress.dispose();
+						}
+					};
+					analyzeWorker.start();
+					progress.setVisible(true);
 
 				} else if ("pearson correlation2".equals(e.getActionCommand())) {
-					JOptionPane.showMessageDialog(null, "PC2");
+					// shuffle _N time only within groups
+					// JOptionPane.showMessageDialog(null, "PC2");
 					// first run regular method to get correlation values
-					MetaOmAnalyzer.doAnalysis(myProject, geneLists.getSelectedValue().toString(), target, name, 1);
-					//last correlation col is 0
-					//check if last corr was canceled
-					JOptionPane.showMessageDialog(null, "corrcols:"+myProject.getCorrelationColumns().toString());
-					// get significance using permutation test
+					// MetaOmAnalyzer.doAnalysis(myProject, geneLists.getSelectedValue().toString(),
+					// target, name, 1);
 					final int[] entries = myProject.getGeneListRowNumbers(geneLists.getSelectedValue().toString());
 					double[] sourceData = myProject.getIncludedData(entries[target]);
-					JOptionPane.showMessageDialog(null, " TO shuff Sourcdata:" + Arrays.toString(sourceData));
-					int _N = 100; // num permutations
-					int _P = 8; // num threads
-					// do _N permutations
+					double[] sourceDataAll = myProject.getAllData(entries[target]);
+
+					int _N = MetaOmGraph.getNumPermutations();
+					int _T = MetaOmGraph.getNumThreads();
+					// int _N = MetaOmGraph.getNumPermutations(); // num permutations
+					// int _T = MetaOmGraph.getNumThreads(); // num threads
+					// do _N permutations. Start
 					List<Double> sourceDataList = new ArrayList<>();
 					for (double d : sourceData) {
 						sourceDataList.add(d);
 					}
 
+					// JOptionPane.showMessageDialog(null, "sd:" + Arrays.toString(sourceData));
 					List<double[]> shuffList = new ArrayList<double[]>();
 					// add original data to calculate original correlation val which will be at
 					// index 0
+					// shuffle _N time only within groups
+					if (myProject.getMetadataHybrid() == null) {
+						JOptionPane.showMessageDialog(null, "No metadata loaded", "Metadata not found",
+								JOptionPane.INFORMATION_MESSAGE);
+						return;
+					}
+
+					// add original data to calculate original correlation val which will be at
+					// index 0
 					shuffList.add(sourceData);
-					// shuffle _N time to create a list of shuffled lists
-					for (int i = 0; i < _N; i++) {
-						java.util.Collections.shuffle(sourceDataList);
+					///////////////////////// shuffle within group////////////////////////
+					TreeMap<String, List<Integer>> groupsMap = myProject.getMetadataHybrid().getDefaultRepsMap();
+					// this array contains colindex of the datacolumns used
+					int[] sourceDataColNumbers = new int[sourceData.length];
+					boolean[] exclude = MetaOmAnalyzer.getExclude();
+					List<int[]> shuffInd = groupDataIndexbyRepColumn(groupsMap, exclude, sourceDataColNumbers, _N);
+					for (int j = 0; j < shuffInd.size(); j++) {
 						double[] tempArr = new double[sourceData.length];
-						int k = 0;
-						for (double d : sourceDataList) {
-							tempArr[k++] = d;
+						int[] newInd = shuffInd.get(j);
+						for (int n = 0; n < tempArr.length; n++) {
+							// copy indices.get(n) column from targetwtMat to nth place in tempmat
+							tempArr[n] = sourceData[newInd[n]];
 						}
 						shuffList.add(tempArr);
 					}
-					
-					
-					final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(), "Analyzing...","", 0L, entries.length, true);
+
+					final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(),
+							"Analyzing...", "", 0L, entries.length, true);
+					// create metacorrobj
+					List<CorrelationMeta> corrMetaResList = new ArrayList<>();
+					// name to save results
+					final String nameSave = name;
 					SwingWorker analyzeWorker = new SwingWorker() {
 						boolean errored = false;
 						List<Double> pvres = new ArrayList<>();
+						List<Double> corrres = new ArrayList<>();
+
 						public Object construct() {
 							try {
 								// for each data row do
 								// Number[] result = null;
 								int j = 0;
-								
+
 								do {
 									progress.setProgress(j);
 									double[] data = myProject.getIncludedData(entries[j]);
 
 									// for each row calculate p-value
-									ComputePval ob = new ComputePval(data, shuffList, _P);
+									ComputePval ob = new ComputePval(data, shuffList, _T);
 									try {
-										double pv = ob.doComputation();
-										pvres.add(pv);
+										double[] pv = ob.doComputation();
+
+										pvres.add(pv[1]);
+										corrres.add(pv[0]);
+										double thisrVal = 0;
+										CorrelationMeta temp = new CorrelationMeta(pv[0], pv[1]);
+										String thisgeneName = myProject.getRowName(entries[j])[myProject
+												.getDefaultColumn()].toString();
+										temp.settargetName(thisgeneName);
+										corrMetaResList.add(temp);
 										// JOptionPane.showMessageDialog(null, "P val for row:"+j+" is:"+pv);
 									} catch (InterruptedException e1) {
 										// TODO Auto-generated catch block
@@ -1242,56 +1851,853 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 						public void finished() {
 							if ((!progress.isCanceled()) && (!errored)) {
-							//	project.setLastCorrelation(result, name);
-								keepLastCorrelation();
-								myProject.setLastPval(pvres.toArray(new Number[pvres.size()]), "pval");
+								final Number[] result = new Number[myProject.getRowCount()];
+								for (int i = 0; i < corrres.size(); i++) {
+									// result[entries[i]] = corrres.get(i);
+									result[entries[i]] = new CorrelationValue(corrres.get(i));
+								}
+								myProject.setLastCorrelation(result, nameSave);
+								// String s=String.valueOf(name);
+								CorrelationMetaCollection cmcObj = new CorrelationMetaCollection(nameSave, 1,
+										"ShuffleWithInGrps", targetName, corrMetaResList);
+								myProject.addMetaCorrRes(nameSave, cmcObj);
 							}
 							progress.dispose();
 						}
 					};
 					analyzeWorker.start();
 					progress.setVisible(true);
+				} else if ("pearson correlation3".equals(e.getActionCommand())) {
+					// shuffle all
+					// get significance using permutation test
+					final int[] entries = myProject.getGeneListRowNumbers(geneLists.getSelectedValue().toString());
+					double[] sourceData = myProject.getIncludedData(entries[target]);
+					int _N = MetaOmGraph.getNumPermutations();
+					int _T = MetaOmGraph.getNumThreads();
+					// do _N permutations
+					List<Double> sourceDataList = new ArrayList<>();
+					for (double d : sourceData) {
+						sourceDataList.add(d);
+					}
+					List<double[]> shuffList = new ArrayList<double[]>();
+					// add original data to calculate original correlation val which will be at
+					// index 0
 
-					
-					
-					// for each data row do
-					// Number[] result = null;
-					/*int j = 0;
-					List<Double> pvres = new ArrayList<>();
-					do {
+					shuffList.add(sourceData); // shuffle _N time to create a list of shuffledlists
+					for (int i = 0; i < _N; i++) {
+						java.util.Collections.shuffle(sourceDataList);
+						double[] tempArr = new double[sourceData.length];
+						int k = 0;
+						for (double d : sourceDataList) {
+							tempArr[k++] = d;
+						}
+						shuffList.add(tempArr);
+					}
 
-						double[] data = myProject.getIncludedData(entries[j]);
+					final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(),
+							"Analyzing...", "", 0L, entries.length, true);
+					List<CorrelationMeta> corrMetaResList = new ArrayList<>();
+					// name to save results
+					final String nameSave = name;
+					SwingWorker analyzeWorker = new SwingWorker() {
+						boolean errored = false;
+						List<Double> pvres = new ArrayList<>();
+						List<Double> corrres = new ArrayList<>();
 
-						// for each row calculate p-value
-						ComputePval ob = new ComputePval(data, shuffList, _P);
-						try {
-							double pv = ob.doComputation();
-							pvres.add(pv);
-							// JOptionPane.showMessageDialog(null, "P val for row:"+j+" is:"+pv);
-						} catch (InterruptedException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						} catch (ExecutionException e2) {
-							// TODO Auto-generated catch block
-							e2.printStackTrace();
+						public Object construct() {
+							try {
+								// for each data row do
+								// Number[] result = null;
+								int j = 0;
+
+								do {
+									progress.setProgress(j);
+									double[] data = myProject.getIncludedData(entries[j]);
+
+									// for each row calculate p-value
+									ComputePval ob = new ComputePval(data, shuffList, _T);
+									try {
+										double[] pv = ob.doComputation();
+										pvres.add(pv[1]);
+										corrres.add(pv[0]);
+										double thisrVal = 0;
+										CorrelationMeta temp = new CorrelationMeta(pv[0], pv[1]);
+										String thisgeneName = myProject.getRowName(entries[j])[myProject
+												.getDefaultColumn()].toString();
+										temp.settargetName(thisgeneName);
+										corrMetaResList.add(temp);
+
+									} catch (InterruptedException e1) {
+										// TODO Auto-generated catch block
+										e1.printStackTrace();
+									} catch (ExecutionException e2) {
+										// TODO Auto-generated catch block
+										e2.printStackTrace();
+									}
+
+									// JOptionPane.showMessageDialog(null, "Corrvals for:"+j+"
+									// :"+Arrays.toString(result));
+
+									j++;
+									if (j >= entries.length)
+										break;
+								} while (!progress.isCanceled());
+
+							} catch (IOException ioe) {
+								JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Error reading project data",
+										"IOException", 0);
+								ioe.printStackTrace();
+								progress.dispose();
+								errored = true;
+								return null;
+							} catch (ArrayIndexOutOfBoundsException oob) {
+								progress.dispose();
+								errored = true;
+								return null;
+							}
+							return null;
 						}
 
-						// JOptionPane.showMessageDialog(null, "Corrvals for:"+j+"
-						// :"+Arrays.toString(result));
+						public void finished() {
+							if ((!progress.isCanceled()) && (!errored)) {
+								final Number[] result = new Number[myProject.getRowCount()];
+								for (int i = 0; i < corrres.size(); i++) {
+									// result[entries[i]] = corrres.get(i);
+									result[entries[i]] = new CorrelationValue(corrres.get(i));
+								}
+								myProject.setLastCorrelation(result, nameSave);
+								CorrelationMetaCollection cmcObj = new CorrelationMetaCollection(nameSave, 1,
+										"ShuffleAll", targetName, corrMetaResList);
+								myProject.addMetaCorrRes(nameSave, cmcObj);
+							}
+							progress.dispose();
+						}
+					};
+					analyzeWorker.start();
+					progress.setVisible(true);
+				} else if ("mutualInformation".equals(e.getActionCommand())) {
+					// JOptionPane.showMessageDialog(null, "MI");
+					// First calculate Wtmatrix for all rows
+					final int[] entries = myProject.getGeneListRowNumbers(geneLists.getSelectedValue().toString());
+					double[] sourceData = myProject.getIncludedData(entries[target]);
+					// let User enter parameters
+					int binsM = 0;
+					int k = 0;
+					try {
+						binsM = Integer.parseInt((String) JOptionPane.showInputDialog(null,
+								"Please Enter number of bins", "Input number of bins", JOptionPane.QUESTION_MESSAGE,
+								null, null, String.valueOf(MetaOmGraph.getNumBins())));
+						k = Integer.parseInt((String) JOptionPane.showInputDialog(null, "Please Enter the order k",
+								"Input the order", JOptionPane.QUESTION_MESSAGE, null, null,
+								String.valueOf(MetaOmGraph.getOrder())));
+					} catch (NumberFormatException nfe) {
+						JOptionPane.showMessageDialog(null, "Invalid number entered. Please try again.", "Error",
+								JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+					// construct a uniform knot vector
+					double[] knotVec = getTvector(k, binsM);
+					//////////////////////////////////////////////////////////////////////////
+					final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(),
+							"Analyzing...", "", 0L, entries.length, true);
 
-						j++;
-						if (j >= entries.length)
-							break;
-					} while (j < entries.length);
+					// name to save results
+					final String nameSave = name;
+					final int bins = binsM;
+					final int kFinal = k;
+					// compute entropy for target
+					ComputeDensityFromSpline tOb = new ComputeDensityFromSpline(sourceData, bins, kFinal, knotVec);
+					double[][] targetwtMat = tOb.getWeightMatrix();
 
-					JOptionPane.showMessageDialog(null, "Done");
-					JOptionPane.showMessageDialog(null, "pvsre:" + Arrays.toString(pvres.toArray(new Number[pvres.size()])));
-					
-					keepLastCorrelation();
-					myProject.setLastPval(pvres.toArray(new Number[pvres.size()]), "pval");
-					*/
-				} else if ("spearman correlation".equals(e.getActionCommand())) {
+					double targetH = tOb.getEntropy(targetwtMat);
+
+					SwingWorker analyzeWorker = new SwingWorker() {
+						boolean errored = false;
+						// List<Double> entropyList = new ArrayList<>();
+						// List<Double> jointEntropyList = new ArrayList<>();
+						List<Double> mutualInfoList = new ArrayList<>();
+
+						public Object construct() {
+							try {
+								// for each data row do
+								// Number[] result = null;
+								// long startTime = System.nanoTime();
+								int j = 0;
+
+								do {
+									progress.setProgress(j);
+									double[] data = myProject.getIncludedData(entries[j]);
+
+									// for each row get wtMatrix and compute MI
+									ComputeDensityFromSpline o = new ComputeDensityFromSpline(data, bins, kFinal,
+											knotVec);
+									double[][] thiswtMat = o.getWeightMatrix();
+
+									/*
+									 * double thisSum = tOb.checkWtMatrix(thiswtMat); if (Math.round(thisSum) != 1)
+									 * { JOptionPane.showMessageDialog(null, "Test failed for j: " + j
+									 * +"Sum:"+thisSum+ " name:" +
+									 * myProject.getRowName(entries[j])[myProject.getDefaultColumn()] .toString());
+									 * }
+									 */
+
+									double thisEntropy = o.getEntropy(thiswtMat);
+									double thisJointEntropy = o.getJointEntropy(targetwtMat, thiswtMat);
+									double thisMI = targetH + thisEntropy - thisJointEntropy;
+
+									mutualInfoList.add(thisMI);
+
+									j++;
+									if (j >= entries.length)
+										break;
+								} while (!progress.isCanceled());
+
+								// following code runs out of memory as it stores all the double matrices
+								// after getting all wtMat compute Entropies execute in parallel
+								// ComputeEntropy ceOb = new ComputeEntropy(wtMatlist, threads);
+								// entropyList = ceOb.getEntropy();
+								/// after getting all wtMat compute JointEntropies execute in parallel
+								// ComputeJointEntropy jeOb = new ComputeJointEntropy(wtMatlist,
+								// wtMatlist.get(target), threads);
+								// jointEntropyList = jeOb.getJointEntropy();
+								// finally compute mutual information of target row with all other using entropy
+								// and joint entropy
+								/*
+								 * for (int i = 0; i < entropyList.size(); i++) { mutualInfoList.add(
+								 * entropyList.get(target) + entropyList.get(i) - jointEntropyList.get(i)); }
+								 */
+
+								// long endTime = System.nanoTime();
+								// long duration = (endTime - startTime);
+								// JOptionPane.showMessageDialog(null,"Size:" + wtMatlist.size() + "Time:" +
+								// duration / 1000000000);
+								// JOptionPane.showMessageDialog(null, entropyList.subList(1, 8).toString());
+								// JOptionPane.showMessageDialog(null, jointEntropyList.subList(1,
+								// 8).toString());
+
+							} catch (IOException ioe) {
+								JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Error reading project data",
+										"IOException", 0);
+								ioe.printStackTrace();
+								progress.dispose();
+								errored = true;
+								return null;
+							} catch (ArrayIndexOutOfBoundsException oob) {
+								progress.dispose();
+								errored = true;
+								return null;
+							}
+							return null;
+						}
+
+						public void finished() {
+							if ((!progress.isCanceled()) && (!errored)) {
+								final Number[] result = new Number[myProject.getRowCount()];
+								for (int i = 0; i < mutualInfoList.size(); i++) {
+
+									result[entries[i]] = new CorrelationValue(mutualInfoList.get(i));
+								}
+								myProject.setLastCorrelation(result, nameSave);
+
+							}
+							progress.dispose();
+						}
+					};
+					analyzeWorker.start();
+					progress.setVisible(true);
+					/////////////////////////////////////////////////////////////////////////
+				}
+
+				else if ("mutualInformation3".equals(e.getActionCommand())) {
+					// shuffle all
+					// get significance using permutation test
+					final int[] entries = myProject.getGeneListRowNumbers(geneLists.getSelectedValue().toString());
+					double[] sourceData = myProject.getIncludedData(entries[target]);
+					int _N = MetaOmGraph.getNumPermutations();
+					int _T = MetaOmGraph.getNumThreads();
+					// let User enter parameters
+					int binsM = 0;
+					int k = 0;
+					try {
+						binsM = Integer.parseInt((String) JOptionPane.showInputDialog(null,
+								"Please Enter number of bins", "Input number of bins", JOptionPane.QUESTION_MESSAGE,
+								null, null, String.valueOf(MetaOmGraph.getNumBins())));
+						k = Integer.parseInt((String) JOptionPane.showInputDialog(null, "Please Enter the order k",
+								"Input the order", JOptionPane.QUESTION_MESSAGE, null, null,
+								String.valueOf(MetaOmGraph.getOrder())));
+					} catch (NumberFormatException nfe) {
+						JOptionPane.showMessageDialog(null, "Invalid number entered. Please try again.", "Error",
+								JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+					// construct a uniform knot vector
+					double[] knotVec = getTvector(k, binsM);
+					//////////////////////////////////////////////////////////////////////////
+					final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(),
+							"Analyzing...", "", 0L, entries.length, true);
+					// create metacorrobj
+					List<CorrelationMeta> corrMetaResList = new ArrayList<>();
+					// name to save results
+					final String nameSave = name;
+					final int bins = binsM;
+					final int kFinal = k;
+					// compute entropy for target
+					ComputeDensityFromSpline tOb = new ComputeDensityFromSpline(sourceData, bins, kFinal, knotVec);
+					double[][] targetwtMat = tOb.getWeightMatrix();
+
+					// JOptionPane.showMessageDialog(null, "OrigMat:" +
+					// Arrays.deepToString(targetwtMat));
+					// create a list of shuffled targetwtMat
+					// int _N = 100;
+					List<double[][]> shuffList = new ArrayList<>();
+					shuffList.add(targetwtMat); // shuffle _N time to create a list of shuffledlists
+					List<Integer> indices = IntStream.range(0, targetwtMat[0].length).boxed()
+							.collect(Collectors.toList());// indices of columns 0..num_Cols
+					for (int i = 0; i < _N; i++) {
+						// create _N shuffled mat and add to list
+						java.util.Collections.shuffle(indices);
+						double[][] tempMat = new double[targetwtMat.length][targetwtMat[0].length];
+						for (int m = 0; m < tempMat.length; m++) {
+							for (int n = 0; n < tempMat[0].length; n++) {
+								// copy indices.get(n) column from targetwtMat to nth place in tempmat
+								tempMat[m][n] = targetwtMat[m][indices.get(n)];
+							}
+						}
+						// JOptionPane.showMessageDialog(null, "this shuff:" +
+						// Arrays.deepToString(tempMat));
+						shuffList.add(tempMat);
+					}
+					// calculate entopies of all suffled matrices. at index 0 will be original
+					// entropy
+					ComputeEntropy ceob = new ComputeEntropy(shuffList, 6);
+					List<Double> shuffEntropies = ceob.getEntropy();
+					// JOptionPane.showMessageDialog(null, "TH:"+targetH+"
+					// L0:"+shuffEntropies.get(0));
+
+					SwingWorker analyzeWorker = new SwingWorker() {
+						boolean errored = false;
+
+						// List<Double> entropyList = new ArrayList<>();
+						// List<Double> jointEntropyList = new ArrayList<>();
+						List<Double> mutualInfoList = new ArrayList<>();
+						// get entopies
+
+						double targetH = shuffEntropies.get(0);
+
+						public Object construct() {
+							try {
+								// for each data row do
+								// Number[] result = null;
+								// long startTime = System.nanoTime();
+								int j = 0;
+
+								do {
+									progress.setProgress(j);
+									double[] data = myProject.getIncludedData(entries[j]);
+									// for each row get wtMatrix and compute MI
+									ComputeDensityFromSpline o = new ComputeDensityFromSpline(data, bins, kFinal,
+											knotVec);
+									double[][] thiswtMat = o.getWeightMatrix();
+									// double thisEntropy = o.getEntropy(thiswtMat);
+									// double thisJointEntropy = o.getJointEntropy(targetwtMat, thiswtMat);
+									// double thisMI = targetH + thisEntropy - thisJointEntropy;
+									// mutualInfoList.add(thisMI);
+									// calculate joint entropy pval and MI
+									ComputeJointEntropy cjeob = new ComputeJointEntropy(shuffList, thiswtMat, _T);
+									List<Double> jointEntropies = null;
+									try {
+										jointEntropies = cjeob.getJointEntropy();
+									} catch (InterruptedException | ExecutionException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+									double thisEntropy = o.getEntropy(thiswtMat);
+									double thisJointEntropy = jointEntropies.get(0);
+									double thisMI = targetH + thisEntropy - thisJointEntropy;
+									mutualInfoList.add(thisMI);
+									// compute p-val
+									double sum = 0;
+									for (int l = 1; l < jointEntropies.size(); l++) {
+										double lMI = shuffEntropies.get(l) + thisEntropy - jointEntropies.get(l);
+										if (lMI >= thisMI) {
+											sum += 1;
+										}
+									}
+									double thisPval = sum / _N;
+
+									// create object to save p-vals
+									CorrelationMeta temp = new CorrelationMeta(thisMI, thisPval);
+									String thisgeneName = myProject.getRowName(entries[j])[myProject.getDefaultColumn()]
+											.toString();
+									temp.settargetName(thisgeneName);
+									corrMetaResList.add(temp);
+
+									j++;
+									if (j >= entries.length)
+										break;
+								} while (!progress.isCanceled());
+
+							} catch (IOException ioe) {
+								JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Error reading project data",
+										"IOException", 0);
+								ioe.printStackTrace();
+								progress.dispose();
+								errored = true;
+								return null;
+							} catch (ArrayIndexOutOfBoundsException oob) {
+								progress.dispose();
+								errored = true;
+								return null;
+							}
+							return null;
+						}
+
+						public void finished() {
+							if ((!progress.isCanceled()) && (!errored)) {
+
+								final Number[] result = new Number[myProject.getRowCount()];
+								for (int i = 0; i < mutualInfoList.size(); i++) {
+
+									result[entries[i]] = new CorrelationValue(mutualInfoList.get(i));
+								}
+
+								myProject.setLastCorrelation(result, nameSave);
+								CorrelationMetaCollection cmcObj = new CorrelationMetaCollection(nameSave, 3,
+										"ShuffleAll", targetName, corrMetaResList, bins, kFinal);
+								myProject.addMetaCorrRes(nameSave, cmcObj);
+							}
+							progress.dispose();
+							System.gc();
+						}
+					};
+					analyzeWorker.start();
+					progress.setVisible(true);
+				}
+
+				else if ("mutualInformation2".equals(e.getActionCommand())) {
+					// shuffle only within groups
+					// get significance using permutation test
+					final int[] entries = myProject.getGeneListRowNumbers(geneLists.getSelectedValue().toString());
+					double[] sourceData = myProject.getIncludedData(entries[target]);
+					int _N = MetaOmGraph.getNumPermutations();
+					int _T = MetaOmGraph.getNumThreads();
+					// let User enter parameters
+					int binsM = 0;
+					int k = 0;
+					try {
+						binsM = Integer.parseInt((String) JOptionPane.showInputDialog(null,
+								"Please Enter number of bins", "Input number of bins", JOptionPane.QUESTION_MESSAGE,
+								null, null, String.valueOf(MetaOmGraph.getNumBins())));
+						k = Integer.parseInt((String) JOptionPane.showInputDialog(null, "Please Enter the order k",
+								"Input the order", JOptionPane.QUESTION_MESSAGE, null, null,
+								String.valueOf(MetaOmGraph.getOrder())));
+					} catch (NumberFormatException nfe) {
+						JOptionPane.showMessageDialog(null, "Invalid number entered. Please try again.", "Error",
+								JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+					// construct a uniform knot vector
+					double[] knotVec = getTvector(k, binsM);
+					//////////////////////////////////////////////////////////////////////////
+					final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(),
+							"Analyzing...", "", 0L, entries.length, true);
+					// create metacorrobj
+					List<CorrelationMeta> corrMetaResList = new ArrayList<>();
+					// name to save results
+					final String nameSave = name;
+					final int bins = binsM;
+					final int kFinal = k;
+					// compute entropy for target
+					ComputeDensityFromSpline tOb = new ComputeDensityFromSpline(sourceData, bins, kFinal, knotVec);
+					double[][] targetwtMat = tOb.getWeightMatrix();
+
+					// JOptionPane.showMessageDialog(null, "Orig mat:"
+					// +Arrays.deepToString(targetwtMat));
+					// JOptionPane.showMessageDialog(null, "Orig mat dim:" + targetwtMat.length + "
+					// " + targetwtMat[0].length);
+					/////////////////////
+					List<double[][]> shuffList = new ArrayList<>();
+					// add original data to calculate original correlation val which will be at
+					// index 0
+					// shuffle _N time only within groups
+					if (myProject.getMetadataHybrid() == null) {
+						JOptionPane.showMessageDialog(null, "No metadata loaded", "Metadata not found",
+								JOptionPane.INFORMATION_MESSAGE);
+						return;
+					}
+
+					// JOptionPane.showMessageDialog(null,
+					// "coltoGroup:"+Arrays.toString(coltoGroup));
+					// add original Matrix to calculate original correlation val which will be at
+					// index 0
+					shuffList.add(targetwtMat);
+
+					///////////////////////// shuffle within group////////////////////////
+					TreeMap<String, List<Integer>> groupsMap = myProject.getMetadataHybrid().getDefaultRepsMap();
+					// this array contains colindex of the datacolumns used
+					int[] sourceDataColNumbers = new int[sourceData.length];
+					boolean[] exclude = MetaOmAnalyzer.getExclude();
+					List<int[]> shuffInd = groupDataIndexbyRepColumn(groupsMap, exclude, sourceDataColNumbers, _N);
+					for (int j = 0; j < shuffInd.size(); j++) {
+						double[][] tempMat = new double[targetwtMat.length][targetwtMat[0].length];
+						int[] newInd = shuffInd.get(j);
+						for (int m = 0; m < tempMat.length; m++) {
+							for (int n = 0; n < tempMat[0].length; n++) {
+								// copy indices.get(n) column from targetwtMat to nth place in tempmat
+								tempMat[m][n] = targetwtMat[m][newInd[n]];
+							}
+						}
+						shuffList.add(tempMat);
+					}
+
+					//////////////////////////////////
+					// calculate entopies of all suffled matrices. at index 0 will be original
+					// entropy
+					ComputeEntropy ceob = new ComputeEntropy(shuffList, 6);
+					List<Double> shuffEntropies = ceob.getEntropy();
+					// JOptionPane.showMessageDialog(null, "TH:"+targetH+"
+					// L0:"+shuffEntropies.get(0));
+
+					SwingWorker analyzeWorker = new SwingWorker() {
+						boolean errored = false;
+
+						// List<Double> entropyList = new ArrayList<>();
+						// List<Double> jointEntropyList = new ArrayList<>();
+						List<Double> mutualInfoList = new ArrayList<>();
+						// get entopies
+
+						double targetH = shuffEntropies.get(0);
+
+						public Object construct() {
+							try {
+								// for each data row do
+								// Number[] result = null;
+								// long startTime = System.nanoTime();
+								int j = 0;
+								int _N = MetaOmGraph.getNumPermutations();
+								int _T = MetaOmGraph.getNumThreads();
+								do {
+									progress.setProgress(j);
+									double[] data = myProject.getIncludedData(entries[j]);
+									// for each row get wtMatrix and compute MI
+									ComputeDensityFromSpline o = new ComputeDensityFromSpline(data, bins, kFinal,
+											knotVec);
+									double[][] thiswtMat = o.getWeightMatrix();
+									// double thisEntropy = o.getEntropy(thiswtMat);
+									// double thisJointEntropy = o.getJointEntropy(targetwtMat, thiswtMat);
+									// double thisMI = targetH + thisEntropy - thisJointEntropy;
+									// mutualInfoList.add(thisMI);
+
+									// calculate joint entropy pval and MI
+									ComputeJointEntropy cjeob = new ComputeJointEntropy(shuffList, thiswtMat, _T);
+									List<Double> jointEntropies = null;
+									try {
+										jointEntropies = cjeob.getJointEntropy();
+									} catch (InterruptedException | ExecutionException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+									double thisEntropy = o.getEntropy(thiswtMat);
+									double thisJointEntropy = jointEntropies.get(0);
+									double thisMI = targetH + thisEntropy - thisJointEntropy;
+									mutualInfoList.add(thisMI);
+									// compute p-val
+									double sum = 0;
+									// start from as 0th is the original data
+									for (int l = 1; l < jointEntropies.size(); l++) {
+										double lMI = shuffEntropies.get(l) + thisEntropy - jointEntropies.get(l);
+										if (lMI >= thisMI) {
+											sum += 1;
+										}
+									}
+									double thisPval = sum / _N;
+
+									// create object to save p-vals
+									CorrelationMeta temp = new CorrelationMeta(thisMI, thisPval);
+									String thisgeneName = myProject.getRowName(entries[j])[myProject.getDefaultColumn()]
+											.toString();
+									temp.settargetName(thisgeneName);
+									corrMetaResList.add(temp);
+									// s
+
+									j++;
+									if (j >= entries.length)
+										break;
+								} while (!progress.isCanceled());
+
+							} catch (IOException ioe) {
+								JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Error reading project data",
+										"IOException", 0);
+								ioe.printStackTrace();
+								progress.dispose();
+								errored = true;
+								return null;
+							} catch (ArrayIndexOutOfBoundsException oob) {
+								progress.dispose();
+								errored = true;
+								return null;
+							}
+							return null;
+						}
+
+						public void finished() {
+							if ((!progress.isCanceled()) && (!errored)) {
+
+								final Number[] result = new Number[myProject.getRowCount()];
+								for (int i = 0; i < mutualInfoList.size(); i++) {
+									// result[entries[i]] = mutualInfoList.get(i);
+									result[entries[i]] = new CorrelationValue(mutualInfoList.get(i));
+								}
+
+								myProject.setLastCorrelation(result, nameSave);
+								CorrelationMetaCollection cmcObj = new CorrelationMetaCollection(nameSave, 3,
+										"ShuffleWithInGrps", targetName, corrMetaResList, bins, kFinal);
+
+								myProject.addMetaCorrRes(nameSave, cmcObj);
+							}
+							progress.dispose();
+							System.gc();
+						}
+					};
+					analyzeWorker.start();
+					progress.setVisible(true);
+				}
+
+				else if ("spearman correlation".equals(e.getActionCommand())) {
 					MetaOmAnalyzer.doAnalysis(myProject, geneLists.getSelectedValue().toString(), target, name, 2);
+				}
+
+				else if ("spearman correlation2".equals(e.getActionCommand())) {
+					final int[] entries = myProject.getGeneListRowNumbers(geneLists.getSelectedValue().toString());
+					double[] sourceData = myProject.getIncludedData(entries[target]);
+					double[] sourceDataAll = myProject.getAllData(entries[target]);
+					int _N = MetaOmGraph.getNumPermutations();
+					int _T = MetaOmGraph.getNumThreads();
+
+					// do _N permutations. Start
+					List<Double> sourceDataList = new ArrayList<>();
+					for (double d : sourceData) {
+						sourceDataList.add(d);
+					}
+					List<double[]> shuffList = new ArrayList<double[]>();
+					// add original data to calculate original correlation val which will be at
+					// index 0
+					// shuffle _N time only within groups
+					if (myProject.getMetadataHybrid() == null) {
+						JOptionPane.showMessageDialog(null, "No metadata loaded", "Metadata not found",
+								JOptionPane.INFORMATION_MESSAGE);
+						return;
+					}
+
+					// add original data to calculate original correlation val which will be at
+					// index 0
+					shuffList.add(sourceData);
+					///////////////////////// shuffle within group////////////////////////
+					TreeMap<String, List<Integer>> groupsMap = myProject.getMetadataHybrid().getDefaultRepsMap();
+					// this array contains colindex of the datacolumns used
+					int[] sourceDataColNumbers = new int[sourceData.length];
+					boolean[] exclude = MetaOmAnalyzer.getExclude();
+					List<int[]> shuffInd = groupDataIndexbyRepColumn(groupsMap, exclude, sourceDataColNumbers, _N);
+					for (int j = 0; j < shuffInd.size(); j++) {
+						double[] tempArr = new double[sourceData.length];
+						int[] newInd = shuffInd.get(j);
+						for (int n = 0; n < tempArr.length; n++) {
+							// copy indices.get(n) column from targetwtMat to nth place in tempmat
+							tempArr[n] = sourceData[newInd[n]];
+						}
+						shuffList.add(tempArr);
+					}
+					final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(),
+							"Analyzing...", "", 0L, entries.length, true);
+					// create metacorrobj
+					List<CorrelationMeta> corrMetaResList = new ArrayList<>();
+					// name to save results
+					final String nameSave = name;
+					SwingWorker analyzeWorker = new SwingWorker() {
+						boolean errored = false;
+						List<Double> pvres = new ArrayList<>();
+						List<Double> corrres = new ArrayList<>();
+
+						public Object construct() {
+							try {
+								// for each data row do
+								// Number[] result = null;
+								int j = 0;
+
+								do {
+									progress.setProgress(j);
+									double[] data = myProject.getIncludedData(entries[j]);
+
+									// for each row calculate p-value
+									ComputePval ob = new ComputePval(data, shuffList, _T);
+									try {
+										double[] pv = ob.doComputationSpearman();
+
+										pvres.add(pv[1]);
+										corrres.add(pv[0]);
+										// double thisrVal = 0;
+										CorrelationMeta temp = new CorrelationMeta(pv[0], pv[1]);
+										String thisgeneName = myProject.getRowName(entries[j])[myProject
+												.getDefaultColumn()].toString();
+										temp.settargetName(thisgeneName);
+										corrMetaResList.add(temp);
+										// JOptionPane.showMessageDialog(null, "P val for row:"+j+" is:"+pv);
+									} catch (InterruptedException e1) {
+										// TODO Auto-generated catch block
+										e1.printStackTrace();
+									} catch (ExecutionException e2) {
+										// TODO Auto-generated catch block
+										e2.printStackTrace();
+									}
+
+									j++;
+									if (j >= entries.length)
+										break;
+								} while (!progress.isCanceled());
+
+							} catch (IOException ioe) {
+								JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Error reading project data",
+										"IOException", 0);
+								ioe.printStackTrace();
+								progress.dispose();
+								errored = true;
+								return null;
+							} catch (ArrayIndexOutOfBoundsException oob) {
+								progress.dispose();
+								errored = true;
+								return null;
+							}
+							return null;
+						}
+
+						public void finished() {
+							if ((!progress.isCanceled()) && (!errored)) {
+								final Number[] result = new Number[myProject.getRowCount()];
+								for (int i = 0; i < corrres.size(); i++) {
+									// result[entries[i]] = corrres.get(i);
+									result[entries[i]] = new CorrelationValue(corrres.get(i));
+								}
+								myProject.setLastCorrelation(result, nameSave);
+								// String s=String.valueOf(name);
+								CorrelationMetaCollection cmcObj = new CorrelationMetaCollection(nameSave, 2, "Shuffle",
+										targetName, corrMetaResList);
+								myProject.addMetaCorrRes(nameSave, cmcObj);
+							}
+							progress.dispose();
+						}
+					};
+					analyzeWorker.start();
+					progress.setVisible(true);
+				} else if ("spearman correlation3".equals(e.getActionCommand())) {
+					// shuffle all
+					// get significance using permutation test
+					final int[] entries = myProject.getGeneListRowNumbers(geneLists.getSelectedValue().toString());
+					double[] sourceData = myProject.getIncludedData(entries[target]);
+					int _N = MetaOmGraph.getNumPermutations();
+					int _T = MetaOmGraph.getNumThreads();
+
+					// do _N permutations
+					List<Double> sourceDataList = new ArrayList<>();
+					for (double d : sourceData) {
+						sourceDataList.add(d);
+					}
+					List<double[]> shuffList = new ArrayList<double[]>();
+					// add original data to calculate original correlation val which will be at
+					// index 0
+
+					shuffList.add(sourceData); // shuffle _N time to create a list of shuffledlists
+					for (int i = 0; i < _N; i++) {
+						java.util.Collections.shuffle(sourceDataList);
+						double[] tempArr = new double[sourceData.length];
+						int k = 0;
+						for (double d : sourceDataList) {
+							tempArr[k++] = d;
+						}
+						shuffList.add(tempArr);
+					}
+
+					final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(),
+							"Analyzing...", "", 0L, entries.length, true);
+					List<CorrelationMeta> corrMetaResList = new ArrayList<>();
+					// name to save results
+					final String nameSave = name;
+					SwingWorker analyzeWorker = new SwingWorker() {
+						boolean errored = false;
+						List<Double> pvres = new ArrayList<>();
+						List<Double> corrres = new ArrayList<>();
+
+						public Object construct() {
+							try {
+								// for each data row do
+								// Number[] result = null;
+								int j = 0;
+
+								do {
+									progress.setProgress(j);
+									double[] data = myProject.getIncludedData(entries[j]);
+
+									// for each row calculate p-value
+									ComputePval ob = new ComputePval(data, shuffList, _T);
+									try {
+										double[] pv = ob.doComputationSpearman();
+										pvres.add(pv[1]);
+										corrres.add(pv[0]);
+										// double thisrVal = 0;
+										CorrelationMeta temp = new CorrelationMeta(pv[0], pv[1]);
+										String thisgeneName = myProject.getRowName(entries[j])[myProject
+												.getDefaultColumn()].toString();
+										temp.settargetName(thisgeneName);
+										corrMetaResList.add(temp);
+
+									} catch (InterruptedException e1) {
+										// TODO Auto-generated catch block
+										e1.printStackTrace();
+									} catch (ExecutionException e2) {
+										// TODO Auto-generated catch block
+										e2.printStackTrace();
+									}
+
+									// JOptionPane.showMessageDialog(null, "Corrvals for:"+j+"
+									// :"+Arrays.toString(result));
+
+									j++;
+									if (j >= entries.length)
+										break;
+								} while (!progress.isCanceled());
+
+							} catch (IOException ioe) {
+								JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Error reading project data",
+										"IOException", 0);
+								ioe.printStackTrace();
+								progress.dispose();
+								errored = true;
+								return null;
+							} catch (ArrayIndexOutOfBoundsException oob) {
+								progress.dispose();
+								errored = true;
+								return null;
+							}
+							return null;
+						}
+
+						public void finished() {
+							if ((!progress.isCanceled()) && (!errored)) {
+								final Number[] result = new Number[myProject.getRowCount()];
+								for (int i = 0; i < corrres.size(); i++) {
+									// add value as CorrelationValue object
+
+									result[entries[i]] = new CorrelationValue(corrres.get(i));
+								}
+								myProject.setLastCorrelation(result, nameSave);
+								CorrelationMetaCollection cmcObj = new CorrelationMetaCollection(nameSave, 2,
+										"ShuffleAll", targetName, corrMetaResList);
+								myProject.addMetaCorrRes(nameSave, cmcObj);
+							}
+							progress.dispose();
+						}
+					};
+					analyzeWorker.start();
+					progress.setVisible(true);
 				} else if ("euclidean distance".equals(e.getActionCommand())) {
 					MetaOmAnalyzer.doAnalysis(myProject, geneLists.getSelectedValue().toString(), target, name, 4);
 				} else if ("canberra distance".equals(e.getActionCommand())) {
@@ -1303,10 +2709,18 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				} else if ("weighted manhattan distance".equals(e.getActionCommand())) {
 					MetaOmAnalyzer.doAnalysis(myProject, geneLists.getSelectedValue().toString(), target, name, 7);
 				}
-			} catch (IOException ioe) {
+			} catch (
+
+			IOException ioe) {
 				JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Error reading project data", "IOException",
 						0);
 				ioe.printStackTrace();
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (ExecutionException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
 			return;
 		}
@@ -1359,13 +2773,148 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			}
 
 			if ("pairwise pearson".equals(e.getActionCommand())) {
-				MetaOmAnalyzer.pairwise(myProject, geneLists.getSelectedValue().toString(), nameCol, 1);
+				try {
+					MetaOmAnalyzer.pairwise(myProject, geneLists.getSelectedValue().toString(), nameCol, 1);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			} else {
-				MetaOmAnalyzer.pairwise(myProject, geneLists.getSelectedValue().toString(), nameCol, 2);
+				try {
+					MetaOmAnalyzer.pairwise(myProject, geneLists.getSelectedValue().toString(), nameCol, 2);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 
 			return;
 		}
+
+		if (("mutualInformationPairs".equals(e.getActionCommand()))) {
+			// JOptionPane.showMessageDialog(null, "PairwiseMI");
+			String[] names = myProject.getInfoColumnNames();
+			String[] options = new String[names.length + 1];
+			options[0] = "Row Number";
+			System.arraycopy(names, 0, options, 1, names.length);
+
+			Object result = JOptionPane.showInputDialog(this, "Which identifiers should be used for the result?",
+					"Pairwise Mutual Information", 3, null, options, options[0]);
+			if (result == null)
+				return;
+			int nameCol = -100;
+			for (int i = 0; (i < options.length) && (nameCol < 0); i++) {
+				if (options[i].equals(result.toString())) {
+					nameCol = i - 1;
+				}
+			}
+
+			int binsM = 0;
+			int k = 0;
+			try {
+				binsM = Integer.parseInt((String) JOptionPane.showInputDialog(null, "Please Enter number of bins",
+						"Input number of bins", JOptionPane.QUESTION_MESSAGE, null, null,
+						String.valueOf(MetaOmGraph.getNumBins())));
+				k = Integer.parseInt(
+						(String) JOptionPane.showInputDialog(null, "Please Enter the order k", "Input the order",
+								JOptionPane.QUESTION_MESSAGE, null, null, String.valueOf(MetaOmGraph.getOrder())));
+			} catch (NumberFormatException nfe) {
+				JOptionPane.showMessageDialog(null, "Invalid number entered. Please try again.", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			// construct a uniform knot vector
+			double[] knotVec = getTvector(k, binsM);
+
+			// call function
+			try {
+				// long startTime = System.nanoTime();
+				MetaOmAnalyzer.pairwiseMI(myProject, geneLists.getSelectedValue().toString(), nameCol, binsM, k,
+						knotVec, false);
+				// long endTime = System.nanoTime();
+				// long totalTime = endTime - startTime;
+				// JOptionPane.showMessageDialog(null, "Time taken by old: "+totalTime/1000);
+
+				// s
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+		}
+
+		// relatedness matrix
+		if (("relatednessPairs".equals(e.getActionCommand()))) {
+			// JOptionPane.showMessageDialog(null, "PairwiseMI");
+			String[] names = myProject.getInfoColumnNames();
+			String[] options = new String[names.length + 1];
+			options[0] = "Row Number";
+			System.arraycopy(names, 0, options, 1, names.length);
+
+			Object result = JOptionPane.showInputDialog(this, "Which identifiers should be used for the result?",
+					"Pairwise Mutual Information", 3, null, options, options[0]);
+			if (result == null)
+				return;
+			int nameCol = -100;
+			for (int i = 0; (i < options.length) && (nameCol < 0); i++) {
+				if (options[i].equals(result.toString())) {
+					nameCol = i - 1;
+				}
+			}
+
+			int binsM = 0;
+			int k = 0;
+			try {
+				binsM = Integer.parseInt((String) JOptionPane.showInputDialog(null, "Please Enter number of bins",
+						"Input number of bins", JOptionPane.QUESTION_MESSAGE, null, null,
+						String.valueOf(MetaOmGraph.getNumBins())));
+				k = Integer.parseInt(
+						(String) JOptionPane.showInputDialog(null, "Please Enter the order k", "Input the order",
+								JOptionPane.QUESTION_MESSAGE, null, null, String.valueOf(MetaOmGraph.getOrder())));
+			} catch (NumberFormatException nfe) {
+				JOptionPane.showMessageDialog(null, "Invalid number entered. Please try again.", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			// construct a uniform knot vector
+			double[] knotVec = getTvector(k, binsM);
+
+			// call function
+			try {
+				// long startTime = System.nanoTime();
+				MetaOmAnalyzer.pairwiseMI(myProject, geneLists.getSelectedValue().toString(), nameCol, binsM, k,
+						knotVec, true);
+				// long endTime = System.nanoTime();
+				// long totalTime = endTime - startTime;
+				// JOptionPane.showMessageDialog(null, "Time taken by new: "+totalTime/1000);
+
+				// compute relatedness from MI matrix
+
+				// s
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+		}
+	}
+
+	private double[] getTvector(int k, int binsM) {
+		if (k >= binsM) {
+			JOptionPane.showMessageDialog(null, "k<M");
+		}
+		double[] tVec = new double[binsM + k];
+
+		for (int i = 0; i < tVec.length; i++) {
+			if (i < k) {
+				tVec[i] = 0;
+			} else if (k <= i && i <= binsM) {
+				tVec[i] = i - k + 1;
+			} else {
+				tVec[i] = binsM - 1 - k + 2;
+			}
+		}
+		return tVec;
 	}
 
 	private void makeListFromFilter() {
@@ -1492,7 +3041,53 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				return ((String) o1).toLowerCase().compareTo(((String) o2).toLowerCase());
 			}
 
+			if (((o1 instanceof Double)) && ((o2 instanceof Double))) {
+				return ((Double) o1).compareTo((Double) o2);
+			}
+
 			return (o1 + "").compareTo(o2 + "");
+		}
+	}
+
+	/**
+	 * Class for comparision of numbers and string in the main table
+	 * 
+	 * @author urmi
+	 *
+	 */
+	public class MyAlphanumericComparator implements Comparator {
+		public MyAlphanumericComparator() {
+		}
+
+		public int compare(Object o1, Object o2) {
+			String s1 = o1.toString();
+			String s2 = o2.toString();
+			final Double num1 = getDouble(s1);
+			final Double num2 = getDouble(s2);
+			if (num1 != null && num2 != null) {
+				return num1.compareTo(num2);
+			}
+			return s1.compareTo(s2);
+			/*
+			 * if(num1==null && num2==null) { return 0; } if(num1==null ) { return 1; }
+			 * if(num2==null ) { return -1; }
+			 */
+
+			/*
+			 * try { return Integer.parseInt(o1.toString())-Integer.parseInt(o2.toString());
+			 * }catch(NumberFormatException nfe) { //JOptionPane.showMessageDialog(null,
+			 * "This column seems to contain non-number values", "", messageType); return 0;
+			 * }
+			 */
+
+		}
+
+		private Double getDouble(String number) {
+			try {
+				return Double.parseDouble(number);
+			} catch (NumberFormatException e) {
+				return null;
+			}
 		}
 	}
 
@@ -1615,8 +3210,185 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			// model.reload(root);
 		}
 	}
-	/*
-	 * public MetadataTableDisplayPanel getMetadataTable() { return
-	 * this.mdtablepanel; }
+
+	public MetadataTableDisplayPanel getMetadataTableDisplay() {
+		return this.mdtablepanel;
+	}
+
+	public String getMainTableItemat(int r, int c) {
+		if (r < 0 || r > listDisplay.getRowCount()) {
+			return null;
+		}
+		if (c < 0 || c > listDisplay.getColumnCount()) {
+			return null;
+		}
+		String res = listDisplay.getModel().getValueAt(r, c).toString();
+		return res;
+	}
+
+	/**
+	 * Group data into arrays and return a list of these arrays. Grouping is based
+	 * on default rep column
+	 * 
+	 * @param groupsMap
+	 * @param sourceDataAll
+	 * @param exclude
+	 * @return
 	 */
+	public List<double[]> groupDatabyRepColumn(TreeMap<String, List<Integer>> groupsMap, double[] sourceDataAll,
+			boolean[] exclude) {
+		List<double[]> sourceGrouped = new ArrayList<double[]>();
+
+		for (Map.Entry<String, List<Integer>> entry : groupsMap.entrySet()) {
+			String key = entry.getKey();
+			List<Integer> value = entry.getValue();
+			List<Double> thisVals = new ArrayList<>();
+
+			for (int i = 0; i < value.size(); i++) {
+				try {
+					// check if val exists
+					// value will be -1 if datacol doesn't exist in the repsMap. Potential cause
+					// extra and missing data columns. Testing required.
+					int thisInd = value.get(i);
+					// if datacolumn at thisValue is excluded, continue
+					if (exclude != null && exclude[thisInd]) {
+						// skip
+						continue;
+					}
+					if (thisInd >= 0) {
+						// thisVals[i] = sourceData[thisValue];
+						thisVals.add(sourceDataAll[thisInd]);
+					} else {
+						// error due to mismached data and metadata runs
+						JOptionPane.showMessageDialog(null, "Fix this error");
+					}
+				} catch (ArrayIndexOutOfBoundsException ae) {
+					JOptionPane.showMessageDialog(null, "key:" + key);
+					JOptionPane.showMessageDialog(null, "key:" + key + "val[i]" + value.get(i) + " sD[vi]:");
+					JOptionPane.showMessageDialog(null, "key:" + key + "val[i]" + value.toString());
+
+				}
+			}
+
+			if (thisVals.size() > 0) {
+				// JOptionPane.showMessageDialog(null, "groups:" + thisVals.toString());
+				sourceGrouped.add(thisVals.stream().mapToDouble(d -> d).toArray());
+			}
+
+		}
+
+		return sourceGrouped;
+	}
+
+	/**
+	 * @author urmi Group indices of data columns and create a list. Grouping is
+	 *         based on default rep column. Return a list of shuffled indices to be
+	 *         used on data or wt matrix
+	 * 
+	 * @param groupsMap
+	 * @param exclude
+	 * @param sourceDataColNumbers
+	 * @param _N
+	 * @return
+	 */
+	public List<int[]> groupDataIndexbyRepColumn(TreeMap<String, List<Integer>> groupsMap, boolean[] exclude,
+			int[] sourceDataColNumbers, int _N) {
+		List<int[]> res = new ArrayList<>();
+		// get datacolindex in order of source data
+		int y = 0;
+		if (exclude != null) {
+			for (int h = 0; h < exclude.length; h++) {
+				if (!exclude[h]) {
+					sourceDataColNumbers[y++] = h;
+				}
+			}
+		} else {
+			for (int h = 0; h < sourceDataColNumbers.length; h++) {
+				sourceDataColNumbers[h] = h;
+			}
+		}
+
+		// group all the included columns into lists and store in list sourceGroupedInd
+		List<List<Integer>> sourceGroupedInd = new ArrayList<>();
+		for (Map.Entry<String, List<Integer>> entry : groupsMap.entrySet()) {
+			String key = entry.getKey();
+			List<Integer> value = entry.getValue();
+			java.util.List<Integer> thisindexs = new ArrayList<>();
+			for (int i = 0; i < value.size(); i++) {
+				try {
+					int thisInd = value.get(i);
+					if (exclude != null && exclude[thisInd]) {
+						// skip
+						continue;
+					}
+					if (thisInd >= 0) {
+						thisindexs.add(thisInd);
+					} else {
+						// error due to mismached data and metadata runs
+						JOptionPane.showMessageDialog(null, "Fix this error");
+					}
+				} catch (ArrayIndexOutOfBoundsException ae) {
+					JOptionPane.showMessageDialog(null, "key:" + key);
+
+				}
+			}
+			if (thisindexs.size() > 0) {
+				/*if(thisindexs.size()>1) {
+				 JOptionPane.showMessageDialog(null, "add:" + thisindexs.toString()+" key:"+key);
+				 for(int v: value) {
+					 JOptionPane.showMessageDialog(null, "colanme:" + myProject.getDataColumnHeader(v));
+				 }
+				}*/
+				sourceGroupedInd.add(thisindexs);
+			}
+		}
+
+		// create an array to map colIndex to group index
+		// if colIndex is 0,2,3,4,1,9
+		// and 0,1,2 are in group 3,4 are in g2 9 is in g3
+		// coltoGroup will look like 0,0,1,1,0,2
+		int[] coltoGroup = new int[sourceDataColNumbers.length];
+		for (int h = 0; h < coltoGroup.length; h++) {
+			int thisColInd = sourceDataColNumbers[h];
+			for (int g = 0; g < sourceGroupedInd.size(); g++) {
+				if (sourceGroupedInd.get(g).contains(thisColInd)) {
+					coltoGroup[h] = g;
+					break;
+				}
+			}
+		}
+
+		// start shuffle within groups only
+		for (int i = 0; i < _N; i++) {
+			int[] tempArr = new int[sourceDataColNumbers.length];
+			int l = 0;
+			// for each int[] in sourceGrouped shuffle each group and add to shufflist
+			for (int j = 0; j < sourceGroupedInd.size(); j++) {
+				java.util.List<Integer> tempList = sourceGroupedInd.get(j);
+				java.util.Collections.shuffle(tempList);
+				int g = 0;
+				for (int h = 0; h < coltoGroup.length; h++) {
+					if (coltoGroup[h] == j) {
+						tempArr[h] = tempList.get(g);
+						g++;
+						// l++;
+					}
+				}
+			}
+			int[] newInd = new int[sourceDataColNumbers.length];
+			for (int j = 0; j < tempArr.length; j++) {
+				for (int h = 0; h < sourceDataColNumbers.length; h++) {
+					if (tempArr[j] == sourceDataColNumbers[h]) {
+						newInd[j] = h;
+						break;
+					}
+				}
+			}
+			// new index contains shuffled index
+			res.add(newInd);
+		}
+
+		return res;
+	}
+
 }

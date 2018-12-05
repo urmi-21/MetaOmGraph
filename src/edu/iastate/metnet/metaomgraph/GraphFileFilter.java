@@ -42,7 +42,7 @@ public class GraphFileFilter
         String ext = Utils.getExtension(arg0);
         if (ext == null)
             return false;
-        if (((ext.equals("txt")) || (ext.equals("csv")) || (ext.equals("xls")) || (ext.equals("xlsx"))) && (mode == 1))
+        if (((ext.equals("txt")) || (ext.equals("csv")) || (ext.equals("tsv"))) && (mode == 1))
             return true;
         if (((ext.equals("mcg")) || (ext.equals("mog"))) && (mode == 2))
             return true;
@@ -61,7 +61,7 @@ public class GraphFileFilter
             case 2:
                 return "MetaOmGraph project files (*.mog, *.mcg)";
             case 1:
-                return "Delimited text files (*.txt, *.csv, *.xls)";
+                return "Delimited text files (*.txt, *.csv, *.tsv)";
             case 3:
                 return "PNG image files (*.png)";
             case 5:

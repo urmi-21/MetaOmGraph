@@ -2,6 +2,7 @@ package edu.iastate.metnet.metaomgraph.chart;
 
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
+import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.Metadata;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
@@ -34,7 +36,8 @@ public class DataSorter {
 		String[] sampleNames = myChartPanel.getSampleNames();
 		String[] names = new String[sampleNames.length];
 		int[] result = new int[names.length];
-		//JOptionPane.showMessageDialog(null, "sampnames:" + Arrays.toString(sampleNames));
+		// JOptionPane.showMessageDialog(null, "sampnames:" +
+		// Arrays.toString(sampleNames));
 		// Make the sort case-insensitive, and add the original index of the
 		// column names to the end of each entry.
 		for (int i = 0; i < names.length; i++) {
@@ -48,38 +51,46 @@ public class DataSorter {
 		for (int i = 0; i < result.length; i++) {
 			result[i] = Integer.parseInt(names[i].substring(names[i].lastIndexOf("<") + 1));
 		}
-		rangeMarkers = null;
-		//JOptionPane.showMessageDialog(null, "res:" + Arrays.toString(result));
+		// rangeMarkers = null;
+		// sort range markers with items
+
+		// JOptionPane.showMessageDialog(null, "res:" + Arrays.toString(result));
 		return result;
 	}
 
 	/**
-	 * @author urmi Changed the previous implementation Sort the sort order array
-	 *         according to names NOT used ANYMORE
+	 * @author urmi sort present chart by current x axis labels
 	 * @return
 	 */
-	public int[] sortByColumnName2() {
-		String[] sampleNames = myChartPanel.getSampleNames();
-		// String[] names = new String[sampleNames.length];
-		int[] so = myChartPanel.sortOrder;
-		// sort so and sampleNames together and return so
-
-		/* Bubble Sort */
-		for (int n = 0; n < sampleNames.length; n++) {
-			for (int m = 0; m < sampleNames.length - 1 - n; m++) {
-				if ((sampleNames[m].compareTo(sampleNames[m + 1])) > 0) {
-					String tempString = sampleNames[m];
-					sampleNames[m] = sampleNames[m + 1];
-					sampleNames[m + 1] = tempString;
-					int tempInt = so[m];
-					so[m] = so[m + 1];
-					so[m + 1] = tempInt;
-				}
-			}
+	public int[] sortByXaxisNames() {
+		// if no ticklabels are set then sort by colnames
+		if (myChartPanel.tickLabels == null) {
+			return sortByColumnName();
 		}
+		String[] xaxisNames = myChartPanel.tickLabels;
 
-		rangeMarkers = null;
-		return so;
+		String[] names = new String[xaxisNames.length];
+		int[] result = new int[names.length];
+		// JOptionPane.showMessageDialog(null, "sampnames:" +
+		// Arrays.toString(sampleNames));
+		// Make the sort case-insensitive, and add the original index of the
+		// column names to the end of each entry.
+		for (int i = 0; i < names.length; i++) {
+			names[i] = xaxisNames[i].toLowerCase();
+			names[i] += "<" + i;
+		}
+		Arrays.sort(names);
+		// names will now be sorted alphabetically. Now we just need to populate
+		// result with the original indices of the column names, which appear
+		// after the last '<' character in each name.
+		// JOptionPane.showMessageDialog(null, "befsortd:" + Arrays.toString(names));
+		for (int i = 0; i < result.length; i++) {
+			result[i] = Integer.parseInt(names[i].substring(names[i].lastIndexOf("<") + 1));
+		}
+		// JOptionPane.showMessageDialog(null, "sortd:" + Arrays.toString(names));
+		// JOptionPane.showMessageDialog(null, "res:" + Arrays.toString(result));
+
+		return result;
 	}
 
 	/**
@@ -88,9 +99,11 @@ public class DataSorter {
 	 * @return
 	 */
 	public int[] defaultOrder() {
-		int[] so = myChartPanel.sortOrder;
-		Arrays.sort(so);
-		rangeMarkers = null;
+		//create a new object
+		int[] so = new int[myChartPanel.getSortOrder().length];
+		for (int i = 0; i < so.length; i++) {
+			so[i] = i;
+		}
 		return so;
 	}
 
@@ -109,7 +122,7 @@ public class DataSorter {
 		for (int x = 0; x < result.length; x++) {
 			result[x] = sortMe[x].getIndex();
 		}
-		rangeMarkers = null;
+		// rangeMarkers = null;
 
 		// JOptionPane.showMessageDialog(null, "res:" + Arrays.toString(result));
 		return result;
@@ -117,7 +130,8 @@ public class DataSorter {
 
 	// to change
 	public int[] sortByMetadata() {
-		final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(myChartPanel.getProject(),false);
+		final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(myChartPanel.getProject(),
+				false);
 		final MetadataQuery[] queries;
 		queries = tsp.showSearchDialog();
 		if (tsp.getQueryCount() <= 0) {
@@ -140,20 +154,23 @@ public class DataSorter {
 				/**
 				 * Changed urmi
 				 */
+				// List<String> hitsList =
+				// MetaOmGraph.getActiveProject().getMetadataHybrid().getMatchingRows(queries,
+				// tsp.matchAll(), tsp.matchCase());
 				Integer[] hits = myChartPanel.getProject().getMetadataHybrid().search(queries, tsp.matchAll());
-				
-				//remove excluded cols from list to display corect range markers
-				//urmi
-				boolean [] excluded= MetaOmAnalyzer.getExclude();
-				if(excluded!=null) {
-					java.util.List<Integer> temp= new ArrayList<>();
-					for(Integer i: hits) {
-						if(!excluded[i]) {
+
+				// remove excluded cols from list to display corect range markers
+				// urmi
+				boolean[] excluded = MetaOmAnalyzer.getExclude();
+				if (excluded != null) {
+					java.util.List<Integer> temp = new ArrayList<>();
+					for (Integer i : hits) {
+						if (!excluded[i]) {
 							temp.add(i);
 						}
 					}
-					hits= new Integer[temp.size()];
-					hits=temp.toArray(hits);
+					hits = new Integer[temp.size()];
+					hits = temp.toArray(hits);
 				}
 
 				// return if no hits
@@ -161,6 +178,10 @@ public class DataSorter {
 					// JOptionPane.showMessageDialog(null, "hits len:"+hits.length);
 					// nohits=true;
 					result[0] = -1;
+					// urmi
+					if (rangeMarkers == null) {
+						return null;
+					}
 					rangeMarkers.removeAllElements();
 					return null;
 				}
@@ -173,7 +194,7 @@ public class DataSorter {
 				for (int i = 0; i < toAdd.size(); i++) {
 					result[index++] = toAdd.get(i);
 				}
-				
+
 				RangeMarker marker = new RangeMarker(0, hits.length - 1, "Hits", RangeMarker.HORIZONTAL);
 				rangeMarkers = new Vector<RangeMarker>();
 				rangeMarkers.add(marker);
@@ -225,8 +246,8 @@ public class DataSorter {
 				continue;
 
 			Collection<Integer> members = clusters.get(groupName);
-			//JOptionPane.showMessageDialog(null, "gname:" + groupName);
-			//JOptionPane.showMessageDialog(null, "membr:" + members.toString());
+			// JOptionPane.showMessageDialog(null, "gname:" + groupName);
+			// JOptionPane.showMessageDialog(null, "membr:" + members.toString());
 			/**
 			 * @author urmi Remove the excluded columns to create range markers only for
 			 *         shown columns
@@ -237,13 +258,13 @@ public class DataSorter {
 				// remove excluded members
 				for (int m : members) {
 					if (excluded[m]) {
-						//JOptionPane.showMessageDialog(null, "Excluding:" + m);
+						// JOptionPane.showMessageDialog(null, "Excluding:" + m);
 						temp.add(m);
 					}
 				}
 				members.removeAll(temp);
 			}
-			//JOptionPane.showMessageDialog(null, "membrnow:" + members.toString());
+			// JOptionPane.showMessageDialog(null, "membrnow:" + members.toString());
 			if (members.size() > 0) {
 				rangeMarkers.add(new RangeMarker(index, index + members.size() - 1, groupName, RangeMarker.VERTICAL));
 			}
