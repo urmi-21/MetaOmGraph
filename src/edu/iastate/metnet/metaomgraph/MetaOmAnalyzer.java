@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
@@ -35,6 +36,10 @@ import javax.swing.JPanel;
 import javax.swing.table.TableModel;
 import javax.swing.text.Document;
 
+import org.apache.commons.math3.exception.NotANumberException;
+import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
+import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.jdom.Element;
 
 public class MetaOmAnalyzer {
@@ -58,10 +63,11 @@ public class MetaOmAnalyzer {
 	 * @param excluded
 	 *            list of excluded data cols
 	 */
-	public static void updateExcluded(List<String> excluded) {
+	public static void updateExcluded(Set<String> excluded) {
 		if (excluded.size() == 0) {
 			MetaOmAnalyzer.exclude = null;
 			MetaOmAnalyzer.excludeCount = 0;
+			MetaOmGraph.fixTitle();
 			return;
 		} else {
 
@@ -112,20 +118,19 @@ public class MetaOmAnalyzer {
 				}
 			}
 		}
-		
+
 		JOptionPane.showMessageDialog(null, "making list");
 		List<double[]> fullData = new ArrayList<>();
-		fullData=project.getAllData();
+		fullData = project.getAllData();
 		/*
-		for (int i = 0; i < entries.length; i++) {
-			double[] data = project.getIncludedData(entries[i]);
-			fullData.add(data);
-		}*/
-		
+		 * for (int i = 0; i < entries.length; i++) { double[] data =
+		 * project.getIncludedData(entries[i]); fullData.add(data); }
+		 */
+
 		JOptionPane.showMessageDialog(null, "making list Done");
-		
+
 		CorrelationMultiThreaded ob = new CorrelationMultiThreaded(fullData, sourceData, 0);
-		//JOptionPane.showMessageDialog(null, "running corr");
+		// JOptionPane.showMessageDialog(null, "running corr");
 		// Number [] result = null;
 		try {
 			result = ob.compute();
@@ -137,7 +142,7 @@ public class MetaOmAnalyzer {
 			e.printStackTrace();
 		}
 
-		//JOptionPane.showMessageDialog(null, "Done running corr");
+		// JOptionPane.showMessageDialog(null, "Done running corr");
 		project.setLastCorrelation(result, name);
 
 	}
@@ -165,7 +170,7 @@ public class MetaOmAnalyzer {
 			message = message + " - Weighted Euclidean Distance";
 		} else if (method == 7) {
 			message = message + " - Weighted Manhattan Distance";
-		}else if (method == 8) {
+		} else if (method == 8) {
 			message = message + " - Pearson Correlation2";
 		}
 		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(), "Analyzing...",
@@ -176,7 +181,7 @@ public class MetaOmAnalyzer {
 			public Object construct() {
 				try {
 					// source data is selected data row
-					double[] sourceData = project.getIncludedData(entries[row]);
+					double[] sourceData = project.getAllData(entries[row]);
 					// JOptionPane.showMessageDialog(null,
 					// "Sourcdata:"+Arrays.toString(sourceData));
 
@@ -194,12 +199,32 @@ public class MetaOmAnalyzer {
 					do {
 						progress.setProgress(i);
 
-						double[] data = project.getIncludedData(entries[i]);
+						double[] data = project.getAllData(entries[i]);
 						// JOptionPane.showMessageDialog(null, "data:"+Arrays.toString(data));
 						if (method == 2) {
-							result[entries[i]] = new CorrelationValue(calcy.newSpearmanCorrelation(data,
-									project.mayContainBlankValues(), project.getBlankValue()));
+							// urmi now using apache maths' SpearmansCorrelation
+							// this is slower than newSpearmanCorrelation
+							double[] sData = project.getIncludedData(entries[row]);
+							double[] tData = project.getIncludedData(entries[i]);
+
+							SpearmansCorrelation spc = new SpearmansCorrelation();
+							double thisVal = 0.0D;
+							try {
+								thisVal = 0.0D + spc.correlation(sData, tData);
+							} catch (NotANumberException nane) {
+								thisVal = 0.0D;
+							}
+							if (Double.isNaN(thisVal)) {
+								thisVal = 0.0D;
+							}
+							result[entries[i]] = new CorrelationValue(thisVal);
+
+							// function newSpearmanCorrelation has errors, produces incorrect result
+							// result[entries[i]] = new
+							// CorrelationValue(calcy.newSpearmanCorrelation(data,project.mayContainBlankValues(),
+							// project.getBlankValue()));
 						} else if (method == 1) {
+
 							result[entries[i]] = new CorrelationValue(calcy.pearsonCorrelation(data,
 									project.mayContainBlankValues(), project.getBlankValue()));
 						} else if (method == 3) {
@@ -227,7 +252,7 @@ public class MetaOmAnalyzer {
 									project.mayContainBlankValues(), project.getBlankValue()));
 							addMe.setAsPercent(false);
 							result[entries[i]] = addMe;
-							
+
 						}
 						i++;
 						if (i >= entries.length)
@@ -686,13 +711,11 @@ public class MetaOmAnalyzer {
 					for (int row = 0; (row < entries.length) && (!progress.isCanceled()); row++) {
 						double[] sourceData = project.getIncludedData(entries[row]);
 
-						if (MetaOmAnalyzer.exclude != null) {
-							for (int i = 0; i < sourceData.length; i++) {
-								if (MetaOmAnalyzer.exclude[i]) {
-									sourceData[i] = Double.NaN;
-								}
-							}
-						}
+						/*
+						 * not required funtion getIncludedData returns only included data if
+						 * (MetaOmAnalyzer.exclude != null) { for (int i = 0; i < sourceData.length;
+						 * i++) { if (MetaOmAnalyzer.exclude[i]) { sourceData[i] = Double.NaN; } } }
+						 */
 
 						CorrelationCalc calcy = new CorrelationCalc(sourceData, MetaOmAnalyzer.exclude);
 
@@ -813,7 +836,470 @@ public class MetaOmAnalyzer {
 		progress.setVisible(true);
 	}
 
-	public static void pairwise(final MetaOmProject project, String geneList, final int nameCol, final int method) {
+	public static void pairwiseMI(final MetaOmProject project, String geneList, final int nameCol, int bins, int kFinal,
+			double[] knotVec, boolean relatedness) throws IOException {
+		// get destination file name
+		File dest = Utils.chooseFileToSave(Utils.createFileFilter("txt", "Tab-delimited text files"), "txt",
+				MetaOmGraph.getMainWindow(), true);
+		if (dest == null) {
+			return;
+		}
+		final int[] entries = project.getGeneListRowNumbers(geneList);
+
+		String message = "<html>0/" + entries.length + "<br>Preparing...</html>";
+		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(), "Analyzing...",
+				message, 0L, entries.length, true);
+
+		final Object[][] rowNames = project.getRowNames(entries);
+		BufferedWriter out = new BufferedWriter(new FileWriter(dest));
+		BufferedWriter out2 = null;
+
+		try {
+			// out = new BufferedWriter(new FileWriter(dest));
+			if (nameCol >= 0) {
+				out.write(project.getInfoColumnNames()[nameCol] + "\t" + project.getInfoColumnNames()[nameCol]
+						+ "\tMutual Information\r\n");
+			} else {
+				out.write("Row Number\tRow Number\tMutual Information\r\n");
+
+			}
+		} catch (IOException ioe) {
+
+			ioe.printStackTrace();
+			return;
+		}
+		long sTime = System.nanoTime();
+		SwingWorker analyzeWorker = new SwingWorker() {
+			boolean errored = false;
+			ArrayList<double[]> dataBuffer = new ArrayList();
+
+			public Object construct() {
+				try {
+					// to save relatedness
+					// double[][] relatednessMat = null;
+					double[][] miMat = null;
+					if (relatedness) {
+						// relatednessMat = new double[entries.length][entries.length];
+						miMat = new double[entries.length][entries.length];
+					}
+					DecimalFormat format = new DecimalFormat("0.0000");
+					long aveTime = -1L;
+					long correlationTime = 0L;
+					long aveCorrTime = -1L;
+					long aveTimeLeft = -1L;
+					long timeStarted = System.nanoTime();
+					String timeString = "Preparing...";
+					for (int row = 0; (row < entries.length) && (!progress.isCanceled()); row++) {
+						double[] sourceData = project.getIncludedData(entries[row]);
+						// calculate entropy for this outer row
+						ComputeDensityFromSpline cdOb1 = new ComputeDensityFromSpline(sourceData, bins, kFinal,
+								knotVec);
+						double[][] targetwtMat = cdOb1.getWeightMatrix();
+						double targetH = cdOb1.getEntropy(targetwtMat);
+
+						/*
+						 * urmi not required funtion getIncludedData returns only included data if
+						 * (MetaOmAnalyzer.exclude != null) { for (int i = 0; i < sourceData.length;
+						 * i++) { if (MetaOmAnalyzer.exclude[i]) { sourceData[i] = Double.NaN; } } }
+						 */
+
+						// CorrelationCalc calcy = new CorrelationCalc(sourceData,
+						// MetaOmAnalyzer.exclude);
+
+						if (row == 1) {
+							timeString = "Estimating time remaining...";
+						}
+						if ((row == 5) || ((row % 10 == 0) && (row != 0))) {
+							int rowsLeft = entries.length - row;
+							int corrLoss = (int) ((rowsLeft + 1) * (rowsLeft / 2.0D));
+
+							long newAveTime = (System.nanoTime() - timeStarted) / row;
+							if (aveTime < 0L) {
+								aveTime = newAveTime;
+							} else {
+								aveTime = (aveTime + newAveTime) / 2L;
+							}
+
+							long timeLeft = aveTime * rowsLeft - corrLoss * aveCorrTime;
+							long corrsLeft = entries.length * rowsLeft - corrLoss;
+							long corrTimeLeft = corrsLeft * aveCorrTime;
+
+							if (aveTimeLeft < 0L) {
+								aveTimeLeft = corrTimeLeft;
+							} else {
+								aveTimeLeft = (aveTimeLeft + corrTimeLeft) / 2L;
+							}
+							timeString = Utils.convertNanoTimeToWords(aveTimeLeft) + " remaining";
+						}
+						progress.setMessage("<html>" + row + "/" + entries.length + "<br>" + timeString + "</html>");
+						progress.setProgress(row);
+						long bufferSize = -1L;
+						long corrStart = System.nanoTime();
+						// inner loop
+						for (int i = row; (i < entries.length) && (!progress.isCanceled()); i++) {
+							double[] data;
+
+							if ((row > 0) && (i >= entries.length - dataBuffer.size())) {
+								data = dataBuffer.get(i - (entries.length - dataBuffer.size()));
+							} else {
+								data = project.getIncludedData(entries[i]);
+							}
+
+							if ((row == 0) && (bufferSize < 0L)) {
+								System.gc();
+								System.gc();
+								System.gc();
+								long freemem = Runtime.getRuntime().freeMemory();
+								long maxmem = Runtime.getRuntime().maxMemory();
+								long totmem = Runtime.getRuntime().totalMemory();
+								// System.out.println("Max memory: " + maxmem);
+								// System.out.println("Tot memory: " + totmem);
+								// System.out.println("Free memory: " + freemem);
+								long usablemem = maxmem - totmem - freemem;
+								// System.out.println("Usable mem: " + usablemem);
+								long arraySize = Utils.calcArraySize(data);
+								// System.out.println("Array size: " + arraySize);
+								bufferSize = usablemem / (Utils.calcArraySize(data) + 1024L);
+								if (bufferSize > entries.length) {
+									bufferSize = entries.length;
+								}
+								System.out.println("Buffering " + bufferSize + " rows");
+							}
+
+							if ((row == 0) && (i >= entries.length - bufferSize)) {
+								dataBuffer.add(data);
+							}
+							if (nameCol >= 0) {
+								out.write(rowNames[row][nameCol] + "\t" + rowNames[i][nameCol]);
+							} else {
+								out.write(row + "\t" + i);
+							}
+							double val = 0;
+							// calculate entropy for this outer row
+							ComputeDensityFromSpline cdOb2 = new ComputeDensityFromSpline(data, bins, kFinal, knotVec);
+							double[][] thiswtMat = cdOb2.getWeightMatrix();
+							double thisH = cdOb2.getEntropy(thiswtMat);
+							double thisJointH = cdOb2.getJointEntropy(targetwtMat, thiswtMat);
+							val = targetH + thisH - thisJointH;
+
+							if (relatedness) {
+								miMat[row][i] = val;
+								miMat[i][row] = val;
+							}
+
+							out.write("\t" + format.format(val));
+							out.write("\r\n");
+							if ((i == entries.length - 1) && (row != 0)) {
+								correlationTime = (System.nanoTime() - corrStart) / entries.length;
+								if (aveCorrTime < 0L) {
+									aveCorrTime = correlationTime;
+								} else {
+									aveCorrTime = (aveCorrTime + correlationTime) / 2L;
+								}
+							}
+						}
+
+						if (row == 0) {
+							System.out.println(dataBuffer.size() + " rows buffered.");
+							timeStarted = System.nanoTime();
+						}
+					}
+
+					long timeTaken = System.nanoTime() - timeStarted;
+					System.out.println("Took " + Utils.convertNanoTimeToWords(timeTaken, true));
+
+					if (relatedness) {
+						double[] mean = new double[entries.length];
+						double[] sd = new double[entries.length];
+
+						// Add the data from the array
+						for (int i = 0; i < entries.length; i++) {
+							DescriptiveStatistics temp = new DescriptiveStatistics();
+							for (int j = 0; j < entries.length; j++) {
+								temp.addValue(miMat[i][j]);
+							}
+							mean[i] = temp.getMean();
+							sd[i] = temp.getStandardDeviation();
+						}
+
+						// calculate only upper matrix
+						/*
+						 * for (int i = 0; i < entries.length; i++) { for (int j = i; j <
+						 * entries.length; j++) { double zi = (miMat[i][j] - mean[i]) / sd[i]; double zj
+						 * = (miMat[i][j] - mean[j]) / sd[j]; relatednessMat[i][j] = Math.sqrt((zi * zi)
+						 * + (zj * zj)); relatednessMat[j][i] = relatednessMat[i][j]; }
+						 * 
+						 * }
+						 */
+
+						// save relatedness
+						File dest2 = new File(dest.getAbsolutePath().split(".txt")[0] + "_relatedness.txt");
+						if (dest2 == null) {
+							return null;
+						}
+						BufferedWriter out2 = new BufferedWriter(new FileWriter(dest2));
+						try {
+							// out = new BufferedWriter(new FileWriter(dest));
+							if (nameCol >= 0) {
+								out2.write(project.getInfoColumnNames()[nameCol] + "\t"
+										+ project.getInfoColumnNames()[nameCol] + "\tRelatedness\r\n");
+							} else {
+								out2.write("Row Number\tRow Number\tRelatedness\r\n");
+
+							}
+
+							// calculate only upper matrix
+							for (int i = 0; i < entries.length; i++) {
+								for (int j = i; j < entries.length; j++) {
+									if (nameCol >= 0) {
+										out2.write(rowNames[i][nameCol] + "\t" + rowNames[j][nameCol]);
+									} else {
+										out2.write(i + "\t" + i);
+									}
+
+									double zi = (miMat[i][j] - mean[i]) / sd[i];
+									double zj = (miMat[i][j] - mean[j]) / sd[j];
+									if (zi < 0) {
+										zi = 0;
+									}
+									if (zj < 0) {
+										zj = 0;
+									}
+									double val = Math.sqrt((zi * zi) + (zj * zj));
+									out2.write("\t" + format.format(val));
+									out2.write("\r\n");
+								}
+
+							}
+							out2.close();
+
+						} catch (IOException ioe) {
+
+							ioe.printStackTrace();
+							return null;
+						}
+					}
+				} catch (IOException ioe) {
+					JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Error reading project data",
+							"IOException", 0);
+					ioe.printStackTrace();
+					progress.dispose();
+					errored = true;
+					return null;
+				} catch (ArrayIndexOutOfBoundsException oob) {
+					progress.dispose();
+					errored = true;
+					return null;
+				}
+				return null;
+			}
+
+			public void finished() {
+				try {
+					out.close();
+					JOptionPane.showMessageDialog(null, "File " + dest.getAbsolutePath() + " saved!",
+							"Results saved to file", JOptionPane.INFORMATION_MESSAGE);
+
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				progress.dispose();
+				// JOptionPane.showMessageDialog(null, "File:"+dest.getAbsolutePath()+"
+				// saved.");
+			}
+		};
+		analyzeWorker.start();
+		progress.setVisible(true);
+		// long endTime = System.nanoTime();
+		// long duration = (endTime - sTime);
+		// JOptionPane.showMessageDialog(null, "Time:"+duration/1000000000);
+
+	}
+
+	// only compute MI matrix
+	public static void pairwiseRelatednessOLD(final MetaOmProject project, String geneList, final int nameCol, int bins,
+			int kFinal, double[] knotVec) throws IOException {
+
+		final int[] entries = project.getGeneListRowNumbers(geneList);
+		double[][] miMat = new double[entries.length][entries.length];
+		String message = "<html>0/" + entries.length + "<br>Preparing...</html>";
+		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(), "Analyzing...",
+				message, 0L, entries.length, true);
+		final Object[][] rowNames = project.getRowNames(entries);
+		long sTime = System.nanoTime();
+		SwingWorker analyzeWorker = new SwingWorker() {
+			boolean errored = false;
+			ArrayList<double[]> dataBuffer = new ArrayList();
+
+			public Object construct() {
+				try {
+					DecimalFormat format = new DecimalFormat("0.0000");
+					long aveTime = -1L;
+					long correlationTime = 0L;
+					long aveCorrTime = -1L;
+					long aveTimeLeft = -1L;
+					long timeStarted = System.nanoTime();
+					String timeString = "Preparing...";
+					for (int row = 0; (row < entries.length) && (!progress.isCanceled()); row++) {
+						double[] sourceData = project.getIncludedData(entries[row]);
+						// calculate entropy for this outer row
+						ComputeDensityFromSpline cdOb1 = new ComputeDensityFromSpline(sourceData, bins, kFinal,
+								knotVec);
+						double[][] targetwtMat = cdOb1.getWeightMatrix();
+						double targetH = cdOb1.getEntropy(targetwtMat);
+						if (row == 1) {
+							timeString = "Estimating time remaining...";
+						}
+						if ((row == 5) || ((row % 10 == 0) && (row != 0))) {
+							int rowsLeft = entries.length - row;
+							int corrLoss = (int) ((rowsLeft + 1) * (rowsLeft / 2.0D));
+
+							long newAveTime = (System.nanoTime() - timeStarted) / row;
+							if (aveTime < 0L) {
+								aveTime = newAveTime;
+							} else {
+								aveTime = (aveTime + newAveTime) / 2L;
+							}
+
+							long timeLeft = aveTime * rowsLeft - corrLoss * aveCorrTime;
+							long corrsLeft = entries.length * rowsLeft - corrLoss;
+							long corrTimeLeft = corrsLeft * aveCorrTime;
+
+							if (aveTimeLeft < 0L) {
+								aveTimeLeft = corrTimeLeft;
+							} else {
+								aveTimeLeft = (aveTimeLeft + corrTimeLeft) / 2L;
+							}
+							timeString = Utils.convertNanoTimeToWords(aveTimeLeft) + " remaining";
+						}
+						progress.setMessage("<html>" + row + "/" + entries.length + "<br>" + timeString + "</html>");
+						progress.setProgress(row);
+						long bufferSize = -1L;
+						long corrStart = System.nanoTime();
+						// inner loop
+						for (int i = row; (i < entries.length) && (!progress.isCanceled()); i++) {
+							double[] data;
+
+							if ((row > 0) && (i >= entries.length - dataBuffer.size())) {
+								data = dataBuffer.get(i - (entries.length - dataBuffer.size()));
+							} else {
+								data = project.getIncludedData(entries[i]);
+							}
+
+							if ((row == 0) && (bufferSize < 0L)) {
+								System.gc();
+								System.gc();
+								System.gc();
+								long freemem = Runtime.getRuntime().freeMemory();
+								long maxmem = Runtime.getRuntime().maxMemory();
+								long totmem = Runtime.getRuntime().totalMemory();
+								long usablemem = maxmem - totmem - freemem;
+								long arraySize = Utils.calcArraySize(data);
+								// System.out.println("Array size: " + arraySize);
+								bufferSize = usablemem / (Utils.calcArraySize(data) + 1024L);
+								if (bufferSize > entries.length) {
+									bufferSize = entries.length;
+								}
+							}
+
+							if ((row == 0) && (i >= entries.length - bufferSize)) {
+								dataBuffer.add(data);
+							}
+
+							double val = 0;
+							// calculate entropy for this outer row
+							ComputeDensityFromSpline cdOb2 = new ComputeDensityFromSpline(data, bins, kFinal, knotVec);
+							double[][] thiswtMat = cdOb2.getWeightMatrix();
+							double thisH = cdOb2.getEntropy(thiswtMat);
+							double thisJointH = cdOb2.getJointEntropy(targetwtMat, thiswtMat);
+							val = targetH + thisH - thisJointH;
+
+							miMat[row][i] = val;
+							miMat[i][row] = val;
+							// calculate MI between sourceData and data
+							if ((i == entries.length - 1) && (row != 0)) {
+								correlationTime = (System.nanoTime() - corrStart) / entries.length;
+								if (aveCorrTime < 0L) {
+									aveCorrTime = correlationTime;
+								} else {
+									aveCorrTime = (aveCorrTime + correlationTime) / 2L;
+								}
+							}
+						}
+
+						if (row == 0) {
+							System.out.println(dataBuffer.size() + " rows buffered.");
+							timeStarted = System.nanoTime();
+						}
+					}
+
+					long timeTaken = System.nanoTime() - timeStarted;
+					// System.out.println("Took " + Utils.convertNanoTimeToWords(timeTaken, true));
+
+					// calculate relatedness score
+					// JOptionPane.showMessageDialog(null, "miMat: " + Arrays.deepToString(miMat));
+					// for each gene get mean and sd of MI values
+					double[] mean = new double[entries.length];
+					double[] sd = new double[entries.length];
+					double[][] relatednessMat = new double[entries.length][entries.length];
+
+					// Add the data from the array
+					for (int i = 0; i < entries.length; i++) {
+						DescriptiveStatistics temp = new DescriptiveStatistics();
+						for (int j = 0; j < entries.length; j++) {
+							temp.addValue(miMat[i][j]);
+						}
+						mean[i] = temp.getMean();
+						sd[i] = temp.getStandardDeviation();
+					}
+
+					// calculate only upper matrix
+					for (int i = 0; i < entries.length; i++) {
+						for (int j = i; j < entries.length; j++) {
+							double zi = (miMat[i][j] - mean[i]) / sd[i];
+							double zj = (miMat[i][j] - mean[j]) / sd[j];
+							relatednessMat[i][j] = Math.sqrt((zi * zi) + (zj * zj));
+							relatednessMat[j][i] = relatednessMat[i][j];
+						}
+
+					}
+
+					// JOptionPane.showMessageDialog(null, "mean: " + Arrays.toString(mean));
+					// JOptionPane.showMessageDialog(null, "sd: " + Arrays.toString(sd));
+					// JOptionPane.showMessageDialog(null, "relMat: " +
+					// Arrays.deepToString(relatednessMat));
+
+				} catch (IOException ioe) {
+					JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Error reading project data",
+							"IOException", 0);
+					ioe.printStackTrace();
+					progress.dispose();
+					errored = true;
+					return null;
+				} catch (ArrayIndexOutOfBoundsException oob) {
+					progress.dispose();
+					errored = true;
+					return null;
+				}
+				return null;
+			}
+
+			public void finished() {
+				progress.dispose();
+				// JOptionPane.showMessageDialog(null, "File:"+dest.getAbsolutePath()+"
+				// saved.");
+			}
+		};
+		analyzeWorker.start();
+		progress.setVisible(true);
+		// long endTime = System.nanoTime();
+		// long duration = (endTime - sTime);
+		// JOptionPane.showMessageDialog(null, "Time:"+duration/1000000000);
+
+	}
+
+	public static void pairwise(final MetaOmProject project, String geneList, final int nameCol, final int method)
+			throws IOException {
 		if ((method != 1) && (method != 2)) {
 			throw new IllegalArgumentException("Invalid method");
 		}
@@ -828,8 +1314,9 @@ public class MetaOmAnalyzer {
 				message, 0L, entries.length, true);
 
 		final Object[][] rowNames = project.getRowNames(entries);
+		BufferedWriter out = new BufferedWriter(new FileWriter(dest));
 		try {
-			BufferedWriter out = new BufferedWriter(new FileWriter(dest));
+			// out = new BufferedWriter(new FileWriter(dest));
 			if (nameCol >= 0) {
 				out.write(project.getInfoColumnNames()[nameCol] + "\t" + project.getInfoColumnNames()[nameCol]
 						+ "\tCorrelation\r\n");
@@ -842,7 +1329,7 @@ public class MetaOmAnalyzer {
 			ioe.printStackTrace();
 			return;
 		}
-		final BufferedWriter out = null;
+
 		SwingWorker analyzeWorker = new SwingWorker() {
 			boolean errored = false;
 			ArrayList<double[]> dataBuffer = new ArrayList();
@@ -983,6 +1470,8 @@ public class MetaOmAnalyzer {
 			public void finished() {
 				try {
 					out.close();
+					JOptionPane.showMessageDialog(null, "File " + dest.getAbsolutePath() + " saved!",
+							"Results saved to file", JOptionPane.INFORMATION_MESSAGE);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

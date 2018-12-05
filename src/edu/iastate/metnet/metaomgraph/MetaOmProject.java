@@ -1,10 +1,12 @@
 
 package edu.iastate.metnet.metaomgraph;
 
+import edu.iastate.metnet.metaomgraph.CorrelationMetaTable.DecimalFormatRenderer;
 import edu.iastate.metnet.metaomgraph.chart.NewCustomSortDialog;
 import edu.iastate.metnet.metaomgraph.chart.NewCustomSortDialog.CustomSortObject;
 import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
 import edu.iastate.metnet.metaomgraph.ui.DisplayMetadataEditor;
+import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel;
 import edu.iastate.metnet.metaomgraph.ui.MetadataEditor;
 import edu.iastate.metnet.metaomgraph.ui.MetadataTreeDisplayPanel;
 import edu.iastate.metnet.metaomgraph.ui.Metadataviewer;
@@ -20,6 +22,7 @@ import edu.iastate.metnet.metaomgraph.utils.qdxml.SimpleXMLElement;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.awt.Toolkit;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -40,11 +43,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+import java.util.Set;
 //import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
@@ -56,23 +61,29 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.JTree;
+import javax.swing.ListSelectionModel;
 //import javax.swing.SwingUtilities;
 //import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.io.FilenameUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+
+import com.sun.org.apache.xml.internal.security.Init;
 
 public class MetaOmProject {
 	public static final String COMPLETE_LIST = "Complete List";
@@ -152,6 +163,12 @@ public class MetaOmProject {
 	private ReadMetadata readMetadataframe = null;
 	private String dataColumnname = null;
 
+	// save meta analysis corr values as mapping of name to correlation
+	private HashMap<String, CorrelationMetaCollection> metaCorrs;
+
+	// info column type used to sort data
+	private HashMap<String, Class> infoColTypes = null;
+
 	// new constructor to add metadata delimiter
 	public MetaOmProject(File source, int infoColumns, char delimiter, char mddelimiter,
 			boolean ignoreConsecutiveDelimiters, Double blankValue, boolean includeMetNet) {
@@ -189,6 +206,7 @@ public class MetaOmProject {
 		streamMode = false;
 		allowImport = true;
 		initialized = openProject(projectFile);
+
 	}
 
 	public MetaOmProject(InputStream instream, int infoColumns, char delimiter) {
@@ -367,7 +385,7 @@ public class MetaOmProject {
 								okToAdd = true;
 
 								if ((Utils.isGeneID(thisData[x].toString(), true)) && (!hasGeneIDs)) {
-									System.out.println("Found gene id: " + thisData[x]);
+									//System.out.println("Found gene id: " + thisData[x]);
 									hasGeneIDs = true;
 									geneIDCol = x - 1;
 								}
@@ -386,7 +404,12 @@ public class MetaOmProject {
 				if (progressWindow.isCanceled()) {
 
 					dataIn.close();
-					MetaOmGraph.showWelcomeDialog();
+					try {
+						MetaOmGraph.showWelcomeDialog();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					return false;
 				}
 			} while (dataIn.nextLine());
@@ -793,12 +816,46 @@ public class MetaOmProject {
 				// metadata.outputToStream(myZipOut);
 				Document mdFileinfo = this.getMetadataHybrid().generateFileInfo();
 				output.output(mdFileinfo, myZipOut);
+
+				// write removed cols from md file
+				myZipOut.putNextEntry(new ZipEntry("removedMDCols.xml"));
+				Document removedColsMD = new Document();
+				removedColsMD.setRootElement(
+						this.getMetadataHybrid().listToXML(this.getMetadataHybrid().getRemovedMDCols()));
+				output.output(removedColsMD, myZipOut);
+
+				// write exluded and missing rows from metadata
+				myZipOut.putNextEntry(new ZipEntry("excludedMD.xml"));
+				Document excludedMD = new Document();
+				excludedMD.setRootElement(
+						this.getMetadataHybrid().listToXML(this.getMetadataHybrid().getExcludedMDRows()));
+				output.output(excludedMD, myZipOut);
+
+				myZipOut.putNextEntry(new ZipEntry("missingMD.xml"));
+				Document missingMD = new Document();
+				missingMD.setRootElement(
+						this.getMetadataHybrid().listToXML(this.getMetadataHybrid().getMissingMDRows()));
+				output.output(missingMD, myZipOut);
+
 				// write tree
 				myZipOut.putNextEntry(new ZipEntry("metadataTree.xml"));
 				Document treeStruct = new Document();
 				treeStruct.setRootElement(
 						this.getMetadataHybrid().jtreetoXML(this.getMetadataHybrid().getTreeStucture()));
 				output.output(treeStruct, myZipOut);
+
+				// write saved correlations
+				myZipOut.putNextEntry(new ZipEntry("correlations.xml"));
+				Document corrs = new Document();
+				corrs.setRootElement(getMetaCorrResasXML());
+				output.output(corrs, myZipOut);
+
+				// write MOG parameters
+				myZipOut.putNextEntry(new ZipEntry("params.xml"));
+				Document params = new Document();
+				params.setRootElement(getParamsasXML());
+				output.output(params, myZipOut);
+
 			}
 			myZipOut.closeEntry();
 			myZipOut.finish();
@@ -813,6 +870,46 @@ public class MetaOmProject {
 		setChanged(false);
 
 		return true;
+	}
+
+	/**
+	 * @author urmi Initialize column type to sort numbers correctly.
+	 */
+	public void initColTypes() {
+
+		String[] infoColNames = getInfoColumnNames();
+		MetaOmTablePanel tab = MetaOmGraph.getActiveTable();
+		if (tab == null) {
+			JOptionPane.showMessageDialog(null, "Can't set column type. Table is NULL!!");
+			return;
+		}
+		// set default coltypes
+		boolean[] isNumber = new boolean[infoColNames.length];
+		for (int i = 0; i < infoColNames.length; i++) {
+			// check if current infoCol could be a number
+			isNumber[i] = true;
+			int min = getRowCount();
+			for (int j = 0; j < min; j++) {
+				try {
+					Double.parseDouble(tab.getMainTableItemat(j, i));
+
+				} catch (NumberFormatException | NullPointerException e) {
+					isNumber[i] = false;
+					break;
+				}
+			}
+		}
+		HashMap<String, Class> map = new HashMap<>();
+		for (int i = 0; i < infoColNames.length; i++) {
+			if (!isNumber[i]) {
+				map.put(infoColNames[i], String.class);
+			} else {
+				// JOptionPane.showMessageDialog(null, "dbl:"+infoColNames[i]);
+				map.put(infoColNames[i], double.class);
+			}
+		}
+		setInfoColTypes(map);
+
 	}
 
 	/**
@@ -831,12 +928,21 @@ public class MetaOmProject {
 		boolean projectFileFound = false;
 		boolean extendedFound = false;
 		boolean treeFound = false;
+		boolean corrFound = false;
+		boolean paramsFound = false;
+		boolean excludedFound = false;
+		boolean missingFound = false;
+		boolean removedMDColsFound = false;
 		BufferedReader inputReader;
 		StringBuilder sb;
 		String inline;
 		SAXBuilder builder;
 		XMLOutputter outter;
+		JTree tree = null;
 		MetadataCollection newcollection = null;
+		List<String> excluded = null;
+		List<String> missing = null;
+		List<String> removedMDCols = null;
 		try {
 
 			ZipInputStream instream = new ZipInputStream(new FileInputStream(projectFile));
@@ -891,24 +997,42 @@ public class MetaOmProject {
 					}
 
 					// read mogcollection obj
+					// change path according to OS
+					if (MetaOmGraph.getOsName().indexOf("win") >= 0 || MetaOmGraph.getOsName().indexOf("Win") >= 0) {
+						fpath = FilenameUtils.separatorsToWindows(fpath);
+					} else {
+						fpath = FilenameUtils.separatorsToUnix(fpath);
+					}
+
 					File mdFile = new File(fpath);
-					if(mdFile.exists()) {
-					newcollection = new MetadataCollection(fpath, delim, datacol);
-					}else {
-						
-						JOptionPane.showMessageDialog(null, "Please locate the metadata file. Click OK.");
-						JFileChooser fChooser = new JFileChooser(edu.iastate.metnet.metaomgraph.utils.Utils.getLastDir());
-						int rVal = fChooser.showOpenDialog(MetaOmGraph.getMainWindow());
-						if (rVal == JFileChooser.APPROVE_OPTION) {
-							File source = fChooser.getSelectedFile();
-							// choose delimiter
-							//String[] delims = { "Tab", ",", ";", "Space" };
-							//String metadataDelim = (String) JOptionPane.showInputDialog(null, "Please choose delimiter for the file...", "Please choose delimiter",JOptionPane.QUESTION_MESSAGE, null, delims, delims[0]);
-							
-							newcollection = new MetadataCollection(source.getAbsolutePath(), delim, datacol);
+					if (mdFile.exists()) {
+						newcollection = new MetadataCollection(fpath, delim, datacol);
+					} else {
+
+						// try only file name in current directory
+						String thisName = mdFile.getName();
+						String projFilePath = projectFile.getAbsolutePath().substring(0,
+								projectFile.getAbsolutePath().lastIndexOf(File.separator));
+						fpath = projFilePath + File.separator + thisName;
+						mdFile = new File(fpath);
+						// JOptionPane.showMessageDialog(null, "New file path:" +
+						// mdFile.getAbsolutePath());
+						if (mdFile.exists()) {
+							newcollection = new MetadataCollection(fpath, delim, datacol);
+						} else {
+							JOptionPane.showMessageDialog(null, "Please locate the metadata file. Click OK.");
+							JFileChooser fChooser = new JFileChooser(
+									edu.iastate.metnet.metaomgraph.utils.Utils.getLastDir());
+							int rVal = fChooser.showOpenDialog(MetaOmGraph.getMainWindow());
+							if (rVal == JFileChooser.APPROVE_OPTION) {
+								File source = fChooser.getSelectedFile();
+								newcollection = new MetadataCollection(source.getAbsolutePath(), delim, datacol);
+
+							}
+
+						}
 					}
-					}
-						
+
 					// JOptionPane.showMessageDialog(null, "datacol"+newcollection.getDatacol());
 					// this.setMogcollection(newcollection);
 
@@ -934,21 +1058,194 @@ public class MetaOmProject {
 						// JOptionPane.showMessageDialog(null, "returning");
 						return false;
 					}
-					JTree tree = new JTree();
+					tree = new JTree();
 					// get Jtree structure
 					Element xmlRoot = mdTreeStruc.getRootElement();
 					tree.setModel(xmltoJtree(xmlRoot));
-					// JOptionPane.showMessageDialog(null, "model created");
+					// JOptionPane.showMessageDialog(null, "model created:"+xmlRoot.toString());
 					// JOptionPane.showMessageDialog(null,
 					// "colhed"+Arrays.toString(this.getDataColumnHeaders()));
-					ParseTableTree ob = new ParseTableTree(newcollection, tree, newcollection.getDatacol(),
-							this.getDataColumnHeaders());
-					org.jdom.Document res = ob.tableToTree();
-					loadMetadataHybrid(newcollection, res.getRootElement(), ob.getTreeMap(), newcollection.getDatacol(),
-							ob.getMetadataHeaders(), tree, ob.getDefaultRepMap());
 					treeFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
+				} else if ((thisEntry.getName().equals("correlations.xml")) && (!corrFound)) {
+					inputReader = new BufferedReader(new InputStreamReader(instream));
+					sb = new StringBuilder();
+					inline = "";
+					while ((inline = inputReader.readLine()) != null) {
+						sb.append(inline);
+					}
+					builder = new SAXBuilder();
+					Document corr = (Document) builder.build(new ByteArrayInputStream(sb.toString().getBytes()));
+					Element xmlRoot = corr.getRootElement();
+					// load data into corrmeta objects
+					// each element under root is a coormetacollection and each "corr" element is a
+					// List of corrmeta objects
+					List corrList = xmlRoot.getChildren();
+					for (int i = 0; i < corrList.size(); i++) {
+						Element thisCorrElement = (Element) corrList.get(i);
+						String thisCorrName = thisCorrElement.getAttributeValue("name");
+						int thisCorrtype = Integer.parseInt(thisCorrElement.getAttributeValue("corrtype"));
+						String thisCorrModel = thisCorrElement.getAttributeValue("corrmodel");
+						String thisCorrVar = thisCorrElement.getAttributeValue("corrvar");
+						// for MI
+						int thisCorrBins = -1;
+						int thisCorrOrder = -1;
+						if (thisCorrtype == 3) {
+							thisCorrBins = Integer.parseInt(thisCorrElement.getAttributeValue("bins"));
+							thisCorrOrder = Integer.parseInt(thisCorrElement.getAttributeValue("order"));
+						}
+
+						// create CorrelationMeta objects for each entry
+						List rowList = thisCorrElement.getChildren();
+						List<CorrelationMeta> correlationMetaList = new ArrayList<>();
+						for (int j = 0; j < rowList.size(); j++) {
+							Element thisRowElement = (Element) rowList.get(j);
+							CorrelationMeta temp = null;
+							String thisRowName = thisRowElement.getAttributeValue("name");
+							double thisRowVal = Double.parseDouble(thisRowElement.getAttributeValue("value"));
+							double thisRowPval = Double.parseDouble(thisRowElement.getAttributeValue("pvalue"));
+							if (thisCorrtype == 0) {
+
+								double thisRowZval = Double.parseDouble(thisRowElement.getAttributeValue("zval"));
+								double thisRowQval = Double.parseDouble(thisRowElement.getAttributeValue("qval"));
+								double thisRowPooledzr = Double
+										.parseDouble(thisRowElement.getAttributeValue("pooledzr"));
+								double thisRowstdErr = Double.parseDouble(thisRowElement.getAttributeValue("stderr"));
+								temp = new CorrelationMeta(thisRowVal, thisRowPval, thisRowZval, thisRowQval,
+										thisRowPooledzr, thisRowstdErr);
+
+							} else {
+								temp = new CorrelationMeta(thisRowVal, thisRowPval);
+							}
+							// add to list
+							temp.settargetName(thisRowName);
+							correlationMetaList.add(temp);
+						}
+
+						// create CorrelationMetaCollection obj and add to myProject
+						CorrelationMetaCollection cmcObj = null;
+						if (thisCorrtype == 3) {
+							cmcObj = new CorrelationMetaCollection(thisCorrName, thisCorrtype, thisCorrModel,
+									thisCorrVar, correlationMetaList, thisCorrBins, thisCorrOrder);
+						} else {
+							cmcObj = new CorrelationMetaCollection(thisCorrName, thisCorrtype, thisCorrModel,
+									thisCorrVar, correlationMetaList);
+						}
+						addMetaCorrRes(thisCorrName, cmcObj);
+
+					}
+					corrFound = true;
+					instream = new ZipInputStream(new FileInputStream(projectFile));
+				} else if ((thisEntry.getName().equals("params.xml")) && (!paramsFound)) {
+					inputReader = new BufferedReader(new InputStreamReader(instream));
+					sb = new StringBuilder();
+					inline = "";
+					while ((inline = inputReader.readLine()) != null) {
+						sb.append(inline);
+					}
+					builder = new SAXBuilder();
+					Document params = (Document) builder.build(new ByteArrayInputStream(sb.toString().getBytes()));
+					Element xmlRoot = params.getRootElement();
+					// read program parameters
+					List<Element> clist = xmlRoot.getChildren();
+					for (int i = 0; i < clist.size(); i++) {
+
+						Element thisElement = clist.get(i);
+						String thisElementName = thisElement.getName();
+						// JOptionPane.showMessageDialog(null, "n:"+thisElementName);
+						if (thisElementName.equals("permutations")) {
+							MetaOmGraph.setNumPermutations(Integer.parseInt(thisElement.getAttributeValue("value")));
+						} else if (thisElementName.equals("threads")) {
+							MetaOmGraph.setNumThreads(Integer.parseInt(thisElement.getAttributeValue("value")));
+						} else if (thisElementName.equals("rpath")) {
+							if (thisElement.getAttributeValue("default").equals("false")) {
+								MetaOmGraph.defaultRpath = false;
+								MetaOmGraph.setUserRPath(thisElement.getAttributeValue("value"));
+							} else {
+								MetaOmGraph.defaultRpath = true;
+							}
+						} else if (thisElementName.equals("pathtorfiles")) {
+							MetaOmGraph.setpathtoRscrips(thisElement.getAttributeValue("value"));
+						} else if (thisElementName.equals("hyperlinksCols")) {
+							// these values will be passed to MetadataTableDisplayPanel once the object is
+							// created
+							MetaOmGraph._SRR = Integer.parseInt(thisElement.getAttributeValue("srrColumn"));
+							MetaOmGraph._SRP = Integer.parseInt(thisElement.getAttributeValue("srpColumn"));
+							MetaOmGraph._SRX = Integer.parseInt(thisElement.getAttributeValue("srxColumn"));
+							MetaOmGraph._SRS = Integer.parseInt(thisElement.getAttributeValue("srsColumn"));
+							MetaOmGraph._GSE = Integer.parseInt(thisElement.getAttributeValue("gseColumn"));
+							MetaOmGraph._GSM = Integer.parseInt(thisElement.getAttributeValue("gsmColumn"));
+						}
+					}
+
+					paramsFound = true;
+					instream = new ZipInputStream(new FileInputStream(projectFile));
+				} else if ((thisEntry.getName().equals("excludedMD.xml")) && (!excludedFound)) {
+					inputReader = new BufferedReader(new InputStreamReader(instream));
+					sb = new StringBuilder();
+					inline = "";
+					while ((inline = inputReader.readLine()) != null) {
+						sb.append(inline);
+					}
+					builder = new SAXBuilder();
+					Document doc = (Document) builder.build(new ByteArrayInputStream(sb.toString().getBytes()));
+					Element xmlRoot = doc.getRootElement();
+					// read program parameters
+					List<Element> clist = xmlRoot.getChildren();
+					excluded = new ArrayList<>();
+					for (int i = 0; i < clist.size(); i++) {
+						Element thisElement = clist.get(i);
+						String thisElementName = thisElement.getName();
+						excluded.add(thisElementName);
+					}
+
+					excludedFound = true;
+					instream = new ZipInputStream(new FileInputStream(projectFile));
+				} else if ((thisEntry.getName().equals("missingMD.xml")) && (!missingFound)) {
+					inputReader = new BufferedReader(new InputStreamReader(instream));
+					sb = new StringBuilder();
+					inline = "";
+					while ((inline = inputReader.readLine()) != null) {
+						sb.append(inline);
+					}
+					builder = new SAXBuilder();
+					Document doc = (Document) builder.build(new ByteArrayInputStream(sb.toString().getBytes()));
+					Element xmlRoot = doc.getRootElement();
+					// read program parameters
+					List<Element> clist = xmlRoot.getChildren();
+					missing = new ArrayList<>();
+					for (int i = 0; i < clist.size(); i++) {
+						Element thisElement = clist.get(i);
+						String thisElementName = thisElement.getName();
+						missing.add(thisElementName);
+					}
+
+					missingFound = true;
+					instream = new ZipInputStream(new FileInputStream(projectFile));
+				} else if ((thisEntry.getName().equals("removedMDCols.xml")) && (!removedMDColsFound)) {
+					inputReader = new BufferedReader(new InputStreamReader(instream));
+					sb = new StringBuilder();
+					inline = "";
+					while ((inline = inputReader.readLine()) != null) {
+						sb.append(inline);
+					}
+					builder = new SAXBuilder();
+					Document doc = (Document) builder.build(new ByteArrayInputStream(sb.toString().getBytes()));
+					Element xmlRoot = doc.getRootElement();
+					// read program parameters
+					List<Element> clist = xmlRoot.getChildren();
+					removedMDCols = new ArrayList<>();
+					for (int i = 0; i < clist.size(); i++) {
+						Element thisElement = clist.get(i);
+						String thisElementName = thisElement.getName();
+						removedMDCols.add(thisElementName);
+
+					}
+
+					removedMDColsFound = true;
+					instream = new ZipInputStream(new FileInputStream(projectFile));
 				}
+
 				try {
 					thisEntry = instream.getNextEntry();
 				} catch (IOException e) {
@@ -964,11 +1261,39 @@ public class MetaOmProject {
 		setChanged(false);
 		if (!extendedFound) {
 			try {
+
 				loadMetadata((InputStream) null);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
+
+		// for older project files
+		if (!removedMDColsFound) {
+			removedMDCols = new ArrayList<>();
+		}
+
+		if(allsWell &&projectFileFound) {
+		try {
+			// JOptionPane.showMessageDialog(null, "removedcols:"+removedMDCols.toString());
+			newcollection.removeUnusedCols(removedMDCols);
+			newcollection.removeDataPermanently(new HashSet<>(excluded));
+			newcollection.addNullData(missing);
+			ParseTableTree ob = new ParseTableTree(newcollection, tree, newcollection.getDatacol(),
+					this.getDataColumnHeaders());
+			org.jdom.Document res = ob.tableToTree();
+			// save and read repscolname
+			// add
+			//JOptionPane.showMessageDialog(null, "Creating MDH");
+			loadMetadataHybrid(newcollection, res.getRootElement(), ob.getTreeMap(), newcollection.getDatacol(),
+					ob.getMetadataHeaders(), tree, ob.getDefaultRepMap(), ob.getDefaultRepCol(), missing, excluded,
+					removedMDCols);
+
+		} catch (NullPointerException | IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 		return (allsWell) && (projectFileFound);
 	}
 
@@ -1015,7 +1340,7 @@ public class MetaOmProject {
 
 	}
 
-	private boolean openProject2(File projectFile) {
+	private boolean openProjectOLD(File projectFile) {
 		if (!projectFile.exists()) {
 			return false;
 		}
@@ -1308,6 +1633,21 @@ public class MetaOmProject {
 		return rowNames;
 	}
 
+	/**
+	 * @author urmi get gene/tx name only
+	 * @param entry
+	 * @return
+	 */
+	public Object[] getGeneName(int entry) {
+		if (infoColumns == 0) {
+			String[][] result = new String[rowNames.length][1];
+			for (int x = 0; x < result.length; x++)
+				result[x][0] = (x + 1) + "";
+			return result;
+		}
+		return rowNames[entry];
+	}
+
 	public Object[] getRowName(int entry) {
 		if (infoColumns == 0) {
 			String[] result = new String[1];
@@ -1499,6 +1839,18 @@ public class MetaOmProject {
 		return columnHeaders.length - infoColumns;
 	}
 
+	/**
+	 * Return true if all datacolumns in data file are unique
+	 */
+	public boolean isUniqueDataCols() {
+		List<String> colList = Arrays.asList(getDataColumnHeaders());
+		Set<String> colSet = new HashSet<String>(colList);
+		if (colSet.size() == colList.size()) {
+			return true;
+		}
+		return false;
+	}
+
 	public Object[][] getRowNames(int[] rows) {
 		if (rows == null)
 			return null;
@@ -1515,11 +1867,117 @@ public class MetaOmProject {
 		return result;
 	}
 
+	/**
+	 * @author urmi
+	 * @param rows
+	 * @return
+	 */
+	public String[] getDefaultRowNames(int[] rows) {
+		if (rows == null)
+			return null;
+		Object[][] result;
+		String[] res = new String[rows.length];
+		if (infoColumns == 0) {
+			result = new Object[rows.length][1];
+			for (int i = 0; i < result.length; i++) {
+				result[i][0] = rows[i];
+				res[i] = result[i][defaultColumn].toString();
+			}
+		} else {
+			result = new Object[rows.length][infoColumns];
+			for (int i = 0; i < result.length; i++) {
+				result[i] = getRowName(rows[i]);
+				res[i] = result[i][defaultColumn].toString();
+			}
+		}
+
+		return res;
+	}
+
+	/**
+	 * Get rowname under defaultColumn
+	 * 
+	 * @author urmi
+	 * @param rows
+	 * @return
+	 */
+	public String getDefaultRowNames(int row) {
+		if (row < 0)
+			return null;
+		Object[] result = new Object[1];
+		;
+		String res;
+		if (infoColumns == 0) {
+			result[0] = row;
+			res = result[defaultColumn].toString();
+
+		} else {
+			result = getRowName(row);
+			res = result[defaultColumn].toString();
+
+		}
+
+		return res;
+	}
+
+	/**
+	 * Get all the row names in project
+	 * 
+	 * @return
+	 */
+	public String[] getAllDefaultRowNames() {
+		Object[][] result;
+		String[] res = new String[getRowCount()];
+		if (infoColumns == 0) {
+			result = new Object[getRowCount()][1];
+			for (int i = 0; i < result.length; i++) {
+				result[i][0] = i;
+				res[i] = result[i][defaultColumn].toString();
+			}
+		} else {
+			result = new Object[getRowCount()][infoColumns];
+			for (int i = 0; i < result.length; i++) {
+				result[i] = getRowName(i);
+				res[i] = result[i][defaultColumn].toString();
+			}
+		}
+		return res;
+	}
+
 	public String getDataColumnHeader(int index) {
 		if (index + infoColumns >= columnHeaders.length) {
 			return "";
 		}
 		return columnHeaders[(index + infoColumns)];
+	}
+
+	/*
+	 * Sort data in rwoindex and return the datacolumn at index after sorting
+	 * increasing order
+	 */
+	public String getDatainSortedOrder(int rowIndex, int index) throws IOException {
+		double[] thisData = getIncludedData(rowIndex);
+		int[] thisDatacolIndex = new int[getDataColumnCount()];
+		for (int i = 0; i < thisDatacolIndex.length; i++) {
+			thisDatacolIndex[i] = i;
+		}
+
+		// sort thisData and thisDatacolIndex together
+		/* Bubble Sort */
+		for (int p = 0; p < thisData.length; p++) {
+			for (int q = 0; q < thisData.length - 1 - p; q++) {
+				if (thisData[q] > thisData[q + 1]) {
+					double swapString = thisData[q];
+					thisData[q] = thisData[q + 1];
+					thisData[q + 1] = swapString;
+					int swapInt = thisDatacolIndex[q];
+					thisDatacolIndex[q] = thisDatacolIndex[q + 1];
+					thisDatacolIndex[q + 1] = swapInt;
+				}
+			}
+		}
+
+		return getDataColumnHeader(thisDatacolIndex[index]);
 	}
 
 	public String getDataColumnHeader(int index, boolean shorten) {
@@ -1708,52 +2166,51 @@ public class MetaOmProject {
 		}
 		// Metadatacollection object is made inside ReadMetadata class
 		String metadataDelim = String.valueOf(this.metadatadelimiter);
-		
-		//JOptionPane.showMessageDialog(null, "Deli:"+metadataDelim);
+
+		// JOptionPane.showMessageDialog(null, "Deli:"+metadataDelim);
 
 		new AnimatedSwingWorker("Working...", true) {
 
 			@Override
 			public Object construct() {
 				EventQueue.invokeLater(new Runnable() {
-				public void run() {
-					try {
-						
-						readMetadataframe = new ReadMetadata(source.getAbsolutePath(), metadataDelim);
-						//JOptionPane.showMessageDialog(null, "delimP:"+metadataDelim);
-						readMetadataframe.toFront();
-						readMetadataframe.setVisible(true);
-						
-						
-					} catch (Exception e) {
-						e.printStackTrace();
+					public void run() {
+						try {
+
+							readMetadataframe = new ReadMetadata(source.getAbsolutePath(), metadataDelim);
+							// JOptionPane.showMessageDialog(null, "delimP:"+metadataDelim);
+							readMetadataframe.toFront();
+							readMetadataframe.setVisible(true);
+
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
 					}
-				}
-			});
+				});
 				return null;
 			}
 
 		}.start();
-		
-		/*EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					
-					readMetadataframe = new ReadMetadata(source.getAbsolutePath(), metadataDelim);
-					readMetadataframe.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});*/
-		
-		//return true;
+
+		/*
+		 * EventQueue.invokeLater(new Runnable() { public void run() { try {
+		 * 
+		 * readMetadataframe = new ReadMetadata(source.getAbsolutePath(),
+		 * metadataDelim); readMetadataframe.setVisible(true); } catch (Exception e) {
+		 * e.printStackTrace(); } } });
+		 */
+
+		// return true;
 		return loadMetadata((InputStream) null);
-		
+
 	} // end loadmetadata_csv
 
-	public MetadataCollection returnCollection() {
-		return readMetadataframe.getCollectionobj();
+	// public MetadataCollection returnCollection() {
+	// return readMetadataframe.getCollectionobj();
+	// }
+
+	public ReadMetadata getActiveReadmetadataForm() {
+		return this.readMetadataframe;
 	}
 
 	// function to return MetadataCollection object. This allows access to Metadata
@@ -1791,7 +2248,8 @@ public class MetaOmProject {
 	 * @throws IOException
 	 */
 	public boolean loadMetadataHybrid(MetadataCollection ob, Element XMLroot, TreeMap<Integer, Element> tm,
-			String dataCol, String[] mdheaders, JTree treeStructure, TreeMap<String, List<Integer>> defaultrepsMap)
+			String dataCol, String[] mdheaders, JTree treeStructure, TreeMap<String, List<Integer>> defaultrepsMap,
+			String defaultrepscol, List<String> missingDC, List<String> extraDC, List<String> removedCols)
 			throws IOException {
 		if (source == null) {
 			// metadataH = new MetadataHybrid();
@@ -1800,7 +2258,8 @@ public class MetaOmProject {
 			// JOptionPane.showMessageDialog(null, "loading null stream");
 		} else {
 			// JOptionPane.showMessageDialog(null, "loading stream");
-			metadataH = new MetadataHybrid(ob, XMLroot, tm, dataCol, mdheaders, treeStructure, defaultrepsMap);
+			metadataH = new MetadataHybrid(ob, XMLroot, tm, dataCol, mdheaders, treeStructure, defaultrepsMap,
+					defaultrepscol, missingDC, extraDC, removedCols);
 		}
 		this.defaultXAxis = dataCol;
 		setChanged(true);
@@ -1825,6 +2284,12 @@ public class MetaOmProject {
 		return true;
 	}
 
+	/**
+	 * Find data column by name and return its index
+	 * 
+	 * @param header
+	 * @return
+	 */
 	public int findDataColumnHeader(String header) {
 		for (int i = infoColumns; i < columnHeaders.length; i++) {
 			if (columnHeaders[i].equals(header))
@@ -1843,6 +2308,13 @@ public class MetaOmProject {
 		return initialized;
 	}
 
+	/**
+	 * Get data for a given row
+	 * 
+	 * @param row
+	 * @return
+	 * @throws IOException
+	 */
 	public double[] getAllData(int row) throws IOException {
 		double[] result;
 
@@ -1853,11 +2325,29 @@ public class MetaOmProject {
 			// JOptionPane.showMessageDialog(null, "From mem...");
 			result = getDataFromMemory(row);
 		}
-		if ((MetaOmGraph.getInstance() != null) && (MetaOmGraph.getInstance().isLogging())) {
+		// urmi
+		if (MetaOmGraph.getInstance() != null) {
+			String transform = MetaOmGraph.getInstance().getTransform();
 			for (int i = 0; i < result.length; i++) {
-				result[i] = (Math.log(result[i]) / Math.log(2.0D));
+				// add +1 to before applying log
+				if (transform == "log2") {
+					double log2b10 = Math.log(2.0D);
+					result[i] = (Math.log(result[i] + 1) / log2b10);
+				} else if (transform == "log10") {
+					result[i] = Math.log10(result[i] + 1);
+				} else if (transform == "loge") {
+					result[i] = Math.log(result[i] + 1);
+				} else if (transform == "sqrt") {
+					if (result[i] <= 0) {
+						result[i] = 0.00;
+					} else {
+						result[i] = Math.sqrt(result[i]);
+					}
+				}
+
 			}
 		}
+
 		return result;
 	}
 
@@ -1884,7 +2374,7 @@ public class MetaOmProject {
 						thisData[x] = Double.NaN;
 					}
 				}
-				
+
 				result.add(thisData.clone());
 			}
 			return result;
@@ -1896,6 +2386,7 @@ public class MetaOmProject {
 	}
 
 	private double[] getDataFromFile(int row) throws IOException {
+		boolean showWarning=false;
 		if (row > getRowCount())
 			throw new IllegalArgumentException("Row " + row + " does not exist!");
 		if ((memoryMap != null) && (memoryMap.containsKey(Integer.valueOf(row)))) {
@@ -1910,11 +2401,23 @@ public class MetaOmProject {
 			String tmp = Utils.clean(dataIn.readString(delimiter, ignoreConsecutiveDelimiters));
 			try {
 				thisData[x] = Double.parseDouble(tmp);
-			} catch (NumberFormatException nfe) {
+			} catch (NumberFormatException | NullPointerException nfe) {
+				//replace NAN value by blank value provided by user
+				if(getBlankValue()==null) {
 				thisData[x] = Double.NaN;
-			} catch (NullPointerException npe) {
-				thisData[x] = Double.NaN;
+				}else {
+					thisData[x] = getBlankValue();
+				}
+				showWarning=true;
+				
+			} 
+		}
+		if(showWarning) {
+			String message="Found missing/non-number values in data file. This may affect the analysis. Please check the data file. \n\n\t\t Acessing Row name: "+ getGeneName(row)[defaultColumn];
+			if(getBlankValue()!=null) {
+				message+="\n\n Treating missing value as "+getBlankValue();
 			}
+			JOptionPane.showMessageDialog(null, message , "Found missing/non-number values", JOptionPane.WARNING_MESSAGE);
 		}
 		return thisData;
 	}
@@ -1927,6 +2430,13 @@ public class MetaOmProject {
 		return getDataFromMemory(row);
 	}
 
+	/**
+	 * get data for selected row and only included columns
+	 * 
+	 * @param row
+	 * @return
+	 * @throws IOException
+	 */
 	public double[] getIncludedData(int row) throws IOException {
 		double[] data = getAllData(row);
 		boolean[] exclude = MetaOmAnalyzer.getExclude();
@@ -1944,6 +2454,56 @@ public class MetaOmProject {
 		return result;
 	}
 
+	/**
+	 * this function will return data of all rows for a given column e.g. get data
+	 * for all genes for a given run
+	 * 
+	 * @param col
+	 * @return
+	 * @throws IOException
+	 */
+	public HashMap<Integer, double[]> getAllRowData(int[] selectedCols) throws IOException {
+		HashMap<Integer, double[]> res = new HashMap<>();
+		int row = 0;
+		// get all data
+		List<double[]> allData = getAllData();
+
+		// keep only selected columns from data
+		for (int i = 0; i < selectedCols.length; i++) {
+			double[] temp = new double[getRowCount()];
+			res.put(selectedCols[i], temp);
+		}
+
+		for (int j = 0; j < allData.size(); j++) {
+			for (int i = 0; i < selectedCols.length; i++) {
+				res.get(selectedCols[i])[j] = allData.get(j)[selectedCols[i]];
+			}
+
+		}
+		return res;
+	}
+
+	/**
+	 * @author urmi return the index of datacolumns in data file for a given array
+	 *         with datacolumn headers
+	 * @param headers
+	 * @return
+	 */
+	public int[] getColumnIndexbyHeader(String[] headers) {
+		int[] res = new int[headers.length];
+		List allHeaders = Arrays.asList(getDataColumnHeaders());
+		for (int i = 0; i < headers.length; i++) {
+			// find index if headers[i] in allHeaders
+			res[i] = allHeaders.indexOf(headers[i]);
+		}
+		return res;
+	}
+
+	/**
+	 * Corrected urmi
+	 * 
+	 * @return
+	 */
 	public String[] getIncludedDataColumnHeaders() {
 		String[] headers = getDataColumnHeaders();
 		boolean[] exclude = MetaOmAnalyzer.getExclude();
@@ -1954,11 +2514,11 @@ public class MetaOmProject {
 		int addHere = 0;
 		for (int i = 0; i < headers.length; i++) {
 			if (exclude[i] == false) {
-				result[addHere] = headers[i];
+				result[addHere++] = headers[i];
 			}
-			addHere++;
+			// addHere++;
 		}
-		return headers;
+		return result;
 	}
 
 	public synchronized double[] getDataForColumn(int col) throws IOException {
@@ -2104,9 +2664,10 @@ public class MetaOmProject {
 		setChanged(true);
 		fireStateChanged("new correlation");
 	}
-	
+
 	/**
 	 * Add p-vals column
+	 * 
 	 * @author urmi
 	 * @param pvals
 	 * @param name
@@ -2150,8 +2711,6 @@ public class MetaOmProject {
 		setChanged(true);
 		fireStateChanged("new correlation");
 	}
-	
-	
 
 	public void renameColumnHeader(int col, String name) {
 		if ((col < 0) || (col > columnHeaders.length)) {
@@ -2187,10 +2746,14 @@ public class MetaOmProject {
 		}
 		String[] newColumnHeaders = new String[columnHeaders.length - 1];
 		Object[][] newRowNames = new Object[rowNames.length][getInfoColumnCount() - 1];
+		// urmi
+		String thisColName = "";
 		int index = 0;
 		for (int i = 0; i < columnHeaders.length; i++) {
 			if (i != col) {
 				newColumnHeaders[(index++)] = columnHeaders[i];
+			} else {
+				thisColName = columnHeaders[i];
 			}
 		}
 		for (int row = 0; row < rowNames.length; row++) {
@@ -2210,8 +2773,27 @@ public class MetaOmProject {
 		if (col < getDefaultColumn()) {
 			defaultColumn -= 1;
 		}
+
+		// also remove from MetaCorrRes
+		if (metaCorrs != null) {
+			metaCorrs.remove(thisColName);
+		}
+
 		setChanged(true);
 		fireStateChanged("info column deleted");
+	}
+
+	/**
+	 * Delete column by name
+	 * 
+	 * @param col
+	 */
+	public void deleteInfoColumn(String colName) {
+
+		// get col number
+		int col = 0;
+		deleteInfoColumn(col);
+
 	}
 
 	public Double getBlankValue() {
@@ -2424,4 +3006,204 @@ public class MetaOmProject {
 	public RepAveragedData getRepAveragedData(int row) throws IOException {
 		return new RepAveragedData(this, row);
 	}
+
+	/**
+	 * @author urmi add metacorr list to save later
+	 */
+	public void addMetaCorrRes(String id, CorrelationMetaCollection val) {
+		if (metaCorrs == null) {
+			metaCorrs = new HashMap<>();
+		}
+		metaCorrs.put(id, val);
+
+	}
+
+	/**
+	 * @author urmi check if a correlation is saved with entered name
+	 * @param name
+	 * @return
+	 */
+	public boolean correlatioNameExists(String name) {
+		boolean res = false;
+		if (metaCorrs == null) {
+			return res;
+		}
+		if (metaCorrs.get(name) != null) {
+			res = true;
+		}
+		return res;
+	}
+
+	/**
+	 * Return the map of name to correlation details
+	 * 
+	 * @return
+	 */
+	public HashMap<String, CorrelationMetaCollection> getMetaCorrRes() {
+		return this.metaCorrs;
+	}
+
+	/**
+	 * Return save correlation data as XML to save
+	 * 
+	 * @return
+	 */
+	public Element getMetaCorrResasXML() {
+		Element root = new Element("ROOT");
+		root.setAttribute("name", "Root");
+		if (metaCorrs == null) {
+			return root;
+		}
+		// add each saved corr to Root
+		for (String s : metaCorrs.keySet()) {
+			root.addContent(createCorrXMLNode(s));
+		}
+		// s
+		return root;
+	}
+
+	public Element createCorrXMLNode(String s) {
+		Element thisNode = new Element("Corr");
+		CorrelationMetaCollection cmcObj = metaCorrs.get(s);
+
+		// check values of table depending on cmcObj and populate the table
+		thisNode.setAttribute("name", s);
+		int corrTypeId = cmcObj.getCorrTypeId();
+		thisNode.setAttribute("corrtype", String.valueOf(corrTypeId));
+		thisNode.setAttribute("corrmodel", cmcObj.getCorrModel());
+		thisNode.setAttribute("corrvar", cmcObj.getCorrAgainst());
+
+		// for MI
+		if (corrTypeId == 3) {
+			thisNode.setAttribute("bins", String.valueOf(cmcObj.getBins()));
+			thisNode.setAttribute("order", String.valueOf(cmcObj.getOrder()));
+		}
+
+		List<CorrelationMeta> corrList = cmcObj.getCorrList();
+		if (metaCorrs != null) {
+			if (corrTypeId == 0) {
+
+				for (int i = 0; i < corrList.size(); i++) {
+					CorrelationMeta thisObj = corrList.get(i);
+
+					Element row = new Element("row");
+					row.setAttribute("name", thisObj.getName());
+					row.setAttribute("value", String.valueOf(thisObj.getrVal()));
+					row.setAttribute("pvalue", String.valueOf(thisObj.getpVal()));
+					row.setAttribute("zval", String.valueOf(thisObj.getzVal()));
+					row.setAttribute("qval", String.valueOf(thisObj.getqVal()));
+					row.setAttribute("pooledzr", String.valueOf(thisObj.getpooledzr()));
+					row.setAttribute("stderr", String.valueOf(thisObj.getstdErr()));
+
+					/*
+					 * Element val = new Element("value");
+					 * val.addContent(String.valueOf(thisObj.getrVal())); tName.addContent(val);
+					 * Element pval = new Element("pvalue");
+					 * pval.addContent(String.valueOf(thisObj.getpVal())); tName.addContent(pval);
+					 * Element ci = new Element("ci");
+					 * ci.addContent(String.valueOf(thisObj.getrCI(CorrelationMetaTable.getAlpha()))
+					 * ); tName.addContent(ci); Element zval = new Element("zval");
+					 * zval.addContent(String.valueOf(thisObj.getzVal())); tName.addContent(zval);
+					 * Element qval = new Element("qval");
+					 * qval.addContent(String.valueOf(thisObj.getqVal())); tName.addContent(qval);
+					 */
+					thisNode.addContent(row);
+
+				}
+
+			} else {
+
+				for (int i = 0; i < corrList.size(); i++) {
+					CorrelationMeta thisObj = corrList.get(i);
+
+					Element row = new Element("row");
+					row.setAttribute("name", thisObj.getName());
+					row.setAttribute("value", String.valueOf(thisObj.getrVal()));
+					row.setAttribute("pvalue", String.valueOf(thisObj.getpVal()));
+
+					thisNode.addContent(row);
+
+				}
+
+			}
+		}
+
+		return thisNode;
+	}
+
+	public Element getParamsasXML() {
+		Element root = new Element("ROOT");
+		root.setAttribute("name", "Root");
+		// add parameters to root
+		Element perms = new Element("permutations");
+		perms.setAttribute("value", String.valueOf(MetaOmGraph.getNumPermutations()));
+		root.addContent(perms);
+
+		Element threads = new Element("threads");
+		threads.setAttribute("value", String.valueOf(MetaOmGraph.getNumThreads()));
+		root.addContent(threads);
+
+		Element rpath = new Element("rpath");
+		rpath.setAttribute("value", String.valueOf(MetaOmGraph.getRPath()));
+		rpath.setAttribute("default", String.valueOf(MetaOmGraph.defaultRpath));
+		root.addContent(rpath);
+
+		Element pathtorfiles = new Element("pathtorfiles");
+		pathtorfiles.setAttribute("value", String.valueOf(MetaOmGraph.getpathtoRscrips()));
+		root.addContent(pathtorfiles);
+
+		// info about hyperlinked columns
+		Element hyperlinks = new Element("hyperlinksCols");
+
+		hyperlinks.setAttribute("srrColumn",
+				String.valueOf(MetaOmGraph.getActiveTable().getMetadataTableDisplay().getsrrColumn()));
+		hyperlinks.setAttribute("srpColumn",
+				String.valueOf(MetaOmGraph.getActiveTable().getMetadataTableDisplay().getsrpColumn()));
+		hyperlinks.setAttribute("srxColumn",
+				String.valueOf(MetaOmGraph.getActiveTable().getMetadataTableDisplay().getsrxColumn()));
+		hyperlinks.setAttribute("srsColumn",
+				String.valueOf(MetaOmGraph.getActiveTable().getMetadataTableDisplay().getsrsColumn()));
+		hyperlinks.setAttribute("gseColumn",
+				String.valueOf(MetaOmGraph.getActiveTable().getMetadataTableDisplay().getgseColumn()));
+		hyperlinks.setAttribute("gsmColumn",
+				String.valueOf(MetaOmGraph.getActiveTable().getMetadataTableDisplay().getgsmColumn()));
+
+		root.addContent(hyperlinks);
+
+		return root;
+	}
+
+	public boolean setInfoColTypes(HashMap<String, Class> map) {
+		this.infoColTypes = map;
+		return true;
+	}
+
+	public HashMap<String, Class> getAllInfoColTypes() {
+		return this.infoColTypes;
+	}
+
+	public Class getInfoColType(String colName) {
+		if (infoColTypes == null) {
+			// JOptionPane.showMessageDialog(null, "all null for:"+colName);
+			return null;
+		}
+		/*
+		 * for (String name : infoColTypes.keySet()) { String key = name.toString();
+		 * String value = infoColTypes.get(name).toString();
+		 * JOptionPane.showMessageDialog(null, "" + key + ": " + value);
+		 * 
+		 * }
+		 */
+		// JOptionPane.showMessageDialog(null, "type for:"+infoColTypes.get("PS_ID"));
+
+		if (infoColTypes.containsKey(colName)) {
+			// JOptionPane.showMessageDialog(null,
+			// "cn:"+colName+"v:"+infoColTypes.get(colName));
+			return infoColTypes.get(colName);
+		}
+
+		// JOptionPane.showMessageDialog(null, "null for:"+colName);
+		return null;
+	}
+
 }

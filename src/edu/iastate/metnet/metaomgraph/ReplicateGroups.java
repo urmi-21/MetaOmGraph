@@ -28,6 +28,8 @@ public class ReplicateGroups {
 	private int[] sortOrder;
 	private TreeMap<String, List<Integer>> repsMap;
 	private boolean[] excluded;
+	private String delimChar="::-::";
+	private boolean errorFlag=false;
 
 	// create rep groups for current project
 	public ReplicateGroups(TreeMap<String, List<Integer>> repsMapRaw, int row) {
@@ -58,30 +60,28 @@ public class ReplicateGroups {
 
 		// add
 		int index = 0;
-		// int index2 = 0;
-		// int index3 = 0;
-		// int indexRepcount = 0;
+
 		Set<String> allKeys = repsMap.keySet();
+		//JOptionPane.showMessageDialog(null, "all keys2:"+allKeys.toString());
 		String[] allKeys_sorted = sortKeys(allKeys);
+		//JOptionPane.showMessageDialog(null, "all keys3:"+Arrays.toString(allKeys_sorted));
 		for (String key : allKeys_sorted) {
-
 			repGroupNames[index] = key;
-
-			// JOptionPane.showMessageDialog(null,"tgn:"+repGroupNames[index]);
 			double ave = 0.0D;
 			int thisRepscount = 0;
 			List<Integer> colList = repsMap.get(key);
-			// Collections.sort(colList);
-			// JOptionPane.showMessageDialog(null, "Repname:"+key);
-			// JOptionPane.showMessageDialog(null, "c1:"+colList.get(0)+"
-			// c2:"+colList.get(1));
+			if(colList ==null) {
+				//JOptionPane.showMessageDialog(null, "key:"+key+" "+repsMap.get(key));
+				JOptionPane.showMessageDialog(null, "Please check if the metadata columns contains "+delimChar+", which is special sequence in MOG. Please remove this from the metadata and try again.", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, "Groups could not be made", "Error", JOptionPane.ERROR_MESSAGE);
+				errorFlag=true;
+				return;
+			}
+			
 			for (Integer col : colList) {
-				// JOptionPane.showMessageDialog(null,"data col:"+col);
-				// JOptionPane.showMessageDialog(null,"data col
-				// name:"+MetaOmGraph.getActiveProject().getMetadata().getNodeForCol(col).getAttributeValue("name"));
-				// JOptionPane.showMessageDialog(null,"data col int val:"+col.intValue());
 				// skip values which are not present in data file
 				if (col < 0) {
+					//JOptionPane.showMessageDialog(null, "key"+key+" val:"+col);
 					continue;
 				}
 				try {
@@ -164,10 +164,10 @@ public class ReplicateGroups {
 					toKeep.add(i);
 				}
 			}
-		
+
 			// only add those groups which have atleast one data non-excluded column present
 			if (toKeep.size() > 0) {
-				//JOptionPane.showMessageDialog(null, "add:" + toKeep.toString() + " to:" + k);
+				// JOptionPane.showMessageDialog(null, "add:" + toKeep.toString() + " to:" + k);
 				temp.put(k, toKeep);
 			}
 		}
@@ -181,22 +181,37 @@ public class ReplicateGroups {
 	 * @return
 	 */
 	private String[] sortKeys(Set<String> allKeys) {
+		
 		String[] res = new String[allKeys.size()];
 		String datacolNames;
 		int datacolIndex;
 		int i = 0;
 		for (String key : allKeys) {
-			datacolNames = MetaOmGraph.getActiveProject().getMetadataHybrid().getXColumnNameRep(key, 0);
+			datacolNames = MetaOmGraph.getActiveProject().getMetadataHybrid().getXColumnNameRep(key, 0, this.repsMap);
 			datacolIndex = MetaOmGraph.getActiveProject().findDataColumnHeader(datacolNames);
-			res[i] = String.valueOf(datacolIndex) + ":" + key;
+			res[i] = String.valueOf(datacolIndex) + delimChar + key;
 			i++;
 		}
 		Arrays.sort(res);
 		for (int j = 0; j < res.length; j++) {
-			res[j] = res[j].split(":")[1];
+			res[j] = res[j].split(delimChar)[1];
 		}
 		return res;
 	}
+	
+	
+	/**
+	 * Remove the keys which have only -1 as columns
+	 * @param allKeys
+	 * @return
+	 */
+	private String[] removeEmptyKeys(Set<String> allKeys) {
+		String[] res = new String[allKeys.size()];
+		
+		return res;
+	}
+	
+	
 
 	public String[] getGroupnames() {
 		return this.repGroupNames;
@@ -210,7 +225,8 @@ public class ReplicateGroups {
 		String[] gnames = getGroupnames();
 		String[] sampnames = new String[gnames.length];
 		for (int i = 0; i < sampnames.length; i++) {
-			sampnames[i] = MetaOmGraph.getActiveProject().getMetadataHybrid().getXColumnNameRep(gnames[i], 0);
+			sampnames[i] = MetaOmGraph.getActiveProject().getMetadataHybrid().getXColumnNameRep(gnames[i], 0,
+					this.repsMap);
 		}
 		return sampnames;
 	}
@@ -225,5 +241,9 @@ public class ReplicateGroups {
 
 	public int[] getRepCounts() {
 		return this.repCounts;
+	}
+	
+	public boolean getErrorStatus() {
+		return this.errorFlag;
 	}
 }

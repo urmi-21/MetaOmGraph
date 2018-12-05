@@ -77,7 +77,7 @@ public class Metadataviewer extends JFrame implements ActionListener {
 		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		this.setTitle("Metadata Viewer");
 		this.setJMenuBar(createmenubar());
-		metadataColl = MetaOmGraph.getActiveProject().returnCollection();
+		metadataColl = MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataCollection();
 		metadata = metadataColl.returnallData();
 		this.headers = metadataColl.getHeaders();
 		displayCol = new int[headers.length];

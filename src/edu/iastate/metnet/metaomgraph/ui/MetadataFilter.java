@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.JMenu;
@@ -51,8 +52,8 @@ public class MetadataFilter extends JFrame {
 	private JTable table;
 	private JTable table_1;
 	private MetadataCollection mogColl;
-	private List<String> included;
-	private List<String> excluded;
+	private Set<String> included;
+	private Set<String> excluded;
 	private HashMap<Integer, List<String>> toHighlight_inc;
 	private HashMap<Integer, List<String>> toHighlight_exc;
 	private List<String> searchIncres;
@@ -117,7 +118,7 @@ public class MetadataFilter extends JFrame {
 		// JOptionPane.showMessageDialog(null, "inc:"+included.toString());
 		// JOptionPane.showMessageDialog(null, "exc:"+excluded.toString());
 		JMenuBar menuBar = new JMenuBar();
-		setJMenuBar(menuBar);
+		//setJMenuBar(menuBar);
 
 		JMenu mnFile = new JMenu("File");
 		menuBar.add(mnFile);
@@ -138,14 +139,23 @@ public class MetadataFilter extends JFrame {
 		}
 		btnDone.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				/*if(getTablerows(table_1).size()<1) {
+					JOptionPane.showMessageDialog(null, "Please use buttons to move selected columns to the excluded list", "Excluded list empty", JOptionPane.ERROR_MESSAGE);
+					return;
+				}*/
+				
 				if (delete) {
-					int result = JOptionPane.showConfirmDialog((Component) null, "This will delete selected Rows. This can't be undone","alert", JOptionPane.OK_CANCEL_OPTION);
+					int result = JOptionPane.showConfirmDialog((Component) null, "This will delete the rows in the excluded list. This can't be undone","Delete rows", JOptionPane.OK_CANCEL_OPTION);
 					if(result==JOptionPane.CANCEL_OPTION) {
 						return;
 					}
 					updateIncludedlist();
+					//add rows to removedMD list
+					MetaOmGraph.getActiveProject().getMetadataHybrid().addExcludedMDRows(mogColl.getExcluded());
+					//add these to list of missing as these will be deleted from the project
+					MetaOmGraph.getActiveProject().getMetadataHybrid().addMissingMDRows(mogColl.getExcluded());
 					removeExcludedRows();
-					//remove rows from excluded
+					
 					((DefaultTableModel) table_1.getModel()).setRowCount(0);
 					
 				} else {
@@ -234,8 +244,7 @@ public class MetadataFilter extends JFrame {
 					@Override
 					public Object construct() {
 
-						List<String> hits = MetaOmGraph.getActiveProject().getMetadataHybrid().getMatchingRows(queries,
-								tsp.matchAll(),tsp.matchCase());
+						List<String> hits = MetaOmGraph.getActiveProject().getMetadataHybrid().getMatchingRows(queries,	tsp.matchAll());
 
 						// return if no hits
 						if (hits.size() == 0) {
@@ -258,6 +267,7 @@ public class MetadataFilter extends JFrame {
 				if (searchIncres == null || searchIncres.size() == 0) {
 					JOptionPane.showMessageDialog(null, "Nothing found", "Search results", JOptionPane.WARNING_MESSAGE);
 				}
+				//bring matched item to top and select them
 				setSelected(searchIncres, table);
 
 			}
@@ -408,7 +418,7 @@ public class MetadataFilter extends JFrame {
 					public Object construct() {
 
 						List<String> hits = MetaOmGraph.getActiveProject().getMetadataHybrid().getMatchingRows(queries,
-								tsp.matchAll(),tsp.matchCase());
+								tsp.matchAll());
 
 						// return if no hits
 						if (hits.size() == 0) {
@@ -509,9 +519,12 @@ public class MetadataFilter extends JFrame {
 		// temp[0] = "Data Column";
 		// tablemodel.addRow(temp);
 		tablemodel.addColumn(mogColl.getDatacol() + "(included)");
-		for (int i = 0; i < included.size(); i++) {
+		
+		List<String> tempListinc=new ArrayList<>(included);
+		
+		for (int i = 0; i < tempListinc.size(); i++) {
 			// JOptionPane.showMessageDialog(null,included.get(i).toString() );
-			temp[0] = included.get(i).toString();
+			temp[0] = tempListinc.get(i).toString();
 			tablemodel.addRow(temp);
 		}
 
@@ -572,9 +585,11 @@ public class MetadataFilter extends JFrame {
 		DefaultTableModel tablemodel_1 = (DefaultTableModel) table_1.getModel();
 		// add data
 		tablemodel_1.addColumn(mogColl.getDatacol() + "(excluded)");
-		for (int i = 0; i < excluded.size(); i++) {
+		
+		List<String> tempListexc=new ArrayList<>(excluded);
+		for (int i = 0; i < tempListexc.size(); i++) {
 			// JOptionPane.showMessageDialog(null,excluded.get(i).toString() );
-			temp[0] = excluded.get(i).toString();
+			temp[0] = tempListexc.get(i).toString();
 			tablemodel_1.addRow(temp);
 		}
 
@@ -603,7 +618,13 @@ public class MetadataFilter extends JFrame {
 		return result;
 	}
 
-	// bring the matched items to top and set them as selected
+	
+	/**
+	 * @author urmi
+	 * bring the matched items to top and set them as selected
+	 * @param res
+	 * @param tab
+	 */
 	private void setSelected(List<String> res, JTable tab) {
 		DefaultTableModel model = (DefaultTableModel) tab.getModel();
 		List<String> newVals = new ArrayList<>();

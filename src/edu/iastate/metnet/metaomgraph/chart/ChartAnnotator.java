@@ -67,14 +67,13 @@ public class ChartAnnotator implements ChartMouseListener, ChartProgressListener
 		JInternalFrame f = new JInternalFrame("Annotation Manager");
 		f.putClientProperty("JInternalFrame.frameType", "normal");
 		
-		JButton removeButton = new JButton("Remove");
-		JButton clearButton = new JButton("Clear");
+		JButton removeButton = new JButton("Remove selected");
+		JButton clearButton = new JButton("Clear all");
 		initAnnotationTable();
 		clearButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				Toolkit.getDefaultToolkit().beep();
-				int result = JOptionPane.showInternalConfirmDialog(MetaOmGraph.getMainWindow(),
-						"Are you sure you want to remove ALL annotations from this chart?", "Confirm", 0, 2);
+				int result = JOptionPane.showConfirmDialog(null,	"Are you sure you want to remove ALL annotations from this chart?", "Confirm", 0, 2);
 				if (result == 0) {
 					myChartPanel.getChart().getXYPlot().clearAnnotations();
 					annotTable = new JTable(
@@ -118,7 +117,12 @@ public class ChartAnnotator implements ChartMouseListener, ChartProgressListener
 		f.setClosable(true);
 		f.setResizable(true);
 		f.pack();
-		MetaOmGraph.getMainWindow().add(f);
+		//JOptionPane.showMessageDialog(null, "addd f");
+		f.setSize(MetaOmGraph.getMainWindow().getWidth() / 2,
+				MetaOmGraph.getMainWindow().getHeight() / 2);
+		MetaOmGraph.getDesktop().add(f);
+		f.setVisible(true);
+		
 		
 	}
 
@@ -212,6 +216,7 @@ public class ChartAnnotator implements ChartMouseListener, ChartProgressListener
 			//get a sample under current selected group
 			String thisSname=myChartPanel.getSampName(myChartPanel.sortOrder[myChartPanel.plottedColumns[((int) x)]]);
 			int thisInd=MetaOmGraph.getActiveProject().getMetadataHybrid().getColIndexbyName(thisSname);
+			//second argument select parent of the node
 			MetaOmGraph.getActiveTable().selectNode(thisInd,true);
 		}
 		//myChartPanel.to

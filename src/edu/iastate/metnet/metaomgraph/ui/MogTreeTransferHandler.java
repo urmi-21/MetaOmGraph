@@ -41,7 +41,6 @@ public class MogTreeTransferHandler extends TransferHandler {
 	public Transferable createTransferable(JComponent c) {
 		JTree tree = (JTree) c;
 		TreePath[] paths = tree.getSelectionPaths();
-		
 
 		if (paths != null) {
 			// Make up a node array of copies for transfer and
@@ -53,15 +52,15 @@ public class MogTreeTransferHandler extends TransferHandler {
 			DefaultMutableTreeNode copy = copy(node);
 			copies.add(copy);
 			toRemove.add(node);
-			//urmi
-			//don't move nodes that has child
-			
-			
-			if(node.getChildCount()>0) {
-				JOptionPane.showMessageDialog(null, "Can't move node with children. Move all children first", "Error", JOptionPane.ERROR_MESSAGE);
+			// urmi
+
+			// don't move nodes that has child
+			if (node.getChildCount() > 0) {
+				JOptionPane.showMessageDialog(null, "Can't move node with children. Move all children first", "Error",
+						JOptionPane.ERROR_MESSAGE);
 				return null;
 			}
-			
+
 			// disable drop for root
 			if (!node.isRoot()) {
 				// if (! (node == tree.getModel().getChild(tree.getModel().getRoot(), 0) ) ) {
@@ -80,29 +79,27 @@ public class MogTreeTransferHandler extends TransferHandler {
 				}
 				DefaultMutableTreeNode[] nodes = copies.toArray(new DefaultMutableTreeNode[copies.size()]);
 				nodesToRemove = toRemove.toArray(new DefaultMutableTreeNode[toRemove.size()]);
-				//System.out.println("torem size:"+toRemove.size());
+				// System.out.println("torem size:"+toRemove.size());
 				return new MogTreeTransferHandler.NodesTransferable(nodes);
 			}
-			//version 2 urmi
-			//remove node and all its children
+			// version 2 urmi
+			// remove node and all its children
 			/*
-			System.out.println("tree path:");
-			for(int i=0;i<paths.length;i++) {
-				System.out.println(paths[i]);
-				System.out.println(paths[i].getLastPathComponent());
-				node = (DefaultMutableTreeNode) paths[i].getLastPathComponent();
-				toRemove.add(node);
-				
-			}
-			
-			if (!node.isRoot()) {
-				System.out.println("torem size:"+toRemove.size());
-				nodesToRemove = toRemove.toArray(new DefaultMutableTreeNode[toRemove.size()]);
-				
-			}
-			*/
+			 * System.out.println("tree path:"); for(int i=0;i<paths.length;i++) {
+			 * System.out.println(paths[i]);
+			 * System.out.println(paths[i].getLastPathComponent()); node =
+			 * (DefaultMutableTreeNode) paths[i].getLastPathComponent(); toRemove.add(node);
+			 * 
+			 * }
+			 * 
+			 * if (!node.isRoot()) { System.out.println("torem size:"+toRemove.size());
+			 * nodesToRemove = toRemove.toArray(new
+			 * DefaultMutableTreeNode[toRemove.size()]);
+			 * 
+			 * }
+			 */
 			else {
-			    JOptionPane.showMessageDialog(null, "Can't move Root node.", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, "Can't move Root node.", "Error", JOptionPane.ERROR_MESSAGE);
 
 			}
 		}
@@ -115,7 +112,7 @@ public class MogTreeTransferHandler extends TransferHandler {
 	}
 
 	public boolean canImport(TransferHandler.TransferSupport info) {
-		// for the demo, we'll only support drops (not clipboard paste)
+		
 		if (!info.isDrop()) {
 			return false;
 		}
@@ -130,6 +127,7 @@ public class MogTreeTransferHandler extends TransferHandler {
 		// fetch the drop location
 		JTree.DropLocation dl = (JTree.DropLocation) info.getDropLocation();
 		TreePath path = dl.getPath();
+		
 		//System.out.println("p:"+path+"::wep");
 		if (path == null)
 			return false;
@@ -138,16 +136,15 @@ public class MogTreeTransferHandler extends TransferHandler {
 		// return false;
 		// }
 		//do not drop to Root if it already has a child
-		
-		/*(DefaultMutableTreeNode)dl. getChildCount();
-		if(path.getPathComponent(0).toString().equals("Root") && path.getPathComponent(0)) {
-			
-		}*/
+		//(DefaultMutableTreeNode) dl.getChildCount();
+		DefaultMutableTreeNode thisNode=(DefaultMutableTreeNode) path.getLastPathComponent();
+		if(thisNode.toString().equals("Root") && thisNode.getChildCount()>0) {
+			JOptionPane.showMessageDialog(null, "Root can have only one child...","Please check",JOptionPane.ERROR_MESSAGE);
+			//JOptionPane.showMessageDialog(null, "path:"+path.toString());
+		}
 		
 		return true;
 	}
-	
-	
 
 	private boolean haveCompleteNode(JTree tree) {
 		int[] selRows = tree.getSelectionRows();
@@ -323,8 +320,6 @@ public class MogTreeTransferHandler extends TransferHandler {
 		}
 		return true;
 	}
-	
-	
 
 	protected void exportDone(JComponent source, Transferable data, int action) {
 		if ((action & MOVE) == MOVE) {

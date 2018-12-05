@@ -220,7 +220,8 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 		blanksGroup = new ButtonGroup();
 		blanksGroup.add(ignoreBlanksButton);
 		blanksGroup.add(replaceBlanksButton);
-		ignoreBlanksButton.setSelected(true);
+		ignoreBlanksButton.setSelected(false);
+		replaceBlanksButton.setSelected(true);
 		allowBlanksBox.addItemListener(this);
 		JPanel delimiterPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();

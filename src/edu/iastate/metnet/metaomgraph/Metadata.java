@@ -313,7 +313,7 @@ public class Metadata {
 			if (i < exacts.length) {
 				exact = exacts[i];
 			}
-			queries[i] = new MetadataQuery(field, term, exact);
+			queries[i] = new MetadataQuery(field, term, exact,false);
 		}
 		return search(queries, matchAll);
 	}
@@ -520,14 +520,17 @@ public class Metadata {
 		private String term;
 
 		private boolean exact;
+		
+		private boolean matchCase;
 
 		public MetadataQuery() {
 		}
 
-		public MetadataQuery(String field, String term, boolean exact) {
+		public MetadataQuery(String field, String term, boolean exact,boolean matchCase) {
 			this.field = field;
 			this.term = term.trim();
 			this.exact = exact;
+			this.matchCase=matchCase;
 		}
 
 		public String getField() {
@@ -548,6 +551,15 @@ public class Metadata {
 
 		public boolean isExact() {
 			return exact;
+		}
+		
+		//urmi
+		public boolean isCaseSensitive() {
+			return matchCase;
+		}
+		
+		public void setCaseSensitive(boolean flag) {
+			matchCase=flag;
 		}
 
 		public void setExact(boolean exact) {

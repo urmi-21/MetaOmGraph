@@ -27,6 +27,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.InputMap;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -55,8 +56,8 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 	private int queryCount;
 	private boolean matchAll;
 	// urmi
-	private JRadioButton caseButton;
-	private boolean matchCase;
+	//private JRadioButton caseButton;
+	//private boolean matchCase;
 	private String secondSort;
 	private MetaOmProject myProject;
 	private static final String ANY_FIELD_STRING = "Any field";
@@ -66,7 +67,12 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 	public TreeSearchQueryConstructionPanel(MetaOmProject project) {
 		this(project,false);
 	 }
-
+	
+	/**
+	 * 
+	 * @param project activeproject object
+	 * @param searchDataTable: true for search datatable, false for metadata 
+	 */
 	public TreeSearchQueryConstructionPanel(MetaOmProject project, boolean searchDataTable) {
 		this.searchDataTable = searchDataTable;
 		myProject = project;
@@ -118,14 +124,15 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 
 		allButton = new JRadioButton("Match all of the following");
 		anyButton = new JRadioButton("Match any of the following");
-		caseButton = new JRadioButton("Match case");
-		/*
-		 * ButtonGroup allAnyGroup = new ButtonGroup(); allAnyGroup.add(caseButton);
-		 * allAnyGroup.add(allButton); allAnyGroup.add(anyButton);
-		 */
+		//urmi make only one selectable add to group
+		ButtonGroup groupBtnRadio = new ButtonGroup();
+		groupBtnRadio.add(allButton);
+		groupBtnRadio.add(anyButton);
+		//caseButton = new JRadioButton("Match case");
+		
 		allButton.setSelected(true);
 		JPanel allAnyPanel = new JPanel();
-		allAnyPanel.add(caseButton);
+		//allAnyPanel.add(caseButton);
 		allAnyPanel.add(allButton);
 		allAnyPanel.add(anyButton);
 		add(allAnyPanel, "First");
@@ -175,6 +182,7 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 		buttonPanel.add(cancelButton);
 		myDialog.getContentPane().add(buttonPanel, "Last");
 		myDialog.setSize(640, 480);
+		myDialog.pack();
 		int width = MetaOmGraph.getMainWindow().getWidth();
 		int height = MetaOmGraph.getMainWindow().getHeight();
 		myDialog.setLocation((width - myDialog.getWidth()) / 2, (height - myDialog.getHeight()) / 2);
@@ -189,7 +197,8 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 		myDialog.setVisible(true);
 		if (isOK) {
 			matchAll = allButton.isSelected();
-			matchCase = caseButton.isSelected();
+			//matchCase = caseButton.isSelected();
+			//JOptionPane.showMessageDialog(null, "mcb:"+matchCase);
 			queryCount = 0;
 			ArrayList<Metadata.MetadataQuery> result = new ArrayList();
 			for (int x = 0; x < queryPanel.getComponentCount(); x++) {
@@ -219,9 +228,9 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 		return matchAll;
 	}
 
-	public boolean matchCase() {
+	/*public boolean matchCase() {
 		return matchCase;
-	}
+	}*/
 
 	public String getSecondSort() {
 		return secondSort;
@@ -231,21 +240,27 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 		private JComboBox fieldBox;
 		private JComboBox matchBox;
 		private JTextField searchTermField;
+		private JCheckBox matchCasebox;
 
 		public SearchTermPanel() {
-			this("Any field", false, "");
+			this("Any field", false, "",false);
 		}
 
 		public SearchTermPanel(Metadata.MetadataQuery myQuery) {
-			this(myQuery.getField(), myQuery.isExact(), myQuery.getTerm());
+			this(myQuery.getField(), myQuery.isExact(), myQuery.getTerm(),myQuery.isCaseSensitive());
 		}
 
-		public SearchTermPanel(String field, boolean exact, String term) {
+		public SearchTermPanel(String field, boolean exact, String term,boolean matchCase) {
 			fieldBox = new JComboBox(fieldBoxTerms);
 			fieldBox.setSelectedItem(field);
 			matchBox = new JComboBox(new String[] { "contains", "is" });
 			matchBox.setSelectedIndex(exact ? 1 : 0);
 			searchTermField = new JTextField(term);
+			searchTermField.setColumns(20);
+			matchCasebox = new JCheckBox("Match case");
+			if(matchCase) {
+				matchCasebox.setSelected(true);
+			}
 			setLayout(new GridBagLayout());
 			GridBagConstraints c = new GridBagConstraints();
 			c.gridx = 0;
@@ -261,6 +276,11 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 			c.weightx = 1.0D;
 			c.fill = 1;
 			add(searchTermField, c);
+			c.gridx = 3;
+			c.weightx = 0.0D;
+			c.fill = 1;
+			add(matchCasebox, c);
+			
 		}
 
 		public String getField() {
@@ -272,6 +292,10 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 
 		public boolean exactMatch() {
 			return matchBox.getSelectedItem().toString().equals("is");
+		}
+		
+		public boolean matchCase() {
+			return matchCasebox.isSelected();
 		}
 
 		public String getMatchType() {
@@ -287,6 +311,7 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 			result.setField(getField());
 			result.setTerm(getSearchTerm());
 			result.setExact(exactMatch());
+			result.setCaseSensitive(matchCase());
 			return result;
 		}
 	}

@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
-SplashScreen-Image: oris.png
+SplashScreen-Image: images/splash.gif
 Main-Class: edu.iastate.metnet.metaomgraph.MetaOmGraph
 

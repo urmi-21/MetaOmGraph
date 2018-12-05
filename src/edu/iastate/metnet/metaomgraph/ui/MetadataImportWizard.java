@@ -56,6 +56,7 @@ import org.apache.poi.openxml4j.util.ZipSecureFile.ThresholdInputStream;
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
+import edu.iastate.metnet.metaomgraph.MetadataHybrid;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -68,10 +69,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextField;
+import javax.swing.JCheckBox;
 
 public class MetadataImportWizard extends JFrame {
 
@@ -86,6 +89,9 @@ public class MetadataImportWizard extends JFrame {
 	private JScrollPane scrollPaneTable = new JScrollPane();
 	private JScrollPane scrollPaneTree = new JScrollPane();
 	private JScrollPane scrollPanePreviewTree = new JScrollPane();
+	private boolean removeUnusedCols;
+	JCheckBox chckbxRemoveUnusedColumns;
+	private List<String> removedCols;
 	// private MetadataCollection obj;
 	// private String[] headers;
 
@@ -123,14 +129,28 @@ public class MetadataImportWizard extends JFrame {
 	 */
 	public MetadataImportWizard(MetadataCollection obj, String[] headers, Dimension frameDimension,
 			Point locationOnScreen) {
-		this(obj, headers, frameDimension, locationOnScreen, null);
+		this(obj, headers, frameDimension, locationOnScreen, null, null, null, null, false, null);
+	}
+
+	/**
+	 * Constructer to edit tree structur
+	 * 
+	 * @param obj
+	 * @param treeStruct
+	 * @param removeCols
+	 */
+	public MetadataImportWizard(MetadataHybrid mdobj, JTree treeStruct, boolean removeCols) {
+		this(mdobj.getMetadataCollection(), mdobj.getColumnsNotinTree(), new Dimension(800, 600), new Point(500, 100),
+				null, new ArrayList<>(mdobj.getMissingMDRows()), new ArrayList<>(mdobj.getExcludedMDRows()), treeStruct, removeCols,
+				new ArrayList<>(mdobj.getRemovedMDCols()) );
 	}
 
 	/**
 	 * @wbp.parser.constructor
 	 */
 	public MetadataImportWizard(MetadataCollection obj, String[] headers, Dimension frameDimension,
-			Point locationOnScreen, ReadMetadata parent) {
+			Point locationOnScreen, ReadMetadata parent, List<String> missingDC, List<String> extraDC,
+			JTree treeStructure, boolean removeCols, List<String> mdrmCols) {
 
 		setIconImage(Toolkit.getDefaultToolkit()
 				.getImage(MetadataImportWizard.class.getResource("/resource/MetaOmicon16.png")));
@@ -138,6 +158,27 @@ public class MetadataImportWizard extends JFrame {
 		// setAlwaysOnTop(true);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 702, 482);
+		// remove or keep unused cols
+		this.removeUnusedCols = removeCols;
+		// already removed cols
+		removedCols = mdrmCols;
+		chckbxRemoveUnusedColumns = new JCheckBox("Remove unused columns from metadata");
+		chckbxRemoveUnusedColumns.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if (chckbxRemoveUnusedColumns.isSelected()) {
+					// JOptionPane.showMessageDialog(null, "selc");
+					removeUnusedCols = true;
+				} else {
+					removeUnusedCols = false;
+				}
+			}
+		});
+		chckbxRemoveUnusedColumns.setForeground(Color.BLUE);
+		chckbxRemoveUnusedColumns.setBackground(Color.GRAY);
+		chckbxRemoveUnusedColumns.setFont(new Font("Times New Roman", Font.PLAIN, 15));
+		if (removeUnusedCols) {
+			chckbxRemoveUnusedColumns.setSelected(true);
+		}
 
 		if (obj == null) {
 			JOptionPane.showMessageDialog(null, "Error in metadata...", "Error", JOptionPane.ERROR_MESSAGE);
@@ -176,7 +217,7 @@ public class MetadataImportWizard extends JFrame {
 		JButton btnBack = new JButton("Back");
 		btnBack.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ReadMetadata ob= new ReadMetadata(obj, obj.getdelimiter());
+				ReadMetadata ob = new ReadMetadata(obj, obj.getdelimiter());
 				ob.setVisible(true);
 				dispose();
 			}
@@ -190,7 +231,6 @@ public class MetadataImportWizard extends JFrame {
 				DefaultListModel listModel = new DefaultListModel();
 				for (int i = 0; i < headers.length; i++) {
 					listModel.addElement(headers[i]);
-
 				}
 				list = new JList(listModel);
 				list.setToolTipText(
@@ -207,8 +247,8 @@ public class MetadataImportWizard extends JFrame {
 				listRenderer.setHorizontalAlignment(JLabel.LEFT);
 				scrollPaneTable.setViewportView(list);
 				// reset the tree
-				//UIManager.put("Tree.rendererFillBackground", false);
-				//tree = new JTree();
+				// UIManager.put("Tree.rendererFillBackground", false);
+				// tree = new JTree();
 				tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Root") {
 					{
 					}
@@ -234,20 +274,41 @@ public class MetadataImportWizard extends JFrame {
 		btnImport.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 
-				if (obj == null || headers.length <= 0 || tree == null) {
+				if (obj == null || tree == null) {
 					JOptionPane.showMessageDialog(null, "Please create a tree , then click Next.", "Error",
 							JOptionPane.ERROR_MESSAGE);
 					return;
 				}
-				//return if datacolumn is not in tree
+				// return if datacolumn is not in tree
 				for (int i = 0; i < list.getModel().getSize(); i++) {
-				     String item = list.getModel().getElementAt(i).toString();
-				     if(item.equals(obj.getDatacol())) {
-				    	 JOptionPane.showMessageDialog(null,"The data column must be in the tree.", "Error",JOptionPane.ERROR_MESSAGE);
-				    	 return;
-				     }
-				} 
-				
+					String item = list.getModel().getElementAt(i).toString();
+					if (item.equals(obj.getDatacol())) {
+						JOptionPane.showMessageDialog(null, "The data column must be in the tree.", "Error",
+								JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+				}
+
+				// which headers were not used in metadata
+				List<String> remainingCols = new ArrayList();
+				for (int i = 0; i < list.getModel().getSize(); i++) {
+					String item = list.getModel().getElementAt(i).toString();
+					remainingCols.add(item);
+				}
+
+				if (removeUnusedCols) {
+					// remove remainingCols from collection
+					// JOptionPane.showMessageDialog(null, "remove dc:" + remainingCols.toString());
+					obj.removeUnusedCols(remainingCols);
+					// clear removed cols from left jlist panel
+					DefaultListModel model = (DefaultListModel) list.getModel();
+					model.removeAllElements();
+					if (removedCols == null) {
+						removedCols = new ArrayList<>();
+					}
+					removedCols.addAll(remainingCols);
+				}
+
 				new AnimatedSwingWorker("Working...", true) {
 
 					@Override
@@ -262,7 +323,7 @@ public class MetadataImportWizard extends JFrame {
 
 								MetaOmGraph.getActiveProject().loadMetadataHybrid(obj, res.getRootElement(),
 										ob.getTreeMap(), dataColumnName, ob.getMetadataHeaders(), tree,
-										ob.getDefaultRepMap());
+										ob.getDefaultRepMap(), ob.getDefaultRepCol(), missingDC, extraDC, removedCols);
 								// JOptionPane.showMessageDialog(null, "total child of
 								// root:"+res.getRootElement().getChildren().size());
 								MetaOmGraph.updateWindow();
@@ -275,6 +336,14 @@ public class MetadataImportWizard extends JFrame {
 							}
 						}
 						return null;
+					}
+
+					@Override
+					public void finished() {
+						JOptionPane.showMessageDialog(null, "Metadata has been loaded into MetaOmGraph", "Done",
+								JOptionPane.INFORMATION_MESSAGE);
+						// sometimes shows error
+						// dispose();
 					}
 
 				}.start();
@@ -301,6 +370,8 @@ public class MetadataImportWizard extends JFrame {
 		panel_1_north.add(lblMapMetadataStructure);
 		panel_1.add(panel_1_south, BorderLayout.SOUTH);
 
+		panel_1_south.add(chckbxRemoveUnusedColumns);
+
 		JLabel lblChooseTheData = new JLabel("Data column is:");
 		lblChooseTheData.setForeground(Color.GREEN);
 		lblChooseTheData.setFont(new Font("Garamond", Font.BOLD, 16));
@@ -317,15 +388,16 @@ public class MetadataImportWizard extends JFrame {
 							JOptionPane.ERROR_MESSAGE);
 					return;
 				}
-				//return if datacolumn is not in tree
+				// return if datacolumn is not in tree
 				for (int i = 0; i < list.getModel().getSize(); i++) {
-				     String item = list.getModel().getElementAt(i).toString();
-				     if(item.equals(obj.getDatacol())) {
-				    	 JOptionPane.showMessageDialog(null,"The data column must be in the tree.", "Error",JOptionPane.ERROR_MESSAGE);
-				    	 return;
-				     }
-				} 
-				
+					String item = list.getModel().getElementAt(i).toString();
+					if (item.equals(obj.getDatacol())) {
+						JOptionPane.showMessageDialog(null, "The data column must be in the tree.", "Error",
+								JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+				}
+
 				new AnimatedSwingWorker("Working...", true) {
 
 					@Override
@@ -339,7 +411,7 @@ public class MetadataImportWizard extends JFrame {
 					}
 
 				}.start();
-				
+
 			}
 		});
 
@@ -415,11 +487,14 @@ public class MetadataImportWizard extends JFrame {
 		// UIManager.put("Tree.rendererFillBackground", false);
 		UIManager.put("Tree.rendererFillBackground", false);
 
-		tree = new JTree();
-		tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Root") {
-			{
-			}
-		}));
+		tree = treeStructure;
+		if (tree == null) {
+			tree = new JTree();
+			tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Root") {
+				{
+				}
+			}));
+		}
 		tree.setBackground(Color.BLACK);
 		tree.setFont(new Font("Times New Roman", Font.PLAIN, 20));
 		scrollPaneTree.setViewportView(tree);

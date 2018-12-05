@@ -27,13 +27,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.text.FieldPosition;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -71,12 +74,16 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYDataset;
 
+//import com.itextpdf.text.pdf.PdfStructTreeController.returnType;
+
 public class ChartToolBar extends JToolBar implements ActionListener {
 	public static final String ZOOM_IN_COMMAND = "zoomIn";
 	public static final String ZOOM_OUT_COMMAND = "zoomOut";
 	public static final String ZOOM_DEFAULT_COMMAND = "defaultZoom";
 	public static final String SORT_DEFAULT_COMMAND = "defaultSort";
 	public static final String SORT_NAME_COMMAND = "nameSort";
+	// urmi
+	public static final String SORT_XAXIS_COMMAND = "xaxisSort";
 	public static final String SORT_YVAL_COMMAND = "yvalueSort";
 	public static final String SORT_EXTINFO_COMMAND = "extInfoSort";
 	public static final String SORT_PO_COMMAND = "poSort";
@@ -110,9 +117,13 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 	private JButton metadataButton;
 	private MenuButton sortMenuButton;
 	private JToggleButton toggleLegend;
+	// urmi
+	private JButton removeRangeMarkers;
 	private JToggleButton togglePopup;
 	private JRadioButtonMenuItem defaultSortItem;
 	private JRadioButtonMenuItem nameSortItem;
+	// urmi
+	private JRadioButtonMenuItem xaxisSortItem;
 	private JRadioButtonMenuItem yvalueSortItem;
 	private JRadioButtonMenuItem extInfoSortItem;
 	private JRadioButtonMenuItem poSortItem;
@@ -180,6 +191,12 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 		toggleShapesButton.setToolTipText("Toggle shapes");
 		toggleLegend = new JToggleButton(theme.getLegend(), myChartPanel.isLegendVisible());
 		toggleLegend.setToolTipText("Show/hide legend");
+		// urmi
+		removeRangeMarkers = new JButton(theme.getPopups());
+		removeRangeMarkers.setToolTipText("Clear markers");
+		removeRangeMarkers.setActionCommand("clearrange");
+		removeRangeMarkers.addActionListener(this);
+		// not used
 		togglePopup = new JToggleButton(theme.getPopups(), myChartPanel.isPopupEnabled());
 		togglePopup.setToolTipText("Show/hide Metadata Popups");
 		metadataButton = new JButton("Show Metadata", theme.getMetadata());
@@ -215,8 +232,9 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 		// nameSortItem = new JRadioButtonMenuItem("By " + xaxisLabel);
 		// urmi
 		nameSortItem = new JRadioButtonMenuItem("By Data Column");
+		xaxisSortItem = new JRadioButtonMenuItem("By X-axis labels");
 		yvalueSortItem = new JRadioButtonMenuItem("By " + yaxisLabel);
-		extInfoSortItem = new JRadioButtonMenuItem("By Metadata");
+		extInfoSortItem = new JRadioButtonMenuItem("Group by Query");
 		// metadataClusterSortItem = new JRadioButtonMenuItem("More...");
 		// changed to; urmi
 		metadataClusterSortItem = new JRadioButtonMenuItem();
@@ -225,6 +243,7 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 		sortGroup = new ButtonGroup();
 		sortGroup.add(defaultSortItem);
 		sortGroup.add(nameSortItem);
+		sortGroup.add(xaxisSortItem);
 		sortGroup.add(yvalueSortItem);
 		sortGroup.add(extInfoSortItem);
 		sortGroup.add(metadataClusterSortItem);
@@ -242,6 +261,8 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 		defaultSortItem.addActionListener(this);
 		nameSortItem.setActionCommand("nameSort");
 		nameSortItem.addActionListener(this);
+		xaxisSortItem.setActionCommand(SORT_XAXIS_COMMAND);
+		xaxisSortItem.addActionListener(this);
 		yvalueSortItem.setActionCommand("yvalueSort");
 		yvalueSortItem.addActionListener(this);
 		extInfoSortItem.setActionCommand("extInfoSort");
@@ -259,6 +280,7 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 		refreshClusterMetadataMenu();
 		sortMenu.add(defaultSortItem);
 		sortMenu.add(nameSortItem);
+		sortMenu.add(xaxisSortItem);
 		sortMenu.add(yvalueSortItem);
 
 		/**
@@ -276,7 +298,7 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 		hideColumnsItem.setActionCommand("hideColumns");
 		hideColumnsItem.addActionListener(this);
 		sortMenu.addSeparator();
-		//sortMenu.add(hideColumnsItem);
+		// sortMenu.add(hideColumnsItem);
 		sortMenuButton.setMenu(sortMenu);
 		sortMenuButton.addFocusListener(new FocusAdapter() {
 			public void focusGained(FocusEvent e) {
@@ -310,6 +332,7 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 
 		add(toggleShapesButton);
 		add(toggleLegend);
+		add(removeRangeMarkers);
 
 		addSeparator();
 		add(metadataButton);
@@ -408,30 +431,39 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 								// adjust max length for slider
 								int max = 0;
 								// JOptionPane.showMessageDialog(null, "findig match");
+								// long tStart = System.currentTimeMillis();
 								for (int j = 0; j < tempLabels.length; j++) {
 
 									// get the row containing datavalue or run and change templabels to
 									// coreesponding values under col_val
-									Filter f = Filters.regex(dataColName, "^" + tempLabels[j] + "$");
+									// slower
+									/*
+									 * Filter f = Filters.regex(dataColName, "^" + tempLabels[j] + "$");
+									 * java.util.List<Document> rowWithDatax =
+									 * MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataCollection().
+									 * getDatabyAttributes(f, true); if (rowWithDatax == null) { //
+									 * JOptionPane.showMessageDialog(this, "Search Error"); tempLabels[j] = "NA"; }
+									 * if (rowWithDatax.size() == 1) { tempLabels[j] =
+									 * rowWithDatax.get(0).get(col_val).toString(); } else { missing_Flag = true; }
+									 */
 
-									java.util.List<Document> rowWithDatax = MetaOmGraph.getActiveProject()
-											.getMetadataHybrid().getMetadataCollection().getDatabyAttributes(f, true);
-
-									if (rowWithDatax == null) {
-										// JOptionPane.showMessageDialog(this, "Search Error");
+									// faster
+									tempLabels[j] = MetaOmGraph.getActiveProject().getMetadataHybrid()
+											.getColValueMatchingRow(tempLabels[j], col_val);
+									if (tempLabels[j] == null) {
 										tempLabels[j] = "NA";
 									}
-									if (rowWithDatax.size() == 1) {
-										tempLabels[j] = rowWithDatax.get(0).get(col_val).toString();
-									} else {
-										missing_Flag = true;
-									}
-
 									if (max < tempLabels[j].length()) {
 										max = tempLabels[j].length();
 									}
 
 								}
+
+								/*
+								 * long tEnd = System.currentTimeMillis(); long tDelta = tEnd - tStart; double
+								 * elapsedSeconds = tDelta / 1000.0; JOptionPane.showMessageDialog(null,
+								 * "findig match Done:"+elapsedSeconds);
+								 */
 
 								// show message about missing runids
 								if (missing_Flag) {
@@ -481,21 +513,56 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 		}
 
 		if (SORT_DEFAULT_COMMAND.equals(e.getActionCommand())) {
+			int[] oldsortOrder = myChartPanel.getSortOrder();
+			// JOptionPane.showMessageDialog(null, "oldSO:" +
+			// Arrays.toString(oldsortOrder));
 			myChartPanel.setSortOrder(myChartPanel.getDataSorter().defaultOrder());
 			myChartPanel.getInfoPanel().reselect();
 			myChartPanel.initializeDataset();
 			// update(myChartPanel.getGraphics());
 			repaint();
 			lastSelected = defaultSortItem;
+			// update range markers
+			Vector<RangeMarker> rangeMarkers = myChartPanel.getDataSorter().getRangeMarkers();
+			if (rangeMarkers == null) {
+				return;
+			}
+			myChartPanel.getDataSorter()
+					.setRangeMarkers(updateRangeMarkers(oldsortOrder, myChartPanel.getSortOrder(), rangeMarkers));
 			return;
 		}
 		if (SORT_NAME_COMMAND.equals(e.getActionCommand())) {
+			int[] oldsortOrder = myChartPanel.getSortOrder();
 			myChartPanel.setSortOrder(myChartPanel.getDataSorter().sortByColumnName());
+			// myChartPanel.setSortOrder(myChartPanel.getDataSorter().sortByXaxisNames());
 			myChartPanel.getInfoPanel().reselect();
 			myChartPanel.initializeDataset();
-			// update(myChartPanel.getGraphics());
+
 			repaint();
 			lastSelected = nameSortItem;
+			// update range markers
+			Vector<RangeMarker> rangeMarkers = myChartPanel.getDataSorter().getRangeMarkers();
+			if (rangeMarkers == null) {
+				return;
+			}
+			myChartPanel.getDataSorter()
+					.setRangeMarkers(updateRangeMarkers(oldsortOrder, myChartPanel.getSortOrder(), rangeMarkers));
+			return;
+		}
+		if (SORT_XAXIS_COMMAND.equals(e.getActionCommand())) {
+			int[] oldsortOrder = myChartPanel.getSortOrder();
+			myChartPanel.setSortOrder(myChartPanel.getDataSorter().sortByXaxisNames());
+			myChartPanel.getInfoPanel().reselect();
+			myChartPanel.initializeDataset();
+			repaint();
+			lastSelected = xaxisSortItem;
+			// update range markers
+			Vector<RangeMarker> rangeMarkers = myChartPanel.getDataSorter().getRangeMarkers();
+			if (rangeMarkers == null) {
+				return;
+			}
+			myChartPanel.getDataSorter()
+					.setRangeMarkers(updateRangeMarkers(oldsortOrder, myChartPanel.getSortOrder(), rangeMarkers));
 			return;
 		}
 		if (SORT_YVAL_COMMAND.equals(e.getActionCommand())) {
@@ -525,13 +592,20 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 			}
 			try {
 				double[] yvalues = myChartPanel.getData(sortMe);
-				// JOptionPane.showMessageDialog(null, "yvals:"+Arrays.toString(yvalues));
+				int[] oldsortOrder = myChartPanel.getSortOrder();
 				myChartPanel.setSortOrder(myChartPanel.getDataSorter().sortByYValue(yvalues));
 				myChartPanel.getInfoPanel().reselect();
 				myChartPanel.initializeDataset();
 				lastSelected = yvalueSortItem;
 				// update(myChartPanel.getGraphics());
 				repaint();
+				// update range markers
+				Vector<RangeMarker> rangeMarkers = myChartPanel.getDataSorter().getRangeMarkers();
+				if (rangeMarkers == null) {
+					return;
+				}
+				myChartPanel.getDataSorter()
+						.setRangeMarkers(updateRangeMarkers(oldsortOrder, myChartPanel.getSortOrder(), rangeMarkers));
 
 			} catch (Exception oops) {
 				oops.printStackTrace();
@@ -564,17 +638,17 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 			return;
 		}
 		if ((e.getActionCommand() != null) && (e.getActionCommand().startsWith("clusterMetadataSort"))) {
-			String[] splitCommand = e.getActionCommand().split("::", 2);
-			if (splitCommand.length == 2) {
-				// JOptionPane.showMessageDialog(null, "command:"+splitCommand[1]);
-				newOrder = myChartPanel.getDataSorter().clusterByMetadata(splitCommand[1]);
-				if (newOrder.length == 0 || newOrder == null) {
-					return;
-				}
-			}
 
-			new AnimatedSwingWorker("Sorting...", false) {
+			new AnimatedSwingWorker("Working...", false) {
 				public Object construct() {
+					String[] splitCommand = e.getActionCommand().split("::", 2);
+					if (splitCommand.length == 2) {
+						// JOptionPane.showMessageDialog(null, "command:"+splitCommand[1]);
+						newOrder = myChartPanel.getDataSorter().clusterByMetadata(splitCommand[1]);
+						if (newOrder.length == 0 || newOrder == null) {
+							return null;
+						}
+					}
 					if (newOrder == null) {
 						lastSelected.setSelected(true);
 						System.out.println("Cancelled searching");
@@ -587,6 +661,7 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 					// update(myChartPanel.getGraphics());
 					repaint();
 					// System.out.println("Done sorting");
+
 					return null;
 				}
 			}.start();
@@ -678,6 +753,12 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 			myChartPanel.initializeDataset();
 			return;
 		}
+
+		if ("clearrange".equals(e.getActionCommand())) {
+			myChartPanel.getDataSorter().setRangeMarkers(null);
+			// myChartPanel.initializeDataset();
+			return;
+		}
 		if (TOGGLE_LINES_COMMAND.equals(e.getActionCommand())) {
 			chartProps.setLinePainted(showLinesItem.isSelected());
 			myChartPanel.initializeDataset();
@@ -759,11 +840,9 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 	}
 
 	public void refreshClusterMetadataMenu() {
-
 		/**
 		 * @author urmi get metadata from new class and use its functions
 		 */
-
 		if (myChartPanel.getProject().getMetadataHybrid() == null) {
 			if (clusterMetadataMenu != null) {
 				clusterMetadataMenu.setEnabled(false);
@@ -830,5 +909,138 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 			defaultColors[i] = myChartPanel.getRenderer().getSeriesPaint(i);
 		}
 		defaultColorScheme = new DefaultColorScheme(defaultColors);
+	}
+
+	/**
+	 * @author urmi Change range markers after data is sorted
+	 * @param oldSortOrder
+	 * @param newSortOrder
+	 * @param oldRangeMarkers
+	 * @return
+	 */
+	private Vector<RangeMarker> updateRangeMarkers(int[] oldSortOrder, int[] newSortOrder,
+			Vector<RangeMarker> oldRangeMarkers) {
+		if (Arrays.equals(oldSortOrder, newSortOrder)) {
+			// JOptionPane.showMessageDialog(null, "oldSo: " +
+			// Arrays.toString(oldSortOrder));
+			// JOptionPane.showMessageDialog(null, "RRR newSo: " +
+			// Arrays.toString(newSortOrder));
+			return oldRangeMarkers;
+		}
+		Vector<RangeMarker> temp = new Vector<>();
+		// JOptionPane.showMessageDialog(null, "oldSo: " +
+		// Arrays.toString(oldSortOrder));
+		// JOptionPane.showMessageDialog(null, "newSo: " +
+		// Arrays.toString(newSortOrder));
+
+		// use this flag to know if range has be split into discontinuous locations and
+		// then call merge rangemarkers
+		boolean rangeSplit = false;
+
+		for (RangeMarker r : oldRangeMarkers) {
+			int thisStrt = r.getStart();
+			int thisEnd = r.getEnd();
+			java.util.List<Integer> colsinRange = new ArrayList<>();
+			java.util.List<Integer> colsinRangeNewInd = new ArrayList<>();
+			for (int i = thisStrt; i <= thisEnd; i++) {
+				colsinRange.add(oldSortOrder[i]);
+			}
+
+			// find indices of colsinRange in new sort order
+			for (int c : colsinRange) {
+				for (int i = 0; i < newSortOrder.length; i++) {
+					if (newSortOrder[i] == c) {
+						colsinRangeNewInd.add(i);
+						break;
+					}
+				}
+
+			}
+			// sort new indices and break into continuous ranges
+			Collections.sort(colsinRangeNewInd);
+			// JOptionPane.showMessageDialog(null, "cols in thisR: " +
+			// colsinRange.toString());
+			// JOptionPane.showMessageDialog(null, "ind sorted: " +
+			// colsinRangeNewInd.toString());
+			int currStrt = colsinRangeNewInd.get(0);
+
+			for (int j = 1; j < colsinRangeNewInd.size(); j++) {
+				// if values are adjacent
+				if (colsinRangeNewInd.get(j) == colsinRangeNewInd.get(j - 1) + 1) {
+
+				} else {
+
+					RangeMarker newRM = new RangeMarker(currStrt, colsinRangeNewInd.get(j - 1), r.getLabel(),
+							r.getStyle());
+					currStrt = colsinRangeNewInd.get(j);
+					temp.add(newRM);
+					// rangeSplit = true;
+					// JOptionPane.showMessageDialog(null, "creatingRM: " + currStrt + "-" +
+					// colsinRangeNewInd.get(j - 1));
+
+				}
+
+			}
+			RangeMarker newRM = new RangeMarker(currStrt, colsinRangeNewInd.get(colsinRangeNewInd.size() - 1),
+					r.getLabel(), r.getStyle());
+			temp.add(newRM);
+			// JOptionPane.showMessageDialog(null, "Last creatingRM: " + currStrt + "-" +
+			// colsinRangeNewInd.get(colsinRangeNewInd.size() - 1));
+
+		}
+
+		/*
+		 * for (RangeMarker r : temp) { JOptionPane.showMessageDialog(null, "thisR: " +
+		 * r.getStart() + "-" + r.getEnd()+":"+r.getLabel()); }
+		 */
+
+		return mergeRangeMarkers(temp);
+	}
+
+	private Vector<RangeMarker> mergeRangeMarkers(Vector<RangeMarker> old) {
+
+		// JOptionPane.showMessageDialog(null, "merging");
+		Vector<RangeMarker> temp = new Vector<>();
+		// sort the range markers
+		Collections.sort(old);
+		/*
+		 * for (RangeMarker r : old) { JOptionPane.showMessageDialog(null, "thisR: " +
+		 * r.getStart() + "-" + r.getEnd()+":"+r.getLabel()); }
+		 */
+		String currLabel = old.get(0).getLabel();
+		int currStrt = old.get(0).getStart();
+		int currEnd = old.get(0).getEnd();
+
+		for (int i = 1; i < old.size(); i++) {
+
+			int thisStrt = old.get(i).getStart();
+			// int thisEnd = old.get(i).getEnd();
+			String thisVal = old.get(i).getLabel();
+
+			// int prevStrt = old.get(i - 1).getStart();
+			int prevEnd = old.get(i - 1).getEnd();
+			String prevVal = old.get(i - 1).getLabel();
+			int prevStyle = old.get(i - 1).getStyle();
+
+			if (thisStrt == prevEnd + 1 && thisVal == prevVal) {
+
+			} else {
+
+				RangeMarker newRM = new RangeMarker(currStrt, prevEnd, currLabel, prevStyle);
+				// JOptionPane.showMessageDialog(null, "creatingRM: " + currStrt + "-" +
+				// prevEnd);
+				temp.add(newRM);
+				currStrt = thisStrt;
+				currLabel = thisVal;
+			}
+		}
+		RangeMarker newRM = new RangeMarker(currStrt, old.get(old.size() - 1).getEnd(), currLabel,
+				old.get(old.size() - 1).getStyle());
+		// JOptionPane.showMessageDialog(null, "creatingRM: " + currStrt + "-" +
+		// old.get(old.size() - 1).getEnd());
+		temp.add(newRM);
+
+		return temp;
+
 	}
 }

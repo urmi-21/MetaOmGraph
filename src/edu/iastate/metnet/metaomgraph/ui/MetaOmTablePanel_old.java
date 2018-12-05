@@ -64,6 +64,8 @@ public class MetaOmTablePanel_old extends JPanel implements ActionListener, List
     public static final String MAKE_HISTOGRAM_COMMAND = "create histogram";
     private JButton reportButton;
     private JButton listFromFilterButton;
+    //urmi
+    private JButton saveMainTableButton;
     private MenuButton plotButton;
     private JMenuItem plotListItem;
     private JMenuItem plotRowsItem;
@@ -333,7 +335,7 @@ public class MetaOmTablePanel_old extends JPanel implements ActionListener, List
             throbber = new MetaOmThrobber();
         }
         searchPanel.add(throbber, "After");
-        listFromFilterButton = new JButton(">> Add to List");
+        listFromFilterButton = new JButton(">> Add to list");
         listFromFilterButton.setActionCommand("list from filter");
         listFromFilterButton.addActionListener(this);
         listFromFilterButton.setEnabled(false);
@@ -341,6 +343,9 @@ public class MetaOmTablePanel_old extends JPanel implements ActionListener, List
         dataToolbar.add(new Separator());
         dataToolbar.add(searchPanel);
         dataToolbar.add(listFromFilterButton);
+        dataToolbar.add(new Separator());
+        saveMainTableButton = new JButton(theme.getExcel());
+        dataToolbar.add(saveMainTableButton);
         geneListPanel.setMinimumSize(listToolbar.getPreferredSize());
         listSplitPane = new JSplitPane(1, true, geneListPanel, geneListDisplayPane);
         listSplitPane.setDividerSize(1);
@@ -748,7 +753,7 @@ public class MetaOmTablePanel_old extends JPanel implements ActionListener, List
                 }
             }
 
-            new MetaOmChartPanel(getSelectedRowsInList(), myProject.getDefaultXAxis(), myProject.getDefaultYAxis(), myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject, myVals, myStddevs, repCounts, sampleNames,sampleNames,false).createInternalFrame();
+            new MetaOmChartPanel(getSelectedRowsInList(), myProject.getDefaultXAxis(), myProject.getDefaultYAxis(), myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject, myVals, myStddevs, repCounts, sampleNames,sampleNames,false,null).createInternalFrame();
             return;
         }
         if ("make boxplot".equals(e.getActionCommand())) {
@@ -918,9 +923,19 @@ public class MetaOmTablePanel_old extends JPanel implements ActionListener, List
             }
 
             if ("pairwise pearson".equals(e.getActionCommand())) {
-                MetaOmAnalyzer.pairwise(myProject, geneLists.getSelectedValue().toString(), nameCol, 1);
+                try {
+					MetaOmAnalyzer.pairwise(myProject, geneLists.getSelectedValue().toString(), nameCol, 1);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
             } else {
-                MetaOmAnalyzer.pairwise(myProject, geneLists.getSelectedValue().toString(), nameCol, 2);
+                try {
+					MetaOmAnalyzer.pairwise(myProject, geneLists.getSelectedValue().toString(), nameCol, 2);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
             }
 
             return;

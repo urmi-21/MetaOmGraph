@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.security.InvalidParameterException;
 
 
-public class RangeMarker implements Serializable {
+public class RangeMarker implements Serializable,Comparable<RangeMarker> {
     public static int HORIZONTAL = 0;
 
     public static int VERTICAL = 1;
@@ -72,4 +72,10 @@ public class RangeMarker implements Serializable {
         if ((style != HORIZONTAL) && (style != VERTICAL)) throw new InvalidParameterException("Style must be either HORIZONTAL or VERTICAL");
         this.style = style;
     }
+
+	@Override
+	public int compareTo(RangeMarker obj) {
+		// TODO Auto-generated method stub
+		return this.start-obj.start;
+	}
 }

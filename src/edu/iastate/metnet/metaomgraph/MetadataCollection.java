@@ -3,7 +3,7 @@ package edu.iastate.metnet.metaomgraph;
 import edu.iastate.metnet.arrayexpress.NewAEDataDownloader;
 import edu.iastate.metnet.metaomgraph.ui.MetadataEditor;
 import edu.iastate.metnet.metaomgraph.utils.qdxml.SimpleXMLElement;
-import javassist.expr.NewArray;
+//import javassist.expr.NewArray;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -34,8 +34,8 @@ public class MetadataCollection {
 	private int allowedFails = 20;
 	private int numRows = 0;
 	// list of datacolumns included or excluded
-	private List<String> included;
-	private List<String> excluded;
+	private Set<String> included;
+	private Set<String> excluded;
 	private String dataCol;
 
 	// metadata file and other information
@@ -72,10 +72,9 @@ public class MetadataCollection {
 	public MetadataCollection() {
 
 		if (mogInMemoryDB == null) {
-			//JOptionPane.showMessageDialog(null, "moginmem NULL");
+			// JOptionPane.showMessageDialog(null, "moginmem NULL");
 			mogInMemoryDB = Nitrite.builder().openOrCreate();
 		}
-			
 
 		// Create a Default Collection
 		if (mogCollection == null)
@@ -154,7 +153,7 @@ public class MetadataCollection {
 				// thisLine=thisLine.replaceAll("*","");
 				thisLine = thisLine.replaceAll("&", "*and*");
 				thisLine = thisLine.replaceAll("'", "");
-				//thisLine = thisLine.replaceAll("\\*", "(star)");
+				// thisLine = thisLine.replaceAll("\\*", "(star)");
 
 				if (nCount == 0) {
 
@@ -182,14 +181,16 @@ public class MetadataCollection {
 					// String[] row = thisLine.split("\t(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
 					// changed to
 					String[] row = thisLine.split(regex + "(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
-					//String[] row = thisLine.split(regex);
+					// String[] row = thisLine.split(regex);
 
 					// System.out.println(row.length+"::"+row[0]);
 					if (row.length != headers.length) {
-						//JOptionPane.showMessageDialog(null, "rowlen:"+row.length+" hlen:"+headers.length);
-						//JOptionPane.showMessageDialog(null, "rows:"+Arrays.toString(row)+"** heads:"+Arrays.toString(headers));
-						//System.out.println("headers:"+Arrays.toString(headers));
-						//System.out.println("rows:"+Arrays.toString(row));
+						// JOptionPane.showMessageDialog(null, "rowlen:"+row.length+"
+						// hlen:"+headers.length);
+						// JOptionPane.showMessageDialog(null, "rows:"+Arrays.toString(row)+"**
+						// heads:"+Arrays.toString(headers));
+						// System.out.println("headers:"+Arrays.toString(headers));
+						// System.out.println("rows:"+Arrays.toString(row));
 						JOptionPane.showMessageDialog(null,
 								"Metadata validation failed at line:" + (nCount + 1)
 										+ ". MOG will skip this. Please check file delimiters at this line.",
@@ -290,11 +291,12 @@ public class MetadataCollection {
 		for (int i = 0; i < data.size(); i++) {
 			// get each row in data
 			int ctr = 0;
-			
+
 			for (int j = 0; j < newHeaders.length; j++) {
-				//JOptionPane.showMessageDialog(null, "hdr"+j+newHeaders[j]+" val:"+data.get(i).get(newHeaders[j]).toString());
+				// JOptionPane.showMessageDialog(null, "hdr"+j+newHeaders[j]+"
+				// val:"+data.get(i).get(newHeaders[j]).toString());
 				row[ctr++] = data.get(i).get(newHeaders[j]).toString();
-				
+
 			}
 			final Map<String, String> metadataMap = new HashMap<>();
 			ctr = 0;
@@ -402,10 +404,23 @@ public class MetadataCollection {
 	 */
 	public void removeDataPermanently() {
 		removeDataPermanently(this.excluded);
+
 	}
 
-	public void removeDataPermanently(List<String> dataColsToremove) {
+	/**
+	 * remove rows from metadata containg list of data columns
+	 * 
+	 * @param dataColsToremove
+	 */
 
+	public void removeDataPermanently(List<String> dataColsToremove) {
+		removeDataPermanently(new HashSet(dataColsToremove));
+	}
+
+	public void removeDataPermanently(Set<String> dataColsToremove) {
+		if (dataColsToremove == null) {
+			return;
+		}
 		// get all data
 		List<Document> data = mogCollection.find().toList();
 		String[] headers = this.getHeaders();
@@ -454,6 +469,60 @@ public class MetadataCollection {
 
 		// init included cols
 		initializeIncludedList();
+
+	}
+
+	/**
+	 * remove columns from a collection
+	 * 
+	 * @param colsToRemove
+	 */
+	public void removeUnusedCols(List<String> colsToRemove) {
+		if (colsToRemove == null || colsToRemove.size() < 1) {
+			return;
+		}
+		String[] allHeaders = getHeaders();
+		boolean[] toKeep = new boolean[allHeaders.length];
+		for (int i = 0; i < allHeaders.length; i++) {
+			if (colsToRemove.contains(allHeaders[i])) {
+				toKeep[i] = false;
+			} else {
+				toKeep[i] = true;
+			}
+		}
+		setHeaders(allHeaders, toKeep);
+	}
+
+	/**
+	 * add null data for missing columns
+	 * 
+	 * @param dataColsToremove
+	 */
+	public void addNullData(List<String> dataColsToAdd) {
+
+		if (dataColsToAdd == null) {
+			return;
+		}
+
+		// get current collection
+
+		for (int j = 0; j < dataColsToAdd.size(); j++) {
+			Map<String, String> metadataMap = new HashMap<>();
+
+			for (int i = 0; i < headers.length; i++) {
+				if (headers[i].equals(dataCol)) {
+					metadataMap.put(headers[i], dataColsToAdd.get(j));
+				} else
+					metadataMap.put(headers[i], "NO_VALUE");
+			}
+			Document doc = new Document();
+			doc.putAll(metadataMap);
+			mogCollection.insert(doc);
+
+		}
+		// init included cols
+		initializeIncludedList();
+
 	}
 
 	public void readMetadataTextFile2(String metadataFile, String regex, boolean bVerbose) throws IOException {
@@ -608,6 +677,19 @@ public class MetadataCollection {
 		}
 	}
 
+	public List<String> getDatabyAttributes(String toSearch, String searchCol, String targetCol, boolean exact,
+			boolean uniqueFlag, boolean caseFlag) {
+		// create filter
+		Filter fa = null;
+		if (exact) {
+			fa = Filters.regex(searchCol, caseFlag + "^" + toSearch + "$");
+		} else {
+			fa = Filters.regex(searchCol, caseFlag + toSearch);
+		}
+
+		return getDatabyAttributes(fa, targetCol, uniqueFlag);
+	}
+
 	/**
 	 * This function searches for a value in all the headers and returns
 	 * corresponding values under targetCol
@@ -637,6 +719,7 @@ public class MetadataCollection {
 			// create a filter over all cols
 			Filter[] fa = new Filter[this.getHeaders().length];
 			for (int i = 0; i < fa.length; i++) {
+
 				if (exact) {
 					fa[i] = Filters.regex(this.getHeaders()[i], caseFlag + "^" + toSearch + "$");
 				} else {
@@ -782,31 +865,41 @@ public class MetadataCollection {
 		return output;
 	}
 
-	public List<String> getIncluded() {
+	public Set<String> getIncluded() {
 		return this.included;
 	}
 
 	public void setIncluded(List<String> s) {
+		setIncluded(new HashSet(s));
+	}
+
+	public void setIncluded(Set<String> s) {
 		this.included = s;
 	}
 
-	public List<String> getExcluded() {
+	public Set<String> getExcluded() {
 		return this.excluded;
 	}
 
 	public void resetRowFilter() {
 		included.addAll(excluded);
-		excluded = new ArrayList<>();
+		excluded = new HashSet<>();
 	}
 
 	public void setExcluded(List<String> s) {
+		setExcluded(new HashSet(s));
+	}
+
+	public void setExcluded(Set<String> s) {
 		this.excluded = s;
 	}
 
 	public void initializeIncludedList() {
-		included = new ArrayList<>();
-		excluded = new ArrayList<>();
-		included = getDatabyAttributes(null, dataCol, true);
+		included = new HashSet<>();
+		excluded = new HashSet<>();
+		// get all the data columns in metadata
+		List<String> temp = getDatabyAttributes(null, dataCol, true);
+		included = new HashSet(temp);
 
 	}
 
@@ -814,10 +907,35 @@ public class MetadataCollection {
 		// TODO Auto-generated method stub
 		return this.fpath;
 	}
+	
+	public void setfilepath(String path) {
+		// TODO Auto-generated method stub
+		this.fpath=path;
+	}
 
 	public String getdelimiter() {
 		// TODO Auto-generated method stub
 		return this.delimiter;
+	}
+
+	/**
+	 * invert a list of data columns
+	 * 
+	 * @return
+	 */
+	public List<String> invertSelectedDataCols(List<String> toInvert) {
+		List<String> res = new ArrayList<>();
+		List<String> allDC = getAllDataCols();
+		for (int i = 0; i < allDC.size(); i++) {
+			if (!toInvert.contains(allDC.get(i))) {
+				res.add(allDC.get(i));
+			}
+		}
+		return res;
+	}
+
+	public List<String> getAllDataCols() {
+		return getDatabyAttributes(null, dataCol, true);
 	}
 
 }
@@ -828,12 +946,15 @@ class MetadataCollectionTest {
 		try {
 			// read metadata for rna-seq
 			MetadataCollection mogColl = new MetadataCollection();
-			//mogColl.dispose();
+			// mogColl.dispose();
 
 			// reading metadata file you want
-			//String metadataFile = "D:\\MOGdata\\mog_testdata\\human\\US_human_metadata_6-13-18.txt";
-			String metadataFile = "D:\\MOGdata\\mog_testdata\\human\\US_human_polyA_4-3-18_removedtabs.txt";
-			//String metadataFile ="D:\\MOGdata\\mog_testdata\\xml\\sample_small_data.txt";
+			// String metadataFile =
+			// "D:\\MOGdata\\mog_testdata\\human\\US_human_metadata_6-13-18.txt";
+			// String metadataFile =
+			// "D:\\MOGdata\\mog_testdata\\human\\US_human_polyA_4-3-18_removedtabs.txt";
+			String metadataFile = "D:\\MOGdata\\mog_testdata\\cancer\\shorttest\\w5.tsv";
+			// String metadataFile ="D:\\MOGdata\\mog_testdata\\xml\\sample_small_data.txt";
 			// String metadataFile = "C:\\Users\\mrbai\\Downloads\\US_AT_removedtabs.tsv";
 			mogColl.readMetadataTextFile(metadataFile, "\\t", false);
 
@@ -889,6 +1010,10 @@ class MetadataCollectionTest {
 			for (int i = 0; i < allres.size(); i++) {
 				System.out.println(allres.get(i).toString());
 			}
+
+			List<String> mdcolheaders = mogColl.getDatabyAttributes(null, "submitter_id", true);
+			System.out.print("dc:" + mdcolheaders.toString());
+			System.out.print("dc:" + mdcolheaders.size());
 
 		} catch (IOException e) {
 			System.err.println("Error reading metadata file");

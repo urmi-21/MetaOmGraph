@@ -63,6 +63,8 @@ public class ParseTableTree {
 	// default reps are under common parent, TreeMap to preserve order
 	private TreeMap<String, List<Integer>> defaultrepsMap;
 
+	private String defaultrepscol;
+
 	public ParseTableTree(MetadataCollection csvObj, JTree tree, String name, String[] colheaders) {
 		this.obj = csvObj;
 		this.tree = tree;
@@ -101,7 +103,7 @@ public class ParseTableTree {
 		buildTree(root, XMLroot);
 		long stopTime = System.currentTimeMillis();
 		long elapsedTime = stopTime - startTime;
-		//JOptionPane.showMessageDialog(null, "Time taken(s):" + elapsedTime/1000);
+		// JOptionPane.showMessageDialog(null, "Time taken(s):" + elapsedTime/1000);
 		/////////////////////////
 		/*
 		 * JOptionPane.showMessageDialog(null, "adding nodes..."); long startTime1 =
@@ -144,11 +146,10 @@ public class ParseTableTree {
 		// resDoc = outter.outputString(res);
 		// System.out.println(resDoc);
 		/*
-		try (PrintWriter out = new PrintWriter("D:\\MOGdata\\mog_testdata\\jing\\JL_yeast_MOG\\newfilename.txt")) {
-			out.println(resDoc);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		 * try (PrintWriter out = new
+		 * PrintWriter("D:\\MOGdata\\mog_testdata\\jing\\JL_yeast_MOG\\newfilename.txt")
+		 * ) { out.println(resDoc); } catch (FileNotFoundException e) {
+		 * e.printStackTrace(); }
 		 */
 		return res;
 
@@ -326,7 +327,6 @@ public class ParseTableTree {
 			// update after deletions,if any
 			cList = XMLroot.getChildren();
 			for (Element c : cList) {
-
 				// check if Element c is datacolumn element
 				if (c.getName().equals(dataColName)) {
 					String cValue;
@@ -477,6 +477,10 @@ public class ParseTableTree {
 		return this.defaultrepsMap;
 	}
 
+	public String getDefaultRepCol() {
+		return this.defaultrepscol;
+	}
+
 	/**
 	 * Non recursive function to convert table to XML
 	 * 
@@ -484,8 +488,12 @@ public class ParseTableTree {
 	 * @return
 	 */
 	private Element buildTree(TreeNode root, Element XMLroot) {
+		//JOptionPane.showMessageDialog(null, "Start..");
 		// get the data
 		List<Document> tabData = obj.returnallData();
+		if(tabData.size()==0) {
+			return null;
+		}
 		HashMap<Integer, List<String>> nodeLevels = getNodesbyLevel(root);
 		HashMap<String, String> getnodeParent = getTreeNodeParents(root);
 		// store paths to nodes no need to compute inside loop
@@ -493,7 +501,7 @@ public class ParseTableTree {
 		// store children of all nodes
 		HashMap<String, List<String>> nodeChildren = getNodeChildren(root);
 
-		List<Element> dataColNodes = new ArrayList<>();
+		//List<Element> dataColNodes = new ArrayList<>();
 
 		// a list to quickly search if anew node be added or not
 		List<String[]> uniqPaths = new ArrayList<>();
@@ -511,6 +519,10 @@ public class ParseTableTree {
 		// expName is the outermost attribute
 		// there is only one outer most node
 		String expColname = nodeLevels.get(1).get(0);
+		//to build default reps col
+		defaultrepscol = nodeLevels.get(1).get(0);
+		//JOptionPane.showMessageDialog(null, "P1..Tabsize:" +  tabData.size());
+		
 		// for all rows in data
 		for (int i = 0; i < tabData.size(); i++) {
 			// add outermost node i.e. level 1
@@ -524,7 +536,9 @@ public class ParseTableTree {
 				addedXML.put(expName, thisElement);
 				thisElement = addedXML.get(expName);
 			}
-
+			
+			//JOptionPane.showMessageDialog(null, "P2..");
+			
 			// add level 2 elements directly to expName
 			List<String> nodesCurrlevel = nodeLevels.get(2);
 			for (String s : nodesCurrlevel) {
@@ -543,7 +557,11 @@ public class ParseTableTree {
 						}
 						thisElement.addContent(newChild);
 						if (s.equals(dataColName)) {
-							dataColNodes.add(newChild);
+							//dataColNodes.add(newChild);
+							//add to colIndextoNode
+							int thisIndex = colHeaders.indexOf(child);
+							colIndextoNode.put(Integer.valueOf(thisIndex), newChild);
+						
 						}
 						plist.add(expColname + ":::" + expName);
 						childParentXML.put(s + ":::" + child, plist);
@@ -558,7 +576,12 @@ public class ParseTableTree {
 					}
 					thisElement.addContent(newChild);
 					if (s.equals(dataColName)) {
-						dataColNodes.add(newChild);
+						//dataColNodes.add(newChild);
+						//add to colIndextoNode
+						int thisIndex = colHeaders.indexOf(child);
+						colIndextoNode.put(Integer.valueOf(thisIndex), newChild);
+					
+						
 					}
 					List<String> plist = new ArrayList<>();
 					plist.add(expColname + ":::" + expName);
@@ -581,7 +604,9 @@ public class ParseTableTree {
 				 */
 
 			}
-
+			
+			//JOptionPane.showMessageDialog(null, "P3..");
+			
 			// add nodes in other levels
 			// for levels in the tree structure
 			for (int j = 3; j <= maxLevel; j++) {
@@ -638,7 +663,11 @@ public class ParseTableTree {
 							}
 							toAdd.addContent(newChild);
 							if (s.equals(dataColName)) {
-								dataColNodes.add(newChild);
+								//dataColNodes.add(newChild);
+								//add to colIndextoNode
+								int thisIndex = colHeaders.indexOf(child);
+								colIndextoNode.put(Integer.valueOf(thisIndex), newChild);
+							
 							}
 							plist.add(toAdd.getName() + ":::" + toAdd.getAttributeValue("name"));
 							childParentXML.put(s + ":::" + child, plist);
@@ -647,18 +676,19 @@ public class ParseTableTree {
 							List<String> fullPath = new ArrayList<>();
 							fullPath.add(0, expColname);
 							fullPath.addAll(pathsToNode.get(s));
-							//JOptionPane.showMessageDialog(null, "paths:" + pathsToNode.toString());
+							// JOptionPane.showMessageDialog(null, "paths:" + pathsToNode.toString());
 							String[] pathVals = new String[fullPath.size()];
 							for (int m = 0; m < fullPath.size(); m++) {
 								pathVals[m] = tabData.get(i).get(fullPath.get(m)).toString();
 							}
-							//JOptionPane.showMessageDialog(null, "Currpath:" + fullPath.toString());
-							//JOptionPane.showMessageDialog(null, "Currpath vals:" + Arrays.toString(pathVals));
+							// JOptionPane.showMessageDialog(null, "Currpath:" + fullPath.toString());
+							// JOptionPane.showMessageDialog(null, "Currpath vals:" +
+							// Arrays.toString(pathVals));
 							// check if the pathVals are unique if not ts been added to tree before else add
 							// to tree
 
 							boolean uniquePath = true; // is current path unique path ?
-							
+
 							if (uniqPaths.contains(pathVals)) {
 								uniquePath = false;
 								JOptionPane.showMessageDialog(null, "UP" + uniqPaths.toString());
@@ -700,7 +730,10 @@ public class ParseTableTree {
 								}
 								toAdd.addContent(newChild);
 								if (s.equals(dataColName)) {
-									dataColNodes.add(newChild);
+									//dataColNodes.add(newChild);
+									int thisIndex = colHeaders.indexOf(child);
+									colIndextoNode.put(Integer.valueOf(thisIndex), newChild);
+								
 								}
 								plist.add(toAdd.getName() + ":::" + toAdd.getAttributeValue("name"));
 								childParentXML.put(s + ":::" + child, plist);
@@ -709,93 +742,75 @@ public class ParseTableTree {
 
 					} else {
 						Element newChild = new Element(s);
+						//String thisName="";
 						if (nodeChildren.get(s).size() == 0) {
 							newChild.addContent(child);
 						} else {
 							newChild.setAttribute("name", child);
 						}
 						toAdd.addContent(newChild);
+						
 						if (s.equals(dataColName)) {
-							dataColNodes.add(newChild);
+							//dataColNodes.add(newChild);
+							int thisIndex = colHeaders.indexOf(child);
+							colIndextoNode.put(Integer.valueOf(thisIndex), newChild);
+						
+							
 						}
+						
 						List<String> plist = new ArrayList<>();
 						plist.add(toAdd.getName() + ":::" + toAdd.getAttributeValue("name"));
 						childParentXML.put(s + ":::" + child, plist);
 					}
 
-					/*
-					 * if (childParentXML.containsKey(s + ":::" + child) && childParentXML.get(s +
-					 * ":::" + child) .contains(toAdd.getName() + ":::" +
-					 * toAdd.getAttributeValue("name"))) { JOptionPane.showMessageDialog(null,
-					 * "Key exist" + s + ":::" + child + " parent:" + toAdd.getName() + ":::" +
-					 * toAdd.getAttributeValue("name") + "Parent of matched" +
-					 * childParentXML.get(toAdd.getName() + ":::" +
-					 * toAdd.getAttributeValue("name"))); // iteratively check if all parents are
-					 * same if different then add List<String> fullPath = pathsToNode.get(s);
-					 * 
-					 * JOptionPane.showMessageDialog(null, "Path to node: " + s + " is " +
-					 * fullPath.toString()); boolean addFlag = false; for (int l = fullPath.size() -
-					 * 1; l > 0; l--) { // check if parent of parent String currParent =
-					 * fullPath.get(l) + ":::" + tabData.get(i).get(fullPath.get(l)).toString();
-					 * String parentParent = null;
-					 * 
-					 * JOptionPane.showMessageDialog(null, "checking curr P:" + currParent);
-					 * 
-					 * JOptionPane.showMessageDialog(null, "checking curr PP in dict:" +
-					 * parentParent); JOptionPane.showMessageDialog(null, "checking curr PP in Tab:"
-					 * + tabData.get(i).get(fullPath.get(l - 1)).toString());
-					 * 
-					 * // match value of parentParent with parentParent value in current row if
-					 * (!parentParent.equals(tabData.get(i).get(fullPath.get(l - 1)).toString())) {
-					 * addFlag = true; }
-					 * 
-					 * JOptionPane.showMessageDialog(null, fullPath.get(l) + ":::" +
-					 * tabData.get(i).get(fullPath.get(l)).toString());
-					 * JOptionPane.showMessageDialog(null, "Existing " +
-					 * childParentXML.get(toAdd.getName() + ":::" +
-					 * toAdd.getAttributeValue("name"))); }
-					 * 
-					 * if (addFlag) {
-					 * 
-					 * }
-					 * 
-					 * } else { // JOptionPane.showMessageDialog(null, "Adding:"+child); Element
-					 * newChild = new Element(s); if (nodeChildren.get(s).size() == 0) {
-					 * newChild.addContent(child); } else { newChild.setAttribute("name", child); }
-					 * toAdd.addContent(newChild); if (s.equals(dataColName)) {
-					 * dataColNodes.add(newChild); } List<String> plist = new ArrayList<>();
-					 * plist.add(toAdd.getName() + ":::" + toAdd.getAttributeValue("name"));
-					 * childParentXML.put(s + ":::" + child, plist);
-					 * 
-					 * }
-					 */
-
 				}
 			}
+			
+			//JOptionPane.showMessageDialog(null, "P4..");
 
 		}
+		
+		//JOptionPane.showMessageDialog(null, "P5..");
 
 		// JOptionPane.showMessageDialog(null, "ctoP:" + childParentXML.toString());
-
+		//JOptionPane.showMessageDialog(null, "P6..");
 		// build coltonodes and repsmap
-		boolean cflag = false;
+		//This code is really slow
+		/*boolean cflag = false;
 		if (nodeChildren.get(dataColName).size() > 0) {
 			cflag = true;
 		}
+		// for all xml nodes which are data column
 		for (Element e : dataColNodes) {
+			//JOptionPane.showMessageDialog(null, "R1..");
 			int thisIndex = -1;
+			// get the index of datacolumn from header list
+			// if data col has children
+			String thisNodeValue = "";
 			if (cflag) {
-				thisIndex = colHeaders.indexOf(e.getAttributeValue("name"));
+				thisNodeValue = e.getAttributeValue("name");
+				thisIndex = colHeaders.indexOf(thisNodeValue);
 				// JOptionPane.showMessageDialog(null, "name:" + e.getAttributeValue("name"));
 			} else {
-				thisIndex = colHeaders.indexOf(e.getContent(0).getValue().toString());
+				thisNodeValue = e.getContent(0).getValue().toString();
+				thisIndex = colHeaders.indexOf(thisNodeValue);
 				// JOptionPane.showMessageDialog(null, "cont:" +
 				// e.getContent(0).getValue().toString());
 			}
-
+			// create a tree map index to Xml node of each data column entry
 			colIndextoNode.put(Integer.valueOf(thisIndex), e);
-
-			String thisRepname = e.getParentElement().getAttributeValue("name");
+			//JOptionPane.showMessageDialog(null, "R2..");
+			// make default rep topmost parent
+			// String thisRepname2 = getTopParentName(e);
+			// get topmost parent
+			defaultrepscol = nodeLevels.get(1).get(0);
+			// JOptionPane.showMessageDialog(null, "repname:"+defaultRepParent);
+			// search collection obj to get thisRepname
+			// String thisRepname2=obj.getDatabyAttributes(thisNodeValue, defaultRepParent,
+			// true, true, false, true).get(0);
+			// JOptionPane.showMessageDialog(null, "thisname:"+thisNodeValue+"
+			// rep:"+thisRepname2);
+			String thisRepname = obj.getDatabyAttributes(thisNodeValue, defaultrepscol, true, true, false, true).get(0);
 			Set<String> addedReps = defaultrepsMap.keySet();
 			if (addedReps.contains(thisRepname)) {
 				// append this col
@@ -807,7 +822,11 @@ public class ParseTableTree {
 				temp.add(thisIndex);
 				defaultrepsMap.put(thisRepname, temp);
 			}
-		}
+			//JOptionPane.showMessageDialog(null, "R3..");
+			// s
+		}*/
+		
+		//JOptionPane.showMessageDialog(null, "P7..");
 
 		// add all nodes in Jtree to imported headers
 		importedHeaders.addAll(getnodeParent.keySet());
@@ -815,14 +834,6 @@ public class ParseTableTree {
 		// JOptionPane.showMessageDialog(null, "data cols to ind" +
 		// colIndextoNode.toString());
 
-		// JOptionPane.showMessageDialog(null, "e:" + addedXML.toString());
-		/*
-		 * for (String key : addedXML.keySet()) { XMLOutputter outter = new
-		 * XMLOutputter(); outter.setFormat(Format.getPrettyFormat()); org.jdom.Document
-		 * res = new org.jdom.Document(); res.setRootElement(addedXML.get(key)); String
-		 * resDoc = null; resDoc = outter.outputString(res);
-		 * JOptionPane.showMessageDialog(null, resDoc); }
-		 */
 		for (String key : addedXML.keySet()) {
 			XMLroot.addContent(addedXML.get(key));
 		}
