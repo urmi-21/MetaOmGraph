@@ -338,7 +338,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		relatednessPairwise.setActionCommand("relatednessPairs");
 		relatednessPairwise.addActionListener(this);
 
-		spearmanItem = new JMenuItem("Spearman Correlation(No pval)");
+		spearmanItem = new JMenuItem("Spearman Correlation(No )");
 		spearmanItem.setActionCommand("spearman correlation");
 		spearmanItem.addActionListener(this);
 		// urmi
