@@ -2,9 +2,12 @@
 
 Memory effecient tool for plotting and analyzing large sets of omics data
 
+# Website #
+http://metnetweb.gdcb.iastate.edu/MetNet_MetaOmGraph.htm
+
 ## Overview ##
 
-MetaOmGraph is written in Java (JRE 1.4 or later required), so it is compatible with any Java-supported platform, including Windows, OS X, and Linux. MetaOmGraph can handle any sort of data that is stored in a delimited text file. Although designed to work with 'omics data (transcriptomics, proteomics, metabolomics, etc), MetaOmGraph is flexible enough to accommodate storing, manipulating, plotting and analyzing other biological data or, in fact, voluminous data of nearly any kind.
+MetaOmGraph is written in Java (JRE 1.8 or later required), so it is compatible with any Java-supported platform, including Windows, OS X, and Linux. MetaOmGraph can handle any sort of data that is stored in a delimited text file. Although designed to work with 'omics data (transcriptomics, proteomics, metabolomics, etc), MetaOmGraph is flexible enough to accommodate storing, manipulating, plotting and analyzing other biological data or, in fact, voluminous data of nearly any kind.
 
 MetaOmGraph is a component of the emerging MetNet bioinformatics platform. MetNet is designed to explore Arabidopsis and other experimental data in the light of the regulatory and metabolic networks in that species. The platform includes: MetNetDB (a repository of gene/protein/metabolite annotations and network information obtained from web resources and expert input); FCModeler (a network modeling tool); and PathBinder and PubMed Assistant (text mining tools for the MEDLINE database).
 
