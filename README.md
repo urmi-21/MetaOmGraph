@@ -1,9 +1,9 @@
 # MetaOmGraph #
 
 Memory effecient tool for plotting and analyzing large sets of omics data
-
-# Website #
 http://metnetweb.gdcb.iastate.edu/MetNet_MetaOmGraph.htm
+
+
 
 ## Overview ##
 
