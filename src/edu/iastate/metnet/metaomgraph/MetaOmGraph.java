@@ -3256,13 +3256,13 @@ public class MetaOmGraph implements ActionListener {
 	}
 
 	/**
-	 * Function to check MOG updates
+	 * Function to check MOG updates from metnet
 	 */
 	public static void checkUpdates(boolean showCurrentMessage) {
 		VersionCheck ob = new VersionCheck(getVersion());
 		if (!ob.isLatestMOG()) {
 
-			Object[] options = { "Yes, please take me to the download.", "No, thanks" };
+			Object[] options = { "Yes, take me to the download.", "No, thanks" };
 			int response = JOptionPane.showOptionDialog(null,
 					"A newer version of MOG is available for download. We highly recommend you to use the latest version.",
 					"New version available!", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
