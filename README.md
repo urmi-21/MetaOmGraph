@@ -15,7 +15,7 @@ The most important advantage of MetaOmGraph is its minimal memory usage, accompl
 
 MetaOmGraph is currently in beta. It utilizes libraries from the following projects:
 
-    * BrowserLauncher2
-    * Jakarta POI
-    * JDOM
-    * JFreeChart
+   * BrowserLauncher2
+   * Jakarta POI
+   * JDOM
+   * JFreeChart
