@@ -3256,7 +3256,7 @@ public class MetaOmGraph implements ActionListener {
 	}
 
 	/**
-	 * Function to check MOG updates from metnet
+	 * Function to check MOG updates from metnet 
 	 */
 	public static void checkUpdates(boolean showCurrentMessage) {
 		VersionCheck ob = new VersionCheck(getVersion());
