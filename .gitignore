@@ -3,3 +3,4 @@
 .idea/
 bin/
 src/edu/iastate/metnet/metaomgraph/utils/ExceptionHandler.java
+*.jar
