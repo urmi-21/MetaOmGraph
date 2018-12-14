@@ -3281,7 +3281,7 @@ public class MetaOmGraph implements ActionListener {
 		} else {
 			if (showCurrentMessage) {
 				JOptionPane.showMessageDialog(null, "Your MOG is already the latest version (" + getVersion() + ")",
-						"No updates available", JOptionPane.INFORMATION_MESSAGE);
+						"No updates available", JOptionPane.INFORMATION_MESSAGE); 
 			}
 		}
 	}
