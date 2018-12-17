@@ -8,6 +8,7 @@ import edu.iastate.metnet.metaomgraph.utils.qdxml.SimpleXMLElement;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.biomage.Array.Array;
+import org.biomage.examples.GetToDataExample;
 import org.dizitart.no2.*;
 import org.dizitart.no2.SortOrder;
 import org.dizitart.no2.filters.Filters;
@@ -870,14 +871,30 @@ public class MetadataCollection {
 	
 	/**
 	 * @author urmi
+	 * get value under a column corresponding to a data column. This value will be unique as DC is unique
+	 * @param dataColValue value of data column to search
+	 * @param targetCol name of column to return the calue from matched row
 	 * @return
 	 */
 	public String getDatabyDataColumn(String dataColValue,String targetCol) {
 		String res="";
-		Filter filter = Filters.regex(targetCol, dataColValue);
+		Filter filter = Filters.regex(getDatacol(), dataColValue);
 		List<Document> output = mogCollection.find(filter).toList();
 		res = (String) output.get(0).get(targetCol);
-		
+		return res;
+	}
+	
+	/**
+	 * @param toSearch
+	 * @param toSearchColName
+	 * @param targetCol
+	 * @return
+	 */
+	public String getDatabyColumn(String toSearch, String toSearchColName ,String targetCol) {
+		String res="";
+		Filter filter = Filters.regex(toSearchColName, toSearch);
+		List<Document> output = mogCollection.find(filter).toList();
+		res = (String) output.get(0).get(targetCol);
 		return res;
 	}
 
@@ -1003,15 +1020,21 @@ class MetadataCollectionTest {
 			System.out.println("test1 time:" + elapsedTime);
 
 			startTime = System.currentTimeMillis();
-			for (int i = 0; i < N; i++) {
+			/*for (int i = 0; i < N; i++) {
 				Filter filter = Filters.regex(mogColl.getDatacol(), dc.get(i));
 				List<Document> output = mogColl.getMogCollection().find(filter).toList();
 				String valExpected = (String) output.get(0).get(mogColl.getDatacol());
 				if(!dc.get(i).equals(valExpected)) {
 					System.out.println("2Failed..." + valExpected);	
 				}
-			}
+			}*/
 			
+			for (int i = 0; i < N; i++) {
+				String valExpected = mogColl.getDatabyDataColumn(dc.get(i), mogColl.getDatacol());
+				if(!dc.get(i).equals(valExpected)) {
+					System.out.println("2Failed..." + valExpected);	
+				}
+			}
 			stopTime = System.currentTimeMillis();
 			elapsedTime = stopTime - startTime;
 			System.out.println("test2 time:" + elapsedTime);

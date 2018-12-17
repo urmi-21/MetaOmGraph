@@ -947,10 +947,11 @@ public class MetadataHybrid {
 					if (key == -1) {
 						continue;
 					}
-
 					String thisRepname = "";
-					String thisDCheader = myProj.getDataColumnHeader(key);
-					String valExpected = searchByValue(thisDCheader, repColName, true, false, true).get(0);
+					String thisDC = myProj.getDataColumnHeader(key);
+					//String valExpected = searchByValue(thisDCheader, repColName, true, false, true).get(0);
+					JOptionPane.showMessageDialog(null, "call: "+thisDC+","+repColName);
+					String valExpected = mogCollection.getDatabyDataColumn(thisDC, repColName);
 					/**
 					 * using getNodeMetadata is faster but give ambigous results when multiple
 					 * datacolumns have same parent
