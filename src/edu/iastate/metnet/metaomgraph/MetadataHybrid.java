@@ -325,10 +325,10 @@ public class MetadataHybrid {
 	/**
 	 * @author urmi From old metadata class Edited by urmi to work with new class
 	 * @param field
-	 * @param minSize
+	 * 
 	 * @return
 	 */
-	public Map<String, Collection<Integer>> cluster(String field, int minSize) {
+	public Map<String, Collection<Integer>> cluster(String field) {
 		Map<String, Collection<Integer>> result = new TreeMap();
 		// knowncols are data columns or Runs
 		Set<Integer> cols = knownCols.keySet();
@@ -383,7 +383,6 @@ public class MetadataHybrid {
 				// thisMetadata[i][1]);
 				if (thisMetadata[i][0].equals(field)) {
 					val = thisMetadata[i][1];
-
 					break;
 				}
 			}
@@ -399,6 +398,9 @@ public class MetadataHybrid {
 		}
 		return result;
 	}
+	
+	
+	
 
 	/**
 	 * @author urmi This function takes queries and returns array of datacol indexes
@@ -596,6 +598,7 @@ public class MetadataHybrid {
 	public List<String> searchByValue(String toSearch, String toReturn, boolean exact, boolean matchAll,
 			boolean matchCase) {
 		List<String> res = new ArrayList<>();
+		JOptionPane.showMessageDialog(null, toSearch+"," +toReturn+","+exact+","+matchAll+","+matchCase);
 		res = this.mogCollection.getDatabyAttributes(toSearch, toReturn, exact, true, matchAll, matchCase);
 		return res;
 
@@ -873,7 +876,8 @@ public class MetadataHybrid {
 
 		return repsMap;
 	}
-
+	
+	
 	/**
 	 * @author urmi Search rowToMatch under datacolumn in metadata and return value
 	 *         under colToreturn column if more than one match is found return only
@@ -962,6 +966,68 @@ public class MetadataHybrid {
 					 * break; } }
 					 */
 					thisRepname = valExpected;
+					Set<String> addedReps = repsMap.keySet();
+					if (addedReps.contains(thisRepname)) {
+						// append this col
+						List<Integer> temp = repsMap.get(thisRepname);
+						temp.add(thisIndex);
+						repsMap.put(thisRepname, temp);
+					} else {
+						List<Integer> temp = new ArrayList<>();
+						temp.add(thisIndex);
+						repsMap.put(thisRepname, temp);
+					}
+
+				}
+				return null;
+			}
+
+			@Override
+			public void finished() {
+
+			}
+
+		}.start();
+
+		return repsMap;
+	}
+	
+	public TreeMap<String, List<Integer>> buildRepsMapOld(String repColName) {
+		MetaOmProject myProj = MetaOmGraph.getActiveProject();
+		if (myProj == null) {
+			return null;
+		}
+		TreeMap<String, List<Integer>> repsMap = new TreeMap<>();
+		// JOptionPane.showMessageDialog(null, "this kc:" + knownCols.get(1).toString()
+		// );
+		new AnimatedSwingWorker("Working...", true) {
+			@Override
+			public Object construct() {
+				for (Map.Entry<Integer, Element> entry : knownCols.entrySet()) {
+					Integer key = entry.getKey();
+					Element e = entry.getValue();
+					int thisIndex = key;
+					// if datacolumn doesn't exist in data don;t add
+					if (key == -1) {
+						continue;
+					}
+					String thisRepname = "";
+					//String thisDCheader = myProj.getDataColumnHeader(key);
+					//String valExpected = searchByValue(thisDCheader, repColName, true, false, true).get(0);
+					/**
+					 * using getNodeMetadata is faster but give ambigous results when multiple
+					 * datacolumns have same parent
+					 */
+					 String[][] thisMetadata = getNodeMetadata(e);
+										
+					for (int i = 0; i < thisMetadata.length; i++) {
+						//JOptionPane.showMessageDialog(null, "this md:" + thisMetadata[i][0] + ":" + thisMetadata[i][1]);
+						if (thisMetadata[i][0].equals(repColName)) {
+							thisRepname = thisMetadata[i][1];
+							break;
+						}
+					}
+					
 					Set<String> addedReps = repsMap.keySet();
 					if (addedReps.contains(thisRepname)) {
 						// append this col
