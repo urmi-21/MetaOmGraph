@@ -134,7 +134,7 @@ public class MetadataCollection {
 			int nCount = 0;
 			int totalFails = 0;
 			while ((thisLine = in.readLine()) != null) {
-				System.out.println(nCount);
+				// System.out.println(nCount);
 				// if too many fails exit
 				if (totalFails > allowedFails) {
 					JOptionPane.showMessageDialog(null,
@@ -170,9 +170,7 @@ public class MetadataCollection {
 						temp[l] = temp[l].replaceAll("\\*", "");
 					}
 					headers = temp;
-					for (int l = 0; l < headers.length; l++) {
-						System.out.println(headers[l] + "::");
-					}
+
 				} else {
 
 					// split to avoid spliting in text in ""
@@ -234,7 +232,7 @@ public class MetadataCollection {
 
 			// indexing for finding text
 			for (int i = 0; i < headers.length; i++) {
-				System.out.println(headers[i] + "#");
+				// System.out.println(headers[i] + "#");
 				mogCollection.createIndex(headers[i], IndexOptions.indexOptions(IndexType.Fulltext, false));
 			}
 
@@ -907,10 +905,10 @@ public class MetadataCollection {
 		// TODO Auto-generated method stub
 		return this.fpath;
 	}
-	
+
 	public void setfilepath(String path) {
 		// TODO Auto-generated method stub
-		this.fpath=path;
+		this.fpath = path;
 	}
 
 	public String getdelimiter() {
@@ -944,76 +942,66 @@ class MetadataCollectionTest {
 	public static void main(String[] args) {
 
 		try {
+
+			System.out.println("In Main..");
 			// read metadata for rna-seq
 			MetadataCollection mogColl = new MetadataCollection();
 			// mogColl.dispose();
-
 			// reading metadata file you want
 			// String metadataFile =
 			// "D:\\MOGdata\\mog_testdata\\human\\US_human_metadata_6-13-18.txt";
 			// String metadataFile =
 			// "D:\\MOGdata\\mog_testdata\\human\\US_human_polyA_4-3-18_removedtabs.txt";
-			String metadataFile = "D:\\MOGdata\\mog_testdata\\cancer\\shorttest\\w5.tsv";
+			String metadataFile = "D:\\MOGdata\\mog_testdata\\cancer\\raw\\combined\\tcgaMetadataALL\\gtex\\TCGA_GTEX_merged_Metadata_inData.tsv";
 			// String metadataFile ="D:\\MOGdata\\mog_testdata\\xml\\sample_small_data.txt";
 			// String metadataFile = "C:\\Users\\mrbai\\Downloads\\US_AT_removedtabs.tsv";
 			mogColl.readMetadataTextFile(metadataFile, "\\t", false);
-
 			System.out.println("Read Done...");
 
-			// search
-			// Filter filter = Filters.regex(key, value);
-			// combine filters
-			Filter f = Filters.regex("Sampname", "^S1$");
-			Filter f2 = Filters.regex("Sampname", "^S2$");
-			Filter[] fa = new Filter[2];
-			fa[0] = f;
-			fa[1] = f2;
-			// f=Filters.ALL;
-			// List<Document> docList2 = mogColl.getDatabyAttributes(Filters.and(fa),true);
-			List<Document> docList2 = mogColl.getDatabyAttributes(f, true);
-			System.out.println("Search res size:" + docList2.size());
-			for (int i = 0; i < docList2.size(); i++) {
-				System.out.println(docList2.get(i).toString());
+			String[] hdr = mogColl.getHeaders();
+			for (String s : hdr) {
+				System.out.println(s);
 			}
 
-			// example of finding text "study accession" in headers
-			String strUniqueID = "Run";
-			String key = "libr";
-			String value = "lib13";
-			List<Document> docList = mogColl.fullTextSearch(key, value, strUniqueID, false);
-			System.out.println("Search res2:" + docList.size());
-			// close in-memory database
-			// mogColl.dispose();
-			List<Document> docListall = mogColl.returnallData();
-			System.out.println("Search res3:" + docListall.size());
+			mogColl.setDatacol("portions_analytes_aliquots_submitter_id");
 
-			List<Document> allres = mogColl.getDatabyAttributes("exp1", false, true, false, true);
-			// print res
-			System.out.println("allSearch res size:" + allres.size());
-			for (int i = 0; i < allres.size(); i++) {
-				System.out.println(allres.get(i).toString());
+			List<String> dc = mogColl.getAllDataCols();
+			for (int i = 0; i < 10; i++) {
+				System.out.println(dc.get(i));
 			}
-			System.out.println("all res size:" + allres.size());
-			String o = "BY4741,YPAD+GAL";
-			String c = "+";
-			String m = o.replaceAll("\\" + c, "\\\\" + c);
-			System.out.println("orig:" + o);
-			System.out.println("mod:" + m);
-
-			System.out.println("*********Testing filter*******");
-			List<String> flist = new ArrayList<>();
-			flist.add("R2");
-			flist.add("Rb2");
-			flist.add("Rb1");
-			flist.add("R1");
-			allres = mogColl.returnallData(flist, "dataCol", true);
-			for (int i = 0; i < allres.size(); i++) {
-				System.out.println(allres.get(i).toString());
+			int N=5000;
+			// search test
+			long startTime = System.currentTimeMillis();
+			for (int i = 0; i < N; i++) {
+				String valExpected = mogColl
+						.getDatabyAttributes(dc.get(i), mogColl.getDatacol(), true, true, false, true).get(0);
+				if(!dc.get(i).equals(valExpected)) {
+					System.out.println("1Failed..." + valExpected);	
+				}
+				
 			}
+			long stopTime = System.currentTimeMillis();
+			long elapsedTime = stopTime - startTime;
+			System.out.println("test1 time:" + elapsedTime);
 
-			List<String> mdcolheaders = mogColl.getDatabyAttributes(null, "submitter_id", true);
-			System.out.print("dc:" + mdcolheaders.toString());
-			System.out.print("dc:" + mdcolheaders.size());
+			startTime = System.currentTimeMillis();
+			for (int i = 0; i < N; i++) {
+				Filter filter = Filters.regex(mogColl.getDatacol(), dc.get(i));
+				List<Document> output = mogColl.getMogCollection().find(filter).toList();
+				String valExpected = (String) output.get(0).get(mogColl.getDatacol());
+				if(!dc.get(i).equals(valExpected)) {
+					System.out.println("2Failed..." + valExpected);	
+				}
+			}
+			
+			stopTime = System.currentTimeMillis();
+			elapsedTime = stopTime - startTime;
+			System.out.println("test2 time:" + elapsedTime);
+			// Filter filter = Filters.regex(mogColl.getDatacol(), dc.get(0));
+			// output = mogCollection.find(filter, FindOptions.sort(getHeaders()[0],
+			// SortOrder.Ascending)).toList();
+
+			// mogColl.fullTextSearch(key, value, uniqueID, bVerbose)
 
 		} catch (IOException e) {
 			System.err.println("Error reading metadata file");
