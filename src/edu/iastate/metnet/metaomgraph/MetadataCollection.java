@@ -820,6 +820,11 @@ public class MetadataCollection {
 		return filterResults(output);
 	}
 
+	/**
+	 * filter results to keep only included rows
+	 * @param s
+	 * @return
+	 */
 	public List<Document> filterResults(List<Document> s) {
 		List<Document> res = new ArrayList<>();
 		// filter s by the included datacolumns
@@ -861,6 +866,19 @@ public class MetadataCollection {
 		}
 		output = mogCollection.find(filter).toList();
 		return output;
+	}
+	
+	/**
+	 * @author urmi
+	 * @return
+	 */
+	public String getDatabyDataColumn(String dataColValue,String targetCol) {
+		String res="";
+		Filter filter = Filters.regex(targetCol, dataColValue);
+		List<Document> output = mogCollection.find(filter).toList();
+		res = (String) output.get(0).get(targetCol);
+		
+		return res;
 	}
 
 	public Set<String> getIncluded() {
@@ -969,7 +987,7 @@ class MetadataCollectionTest {
 			for (int i = 0; i < 10; i++) {
 				System.out.println(dc.get(i));
 			}
-			int N=5000;
+			int N=50;
 			// search test
 			long startTime = System.currentTimeMillis();
 			for (int i = 0; i < N; i++) {
