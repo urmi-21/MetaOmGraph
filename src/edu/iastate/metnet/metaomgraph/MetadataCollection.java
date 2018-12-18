@@ -1020,15 +1020,7 @@ class MetadataCollectionTest {
 			System.out.println("test1 time:" + elapsedTime);
 
 			startTime = System.currentTimeMillis();
-			/*for (int i = 0; i < N; i++) {
-				Filter filter = Filters.regex(mogColl.getDatacol(), dc.get(i));
-				List<Document> output = mogColl.getMogCollection().find(filter).toList();
-				String valExpected = (String) output.get(0).get(mogColl.getDatacol());
-				if(!dc.get(i).equals(valExpected)) {
-					System.out.println("2Failed..." + valExpected);	
-				}
-			}*/
-			
+						
 			for (int i = 0; i < N; i++) {
 				String valExpected = mogColl.getDatabyDataColumn(dc.get(i), mogColl.getDatacol());
 				if(!dc.get(i).equals(valExpected)) {
