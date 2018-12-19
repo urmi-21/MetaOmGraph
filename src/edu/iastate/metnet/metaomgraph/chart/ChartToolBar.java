@@ -451,6 +451,7 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 									if (tempLabels[j] == null) {
 										tempLabels[j] = "NA";
 									}
+									//keep record of max length to set slider value
 									if (max < tempLabels[j].length()) {
 										max = tempLabels[j].length();
 									}

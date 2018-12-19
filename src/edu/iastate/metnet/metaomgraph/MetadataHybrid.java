@@ -864,45 +864,7 @@ public class MetadataHybrid {
 		return res;
 	}
 
-	/**
-	 * Function to build custom reps map.
-	 * 
-	 * @param parentName
-	 *            The columnname which will be used to group the datacolumn
-	 * @return
-	 */
-	public TreeMap<String, List<Integer>> buildRepsMapOldnSLOW(String parentName) {
-		TreeMap<String, List<Integer>> repsMap = new TreeMap<>();
-
-		for (Map.Entry<Integer, Element> entry : knownCols.entrySet()) {
-			Integer key = entry.getKey();
-			Element e = entry.getValue();
-			int thisIndex = key;
-			// get the index of datacolumn from header list
-			// if data col has children
-			String thisNodeValue = "";
-			if (e.getAttributeValue("name") != null) {
-				thisNodeValue = e.getAttributeValue("name");
-			} else {
-				thisNodeValue = e.getContent(0).getValue().toString();
-			}
-			String thisRepname = mogCollection.getDatabyAttributes(thisNodeValue, parentName, true, true, false, true)
-					.get(0);
-			Set<String> addedReps = repsMap.keySet();
-			if (addedReps.contains(thisRepname)) {
-				// append this col
-				List<Integer> temp = repsMap.get(thisRepname);
-				temp.add(thisIndex);
-				repsMap.put(thisRepname, temp);
-			} else {
-				List<Integer> temp = new ArrayList<>();
-				temp.add(thisIndex);
-				repsMap.put(thisRepname, temp);
-			}
-		}
-
-		return repsMap;
-	}
+	
 
 	/**
 	 * @author urmi Search rowToMatch under datacolumn in metadata and return value
@@ -962,44 +924,81 @@ public class MetadataHybrid {
 	 * @param parentName
 	 * @return
 	 */
+	public TreeMap<String, List<Integer>> buildRepsMapOld(String repColName) {
+		MetaOmProject myProj = MetaOmGraph.getActiveProject();
+		if (myProj == null) {
+			return null;
+		}
+
+		TreeMap<String, List<Integer>> repsMap = new TreeMap<>();
+		// JOptionPane.showMessageDialog(null, "this kc:" + knownCols.get(1).toString()
+		// );
+		new AnimatedSwingWorker("Working...", true) {
+			@Override
+			public Object construct() {
+				for (Map.Entry<Integer, Element> entry : knownCols.entrySet()) {
+					Integer key = entry.getKey();
+					int thisIndex = key;
+					// if datacolumn doesn't exist in data don;t add
+					if (key == -1) {
+						continue;
+					}
+					String thisRepname = "";
+					String thisDC = myProj.getDataColumnHeader(key);
+					// String valExpected = searchByValue(thisDC, repColName, true, false,
+					// true).get(0);
+					// JOptionPane.showMessageDialog(null, "call: "+thisDC+","+repColName);
+					String valExpected = mogCollection.getDatabyDataColumn(thisDC, repColName);
+					thisRepname = valExpected;
+					Set<String> addedReps = repsMap.keySet();
+					if (addedReps.contains(thisRepname)) {
+						// append this col
+						List<Integer> temp = repsMap.get(thisRepname);
+						temp.add(thisIndex);
+						repsMap.put(thisRepname, temp);
+					} else {
+						List<Integer> temp = new ArrayList<>();
+						temp.add(thisIndex);
+						repsMap.put(thisRepname, temp);
+					}
+
+				}
+				return null;
+			}
+
+			@Override
+			public void finished() {
+
+			}
+
+		}.start();
+
+		return repsMap;
+	}
+	
+	
+	/**
+	 * Function to build custom reps map.
+	 * 
+	 * @param parentName
+	 *            The columnname which will be used to group the datacolumn
+	 * @return
+	 */
+		
 	public TreeMap<String, List<Integer>> buildRepsMap(String repColName) {
 		MetaOmProject myProj = MetaOmGraph.getActiveProject();
 		if (myProj == null) {
 			return null;
 		}
-
+		
 		TreeMap<String, List<Integer>> repsMap = new TreeMap<>();
-		// JOptionPane.showMessageDialog(null, "this kc:" + knownCols.get(1).toString()
-		// );
+		//Map<String, Collection<Integer>> clusterResult = new TreeMap();
 		new AnimatedSwingWorker("Working...", true) {
 			@Override
 			public Object construct() {
-				for (Map.Entry<Integer, Element> entry : knownCols.entrySet()) {
-					Integer key = entry.getKey();
-					int thisIndex = key;
-					// if datacolumn doesn't exist in data don;t add
-					if (key == -1) {
-						continue;
-					}
-					String thisRepname = "";
-					String thisDC = myProj.getDataColumnHeader(key);
-					// String valExpected = searchByValue(thisDC, repColName, true, false,
-					// true).get(0);
-					// JOptionPane.showMessageDialog(null, "call: "+thisDC+","+repColName);
-					String valExpected = mogCollection.getDatabyDataColumn(thisDC, repColName);
-					thisRepname = valExpected;
-					Set<String> addedReps = repsMap.keySet();
-					if (addedReps.contains(thisRepname)) {
-						// append this col
-						List<Integer> temp = repsMap.get(thisRepname);
-						temp.add(thisIndex);
-						repsMap.put(thisRepname, temp);
-					} else {
-						List<Integer> temp = new ArrayList<>();
-						temp.add(thisIndex);
-						repsMap.put(thisRepname, temp);
-					}
-
+				Map<String, Collection<Integer>> clusterResult=cluster(repColName);
+				for(String s: clusterResult.keySet()) {
+					repsMap.put(s, new ArrayList(clusterResult.get(s)));
 				}
 				return null;
 			}
@@ -1010,62 +1009,11 @@ public class MetadataHybrid {
 			}
 
 		}.start();
-
+				
 		return repsMap;
 	}
-
-	public TreeMap<String, List<Integer>> buildRepsMapNEW(String repColName) {
-		MetaOmProject myProj = MetaOmGraph.getActiveProject();
-		if (myProj == null) {
-			return null;
-		}
-
-		TreeMap<String, List<Integer>> repsMap = new TreeMap<>();
-		// JOptionPane.showMessageDialog(null, "this kc:" + knownCols.get(1).toString()
-		// );
-		new AnimatedSwingWorker("Working...", true) {
-			@Override
-			public Object construct() {
-				for (Map.Entry<Integer, Element> entry : knownCols.entrySet()) {
-					Integer key = entry.getKey();
-					Element e = entry.getValue();
-					int thisIndex = key;
-					// if datacolumn doesn't exist in data don;t add
-					if (key == -1) {
-						continue;
-					}
-					String thisRepname = "";
-					String thisDC = myProj.getDataColumnHeader(key);
-					// String valExpected = searchByValue(thisDC, repColName, true, false,
-					// true).get(0);
-					// JOptionPane.showMessageDialog(null, "call: "+thisDC+","+repColName);
-					String valExpected = mogCollection.getDatabyDataColumn(thisDC, repColName);
-					thisRepname = valExpected;
-					Set<String> addedReps = repsMap.keySet();
-					if (addedReps.contains(thisRepname)) {
-						// append this col
-						List<Integer> temp = repsMap.get(thisRepname);
-						temp.add(thisIndex);
-						repsMap.put(thisRepname, temp);
-					} else {
-						List<Integer> temp = new ArrayList<>();
-						temp.add(thisIndex);
-						repsMap.put(thisRepname, temp);
-					}
-
-				}
-				return null;
-			}
-
-			@Override
-			public void finished() {
-
-			}
-
-		}.start();
-
-		return repsMap;
-	}
+		
+	
 
 	/**
 	 * After reading metadata file save list of excluded rows from metadata file
