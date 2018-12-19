@@ -596,7 +596,7 @@ public class ReadMetadata extends JFrame {
 	public void updateTable() {
 		// Update preview in table
 		metadata = new ArrayList<>();
-		metadata = obj.returnallData();
+		metadata = obj.getAllData();
 		headers = obj.getHeaders();
 		comboBox_1.setModel(new DefaultComboBoxModel(headers));
 		String[] colNames = obj.getHeaders();

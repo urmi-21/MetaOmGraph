@@ -456,7 +456,7 @@ public class MetadataSplitcol extends JFrame {
 	 */
 	private void addNewColumns() {
 		// get all existing data
-		List<Document> allData = obj.returnallData();
+		List<Document> allData = obj.getAllData();
 		String[] headers = obj.getHeaders();
 		List<String> newHeaders = new ArrayList<>();
 		for (int i = 0; i < headers.length; i++) {

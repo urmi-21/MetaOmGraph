@@ -78,7 +78,7 @@ public class Metadataviewer extends JFrame implements ActionListener {
 		this.setTitle("Metadata Viewer");
 		this.setJMenuBar(createmenubar());
 		metadataColl = MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataCollection();
-		metadata = metadataColl.returnallData();
+		metadata = metadataColl.getAllData();
 		this.headers = metadataColl.getHeaders();
 		displayCol = new int[headers.length];
 		Arrays.fill(displayCol, 1); // all 1 means all cols are displayed
@@ -581,7 +581,7 @@ public class Metadataviewer extends JFrame implements ActionListener {
 			e.printStackTrace();
 		}
 		metadataColl = obj;
-		Metadataviewer o = new Metadataviewer(obj.returnallData(), obj.getHeaders(),"Metadata Viewer");
+		Metadataviewer o = new Metadataviewer(obj.getAllData(), obj.getHeaders(),"Metadata Viewer");
 		o.setVisible(true);
 
 	}

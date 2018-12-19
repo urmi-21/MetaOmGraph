@@ -43,7 +43,7 @@ public class MetadataHybrid {
 	private MetadataCollection mogCollection;
 	private Element XMLroot;
 	private JTree treeStructure; // tree structure created by user
-	private List<Document> metadata;
+	//private List<Document> metadata;
 	private String dataColumn;
 	private String[] metadataHeaders; // only those columns imported in tree structure subset of metadata headers from
 										// MOGcollection object
@@ -89,7 +89,7 @@ public class MetadataHybrid {
 			String defaultrepsCol, List<String> missingDC, List<String> extraDC, List<String> removedColsfromMD) {
 		this.mogCollection = mogCollection;
 		this.XMLroot = XMLroot;
-		this.metadata = this.mogCollection.returnallData();
+		//this.metadata = this.mogCollection.getAllData();
 		this.knownCols = tm;
 		this.dataColumn = colName;
 		this.metadataHeaders = mdheaders;
@@ -201,7 +201,7 @@ public class MetadataHybrid {
 	}
 
 	public List<Document> getMetadataAsListDoc() {
-		return metadata;
+		return mogCollection.getAllData();
 	}
 
 	public Element getXMLRoot() {
@@ -465,70 +465,21 @@ public class MetadataHybrid {
 		Map<String, Collection<Integer>> result = new TreeMap();
 		// knowncols are data columns or Runs
 		Set<Integer> cols = knownCols.keySet();
-
-		// if its datacolumn each column is in single bin
-		if (field.equals(dataColumn)) {
-			for (Iterator localIterator = cols.iterator(); localIterator.hasNext();) {
-				int col = ((Integer) localIterator.next()).intValue();
-				// JOptionPane.showMessageDialog(null, "curr col:" + col);
-				// skip cols not in data file
-				if (col < 0) {
-					continue;
-				}
-				Element thisNode = knownCols.get(col);
-				String val = null;
-				int numChild = thisNode.getChildren().size();
-				if (numChild < 1) {
-					val = thisNode.getContent(0).getValue().toString();
-				} else {
-					val = thisNode.getAttributeValue("name").toString();
-				}
-
-				if (val == null) {
-					val = "";
-				}
-				Collection<Integer> thisBin = result.get(val);
-				if (thisBin == null) {
-					thisBin = new ArrayList();
-				}
-				thisBin.add(Integer.valueOf(col));
-				result.put(val, thisBin);
-			}
-			return result;
-		}
-
-		for (Iterator localIterator = cols.iterator(); localIterator.hasNext();) {
-			int col = ((Integer) localIterator.next()).intValue();
-			// JOptionPane.showMessageDialog(null, "curr col:" + col);
-			// skip cols not in data file
-			if (col < 0) {
-				continue;
-			}
-			Element thisNode = knownCols.get(col);
-			// JOptionPane.showMessageDialog(null, "this node:" +
-			// knownCols.get(col).getAttributeValue("name"));
-			String[][] thisMetadata = getNodeMetadataNew(thisNode);
-			//String[][] thisMetadata = getNodeMetadataOld(thisNode);
-
-			String val = null;
-
-			for (int i = 0; i < thisMetadata.length; i++) {
-				// JOptionPane.showMessageDialog(null, "this md:" + thisMetadata[i][0] + ":" +
-				// thisMetadata[i][1]);
-				if (thisMetadata[i][0].equals(field)) {
-					val = thisMetadata[i][1];
-					break;
-				}
-			}
-			if (val == null) {
-				val = "";
-			}
-			Collection<Integer> thisBin = result.get(val);
+		//get all data
+		List<Document> allData=mogCollection.getAllData();
+		for(int i=0;i<allData.size();i++) {
+			Document thisRow=allData.get(i);
+			String thisVal= thisRow.get(field).toString();
+			String thisDc=thisRow.get(dataColumn).toString();
+			int thisInd=MetaOmGraph.getActiveProject().findDataColumnHeader(thisDc);
+			Collection<Integer> thisBin = result.get(thisVal);
+			
 			if (thisBin == null) {
 				thisBin = new ArrayList();
 			}
-			thisBin.add(Integer.valueOf(col));
-			result.put(val, thisBin);
+			thisBin.add(Integer.valueOf(thisInd));
+			result.put(thisVal, thisBin);
+			
 		}
 		return result;
 	}

@@ -809,7 +809,7 @@ public class MetadataCollection {
 	 * 
 	 * @return
 	 */
-	public List<Document> returnallData() {
+	public List<Document> getAllData() {
 		List<Document> output = null;
 		output = mogCollection.find().toList();
 		if (excluded == null || excluded.size() == 0) {
@@ -848,7 +848,7 @@ public class MetadataCollection {
 	 *            return rows matched data(true) or which doesnet match(false)
 	 * @return
 	 */
-	public List<Document> returnallData(List<String> colVals, String field, boolean keep) {
+	public List<Document> getAllData(List<String> colVals, String field, boolean keep) {
 		List<Document> output = null;
 		Filter[] fa = new Filter[colVals.size()];
 		for (int i = 0; i < fa.length; i++) {

@@ -678,7 +678,7 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 			obj.readMetadataTextFile(filepath, "\\t", true);
 			// now file is read in obj.mogCollection
 			String[] headers = obj.getHeaders();
-			List<Document> metadata = obj.returnallData();
+			List<Document> metadata = obj.getAllData();
 
 			// currently bypass the GUI.......
 			JOptionPane.showMessageDialog(null, "Started to build data model", getTitle(), JOptionPane.WARNING_MESSAGE);
@@ -820,7 +820,7 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 			obj.readMetadataTextFile(filepath, "\\t", true);
 			// now file is read in obj.mogCollection
 			String[] headers = obj.getHeaders();
-			List<Document> metadata = obj.returnallData();
+			List<Document> metadata = obj.getAllData();
 
 			// currently bypass the GUI.......
 			JOptionPane.showMessageDialog(null, "Started to build data model", getTitle(), JOptionPane.WARNING_MESSAGE);
