@@ -236,7 +236,7 @@ public class MetadataHybrid {
 	 * @return
 	 */
 
-	public String[][] getNodeMetadata(Element node) {
+	public String[][] getNodeMetadataOld(Element node) {
 		if (node == null) {
 			return new String[0][0];
 		}
@@ -306,14 +306,15 @@ public class MetadataHybrid {
 		String[][] md = null;
 		String thisDC = dataColName;
 		Document thisRow = mogCollection.getDataColumnRow(thisDC);
+		//JOptionPane.showMessageDialog(null, thisRow.toString());
 		// convert to 2d array
 		Set<String> entries = thisRow.keySet();
 		// minus 3 for Document class keys i.e. id, revision, modified
 		md = new String[entries.size() - 3][2];
 		int rowNum = 0;
-		for (Object s : entries) {
-			String thisAtt = s.toString();
-			if (thisAtt.contains("_")) {
+		for (String s : entries) {
+			String thisAtt = s;
+			if (thisAtt.equals("_id") || thisAtt.equals("_revision") ||thisAtt.equals("_modified")) {
 				continue;
 			}
 			md[rowNum][0] = thisAtt;
@@ -321,6 +322,7 @@ public class MetadataHybrid {
 			rowNum++;
 		}
 		//JOptionPane.showMessageDialog(null, Arrays.deepToString(md));
+		
 		return md;
 		
 	}
@@ -1011,8 +1013,6 @@ public class MetadataHybrid {
 					}
 					String thisRepname = "";
 					String thisDC = myProj.getDataColumnHeader(key);
-					JOptionPane.showMessageDialog(null, "thisDC:" + thisDC);
-					getNodeMetadataNew(e);
 					// String valExpected = searchByValue(thisDC, repColName, true, false,
 					// true).get(0);
 					// JOptionPane.showMessageDialog(null, "call: "+thisDC+","+repColName);
