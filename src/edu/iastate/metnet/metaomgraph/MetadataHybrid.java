@@ -219,12 +219,13 @@ public class MetadataHybrid {
 	 * @return Metadata for a given datacolumn in String[][] attribute,value pairs
 	 */
 	public String[][] getMetadataForCol(int colIndex) {
-		if (colIndex == -1) {
+		String[][] res=getNodeMetadataNew(colIndex);
+		/*if (colIndex == -1) {
 			return new String[0][0];
 		}
 		String[][] res = null;
 		Element thisNode = knownCols.get(colIndex);
-		res = getNodeMetadata(thisNode);
+		res = getNodeMetadata(thisNode);*/
 		return res;
 	}
 
@@ -433,7 +434,8 @@ public class MetadataHybrid {
 			Element thisNode = knownCols.get(col);
 			// JOptionPane.showMessageDialog(null, "this node:" +
 			// knownCols.get(col).getAttributeValue("name"));
-			String[][] thisMetadata = getNodeMetadata(thisNode);
+			String[][] thisMetadata = getNodeMetadataNew(thisNode);
+			//String[][] thisMetadata = getNodeMetadataOld(thisNode);
 
 			String val = null;
 
@@ -457,6 +459,8 @@ public class MetadataHybrid {
 		}
 		return result;
 	}
+	
+	
 
 	/**
 	 * @author urmi This function takes queries and returns array of datacol indexes
@@ -949,7 +953,7 @@ public class MetadataHybrid {
 	 * 
 	 * return toReturn; }
 	 */
-	public String getColValueMatchingRow(String rowToMatch, String colToreturn) {
+	public String getColValueMatchingRowOld(String rowToMatch, String colToreturn) {
 
 		int thisColindex = MetaOmGraph.getActiveProject().findDataColumnHeader(rowToMatch);
 		if (thisColindex < 0) {
@@ -967,7 +971,7 @@ public class MetadataHybrid {
 				return thisNode.getAttributeValue("name").toString();
 			}
 		}
-		String[][] thisMetadata = getNodeMetadata(thisNode);
+		String[][] thisMetadata = getNodeMetadataNew(thisNode);
 		String toReturn = "";
 		for (int i = 0; i < thisMetadata.length; i++) {
 			if (thisMetadata[i][0].equals(colToreturn)) {
