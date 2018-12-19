@@ -878,10 +878,18 @@ public class MetadataCollection {
 	 */
 	public String getDatabyDataColumn(String dataColValue,String targetCol) {
 		String res="";
+		dataColValue="^" + dataColValue + "$";
 		Filter filter = Filters.regex(getDatacol(), dataColValue);
 		List<Document> output = mogCollection.find(filter).toList();
 		res = (String) output.get(0).get(targetCol);
 		return res;
+	}
+	
+	public Document getDataColumnRow(String dataColValue) {
+		dataColValue="^" + dataColValue + "$";
+		Filter filter = Filters.regex(getDatacol(), dataColValue);
+		List<Document> output = mogCollection.find(filter).toList();
+		return  output.get(0);
 	}
 	
 	/**
@@ -892,6 +900,7 @@ public class MetadataCollection {
 	 */
 	public String getDatabyColumn(String toSearch, String toSearchColName ,String targetCol) {
 		String res="";
+		toSearch="^" + toSearch + "$";
 		Filter filter = Filters.regex(toSearchColName, toSearch);
 		List<Document> output = mogCollection.find(filter).toList();
 		res = (String) output.get(0).get(targetCol);

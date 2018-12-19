@@ -294,53 +294,29 @@ public class MetadataHybrid {
 		if (node == null) {
 			return new String[0][0];
 		}
+		MetaOmProject myProj = MetaOmGraph.getActiveProject();
 		String[][] md = null;
-		List<String> attributeList = new ArrayList<>();
-		List<String> valueList = new ArrayList<>();
-		// Add all parent values and parent attributes i.e. leaf values
-		Element thisParent = node.getParentElement();
-		while (!thisParent.isRootElement()) {
-			attributeList.add(thisParent.getName());
-			valueList.add(thisParent.getAttributeValue("name").toString());
-			// add leaf attributes
-			int numChild = thisParent.getChildren().size();
-			for (int i = 0; i < numChild; i++) {
-				Element thisC = (Element) thisParent.getChildren().get(i);
-				// add if child is attribute
-				if (thisC.getChildren().size() == 0) {
-					attributeList.add(thisC.getName());
-					valueList.add(thisC.getContent(0).getValue().toString());
-				}
+		String thisDC="";
+		for (Map.Entry<Integer, Element> entry : knownCols.entrySet()) {
+			Integer key = entry.getKey();
+			Element e = entry.getValue();
+			if(node == e) {
+				thisDC = myProj.getDataColumnHeader(key);	
+				break;
 			}
-			// move one step up
-			thisParent = thisParent.getParentElement();
-		}
-		int numChild = node.getChildren().size();
-		if (numChild < 1) {
-			attributeList.add(node.getName());
-			valueList.add(node.getContent(0).getValue().toString());
-
-		} else {
-			attributeList.add(node.getName());
-			valueList.add(node.getAttributeValue("name").toString());
-			for (int i = 0; i < numChild; i++) {
-				Element thisC = (Element) node.getChildren().get(i);
-				getChildMetadata(attributeList, valueList, thisC);
-			}
-
-		}
-
-		md = new String[attributeList.size()][2];
-		for (int i = 0; i < attributeList.size(); i++) {
-			md[i][0] = attributeList.get(i);
-			md[i][1] = valueList.get(i);
-		}
-
+			
+		}		
+		Document thisRow = mogCollection.getDataColumnRow(thisDC);
+		JOptionPane.showMessageDialog(null, thisRow.toString()+":"+thisRow.entrySet().toString());
+		
+		//convert to 2d array
+		
+		
 		return md;
 	}
 
 	/**
-	 * @author urmi This function takes a node and metadata of all the children
+	 * @author urmi This function takes a node and returns metadata of all the children
 	 * @param attributeList
 	 *            valueList
 	 * @return
@@ -998,6 +974,7 @@ public class MetadataHybrid {
 				for (Map.Entry<Integer, Element> entry : knownCols.entrySet()) {
 					Integer key = entry.getKey();
 					Element e = entry.getValue();
+												
 					int thisIndex = key;
 					// if datacolumn doesn't exist in data don;t add
 					if (key == -1) {
@@ -1005,6 +982,8 @@ public class MetadataHybrid {
 					}
 					String thisRepname = "";
 					String thisDC = myProj.getDataColumnHeader(key);
+					JOptionPane.showMessageDialog(null, "thisDC:"+thisDC);
+					getNodeMetadataNew(e);
 					// String valExpected = searchByValue(thisDC, repColName, true, false,
 					// true).get(0);
 					// JOptionPane.showMessageDialog(null, "call: "+thisDC+","+repColName);
