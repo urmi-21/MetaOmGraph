@@ -219,90 +219,21 @@ public class MetadataHybrid {
 	 * @return Metadata for a given datacolumn in String[][] attribute,value pairs
 	 */
 	public String[][] getMetadataForCol(int colIndex) {
-		String[][] res=getNodeMetadataNew(colIndex);
-		/*if (colIndex == -1) {
-			return new String[0][0];
-		}
-		String[][] res = null;
-		Element thisNode = knownCols.get(colIndex);
-		res = getNodeMetadata(thisNode);*/
+		String[][] res=getNodeMetadata(colIndex);
 		return res;
 	}
 
+	
+	
 	/**
 	 * @author urmi This function takes a node and returns associated metadata This
 	 *         function searches all the parents, their attributes, children and
 	 *         their attributes.
-	 * @param node
-	 * @return
-	 */
-
-	public String[][] getNodeMetadataOld(Element node) {
-		if (node == null) {
-			return new String[0][0];
-		}
-		String[][] md = null;
-		List<String> attributeList = new ArrayList<>();
-		List<String> valueList = new ArrayList<>();
-		// Add all parent values and parent attributes i.e. leaf values
-		Element thisParent = node.getParentElement();
-		while (!thisParent.isRootElement()) {
-			attributeList.add(thisParent.getName());
-			valueList.add(thisParent.getAttributeValue("name").toString());
-			// add leaf attributes
-			int numChild = thisParent.getChildren().size();
-			for (int i = 0; i < numChild; i++) {
-				Element thisC = (Element) thisParent.getChildren().get(i);
-				// add if child is attribute
-				if (thisC.getChildren().size() == 0) {
-					attributeList.add(thisC.getName());
-					valueList.add(thisC.getContent(0).getValue().toString());
-				}
-			}
-			// move one step up
-			thisParent = thisParent.getParentElement();
-		}
-		int numChild = node.getChildren().size();
-		if (numChild < 1) {
-			attributeList.add(node.getName());
-			valueList.add(node.getContent(0).getValue().toString());
-
-		} else {
-			attributeList.add(node.getName());
-			valueList.add(node.getAttributeValue("name").toString());
-			for (int i = 0; i < numChild; i++) {
-				Element thisC = (Element) node.getChildren().get(i);
-				getChildMetadata(attributeList, valueList, thisC);
-			}
-
-		}
-
-		md = new String[attributeList.size()][2];
-		for (int i = 0; i < attributeList.size(); i++) {
-			md[i][0] = attributeList.get(i);
-			md[i][1] = valueList.get(i);
-		}
-
-		return md;
-	}
-
-	/**
-	 * Get metadata from mogCollection obj
-	 * 
-	 * @param node
+	 * @param dataColName data column
 	 * @return
 	 */
 	
-	public String[][] getNodeMetadataNew(int nodeNum) {
-		if (nodeNum < 0) {
-			return new String[0][0];
-		}
-		MetaOmProject myProj = MetaOmGraph.getActiveProject();
-		String thisDC = myProj.getDataColumnHeader(nodeNum);
-		return getNodeMetadataNew(thisDC);
-	}
-	
-	public String[][] getNodeMetadataNew(String dataColName) {
+public String[][] getNodeMetadata(String dataColName) {
 		
 		String[][] md = null;
 		String thisDC = dataColName;
@@ -323,12 +254,21 @@ public class MetadataHybrid {
 			rowNum++;
 		}
 		//JOptionPane.showMessageDialog(null, Arrays.deepToString(md));
-		
 		return md;
 		
 	}
 	
-	public String[][] getNodeMetadataNew(Element node) {
+	public String[][] getNodeMetadata(int nodeNum) {
+		if (nodeNum < 0) {
+			return new String[0][0];
+		}
+		MetaOmProject myProj = MetaOmGraph.getActiveProject();
+		String thisDC = myProj.getDataColumnHeader(nodeNum);
+		return getNodeMetadata(thisDC);
+	}
+	
+		
+	public String[][] getNodeMetadata(Element node) {
 		if (node == null) {
 			return new String[0][0];
 		}
@@ -342,7 +282,7 @@ public class MetadataHybrid {
 				break;
 			}
 		}
-		return getNodeMetadataNew(thisKey);
+		return getNodeMetadata(thisKey);
 	}
 
 	/**
@@ -864,118 +804,13 @@ public class MetadataHybrid {
 		return res;
 	}
 
-	
 
-	/**
-	 * @author urmi Search rowToMatch under datacolumn in metadata and return value
-	 *         under colToreturn column if more than one match is found return only
-	 *         first match
-	 * @param rowToMatch
-	 * @param colToreturn
-	 * @return
-	 */
-
-	/*
-	 * public String getColValueMatchingRow(String rowToMatch, String colToreturn) {
-	 * 
-	 * String toReturn; toReturn=mogCollection.getDatabyDataColumn(rowToMatch,
-	 * colToreturn);
-	 * 
-	 * return toReturn; }
-	 */
-	public String getColValueMatchingRowOld(String rowToMatch, String colToreturn) {
-
-		int thisColindex = MetaOmGraph.getActiveProject().findDataColumnHeader(rowToMatch);
-		if (thisColindex < 0) {
-			JOptionPane.showMessageDialog(null, "Error in search. " + rowToMatch + " not found in data",
-					"Error in search", JOptionPane.ERROR_MESSAGE);
-			return null;
-		}
-		Element thisNode = knownCols.get(thisColindex);
-		// if col to return is data column
-		if (colToreturn.equals(dataColumn)) {
-			int numChild = thisNode.getChildren().size();
-			if (numChild < 1) {
-				return thisNode.getContent(0).getValue().toString();
-			} else {
-				return thisNode.getAttributeValue("name").toString();
-			}
-		}
-		String[][] thisMetadata = getNodeMetadataNew(thisNode);
-		String toReturn = "";
-		for (int i = 0; i < thisMetadata.length; i++) {
-			if (thisMetadata[i][0].equals(colToreturn)) {
-				toReturn = thisMetadata[i][1];
-				break;
-			}
-		}
-
-		return toReturn;
-	}
 
 	public void setDefaultRepsMap(TreeMap<String, List<Integer>> repsMap) {
 		this.defaultrepsMap = repsMap;
 	}
 
-	/**
-	 * Much faster Build default reps map where each rep is outermost parent in the
-	 * tree
-	 * 
-	 * @param parentName
-	 * @return
-	 */
-	public TreeMap<String, List<Integer>> buildRepsMapOld(String repColName) {
-		MetaOmProject myProj = MetaOmGraph.getActiveProject();
-		if (myProj == null) {
-			return null;
-		}
-
-		TreeMap<String, List<Integer>> repsMap = new TreeMap<>();
-		// JOptionPane.showMessageDialog(null, "this kc:" + knownCols.get(1).toString()
-		// );
-		new AnimatedSwingWorker("Working...", true) {
-			@Override
-			public Object construct() {
-				for (Map.Entry<Integer, Element> entry : knownCols.entrySet()) {
-					Integer key = entry.getKey();
-					int thisIndex = key;
-					// if datacolumn doesn't exist in data don;t add
-					if (key == -1) {
-						continue;
-					}
-					String thisRepname = "";
-					String thisDC = myProj.getDataColumnHeader(key);
-					// String valExpected = searchByValue(thisDC, repColName, true, false,
-					// true).get(0);
-					// JOptionPane.showMessageDialog(null, "call: "+thisDC+","+repColName);
-					String valExpected = mogCollection.getDatabyDataColumn(thisDC, repColName);
-					thisRepname = valExpected;
-					Set<String> addedReps = repsMap.keySet();
-					if (addedReps.contains(thisRepname)) {
-						// append this col
-						List<Integer> temp = repsMap.get(thisRepname);
-						temp.add(thisIndex);
-						repsMap.put(thisRepname, temp);
-					} else {
-						List<Integer> temp = new ArrayList<>();
-						temp.add(thisIndex);
-						repsMap.put(thisRepname, temp);
-					}
-
-				}
-				return null;
-			}
-
-			@Override
-			public void finished() {
-
-			}
-
-		}.start();
-
-		return repsMap;
-	}
-	
+		
 	
 	/**
 	 * Function to build custom reps map.
