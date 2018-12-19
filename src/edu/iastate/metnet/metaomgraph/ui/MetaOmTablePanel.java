@@ -1607,6 +1607,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 							"Store Correlation", 3, null, null, targetName + " " + methodName);
 				}
 			}
+			
+			if (name == null || name.equals(""))
+				return;
+			
 			try {
 				if ("pearson correlation".equals(e.getActionCommand())) {
 					MetaOmAnalyzer.doAnalysis(myProject, geneLists.getSelectedValue().toString(), target, name, 1);
@@ -1629,8 +1633,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					boolean[] exclude = MetaOmAnalyzer.getExclude();
 					// create list of source data into groups
 					List<double[]> sourceGrouped = groupDatabyRepColumn(groupsMap, sourceDataAll, exclude);
-					
-
 					final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(),
 							"Computing p-vals...", "", 0L, entries.length, true);
 					final String nameSave = name;
@@ -1651,9 +1653,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 									progress.setProgress(j);
 									double[] data = myProject.getAllData(entries[j]);
 									List<double[]> dataGrouped = groupDatabyRepColumn(groupsMap, data, exclude);
-									
+
 									try {
-										CorrelationGrouped ob = new CorrelationGrouped(sourceGrouped, dataGrouped, MetaOmGraph.getNumThreads());
+										CorrelationGrouped ob = new CorrelationGrouped(sourceGrouped, dataGrouped,
+												MetaOmGraph.getNumThreads());
 										CorrelationMeta temp;
 										if (n == JOptionPane.YES_OPTION) {
 											temp = ob.doComputation(true);
@@ -1772,16 +1775,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					// this array contains colindex of the datacolumns used
 					int[] sourceDataColNumbers = new int[sourceData.length];
 					boolean[] exclude = MetaOmAnalyzer.getExclude();
-					List<int[]> shuffInd = groupDataIndexbyRepColumn(groupsMap, exclude, sourceDataColNumbers, _N);
-					for (int j = 0; j < shuffInd.size(); j++) {
-						double[] tempArr = new double[sourceData.length];
-						int[] newInd = shuffInd.get(j);
-						for (int n = 0; n < tempArr.length; n++) {
-							// copy indices.get(n) column from targetwtMat to nth place in tempmat
-							tempArr[n] = sourceData[newInd[n]];
-						}
-						shuffList.add(tempArr);
-					}
 
 					final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(),
 							"Analyzing...", "", 0L, entries.length, true);
@@ -1797,7 +1790,17 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						public Object construct() {
 							try {
 								// for each data row do
-								// Number[] result = null;
+								List<int[]> shuffInd = groupDataIndexbyRepColumn(groupsMap, exclude,
+										sourceDataColNumbers, _N);
+								for (int j = 0; j < shuffInd.size(); j++) {
+									double[] tempArr = new double[sourceData.length];
+									int[] newInd = shuffInd.get(j);
+									for (int n = 0; n < tempArr.length; n++) {
+										// copy indices.get(n) column from targetwtMat to nth place in tempmat
+										tempArr[n] = sourceData[newInd[n]];
+									}
+									shuffList.add(tempArr);
+								}
 								int j = 0;
 
 								do {
@@ -2337,18 +2340,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					// this array contains colindex of the datacolumns used
 					int[] sourceDataColNumbers = new int[sourceData.length];
 					boolean[] exclude = MetaOmAnalyzer.getExclude();
-					List<int[]> shuffInd = groupDataIndexbyRepColumn(groupsMap, exclude, sourceDataColNumbers, _N);
-					for (int j = 0; j < shuffInd.size(); j++) {
-						double[][] tempMat = new double[targetwtMat.length][targetwtMat[0].length];
-						int[] newInd = shuffInd.get(j);
-						for (int m = 0; m < tempMat.length; m++) {
-							for (int n = 0; n < tempMat[0].length; n++) {
-								// copy indices.get(n) column from targetwtMat to nth place in tempmat
-								tempMat[m][n] = targetwtMat[m][newInd[n]];
-							}
-						}
-						shuffList.add(tempMat);
-					}
+					
 
 					//////////////////////////////////
 					// calculate entopies of all suffled matrices. at index 0 will be original
@@ -2371,8 +2363,18 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						public Object construct() {
 							try {
 								// for each data row do
-								// Number[] result = null;
-								// long startTime = System.nanoTime();
+								List<int[]> shuffInd = groupDataIndexbyRepColumn(groupsMap, exclude, sourceDataColNumbers, _N);
+								for (int j = 0; j < shuffInd.size(); j++) {
+									double[][] tempMat = new double[targetwtMat.length][targetwtMat[0].length];
+									int[] newInd = shuffInd.get(j);
+									for (int m = 0; m < tempMat.length; m++) {
+										for (int n = 0; n < tempMat[0].length; n++) {
+											// copy indices.get(n) column from targetwtMat to nth place in tempmat
+											tempMat[m][n] = targetwtMat[m][newInd[n]];
+										}
+									}
+									shuffList.add(tempMat);
+								}
 								int j = 0;
 								int _N = MetaOmGraph.getNumPermutations();
 								int _T = MetaOmGraph.getNumThreads();
@@ -2497,16 +2499,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					// this array contains colindex of the datacolumns used
 					int[] sourceDataColNumbers = new int[sourceData.length];
 					boolean[] exclude = MetaOmAnalyzer.getExclude();
-					List<int[]> shuffInd = groupDataIndexbyRepColumn(groupsMap, exclude, sourceDataColNumbers, _N);
-					for (int j = 0; j < shuffInd.size(); j++) {
-						double[] tempArr = new double[sourceData.length];
-						int[] newInd = shuffInd.get(j);
-						for (int n = 0; n < tempArr.length; n++) {
-							// copy indices.get(n) column from targetwtMat to nth place in tempmat
-							tempArr[n] = sourceData[newInd[n]];
-						}
-						shuffList.add(tempArr);
-					}
+					
 					final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(),
 							"Analyzing...", "", 0L, entries.length, true);
 					// create metacorrobj
@@ -2521,7 +2514,16 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						public Object construct() {
 							try {
 								// for each data row do
-								// Number[] result = null;
+								List<int[]> shuffInd = groupDataIndexbyRepColumn(groupsMap, exclude, sourceDataColNumbers, _N);
+								for (int j = 0; j < shuffInd.size(); j++) {
+									double[] tempArr = new double[sourceData.length];
+									int[] newInd = shuffInd.get(j);
+									for (int n = 0; n < tempArr.length; n++) {
+										// copy indices.get(n) column from targetwtMat to nth place in tempmat
+										tempArr[n] = sourceData[newInd[n]];
+									}
+									shuffList.add(tempArr);
+								}
 								int j = 0;
 
 								do {
@@ -3333,12 +3335,12 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				}
 			}
 			if (thisindexs.size() > 0) {
-				/*if(thisindexs.size()>1) {
-				 JOptionPane.showMessageDialog(null, "add:" + thisindexs.toString()+" key:"+key);
-				 for(int v: value) {
-					 JOptionPane.showMessageDialog(null, "colanme:" + myProject.getDataColumnHeader(v));
-				 }
-				}*/
+				/*
+				 * if(thisindexs.size()>1) { JOptionPane.showMessageDialog(null, "add:" +
+				 * thisindexs.toString()+" key:"+key); for(int v: value) {
+				 * JOptionPane.showMessageDialog(null, "colanme:" +
+				 * myProject.getDataColumnHeader(v)); } }
+				 */
 				sourceGroupedInd.add(thisindexs);
 			}
 		}

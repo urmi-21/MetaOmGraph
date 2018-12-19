@@ -154,6 +154,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 				 */
 				// get selected rows
 				int[] selectedInd = table.getSelectedRows();
+				
 				if (selectedInd == null || selectedInd.length < 2) {
 					JOptionPane.showMessageDialog(null, "Please select at least two rows from table",
 							"Invalid selection", JOptionPane.ERROR_MESSAGE);
@@ -163,7 +164,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 				DefaultTableModel model = (DefaultTableModel) table.getModel();
 				for (int i = 0; i < selectedInd.length; i++) {
 					selectedNames[i] = model
-							.getValueAt(selectedInd[i], table.getColumn(obj.getDatacol()).getModelIndex()).toString();
+							.getValueAt(table.convertRowIndexToModel(selectedInd[i]), table.getColumn(obj.getDatacol()).getModelIndex()).toString();
 				}
 				// for the selected runs find their index in the data file and get data by the
 				// index in data file
@@ -240,7 +241,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 				DefaultTableModel model = (DefaultTableModel) table.getModel();
 				for (int i = 0; i < selectedInd.length; i++) {
 					selectedNames[i] = model
-							.getValueAt(selectedInd[i], table.getColumn(obj.getDatacol()).getModelIndex()).toString();
+							.getValueAt(table.convertRowIndexToModel(selectedInd[i]), table.getColumn(obj.getDatacol()).getModelIndex()).toString();
 				}
 				// for the selected runs find their index in the data file and get data by the
 				// index in data file
@@ -320,7 +321,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 				DefaultTableModel model = (DefaultTableModel) table.getModel();
 				for (int i = 0; i < selectedInd.length; i++) {
 					selectedNames[i] = model
-							.getValueAt(selectedInd[i], table.getColumn(obj.getDatacol()).getModelIndex()).toString();
+							.getValueAt(table.convertRowIndexToModel(selectedInd[i]), table.getColumn(obj.getDatacol()).getModelIndex()).toString();
 				}
 				// for the selected runs find their index in the data file and get data by the
 				// index in data file
