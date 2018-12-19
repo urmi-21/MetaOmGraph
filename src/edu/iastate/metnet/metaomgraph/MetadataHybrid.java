@@ -382,6 +382,7 @@ public class MetadataHybrid {
 		return knownCols.get(Integer.valueOf(col)).getParentElement();
 	}
 
+	
 	/**
 	 * @author urmi From old metadata class Edited by urmi to work with new class
 	 * @param field
@@ -389,79 +390,6 @@ public class MetadataHybrid {
 	 * @return
 	 */
 	public Map<String, Collection<Integer>> cluster(String field) {
-		Map<String, Collection<Integer>> result = new TreeMap();
-		// knowncols are data columns or Runs
-		Set<Integer> cols = knownCols.keySet();
-
-		// if its datacolumn each column is in single bin
-		if (field.equals(dataColumn)) {
-			for (Iterator localIterator = cols.iterator(); localIterator.hasNext();) {
-				int col = ((Integer) localIterator.next()).intValue();
-				// JOptionPane.showMessageDialog(null, "curr col:" + col);
-				// skip cols not in data file
-				if (col < 0) {
-					continue;
-				}
-				Element thisNode = knownCols.get(col);
-				String val = null;
-				int numChild = thisNode.getChildren().size();
-				if (numChild < 1) {
-					val = thisNode.getContent(0).getValue().toString();
-				} else {
-					val = thisNode.getAttributeValue("name").toString();
-				}
-
-				if (val == null) {
-					val = "";
-				}
-				Collection<Integer> thisBin = result.get(val);
-				if (thisBin == null) {
-					thisBin = new ArrayList();
-				}
-				thisBin.add(Integer.valueOf(col));
-				result.put(val, thisBin);
-			}
-			return result;
-		}
-
-		for (Iterator localIterator = cols.iterator(); localIterator.hasNext();) {
-			int col = ((Integer) localIterator.next()).intValue();
-			// JOptionPane.showMessageDialog(null, "curr col:" + col);
-			// skip cols not in data file
-			if (col < 0) {
-				continue;
-			}
-			Element thisNode = knownCols.get(col);
-			// JOptionPane.showMessageDialog(null, "this node:" +
-			// knownCols.get(col).getAttributeValue("name"));
-			String[][] thisMetadata = getNodeMetadataNew(thisNode);
-			//String[][] thisMetadata = getNodeMetadataOld(thisNode);
-
-			String val = null;
-
-			for (int i = 0; i < thisMetadata.length; i++) {
-				// JOptionPane.showMessageDialog(null, "this md:" + thisMetadata[i][0] + ":" +
-				// thisMetadata[i][1]);
-				if (thisMetadata[i][0].equals(field)) {
-					val = thisMetadata[i][1];
-					break;
-				}
-			}
-			if (val == null) {
-				val = "";
-			}
-			Collection<Integer> thisBin = result.get(val);
-			if (thisBin == null) {
-				thisBin = new ArrayList();
-			}
-			thisBin.add(Integer.valueOf(col));
-			result.put(val, thisBin);
-		}
-		return result;
-	}
-	
-	
-	public Map<String, Collection<Integer>> clusternew(String field) {
 		Map<String, Collection<Integer>> result = new TreeMap();
 		// knowncols are data columns or Runs
 		Set<Integer> cols = knownCols.keySet();

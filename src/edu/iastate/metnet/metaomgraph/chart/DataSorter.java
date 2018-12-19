@@ -221,7 +221,7 @@ public class DataSorter {
 	public int[] clusterByMetadata(String field) {
 		// Map<String, Collection<Integer>> clusters =
 		// myChartPanel.getProject().getMetadata().cluster(field, 0);
-		Map<String, Collection<Integer>> clusters = myChartPanel.getProject().getMetadataHybrid().clusternew(field);
+		Map<String, Collection<Integer>> clusters = myChartPanel.getProject().getMetadataHybrid().cluster(field);
 		if (clusters.size() == 0) {
 			JOptionPane.showMessageDialog(null, "Cluster size 0.Error in search...DataSorter:140");
 			return null;
