@@ -384,7 +384,8 @@ public class MetadataHybrid {
 
 	
 	/**
-	 * @author urmi From old metadata class Edited by urmi to work with new class
+	 * cluster the indices by values together
+	 * @author urmi 
 	 * @param field
 	 * 
 	 * @return
@@ -401,17 +402,31 @@ public class MetadataHybrid {
 			String thisDc=thisRow.get(dataColumn).toString();
 			int thisInd=MetaOmGraph.getActiveProject().findDataColumnHeader(thisDc);
 			Collection<Integer> thisBin = result.get(thisVal);
-			
 			if (thisBin == null) {
 				thisBin = new ArrayList();
 			}
 			thisBin.add(Integer.valueOf(thisInd));
 			result.put(thisVal, thisBin);
-			
 		}
 		return result;
 	}
 	
+	/**
+	 * create and return a map mapping datacolumn --> givenCol 
+	 * @param field
+	 * @return
+	 */
+	public HashMap<String,String> getDataColMap(String field){
+		HashMap<String,String> res=new HashMap<>();
+		List<Document> allData=mogCollection.getAllData();
+		for(int i=0;i<allData.size();i++) {
+			Document thisRow=allData.get(i);
+			String thisVal= thisRow.get(field).toString();
+			String thisDc=thisRow.get(dataColumn).toString();
+			res.put(thisDc,thisVal);
+		}		
+		return res;
+	}
 	
 	
 

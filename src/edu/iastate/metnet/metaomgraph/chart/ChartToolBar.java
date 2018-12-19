@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Objects;
 import java.util.Set;
@@ -432,24 +433,20 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 								int max = 0;
 								// JOptionPane.showMessageDialog(null, "findig match");
 								// long tStart = System.currentTimeMillis();
+								
+								//create a hashmap
+								HashMap<String,String> dcMap=MetaOmGraph.getActiveProject().getMetadataHybrid().getDataColMap(col_val);
+								
 								for (int j = 0; j < tempLabels.length; j++) {
 
 									// get the row containing datavalue or run and change templabels to
 									// coreesponding values under col_val
-									// slower
-									/*
-									 * Filter f = Filters.regex(dataColName, "^" + tempLabels[j] + "$");
-									 * java.util.List<Document> rowWithDatax =
-									 * MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataCollection().
-									 * getDatabyAttributes(f, true); if (rowWithDatax == null) { //
-									 * JOptionPane.showMessageDialog(this, "Search Error"); tempLabels[j] = "NA"; }
-									 * if (rowWithDatax.size() == 1) { tempLabels[j] =
-									 * rowWithDatax.get(0).get(col_val).toString(); } else { missing_Flag = true; }
-									 */
-
+									
 									// faster
 									//tempLabels[j] = MetaOmGraph.getActiveProject().getMetadataHybrid().getColValueMatchingRow(tempLabels[j], col_val);
-									tempLabels[j]=MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataCollection().getDatabyDataColumn(tempLabels[j], col_val);
+									//tempLabels[j]=MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataCollection().getDatabyDataColumn(tempLabels[j], col_val);
+									//even faster
+									tempLabels[j]=dcMap.get(tempLabels[j]);
 									
 									if (tempLabels[j] == null) {
 										tempLabels[j] = "NA";
