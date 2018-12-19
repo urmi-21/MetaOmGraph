@@ -448,8 +448,9 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 									 */
 
 									// faster
-									tempLabels[j] = MetaOmGraph.getActiveProject().getMetadataHybrid()
-											.getColValueMatchingRow(tempLabels[j], col_val);
+									//tempLabels[j] = MetaOmGraph.getActiveProject().getMetadataHybrid().getColValueMatchingRow(tempLabels[j], col_val);
+									tempLabels[j]=MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataCollection().getDatabyDataColumn(tempLabels[j], col_val);
+									
 									if (tempLabels[j] == null) {
 										tempLabels[j] = "NA";
 									}
