@@ -644,7 +644,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 						int thisSampIndex = getProject().getMetadataHybrid().getColIndexbyName(thisSampname);
 						// get all metadata for this Gname
 						String[][] tableData = getProject().getMetadataHybrid()
-								.getNodeMetadata(getProject().getMetadataHybrid().getParentNodeForCol(thisSampIndex));
+								.getNodeMetadataNew(getProject().getMetadataHybrid().getParentNodeForCol(thisSampIndex));
 						String text = "<html><table bgcolor=\"#FFFFFF\">" + " <tr>\n"
 								+ "            <th>Attribute</th>\n" + "            <th>Value</th>\n" + "        </tr>";
 

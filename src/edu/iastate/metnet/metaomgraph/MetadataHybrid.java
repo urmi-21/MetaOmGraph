@@ -284,39 +284,67 @@ public class MetadataHybrid {
 
 		return md;
 	}
-	
+
 	/**
 	 * Get metadata from mogCollection obj
+	 * 
 	 * @param node
 	 * @return
 	 */
+	
+	public String[][] getNodeMetadataNew(int nodeNum) {
+		if (nodeNum < 0) {
+			return new String[0][0];
+		}
+		MetaOmProject myProj = MetaOmGraph.getActiveProject();
+		String thisDC = myProj.getDataColumnHeader(nodeNum);
+		return getNodeMetadataNew(thisDC);
+	}
+	
+	public String[][] getNodeMetadataNew(String dataColName) {
+		
+		String[][] md = null;
+		String thisDC = dataColName;
+		Document thisRow = mogCollection.getDataColumnRow(thisDC);
+		// convert to 2d array
+		Set<String> entries = thisRow.keySet();
+		// minus 3 for Document class keys i.e. id, revision, modified
+		md = new String[entries.size() - 3][2];
+		int rowNum = 0;
+		for (Object s : entries) {
+			String thisAtt = s.toString();
+			if (thisAtt.contains("_")) {
+				continue;
+			}
+			md[rowNum][0] = thisAtt;
+			md[rowNum][1] = thisRow.get(s).toString();
+			rowNum++;
+		}
+		//JOptionPane.showMessageDialog(null, Arrays.deepToString(md));
+		return md;
+		
+	}
+	
 	public String[][] getNodeMetadataNew(Element node) {
 		if (node == null) {
 			return new String[0][0];
 		}
+		int thisKey=-1;
 		MetaOmProject myProj = MetaOmGraph.getActiveProject();
-		String[][] md = null;
-		String thisDC="";
 		for (Map.Entry<Integer, Element> entry : knownCols.entrySet()) {
 			Integer key = entry.getKey();
 			Element e = entry.getValue();
-			if(node == e) {
-				thisDC = myProj.getDataColumnHeader(key);	
+			if (node == e) {
+				thisKey = key;
 				break;
 			}
-			
-		}		
-		Document thisRow = mogCollection.getDataColumnRow(thisDC);
-		JOptionPane.showMessageDialog(null, thisRow.toString()+":"+thisRow.entrySet().toString());
-		
-		//convert to 2d array
-		
-		
-		return md;
+		}
+		return getNodeMetadataNew(thisKey);
 	}
 
 	/**
-	 * @author urmi This function takes a node and returns metadata of all the children
+	 * @author urmi This function takes a node and returns metadata of all the
+	 *         children
 	 * @param attributeList
 	 *            valueList
 	 * @return
@@ -910,14 +938,15 @@ public class MetadataHybrid {
 	 * @param colToreturn
 	 * @return
 	 */
-	
-	/*public String getColValueMatchingRow(String rowToMatch, String colToreturn) {
 
-		String toReturn;
-		toReturn=mogCollection.getDatabyDataColumn(rowToMatch, colToreturn);
-
-		return toReturn;
-	}*/
+	/*
+	 * public String getColValueMatchingRow(String rowToMatch, String colToreturn) {
+	 * 
+	 * String toReturn; toReturn=mogCollection.getDatabyDataColumn(rowToMatch,
+	 * colToreturn);
+	 * 
+	 * return toReturn; }
+	 */
 	public String getColValueMatchingRow(String rowToMatch, String colToreturn) {
 
 		int thisColindex = MetaOmGraph.getActiveProject().findDataColumnHeader(rowToMatch);
@@ -974,7 +1003,7 @@ public class MetadataHybrid {
 				for (Map.Entry<Integer, Element> entry : knownCols.entrySet()) {
 					Integer key = entry.getKey();
 					Element e = entry.getValue();
-												
+
 					int thisIndex = key;
 					// if datacolumn doesn't exist in data don;t add
 					if (key == -1) {
@@ -982,7 +1011,7 @@ public class MetadataHybrid {
 					}
 					String thisRepname = "";
 					String thisDC = myProj.getDataColumnHeader(key);
-					JOptionPane.showMessageDialog(null, "thisDC:"+thisDC);
+					JOptionPane.showMessageDialog(null, "thisDC:" + thisDC);
 					getNodeMetadataNew(e);
 					// String valExpected = searchByValue(thisDC, repColName, true, false,
 					// true).get(0);
@@ -1014,7 +1043,7 @@ public class MetadataHybrid {
 
 		return repsMap;
 	}
-	
+
 	public TreeMap<String, List<Integer>> buildRepsMapNEW(String repColName) {
 		MetaOmProject myProj = MetaOmGraph.getActiveProject();
 		if (myProj == null) {
@@ -1067,7 +1096,6 @@ public class MetadataHybrid {
 
 		return repsMap;
 	}
-	
 
 	/**
 	 * After reading metadata file save list of excluded rows from metadata file
