@@ -118,7 +118,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 	 */
 	public MetadataTableDisplayPanel(MetadataCollection obj) {
 		this.obj = obj;
-		metadata = this.obj.returnallData();
+		metadata = this.obj.getAllData();
 		this.headers = obj.getHeaders();
 		setLayout(new BorderLayout(0, 0));
 
@@ -1003,7 +1003,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 	}
 
 	public void updateTable(boolean colsChanged) {
-		metadata = this.obj.returnallData();
+		metadata = this.obj.getAllData();
 		DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
 		// AbstractTableModel tablemodel = (DefaultTableModel) table.getModel();
 		// clear table model
@@ -1088,7 +1088,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 	}
 
 	public void resetData() {
-		this.metadata = this.obj.returnallData();
+		this.metadata = this.obj.getAllData();
 		this.headers = obj.getHeaders();
 	}
 

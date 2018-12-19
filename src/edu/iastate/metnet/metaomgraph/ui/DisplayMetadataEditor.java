@@ -72,7 +72,7 @@ public class DisplayMetadataEditor extends JFrame implements ActionListener {
 		this.tree = treeStruct.getTree();
 		this.headers = treeStruct.getList();
 		mogColl = MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataCollection();
-		this.metadata = mogColl.returnallData();
+		this.metadata = mogColl.getAllData();
 		JSplitPane splitPane = new JSplitPane();
 		splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
 

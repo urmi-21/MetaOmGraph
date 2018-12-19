@@ -221,7 +221,7 @@ public class DataSorter {
 	public int[] clusterByMetadata(String field) {
 		// Map<String, Collection<Integer>> clusters =
 		// myChartPanel.getProject().getMetadata().cluster(field, 0);
-		Map<String, Collection<Integer>> clusters = myChartPanel.getProject().getMetadataHybrid().cluster(field);
+		Map<String, Collection<Integer>> clusters = myChartPanel.getProject().getMetadataHybrid().clusternew(field);
 		if (clusters.size() == 0) {
 			JOptionPane.showMessageDialog(null, "Cluster size 0.Error in search...DataSorter:140");
 			return null;
@@ -282,74 +282,7 @@ public class DataSorter {
 		return result;
 	}
 	
-	/**
-	 * 
-	 * @param field
-	 * @return
-	 */
-	public int[] clusterByMetadataNew(String field) {
-		// Map<String, Collection<Integer>> clusters =
-		// myChartPanel.getProject().getMetadata().cluster(field, 0);
-		Map<String, Collection<Integer>> clusters = myChartPanel.getProject().getMetadataHybrid().cluster(field);
-		if (clusters.size() == 0) {
-			JOptionPane.showMessageDialog(null, "Cluster size 0.Error in search...DataSorter:140");
-			return null;
-		}
-		// JOptionPane.showMessageDialog(null, "Cluster size "+clusters.size());
-		Set<String> groups = clusters.keySet();
-		int[] result = new int[myChartPanel.getProject().getDataColumnCount()];
-		if (result.length == 0) {
-			JOptionPane.showMessageDialog(null, "Error in search...");
-			return null;
-		}
-		rangeMarkers = new Vector<RangeMarker>();
-		int index = 0;
-
-		ArrayList<Integer> toAdd = new ArrayList<Integer>();
-		for (int i = 0; i < result.length; i++) {
-			toAdd.add(i);
-		}
-
-		for (String groupName : groups) {
-			if ("".equals(groupName))
-				continue;
-
-			Collection<Integer> members = clusters.get(groupName);
-			// JOptionPane.showMessageDialog(null, "gname:" + groupName);
-			// JOptionPane.showMessageDialog(null, "membr:" + members.toString());
-			/**
-			 * @author urmi Remove the excluded columns to create range markers only for
-			 *         shown columns
-			 */
-			boolean[] excluded = MetaOmAnalyzer.getExclude();
-			if (excluded != null) {
-				java.util.List<Integer> temp = new ArrayList<>();
-				// remove excluded members
-				for (int m : members) {
-					if (excluded[m]) {
-						// JOptionPane.showMessageDialog(null, "Excluding:" + m);
-						temp.add(m);
-					}
-				}
-				members.removeAll(temp);
-			}
-			// JOptionPane.showMessageDialog(null, "membrnow:" + members.toString());
-			if (members.size() > 0) {
-				rangeMarkers.add(new RangeMarker(index, index + members.size() - 1, groupName, RangeMarker.VERTICAL));
-			}
-			for (int col : members) {
-				// todo
-				// change known cols to include only those cols which are in datafile
-				result[index++] = col;
-				toAdd.remove((Object) col);
-			}
-		}
-
-		for (int col : toAdd)
-			result[index++] = col;
-
-		return result;
-	}
+	
 
 	public Vector<RangeMarker> getRangeMarkers() {
 		return rangeMarkers;

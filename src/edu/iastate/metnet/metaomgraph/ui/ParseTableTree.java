@@ -490,7 +490,7 @@ public class ParseTableTree {
 	private Element buildTree(TreeNode root, Element XMLroot) {
 		//JOptionPane.showMessageDialog(null, "Start..");
 		// get the data
-		List<Document> tabData = obj.returnallData();
+		List<Document> tabData = obj.getAllData();
 		if(tabData.size()==0) {
 			return null;
 		}
