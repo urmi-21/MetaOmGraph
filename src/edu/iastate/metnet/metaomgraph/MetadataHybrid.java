@@ -461,6 +461,80 @@ public class MetadataHybrid {
 	}
 	
 	
+	public Map<String, Collection<Integer>> clusternew(String field) {
+		Map<String, Collection<Integer>> result = new TreeMap();
+		// knowncols are data columns or Runs
+		Set<Integer> cols = knownCols.keySet();
+
+		// if its datacolumn each column is in single bin
+		if (field.equals(dataColumn)) {
+			for (Iterator localIterator = cols.iterator(); localIterator.hasNext();) {
+				int col = ((Integer) localIterator.next()).intValue();
+				// JOptionPane.showMessageDialog(null, "curr col:" + col);
+				// skip cols not in data file
+				if (col < 0) {
+					continue;
+				}
+				Element thisNode = knownCols.get(col);
+				String val = null;
+				int numChild = thisNode.getChildren().size();
+				if (numChild < 1) {
+					val = thisNode.getContent(0).getValue().toString();
+				} else {
+					val = thisNode.getAttributeValue("name").toString();
+				}
+
+				if (val == null) {
+					val = "";
+				}
+				Collection<Integer> thisBin = result.get(val);
+				if (thisBin == null) {
+					thisBin = new ArrayList();
+				}
+				thisBin.add(Integer.valueOf(col));
+				result.put(val, thisBin);
+			}
+			return result;
+		}
+
+		for (Iterator localIterator = cols.iterator(); localIterator.hasNext();) {
+			int col = ((Integer) localIterator.next()).intValue();
+			// JOptionPane.showMessageDialog(null, "curr col:" + col);
+			// skip cols not in data file
+			if (col < 0) {
+				continue;
+			}
+			Element thisNode = knownCols.get(col);
+			// JOptionPane.showMessageDialog(null, "this node:" +
+			// knownCols.get(col).getAttributeValue("name"));
+			String[][] thisMetadata = getNodeMetadataNew(thisNode);
+			//String[][] thisMetadata = getNodeMetadataOld(thisNode);
+
+			String val = null;
+
+			for (int i = 0; i < thisMetadata.length; i++) {
+				// JOptionPane.showMessageDialog(null, "this md:" + thisMetadata[i][0] + ":" +
+				// thisMetadata[i][1]);
+				if (thisMetadata[i][0].equals(field)) {
+					val = thisMetadata[i][1];
+					break;
+				}
+			}
+			if (val == null) {
+				val = "";
+			}
+			Collection<Integer> thisBin = result.get(val);
+			if (thisBin == null) {
+				thisBin = new ArrayList();
+			}
+			thisBin.add(Integer.valueOf(col));
+			result.put(val, thisBin);
+		}
+		return result;
+	}
+	
+	
+	
 
 	/**
 	 * @author urmi This function takes queries and returns array of datacol indexes
@@ -1008,8 +1082,6 @@ public class MetadataHybrid {
 			public Object construct() {
 				for (Map.Entry<Integer, Element> entry : knownCols.entrySet()) {
 					Integer key = entry.getKey();
-					Element e = entry.getValue();
-
 					int thisIndex = key;
 					// if datacolumn doesn't exist in data don;t add
 					if (key == -1) {
