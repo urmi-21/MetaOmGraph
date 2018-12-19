@@ -644,7 +644,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 						int thisSampIndex = getProject().getMetadataHybrid().getColIndexbyName(thisSampname);
 						// get all metadata for this Gname
 						String[][] tableData = getProject().getMetadataHybrid()
-								.getNodeMetadataNew(getProject().getMetadataHybrid().getParentNodeForCol(thisSampIndex));
+								.getNodeMetadata(getProject().getMetadataHybrid().getParentNodeForCol(thisSampIndex));
 						String text = "<html><table bgcolor=\"#FFFFFF\">" + " <tr>\n"
 								+ "            <th>Attribute</th>\n" + "            <th>Value</th>\n" + "        </tr>";
 
@@ -691,8 +691,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 					 * order): R1 --> 0 R2-->1 R3 -->2 R4-->3
 					 */
 
-					//String[][] tableData = getProject().getMetadataHybrid().getMetadataForCol(sortOrder[plottedColumns[(int) itemX]]);
-					String[][] tableData = getProject().getMetadataHybrid().getNodeMetadataNew(sortOrder[plottedColumns[(int) itemX]]);
+					String[][] tableData = getProject().getMetadataHybrid().getNodeMetadata(sortOrder[plottedColumns[(int) itemX]]);
 					int maxrowsinMD = 40;
 					int maxStringLen=500;
 					String text = "<html><head> " + "<style>" + ".scrollit {\n" + "    overflow:scroll;\n"
