@@ -182,7 +182,20 @@ public class MetadataHybrid {
 		return this.defaultrepsMap;
 	}
 
+	/**
+	 * return headers. sorted by default
+	 * @return
+	 */
 	public String[] getMetadataHeaders() {
+		return getMetadataHeaders(true);
+	}
+	public String[] getMetadataHeaders(boolean sorted) {
+		if(sorted) {
+			String []temp=new String[metadataHeaders.length];
+			System.arraycopy(metadataHeaders, 0, temp, 0, metadataHeaders.length);
+			Arrays.sort(temp);
+			return temp;
+		}
 		return this.metadataHeaders;
 	}
 
