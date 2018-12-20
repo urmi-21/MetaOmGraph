@@ -189,6 +189,11 @@ public class MetadataHybrid {
 	public String[] getMetadataHeaders() {
 		return getMetadataHeaders(true);
 	}
+	/**
+	 * 
+	 * @param sorted if true return sorted by name
+	 * @return
+	 */
 	public String[] getMetadataHeaders(boolean sorted) {
 		if(sorted) {
 			String []temp=new String[metadataHeaders.length];
