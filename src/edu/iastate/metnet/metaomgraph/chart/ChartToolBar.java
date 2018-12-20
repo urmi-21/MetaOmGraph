@@ -433,25 +433,29 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 								int max = 0;
 								// JOptionPane.showMessageDialog(null, "findig match");
 								// long tStart = System.currentTimeMillis();
-								
-								//create a hashmap
-								HashMap<String,String> dcMap=MetaOmGraph.getActiveProject().getMetadataHybrid().getDataColMap(col_val);
-								
+
+								// create a hashmap
+								HashMap<String, String> dcMap = MetaOmGraph.getActiveProject().getMetadataHybrid()
+										.getDataColMap(col_val);
+
 								for (int j = 0; j < tempLabels.length; j++) {
 
 									// get the row containing datavalue or run and change templabels to
 									// coreesponding values under col_val
-									
+
 									// faster
-									//tempLabels[j] = MetaOmGraph.getActiveProject().getMetadataHybrid().getColValueMatchingRow(tempLabels[j], col_val);
-									//tempLabels[j]=MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataCollection().getDatabyDataColumn(tempLabels[j], col_val);
-									//even faster
-									tempLabels[j]=dcMap.get(tempLabels[j]);
-									
+									// tempLabels[j] =
+									// MetaOmGraph.getActiveProject().getMetadataHybrid().getColValueMatchingRow(tempLabels[j],
+									// col_val);
+									// tempLabels[j]=MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataCollection().getDatabyDataColumn(tempLabels[j],
+									// col_val);
+									// even faster
+									tempLabels[j] = dcMap.get(tempLabels[j]);
+
 									if (tempLabels[j] == null) {
 										tempLabels[j] = "NA";
 									}
-									//keep record of max length to set slider value
+									// keep record of max length to set slider value
 									if (max < tempLabels[j].length()) {
 										max = tempLabels[j].length();
 									}
@@ -920,22 +924,28 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 	private Vector<RangeMarker> updateRangeMarkers(int[] oldSortOrder, int[] newSortOrder,
 			Vector<RangeMarker> oldRangeMarkers) {
 		if (Arrays.equals(oldSortOrder, newSortOrder)) {
-			// JOptionPane.showMessageDialog(null, "oldSo: " +
-			// Arrays.toString(oldSortOrder));
-			// JOptionPane.showMessageDialog(null, "RRR newSo: " +
-			// Arrays.toString(newSortOrder));
 			return oldRangeMarkers;
 		}
 		Vector<RangeMarker> temp = new Vector<>();
-		// JOptionPane.showMessageDialog(null, "oldSo: " +
-		// Arrays.toString(oldSortOrder));
-		// JOptionPane.showMessageDialog(null, "newSo: " +
-		// Arrays.toString(newSortOrder));
 
-		// use this flag to know if range has be split into discontinuous locations and
-		// then call merge rangemarkers
-		boolean rangeSplit = false;
-
+		// remove excluded cols
+		boolean[] exclude = MetaOmAnalyzer.getExclude();
+		if (exclude != null) {
+			java.util.List<Integer> newSO = new ArrayList<>();
+			java.util.List<Integer> oldSO = new ArrayList<>();
+			for (int i = 0; i < oldSortOrder.length; i++) {
+				if (!exclude[oldSortOrder[i]]) {
+					oldSO.add(oldSortOrder[i]);
+				}
+				if (!exclude[newSortOrder[i]]) {
+					newSO.add(newSortOrder[i]);
+				}
+			}
+			oldSortOrder = oldSO.stream().mapToInt(i -> i).toArray();
+			newSortOrder = newSO.stream().mapToInt(i -> i).toArray();
+		}
+		
+		
 		for (RangeMarker r : oldRangeMarkers) {
 			int thisStrt = r.getStart();
 			int thisEnd = r.getEnd();
@@ -944,7 +954,6 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 			for (int i = thisStrt; i <= thisEnd; i++) {
 				colsinRange.add(oldSortOrder[i]);
 			}
-
 			// find indices of colsinRange in new sort order
 			for (int c : colsinRange) {
 				for (int i = 0; i < newSortOrder.length; i++) {
@@ -962,7 +971,6 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 			// JOptionPane.showMessageDialog(null, "ind sorted: " +
 			// colsinRangeNewInd.toString());
 			int currStrt = colsinRangeNewInd.get(0);
-
 			for (int j = 1; j < colsinRangeNewInd.size(); j++) {
 				// if values are adjacent
 				if (colsinRangeNewInd.get(j) == colsinRangeNewInd.get(j - 1) + 1) {
