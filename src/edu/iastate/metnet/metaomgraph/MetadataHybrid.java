@@ -372,11 +372,12 @@ public String[][] getNodeMetadata(String dataColName) {
 	/**
 	 * create and return a map mapping datacolumn --> givenCol 
 	 * @param field
+	 * @param exclude true --> don't get data for excluded cols
 	 * @return
 	 */
-	public HashMap<String,String> getDataColMap(String field){
+	public HashMap<String,String> getDataColMap(String field, boolean exclude){
 		HashMap<String,String> res=new HashMap<>();
-		List<Document> allData=mogCollection.getAllData();
+		List<Document> allData=mogCollection.getAllData(exclude);
 		for(int i=0;i<allData.size();i++) {
 			Document thisRow=allData.get(i);
 			String thisVal= thisRow.get(field).toString();

@@ -809,20 +809,26 @@ public class MetadataCollection {
 	 * 
 	 * @return
 	 */
+	//by default filter results
 	public List<Document> getAllData() {
+		return getAllData(true);
+	}
+	public List<Document> getAllData(boolean exclude) {
 		List<Document> output = null;
 		output = mogCollection.find().toList();
 		if (excluded == null || excluded.size() == 0) {
 			return output;
 		}
-		/*
-		 * if () { return output; }
-		 */
-		return filterResults(output);
+
+		if (exclude) {
+			return filterResults(output);
+		}
+		return output;
 	}
 
 	/**
 	 * filter results to keep only included rows
+	 * 
 	 * @param s
 	 * @return
 	 */
@@ -868,39 +874,41 @@ public class MetadataCollection {
 		output = mogCollection.find(filter).toList();
 		return output;
 	}
-	
+
 	/**
-	 * @author urmi
-	 * get value under a column corresponding to a data column. This value will be unique as DC is unique
-	 * @param dataColValue value of data column to search
-	 * @param targetCol name of column to return the calue from matched row
+	 * @author urmi get value under a column corresponding to a data column. This
+	 *         value will be unique as DC is unique
+	 * @param dataColValue
+	 *            value of data column to search
+	 * @param targetCol
+	 *            name of column to return the calue from matched row
 	 * @return
 	 */
-	public String getDatabyDataColumn(String dataColValue,String targetCol) {
-		String res="";
-		dataColValue="^" + dataColValue + "$";
+	public String getDatabyDataColumn(String dataColValue, String targetCol) {
+		String res = "";
+		dataColValue = "^" + dataColValue + "$";
 		Filter filter = Filters.regex(getDatacol(), dataColValue);
 		List<Document> output = mogCollection.find(filter).toList();
 		res = (String) output.get(0).get(targetCol);
 		return res;
 	}
-	
+
 	public Document getDataColumnRow(String dataColValue) {
-		dataColValue="^" + dataColValue + "$";
+		dataColValue = "^" + dataColValue + "$";
 		Filter filter = Filters.regex(getDatacol(), dataColValue);
 		List<Document> output = mogCollection.find(filter).toList();
-		return  output.get(0);
+		return output.get(0);
 	}
-	
+
 	/**
 	 * @param toSearch
 	 * @param toSearchColName
 	 * @param targetCol
 	 * @return
 	 */
-	public String getDatabyColumn(String toSearch, String toSearchColName ,String targetCol) {
-		String res="";
-		toSearch="^" + toSearch + "$";
+	public String getDatabyColumn(String toSearch, String toSearchColName, String targetCol) {
+		String res = "";
+		toSearch = "^" + toSearch + "$";
 		Filter filter = Filters.regex(toSearchColName, toSearch);
 		List<Document> output = mogCollection.find(filter).toList();
 		res = (String) output.get(0).get(targetCol);
@@ -1013,27 +1021,27 @@ class MetadataCollectionTest {
 			for (int i = 0; i < 10; i++) {
 				System.out.println(dc.get(i));
 			}
-			int N=50;
+			int N = 50;
 			// search test
 			long startTime = System.currentTimeMillis();
 			for (int i = 0; i < N; i++) {
 				String valExpected = mogColl
 						.getDatabyAttributes(dc.get(i), mogColl.getDatacol(), true, true, false, true).get(0);
-				if(!dc.get(i).equals(valExpected)) {
-					System.out.println("1Failed..." + valExpected);	
+				if (!dc.get(i).equals(valExpected)) {
+					System.out.println("1Failed..." + valExpected);
 				}
-				
+
 			}
 			long stopTime = System.currentTimeMillis();
 			long elapsedTime = stopTime - startTime;
 			System.out.println("test1 time:" + elapsedTime);
 
 			startTime = System.currentTimeMillis();
-						
+
 			for (int i = 0; i < N; i++) {
 				String valExpected = mogColl.getDatabyDataColumn(dc.get(i), mogColl.getDatacol());
-				if(!dc.get(i).equals(valExpected)) {
-					System.out.println("2Failed..." + valExpected);	
+				if (!dc.get(i).equals(valExpected)) {
+					System.out.println("2Failed..." + valExpected);
 				}
 			}
 			stopTime = System.currentTimeMillis();

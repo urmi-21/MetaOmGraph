@@ -435,8 +435,8 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 								// long tStart = System.currentTimeMillis();
 
 								// create a hashmap
-								HashMap<String, String> dcMap = MetaOmGraph.getActiveProject().getMetadataHybrid()
-										.getDataColMap(col_val);
+								//use false to get names for excluded cols too in case they are added back later. Otherwise results will show NA when excluded cols added back to chart
+								HashMap<String, String> dcMap = MetaOmGraph.getActiveProject().getMetadataHybrid().getDataColMap(col_val,false);
 
 								for (int j = 0; j < tempLabels.length; j++) {
 
@@ -451,7 +451,6 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 									// col_val);
 									// even faster
 									tempLabels[j] = dcMap.get(tempLabels[j]);
-
 									if (tempLabels[j] == null) {
 										tempLabels[j] = "NA";
 									}

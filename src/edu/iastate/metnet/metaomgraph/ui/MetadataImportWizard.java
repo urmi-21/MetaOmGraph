@@ -228,6 +228,7 @@ public class MetadataImportWizard extends JFrame {
 		btnResetTree.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				// reset the list
+				JOptionPane.showMessageDialog(null, "hdrs:"+Arrays.toString(headers));
 				DefaultListModel listModel = new DefaultListModel();
 				for (int i = 0; i < headers.length; i++) {
 					listModel.addElement(headers[i]);
