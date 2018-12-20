@@ -137,7 +137,7 @@ public class SetProgramParameters extends JInternalFrame {
 		panel_1.add(lblDefaultReplicateGroup, "cell 1 6");
 		
 		comboBox_1 = new JComboBox();
-		comboBox_1.setModel(new DefaultComboBoxModel<>(MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataHeaders()));
+		comboBox_1.setModel(new DefaultComboBoxModel<>(MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataHeaders(true)));
 		panel_1.add(comboBox_1, "cell 3 6,growx");
 
 		// frame properties

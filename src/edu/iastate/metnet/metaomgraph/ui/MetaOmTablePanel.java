@@ -1273,7 +1273,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			}
 
 			// show jdialog to show all metadata attributes
-			String[] headers = myProject.getMetadataHybrid().getMetadataHeaders();
+			String[] headers = myProject.getMetadataHybrid().getMetadataHeaders(true);
 			String input = (String) JOptionPane.showInputDialog(null, "Please choose attribute to group by",
 					"Please choose", JOptionPane.PLAIN_MESSAGE, null, headers, headers[1]);
 			if (input == null || input.length() < 1) {
