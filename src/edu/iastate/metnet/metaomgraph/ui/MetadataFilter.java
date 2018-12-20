@@ -167,17 +167,6 @@ public class MetadataFilter extends JFrame {
 				MetaOmGraph.getActiveTable().updateMetadataTable();
 				MetaOmGraph.getActiveTable().updateMetadataTree();
 				if(chartPanel!=null) {
-					/*int visibleCols= MetaOmGraph.getActiveProject().getDataColumnCount() - MetaOmAnalyzer.getExcludeCount();
-					chartPanel.initializeDataset();
-					ValueAxis domainAxis = chartPanel.getChart().getXYPlot().getDomainAxis();
-					ValueAxis rangeAxis = chartPanel.getChart().getXYPlot().getRangeAxis();
-					domainAxis.setLowerBound(0);
-					domainAxis.setUpperBound(visibleCols);
-					chartPanel.getChartPanel().restoreAutoBounds();
-					chartPanel.setCurrentVisibleColumns(visibleCols);
-					if (hscroll != null) {
-						hscroll.setMax(visibleColumns);
-					}*/
 					chartPanel.updateChartAfterFilter();
 				}
 			}

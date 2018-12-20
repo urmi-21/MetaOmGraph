@@ -1338,6 +1338,10 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 		// rangeAxis.setUpperBound(highY);
 	}
 
+	/**
+	 * @author urmi
+	 * Update the active chart after filtering metadata
+	 */
 	public void updateChartAfterFilter() {
 		visibleColumns = myProject.getDataColumnCount() - MetaOmAnalyzer.getExcludeCount();
 		initializeDataset();
@@ -1349,8 +1353,11 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 		if (hscroll != null) {
 			hscroll.setMax(visibleColumns);
 		}
-		// rangeAxis.setLowerBound(lowY);
-		// rangeAxis.setUpperBound(highY);
+		
+		//clear rangemarkers
+		getDataSorter().setRangeMarkers(null);
+	
+		
 	}
 
 	/**
