@@ -588,21 +588,7 @@ public class ParseTableTree {
 					childParentXML.put(s + ":::" + child, plist);
 				}
 
-				/*
-				 * if (childParentXML.containsKey(s + ":::" + child) && childParentXML.get(s +
-				 * ":::" + child).contains(expColname + ":::" + expName)) {
-				 * JOptionPane.showMessageDialog(null, "KE:" + s + ":::" + child); // test more
-				 * } else { // JOptionPane.showMessageDialog(null, "Adding:"+child); Element
-				 * newChild = new Element(s); if (nodeChildren.get(s).size() == 0) {
-				 * newChild.addContent(child); } else { newChild.setAttribute("name", child); }
-				 * thisElement.addContent(newChild); if (s.equals(dataColName)) {
-				 * dataColNodes.add(newChild); } List<String> plist = new ArrayList<>();
-				 * plist.add(expColname + ":::" + expName); childParentXML.put(s + ":::" +
-				 * child, plist);
-				 * 
-				 * }
-				 */
-
+				
 			}
 			
 			//JOptionPane.showMessageDialog(null, "P3..");
@@ -767,66 +753,7 @@ public class ParseTableTree {
 			}
 			
 			//JOptionPane.showMessageDialog(null, "P4..");
-
 		}
-		
-		//JOptionPane.showMessageDialog(null, "P5..");
-
-		// JOptionPane.showMessageDialog(null, "ctoP:" + childParentXML.toString());
-		//JOptionPane.showMessageDialog(null, "P6..");
-		// build coltonodes and repsmap
-		//This code is really slow
-		/*boolean cflag = false;
-		if (nodeChildren.get(dataColName).size() > 0) {
-			cflag = true;
-		}
-		// for all xml nodes which are data column
-		for (Element e : dataColNodes) {
-			//JOptionPane.showMessageDialog(null, "R1..");
-			int thisIndex = -1;
-			// get the index of datacolumn from header list
-			// if data col has children
-			String thisNodeValue = "";
-			if (cflag) {
-				thisNodeValue = e.getAttributeValue("name");
-				thisIndex = colHeaders.indexOf(thisNodeValue);
-				// JOptionPane.showMessageDialog(null, "name:" + e.getAttributeValue("name"));
-			} else {
-				thisNodeValue = e.getContent(0).getValue().toString();
-				thisIndex = colHeaders.indexOf(thisNodeValue);
-				// JOptionPane.showMessageDialog(null, "cont:" +
-				// e.getContent(0).getValue().toString());
-			}
-			// create a tree map index to Xml node of each data column entry
-			colIndextoNode.put(Integer.valueOf(thisIndex), e);
-			//JOptionPane.showMessageDialog(null, "R2..");
-			// make default rep topmost parent
-			// String thisRepname2 = getTopParentName(e);
-			// get topmost parent
-			defaultrepscol = nodeLevels.get(1).get(0);
-			// JOptionPane.showMessageDialog(null, "repname:"+defaultRepParent);
-			// search collection obj to get thisRepname
-			// String thisRepname2=obj.getDatabyAttributes(thisNodeValue, defaultRepParent,
-			// true, true, false, true).get(0);
-			// JOptionPane.showMessageDialog(null, "thisname:"+thisNodeValue+"
-			// rep:"+thisRepname2);
-			String thisRepname = obj.getDatabyAttributes(thisNodeValue, defaultrepscol, true, true, false, true).get(0);
-			Set<String> addedReps = defaultrepsMap.keySet();
-			if (addedReps.contains(thisRepname)) {
-				// append this col
-				List<Integer> temp = defaultrepsMap.get(thisRepname);
-				temp.add(thisIndex);
-				defaultrepsMap.put(thisRepname, temp);
-			} else {
-				List<Integer> temp = new ArrayList<>();
-				temp.add(thisIndex);
-				defaultrepsMap.put(thisRepname, temp);
-			}
-			//JOptionPane.showMessageDialog(null, "R3..");
-			// s
-		}*/
-		
-		//JOptionPane.showMessageDialog(null, "P7..");
 
 		// add all nodes in Jtree to imported headers
 		importedHeaders.addAll(getnodeParent.keySet());
