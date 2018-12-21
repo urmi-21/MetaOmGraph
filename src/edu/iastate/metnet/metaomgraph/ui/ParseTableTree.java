@@ -600,6 +600,7 @@ public class ParseTableTree {
 				// build thisElemet into tree
 				// for all Jtree nodes in current level
 				for (String s : nodesCurrlevel) {
+					JOptionPane.showMessageDialog(null, "Curr level:"+s);
 					// value to add
 					String child = tabData.get(i).get(s).toString();
 
@@ -677,8 +678,8 @@ public class ParseTableTree {
 
 							if (uniqPaths.contains(pathVals)) {
 								uniquePath = false;
-								JOptionPane.showMessageDialog(null, "UP" + uniqPaths.toString());
-								JOptionPane.showMessageDialog(null, "Found here");
+								//JOptionPane.showMessageDialog(null, "UP" + uniqPaths.toString());
+								//JOptionPane.showMessageDialog(null, "Found here");
 							} else {
 
 								String[] tempVals = new String[fullPath.size()];
@@ -740,8 +741,7 @@ public class ParseTableTree {
 							//dataColNodes.add(newChild);
 							int thisIndex = colHeaders.indexOf(child);
 							colIndextoNode.put(Integer.valueOf(thisIndex), newChild);
-						
-							
+												
 						}
 						
 						List<String> plist = new ArrayList<>();
