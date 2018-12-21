@@ -600,7 +600,7 @@ public class ParseTableTree {
 				// build thisElemet into tree
 				// for all Jtree nodes in current level
 				for (String s : nodesCurrlevel) {
-					JOptionPane.showMessageDialog(null, "Curr level:"+s);
+					//JOptionPane.showMessageDialog(null, "Curr level:"+s);
 					// value to add
 					String child = tabData.get(i).get(s).toString();
 
@@ -642,6 +642,7 @@ public class ParseTableTree {
 						List<String> plist = childParentXML.get(s + ":::" + child);
 						// if node is already present donot add
 						if (!plist.contains(toAdd.getName() + ":::" + toAdd.getAttributeValue("name"))) {
+							JOptionPane.showMessageDialog(null, "adding:"+s + ":::" + child);
 							Element newChild = new Element(s);
 							if (nodeChildren.get(s).size() == 0) {
 								newChild.addContent(child);
