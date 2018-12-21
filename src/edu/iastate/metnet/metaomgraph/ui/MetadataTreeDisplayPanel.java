@@ -17,6 +17,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -110,6 +111,8 @@ public class MetadataTreeDisplayPanel extends JPanel {
 	private MetadataHybrid mdhobj;
 
 	private List<DefaultMutableTreeNode> toHighlightNodes;
+	
+	private HashMap<DefaultMutableTreeNode,String> jtreeMetadata;
 
 	/**
 	 * Create the panel.
@@ -421,6 +424,22 @@ public class MetadataTreeDisplayPanel extends JPanel {
 		return;
 
 	}
+	
+	private void buildTableData(TreePath tp, DefaultTableModel model) {
+		Vector<String> aVector = new Vector<String>();
+		if(jtreeMetadata==null) {
+			JOptionPane.showMessageDialog(null, "isNull");
+		}else {
+			JOptionPane.showMessageDialog(null, jtreeMetadata.toString());
+		}
+		for (int i = 0; i < tp.getPathCount(); i++) {
+			DefaultMutableTreeNode thisNode=(DefaultMutableTreeNode) tp.getPathComponent(i);
+			String[] thisRow=jtreeMetadata.get(thisNode).split(":::");
+			aVector.addElement(thisRow[0]);
+			aVector.addElement(thisRow[1]);
+		}
+		model.addRow(aVector);
+	}
 
 	//TODO: Duplicate values at same level cause incorrect result.
 	private Element getXMLnodeFromPath(List<String> strPath, Element sroot) {
@@ -497,8 +516,9 @@ public class MetadataTreeDisplayPanel extends JPanel {
 						return false;
 					}
 				};
-				buildTableData(getXMLnodeFromPath(strPath, XMLroot), model);
-
+				//buildTableData(getXMLnodeFromPath(strPath, XMLroot), model);
+				
+				buildTableData(tp, model);
 				table.setModel(model);
 				table.getColumnModel().getColumn(0).setPreferredWidth(150);
 				table.getColumnModel().getColumn(1).setPreferredWidth(800);
@@ -532,7 +552,8 @@ public class MetadataTreeDisplayPanel extends JPanel {
 	 * This function creates a small tree to preview imported tree model
 	 */
 	public DefaultTreeModel createTreeModel(Element XMLroot) {
-
+		//to store metadata of each jtree node
+		jtreeMetadata=new HashMap<>();
 		JTree pTree = new JTree();
 		pTree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Root") {
 			{
@@ -560,19 +581,24 @@ public class MetadataTreeDisplayPanel extends JPanel {
 
 		for (Element c : cList) {
 			DefaultMutableTreeNode newNode;
+			String nodeName = "";
 			if (!(c.getAttribute("name") == null)) {
-				String nodeName = "";
+				
 				nodeName += c.getAttributeValue("name");
 				// JOptionPane.showMessageDialog(null, "nodename:"+nodeName);
 				newNode = new DefaultMutableTreeNode(nodeName);
 			} else {
-				String nodeName = "";
+				
 				nodeName += c.getContent(0).getValue().toString();
 				newNode = new DefaultMutableTreeNode(nodeName);
+				
 			}
 			ceateDisplayTreefromXML(c, newNode);
-			JOptionPane.showMessageDialog(null, "nodeAdded"+newNode);
+			
+			
 			node.add(newNode);
+			//JOptionPane.showMessageDialog(null, "nodeAdded"+ c.getName()+ ":::"+nodeName);
+			jtreeMetadata.put(newNode, c.getName()+ ":::"+nodeName);
 		}
 
 	}
