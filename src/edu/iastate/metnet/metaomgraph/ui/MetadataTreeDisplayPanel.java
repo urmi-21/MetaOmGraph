@@ -389,43 +389,10 @@ public class MetadataTreeDisplayPanel extends JPanel {
 	}
 
 	/**
-	 * Not used //urmi
-	 * 
-	 * @param me
+	 * build table model
+	 * @param node
+	 * @param model
 	 */
-	private void buildTableModel(MouseEvent me) {
-
-		TreePath tp = tree.getPathForLocation(me.getX(), me.getY());
-		if (!(tp == null)) {
-			// Jtable will have two cols attribute and value
-			// reset table and remove existing rows
-			Vector<String> aVector = new Vector<String>();
-			aVector.add("Attribute");
-			aVector.add("Value");
-			DefaultTableModel model = new DefaultTableModel(aVector, 0) {
-
-				@Override
-				public boolean isCellEditable(int row, int column) {
-					// all cells false
-					return false;
-				}
-			};
-			// table.setModel(model);
-			// JOptionPane.showMessageDialog(null, "node clicked:" + tp.toString());
-			// get equivalent node in XML
-			List<String> strPath = new ArrayList<>();
-			for (int i = 0; i < tp.getPathCount(); i++) {
-				strPath.add(tp.getPathComponent(i).toString());
-			}
-			// strPath contains Root!!!
-
-			buildTableData(getXMLnodeFromPath(strPath, XMLroot), model);
-			table.setModel(model);
-			table.repaint();
-		}
-
-	}
-
 	private void buildTableData(Element node, DefaultTableModel model) {
 		Vector<String> aVector = new Vector<String>();
 		int childrenSize = node.getChildren().size();
@@ -439,6 +406,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 			}
 
 		} else {
+			JOptionPane.showMessageDialog(null, "thisName:"+node.getName().toString());
 			aVector.addElement(node.getName().toString());
 			// if content has no value it returns null. Do if to handle cols with missing
 			// values
@@ -457,47 +425,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 
 	}
 
-	private Element getXMLnodeFromTreeNode(DefaultMutableTreeNode tn, Element sroot) {
-		// System.out.println("Start Search");
-		Element result;
-
-		// get to the node iterating over the tree. Assuming no duplicate values at any
-		// level in tree
-		Element currnode = sroot;
-		// search XML tree for the selected node
-		for (int j = 0; j < currnode.getChildren().size(); j++) {
-			Element thisc = (Element) currnode.getChildren().get(j);
-			// System.out.println(thisc.getAttributeValue("name"));
-			String attName = thisc.getAttributeValue("name");
-			if (!(attName == null)) {
-				if (attName.equals(tn.toString())) {
-					// System.out.println("Matched at" + thisc.getAttributeValue("name"));
-					currnode = thisc;
-					break;
-				}
-			}
-			// for leaf node: leaf nodes has no attribute name only has content of size 1
-			// with their value
-			else {
-				// System.out.println("ELSE:" + thisc.getContent(0).getValue().toString());
-				if (thisc.getContent(0).getValue().toString().equals(tn.toString())) {
-					// System.out.println("Matched at" + thisc.getContent(0).getValue().toString());
-					currnode = thisc;
-					break;
-				}
-			}
-
-		}
-
-		result = currnode;
-		// System.out.println("final:" + result.getAttributeValue("name"));
-		// System.out.println("final:" + result.getContent(0).getValue().toString());
-		// JOptionPane.showMessageDialog(null, "final:" +
-		// result.getContent(0).getValue().toString());
-		// JOptionPane.showMessageDialog(null, "final name:" +
-		// result.getAttributeValue("name"));
-		return result;
-	}
+	
 
 	private Element getXMLnodeFromPath(List<String> strPath, Element sroot) {
 		// System.out.println("Start Search");
@@ -635,17 +563,6 @@ public class MetadataTreeDisplayPanel extends JPanel {
 		}
 
 		for (Element c : cList) {
-			/*
-			 * if (this.excludedDatacols != null || this.excludedDatacols.size() > 0) { if
-			 * (!(c.getAttribute("name") == null) &&
-			 * excludedDatacols.contains(c.getAttributeValue("name"))) { //
-			 * JOptionPane.showMessageDialog(null, "1skipping:" + //
-			 * c.getAttributeValue("name")); continue; } if (c.getAttribute("name") == null
-			 * && excludedDatacols.contains(c.getContent(0).getValue().toString())) { //
-			 * JOptionPane.showMessageDialog(null, "2skipping:" + //
-			 * c.getContent(0).getValue().toString()); continue; } }
-			 */
-
 			DefaultMutableTreeNode newNode;
 			if (!(c.getAttribute("name") == null)) {
 				String nodeName = "";

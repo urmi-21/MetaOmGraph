@@ -642,7 +642,7 @@ public class ParseTableTree {
 						List<String> plist = childParentXML.get(s + ":::" + child);
 						// if node is already present donot add
 						if (!plist.contains(toAdd.getName() + ":::" + toAdd.getAttributeValue("name"))) {
-							JOptionPane.showMessageDialog(null, "adding:"+s + ":::" + child);
+							//JOptionPane.showMessageDialog(null, "adding:"+s + ":::" + child);
 							Element newChild = new Element(s);
 							if (nodeChildren.get(s).size() == 0) {
 								newChild.addContent(child);
@@ -660,6 +660,7 @@ public class ParseTableTree {
 							plist.add(toAdd.getName() + ":::" + toAdd.getAttributeValue("name"));
 							childParentXML.put(s + ":::" + child, plist);
 						} else {
+							//JOptionPane.showMessageDialog(null, "ELSEadding:"+s + ":::" + child);
 							// check if parent also match if not then add the node
 							List<String> fullPath = new ArrayList<>();
 							fullPath.add(0, expColname);
@@ -682,7 +683,6 @@ public class ParseTableTree {
 								//JOptionPane.showMessageDialog(null, "UP" + uniqPaths.toString());
 								//JOptionPane.showMessageDialog(null, "Found here");
 							} else {
-
 								String[] tempVals = new String[fullPath.size()];
 								for (int m = 0; m < i; m++) {
 
@@ -729,6 +729,7 @@ public class ParseTableTree {
 						}
 
 					} else {
+						//JOptionPane.showMessageDialog(null, "ELSEadding:"+s + ":::" + child);
 						Element newChild = new Element(s);
 						//String thisName="";
 						if (nodeChildren.get(s).size() == 0) {
