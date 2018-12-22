@@ -428,26 +428,23 @@ public class MetadataTreeDisplayPanel extends JPanel {
 	private void buildTableData(DefaultMutableTreeNode selectedNode, DefaultTableModel model) {
 		Vector<String> aVector = new Vector<String>();
 		if (jtreeMetadata == null) {
-			JOptionPane.showMessageDialog(null, "Error. jtreeMetadata is NULL");
+			// JOptionPane.showMessageDialog(null, "Error. jtreeMetadata is NULL");
 			return;
 		}
 		// iterate over all children
 		String thisMD = jtreeMetadata.get(selectedNode);
 		if (thisMD == null) {
-			JOptionPane.showMessageDialog(null, "Error. jtreeMetadata is NULL");
+			// JOptionPane.showMessageDialog(null, "Error. jtreeMetadata is NULL");
 			return;
 		}
 		String[] thisRow = thisMD.split(":::");
 		aVector.addElement(thisRow[0]);
 		aVector.addElement(thisRow[1]);
 		model.addRow(aVector);
-
 		for (int i = 0; i < selectedNode.getChildCount(); i++) {
 			DefaultMutableTreeNode thisNode = (DefaultMutableTreeNode) selectedNode.getChildAt(i);
 			buildTableData(thisNode, model);
 		}
-		
-		
 
 	}
 
@@ -833,9 +830,13 @@ public class MetadataTreeDisplayPanel extends JPanel {
 	 * @param nodes
 	 */
 	public void expandNodes(List<String> nodes) {
+		// colapse all nodes
+
 		// remove previous searches
 		toHighlightNodes = new ArrayList<>();
 		DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel().getRoot();
+		TreePath path = new TreePath(root);
+
 		Enumeration en = root.preorderEnumeration();
 		while (en.hasMoreElements()) {
 			DefaultMutableTreeNode thisNode = (DefaultMutableTreeNode) en.nextElement();
@@ -846,6 +847,10 @@ public class MetadataTreeDisplayPanel extends JPanel {
 				int thisInd = MetaOmGraph.getActiveProject().getMetadataHybrid().getColIndexbyName(thisName);
 				// second argument select parent of the node
 				MetaOmGraph.getActiveTable().selectNode(thisInd, false);
+			} else {
+				// colapse this node
+				TreePath p = path.pathByAddingChild(thisNode);
+				tree.collapsePath(p);
 			}
 
 		}
