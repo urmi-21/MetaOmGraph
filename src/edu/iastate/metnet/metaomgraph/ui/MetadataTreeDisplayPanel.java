@@ -111,8 +111,8 @@ public class MetadataTreeDisplayPanel extends JPanel {
 	private MetadataHybrid mdhobj;
 
 	private List<DefaultMutableTreeNode> toHighlightNodes;
-	
-	private HashMap<DefaultMutableTreeNode,String> jtreeMetadata;
+
+	private HashMap<DefaultMutableTreeNode, String> jtreeMetadata;
 
 	/**
 	 * Create the panel.
@@ -424,24 +424,34 @@ public class MetadataTreeDisplayPanel extends JPanel {
 		return;
 
 	}
-	
-	private void buildTableData(TreePath tp, DefaultTableModel model) {
+
+	private void buildTableData(DefaultMutableTreeNode selectedNode, DefaultTableModel model) {
 		Vector<String> aVector = new Vector<String>();
-		if(jtreeMetadata==null) {
-			JOptionPane.showMessageDialog(null, "isNull");
-		}else {
-			JOptionPane.showMessageDialog(null, jtreeMetadata.toString());
+		if (jtreeMetadata == null) {
+			JOptionPane.showMessageDialog(null, "Error. jtreeMetadata is NULL");
+			return;
 		}
-		for (int i = 0; i < tp.getPathCount(); i++) {
-			DefaultMutableTreeNode thisNode=(DefaultMutableTreeNode) tp.getPathComponent(i);
-			String[] thisRow=jtreeMetadata.get(thisNode).split(":::");
-			aVector.addElement(thisRow[0]);
-			aVector.addElement(thisRow[1]);
+		// iterate over all children
+		String thisMD = jtreeMetadata.get(selectedNode);
+		if (thisMD == null) {
+			JOptionPane.showMessageDialog(null, "Error. jtreeMetadata is NULL");
+			return;
 		}
+		String[] thisRow = thisMD.split(":::");
+		aVector.addElement(thisRow[0]);
+		aVector.addElement(thisRow[1]);
 		model.addRow(aVector);
+
+		for (int i = 0; i < selectedNode.getChildCount(); i++) {
+			DefaultMutableTreeNode thisNode = (DefaultMutableTreeNode) selectedNode.getChildAt(i);
+			buildTableData(thisNode, model);
+		}
+		
+		
+
 	}
 
-	//TODO: Duplicate values at same level cause incorrect result.
+	// TODO: Duplicate values at same level cause incorrect result.
 	private Element getXMLnodeFromPath(List<String> strPath, Element sroot) {
 		// System.out.println("Start Search");
 		JOptionPane.showMessageDialog(null, "path:" + strPath);
@@ -467,7 +477,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 				// for leaf node: leaf nodes has no attribute name only has content of size 1
 				// with their value
 				else {
-					JOptionPane.showMessageDialog(null,"ELSE:" + thisc.getContent(0).getValue().toString());
+					JOptionPane.showMessageDialog(null, "ELSE:" + thisc.getContent(0).getValue().toString());
 					if (thisc.getContent(0).getValue().toString().equals(strPath.get(i))) {
 						System.out.println("Matched at" + thisc.getContent(0).getValue().toString());
 						currnode = thisc;
@@ -498,6 +508,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 				// TODO Auto-generated method stub
 				JTree tree = (JTree) se.getSource();
 				DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+
 				TreePath tp = se.getPath();
 				// get tree path
 				List<String> strPath = new ArrayList<>();
@@ -516,9 +527,9 @@ public class MetadataTreeDisplayPanel extends JPanel {
 						return false;
 					}
 				};
-				//buildTableData(getXMLnodeFromPath(strPath, XMLroot), model);
-				
-				buildTableData(tp, model);
+				// buildTableData(getXMLnodeFromPath(strPath, XMLroot), model);
+
+				buildTableData(selectedNode, model);
 				table.setModel(model);
 				table.getColumnModel().getColumn(0).setPreferredWidth(150);
 				table.getColumnModel().getColumn(1).setPreferredWidth(800);
@@ -552,8 +563,8 @@ public class MetadataTreeDisplayPanel extends JPanel {
 	 * This function creates a small tree to preview imported tree model
 	 */
 	public DefaultTreeModel createTreeModel(Element XMLroot) {
-		//to store metadata of each jtree node
-		jtreeMetadata=new HashMap<>();
+		// to store metadata of each jtree node
+		jtreeMetadata = new HashMap<>();
 		JTree pTree = new JTree();
 		pTree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Root") {
 			{
@@ -583,22 +594,22 @@ public class MetadataTreeDisplayPanel extends JPanel {
 			DefaultMutableTreeNode newNode;
 			String nodeName = "";
 			if (!(c.getAttribute("name") == null)) {
-				
+
 				nodeName += c.getAttributeValue("name");
 				// JOptionPane.showMessageDialog(null, "nodename:"+nodeName);
 				newNode = new DefaultMutableTreeNode(nodeName);
 			} else {
-				
+
 				nodeName += c.getContent(0).getValue().toString();
 				newNode = new DefaultMutableTreeNode(nodeName);
-				
+
 			}
 			ceateDisplayTreefromXML(c, newNode);
-			
-			
+
 			node.add(newNode);
-			//JOptionPane.showMessageDialog(null, "nodeAdded"+ c.getName()+ ":::"+nodeName);
-			jtreeMetadata.put(newNode, c.getName()+ ":::"+nodeName);
+			// JOptionPane.showMessageDialog(null, "nodeAdded"+ c.getName()+
+			// ":::"+nodeName);
+			jtreeMetadata.put(newNode, c.getName() + ":::" + nodeName);
 		}
 
 	}
