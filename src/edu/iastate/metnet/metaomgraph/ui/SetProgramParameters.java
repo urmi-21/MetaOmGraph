@@ -16,8 +16,10 @@ import javax.swing.JTextField;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.DefaultComboBoxModel;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.awt.event.ActionEvent;
 
 public class SetProgramParameters extends JInternalFrame {
@@ -120,17 +122,27 @@ public class SetProgramParameters extends JInternalFrame {
 		comboBox.setSelectedIndex(MetaOmGraph.getNumThreads()-1);
 		panel_1.add(comboBox, "cell 3 3,growx");
 		
-		JLabel lblPathToRscript = new JLabel("Path to \"Rscript\"");
+		JLabel lblPathToRscript = new JLabel("Path to \"Rscript.exe\"");
 		panel_1.add(lblPathToRscript, "cell 1 4");
 		
 		textField_1 = new JTextField();
 		panel_1.add(textField_1, "cell 3 4,growx");
 		textField_1.setColumns(20);
 		textField_1.setText(MetaOmGraph.getRPath());
-		browseRPath=new JButton("Browse");
+		browseRPath=new JButton("Browse...");
 		browseRPath.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				
+				final JFileChooser fc = new JFileChooser();
+				int returnVal = fc.showOpenDialog(SetProgramParameters.this);
+		        if (returnVal == JFileChooser.APPROVE_OPTION) {
+		            File file = fc.getSelectedFile();
+		            //This is where a real application would open the file.
+		            //JOptionPane.showMessageDialog(null,"fname"+file.getPath());
+		            MetaOmGraph.setUserRPath(file.getPath());
+		            textField_1.setText(MetaOmGraph.getRPath());
+		        } else {
+		            return;
+		        }
 			}
 		});
 		panel_1.add(browseRPath, "cell 4 4,growx");
@@ -144,7 +156,24 @@ public class SetProgramParameters extends JInternalFrame {
 		textField_2.setColumns(20);
 		textField_2.setText(MetaOmGraph.getpathtoRscrips());
 		
-		browseRScriptsPath=new JButton("Browse");
+		browseRScriptsPath=new JButton("Browse...");
+		browseRScriptsPath.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				final JFileChooser fc = new JFileChooser();
+				int returnVal = fc.showOpenDialog(SetProgramParameters.this);
+				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		        if (returnVal == JFileChooser.APPROVE_OPTION) {
+		            File file = fc.getSelectedFile();
+		            //This is where a real application would open the file.
+		            JOptionPane.showMessageDialog(null,"fname"+file.getPath());
+		            MetaOmGraph.setpathtoRscrips(file.getPath());
+		            textField_2.setText(MetaOmGraph.getpathtoRscrips());
+		        } else {
+		            return;
+		        }
+			
+			}
+		});
 		panel_1.add(browseRScriptsPath, "cell 4 5,growx");
 		
 		JLabel lblDefaultReplicateGroup = new JLabel("Default replicate group column");
