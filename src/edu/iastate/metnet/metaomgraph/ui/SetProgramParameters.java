@@ -26,6 +26,8 @@ public class SetProgramParameters extends JInternalFrame {
 	private JComboBox comboBox_1;
 	private JTextField textField_1;
 	private JTextField textField_2;
+	private JButton browseRPath;
+	private JButton browseRScriptsPath;
 
 	/**
 	 * Launch the application.
@@ -125,6 +127,15 @@ public class SetProgramParameters extends JInternalFrame {
 		panel_1.add(textField_1, "cell 3 4,growx");
 		textField_1.setColumns(20);
 		textField_1.setText(MetaOmGraph.getRPath());
+		browseRPath=new JButton("Browse");
+		browseRPath.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+			}
+		});
+		panel_1.add(browseRPath, "cell 4 4,growx");
+		
+		
 		JLabel lblPathToFolder = new JLabel("Path to folder containing R scripts to make plots");
 		panel_1.add(lblPathToFolder, "cell 1 5");
 		
@@ -132,6 +143,9 @@ public class SetProgramParameters extends JInternalFrame {
 		panel_1.add(textField_2, "cell 3 5,growx");
 		textField_2.setColumns(20);
 		textField_2.setText(MetaOmGraph.getpathtoRscrips());
+		
+		browseRScriptsPath=new JButton("Browse");
+		panel_1.add(browseRScriptsPath, "cell 4 5,growx");
 		
 		JLabel lblDefaultReplicateGroup = new JLabel("Default replicate group column");
 		panel_1.add(lblDefaultReplicateGroup, "cell 1 6");
