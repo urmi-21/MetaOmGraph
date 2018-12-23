@@ -3263,9 +3263,9 @@ public class MetaOmGraph implements ActionListener {
 		VersionCheck ob = new VersionCheck(getVersion());
 		if (!ob.isLatestMOG()) {
 
-			Object[] options = { "Yes, take me to the download.", "No, thanks" };
+			Object[] options = { "Yes, take me to the download.", "Nope." };
 			int response = JOptionPane.showOptionDialog(null,
-					"A newer version of MOG is available for download. We highly recommend you to use the latest version.",
+					"A newer version of MOG is available for download. We highly recommend using the latest version.",
 					"New version available!", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
 					options, options[0]);
 			if (response == 0) {
@@ -3273,6 +3273,7 @@ public class MetaOmGraph implements ActionListener {
 				try {
 					java.awt.Desktop.getDesktop()
 							.browse(new URI("http://metnetweb.gdcb.iastate.edu/MetNet_MetaOmGraph.htm"));
+					shutdown();	
 				} catch (IOException | URISyntaxException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
