@@ -165,7 +165,7 @@ public class SetProgramParameters extends JInternalFrame {
 		        if (returnVal == JFileChooser.APPROVE_OPTION) {
 		            File file = fc.getSelectedFile();
 		            //This is where a real application would open the file.
-		            JOptionPane.showMessageDialog(null,"fname"+file.getPath());
+		            //JOptionPane.showMessageDialog(null,"fname"+file.getPath());
 		            MetaOmGraph.setpathtoRscrips(file.getPath());
 		            textField_2.setText(MetaOmGraph.getpathtoRscrips());
 		        } else {
@@ -180,7 +180,16 @@ public class SetProgramParameters extends JInternalFrame {
 		panel_1.add(lblDefaultReplicateGroup, "cell 1 6");
 		
 		comboBox_1 = new JComboBox();
-		comboBox_1.setModel(new DefaultComboBoxModel<>(MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataHeaders(true)));
+		String[] headrs=MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataHeaders(true);
+		comboBox_1.setModel(new DefaultComboBoxModel<>(headrs));
+		//set current default rep as selected
+		String defaultRep=MetaOmGraph.getActiveProject().getMetadataHybrid().getDefaultRepCol();
+		for(int j=0;j<headrs.length;j++) {
+			if(defaultRep.equals(headrs[j])) {
+				comboBox_1.setSelectedIndex(j);
+				break;
+			}
+		}
 		panel_1.add(comboBox_1, "cell 3 6,growx");
 
 		// frame properties
