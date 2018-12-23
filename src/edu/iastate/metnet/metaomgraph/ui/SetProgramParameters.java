@@ -160,8 +160,8 @@ public class SetProgramParameters extends JInternalFrame {
 		browseRScriptsPath.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				final JFileChooser fc = new JFileChooser();
-				int returnVal = fc.showOpenDialog(SetProgramParameters.this);
 				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				int returnVal = fc.showOpenDialog(SetProgramParameters.this);
 		        if (returnVal == JFileChooser.APPROVE_OPTION) {
 		            File file = fc.getSelectedFile();
 		            //This is where a real application would open the file.
