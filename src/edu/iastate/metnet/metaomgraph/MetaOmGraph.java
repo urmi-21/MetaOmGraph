@@ -234,8 +234,8 @@ public class MetaOmGraph implements ActionListener {
 	}
 
 	/////////////////////
-	private static final String VERSION = "1.7.1";
-	private static final String DATE = "Dec 05, 2018";
+	private static final String VERSION = "1.7.2";
+	private static final String DATE = "Dec 22, 2018";
 
 	public static String getVersion() {
 		return VERSION;
