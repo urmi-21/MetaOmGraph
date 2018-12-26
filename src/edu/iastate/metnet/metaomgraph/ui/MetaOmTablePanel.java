@@ -216,7 +216,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		plotBoxColItem = new JMenuItem("Box Plot Samples");
 
 		plotHistogramItem = new JMenuItem("Histogram");
+
 		// urmi
+		JMenu plotRMenu = new JMenu("Using R");
 		plotHeatMapItem = new JMenuItem("Heatmap");
 
 		plotListItem.setActionCommand(GRAPH_LIST_COMMAND);
@@ -245,6 +247,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		// urmi
 		plotHeatMapItem.setActionCommand("create heatmap");
 		plotHeatMapItem.addActionListener(this);
+		plotRMenu.add(plotHeatMapItem);
+		
 		JPopupMenu plotPopupMenu = new JPopupMenu();
 		selectedRowsMenu.add(plotRowsItem);
 		selectedRowsMenu.add(plotPairRowsItem);
@@ -253,7 +257,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		selectedRowsMenu.add(plotRepsMenu);
 		selectedRowsMenu.add(plotBoxRowItem);
 		selectedRowsMenu.add(plotHistogramItem);
-		selectedRowsMenu.add(plotHeatMapItem);
+		selectedRowsMenu.add(plotRMenu);
 		plotPopupMenu.add(selectedRowsMenu);
 
 		plotPopupMenu.add(plotFilterItem);
