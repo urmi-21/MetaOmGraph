@@ -147,11 +147,23 @@ public class MetaOmGraph implements ActionListener {
 		return OS;
 	}
 
+	/**
+	 * return default R path
+	 * @return
+	 */
 	public static String getdefaulrRPath() {
 		String res = "NA";
 		String OS = getOsName();
 		if (OS.indexOf("win") >= 0 || OS.indexOf("Win") >= 0) {
 			res = "C:\\Program Files\\R\\R-3.4.3\\bin\\Rscript.exe";
+			File[] dirList = new File("C:\\Program Files\\R\\").listFiles(File::isDirectory);
+			
+			for(File f: dirList) {
+				if(f.getName().startsWith("R")) {
+					res = "C:\\Program Files\\R\\"+f.getName()+"\\bin\\Rscript.exe";
+					break;
+				}
+			}
 		} else if (OS.indexOf("mac") >= 0 || OS.indexOf("Mac") >= 0) {
 			res = "/usr/local/bin/Rscript";
 		} else if (OS.indexOf("nix") >= 0 || OS.indexOf("nux") >= 0 || OS.indexOf("aix") > 0) {
