@@ -33,6 +33,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
@@ -149,6 +150,7 @@ public class MetaOmGraph implements ActionListener {
 
 	/**
 	 * return default R path
+	 * 
 	 * @return
 	 */
 	public static String getdefaulrRPath() {
@@ -157,13 +159,22 @@ public class MetaOmGraph implements ActionListener {
 		if (OS.indexOf("win") >= 0 || OS.indexOf("Win") >= 0) {
 			res = "C:\\Program Files\\R\\R-3.4.3\\bin\\Rscript.exe";
 			File[] dirList = new File("C:\\Program Files\\R\\").listFiles(File::isDirectory);
-			
-			for(File f: dirList) {
-				if(f.getName().startsWith("R")) {
-					res = "C:\\Program Files\\R\\"+f.getName()+"\\bin\\Rscript.exe";
+			List<String> dirNames = new ArrayList<>();
+			for (File f : dirList) {
+				dirNames.add(f.getName());
+			}
+			//reverse sort list of names
+			dirNames.sort(null);
+			Collections.reverse(dirNames);
+			for (String s : dirNames) {
+				if (s.startsWith("R")) {
+					res = "C:\\Program Files\\R\\" + s + "\\bin\\Rscript.exe";
 					break;
 				}
 			}
+			
+			//JOptionPane.showMessageDialog(null, "Def R path:"+res);
+			
 		} else if (OS.indexOf("mac") >= 0 || OS.indexOf("Mac") >= 0) {
 			res = "/usr/local/bin/Rscript";
 		} else if (OS.indexOf("nix") >= 0 || OS.indexOf("nux") >= 0 || OS.indexOf("aix") > 0) {
@@ -234,7 +245,7 @@ public class MetaOmGraph implements ActionListener {
 
 	public static void setNumPermutations(int X) {
 		_N = X;
-		
+
 	}
 
 	public static int getNumThreads() {
@@ -1684,8 +1695,9 @@ public class MetaOmGraph implements ActionListener {
 				}
 				// System.out.println("Done!");
 
-				//mainWindow.setTitle("MetaOmGraph - New Project (" + getActiveProject().getDataColumnCount() + " samples)");
-				//urmi
+				// mainWindow.setTitle("MetaOmGraph - New Project (" +
+				// getActiveProject().getDataColumnCount() + " samples)");
+				// urmi
 				fixTitle();
 				projectOpened();
 
@@ -1794,18 +1806,19 @@ public class MetaOmGraph implements ActionListener {
 		 */
 		public void finished() {
 			if (activeProject.isInitialized()) {
-				//mainWindow.setTitle("MetaOmGraph - " + source.getName() + " (" + getActiveProject().getDataColumnCount()+ " samples)");
-				//urmi
+				// mainWindow.setTitle("MetaOmGraph - " + source.getName() + " (" +
+				// getActiveProject().getDataColumnCount()+ " samples)");
+				// urmi
 				fixTitle();
 				activeProjectFile = source;
 				addRecentProject(activeProjectFile);
 				projectOpened();
 				// init col types when opening a new project
 				activeProject.initColTypes();
-				//init default reps
-				MetadataHybrid ob=activeProject.getMetadataHybrid();
+				// init default reps
+				MetadataHybrid ob = activeProject.getMetadataHybrid();
 				ob.setDefaultRepsMap(ob.buildRepsMap(ob.getDefaultRepCol()));
-				
+
 			} else {
 				JOptionPane
 						.showMessageDialog(MetaOmGraph.getMainWindow(),
@@ -1836,8 +1849,9 @@ public class MetaOmGraph implements ActionListener {
 		activeProject = myProject;
 		File source = activeProject.getSourceFile();
 		if (source != null) {
-			//mainWindow.setTitle("MetaOmGraph - " + source.getName() + " (" + getActiveProject().getDataColumnCount() + " samples)");
-			//urmi
+			// mainWindow.setTitle("MetaOmGraph - " + source.getName() + " (" +
+			// getActiveProject().getDataColumnCount() + " samples)");
+			// urmi
 			fixTitle();
 		} else {
 			mainWindow.setTitle("MetaOmGraph - New Project (" + getActiveProject().getDataColumnCount() + " samples)");
@@ -3196,14 +3210,14 @@ public class MetaOmGraph implements ActionListener {
 		}
 		title.append(" (" + activeProject.getDataColumnCount() + " samples");
 		int excluded = MetaOmAnalyzer.getExcludeCount();
-		int included=activeProject.getDataColumnCount() -excluded;
+		int included = activeProject.getDataColumnCount() - excluded;
 		if (excluded > 0) {
-			title.append(", "+ included + " included, "+ excluded + " excluded");
+			title.append(", " + included + " included, " + excluded + " excluded");
 		}
 		title.append(")");
-		//add info about rows
-		int totalRows=activeProject.getRowCount();
-		title.append("; "+totalRows+ " rows");
+		// add info about rows
+		int totalRows = activeProject.getRowCount();
+		title.append("; " + totalRows + " rows");
 		getMainWindow().setTitle(title.toString());
 
 		return title.toString();
@@ -3268,7 +3282,7 @@ public class MetaOmGraph implements ActionListener {
 	}
 
 	/**
-	 * Function to check MOG updates from metnet  
+	 * Function to check MOG updates from metnet
 	 * 
 	 */
 	public static void checkUpdates(boolean showCurrentMessage) {
@@ -3285,7 +3299,7 @@ public class MetaOmGraph implements ActionListener {
 				try {
 					java.awt.Desktop.getDesktop()
 							.browse(new URI("http://metnetweb.gdcb.iastate.edu/MetNet_MetaOmGraph.htm"));
-					shutdown();	
+					shutdown();
 				} catch (IOException | URISyntaxException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -3294,7 +3308,7 @@ public class MetaOmGraph implements ActionListener {
 		} else {
 			if (showCurrentMessage) {
 				JOptionPane.showMessageDialog(null, "Your MOG is already the latest version (" + getVersion() + ")",
-						"No updates available", JOptionPane.INFORMATION_MESSAGE); 
+						"No updates available", JOptionPane.INFORMATION_MESSAGE);
 			}
 		}
 	}

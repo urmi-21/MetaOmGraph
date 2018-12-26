@@ -173,6 +173,10 @@ public class ProjectPropertiesPanel extends JPanel {
 		paramManageButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 
+				if(MetaOmGraph.getActiveProject().getMetadataHybrid()==null) {
+					JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "No Metadata found");
+					return;
+				}
 				SetProgramParameters frame = new SetProgramParameters();
 				frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
 				frame.pack();
