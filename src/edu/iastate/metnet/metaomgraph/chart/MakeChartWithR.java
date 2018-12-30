@@ -37,11 +37,24 @@ public class MakeChartWithR {
 	 */
 	public String saveDatatoFile(List<double[]> dataRows, String[] rowNames, String[] colNames, String fname)
 			throws IOException {
+		return saveDatatoFile(dataRows, rowNames, colNames, "", fname);
+	}
+
+	public String saveDatatoFile(List<double[]> dataRows, String[] rowNames, String[] colNames, String subDir,
+			String fname) throws IOException {
 		// directory same as where the project source files are
 		String directory = MetaOmGraph.getActiveProject().getSourceFile().getParent();
+		if (!subDir.equals("")) {
+			directory = directory + System.getProperty("file.separator") + subDir;
+		}
 		// JOptionPane.showMessageDialog(null, "this dir:" + directory);
 		String tempFilename = fname;
-		tempFilename += "_chartDataHM.txt";
+		tempFilename += "_chartData.txt";
+		// create dir if doesnt exist
+		File dirFile = new File(directory);
+		if (!dirFile.exists()) {
+			dirFile.mkdir();
+		}
 		final File file = new File(directory + System.getProperty("file.separator") + tempFilename);
 		new AnimatedSwingWorker("Working...", true) {
 			@Override
@@ -70,6 +83,8 @@ public class MakeChartWithR {
 									JOptionPane.INFORMATION_MESSAGE);
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
+							JOptionPane.showMessageDialog(null, "Error while saving:" + file.getAbsolutePath(), "Error",
+									JOptionPane.ERROR_MESSAGE);
 							e.printStackTrace();
 						}
 					}
@@ -186,8 +201,11 @@ public class MakeChartWithR {
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	public void runUserR(String rScriptpath, String datafilepath, String[] arglist)
+	public void runUserR(String rScriptpath, String datafilepath, String outFileName)
 			throws IOException, InterruptedException {
+		// out dir shoud be second argument to user script
+		String outDir = MetaOmGraph.getActiveProject().getSourceFile().getParent()
+				+ System.getProperty("file.separator") + outFileName;
 
 		if (rScriptpath == "" || rScriptpath == null) {
 			JOptionPane.showMessageDialog(null, "Invalid path to R script", "File not found",
@@ -202,7 +220,7 @@ public class MakeChartWithR {
 					public void run() {
 						Process pr = null;
 						try {
-							pr = Runtime.getRuntime().exec(new String[] { pathtoR, rScriptpath, datafilepath });
+							pr = Runtime.getRuntime().exec(new String[] { pathtoR, rScriptpath, datafilepath, outDir });
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
