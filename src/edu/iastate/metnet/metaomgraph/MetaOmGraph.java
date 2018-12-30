@@ -163,7 +163,7 @@ public class MetaOmGraph implements ActionListener {
 			for (File f : dirList) {
 				dirNames.add(f.getName());
 			}
-			//reverse sort list of names
+			//reverse sort list of names to select most recent R
 			dirNames.sort(null);
 			Collections.reverse(dirNames);
 			for (String s : dirNames) {

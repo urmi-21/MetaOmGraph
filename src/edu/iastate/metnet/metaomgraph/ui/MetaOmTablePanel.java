@@ -103,6 +103,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	private JMenuItem plotHistogramItem;
 	// urmi
 	private JMenuItem plotHeatMapItem;
+	private JMenuItem runOtherScript;
 	private MenuButton analyzeMenuButton;
 	private JMenuItem pearsonItem;
 	// urmi
@@ -220,6 +221,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		// urmi
 		JMenu plotRMenu = new JMenu("Using R");
 		plotHeatMapItem = new JMenuItem("Heatmap");
+		runOtherScript = new JMenuItem("Run other");
 
 		plotListItem.setActionCommand(GRAPH_LIST_COMMAND);
 		plotListItem.addActionListener(this);
@@ -248,7 +250,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		plotHeatMapItem.setActionCommand("create heatmap");
 		plotHeatMapItem.addActionListener(this);
 		plotRMenu.add(plotHeatMapItem);
-		
+
+		runOtherScript.setActionCommand("runuserR");
+		runOtherScript.addActionListener(this);
+		plotRMenu.add(runOtherScript);
+
 		JPopupMenu plotPopupMenu = new JPopupMenu();
 		selectedRowsMenu.add(plotRowsItem);
 		selectedRowsMenu.add(plotPairRowsItem);
@@ -1361,6 +1367,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			// temp solution
 			// 1 write selected data as tabdelimited file
 			// 2 use r script to create a plot
+
 			// get data of selected rows
 			List<double[]> dataRows = new ArrayList<>();
 			int[] selected = getSelectedRowsInList();
@@ -1405,6 +1412,64 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			}
 
 		}
+		if ("runuserR".equals(e.getActionCommand())) {
+			// select user script
+			final JFileChooser fc = new JFileChooser();
+			String rFilepath = "";
+			int returnVal = fc.showOpenDialog(MetaOmTablePanel.this);
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				File file = fc.getSelectedFile();
+				rFilepath = file.getAbsolutePath();
+
+			} else {
+
+				return;
+			}
+
+			// get data of selected rows
+			List<double[]> dataRows = new ArrayList<>();
+			int[] selected = getSelectedRowsInList();
+			String[] rowNames = new String[selected.length];
+			String[] colNames = myProject.getIncludedDataColumnHeaders();
+			// s
+			for (int i = 0; i < selected.length; i++) {
+				try {
+					dataRows.add(myProject.getIncludedData(selected[i]));
+					rowNames[i] = myProject.getRowName(selected[i])[myProject.getDefaultColumn()].toString();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+
+			String chartFileName = JOptionPane.showInputDialog(this, "Please enter name to save results to file",
+					"Please enter name", JOptionPane.INFORMATION_MESSAGE);
+			if (chartFileName == null || chartFileName.length() < 1) {
+				return;
+			}
+			// save data to file for script to read
+			MakeChartWithR ob = new MakeChartWithR();
+			String datafilePath = "";
+			try {
+				datafilePath = ob.saveDatatoFile(dataRows, rowNames, colNames, chartFileName);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+			// execute rscript to make plot and save to chartFileName.png
+			try {
+				ob.runUserR(rFilepath, datafilePath, null);
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+		}
+
 		if (REPORT_COMMAND.equals(e.getActionCommand())) {
 			makeReport();
 			return;
@@ -1611,10 +1676,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 							"Store Correlation", 3, null, null, targetName + " " + methodName);
 				}
 			}
-			
+
 			if (name == null || name.equals(""))
 				return;
-			
+
 			try {
 				if ("pearson correlation".equals(e.getActionCommand())) {
 					MetaOmAnalyzer.doAnalysis(myProject, geneLists.getSelectedValue().toString(), target, name, 1);
@@ -2344,7 +2409,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					// this array contains colindex of the datacolumns used
 					int[] sourceDataColNumbers = new int[sourceData.length];
 					boolean[] exclude = MetaOmAnalyzer.getExclude();
-					
 
 					//////////////////////////////////
 					// calculate entopies of all suffled matrices. at index 0 will be original
@@ -2367,7 +2431,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						public Object construct() {
 							try {
 								// for each data row do
-								List<int[]> shuffInd = groupDataIndexbyRepColumn(groupsMap, exclude, sourceDataColNumbers, _N);
+								List<int[]> shuffInd = groupDataIndexbyRepColumn(groupsMap, exclude,
+										sourceDataColNumbers, _N);
 								for (int j = 0; j < shuffInd.size(); j++) {
 									double[][] tempMat = new double[targetwtMat.length][targetwtMat[0].length];
 									int[] newInd = shuffInd.get(j);
@@ -2503,7 +2568,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					// this array contains colindex of the datacolumns used
 					int[] sourceDataColNumbers = new int[sourceData.length];
 					boolean[] exclude = MetaOmAnalyzer.getExclude();
-					
+
 					final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(),
 							"Analyzing...", "", 0L, entries.length, true);
 					// create metacorrobj
@@ -2518,7 +2583,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						public Object construct() {
 							try {
 								// for each data row do
-								List<int[]> shuffInd = groupDataIndexbyRepColumn(groupsMap, exclude, sourceDataColNumbers, _N);
+								List<int[]> shuffInd = groupDataIndexbyRepColumn(groupsMap, exclude,
+										sourceDataColNumbers, _N);
 								for (int j = 0; j < shuffInd.size(); j++) {
 									double[] tempArr = new double[sourceData.length];
 									int[] newInd = shuffInd.get(j);

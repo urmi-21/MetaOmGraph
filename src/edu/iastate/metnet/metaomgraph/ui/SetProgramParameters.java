@@ -136,7 +136,6 @@ public class SetProgramParameters extends JInternalFrame {
 				int returnVal = fc.showOpenDialog(SetProgramParameters.this);
 		        if (returnVal == JFileChooser.APPROVE_OPTION) {
 		            File file = fc.getSelectedFile();
-		            //This is where a real application would open the file.
 		            //JOptionPane.showMessageDialog(null,"fname"+file.getPath());
 		            MetaOmGraph.setUserRPath(file.getPath());
 		            textField_1.setText(MetaOmGraph.getRPath());
