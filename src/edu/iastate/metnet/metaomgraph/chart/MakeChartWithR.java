@@ -109,7 +109,7 @@ public class MakeChartWithR {
 		}
 		// call rscript
 
-		new AnimatedSwingWorker("Working...", true) {
+		new AnimatedSwingWorker("Executing R script...", true) {
 			@Override
 			public Object construct() {
 				EventQueue.invokeLater(new Runnable() {
@@ -171,6 +171,73 @@ public class MakeChartWithR {
 		}.start();
 
 		return;
+	}
+
+	/**
+	 * Function to execute a custom R script of the user
+	 * 
+	 * @param rScriptpath
+	 *            path to R script to execute
+	 * @param datafilepath
+	 *            first argument to r script must be the datafile just created by
+	 *            MOG. This is a matrix with features as rows and samples as columns
+	 * @param arglist
+	 *            Additional argument list to pass to the R script
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
+	public void runUserR(String rScriptpath, String datafilepath, String[] arglist)
+			throws IOException, InterruptedException {
+
+		if (rScriptpath == "" || rScriptpath == null) {
+			JOptionPane.showMessageDialog(null, "Invalid path to R script", "File not found",
+					JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		// call rscript
+		new AnimatedSwingWorker("Executing R script...", true) {
+			@Override
+			public Object construct() {
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						Process pr = null;
+						try {
+							pr = Runtime.getRuntime().exec(new String[] { pathtoR, rScriptpath, datafilepath });
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (java.lang.NullPointerException npe) {
+							JOptionPane.showMessageDialog(null, "Error while executing Rscript", "Error",
+									JOptionPane.ERROR_MESSAGE);
+						}
+						int code = 0;
+						try {
+							code = pr.waitFor();
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							JOptionPane.showMessageDialog(null, "InterruptedException");
+							// e.printStackTrace();
+						}
+						switch (code) {
+						case 0:
+							// normal termination
+							JOptionPane.showMessageDialog(null, "File executed successfully", "Success",
+									JOptionPane.INFORMATION_MESSAGE);
+							break;
+						case 1:
+							// error
+							JOptionPane.showMessageDialog(null, "Error while executing Rscript", "Error",
+									JOptionPane.ERROR_MESSAGE);
+							return;
+						}
+					}
+				});
+				return null;
+			}
+		}.start();
+
+		return;
+
 	}
 
 }
