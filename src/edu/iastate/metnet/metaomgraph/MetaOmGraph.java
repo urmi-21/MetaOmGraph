@@ -173,7 +173,6 @@ public class MetaOmGraph implements ActionListener {
 				}
 			}
 			
-			//JOptionPane.showMessageDialog(null, "Def R path:"+res);
 			
 		} else if (OS.indexOf("mac") >= 0 || OS.indexOf("Mac") >= 0) {
 			res = "/usr/local/bin/Rscript";
