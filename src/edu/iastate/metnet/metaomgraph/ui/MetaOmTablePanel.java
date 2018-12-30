@@ -1442,16 +1442,16 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				}
 			}
 
-			String chartFileName = JOptionPane.showInputDialog(this, "Please enter name to save results to file",
+			String outFiledir = JOptionPane.showInputDialog(this, "Please enter a dircetory name to save results",
 					"Please enter name", JOptionPane.INFORMATION_MESSAGE);
-			if (chartFileName == null || chartFileName.length() < 1) {
+			if (outFiledir == null || outFiledir.length() < 1) {
 				return;
 			}
 			// save data to file for script to read
 			MakeChartWithR ob = new MakeChartWithR();
 			String datafilePath = "";
 			try {
-				datafilePath = ob.saveDatatoFile(dataRows, rowNames, colNames, chartFileName);
+				datafilePath = ob.saveDatatoFile(dataRows, rowNames, colNames, outFiledir, "mogData");
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -1459,7 +1459,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 			// execute rscript to make plot and save to chartFileName.png
 			try {
-				ob.runUserR(rFilepath, datafilePath, null);
+				ob.runUserR(rFilepath, datafilePath, outFiledir);
 			} catch (InterruptedException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
