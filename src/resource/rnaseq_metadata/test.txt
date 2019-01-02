@@ -1,8 +1,0 @@
-h1	h2	h3
-1	2	23
-a	b	c
-a	c	d
-a	b	c
-a	c	e
-f	ec	g
-G	ec	g
