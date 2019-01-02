@@ -14,7 +14,6 @@ import javax.swing.JOptionPane;
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 
-import resource.rscripts.*;
 
 public class MakeChartWithR {
 
@@ -137,7 +136,7 @@ public class MakeChartWithR {
 							// JOptionPane.showMessageDialog(null, "rsc:"
 							// +getClass().getResource("/resource/MetaOmicon.png").toString());
 
-							pr = Runtime.getRuntime().exec(new String[] { pathtoR, pathtoRscripts + "/makeHeatmap.R",
+							pr = Runtime.getRuntime().exec(new String[] { pathtoR, pathtoRscripts + "/heatmap.R",
 									datafilepath, fileToSave });
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
