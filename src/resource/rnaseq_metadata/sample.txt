@@ -1,7 +1,0 @@
-study_accession	study_title	study_type	design_description	run
-SRP001134	Zea mays Genome sequencing	Whole Genome Sequencing	LS454 sequencing of Maize Grant II Z_AR-090323_gDNA_B73_tube1 fragment RANDOM library	r1
-SRP001134	Zea mays Genome sequencing	Whole Genome Sequencing	LS454 sequencing of Maize Grant II Z_AR-090323_gDNA_B73_tube1 fragment RANDOM library	r2
-SRP001134	Zea mays Genome sequencing	Whole Genome Sequencing	LS454 sequencing of Maize Grant II Z_AR-090323_gDNA_B73_tube1 fragment RANDOM library	r3
-SRP34001134	Zea mays Genome sequencing	Whole Genome Sequencing	LS454 sequencing of Maize Grant II Z_AR-090323_gDNA_B73_tube1 fragment RANDOM library	r4
-SRP0301134	Zea mays Genome sequencing	Whole Genome Sequencing	LS454 sequencing of Maize Grant II Z_AR-090323_gDNA_B73_tube1 fragment RANDOM library	r5
-SRP0401134	Zea mays Genome sequencing	Whole Genome Sequencing	LS454 sequencing of Maize Grant II Z_AR-090323_gDNA_B73_tube1 fragment RANDOM library	r6
