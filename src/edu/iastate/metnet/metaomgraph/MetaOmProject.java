@@ -385,7 +385,7 @@ public class MetaOmProject {
 								okToAdd = true;
 
 								if ((Utils.isGeneID(thisData[x].toString(), true)) && (!hasGeneIDs)) {
-									//System.out.println("Found gene id: " + thisData[x]);
+									// System.out.println("Found gene id: " + thisData[x]);
 									hasGeneIDs = true;
 									geneIDCol = x - 1;
 								}
@@ -1273,27 +1273,27 @@ public class MetaOmProject {
 			removedMDCols = new ArrayList<>();
 		}
 
-		if(allsWell &&projectFileFound) {
-		try {
-			// JOptionPane.showMessageDialog(null, "removedcols:"+removedMDCols.toString());
-			newcollection.removeUnusedCols(removedMDCols);
-			newcollection.removeDataPermanently(new HashSet<>(excluded));
-			newcollection.addNullData(missing);
-			ParseTableTree ob = new ParseTableTree(newcollection, tree, newcollection.getDatacol(),
-					this.getDataColumnHeaders());
-			org.jdom.Document res = ob.tableToTree();
-			// save and read repscolname
-			// add
-			//JOptionPane.showMessageDialog(null, "Creating MDH");
-			loadMetadataHybrid(newcollection, res.getRootElement(), ob.getTreeMap(), newcollection.getDatacol(),
-					ob.getMetadataHeaders(), tree, ob.getDefaultRepMap(), ob.getDefaultRepCol(), missing, excluded,
-					removedMDCols);
+		if (allsWell && projectFileFound) {
+			try {
+				// JOptionPane.showMessageDialog(null, "removedcols:"+removedMDCols.toString());
+				newcollection.removeUnusedCols(removedMDCols);
+				newcollection.removeDataPermanently(new HashSet<>(excluded));
+				newcollection.addNullData(missing);
+				ParseTableTree ob = new ParseTableTree(newcollection, tree, newcollection.getDatacol(),
+						this.getDataColumnHeaders());
+				org.jdom.Document res = ob.tableToTree();
+				// save and read repscolname
+				// add
+				// JOptionPane.showMessageDialog(null, "Creating MDH");
+				loadMetadataHybrid(newcollection, res.getRootElement(), ob.getTreeMap(), newcollection.getDatacol(),
+						ob.getMetadataHeaders(), tree, ob.getDefaultRepMap(), ob.getDefaultRepCol(), missing, excluded,
+						removedMDCols);
 
-		} catch (NullPointerException | IOException e) {
-			e.printStackTrace();
-			return false;
+			} catch (NullPointerException | IOException e) {
+				e.printStackTrace();
+				return false;
+			}
 		}
-	}
 		return (allsWell) && (projectFileFound);
 	}
 
@@ -2386,7 +2386,7 @@ public class MetaOmProject {
 	}
 
 	private double[] getDataFromFile(int row) throws IOException {
-		boolean showWarning=false;
+		boolean showWarning = false;
 		if (row > getRowCount())
 			throw new IllegalArgumentException("Row " + row + " does not exist!");
 		if ((memoryMap != null) && (memoryMap.containsKey(Integer.valueOf(row)))) {
@@ -2402,22 +2402,24 @@ public class MetaOmProject {
 			try {
 				thisData[x] = Double.parseDouble(tmp);
 			} catch (NumberFormatException | NullPointerException nfe) {
-				//replace NAN value by blank value provided by user
-				if(getBlankValue()==null) {
-				thisData[x] = Double.NaN;
-				}else {
+				// replace NAN value by blank value provided by user
+				if (getBlankValue() == null) {
+					thisData[x] = Double.NaN;
+				} else {
 					thisData[x] = getBlankValue();
 				}
-				showWarning=true;
-				
-			} 
-		}
-		if(showWarning) {
-			String message="Found missing/non-number values in data file. This may affect the analysis. Please check the data file. \n\n\t\t Acessing Row name: "+ getGeneName(row)[defaultColumn];
-			if(getBlankValue()!=null) {
-				message+="\n\n Treating missing value as "+getBlankValue();
+				showWarning = true;
+
 			}
-			JOptionPane.showMessageDialog(null, message , "Found missing/non-number values", JOptionPane.WARNING_MESSAGE);
+		}
+		if (showWarning) {
+			String message = "Found missing/non-number values in data file. This may affect the analysis. Please check the data file. \n\n\t\t Acessing Row name: "
+					+ getGeneName(row)[defaultColumn];
+			if (getBlankValue() != null) {
+				message += "\n\n Treating missing value as " + getBlankValue();
+			}
+			JOptionPane.showMessageDialog(null, message, "Found missing/non-number values",
+					JOptionPane.WARNING_MESSAGE);
 		}
 		return thisData;
 	}
@@ -2452,6 +2454,38 @@ public class MetaOmProject {
 			}
 		}
 		return result;
+	}
+
+	public double[] getIncludedData(int row, boolean replaceMissing) throws IOException {
+		double[] data = getAllData(row);
+		boolean[] exclude = MetaOmAnalyzer.getExclude();
+		if (exclude == null) {
+			return data;
+		}
+		double[] result = new double[data.length - MetaOmAnalyzer.getExcludeCount()];
+		int addHere = 0;
+		for (int i = 0; i < data.length; i++) {
+			if (exclude[i] == false) {
+				result[addHere] = data[i];
+				addHere++;
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * replace NA values by blankvalue if missing data is found
+	 * @param data
+	 * @return
+	 */
+	public double[] replaceMissingVals(double[] data) {
+		for (int i = 0; i < data.length; i++) {
+			if ((Double.isNaN(data[i]))) {
+				data[i] = blankValue.doubleValue();
+			}
+		}
+
+		return data;
 	}
 
 	/**

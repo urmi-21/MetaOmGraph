@@ -2837,7 +2837,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			if (result == null)
 				return;
 
-			int nameCol = -100;
+			int nameCol = -1;
 			for (int i = 0; (i < options.length) && (nameCol < 0); i++) {
 				if (options[i].equals(result.toString())) {
 					nameCol = i - 1;
