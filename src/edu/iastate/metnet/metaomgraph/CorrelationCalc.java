@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 import javax.swing.JOptionPane;
 
+import org.apache.commons.math3.exception.NotANumberException;
 import org.apache.commons.math3.ml.distance.ManhattanDistance;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
@@ -160,20 +161,7 @@ public class CorrelationCalc {
     }
 
 
-    public double pearsonCorrelation(Object[] b, boolean hasSkips, Double blankValue) {
-        if ((b == null) || (a == null)) return 0.0D;
-        if (b.length != a.length) {
-            System.out.println("Original: " + a.length + " elements.  New: " + b.length + " elements.");
-            return 0.0D;
-        }
-        double[] newb = new double[b.length];
-        for (int i = 0; i < b.length; i++) {
-            if (!(b[i] instanceof Number)) return 0.0D;
-
-            newb[i] = ((Number) b[i]).doubleValue();
-        }
-        return pearsonCorrelation(newb, hasSkips, blankValue);
-    }
+   
 
     public double pearsonCorrelation(double[] b, boolean hasSkips, Double blankValue) {
     	
@@ -194,7 +182,7 @@ public class CorrelationCalc {
 
 
    
-    public double pearsonCorrelationStandard(double[] b) {
+    public double pearsonCorrelationStandardOld(double[] b) {
         if ((b == null) || (a == null)) return 0.0D;
         if (b.length != a.length) {
             System.out.println("Original: " + a.length + " elements.  New: " + b.length + " elements.");
@@ -424,21 +412,21 @@ public class CorrelationCalc {
         return result;
     }
 
-    //not used for now, needs fixing
-    public double newSpearmanCorrelation(double[] b, boolean hasSkips, Double blankValue) {
+  //using apache
+    public double newSpearmanCorrelation(double[] b) {
     	SpearmansCorrelation spc = new SpearmansCorrelation();
-    	JOptionPane.showMessageDialog(null, "a:"+Arrays.toString(a));
-    	JOptionPane.showMessageDialog(null, "b:"+Arrays.toString(b));
-    	double thisVal = 0.0D + spc.correlation(a, b);
-    	if (Double.isNaN(thisVal)) {
-    		thisVal = 0.0D;
+		double thisVal = 0.0D;
+		try {
+			thisVal = 0.0D + spc.correlation(a, b);
+		} catch (NotANumberException nane) {
+			thisVal = 0.0D;
+		}
+		if (Double.isNaN(thisVal)) {
+			thisVal = 0.0D;
 		}
     	return thisVal;
     	
-        /*if ((hasSkips) || (hasBlanks)) {
-            return newspearmanCorrelationWithSkips(b, blankValue);
-        }
-        return newspearmanCorrelationStandard(b);*/
+       
     }
 
     private double newspearmanCorrelationStandard(double[] b) {

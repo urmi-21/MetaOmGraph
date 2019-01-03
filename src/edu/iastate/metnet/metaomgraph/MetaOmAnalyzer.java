@@ -203,7 +203,7 @@ public class MetaOmAnalyzer {
 						if (method == 2) {
 							// urmi now using apache maths' SpearmansCorrelation
 							// this is slower than newSpearmanCorrelation
-							double[] sData = project.getIncludedData(entries[row]);
+							/*double[] sData = project.getIncludedData(entries[row]);
 							double[] tData = project.getIncludedData(entries[i]);
 
 							SpearmansCorrelation spc = new SpearmansCorrelation();
@@ -215,8 +215,8 @@ public class MetaOmAnalyzer {
 							}
 							if (Double.isNaN(thisVal)) {
 								thisVal = 0.0D;
-							}
-							result[entries[i]] = new CorrelationValue(thisVal);
+							}*/
+							result[entries[i]] = new CorrelationValue(calcy.newSpearmanCorrelation(data));
 
 							// function newSpearmanCorrelation has errors, produces incorrect result
 							// result[entries[i]] = new
