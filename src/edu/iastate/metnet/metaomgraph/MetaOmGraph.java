@@ -537,6 +537,12 @@ public class MetaOmGraph implements ActionListener {
 				recentProjects = (Vector<File>) in.readObject();
 				showTips = (MetaOmShowTipsChoice) in.readObject();
 				currentTip = (Integer) in.readObject();
+				
+				List<String> Robs= (List<String>) in.readObject();
+				JOptionPane.showMessageDialog(null, Robs.toString());
+				userRPath=Robs.get(0);
+				setpathtoRscrips(Robs.get(1));
+				
 				in.close();
 			} catch (FileNotFoundException e1) {
 				e1.printStackTrace();
@@ -1341,12 +1347,23 @@ public class MetaOmGraph implements ActionListener {
 				} else if (currentTip != null) {
 					out.writeObject(currentTip);
 				}
-				// if (savedQueries==null)
-				// savedQueries=new Hashtable();
-				// if (savedSorts==null)
-				// savedSorts=new Hashtable();
-				// out.writeObject(savedQueries);
-				// out.writeObject(savedSorts);
+				
+				//save R path and R scripts path
+				List<String> Robs=new ArrayList<>();
+				if(userRPath==null) {
+					Robs.add("");
+				}else {
+					Robs.add(userRPath);	
+				}
+				if(getpathtoRscrips()==null) {
+					Robs.add("");
+				}else {
+					Robs.add(getpathtoRscrips());	
+				}
+				
+				out.writeObject(Robs);
+				
+				
 				out.close();
 				fos.close();
 			} catch (IOException e) {

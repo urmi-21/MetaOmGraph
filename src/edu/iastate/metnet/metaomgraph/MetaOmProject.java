@@ -1157,7 +1157,7 @@ public class MetaOmProject {
 							MetaOmGraph.setNumPermutations(Integer.parseInt(thisElement.getAttributeValue("value")));
 						} else if (thisElementName.equals("threads")) {
 							MetaOmGraph.setNumThreads(Integer.parseInt(thisElement.getAttributeValue("value")));
-						} else if (thisElementName.equals("rpath")) {
+						} /*else if (thisElementName.equals("rpath")) {
 							if (thisElement.getAttributeValue("default").equals("false")) {
 								MetaOmGraph.defaultRpath = false;
 								MetaOmGraph.setUserRPath(thisElement.getAttributeValue("value"));
@@ -1166,7 +1166,7 @@ public class MetaOmProject {
 							}
 						} else if (thisElementName.equals("pathtorfiles")) {
 							MetaOmGraph.setpathtoRscrips(thisElement.getAttributeValue("value"));
-						} else if (thisElementName.equals("hyperlinksCols")) {
+						}*/ else if (thisElementName.equals("hyperlinksCols")) {
 							// these values will be passed to MetadataTableDisplayPanel once the object is
 							// created
 							MetaOmGraph._SRR = Integer.parseInt(thisElement.getAttributeValue("srrColumn"));
@@ -3177,14 +3177,15 @@ public class MetaOmProject {
 		threads.setAttribute("value", String.valueOf(MetaOmGraph.getNumThreads()));
 		root.addContent(threads);
 
-		Element rpath = new Element("rpath");
+		//rpath is save as global param for MOG
+		/*Element rpath = new Element("rpath");
 		rpath.setAttribute("value", String.valueOf(MetaOmGraph.getRPath()));
 		rpath.setAttribute("default", String.valueOf(MetaOmGraph.defaultRpath));
 		root.addContent(rpath);
 
 		Element pathtorfiles = new Element("pathtorfiles");
 		pathtorfiles.setAttribute("value", String.valueOf(MetaOmGraph.getpathtoRscrips()));
-		root.addContent(pathtorfiles);
+		root.addContent(pathtorfiles);*/
 
 		// info about hyperlinked columns
 		Element hyperlinks = new Element("hyperlinksCols");

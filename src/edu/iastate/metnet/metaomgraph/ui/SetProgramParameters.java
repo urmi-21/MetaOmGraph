@@ -89,7 +89,7 @@ public class SetProgramParameters extends JInternalFrame {
 				textField.setText("100");
 				MetaOmGraph.useDefaultRPath();
 				textField_1.setText(MetaOmGraph.getRPath());
-				textField_2.setText("");
+				textField_2.setText(MetaOmGraph.getpathtoRscrips());
 			}
 		});
 		buttonPanel.add(btnDefault);
@@ -147,13 +147,14 @@ public class SetProgramParameters extends JInternalFrame {
 		panel_1.add(browseRPath, "cell 4 4,growx");
 		
 		
-		JLabel lblPathToFolder = new JLabel("Path to folder containing R scripts to make plots");
+		JLabel lblPathToFolder = new JLabel("Path to folder containing the R scripts");
 		panel_1.add(lblPathToFolder, "cell 1 5");
 		
 		textField_2 = new JTextField();
 		panel_1.add(textField_2, "cell 3 5,growx");
 		textField_2.setColumns(20);
 		textField_2.setText(MetaOmGraph.getpathtoRscrips());
+		JOptionPane.showMessageDialog(null, "RS: "+MetaOmGraph.getpathtoRscrips());
 		
 		browseRScriptsPath=new JButton("Browse...");
 		browseRScriptsPath.addActionListener(new ActionListener() {
