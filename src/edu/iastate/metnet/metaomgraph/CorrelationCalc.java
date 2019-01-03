@@ -176,13 +176,19 @@ public class CorrelationCalc {
     }
 
     public double pearsonCorrelation(double[] b, boolean hasSkips, Double blankValue) {
+    	
         if ((hasSkips) || (hasBlanks)) {
-        	
+        	JOptionPane.showMessageDialog(null, "*a:"+Arrays.toString(a));
+            JOptionPane.showMessageDialog(null, "*b:"+Arrays.toString(b));
+            JOptionPane.showMessageDialog(null, "blank val:"+blankValue);
             return pearsonCorrelationWithSkips(b, blankValue);
         }
-        //return new PearsonsCorrelation().correlation(a, b);
         
-        return pearsonCorrelationStandard(b);
+        JOptionPane.showMessageDialog(null, "a:"+Arrays.toString(a));
+        JOptionPane.showMessageDialog(null, "b:"+Arrays.toString(b));
+        return new PearsonsCorrelation().correlation(a, b);
+        
+        //return pearsonCorrelationStandard(b);
     }
 
 

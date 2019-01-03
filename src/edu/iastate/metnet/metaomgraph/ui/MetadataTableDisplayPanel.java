@@ -154,7 +154,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 				 */
 				// get selected rows
 				int[] selectedInd = table.getSelectedRows();
-				
+
 				if (selectedInd == null || selectedInd.length < 2) {
 					JOptionPane.showMessageDialog(null, "Please select at least two rows from table",
 							"Invalid selection", JOptionPane.ERROR_MESSAGE);
@@ -163,8 +163,8 @@ public class MetadataTableDisplayPanel extends JPanel {
 				String[] selectedNames = new String[selectedInd.length];
 				DefaultTableModel model = (DefaultTableModel) table.getModel();
 				for (int i = 0; i < selectedInd.length; i++) {
-					selectedNames[i] = model
-							.getValueAt(table.convertRowIndexToModel(selectedInd[i]), table.getColumn(obj.getDatacol()).getModelIndex()).toString();
+					selectedNames[i] = model.getValueAt(table.convertRowIndexToModel(selectedInd[i]),
+							table.getColumn(obj.getDatacol()).getModelIndex()).toString();
 				}
 				// for the selected runs find their index in the data file and get data by the
 				// index in data file
@@ -240,8 +240,8 @@ public class MetadataTableDisplayPanel extends JPanel {
 				String[] selectedNames = new String[selectedInd.length];
 				DefaultTableModel model = (DefaultTableModel) table.getModel();
 				for (int i = 0; i < selectedInd.length; i++) {
-					selectedNames[i] = model
-							.getValueAt(table.convertRowIndexToModel(selectedInd[i]), table.getColumn(obj.getDatacol()).getModelIndex()).toString();
+					selectedNames[i] = model.getValueAt(table.convertRowIndexToModel(selectedInd[i]),
+							table.getColumn(obj.getDatacol()).getModelIndex()).toString();
 				}
 				// for the selected runs find their index in the data file and get data by the
 				// index in data file
@@ -320,8 +320,8 @@ public class MetadataTableDisplayPanel extends JPanel {
 				String[] selectedNames = new String[selectedInd.length];
 				DefaultTableModel model = (DefaultTableModel) table.getModel();
 				for (int i = 0; i < selectedInd.length; i++) {
-					selectedNames[i] = model
-							.getValueAt(table.convertRowIndexToModel(selectedInd[i]), table.getColumn(obj.getDatacol()).getModelIndex()).toString();
+					selectedNames[i] = model.getValueAt(table.convertRowIndexToModel(selectedInd[i]),
+							table.getColumn(obj.getDatacol()).getModelIndex()).toString();
 				}
 				// for the selected runs find their index in the data file and get data by the
 				// index in data file
@@ -399,7 +399,9 @@ public class MetadataTableDisplayPanel extends JPanel {
 				int option = JOptionPane.showOptionDialog(null, optPanel, "Choose an option",
 						JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, null);
 
-				if (option == JOptionPane.YES_OPTION) {
+				if (option == JOptionPane.CANCEL_OPTION) {
+					return;
+				} else if (option == JOptionPane.YES_OPTION) {
 					filterSelectedRows(false);
 				} else if (option == JOptionPane.NO_OPTION) {
 					filterSelectedRows(true);
@@ -420,7 +422,9 @@ public class MetadataTableDisplayPanel extends JPanel {
 				optPanel.add(new JLabel("Remove or keep selected rows ?"));
 				int option = JOptionPane.showOptionDialog(null, optPanel, "Choose an option",
 						JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, null);
-				if (option == JOptionPane.YES_OPTION) {
+				if (option == JOptionPane.CANCEL_OPTION) {
+					return;
+				} else if (option == JOptionPane.YES_OPTION) {
 					filterHighlightedRows(false);
 				} else if (option == JOptionPane.NO_OPTION) {
 					filterHighlightedRows(true);

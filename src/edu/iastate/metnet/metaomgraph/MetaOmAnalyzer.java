@@ -1345,14 +1345,14 @@ public class MetaOmAnalyzer {
 					String timeString = "Preparing...";
 					for (int row = 0; (row < entries.length) && (!progress.isCanceled()); row++) {
 						double[] sourceData = project.getIncludedData(entries[row]);
-
+						/*double[] sourceData =project.getAllData(entries[row]);
 						if (MetaOmAnalyzer.exclude != null) {
 							for (int i = 0; i < sourceData.length; i++) {
 								if (MetaOmAnalyzer.exclude[i]) {
 									sourceData[i] = Double.NaN;
 								}
 							}
-						}
+						}*/
 
 						CorrelationCalc calcy = new CorrelationCalc(sourceData, MetaOmAnalyzer.exclude);
 
