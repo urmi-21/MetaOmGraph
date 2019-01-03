@@ -1408,9 +1408,10 @@ public class MetaOmAnalyzer {
 							if (method == 1) {
 								val = calcy.pearsonCorrelation(data, project.mayContainBlankValues(),
 										project.getBlankValue());
-							} else {
-								val = calcy.spearmanCorrelation(data, project.mayContainBlankValues(),
-										project.getBlankValue());
+							} else if (method == 2) {
+								val = calcy.newSpearmanCorrelation(data);
+							}else {
+								val=0;
 							}
 							out.write("\t" + format.format(val));
 							out.write("\r\n");
