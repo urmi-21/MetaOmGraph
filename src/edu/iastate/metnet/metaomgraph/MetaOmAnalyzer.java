@@ -181,17 +181,15 @@ public class MetaOmAnalyzer {
 			public Object construct() {
 				try {
 					// source data is selected data row
-					double[] sourceData = project.getAllData(entries[row]);
-					// JOptionPane.showMessageDialog(null,
-					// "Sourcdata:"+Arrays.toString(sourceData));
-
+					double[] sourceData = project.getIncludedData(entries[row]);
+					/*double[] sourceData = project.getAllData(entries[row]);
 					if (MetaOmAnalyzer.exclude != null) {
 						for (int i = 0; i < sourceData.length; i++) {
 							if (MetaOmAnalyzer.exclude[i]) {
 								sourceData[i] = Double.NaN;
 							}
 						}
-					}
+					}*/
 
 					CorrelationCalc calcy = new CorrelationCalc(sourceData, MetaOmAnalyzer.exclude);
 
@@ -199,7 +197,8 @@ public class MetaOmAnalyzer {
 					do {
 						progress.setProgress(i);
 
-						double[] data = project.getAllData(entries[i]);
+						//double[] data = project.getAllData(entries[i]);
+						double[] data = project.getIncludedData(entries[i]);
 						// JOptionPane.showMessageDialog(null, "data:"+Arrays.toString(data));
 						if (method == 2) {
 							// urmi now using apache maths' SpearmansCorrelation

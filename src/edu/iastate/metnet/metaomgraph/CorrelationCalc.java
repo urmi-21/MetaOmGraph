@@ -177,7 +177,7 @@ public class CorrelationCalc {
 
     public double pearsonCorrelation(double[] b, boolean hasSkips, Double blankValue) {
     	
-        if ((hasSkips) || (hasBlanks)) {
+        /*if ((hasSkips) || (hasBlanks)) {
         	JOptionPane.showMessageDialog(null, "*a:"+Arrays.toString(a));
             JOptionPane.showMessageDialog(null, "*b:"+Arrays.toString(b));
             JOptionPane.showMessageDialog(null, "blank val:"+blankValue);
@@ -186,43 +186,14 @@ public class CorrelationCalc {
         
         JOptionPane.showMessageDialog(null, "a:"+Arrays.toString(a));
         JOptionPane.showMessageDialog(null, "b:"+Arrays.toString(b));
-        return new PearsonsCorrelation().correlation(a, b);
+        return new PearsonsCorrelation().correlation(a, b);*/
         
-        //return pearsonCorrelationStandard(b);
+       // return pearsonCorrelationStandard(b);
+    	return pearsonCorrelation(b);
     }
 
 
-    public double oldPearsonCorrelation(double[] b) {
-        if ((b == null) || (a == null)) return 0.0D;
-        if (b.length != a.length) {
-            System.out.println("Original: " + a.length + " elements.  New: " + b.length + " elements.");
-            return 0.0D;
-        }
-        double aveB = 0.0D;
-        for (int i = 0; i < b.length; i++) {
-            aveB += b[i];
-        }
-        aveB /= b.length;
-
-        double[] A = new double[a.length];
-        double[] B = new double[b.length];
-        for (int i = 0; i < A.length; i++) {
-            A[i] = (a[i] - aveA);
-            b[i] -= aveB;
-        }
-        double top = 0.0D;
-        double bottom = 0.0D;
-        double bottom1 = 0.0D;
-        double bottom2 = 0.0D;
-        for (int i = 0; i < A.length; i++) {
-            top += A[i] * B[i];
-            bottom1 += A[i] * A[i];
-            bottom2 += B[i] * B[i];
-        }
-        bottom = Math.sqrt(bottom1 * bottom2);
-        return top / bottom;
-    }
-
+   
     public double pearsonCorrelationStandard(double[] b) {
         if ((b == null) || (a == null)) return 0.0D;
         if (b.length != a.length) {
@@ -271,6 +242,53 @@ public class CorrelationCalc {
         return top / bottom;
     }
 
+    /**
+     * @author urmi
+     * @param b
+     * @return
+     */
+    public double pearsonCorrelation(double[] b) {
+    	
+    	if(b.length!=a.length) {
+    		JOptionPane.showMessageDialog(null, "Unequal lengths","Error",JOptionPane.ERROR_MESSAGE);
+    		return 0;
+    	}
+    	
+    	double sx = 0.0;
+        double sy = 0.0;
+        double sxx = 0.0;
+        double syy = 0.0;
+        double sxy = 0.0;
+
+        int n = b.length;
+
+        for(int i = 0; i < n; ++i) {
+          double x = a[i];
+          double y = b[i];
+          //return 0 in nan found
+          if(Double.isNaN(x) || Double.isNaN(y)) {
+        	  return 0;
+          }
+          sx += x;
+          sy += y;
+          sxx += x * x;
+          syy += y * y;
+          sxy += x * y;
+        }
+
+        // compute cov
+        double cov = sxy / n - sx * sy / n / n;
+        // SE of x
+        double sigmax = Math.sqrt(sxx / n -  sx * sx / n / n);
+        // SE of y
+        double sigmay = Math.sqrt(syy / n -  sy * sy / n / n);
+
+        // correlation is just a normalized covariation
+        return cov / (sigmax * sigmay);
+    	
+    }
+    
+    
     public double pearsonCorrelationWithSkips(double[] b, Double blankValue) {
         if ((b == null) || (a == null)) return 0.0D;
         if (b.length != a.length) {
