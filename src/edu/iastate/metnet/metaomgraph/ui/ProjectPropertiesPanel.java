@@ -63,7 +63,8 @@ public class ProjectPropertiesPanel extends JPanel {
 		JLabel color1Label = new JLabel("Background color 1: ");
 		JLabel color2Label = new JLabel("Background color 2: ");
 		// urmi
-		JLabel paramLabel = new JLabel("Program parameters");
+		JLabel paramLabel = new JLabel("Project parameters");
+		JLabel rParams = new JLabel("R path");
 		color1Label.setHorizontalAlignment(11);
 		color2Label.setHorizontalAlignment(11);
 
@@ -189,7 +190,22 @@ public class ProjectPropertiesPanel extends JPanel {
 			}
 
 		});
+		
+		JButton rPathManageButton = new JButton("Change...");
+		rPathManageButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				SetRPaths frame = new SetRPaths();
+				frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
+				frame.pack();
+				frame.setTitle("Change parameters");
+				MetaOmGraph.getDesktop().add(frame);
+				frame.setVisible(true);
+			}
 
+		});
+		
+		//add to frame
+		
 		c.gridx = 0;
 		c.gridy = 0;
 		c.fill = 0;
@@ -210,6 +226,8 @@ public class ProjectPropertiesPanel extends JPanel {
 		add(columnNamesLabel, c);
 		// urmi
 		c.gridy = 7;
+		add(rParams, c);
+		c.gridy = 8;
 		add(paramLabel, c);
 		c.gridx = 1;
 		c.gridy = 0;
@@ -230,6 +248,8 @@ public class ProjectPropertiesPanel extends JPanel {
 		add(columnManageButton, c);
 		// urmi
 		c.gridy = 7;
+		add(rPathManageButton, c);
+		c.gridy = 8;
 		add(paramManageButton, c);
 	}
 

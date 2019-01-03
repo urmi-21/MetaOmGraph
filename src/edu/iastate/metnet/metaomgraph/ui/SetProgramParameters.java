@@ -26,10 +26,6 @@ public class SetProgramParameters extends JInternalFrame {
 	private JTextField textField;
 	private JComboBox<Integer> comboBox;
 	private JComboBox comboBox_1;
-	private JTextField textField_1;
-	private JTextField textField_2;
-	private JButton browseRPath;
-	private JButton browseRScriptsPath;
 
 	/**
 	 * Launch the application.
@@ -73,8 +69,6 @@ public class SetProgramParameters extends JInternalFrame {
 
 				MetaOmGraph.setNumPermutations(thisPerms);
 				MetaOmGraph.setNumThreads(thisThreads);
-				MetaOmGraph.setpathtoRscrips(textField_2.getText().trim());
-				MetaOmGraph.setUserRPath(textField_1.getText().trim());
 				MetaOmGraph.getActiveProject().getMetadataHybrid().setDefaultRepCol(comboBox_1.getSelectedItem().toString());
 				dispose();
 
@@ -86,12 +80,17 @@ public class SetProgramParameters extends JInternalFrame {
 		JButton btnDefault = new JButton("Default");
 		btnDefault.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				textField.setText("100");
-				MetaOmGraph.useDefaultRPath();
-				textField_1.setText(MetaOmGraph.getRPath());
-				textField_2.setText(MetaOmGraph.getpathtoRscrips());
+				textField.setText("100");				
 			}
 		});
+		
+		JButton btnCancel = new JButton("Cancel");
+		btnCancel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				dispose();
+			}
+		});
+		buttonPanel.add(btnCancel);
 		buttonPanel.add(btnDefault);
 		buttonPanel.add(btnOk);
 
@@ -121,60 +120,6 @@ public class SetProgramParameters extends JInternalFrame {
 				"11", "12", "13", "14", "15", "16" }));
 		comboBox.setSelectedIndex(MetaOmGraph.getNumThreads()-1);
 		panel_1.add(comboBox, "cell 3 3,growx");
-		
-		JLabel lblPathToRscript = new JLabel("Path to \"Rscript.exe\"");
-		panel_1.add(lblPathToRscript, "cell 1 4");
-		
-		textField_1 = new JTextField();
-		panel_1.add(textField_1, "cell 3 4,growx");
-		textField_1.setColumns(20);
-		textField_1.setText(MetaOmGraph.getRPath());
-		browseRPath=new JButton("Browse...");
-		browseRPath.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				final JFileChooser fc = new JFileChooser();
-				int returnVal = fc.showOpenDialog(SetProgramParameters.this);
-		        if (returnVal == JFileChooser.APPROVE_OPTION) {
-		            File file = fc.getSelectedFile();
-		            //JOptionPane.showMessageDialog(null,"fname"+file.getPath());
-		            MetaOmGraph.setUserRPath(file.getPath());
-		            textField_1.setText(MetaOmGraph.getRPath());
-		        } else {
-		            return;
-		        }
-			}
-		});
-		panel_1.add(browseRPath, "cell 4 4,growx");
-		
-		
-		JLabel lblPathToFolder = new JLabel("Path to folder containing the R scripts");
-		panel_1.add(lblPathToFolder, "cell 1 5");
-		
-		textField_2 = new JTextField();
-		panel_1.add(textField_2, "cell 3 5,growx");
-		textField_2.setColumns(20);
-		textField_2.setText(MetaOmGraph.getpathtoRscrips());
-		JOptionPane.showMessageDialog(null, "RS: "+MetaOmGraph.getpathtoRscrips());
-		
-		browseRScriptsPath=new JButton("Browse...");
-		browseRScriptsPath.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				final JFileChooser fc = new JFileChooser();
-				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-				int returnVal = fc.showOpenDialog(SetProgramParameters.this);
-		        if (returnVal == JFileChooser.APPROVE_OPTION) {
-		            File file = fc.getSelectedFile();
-		            //This is where a real application would open the file.
-		            //JOptionPane.showMessageDialog(null,"fname"+file.getPath());
-		            MetaOmGraph.setpathtoRscrips(file.getPath());
-		            textField_2.setText(MetaOmGraph.getpathtoRscrips());
-		        } else {
-		            return;
-		        }
-			
-			}
-		});
-		panel_1.add(browseRScriptsPath, "cell 4 5,growx");
 		
 		JLabel lblDefaultReplicateGroup = new JLabel("Default replicate group column");
 		panel_1.add(lblDefaultReplicateGroup, "cell 1 6");
