@@ -82,3 +82,7 @@ show num of cd used in rep plot metadata
 change def rep col set to current selected col, only call func if changed
 build reps column is slow again
 remove genes from plot once a plot is drawn
+add project info to display project files etc
+save correlation matrix as robject
+atleast two rows should be selected for scatter plot 
+update tips
