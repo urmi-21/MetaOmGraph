@@ -191,6 +191,10 @@ public class MetaOmGraph implements ActionListener {
 	}
 
 	public static void setUserRPath(String path) {
+		if(path==null || path.equals("")) {
+			defaultRpath = true;
+			return;
+		}
 		if (path.equals(getdefaulrRPath())) {
 			defaultRpath = true;
 			return;
@@ -538,10 +542,10 @@ public class MetaOmGraph implements ActionListener {
 				showTips = (MetaOmShowTipsChoice) in.readObject();
 				currentTip = (Integer) in.readObject();
 				
-				List<String> Robs= (List<String>) in.readObject();
-				JOptionPane.showMessageDialog(null, Robs.toString());
-				userRPath=Robs.get(0);
-				setpathtoRscrips(Robs.get(1));
+				List<String> rObs= (List<String>) in.readObject();
+				//JOptionPane.showMessageDialog(null, Robs.toString());
+				setUserRPath(rObs.get(0));
+				setpathtoRscrips(rObs.get(1));
 				
 				in.close();
 			} catch (FileNotFoundException e1) {
@@ -1349,19 +1353,19 @@ public class MetaOmGraph implements ActionListener {
 				}
 				
 				//save R path and R scripts path
-				List<String> Robs=new ArrayList<>();
+				List<String> rObs=new ArrayList<>();
 				if(userRPath==null) {
-					Robs.add("");
+					rObs.add("");
 				}else {
-					Robs.add(userRPath);	
+					rObs.add(userRPath);	
 				}
 				if(getpathtoRscrips()==null) {
-					Robs.add("");
+					rObs.add("");
 				}else {
-					Robs.add(getpathtoRscrips());	
+					rObs.add(getpathtoRscrips());	
 				}
 				
-				out.writeObject(Robs);
+				out.writeObject(rObs);
 				
 				
 				out.close();
