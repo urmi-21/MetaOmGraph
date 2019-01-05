@@ -177,6 +177,9 @@ public class SearchByExpressionFrame extends JInternalFrame {
 				}
 				// get results for selected rows
 				int[] selected = table.getSelectedRows();
+				if(selected ==null || selected.length<1) {
+					return;
+				}
 				List<List<String>> res = new ArrayList<>();
 				if (searchDC) {
 					try {

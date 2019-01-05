@@ -1340,6 +1340,7 @@ public class MetaOmAnalyzer {
 							timeString = "Estimating time remaining...";
 						}
 						if ((row == 5) || ((row % 10 == 0) && (row != 0))) {
+							
 							int rowsLeft = entries.length - row;
 							int corrLoss = (int) ((rowsLeft + 1) * (rowsLeft / 2.0D));
 
