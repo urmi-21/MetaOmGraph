@@ -657,13 +657,20 @@ public class MetadataTreeDisplayPanel extends JPanel {
 	}
 
 	public void updateTree() {
-		// get original xml root
-		XMLroot = (Element) mdhobj.getXMLRoot().clone();
-		// filter the tree
-		initDisplay(XMLroot);
-		tree.setShowsRootHandles(true);
-		tree.setRootVisible(false);
-		scrollPane_1.setViewportView(tree);
+		new AnimatedSwingWorker("Updating tree...", true) {
+			@Override
+			public Object construct() {
+				// get original xml root
+				XMLroot = (Element) mdhobj.getXMLRoot().clone();
+				// filter the tree
+				initDisplay(XMLroot);
+				tree.setShowsRootHandles(true);
+				tree.setRootVisible(false);
+				scrollPane_1.setViewportView(tree);
+				return null;
+			}
+
+		}.start();
 
 		// update exclude list
 		MetaOmAnalyzer.updateExcluded(obj.getExcluded());
