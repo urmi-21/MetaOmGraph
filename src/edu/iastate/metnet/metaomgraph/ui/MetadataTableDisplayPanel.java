@@ -407,7 +407,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 					filterSelectedRows(true);
 				}
 
-				updateTable();
+				
 
 				MetaOmGraph.getActiveTable().updateMetadataTree();
 			}
@@ -425,10 +425,10 @@ public class MetadataTableDisplayPanel extends JPanel {
 				if (option == JOptionPane.CANCEL_OPTION) {
 					return;
 				} else if (option == JOptionPane.YES_OPTION) {
-					//remove highlighted rows
+					// remove highlighted rows
 					filterHighlightedRows(false);
 				} else if (option == JOptionPane.NO_OPTION) {
-					//keep highlighted rows
+					// keep highlighted rows
 					filterHighlightedRows(true);
 				}
 
@@ -728,9 +728,6 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 				}.start();
 
-				// JOptionPane.showMessageDialog(null, "REs:"+result.toString());
-				// JOptionPane.showMessageDialog(null,
-				// "fe:"+queries[0].getField()+"index:"+table.getColumn(queries[0].getField()).getModelIndex());
 				// add highlights to results
 				// move rows in result to top then highlight
 				int dataColNum = table.getColumn(obj.getDatacol()).getModelIndex();
@@ -739,6 +736,19 @@ public class MetadataTableDisplayPanel extends JPanel {
 				highlightedRows = new ArrayList<>();
 				toHighlight = new HashMap<Integer, List<String>>();
 				toHighlight.put(dataColNum, result);
+				// create a list of highlighted rows and save under highlightedRows
+				//this is removed from the rendere function as it didn't add all the rows unless whole table is rendered of scrolled
+				for (int modelRow = 0; modelRow < table.getRowCount(); modelRow++) {
+					for (Integer j : toHighlight.keySet()) {
+						String type = (String) table.getModel().getValueAt(modelRow, j);
+						if (highlightThisRow(j, type)) {
+							if (!highlightedRows.contains(modelRow)) {
+								highlightedRows.add(modelRow);
+							}
+						}
+					}
+				}
+				JOptionPane.showMessageDialog(null, highlightedRows.size()+" rows matched the query", "Search result",JOptionPane.INFORMATION_MESSAGE);
 				table.repaint();
 				// JOptionPane.showMessageDialog(null, "toH:"+toHighlight.toString());
 
@@ -748,6 +758,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 		JMenuItem mntmRemovePrevious = new JMenuItem("Clear Last Search");
 		mntmRemovePrevious.addActionListener(new ActionListener() {
+
 			public void actionPerformed(ActionEvent e) {
 				toHighlight = new HashMap<Integer, List<String>>();
 				// initialize with garbage value for alternate coloring to take effect via
@@ -764,6 +775,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 		menuBar.add(mnHelp);
 
 		scrollPane = new JScrollPane();
+
 		add(scrollPane, BorderLayout.CENTER);
 		initTable(headers);
 		scrollPane.setViewportView(table);
@@ -792,8 +804,17 @@ public class MetadataTableDisplayPanel extends JPanel {
 					c.setBackground(getBackground());
 					int modelRow = convertRowIndexToModel(row);
 
+					if(highlightedRows !=null && highlightedRows.contains(modelRow)) {
+						c.setBackground(HIGHLIGHTCOLOR);
+					}else {
+						if (row % 2 == 0) {
+							c.setBackground(BCKGRNDCOLOR1);
+						} else {
+							c.setBackground(BCKGRNDCOLOR2);
+						}
+					}
 					// for (int j = 0; j < table.getColumnCount(); j++) {
-					for (Integer j : toHighlight.keySet()) {
+					/*for (Integer j : toHighlight.keySet()) {
 
 						String type = (String) getModel().getValueAt(modelRow, j);
 						if (highlightThisRow(j, type)) {
@@ -808,7 +829,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 								c.setBackground(BCKGRNDCOLOR2);
 							}
 						}
-					}
+					}*/
 
 				} else {
 					c.setBackground(SELECTIONBCKGRND);
@@ -1107,16 +1128,18 @@ public class MetadataTableDisplayPanel extends JPanel {
 	 * @author urmi Exclude data columns in the selected rows
 	 */
 	public void filterSelectedRows(boolean invert) {
-		Set<String> inc = obj.getIncluded();
-		Set<String> exc = obj.getExcluded();
-		List<String> removedList = new ArrayList<>();
-		// get selected rows in table
-		DefaultTableModel model = (DefaultTableModel) table.getModel();
 		int[] selected = table.getSelectedRows();
 		if (selected.length < 1) {
 			JOptionPane.showMessageDialog(null, "No rows are selected !!!");
 			return;
 		}
+		
+		Set<String> inc = obj.getIncluded();
+		Set<String> exc = obj.getExcluded();
+		List<String> removedList = new ArrayList<>();
+		// get selected rows in table
+		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		
 		// JOptionPane.showMessageDialog(null, "selec:" + Arrays.toString(selected));
 		if (invert) {
 			table.selectAll();
@@ -1144,17 +1167,18 @@ public class MetadataTableDisplayPanel extends JPanel {
 		obj.setIncluded(inc);
 		// update exclude list
 		MetaOmAnalyzer.updateExcluded(exc);
-
 		// remove selected rows from search result
 		removeFromtoHighlight(removedList);
-
+		updateTable();
 	}
 
 	public void filterHighlightedRows(boolean invert) {
+		
 		if (highlightedRows == null || highlightedRows.size() < 1) {
 			JOptionPane.showMessageDialog(null, "Nothing to remove", "Nothing to remove", JOptionPane.WARNING_MESSAGE);
 			return;
 		}
+		JOptionPane.showMessageDialog(null, "highlightedRows size:"+highlightedRows.size());
 		Set<String> inc = obj.getIncluded();
 		Set<String> exc = obj.getExcluded();
 		if (invert) {
