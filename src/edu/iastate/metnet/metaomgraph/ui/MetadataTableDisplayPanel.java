@@ -409,7 +409,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 				
 
-				MetaOmGraph.getActiveTable().updateMetadataTree();
+				
 			}
 		});
 		mnByRow.add(mntmFilterSelectedRows);
@@ -432,15 +432,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 					filterHighlightedRows(true);
 				}
 
-				updateTable();
-				MetaOmGraph.getActiveTable().updateMetadataTree();
-				// clear last search
-				toHighlight = new HashMap<Integer, List<String>>();
-				// initialize with garbage value for alternate coloring to take effect via
-				// prepareRenderer
-				toHighlight.put(0, null);
-				table.repaint();
-				highlightedRows = null;
+				
 
 			}
 		});
@@ -1170,6 +1162,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 		// remove selected rows from search result
 		removeFromtoHighlight(removedList);
 		updateTable();
+		MetaOmGraph.getActiveTable().updateMetadataTree();
 	}
 
 	public void filterHighlightedRows(boolean invert) {
@@ -1209,6 +1202,16 @@ public class MetadataTableDisplayPanel extends JPanel {
 		obj.setIncluded(inc);
 		// update exclude list
 		MetaOmAnalyzer.updateExcluded(exc);
+		//after filtering
+		updateTable();
+		MetaOmGraph.getActiveTable().updateMetadataTree();
+		// clear last search
+		toHighlight = new HashMap<Integer, List<String>>();
+		// initialize with garbage value for alternate coloring to take effect via
+		// prepareRenderer
+		toHighlight.put(0, null);
+		table.repaint();
+		highlightedRows = null;
 	}
 
 	public void filterRows(List<String> s) {
