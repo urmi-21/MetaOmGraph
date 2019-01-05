@@ -429,14 +429,9 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 				} else if (option == JOptionPane.NO_OPTION) {
 					// keep highlighted rows
-					new AnimatedSwingWorker("Filtering...", true) {
-						@Override
-						public Object construct() {
-							filterHighlightedRows(true);
-							return null;
-						}
 
-					}.start();
+					filterHighlightedRows(true);
+
 				}
 
 			}
@@ -1024,71 +1019,79 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 	public void updateTable(boolean colsChanged) {
 		metadata = this.obj.getAllData();
-		DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
-		// AbstractTableModel tablemodel = (DefaultTableModel) table.getModel();
-		// clear table model
-		tablemodel.setRowCount(0);
-		tablemodel.setColumnCount(0);
-		// tablemodel.getDataVector().removeAllElements();
-		// tablemodel.fireTableDataChanged();
-		// table.repaint();
+		new AnimatedSwingWorker("Updating table...", true) {
+			@Override
+			public Object construct() {
 
-		for (int i = 0; i < metadata.size(); i++) {
-			// create a temp string storing all col values for a row
-			String[] temp = new String[headers.length];
-			for (int j = 0; j < headers.length; j++) {
+				DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
+				// AbstractTableModel tablemodel = (DefaultTableModel) table.getModel();
+				// clear table model
+				tablemodel.setRowCount(0);
+				tablemodel.setColumnCount(0);
+				// tablemodel.getDataVector().removeAllElements();
+				// tablemodel.fireTableDataChanged();
+				// table.repaint();
 
-				// add col name
-				if (i == 0) {
-					tablemodel.addColumn(headers[j]);
+				for (int i = 0; i < metadata.size(); i++) {
+					// create a temp string storing all col values for a row
+					String[] temp = new String[headers.length];
+					for (int j = 0; j < headers.length; j++) {
+
+						// add col name
+						if (i == 0) {
+							tablemodel.addColumn(headers[j]);
+						}
+
+						temp[j] = metadata.get(i).get(headers[j]).toString();
+					}
+
+					// add ith row in table
+					tablemodel.addRow(temp);
+
 				}
 
-				temp[j] = metadata.get(i).get(headers[j]).toString();
-			}
+				// add sorter
+				TableRowSorter sorter = new TableRowSorter(tablemodel) {
+					@Override
+					public void toggleSortOrder(int column) {
+						List<? extends SortKey> sortKeys = getSortKeys();
+						if (sortKeys.size() > 0) {
+							if (sortKeys.get(0).getSortOrder() == SortOrder.DESCENDING) {
+								setSortKeys(null);
+								return;
+							}
+						}
+						super.toggleSortOrder(column);
+					}
 
-			// add ith row in table
-			tablemodel.addRow(temp);
+				};
+				// TableRowSorter<TableModel> sorter = new
+				// TableRowSorter<TableModel>(tablemodel);
+				for (int i = 0; i < table.getColumnCount(); i++) {
+					sorter.setComparator(i, new AlphanumericComparator());
+				}
+				table.setRowSorter(sorter);
 
-		}
-
-		// add sorter
-		TableRowSorter sorter = new TableRowSorter(tablemodel) {
-			@Override
-			public void toggleSortOrder(int column) {
-				List<? extends SortKey> sortKeys = getSortKeys();
-				if (sortKeys.size() > 0) {
-					if (sortKeys.get(0).getSortOrder() == SortOrder.DESCENDING) {
-						setSortKeys(null);
-						return;
+				// if columns were changed
+				if (colsChanged) {
+					// format columns showing hyperlinks
+					if (autoDetect) {
+						detectSRAColumns();
+					} else {
+						if (srrColumn >= 0 || srpColumn >= 0 || srsColumn >= 0 || srxColumn >= 0 || gseColumn >= 0
+								|| gsmColumn >= 0) {
+							JOptionPane.showMessageDialog(null, "Hyperlinks to SRA and GEO were reset",
+									"Hyperlinks removed", JOptionPane.INFORMATION_MESSAGE);
+							removeHyperlinks();
+						}
 					}
 				}
-				super.toggleSortOrder(column);
+
+				table.repaint();
+				return null;
 			}
 
-		};
-		// TableRowSorter<TableModel> sorter = new
-		// TableRowSorter<TableModel>(tablemodel);
-		for (int i = 0; i < table.getColumnCount(); i++) {
-			sorter.setComparator(i, new AlphanumericComparator());
-		}
-		table.setRowSorter(sorter);
-
-		// if columns were changed
-		if (colsChanged) {
-			// format columns showing hyperlinks
-			if (autoDetect) {
-				detectSRAColumns();
-			} else {
-				if (srrColumn >= 0 || srpColumn >= 0 || srsColumn >= 0 || srxColumn >= 0 || gseColumn >= 0
-						|| gsmColumn >= 0) {
-					JOptionPane.showMessageDialog(this, "Hyperlinks to SRA and GEO were reset", "Hyperlinks removed",
-							JOptionPane.INFORMATION_MESSAGE);
-					removeHyperlinks();
-				}
-			}
-		}
-
-		table.repaint();
+		}.start();
 
 	}
 
