@@ -425,8 +425,10 @@ public class MetadataTableDisplayPanel extends JPanel {
 				if (option == JOptionPane.CANCEL_OPTION) {
 					return;
 				} else if (option == JOptionPane.YES_OPTION) {
+					//remove highlighted rows
 					filterHighlightedRows(false);
 				} else if (option == JOptionPane.NO_OPTION) {
+					//keep highlighted rows
 					filterHighlightedRows(true);
 				}
 

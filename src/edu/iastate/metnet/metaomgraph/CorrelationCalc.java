@@ -219,7 +219,11 @@ public class CorrelationCalc {
 		double sigmay = Math.sqrt(syy / n - sy * sy / n / n);
 
 		// correlation is just a normalized covariation
-		return cov / (sigmax * sigmay);
+		double corr=cov / (sigmax * sigmay);
+		if(Double.isNaN(corr) || Double.isInfinite(corr)) {
+			corr=0;
+		}
+		return corr;
 
 	}
 
