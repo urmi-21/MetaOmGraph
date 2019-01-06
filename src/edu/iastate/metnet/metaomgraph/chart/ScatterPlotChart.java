@@ -224,6 +224,12 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 	}
 
 	public ChartPanel makeScatterPlot() throws IOException {
+		//create a copy of excluded
+		boolean []excluded=MetaOmAnalyzer.getExclude();
+		if(excluded!=null) {
+			excludedCopy=new boolean[excluded.length];
+			System.arraycopy( excluded, 0, excludedCopy, 0, excluded.length );
+		}
 		// Create dataset
 		dataset = createDataset();
 		// Create chart
@@ -383,8 +389,8 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 				Point2D p = translateScreenToJava2D(event.getPoint());
 				Rectangle2D plotArea = getScreenDataArea();
 				XYPlot plot = (XYPlot) myChart.getPlot(); // your plot
-				double chartX = plot.getDomainAxis().java2DToValue(p.getX(), plotArea, plot.getDomainAxisEdge());
-				double chartY = plot.getRangeAxis().java2DToValue(p.getY(), plotArea, plot.getRangeAxisEdge());
+				//double chartX = plot.getDomainAxis().java2DToValue(p.getX(), plotArea, plot.getDomainAxisEdge());
+				//double chartY = plot.getRangeAxis().java2DToValue(p.getY(), plotArea, plot.getRangeAxisEdge());
 				ChartEntity entity = getChartRenderingInfo().getEntityCollection().getEntity(event.getPoint().getX(),
 						event.getPoint().getY());
 				// JOptionPane.showMessageDialog(null, entity);
@@ -396,17 +402,18 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 				int thisXind = item.getItem();
 				//get x and y points
 				
-				// item.getDataset().
+				XYDataset thisDS=item.getDataset();
+				double chartX=thisDS.getXValue(item.getSeriesIndex(), thisXind);
+				double chartY=thisDS.getYValue(item.getSeriesIndex(), thisXind);
+				
 				int correctColIndex = -1;
 				try {
-					boolean []excluded=MetaOmAnalyzer.getExclude();
-					if(excluded!=null) {
-						excludedCopy=new boolean[excluded.length];
-						System.arraycopy( excluded, 0, excludedCopy, 0, excluded.length );
-					}
+					
 					correctColIndex = myProject.getMetadataHybrid().getColIndexbyName(myProject.getDatainSortedOrder(selected[pivotIndex], thisXind,excludedCopy));
-					/*JOptionPane.showMessageDialog(null, "sel::"+Arrays.toString(selected));
+					
+					/*
 					JOptionPane.showMessageDialog(null, "exc:"+Arrays.toString(excludedCopy));
+					JOptionPane.showMessageDialog(null, "sel::"+Arrays.toString(selected));
 					JOptionPane.showMessageDialog(null, "pivInd:"+selected[pivotIndex]);
 					JOptionPane.showMessageDialog(null, "thisXind:"+thisXind);
 					JOptionPane.showMessageDialog(null, "correctColIndex:"+correctColIndex);*/
