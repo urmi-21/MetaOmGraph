@@ -143,12 +143,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 	 * Create the frame.
 	 */
 	public ScatterPlotChart(int[] selected, int xind, MetaOmProject mp) {
-		boolean []excluded=MetaOmAnalyzer.getExclude();
-		if(excluded!=null) {
-			excludedCopy=new boolean[excluded.length];
-			System.arraycopy( excluded, 0, excludedCopy, 0, excluded.length );
-		}
-		
+				
 		
 		this.selected = selected;
 		// init rownames
@@ -399,13 +394,22 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 				}
 				XYItemEntity item = (XYItemEntity) entity;
 				int thisXind = item.getItem();
+				//get x and y points
+				
 				// item.getDataset().
 				int correctColIndex = -1;
 				try {
+					boolean []excluded=MetaOmAnalyzer.getExclude();
+					if(excluded!=null) {
+						excludedCopy=new boolean[excluded.length];
+						System.arraycopy( excluded, 0, excludedCopy, 0, excluded.length );
+					}
 					correctColIndex = myProject.getMetadataHybrid().getColIndexbyName(myProject.getDatainSortedOrder(selected[pivotIndex], thisXind,excludedCopy));
-					JOptionPane.showMessageDialog(null, "pivInd:"+pivotIndex);
+					/*JOptionPane.showMessageDialog(null, "sel::"+Arrays.toString(selected));
+					JOptionPane.showMessageDialog(null, "exc:"+Arrays.toString(excludedCopy));
+					JOptionPane.showMessageDialog(null, "pivInd:"+selected[pivotIndex]);
 					JOptionPane.showMessageDialog(null, "thisXind:"+thisXind);
-					JOptionPane.showMessageDialog(null, "correctColIndex:"+correctColIndex);
+					JOptionPane.showMessageDialog(null, "correctColIndex:"+correctColIndex);*/
 					
 				} catch (IOException e) {
 					// TODO Auto-generated catch block

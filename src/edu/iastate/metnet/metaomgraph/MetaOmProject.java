@@ -1985,6 +1985,7 @@ public class MetaOmProject {
 		}
 		
 		
+		
 		double[] thisData = getAllData(rowIndex);
 		int[] thisDatacolIndex = new int[getDataColumnCount()];
 		for (int i = 0; i < thisDatacolIndex.length; i++) {
