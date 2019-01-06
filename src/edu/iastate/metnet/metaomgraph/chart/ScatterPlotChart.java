@@ -221,9 +221,8 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		setMaximizable(true);
 		setIconifiable(true);
 		setClosable(true);
-		String chartTitle="Scatter Plot "+rowNames.toString();
-		
-		this.setTitle("");
+		String chartTitle="Scatter Plot:"+String.join(",", rowNames);
+		this.setTitle(chartTitle);
 	}
 
 	public ChartPanel makeScatterPlot() throws IOException {
