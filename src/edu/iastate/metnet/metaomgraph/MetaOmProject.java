@@ -1955,7 +1955,7 @@ public class MetaOmProject {
 	 * increasing order
 	 */
 	public String getDatainSortedOrderNoExclude(int rowIndex, int index) throws IOException {
-		double[] thisData = getIncludedData(rowIndex);
+		double[] thisData = getAllData(rowIndex);
 		int[] thisDatacolIndex = new int[getDataColumnCount()];
 		for (int i = 0; i < thisDatacolIndex.length; i++) {
 			thisDatacolIndex[i] = i;
@@ -1977,22 +1977,22 @@ public class MetaOmProject {
 		}
 		return getDataColumnHeader(thisDatacolIndex[index]);
 	}
-	
-	public String getDatainSortedOrder(int rowIndex, int index,boolean []excludedCopy) throws IOException {
-		
-		if(excludedCopy==null) {
-			return getDatainSortedOrderNoExclude( rowIndex,  index);
+
+	public String getDatainSortedOrder(int rowIndex, int index, boolean[] excludedCopy) throws IOException {
+
+		if (excludedCopy == null) {
+			return getDatainSortedOrderNoExclude(rowIndex, index);
 		}
-		
-		
-		
+
+		boolean[] excludedLocalCopy = new boolean[excludedCopy.length];
+		System.arraycopy(excludedCopy, 0, excludedLocalCopy, 0, excludedCopy.length);
+
 		double[] thisData = getAllData(rowIndex);
 		int[] thisDatacolIndex = new int[getDataColumnCount()];
 		for (int i = 0; i < thisDatacolIndex.length; i++) {
 			thisDatacolIndex[i] = i;
 		}
-		
-		
+
 		// sort thisData and thisDatacolIndex together
 		/* Bubble Sort */
 		for (int p = 0; p < thisData.length; p++) {
@@ -2004,26 +2004,26 @@ public class MetaOmProject {
 					int swapInt = thisDatacolIndex[q];
 					thisDatacolIndex[q] = thisDatacolIndex[q + 1];
 					thisDatacolIndex[q + 1] = swapInt;
-					boolean swapBool = excludedCopy[q];
-					excludedCopy[q] = excludedCopy[q + 1];
-					excludedCopy[q + 1] = swapBool;
+					boolean swapBool = excludedLocalCopy[q];
+					excludedLocalCopy[q] = excludedLocalCopy[q + 1];
+					excludedLocalCopy[q + 1] = swapBool;
 				}
 			}
 		}
-		
-		//find item at index after ignoring excluded columns
-		int res=-1;
-		int count=-1;
-		for(int i=0;i<excludedCopy.length;i++) {
-			if(!excludedCopy[i]) {
+
+		// find item at index after ignoring excluded columns
+		int res = -1;
+		int count = -1;
+		for (int i = 0; i < excludedLocalCopy.length; i++) {
+			if (!excludedLocalCopy[i]) {
 				count++;
 			}
-			if(count==index) {
-				res=i;
+			if (count == index) {
+				res = i;
 				break;
 			}
 		}
-		
+
 		return getDataColumnHeader(thisDatacolIndex[res]);
 	}
 
