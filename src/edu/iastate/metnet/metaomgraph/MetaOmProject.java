@@ -1157,16 +1157,15 @@ public class MetaOmProject {
 							MetaOmGraph.setNumPermutations(Integer.parseInt(thisElement.getAttributeValue("value")));
 						} else if (thisElementName.equals("threads")) {
 							MetaOmGraph.setNumThreads(Integer.parseInt(thisElement.getAttributeValue("value")));
-						} /*else if (thisElementName.equals("rpath")) {
-							if (thisElement.getAttributeValue("default").equals("false")) {
-								MetaOmGraph.defaultRpath = false;
-								MetaOmGraph.setUserRPath(thisElement.getAttributeValue("value"));
-							} else {
-								MetaOmGraph.defaultRpath = true;
-							}
-						} else if (thisElementName.equals("pathtorfiles")) {
-							MetaOmGraph.setpathtoRscrips(thisElement.getAttributeValue("value"));
-						}*/ else if (thisElementName.equals("hyperlinksCols")) {
+						} /*
+							 * else if (thisElementName.equals("rpath")) { if
+							 * (thisElement.getAttributeValue("default").equals("false")) {
+							 * MetaOmGraph.defaultRpath = false;
+							 * MetaOmGraph.setUserRPath(thisElement.getAttributeValue("value")); } else {
+							 * MetaOmGraph.defaultRpath = true; } } else if
+							 * (thisElementName.equals("pathtorfiles")) {
+							 * MetaOmGraph.setpathtoRscrips(thisElement.getAttributeValue("value")); }
+							 */ else if (thisElementName.equals("hyperlinksCols")) {
 							// these values will be passed to MetadataTableDisplayPanel once the object is
 							// created
 							MetaOmGraph._SRR = Integer.parseInt(thisElement.getAttributeValue("srrColumn"));
@@ -1955,7 +1954,7 @@ public class MetaOmProject {
 	 * Sort data in rowindex and return the datacolumn at index after sorting
 	 * increasing order
 	 */
-	public String getDatainSortedOrder(int rowIndex, int index) throws IOException {
+	public String getDatainSortedOrderNoExclude(int rowIndex, int index) throws IOException {
 		double[] thisData = getIncludedData(rowIndex);
 		int[] thisDatacolIndex = new int[getDataColumnCount()];
 		for (int i = 0; i < thisDatacolIndex.length; i++) {
@@ -1976,8 +1975,57 @@ public class MetaOmProject {
 				}
 			}
 		}
-
+		boolean []excluded=MetaOmAnalyzer.exclude;
+		
 		return getDataColumnHeader(thisDatacolIndex[index]);
+	}
+	
+	public String getDatainSortedOrder(int rowIndex, int index) throws IOException {
+		boolean []excluded=MetaOmAnalyzer.exclude;
+		if(excluded==null) {
+			return getDatainSortedOrderNoExclude( rowIndex,  index);
+		}
+		boolean []excludedCopy=new boolean[excluded.length];
+		
+		double[] thisData = getAllData(rowIndex);
+		int[] thisDatacolIndex = new int[getDataColumnCount()];
+		for (int i = 0; i < thisDatacolIndex.length; i++) {
+			thisDatacolIndex[i] = i;
+		}
+		
+		System.arraycopy( excluded, 0, excludedCopy, 0, excluded.length );
+		// sort thisData and thisDatacolIndex together
+		/* Bubble Sort */
+		for (int p = 0; p < thisData.length; p++) {
+			for (int q = 0; q < thisData.length - 1 - p; q++) {
+				if (thisData[q] > thisData[q + 1]) {
+					double swapString = thisData[q];
+					thisData[q] = thisData[q + 1];
+					thisData[q + 1] = swapString;
+					int swapInt = thisDatacolIndex[q];
+					thisDatacolIndex[q] = thisDatacolIndex[q + 1];
+					thisDatacolIndex[q + 1] = swapInt;
+					boolean swapBool = excludedCopy[q];
+					excludedCopy[q] = excludedCopy[q + 1];
+					excludedCopy[q + 1] = swapBool;
+				}
+			}
+		}
+		
+		//find item at index after ignoring excluded columns
+		int res=-1;
+		int count=-1;
+		for(int i=0;i<excludedCopy.length;i++) {
+			if(!excludedCopy[i]) {
+				count++;
+			}
+			if(count==index) {
+				res=i;
+				break;
+			}
+		}
+		
+		return getDataColumnHeader(thisDatacolIndex[res]);
 	}
 
 	public String getDataColumnHeader(int index, boolean shorten) {
@@ -2475,6 +2523,7 @@ public class MetaOmProject {
 
 	/**
 	 * replace NA values by blankvalue if missing data is found
+	 * 
 	 * @param data
 	 * @return
 	 */
@@ -3177,15 +3226,17 @@ public class MetaOmProject {
 		threads.setAttribute("value", String.valueOf(MetaOmGraph.getNumThreads()));
 		root.addContent(threads);
 
-		//rpath is save as global param for MOG
-		/*Element rpath = new Element("rpath");
-		rpath.setAttribute("value", String.valueOf(MetaOmGraph.getRPath()));
-		rpath.setAttribute("default", String.valueOf(MetaOmGraph.defaultRpath));
-		root.addContent(rpath);
-
-		Element pathtorfiles = new Element("pathtorfiles");
-		pathtorfiles.setAttribute("value", String.valueOf(MetaOmGraph.getpathtoRscrips()));
-		root.addContent(pathtorfiles);*/
+		// rpath is save as global param for MOG
+		/*
+		 * Element rpath = new Element("rpath"); rpath.setAttribute("value",
+		 * String.valueOf(MetaOmGraph.getRPath())); rpath.setAttribute("default",
+		 * String.valueOf(MetaOmGraph.defaultRpath)); root.addContent(rpath);
+		 * 
+		 * Element pathtorfiles = new Element("pathtorfiles");
+		 * pathtorfiles.setAttribute("value",
+		 * String.valueOf(MetaOmGraph.getpathtoRscrips()));
+		 * root.addContent(pathtorfiles);
+		 */
 
 		// info about hyperlinked columns
 		Element hyperlinks = new Element("hyperlinksCols");
