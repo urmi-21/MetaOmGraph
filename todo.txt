@@ -88,4 +88,5 @@ atleast two rows should be selected for scatter plot
 update tips
 set plot background in properties
 filter last search problems with jtable
-spearman correlation slow
+$spearman correlation slow
+fix scatterplot metadata
