@@ -390,11 +390,11 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 				// item.getDataset().
 				int correctColIndex = -1;
 				try {
-					correctColIndex = myProject.getMetadataHybrid().getColIndexbyName(myProject.getDatainSortedOrderNew(pivotIndex, thisXind));
-					JOptionPane.showMessageDialog(null, "pivInd:"+pivotIndex);
+					correctColIndex = myProject.getMetadataHybrid().getColIndexbyName(myProject.getDatainSortedOrder(pivotIndex, thisXind));
+					/*JOptionPane.showMessageDialog(null, "pivInd:"+pivotIndex);
 					JOptionPane.showMessageDialog(null, "thisXind:"+thisXind);
 					JOptionPane.showMessageDialog(null, "correctColIndex:"+correctColIndex);
-					
+					*/
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
