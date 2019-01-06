@@ -50,7 +50,7 @@ public class MetaOmAnalyzer {
 	public static final int MANHATTAN = 5;
 	public static final int WEIGHTED_EUCLIDEAN = 6;
 	public static final int WEIGHTED_MANHATTAN = 7;
-	private static boolean[] exclude;
+	public static boolean[] exclude;
 	private static int excludeCount = 0;
 
 	private static String excludeName;
