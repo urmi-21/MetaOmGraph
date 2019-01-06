@@ -1952,7 +1952,7 @@ public class MetaOmProject {
 	}
 
 	/*
-	 * Sort data in rwoindex and return the datacolumn at index after sorting
+	 * Sort data in rowindex and return the datacolumn at index after sorting
 	 * increasing order
 	 */
 	public String getDatainSortedOrder(int rowIndex, int index) throws IOException {
