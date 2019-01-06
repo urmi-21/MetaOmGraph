@@ -82,6 +82,7 @@ import org.jfree.util.ShapeUtilities;
 import edu.iastate.metnet.metaomgraph.ComponentToImage;
 import edu.iastate.metnet.metaomgraph.GraphFileFilter;
 import edu.iastate.metnet.metaomgraph.IconTheme;
+import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.ui.StripedTable;
@@ -91,6 +92,7 @@ import javax.swing.JScrollPane;
 public class ScatterPlotChart extends JInternalFrame implements ChartMouseListener, ActionListener {
 
 	private int[] selected;
+	//pivotIndex is the ith index in the selected rows which is the x axis for the scatterplot
 	private int pivotIndex;
 	String[] rowNames;
 	private MetaOmProject myProject;
@@ -112,10 +114,13 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 	private JButton defaultZoom;
 	private JButton exportButton;
 	private JButton metadataButton;
+	
 
 	public static final String ZOOM_IN_COMMAND = "zoomIn";
 	public static final String ZOOM_OUT_COMMAND = "zoomOut";
 	public static final String ZOOM_DEFAULT_COMMAND = "defaultZoom";
+	
+	private boolean[] excludedCopy;
 
 	/**
 	 * Launch the application.
@@ -138,6 +143,13 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 	 * Create the frame.
 	 */
 	public ScatterPlotChart(int[] selected, int xind, MetaOmProject mp) {
+		boolean []excluded=MetaOmAnalyzer.getExclude();
+		if(excluded!=null) {
+			excludedCopy=new boolean[excluded.length];
+			System.arraycopy( excluded, 0, excludedCopy, 0, excluded.length );
+		}
+		
+		
 		this.selected = selected;
 		// init rownames
 		rowNames = mp.getDefaultRowNames(selected);
@@ -390,11 +402,11 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 				// item.getDataset().
 				int correctColIndex = -1;
 				try {
-					correctColIndex = myProject.getMetadataHybrid().getColIndexbyName(myProject.getDatainSortedOrder(pivotIndex, thisXind));
-					/*JOptionPane.showMessageDialog(null, "pivInd:"+pivotIndex);
+					correctColIndex = myProject.getMetadataHybrid().getColIndexbyName(myProject.getDatainSortedOrder(selected[pivotIndex], thisXind,excludedCopy));
+					JOptionPane.showMessageDialog(null, "pivInd:"+pivotIndex);
 					JOptionPane.showMessageDialog(null, "thisXind:"+thisXind);
 					JOptionPane.showMessageDialog(null, "correctColIndex:"+correctColIndex);
-					*/
+					
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

@@ -1975,17 +1975,15 @@ public class MetaOmProject {
 				}
 			}
 		}
-		boolean []excluded=MetaOmAnalyzer.exclude;
-		
 		return getDataColumnHeader(thisDatacolIndex[index]);
 	}
 	
-	public String getDatainSortedOrder(int rowIndex, int index) throws IOException {
-		boolean []excluded=MetaOmAnalyzer.exclude;
-		if(excluded==null) {
+	public String getDatainSortedOrder(int rowIndex, int index,boolean []excludedCopy) throws IOException {
+		
+		if(excludedCopy==null) {
 			return getDatainSortedOrderNoExclude( rowIndex,  index);
 		}
-		boolean []excludedCopy=new boolean[excluded.length];
+		
 		
 		double[] thisData = getAllData(rowIndex);
 		int[] thisDatacolIndex = new int[getDataColumnCount()];
@@ -1993,7 +1991,7 @@ public class MetaOmProject {
 			thisDatacolIndex[i] = i;
 		}
 		
-		System.arraycopy( excluded, 0, excludedCopy, 0, excluded.length );
+		
 		// sort thisData and thisDatacolIndex together
 		/* Bubble Sort */
 		for (int p = 0; p < thisData.length; p++) {
