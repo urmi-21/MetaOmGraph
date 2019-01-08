@@ -648,9 +648,10 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 						String text = "<html><table bgcolor=\"#FFFFFF\">" + " <tr>\n"
 								+ "            <th>Attribute</th>\n" + "            <th>Value</th>\n" + "        </tr>";
 
-						String bgColor = "#FFFFFF";
+						String bgColor = "#"
+								+ Integer.toHexString(MetaOmGraph.getTableColor1().getRGB()).substring(2);;
 						String bgColorAlt = "#"
-								+ Integer.toHexString(StripedTable.alternateRowColor.getRGB()).substring(2);
+								+ Integer.toHexString(MetaOmGraph.getTableColor2().getRGB()).substring(2);
 						text += "<tr bgcolor=" + bgColor + "><td><font size=-2>Group Name</font></td>";
 						text += "<td><font size=-2>" + thisGname + "</font></td></tr>";
 						text += "<tr bgcolor=" + bgColorAlt + "><td><font size=-2>Data columns used</font></td>";
@@ -699,8 +700,10 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 
 							+ "<div class=\"scrollit\"> <table bgcolor=\"#FFFFFF\" width=\"400\">" + " <tr>\n"
 							+ "            <th>Attribute</th>\n" + "            <th >Value</th>\n" + "        </tr>";
-					String bgColor = "#FFFFFF";
-					String bgColorAlt = "#" + Integer.toHexString(StripedTable.alternateRowColor.getRGB()).substring(2);
+					String bgColor = "#"
+							+ Integer.toHexString(MetaOmGraph.getTableColor1().getRGB()).substring(2);;
+					String bgColorAlt = "#"
+							+ Integer.toHexString(MetaOmGraph.getTableColor2().getRGB()).substring(2);
 					String[] rowColors = { bgColor, bgColorAlt };
 					int colorIndex = 0;
 					for (int i = 0; i < tableData.length; i++) {

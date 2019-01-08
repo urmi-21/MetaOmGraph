@@ -3053,7 +3053,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	public JTable getTable() {
 		return listDisplay;
 	}
-
+	
+	public StripedTable getStripedTable() {
+		return listDisplay;
+	}
 	public void selectRows(Collection<Integer> rows) {
 		for (Iterator localIterator = rows.iterator(); localIterator.hasNext();) {
 			int i = ((Integer) localIterator.next()).intValue();
@@ -3293,6 +3296,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 	public MetadataTableDisplayPanel getMetadataTableDisplay() {
 		return this.mdtablepanel;
+	}
+	
+	public MetadataTreeDisplayPanel getMetadataTreeDisplay() {
+		return this.extInfoPanel2;
 	}
 
 	public String getMainTableItemat(int r, int c) {

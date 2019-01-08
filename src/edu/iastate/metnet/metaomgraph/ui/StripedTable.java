@@ -31,10 +31,13 @@ import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 public class StripedTable extends JTable {
-	public static final ColorUIResource alternateRowColor = new ColorUIResource(216, 236, 213);
+	//public static final ColorUIResource alternateRowColor = new ColorUIResource(216, 236, 213);
+	private Color SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
 	private Color BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
 	private Color BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
-	private Color SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
+	private Color HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
+	private Color HYPERLINKCOLOR =MetaOmGraph.getTableHyperlinkColor();
+	
 
 	public StripedTable() {
 	}
@@ -224,4 +227,15 @@ public class StripedTable extends JTable {
 			return this;
 		}
 	}
+	
+	public void updateColors() {
+		SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
+		BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
+		BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
+		HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
+		HYPERLINKCOLOR =MetaOmGraph.getTableHyperlinkColor();
+		repaint();
+		
+	}
+
 }
