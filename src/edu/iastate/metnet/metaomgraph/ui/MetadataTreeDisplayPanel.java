@@ -113,6 +113,10 @@ public class MetadataTreeDisplayPanel extends JPanel {
 	private List<DefaultMutableTreeNode> toHighlightNodes;
 
 	private HashMap<DefaultMutableTreeNode, String> jtreeMetadata;
+	
+	private Color SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
+	private Color BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
+	private Color BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
 
 	/**
 	 * Create the panel.
@@ -162,19 +166,19 @@ public class MetadataTreeDisplayPanel extends JPanel {
 				if (row % 2 == 0) {
 
 					if (isSelected) {
-						c.setBackground(Color.BLACK);
+						c.setBackground(SELECTIONBCKGRND);
 					}
 					if (!isSelected) {
-						c.setBackground(Color.WHITE);
+						c.setBackground(BCKGRNDCOLOR1);
 					}
 
 				} else {
 
 					if (isSelected) {
-						c.setBackground(Color.BLACK);
+						c.setBackground(SELECTIONBCKGRND);
 					}
 					if (!isSelected) {
-						c.setBackground(new ColorUIResource(216, 236, 213));
+						c.setBackground(BCKGRNDCOLOR2);
 					}
 				}
 
