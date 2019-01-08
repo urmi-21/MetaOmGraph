@@ -1,6 +1,7 @@
 package edu.iastate.metnet.metaomgraph;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Dimension;
@@ -71,6 +72,7 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.plaf.ColorUIResource;
 
 import com.apple.eawt.Application;
 import com.l2fprod.common.swing.JTipOfTheDay;
@@ -129,6 +131,29 @@ import edu.stanford.ejalbert.exceptionhandler.BrowserLauncherErrorHandler;
  *
  */
 public class MetaOmGraph implements ActionListener {
+	
+	//default colors
+	private static Color tableColor1=null;
+	private static Color tableColor2=null;
+	private static Color tableSelectionColor=null;
+	private static Color chartBackground=null;
+	private static Color plotBackground=null;
+	
+	public Color getTableColor1() {
+		if(tableColor1==null) {
+			return Color.white;
+		}else {
+			return tableColor1;
+		}
+	}
+	
+	public Color getTableColor2() {
+		if(tableColor2==null) {
+			return new ColorUIResource(216, 236, 213);
+		}else {
+			return tableColor2;
+		}
+	}
 
 	// save hyperlink columns while loading project
 	// initialize to -1 and only be updated if read in project file
