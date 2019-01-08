@@ -489,8 +489,10 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 
 	private String createTooltip(int colIndex, double x, double y) {
 		DecimalFormat df = new DecimalFormat("####0.00");
-		String bgColor = "#FFFFFF";
-		String bgColorAlt = "#" + Integer.toHexString(StripedTable.alternateRowColor.getRGB()).substring(2);
+		String bgColor = "#"
+				+ Integer.toHexString(MetaOmGraph.getTableColor1().getRGB()).substring(2);;
+		String bgColorAlt = "#"
+				+ Integer.toHexString(MetaOmGraph.getTableColor2().getRGB()).substring(2);
 		String[] rowColors = { bgColor, bgColorAlt };
 		String text = "<html><head> " + "<style>" + ".scrollit {\n" + "    overflow:scroll;\n" + "    height:100px;\n"
 				+ "}" + "</style></head><body>"

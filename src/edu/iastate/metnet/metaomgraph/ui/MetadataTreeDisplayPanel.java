@@ -117,6 +117,8 @@ public class MetadataTreeDisplayPanel extends JPanel {
 	private Color SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
 	private Color BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
 	private Color BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
+	private Color HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
+	private Color HYPERLINKCOLOR =MetaOmGraph.getTableHyperlinkColor();
 
 	/**
 	 * Create the panel.
@@ -550,7 +552,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 					// TreePath path = new TreePath(pathNodes);
 					// tree.setSelectionPath(path);
 					// Rectangle rect = tree.getPathBounds(path);
-					label.setForeground(Color.RED);
+					label.setForeground(HIGHLIGHTCOLOR);
 				}
 
 				return label;
@@ -866,6 +868,15 @@ public class MetadataTreeDisplayPanel extends JPanel {
 
 		}
 
+	}
+	
+	public void updateColors() {
+		SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
+		BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
+		BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
+		HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
+		HYPERLINKCOLOR =MetaOmGraph.getTableHyperlinkColor();
+		table.repaint();
 	}
 
 }

@@ -1612,4 +1612,12 @@ public class MetadataTableDisplayPanel extends JPanel {
 		updateTable();
 	}
 
+	public void updateColors() {
+		SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
+		BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
+		BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
+		HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
+		HYPERLINKCOLOR =MetaOmGraph.getTableHyperlinkColor();
+		table.repaint();
+	}
 }

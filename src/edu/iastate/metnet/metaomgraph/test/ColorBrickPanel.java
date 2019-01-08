@@ -201,8 +201,8 @@ public class ColorBrickPanel extends JPanel implements MouseListener {
     }
 
     public static void main(String[] args) {
-        System.out.println("Hello".indexOf(""));
-        System.out.println(Integer.toHexString(StripedTable.alternateRowColor.getRGB()));
+       // System.out.println("Hello".indexOf(""));
+       // System.out.println(Integer.toHexString(StripedTable.alternateRowColor.getRGB()));
         JFrame f = new JFrame("test");
         f.setDefaultCloseOperation(3);
         f.setSize(800, 600);
