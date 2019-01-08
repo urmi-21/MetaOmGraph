@@ -90,3 +90,6 @@ set plot background in properties
 $filter last search problems with jtable
 $spearman correlation slow
 $fix scatterplot metadata
+add actions to help buttons
+mog correlation detail remove load table function for now
+filter corrleation details table by r and pval

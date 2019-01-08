@@ -2398,25 +2398,14 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						return;
 					}
 
-					// JOptionPane.showMessageDialog(null,
-					// "coltoGroup:"+Arrays.toString(coltoGroup));
-					// add original Matrix to calculate original correlation val which will be at
-					// index 0
-					shuffList.add(targetwtMat);
+					
+					
 
 					///////////////////////// shuffle within group////////////////////////
 					TreeMap<String, List<Integer>> groupsMap = myProject.getMetadataHybrid().getDefaultRepsMap();
 					// this array contains colindex of the datacolumns used
 					int[] sourceDataColNumbers = new int[sourceData.length];
 					boolean[] exclude = MetaOmAnalyzer.getExclude();
-
-					//////////////////////////////////
-					// calculate entopies of all suffled matrices. at index 0 will be original
-					// entropy
-					ComputeEntropy ceob = new ComputeEntropy(shuffList, 6);
-					List<Double> shuffEntropies = ceob.getEntropy();
-					// JOptionPane.showMessageDialog(null, "TH:"+targetH+"
-					// L0:"+shuffEntropies.get(0));
 
 					SwingWorker analyzeWorker = new SwingWorker() {
 						boolean errored = false;
@@ -2426,13 +2415,17 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						List<Double> mutualInfoList = new ArrayList<>();
 						// get entopies
 
-						double targetH = shuffEntropies.get(0);
+						
 
 						public Object construct() {
 							try {
 								// for each data row do
+								// add original Matrix to calculate original correlation val which will be at
+								// index 0
+								shuffList.add(targetwtMat);
 								List<int[]> shuffInd = groupDataIndexbyRepColumn(groupsMap, exclude,
 										sourceDataColNumbers, _N);
+								//add to shuffList
 								for (int j = 0; j < shuffInd.size(); j++) {
 									double[][] tempMat = new double[targetwtMat.length][targetwtMat[0].length];
 									int[] newInd = shuffInd.get(j);
@@ -2447,6 +2440,21 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 								int j = 0;
 								int _N = MetaOmGraph.getNumPermutations();
 								int _T = MetaOmGraph.getNumThreads();
+
+								//////////////////////////////////
+								// calculate entopies of all shuffled matrices. at index 0 will be original
+								// entropy
+								ComputeEntropy ceob = new ComputeEntropy(shuffList, _T);
+								List<Double> shuffEntropies = null;
+								try {
+									shuffEntropies = ceob.getEntropy();
+								} catch (InterruptedException | ExecutionException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+								double targetH = shuffEntropies.get(0);
+								
+
 								do {
 									progress.setProgress(j);
 									double[] data = myProject.getIncludedData(entries[j]);

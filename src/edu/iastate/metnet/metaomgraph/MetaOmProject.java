@@ -1,7 +1,6 @@
 
 package edu.iastate.metnet.metaomgraph;
 
-import edu.iastate.metnet.metaomgraph.CorrelationMetaTable.DecimalFormatRenderer;
 import edu.iastate.metnet.metaomgraph.chart.NewCustomSortDialog;
 import edu.iastate.metnet.metaomgraph.chart.NewCustomSortDialog.CustomSortObject;
 import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
@@ -13,6 +12,7 @@ import edu.iastate.metnet.metaomgraph.ui.Metadataviewer;
 import edu.iastate.metnet.metaomgraph.ui.ParseTableTree;
 import edu.iastate.metnet.metaomgraph.ui.ReadMetadata;
 import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
+//import edu.iastate.metnet.metaomgraph.ui.CorrelationMetaTable.DecimalFormatRenderer;
 import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel.QuerySet;
 import edu.iastate.metnet.metaomgraph.utils.MetNetUtils;
 import edu.iastate.metnet.metaomgraph.utils.MetadataUpdater;
