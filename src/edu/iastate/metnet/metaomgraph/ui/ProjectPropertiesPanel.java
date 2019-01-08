@@ -62,6 +62,8 @@ public class ProjectPropertiesPanel extends JPanel {
 		JLabel titleLabel = new JLabel("Default Chart Title: ");
 		JLabel color1Label = new JLabel("Background color 1: ");
 		JLabel color2Label = new JLabel("Background color 2: ");
+		JLabel changeColors = new JLabel("MOG colors: ");
+		JButton manageColors= new JButton("Manage...");
 		// urmi
 		JLabel paramLabel = new JLabel("Project parameters");
 		JLabel rParams = new JLabel("R path");
@@ -219,7 +221,7 @@ public class ProjectPropertiesPanel extends JPanel {
 		c.gridy = 3;
 		add(color1Label, c);
 		c.gridy = 4;
-		add(color2Label, c);
+		add(changeColors, c);
 		c.gridy = 5;
 		add(rowNamesLabel, c);
 		c.gridy = 6;
@@ -241,7 +243,7 @@ public class ProjectPropertiesPanel extends JPanel {
 		c.gridy = 3;
 		add(color1Button, c);
 		c.gridy = 4;
-		add(color2Button, c);
+		add(manageColors, c);
 		c.gridy = 5;
 		add(rowManageButton, c);
 		c.gridy = 6;
