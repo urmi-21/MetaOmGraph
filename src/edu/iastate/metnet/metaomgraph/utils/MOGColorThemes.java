@@ -14,7 +14,7 @@ public class MOGColorThemes {
 	private  Color chartBackgroundColor=null;
 	private  Color plotBackgroundColor=null;
 	
-	MOGColorThemes(Color tableCol1,Color tableCol2, Color tableSelColor, Color tableHlColor, Color tableHlinkColor, Color chartBgColor, Color plotBgColor){
+	public MOGColorThemes(Color tableCol1,Color tableCol2, Color tableSelColor, Color tableHlColor, Color tableHlinkColor, Color chartBgColor, Color plotBgColor){
 		this.tableColor1=tableCol1;
 		this.tableColor2=tableCol2;
 		this.tableHighlightColor=tableHlColor;
