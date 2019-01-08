@@ -111,6 +111,7 @@ import edu.iastate.metnet.metaomgraph.ui.NewProjectDialog.FileBrowseListener;
 import edu.iastate.metnet.metaomgraph.utils.DataNormalizer;
 import edu.iastate.metnet.metaomgraph.utils.DataNormalizer.MeanResult;
 import edu.iastate.metnet.metaomgraph.utils.ExceptionHandler;
+import edu.iastate.metnet.metaomgraph.utils.MOGColorThemes;
 import edu.iastate.metnet.metaomgraph.utils.ProjectMerger;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import edu.iastate.metnet.metaomgraph.utils.VersionCheck;
@@ -226,6 +227,12 @@ public class MetaOmGraph implements ActionListener {
 	public static void setPlotBackgroundColor(Color col) {
 		plotBackgroundColor=col;
 	}
+	
+	private static HashMap<String,MOGColorThemes> mogThemes=new HashMap<>();
+	//create themes
+	MOGColorThemes light=new MOGColorThemes(Color.white,new ColorUIResource(216, 236, 213), Color.black, Color.PINK, Color.green, Color.WHITE, Color.WHITE);
+	
+	private static String mogTheme="default";
 	
 
 	// save hyperlink columns while loading project
