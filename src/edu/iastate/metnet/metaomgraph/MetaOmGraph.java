@@ -136,10 +136,12 @@ public class MetaOmGraph implements ActionListener {
 	private static Color tableColor1=null;
 	private static Color tableColor2=null;
 	private static Color tableSelectionColor=null;
+	private static Color tableHighlightColor=null;
+	private static Color tableHyperlinkColor=null;
 	private static Color chartBackground=null;
 	private static Color plotBackground=null;
 	
-	public Color getTableColor1() {
+	public static Color getTableColor1() {
 		if(tableColor1==null) {
 			return Color.white;
 		}else {
@@ -147,13 +149,54 @@ public class MetaOmGraph implements ActionListener {
 		}
 	}
 	
-	public Color getTableColor2() {
+	public static Color getTableColor2() {
 		if(tableColor2==null) {
 			return new ColorUIResource(216, 236, 213);
 		}else {
 			return tableColor2;
 		}
 	}
+	
+	public static Color getTableSelectionColor() {
+		if(tableSelectionColor==null) {
+			return Color.black;
+		}else {
+			return tableSelectionColor;
+		}
+	}
+	
+	public static Color getTableHighlightColor() {
+		if(tableHighlightColor==null) {
+			return Color.PINK;
+		}else {
+			return tableHighlightColor;
+		}
+	}
+	
+	public static Color getTableHyperlinkColor() {
+		if(tableHyperlinkColor==null) {
+			return Color.green;
+		}else {
+			return tableHyperlinkColor;
+		}
+	}
+	
+	public static Color getChartBackgroundColor() {
+		if(chartBackground==null) {
+			return Color.white;
+		}else {
+			return chartBackground;
+		}
+	}
+	
+	public static Color getPlotBackgroundColor() {
+		if(plotBackground==null) {
+			return Color.white;
+		}else {
+			return plotBackground;
+		}
+	}
+	
 
 	// save hyperlink columns while loading project
 	// initialize to -1 and only be updated if read in project file

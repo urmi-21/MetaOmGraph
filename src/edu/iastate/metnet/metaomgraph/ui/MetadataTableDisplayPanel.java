@@ -103,11 +103,17 @@ public class MetadataTableDisplayPanel extends JPanel {
 	/**
 	 * Default Properties
 	 */
-	private Color SELECTIONBCKGRND = Color.black;
+	/*private Color SELECTIONBCKGRND = Color.black;
 	private Color BCKGRNDCOLOR1 = Color.white;
 	private Color BCKGRNDCOLOR2 = new ColorUIResource(216, 236, 213);
 	private Color HIGHLIGHTCOLOR = Color.PINK;
-	private Color HYPERLINKCOLOR = Color.GREEN;
+	private Color HYPERLINKCOLOR = Color.GREEN;*/
+	
+	private Color SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
+	private Color BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
+	private Color BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
+	private Color HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
+	private Color HYPERLINKCOLOR =MetaOmGraph.getTableHyperlinkColor();
 
 	public MetadataTableDisplayPanel() {
 		this(null);
