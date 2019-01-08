@@ -149,8 +149,8 @@ public class SetRPaths extends JInternalFrame {
 		
 
 		// frame properties
-		this.setClosable(true);
-		//pack();
+		setBounds(100, 100, 450, 300);
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		putClientProperty("JInternalFrame.frameType", "normal");
 		setResizable(true);
 		setMaximizable(true);
