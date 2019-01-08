@@ -42,8 +42,8 @@ public class ProjectPropertiesPanel extends JPanel {
 	private JTextField xaxisField;
 	private JTextField yaxisField;
 	private JTextField titleField;
-	private ColorChooseButton color1Button;
-	private ColorChooseButton color2Button;
+	//private ColorChooseButton color1Button;
+	//private ColorChooseButton color2Button;
 	private MetaOmProject myProject;
 
 	public ProjectPropertiesPanel(MetaOmProject activeProject) {
@@ -60,31 +60,15 @@ public class ProjectPropertiesPanel extends JPanel {
 		JLabel xaxisLabel = new JLabel("Default X-Axis Label: ");
 		JLabel yaxisLabel = new JLabel("Default Y-Axis Label: ");
 		JLabel titleLabel = new JLabel("Default Chart Title: ");
-		JLabel color1Label = new JLabel("Background color 1: ");
-		JLabel color2Label = new JLabel("Background color 2: ");
 		JLabel changeColors = new JLabel("MOG colors: ");
 		
 		
 		// urmi
 		JLabel paramLabel = new JLabel("Project parameters");
 		JLabel rParams = new JLabel("R path");
-		color1Label.setHorizontalAlignment(11);
-		color2Label.setHorizontalAlignment(11);
+		
 
-		color1Button = new ColorChooseButton(color1, "Background Color 1");
-		color1Button.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent arg0) {
-				myProject.setColor1(color1Button.getColor());
-			}
-
-		});
-		color2Button = new ColorChooseButton(color2, "Background Color 2");
-		color2Button.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent arg0) {
-				myProject.setColor2(color2Button.getColor());
-			}
-
-		});
+		
 		JLabel rowNamesLabel = new JLabel("Sample Names: ");
 		JLabel columnNamesLabel = new JLabel("Column Headers: ");
 		xaxisLabel.setHorizontalAlignment(11);
@@ -211,8 +195,8 @@ public class ProjectPropertiesPanel extends JPanel {
 		manageColors.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				ColorProperties frame = new ColorProperties();
-				frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
-				frame.pack();
+				frame.setSize(500,300);
+				//frame.pack();
 				frame.setTitle("Change colors");
 				MetaOmGraph.getDesktop().add(frame);
 				frame.setVisible(true);
@@ -234,7 +218,6 @@ public class ProjectPropertiesPanel extends JPanel {
 		c.gridy = 2;
 		add(titleLabel, c);
 		c.gridy = 3;
-		add(color1Label, c);
 		c.gridy = 4;
 		add(changeColors, c);
 		c.gridy = 5;
@@ -256,7 +239,7 @@ public class ProjectPropertiesPanel extends JPanel {
 		c.gridy = 2;
 		add(titleField, c);
 		c.gridy = 3;
-		add(color1Button, c);
+		//add(color1Button, c);
 		c.gridy = 4;
 		add(manageColors, c);
 		c.gridy = 5;
@@ -282,13 +265,7 @@ public class ProjectPropertiesPanel extends JPanel {
 		return titleField.getText();
 	}
 
-	public Color getColor1() {
-		return color1Button.getColor();
-	}
-
-	public Color getColor2() {
-		return color2Button.getColor();
-	}
+	
 
 	private class RowNameManager {
 		private JTable myTable;
