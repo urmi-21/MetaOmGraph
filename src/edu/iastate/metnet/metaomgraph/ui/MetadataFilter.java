@@ -177,8 +177,8 @@ public class MetadataFilter extends JFrame {
 		separator.setOrientation(SwingConstants.VERTICAL);
 		panel.add(separator);
 		
-		JButton button = new JButton(">><<");
-		button.addActionListener(new ActionListener() {
+		JButton btnSwapIncludedAnd = new JButton("Swap included and excluded");
+		btnSwapIncludedAnd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				//switch included and excluced lists
 				//s;
@@ -189,7 +189,7 @@ public class MetadataFilter extends JFrame {
 				
 			}
 		});
-		panel.add(button);
+		panel.add(btnSwapIncludedAnd);
 
 		JSplitPane splitPane = new JSplitPane();
 		contentPane.add(splitPane, BorderLayout.CENTER);
@@ -263,8 +263,8 @@ public class MetadataFilter extends JFrame {
 		});
 		panel_2.add(btnSearch);
 
-		JButton button_4 = new JButton(">");
-		button_4.addActionListener(new ActionListener() {
+		JButton btnMoveSelected = new JButton("Move selected");
+		btnMoveSelected.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
 				/**
@@ -291,10 +291,10 @@ public class MetadataFilter extends JFrame {
 
 			}
 		});
-		panel_2.add(button_4);
+		panel_2.add(btnMoveSelected);
 
-		JButton button_5 = new JButton(">>");
-		button_5.addActionListener(new ActionListener() {
+		JButton btnMoveAll = new JButton("Move all");
+		btnMoveAll.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				/**
 				 * Transfer all rows of included to excluded
@@ -312,7 +312,7 @@ public class MetadataFilter extends JFrame {
 
 			}
 		});
-		panel_2.add(button_5);
+		panel_2.add(btnMoveAll);
 
 		JScrollPane scrollPane = new JScrollPane();
 		panel_1.add(scrollPane, BorderLayout.CENTER);
@@ -328,8 +328,8 @@ public class MetadataFilter extends JFrame {
 		JPanel panel_4 = new JPanel();
 		panel_3.add(panel_4, BorderLayout.NORTH);
 
-		JButton button_6 = new JButton("<<");
-		button_6.addActionListener(new ActionListener() {
+		JButton btnMoveAll_1 = new JButton("Move all");
+		btnMoveAll_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				/**
 				 * Transfer all rows of excluded to included
@@ -346,10 +346,10 @@ public class MetadataFilter extends JFrame {
 				model_exc.setRowCount(0);
 			}
 		});
-		panel_4.add(button_6);
+		panel_4.add(btnMoveAll_1);
 
-		JButton button_7 = new JButton("<");
-		button_7.addActionListener(new ActionListener() {
+		JButton btnMoveSelected_1 = new JButton("Move selected");
+		btnMoveSelected_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				/**
 				 * Transfer selected rows of included to excluded
@@ -373,7 +373,7 @@ public class MetadataFilter extends JFrame {
 				}
 			}
 		});
-		panel_4.add(button_7);
+		panel_4.add(btnMoveSelected_1);
 
 		JButton btnSearch_1 = new JButton("Search excluded");
 		btnSearch_1.addActionListener(new ActionListener() {
@@ -440,7 +440,8 @@ public class MetadataFilter extends JFrame {
 		panel_3.add(scrollPane_1, BorderLayout.CENTER);
 
 		scrollPane_1.setViewportView(table_1);
-		this.setSize(600, 700);
+		this.setSize(700, 700);
+		this.setTitle("Filter metadata");
 	}
 
 	private void initTables() {
