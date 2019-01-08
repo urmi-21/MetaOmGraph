@@ -537,8 +537,13 @@ public class MetaOmGraph implements ActionListener {
 			try {
 				FileInputStream fis = new FileInputStream(prefsFile);
 				ObjectInputStream in = new ObjectInputStream(fis);
-				Utils.setLastDir((File) in.readObject());
+				
+				File lastF=(File) in.readObject();
+				Utils.setLastDir(lastF);
+				//JOptionPane.showMessageDialog(null, "Lastpath:"+lastF.getAbsolutePath());
 				recentProjects = (Vector<File>) in.readObject();
+				//JOptionPane.showMessageDialog(null, recentProjects.toString());
+				Utils.setLastDir((File) recentProjects.get(0));
 				showTips = (MetaOmShowTipsChoice) in.readObject();
 				currentTip = (Integer) in.readObject();
 				
@@ -3280,6 +3285,7 @@ public class MetaOmGraph implements ActionListener {
 			if (!closeProject())
 				return;
 		Utils.setLastDir(source.getParentFile());
+		//JOptionPane.showMessageDialog(null, "setlf:"+Utils.getLastDir());
 		new OpenProjectWorker(source).start();
 
 		return;
@@ -3296,6 +3302,7 @@ public class MetaOmGraph implements ActionListener {
 					"File not found", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
+		Utils.setLastDir(source.getParentFile());
 		new OpenProjectWorker(source).start();
 
 		return;
