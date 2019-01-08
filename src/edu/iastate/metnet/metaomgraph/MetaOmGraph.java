@@ -138,8 +138,8 @@ public class MetaOmGraph implements ActionListener {
 	private static Color tableSelectionColor=null;
 	private static Color tableHighlightColor=null;
 	private static Color tableHyperlinkColor=null;
-	private static Color chartBackground=null;
-	private static Color plotBackground=null;
+	private static Color chartBackgroundColor=null;
+	private static Color plotBackgroundColor=null;
 	
 	public static Color getTableColor1() {
 		if(tableColor1==null) {
@@ -182,19 +182,49 @@ public class MetaOmGraph implements ActionListener {
 	}
 	
 	public static Color getChartBackgroundColor() {
-		if(chartBackground==null) {
+		if(chartBackgroundColor==null) {
 			return Color.white;
 		}else {
-			return chartBackground;
+			return chartBackgroundColor;
 		}
 	}
 	
 	public static Color getPlotBackgroundColor() {
-		if(plotBackground==null) {
+		if(plotBackgroundColor==null) {
 			return Color.white;
 		}else {
-			return plotBackground;
+			return plotBackgroundColor;
 		}
+	}
+	
+	public static void setTableColor1(Color col) {
+		tableColor1=col;
+	}
+	
+	public static void setTableColor2(Color col) {
+		tableColor2=col;
+	}
+	
+	public static void setTableSelectionColor(Color col) {
+		tableSelectionColor=col;
+	}
+	
+	
+	
+	public static void setTableHighlightColor(Color col) {
+		tableHighlightColor=col;
+	}
+	
+	public static void setTableHyperlinkColor(Color col) {
+		tableHyperlinkColor=col;
+	}
+	
+	public static void setChartBackgroundColor(Color col) {
+		chartBackgroundColor=col;
+	}
+	
+	public static void setPlotBackgroundColor(Color col) {
+		plotBackgroundColor=col;
 	}
 	
 

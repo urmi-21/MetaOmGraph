@@ -63,7 +63,8 @@ public class ProjectPropertiesPanel extends JPanel {
 		JLabel color1Label = new JLabel("Background color 1: ");
 		JLabel color2Label = new JLabel("Background color 2: ");
 		JLabel changeColors = new JLabel("MOG colors: ");
-		JButton manageColors= new JButton("Manage...");
+		
+		
 		// urmi
 		JLabel paramLabel = new JLabel("Project parameters");
 		JLabel rParams = new JLabel("R path");
@@ -199,12 +200,26 @@ public class ProjectPropertiesPanel extends JPanel {
 				SetRPaths frame = new SetRPaths();
 				frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
 				frame.pack();
-				frame.setTitle("Change parameters");
+				frame.setTitle("Change R parameters");
 				MetaOmGraph.getDesktop().add(frame);
 				frame.setVisible(true);
 			}
 
 		});
+		
+		JButton manageColors= new JButton("Manage...");
+		manageColors.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				ColorProperties frame = new ColorProperties();
+				frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
+				frame.pack();
+				frame.setTitle("Change colors");
+				MetaOmGraph.getDesktop().add(frame);
+				frame.setVisible(true);
+			}
+
+		});
+		
 		
 		//add to frame
 		
