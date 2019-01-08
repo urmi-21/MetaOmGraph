@@ -92,10 +92,6 @@ class Entropy implements Callable<double[]> {
 			rowSums[i] = rowSums[i] / numCols;
 			double thisPi = rowSums[i];
 
-			/*
-			 * if (thisPi == 0) { thisPi += 0.00001; }
-			 */
-
 			if (thisPi > toler) {
 				res += thisPi * (Math.log(thisPi) / Math.log(2));
 			}
