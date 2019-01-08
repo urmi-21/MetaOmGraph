@@ -32,6 +32,9 @@ import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 public class StripedTable extends JTable {
 	public static final ColorUIResource alternateRowColor = new ColorUIResource(216, 236, 213);
+	private Color BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
+	private Color BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
+	private Color SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
 
 	public StripedTable() {
 	}
@@ -100,7 +103,7 @@ public class StripedTable extends JTable {
 	}
 
 	public Color colorForRow(int row) {
-		return row % 2 == 0 ? alternateRowColor : getBackground();
+		return row % 2 == 0 ? BCKGRNDCOLOR1 : BCKGRNDCOLOR2;
 	}
 
 	public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
@@ -112,8 +115,9 @@ public class StripedTable extends JTable {
 			c.setBackground(colorForRow(row));
 			c.setForeground(UIManager.getColor("Table.foreground"));
 		} else {
-			c.setBackground(UIManager.getColor("Table.selectionBackground"));
-			c.setForeground(UIManager.getColor("Table.selectionForeground"));
+			//c.setBackground(UIManager.getColor("Table.selectionBackground"));
+			//c.setForeground(UIManager.getColor("Table.selectionForeground"));
+			c.setBackground(SELECTIONBCKGRND);
 		}
 		return c;
 	}
