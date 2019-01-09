@@ -9,6 +9,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
+import edu.iastate.metnet.metaomgraph.utils.MOGColorThemes;
 
 import javax.swing.JButton;
 import java.awt.GridBagLayout;
@@ -21,6 +22,7 @@ import java.awt.Insets;
 import java.awt.Color;
 import javax.swing.SwingConstants;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
 import java.awt.event.ActionEvent;
 
 public class ColorProperties extends JInternalFrame {
@@ -32,6 +34,8 @@ public class ColorProperties extends JInternalFrame {
 	private ColorChooseButton tabHyprlnkButton;
 	private ColorChooseButton chartBckButton;
 	private ColorChooseButton plotBckButton;
+
+	private JComboBox comboBox;
 
 	/**
 	 * Launch the application.
@@ -78,7 +82,9 @@ public class ColorProperties extends JInternalFrame {
 		JButton btnApply = new JButton("Apply");
 		btnApply.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				setColors();
+				String selTheme=comboBox.getSelectedItem().toString();
+				MetaOmGraph.setCurrentTheme(selTheme);
+
 				MetaOmGraph.getActiveTable().getMetadataTableDisplay().updateColors();
 				MetaOmGraph.getActiveTable().getMetadataTreeDisplay().updateColors();
 				MetaOmGraph.getActiveTable().getStripedTable().updateColors();
@@ -89,7 +95,9 @@ public class ColorProperties extends JInternalFrame {
 		JButton btnOk = new JButton("OK");
 		btnOk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				setColors();
+				String selTheme=comboBox.getSelectedItem().toString();
+				MetaOmGraph.setCurrentTheme(selTheme);
+				
 				MetaOmGraph.getActiveTable().getMetadataTableDisplay().updateColors();
 				MetaOmGraph.getActiveTable().getMetadataTreeDisplay().updateColors();
 				MetaOmGraph.getActiveTable().getStripedTable().updateColors();
@@ -116,7 +124,17 @@ public class ColorProperties extends JInternalFrame {
 		// gbc_lblLoadPreset.gridheight=2;
 		panel_1.add(lblLoadPreset, gbc_lblLoadPreset);
 
-		JComboBox comboBox = new JComboBox();
+		comboBox = new JComboBox(MetaOmGraph.getAllThemeNames());
+		comboBox.setSelectedItem(MetaOmGraph.getCurrentThemeName());
+		initButtons(MetaOmGraph.getTheme(MetaOmGraph.getCurrentThemeName()));
+		comboBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				String selectedTheme = comboBox.getSelectedItem().toString();
+				//JOptionPane.showMessageDialog(null, "sel theme:"+selectedTheme);
+				changeButtons(MetaOmGraph.getTheme(selectedTheme));
+			}
+		});
+
 		GridBagConstraints gbc_comboBox = new GridBagConstraints();
 		gbc_comboBox.insets = new Insets(0, 0, 5, 0);
 		gbc_comboBox.fill = GridBagConstraints.HORIZONTAL;
@@ -125,7 +143,7 @@ public class ColorProperties extends JInternalFrame {
 		// gbc_comboBox.gridheight=2;
 		panel_1.add(comboBox, gbc_comboBox);
 
-		JLabel lblTableBackground = new JLabel("Table background1");
+		JLabel lblTableBackground = new JLabel("Table background color 1");
 		lblTableBackground.setHorizontalAlignment(SwingConstants.CENTER);
 		GridBagConstraints gbc_lblTableBackground = new GridBagConstraints();
 		gbc_lblTableBackground.insets = new Insets(0, 0, 5, 5);
@@ -134,13 +152,6 @@ public class ColorProperties extends JInternalFrame {
 		// gbc_lblTableBackground.gridheight=2;
 		panel_1.add(lblTableBackground, gbc_lblTableBackground);
 
-		tabCol1Button = new ColorChooseButton(MetaOmGraph.getTableColor1(), "Table background color 1");
-		tabCol1Button.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent arg0) {
-
-			}
-
-		});
 		GridBagConstraints gbc_tabCol1Button = new GridBagConstraints();
 		gbc_tabCol1Button.insets = new Insets(0, 0, 5, 0);
 		gbc_tabCol1Button.gridx = 4;
@@ -148,14 +159,6 @@ public class ColorProperties extends JInternalFrame {
 		// gbc_tabCol1Button.gridheight=2;
 		gbc_tabCol1Button.fill = GridBagConstraints.BOTH;
 		panel_1.add(tabCol1Button, gbc_tabCol1Button);
-
-		tabCol2Button = new ColorChooseButton(MetaOmGraph.getTableColor2(), "Table background color 2");
-		tabCol2Button.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent arg0) {
-
-			}
-
-		});
 
 		JLabel lblTableBackground_1 = new JLabel("Table background color 2");
 		lblTableBackground_1.setHorizontalAlignment(SwingConstants.CENTER);
@@ -183,13 +186,6 @@ public class ColorProperties extends JInternalFrame {
 		gbc_lblTableSelection.fill = GridBagConstraints.BOTH;
 		panel_1.add(lblTableSelection, gbc_lblTableSelection);
 
-		tabSelButton = new ColorChooseButton(MetaOmGraph.getTableSelectionColor(), "Table selection color");
-		tabSelButton.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent arg0) {
-
-			}
-
-		});
 		GridBagConstraints gbc_tabSelButton = new GridBagConstraints();
 		gbc_tabSelButton.insets = new Insets(0, 0, 5, 0);
 		gbc_tabSelButton.gridx = 4;
@@ -208,13 +204,6 @@ public class ColorProperties extends JInternalFrame {
 		gbc_lblTableHighlight.fill = GridBagConstraints.BOTH;
 		panel_1.add(lblTableHighlight, gbc_lblTableHighlight);
 
-		tabHighlightButton = new ColorChooseButton(MetaOmGraph.getTableHighlightColor(), "Table highlight color");
-		tabHighlightButton.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent arg0) {
-
-			}
-
-		});
 		GridBagConstraints gbc_tabHighlightButton = new GridBagConstraints();
 		gbc_tabHighlightButton.insets = new Insets(0, 0, 5, 0);
 		gbc_tabHighlightButton.gridx = 4;
@@ -232,7 +221,6 @@ public class ColorProperties extends JInternalFrame {
 		// gbc_lblTableHyperlink.gridheight = 2;
 		panel_1.add(lblTableHyperlink, gbc_lblTableHyperlink);
 
-		tabHyprlnkButton = new ColorChooseButton(MetaOmGraph.getTableHyperlinkColor(), "Table hyperlink color");
 		GridBagConstraints gbc_colorChooseButton = new GridBagConstraints();
 		gbc_colorChooseButton.insets = new Insets(0, 0, 5, 0);
 		gbc_colorChooseButton.gridx = 4;
@@ -250,13 +238,6 @@ public class ColorProperties extends JInternalFrame {
 		// gbc_lblNewLabel.gridheight = 2;
 		panel_1.add(lblNewLabel, gbc_lblNewLabel);
 
-		chartBckButton = new ColorChooseButton(MetaOmGraph.getChartBackgroundColor(), "Chart background color");
-		chartBckButton.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent arg0) {
-
-			}
-
-		});
 		GridBagConstraints gbc_chartBckButton = new GridBagConstraints();
 		gbc_chartBckButton.insets = new Insets(0, 0, 5, 0);
 		gbc_chartBckButton.gridx = 4;
@@ -274,13 +255,6 @@ public class ColorProperties extends JInternalFrame {
 		// gbc_lblPlotBackground.gridheight = 2;
 		panel_1.add(lblPlotBackground, gbc_lblPlotBackground);
 
-		plotBckButton = new ColorChooseButton(MetaOmGraph.getPlotBackgroundColor(), "Plot background color");
-		plotBckButton.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent arg0) {
-
-			}
-
-		});
 		GridBagConstraints gbc_plotBckButton = new GridBagConstraints();
 		gbc_plotBckButton.gridx = 4;
 		gbc_plotBckButton.gridy = 8;
@@ -299,5 +273,83 @@ public class ColorProperties extends JInternalFrame {
 		MetaOmGraph.setChartBackgroundColor(chartBckButton.getColor());
 		MetaOmGraph.setPlotBackgroundColor(plotBckButton.getColor());
 	}
+	
+	private void editTheme() {
+		
+	}
+
+	private void initButtons(MOGColorThemes theme) {
+		
+		tabCol1Button = new ColorChooseButton(theme.getTableColor1(), "Table background color 1");
+		tabCol1Button.setColor(theme.getTableColor1());
+		
+		tabCol1Button.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+				
+			}
+
+		});
+
+		tabCol2Button = new ColorChooseButton(theme.getTableColor2(), "Table background color 2");
+		tabCol2Button.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+
+			}
+
+		});
+
+		tabSelButton = new ColorChooseButton(theme.getTableSelectionColor(), "Table selection color");
+		tabSelButton.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+
+			}
+
+		});
+
+		tabHyprlnkButton = new ColorChooseButton(theme.getTableHyperlinkColor(), "Table hyperlink color");
+		tabHyprlnkButton.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+
+			}
+
+		});
+		tabHighlightButton = new ColorChooseButton(theme.getTableHighlightColor(), "Table highlight color");
+		tabHighlightButton.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+
+			}
+
+		});
+
+		chartBckButton = new ColorChooseButton(theme.getChartBackgroundColor(), "Chart background color");
+		chartBckButton.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+
+			}
+
+		});
+
+		plotBckButton = new ColorChooseButton(theme.getPlotBackgroundColor(), "Plot background color");
+		plotBckButton.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+
+			}
+
+		});
+		
+	}
+	
+	private void changeButtons(MOGColorThemes theme) {
+		tabCol1Button.setColor(theme.getTableColor1());
+		tabCol2Button.setColor(theme.getTableColor2());
+		tabSelButton.setColor(theme.getTableSelectionColor());
+		tabHyprlnkButton.setColor(theme.getTableHyperlinkColor());
+		tabHighlightButton.setColor(theme.getTableHighlightColor());
+		chartBckButton.setColor(theme.getChartBackgroundColor());
+		plotBckButton.setColor(theme.getPlotBackgroundColor());
+		revalidate();
+		repaint();
+	}
+	
 
 }
