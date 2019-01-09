@@ -111,6 +111,20 @@ public class ColorProperties extends JInternalFrame {
 			}
 		});
 		panel.add(btnOk);
+		
+		JButton btnRemove = new JButton("Remove");
+		btnRemove.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				String selTheme=comboBox.getSelectedItem().toString();
+				if(selTheme.equals("light") || selTheme.equals("dark")) {
+					JOptionPane.showMessageDialog(ColorProperties.this, "Can't remove default themes", "Can't remove selected theme", JOptionPane.INFORMATION_MESSAGE);
+				}else {
+					MetaOmGraph.removeTheme(selTheme);	
+				}
+				
+			}
+		});
+		panel.add(btnRemove);
 
 		JPanel panel_1 = new JPanel();
 		getContentPane().add(panel_1, BorderLayout.CENTER);
