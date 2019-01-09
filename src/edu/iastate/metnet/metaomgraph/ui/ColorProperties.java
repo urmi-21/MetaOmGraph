@@ -8,6 +8,8 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.jvnet.substance.theme.ThemeChangeListener;
+
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.utils.MOGColorThemes;
 
@@ -34,7 +36,7 @@ public class ColorProperties extends JInternalFrame {
 	private ColorChooseButton tabHyprlnkButton;
 	private ColorChooseButton chartBckButton;
 	private ColorChooseButton plotBckButton;
-
+	private boolean themeEdited;
 	private JComboBox comboBox;
 
 	/**
@@ -82,12 +84,26 @@ public class ColorProperties extends JInternalFrame {
 		JButton btnApply = new JButton("Apply");
 		btnApply.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				//if currently selected themes are light, default then create a new theme
+				//if theme is not a default theme overwrite or save as new theme
 				String selTheme=comboBox.getSelectedItem().toString();
-				MetaOmGraph.setCurrentTheme(selTheme);
-
-				MetaOmGraph.getActiveTable().getMetadataTableDisplay().updateColors();
-				MetaOmGraph.getActiveTable().getMetadataTreeDisplay().updateColors();
-				MetaOmGraph.getActiveTable().getStripedTable().updateColors();
+				boolean overWrite=false;
+				if(themeEdited) {
+					if(selTheme!="light" && selTheme!="dark") {
+						overWrite=true;
+					}
+					if(overWrite) {
+						//display overwrite theme option
+						//overwrite=.toString().
+					}
+					
+					if(overWrite) {
+						//overWrite
+					}else {
+						//display save as new theme option	
+					}
+					
+				}
 			}
 		});
 		panel.add(btnApply);
@@ -95,12 +111,8 @@ public class ColorProperties extends JInternalFrame {
 		JButton btnOk = new JButton("OK");
 		btnOk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				String selTheme=comboBox.getSelectedItem().toString();
-				MetaOmGraph.setCurrentTheme(selTheme);
+				//if currently selected themes are light, default then create a new theme
 				
-				MetaOmGraph.getActiveTable().getMetadataTableDisplay().updateColors();
-				MetaOmGraph.getActiveTable().getMetadataTreeDisplay().updateColors();
-				MetaOmGraph.getActiveTable().getStripedTable().updateColors();
 				dispose();
 			}
 		});
@@ -130,7 +142,7 @@ public class ColorProperties extends JInternalFrame {
 		comboBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				String selectedTheme = comboBox.getSelectedItem().toString();
-				//JOptionPane.showMessageDialog(null, "sel theme:"+selectedTheme);
+				// JOptionPane.showMessageDialog(null, "sel theme:"+selectedTheme);
 				changeButtons(MetaOmGraph.getTheme(selectedTheme));
 			}
 		});
@@ -273,19 +285,19 @@ public class ColorProperties extends JInternalFrame {
 		MetaOmGraph.setChartBackgroundColor(chartBckButton.getColor());
 		MetaOmGraph.setPlotBackgroundColor(plotBckButton.getColor());
 	}
-	
+
 	private void editTheme() {
-		
+		this.themeEdited=true;		
 	}
 
 	private void initButtons(MOGColorThemes theme) {
-		
+		this.themeEdited=false;
 		tabCol1Button = new ColorChooseButton(theme.getTableColor1(), "Table background color 1");
 		tabCol1Button.setColor(theme.getTableColor1());
-		
+
 		tabCol1Button.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
-				
+				editTheme();
 			}
 
 		});
@@ -293,7 +305,7 @@ public class ColorProperties extends JInternalFrame {
 		tabCol2Button = new ColorChooseButton(theme.getTableColor2(), "Table background color 2");
 		tabCol2Button.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
-
+				editTheme();
 			}
 
 		});
@@ -301,7 +313,7 @@ public class ColorProperties extends JInternalFrame {
 		tabSelButton = new ColorChooseButton(theme.getTableSelectionColor(), "Table selection color");
 		tabSelButton.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
-
+				editTheme();
 			}
 
 		});
@@ -309,14 +321,14 @@ public class ColorProperties extends JInternalFrame {
 		tabHyprlnkButton = new ColorChooseButton(theme.getTableHyperlinkColor(), "Table hyperlink color");
 		tabHyprlnkButton.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
-
+				editTheme();
 			}
 
 		});
 		tabHighlightButton = new ColorChooseButton(theme.getTableHighlightColor(), "Table highlight color");
 		tabHighlightButton.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
-
+				editTheme();
 			}
 
 		});
@@ -324,7 +336,7 @@ public class ColorProperties extends JInternalFrame {
 		chartBckButton = new ColorChooseButton(theme.getChartBackgroundColor(), "Chart background color");
 		chartBckButton.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
-
+				editTheme();
 			}
 
 		});
@@ -332,14 +344,15 @@ public class ColorProperties extends JInternalFrame {
 		plotBckButton = new ColorChooseButton(theme.getPlotBackgroundColor(), "Plot background color");
 		plotBckButton.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
-
+				editTheme();
 			}
 
 		});
-		
+
 	}
-	
+
 	private void changeButtons(MOGColorThemes theme) {
+		this.themeEdited=false;
 		tabCol1Button.setColor(theme.getTableColor1());
 		tabCol2Button.setColor(theme.getTableColor2());
 		tabSelButton.setColor(theme.getTableSelectionColor());
@@ -351,5 +364,12 @@ public class ColorProperties extends JInternalFrame {
 		repaint();
 	}
 	
+	private void applyTheme() {
+		String selTheme = comboBox.getSelectedItem().toString();
+		MetaOmGraph.setCurrentTheme(selTheme);
+		MetaOmGraph.getActiveTable().getMetadataTableDisplay().updateColors();
+		MetaOmGraph.getActiveTable().getMetadataTreeDisplay().updateColors();
+		MetaOmGraph.getActiveTable().getStripedTable().updateColors();
+	}
 
 }
