@@ -132,108 +132,108 @@ import edu.stanford.ejalbert.exceptionhandler.BrowserLauncherErrorHandler;
  *
  */
 public class MetaOmGraph implements ActionListener {
-	
-	//default colors
-	private static Color tableColor1=null;
-	private static Color tableColor2=null;
-	private static Color tableSelectionColor=null;
-	private static Color tableHighlightColor=null;
-	private static Color tableHyperlinkColor=null;
-	private static Color chartBackgroundColor=null;
-	private static Color plotBackgroundColor=null;
-	
+
+	// default colors
+	/*private static Color tableColor1 = null;
+	private static Color tableColor2 = null;
+	private static Color tableSelectionColor = null;
+	private static Color tableHighlightColor = null;
+	private static Color tableHyperlinkColor = null;
+	private static Color chartBackgroundColor = null;
+	private static Color plotBackgroundColor = null;
+	*/
+
 	public static Color getTableColor1() {
-		if(tableColor1==null) {
-			return Color.white;
-		}else {
-			return tableColor1;
-		}
+		return currentTheme.getTableColor1();
 	}
-	
+
 	public static Color getTableColor2() {
-		if(tableColor2==null) {
-			return new ColorUIResource(216, 236, 213);
-		}else {
-			return tableColor2;
-		}
+		return currentTheme.getTableColor2();
 	}
-	
+
 	public static Color getTableSelectionColor() {
-		if(tableSelectionColor==null) {
-			return Color.black;
-		}else {
-			return tableSelectionColor;
-		}
+		return currentTheme.getTableSelectionColor();
 	}
-	
+
 	public static Color getTableHighlightColor() {
-		if(tableHighlightColor==null) {
-			return Color.PINK;
-		}else {
-			return tableHighlightColor;
-		}
+		return currentTheme.getTableHighlightColor();
 	}
-	
+
 	public static Color getTableHyperlinkColor() {
-		if(tableHyperlinkColor==null) {
-			return Color.green;
-		}else {
-			return tableHyperlinkColor;
-		}
+		return currentTheme.getTableHyperlinkColor();
 	}
-	
+
 	public static Color getChartBackgroundColor() {
-		if(chartBackgroundColor==null) {
-			return Color.white;
-		}else {
-			return chartBackgroundColor;
-		}
+		return currentTheme.getChartBackgroundColor();
 	}
-	
+
 	public static Color getPlotBackgroundColor() {
-		if(plotBackgroundColor==null) {
-			return Color.white;
+		return currentTheme.getPlotBackgroundColor();
+	}
+
+	public static void setTableColor1(Color col) {
+		 currentTheme.setTableColor1(col);
+	}
+
+	public static void setTableColor2(Color col) {
+		 currentTheme.setTableColor2(col);
+	}
+
+	public static void setTableSelectionColor(Color col) {
+		 currentTheme.setTableSelectionColor(col);
+	}
+
+	public static void setTableHighlightColor(Color col) {
+		 currentTheme.setTableHighlightColor(col);
+	}
+
+	public static void setTableHyperlinkColor(Color col) {
+		 currentTheme.setTableHyperlinkColor(col);
+	}
+
+	public static void setChartBackgroundColor(Color col) {
+		 currentTheme.setChartBackgroundColor(col);
+	}
+
+	public static void setPlotBackgroundColor(Color col) {
+		 currentTheme.setPlotBackgroundColor(col);
+	}
+
+	// create themes
+	private static MOGColorThemes themeLight = new MOGColorThemes("light", Color.white,
+			new ColorUIResource(216, 236, 213), Color.black, Color.PINK, Color.green, Color.WHITE, Color.WHITE);
+	private static MOGColorThemes themeDark = new MOGColorThemes("dark", new ColorUIResource(153, 153, 153),
+			new ColorUIResource(204, 204, 204), Color.black, new ColorUIResource(0, 153, 102), Color.RED,
+			new ColorUIResource(153, 153, 153), new ColorUIResource(153, 153, 153));
+	private static HashMap<String, MOGColorThemes> mogThemes = new HashMap<>();
+	private static String currentmogThemeName = "light";
+	private static MOGColorThemes currentTheme;
+
+	public static void initThemes() {
+		mogThemes.put(themeLight.getThemeName(), themeLight);
+		mogThemes.put(themeDark.getThemeName(), themeDark);
+	}
+	
+	public static void initThemes(HashMap<String, MOGColorThemes> themes) {
+		mogThemes=themes;
+	}
+
+	public static void setCurrentThemeName(String name) {
+		currentmogThemeName=name;
+	}
+	
+	public static void setCurrentTheme() {
+		setCurrentTheme(currentmogThemeName);
+	}
+
+	public static void setCurrentTheme(String theme) {
+		if (mogThemes.containsKey(theme)) {
+			currentTheme = mogThemes.get(theme);
+			setCurrentThemeName(theme);
 		}else {
-			return plotBackgroundColor;
+			JOptionPane.showMessageDialog(null, "Changing theme failed","Failed",JOptionPane.ERROR_MESSAGE);
 		}
 	}
-	
-	public static void setTableColor1(Color col) {
-		tableColor1=col;
-	}
-	
-	public static void setTableColor2(Color col) {
-		tableColor2=col;
-	}
-	
-	public static void setTableSelectionColor(Color col) {
-		tableSelectionColor=col;
-	}
-	
-	
-	
-	public static void setTableHighlightColor(Color col) {
-		tableHighlightColor=col;
-	}
-	
-	public static void setTableHyperlinkColor(Color col) {
-		tableHyperlinkColor=col;
-	}
-	
-	public static void setChartBackgroundColor(Color col) {
-		chartBackgroundColor=col;
-	}
-	
-	public static void setPlotBackgroundColor(Color col) {
-		plotBackgroundColor=col;
-	}
-	
-	private static HashMap<String,MOGColorThemes> mogThemes=new HashMap<>();
-	//create themes
-	MOGColorThemes light=new MOGColorThemes(Color.white,new ColorUIResource(216, 236, 213), Color.black, Color.PINK, Color.green, Color.WHITE, Color.WHITE);
-	
-	private static String mogTheme="default";
-	
 
 	// save hyperlink columns while loading project
 	// initialize to -1 and only be updated if read in project file
@@ -268,7 +268,7 @@ public class MetaOmGraph implements ActionListener {
 			for (File f : dirList) {
 				dirNames.add(f.getName());
 			}
-			//reverse sort list of names to select most recent R
+			// reverse sort list of names to select most recent R
 			dirNames.sort(null);
 			Collections.reverse(dirNames);
 			for (String s : dirNames) {
@@ -277,8 +277,7 @@ public class MetaOmGraph implements ActionListener {
 					break;
 				}
 			}
-			
-			
+
 		} else if (OS.indexOf("mac") >= 0 || OS.indexOf("Mac") >= 0) {
 			res = "/usr/local/bin/Rscript";
 		} else if (OS.indexOf("nix") >= 0 || OS.indexOf("nux") >= 0 || OS.indexOf("aix") > 0) {
@@ -296,7 +295,7 @@ public class MetaOmGraph implements ActionListener {
 	}
 
 	public static void setUserRPath(String path) {
-		if(path==null || path.equals("")) {
+		if (path == null || path.equals("")) {
 			defaultRpath = true;
 			return;
 		}
@@ -632,6 +631,7 @@ public class MetaOmGraph implements ActionListener {
 	public static void init(boolean useBuffer) {
 		System.setProperty("MOG.version", VERSION);
 		System.setProperty("MOG.date", DATE);
+		
 		myself = new MetaOmGraph();
 		activeProject = null;
 		recentProjects = new Vector<File>();
@@ -642,21 +642,31 @@ public class MetaOmGraph implements ActionListener {
 			try {
 				FileInputStream fis = new FileInputStream(prefsFile);
 				ObjectInputStream in = new ObjectInputStream(fis);
-				
-				File lastF=(File) in.readObject();
+
+				File lastF = (File) in.readObject();
 				Utils.setLastDir(lastF);
-				//JOptionPane.showMessageDialog(null, "Lastpath:"+lastF.getAbsolutePath());
+				// JOptionPane.showMessageDialog(null, "Lastpath:"+lastF.getAbsolutePath());
 				recentProjects = (Vector<File>) in.readObject();
-				//JOptionPane.showMessageDialog(null, recentProjects.toString());
+				// JOptionPane.showMessageDialog(null, recentProjects.toString());
 				Utils.setLastDir((File) recentProjects.get(0));
 				showTips = (MetaOmShowTipsChoice) in.readObject();
 				currentTip = (Integer) in.readObject();
-				
-				List<String> rObs= (List<String>) in.readObject();
-				//JOptionPane.showMessageDialog(null, Robs.toString());
+
+				List<String> rObs = (List<String>) in.readObject();
+				// JOptionPane.showMessageDialog(null, Robs.toString());
 				setUserRPath(rObs.get(0));
 				setpathtoRscrips(rObs.get(1));
-				
+				//read mog themes
+				String lastThemeName= (String) in.readObject();
+				HashMap<String,MOGColorThemes> themes=(HashMap<String, MOGColorThemes>) in.readObject();
+				if(themes!=null) {
+					initThemes(themes);
+					setCurrentTheme(lastThemeName);
+				}else {
+					initThemes();
+					setCurrentTheme("light");
+				}
+
 				in.close();
 			} catch (FileNotFoundException e1) {
 				e1.printStackTrace();
@@ -1461,23 +1471,25 @@ public class MetaOmGraph implements ActionListener {
 				} else if (currentTip != null) {
 					out.writeObject(currentTip);
 				}
-				
-				//save R path and R scripts path
-				List<String> rObs=new ArrayList<>();
-				if(userRPath==null) {
+
+				// save R path and R scripts path
+				List<String> rObs = new ArrayList<>();
+				if (userRPath == null) {
 					rObs.add("");
-				}else {
-					rObs.add(userRPath);	
+				} else {
+					rObs.add(userRPath);
 				}
-				if(getpathtoRscrips()==null) {
+				if (getpathtoRscrips() == null) {
 					rObs.add("");
-				}else {
-					rObs.add(getpathtoRscrips());	
+				} else {
+					rObs.add(getpathtoRscrips());
 				}
-				
+
 				out.writeObject(rObs);
 				
-				
+				out.writeObject(currentmogThemeName);
+				out.writeObject(mogThemes);
+
 				out.close();
 				fos.close();
 			} catch (IOException e) {
@@ -3390,7 +3402,7 @@ public class MetaOmGraph implements ActionListener {
 			if (!closeProject())
 				return;
 		Utils.setLastDir(source.getParentFile());
-		//JOptionPane.showMessageDialog(null, "setlf:"+Utils.getLastDir());
+		// JOptionPane.showMessageDialog(null, "setlf:"+Utils.getLastDir());
 		new OpenProjectWorker(source).start();
 
 		return;

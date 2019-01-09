@@ -5,7 +5,7 @@ import java.awt.Color;
 import javax.swing.plaf.ColorUIResource;
 
 public class MOGColorThemes {
-
+	private String themeName;
 	private  Color tableColor1=null;
 	private  Color tableColor2=null;
 	private  Color tableSelectionColor=null;
@@ -14,7 +14,8 @@ public class MOGColorThemes {
 	private  Color chartBackgroundColor=null;
 	private  Color plotBackgroundColor=null;
 	
-	public MOGColorThemes(Color tableCol1,Color tableCol2, Color tableSelColor, Color tableHlColor, Color tableHlinkColor, Color chartBgColor, Color plotBgColor){
+	public MOGColorThemes(String name, Color tableCol1,Color tableCol2, Color tableSelColor, Color tableHlColor, Color tableHlinkColor, Color chartBgColor, Color plotBgColor){
+		this.themeName=name;
 		this.tableColor1=tableCol1;
 		this.tableColor2=tableCol2;
 		this.tableHighlightColor=tableHlColor;
@@ -24,6 +25,9 @@ public class MOGColorThemes {
 		this.plotBackgroundColor=plotBgColor;
 	}
 	
+	public String getThemeName() {
+		return themeName;
+	}
 	public  Color getTableColor1() {
 		if(tableColor1==null) {
 			return Color.white;
