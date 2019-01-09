@@ -92,7 +92,8 @@ import javax.swing.JScrollPane;
 public class ScatterPlotChart extends JInternalFrame implements ChartMouseListener, ActionListener {
 
 	private int[] selected;
-	//pivotIndex is the ith index in the selected rows which is the x axis for the scatterplot
+	// pivotIndex is the ith index in the selected rows which is the x axis for the
+	// scatterplot
 	private int pivotIndex;
 	String[] rowNames;
 	private MetaOmProject myProject;
@@ -114,13 +115,16 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 	private JButton defaultZoom;
 	private JButton exportButton;
 	private JButton metadataButton;
-	
 
 	public static final String ZOOM_IN_COMMAND = "zoomIn";
 	public static final String ZOOM_OUT_COMMAND = "zoomOut";
 	public static final String ZOOM_DEFAULT_COMMAND = "defaultZoom";
-	
+
 	private boolean[] excludedCopy;
+
+	// chart colors
+	private Color chartbg = MetaOmGraph.getChartBackgroundColor();
+	private Color plotbg = MetaOmGraph.getPlotBackgroundColor();
 
 	/**
 	 * Launch the application.
@@ -143,8 +147,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 	 * Create the frame.
 	 */
 	public ScatterPlotChart(int[] selected, int xind, MetaOmProject mp) {
-				
-		
+
 		this.selected = selected;
 		// init rownames
 		rowNames = mp.getDefaultRowNames(selected);
@@ -221,16 +224,16 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		setMaximizable(true);
 		setIconifiable(true);
 		setClosable(true);
-		String chartTitle="Scatter Plot:"+String.join(",", rowNames);
+		String chartTitle = "Scatter Plot:" + String.join(",", rowNames);
 		this.setTitle(chartTitle);
 	}
 
 	public ChartPanel makeScatterPlot() throws IOException {
-		//create a copy of excluded
-		boolean []excluded=MetaOmAnalyzer.getExclude();
-		if(excluded!=null) {
-			excludedCopy=new boolean[excluded.length];
-			System.arraycopy( excluded, 0, excludedCopy, 0, excluded.length );
+		// create a copy of excluded
+		boolean[] excluded = MetaOmAnalyzer.getExclude();
+		if (excluded != null) {
+			excludedCopy = new boolean[excluded.length];
+			System.arraycopy(excluded, 0, excludedCopy, 0, excluded.length);
 		}
 		// Create dataset
 		dataset = createDataset();
@@ -239,7 +242,9 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		// Changes background color
 		Shape shape = ShapeUtilities.createRegularCross(2, 1);
 		XYPlot plot = (XYPlot) myChart.getPlot();
-		plot.setBackgroundPaint(Color.WHITE);
+		plot.setBackgroundPaint(plotbg);
+		myChart.setBackgroundPaint(chartbg);
+		//plot.setpaint
 		// XYItemRenderer renderer = plot.getRenderer();
 		myRenderer = plot.getRenderer();
 		myRenderer.setBaseShape(shape);
@@ -391,8 +396,10 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 				Point2D p = translateScreenToJava2D(event.getPoint());
 				Rectangle2D plotArea = getScreenDataArea();
 				XYPlot plot = (XYPlot) myChart.getPlot(); // your plot
-				//double chartX = plot.getDomainAxis().java2DToValue(p.getX(), plotArea, plot.getDomainAxisEdge());
-				//double chartY = plot.getRangeAxis().java2DToValue(p.getY(), plotArea, plot.getRangeAxisEdge());
+				// double chartX = plot.getDomainAxis().java2DToValue(p.getX(), plotArea,
+				// plot.getDomainAxisEdge());
+				// double chartY = plot.getRangeAxis().java2DToValue(p.getY(), plotArea,
+				// plot.getRangeAxisEdge());
 				ChartEntity entity = getChartRenderingInfo().getEntityCollection().getEntity(event.getPoint().getX(),
 						event.getPoint().getY());
 				// JOptionPane.showMessageDialog(null, entity);
@@ -402,24 +409,26 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 				}
 				XYItemEntity item = (XYItemEntity) entity;
 				int thisXind = item.getItem();
-				//get x and y points
-				
-				XYDataset thisDS=item.getDataset();
-				double chartX=thisDS.getXValue(item.getSeriesIndex(), thisXind);
-				double chartY=thisDS.getYValue(item.getSeriesIndex(), thisXind);
-				
+				// get x and y points
+
+				XYDataset thisDS = item.getDataset();
+				double chartX = thisDS.getXValue(item.getSeriesIndex(), thisXind);
+				double chartY = thisDS.getYValue(item.getSeriesIndex(), thisXind);
+
 				int correctColIndex = -1;
 				try {
-					
-					correctColIndex = myProject.getMetadataHybrid().getColIndexbyName(myProject.getDatainSortedOrder(selected[pivotIndex], thisXind,excludedCopy));
-					
+
+					correctColIndex = myProject.getMetadataHybrid().getColIndexbyName(
+							myProject.getDatainSortedOrder(selected[pivotIndex], thisXind, excludedCopy));
+
 					/*
-					JOptionPane.showMessageDialog(null, "exc:"+Arrays.toString(excludedCopy));
-					JOptionPane.showMessageDialog(null, "sel::"+Arrays.toString(selected));
-					JOptionPane.showMessageDialog(null, "pivInd:"+selected[pivotIndex]);
-					JOptionPane.showMessageDialog(null, "thisXind:"+thisXind);
-					JOptionPane.showMessageDialog(null, "correctColIndex:"+correctColIndex);*/
-					
+					 * JOptionPane.showMessageDialog(null, "exc:"+Arrays.toString(excludedCopy));
+					 * JOptionPane.showMessageDialog(null, "sel::"+Arrays.toString(selected));
+					 * JOptionPane.showMessageDialog(null, "pivInd:"+selected[pivotIndex]);
+					 * JOptionPane.showMessageDialog(null, "thisXind:"+thisXind);
+					 * JOptionPane.showMessageDialog(null, "correctColIndex:"+correctColIndex);
+					 */
+
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -489,10 +498,9 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 
 	private String createTooltip(int colIndex, double x, double y) {
 		DecimalFormat df = new DecimalFormat("####0.00");
-		String bgColor = "#"
-				+ Integer.toHexString(MetaOmGraph.getTableColor1().getRGB()).substring(2);;
-		String bgColorAlt = "#"
-				+ Integer.toHexString(MetaOmGraph.getTableColor2().getRGB()).substring(2);
+		String bgColor = "#" + Integer.toHexString(MetaOmGraph.getTableColor1().getRGB()).substring(2);
+		;
+		String bgColorAlt = "#" + Integer.toHexString(MetaOmGraph.getTableColor2().getRGB()).substring(2);
 		String[] rowColors = { bgColor, bgColorAlt };
 		String text = "<html><head> " + "<style>" + ".scrollit {\n" + "    overflow:scroll;\n" + "    height:100px;\n"
 				+ "}" + "</style></head><body>"
