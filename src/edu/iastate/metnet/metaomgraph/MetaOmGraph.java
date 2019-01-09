@@ -212,25 +212,32 @@ public class MetaOmGraph implements ActionListener {
 		mogThemes.put(themeLight.getThemeName(), themeLight);
 		mogThemes.put(themeDark.getThemeName(), themeDark);
 	}
-	
-	public static HashMap<String, MOGColorThemes> getAllThemes() {
-		return mogThemes;
-	}
-	
-	public static  MOGColorThemes getTheme(String name) {
-		if(mogThemes.containsKey(name)) {
-			return mogThemes.get(name);
-		}else {
-			return null;
-		}
-	}
-	
-	public static Object[] getAllThemeNames() {
-		return mogThemes.keySet().toArray();
-	}
 
 	public static void initThemes(HashMap<String, MOGColorThemes> themes) {
 		mogThemes = themes;
+	}
+
+	public static void addTheme(MOGColorThemes theme) {
+		if (mogThemes == null) {
+			initThemes();
+		}
+		mogThemes.put(theme.getThemeName(), theme);
+	}
+
+	public static HashMap<String, MOGColorThemes> getAllThemes() {
+		return mogThemes;
+	}
+
+	public static MOGColorThemes getTheme(String name) {
+		if (mogThemes.containsKey(name)) {
+			return mogThemes.get(name);
+		} else {
+			return null;
+		}
+	}
+
+	public static Object[] getAllThemeNames() {
+		return mogThemes.keySet().toArray();
 	}
 
 	public static void setCurrentThemeName(String name) {
@@ -249,7 +256,7 @@ public class MetaOmGraph implements ActionListener {
 			JOptionPane.showMessageDialog(null, "Changing theme failed", "Failed", JOptionPane.ERROR_MESSAGE);
 		}
 	}
-	
+
 	public static String getCurrentThemeName() {
 		return currentmogThemeName;
 	}
@@ -650,7 +657,7 @@ public class MetaOmGraph implements ActionListener {
 	public static void init(boolean useBuffer) {
 		System.setProperty("MOG.version", VERSION);
 		System.setProperty("MOG.date", DATE);
-		
+
 		myself = new MetaOmGraph();
 		activeProject = null;
 		recentProjects = new Vector<File>();
@@ -671,25 +678,25 @@ public class MetaOmGraph implements ActionListener {
 				showTips = (MetaOmShowTipsChoice) in.readObject();
 				currentTip = (Integer) in.readObject();
 				try {
-				List<String> rObs = (List<String>) in.readObject();
-				setUserRPath(rObs.get(0));
-				setpathtoRscrips(rObs.get(1));
-				}catch(Exception ex) {
+					List<String> rObs = (List<String>) in.readObject();
+					setUserRPath(rObs.get(0));
+					setpathtoRscrips(rObs.get(1));
+				} catch (Exception ex) {
 					setUserRPath("");
 				}
-				//read mog themes
+				// read mog themes
 				try {
-				String lastThemeName= (String) in.readObject();
-				HashMap<String,MOGColorThemes> themes=(HashMap<String, MOGColorThemes>) in.readObject();
-				
-				if(lastThemeName !=null && themes!=null && themes.size()>0) {
-					initThemes(themes);
-					setCurrentTheme(lastThemeName);
-				}else {
-					initThemes();
-					setCurrentTheme("light");
-				}
-				}catch(Exception ex) {
+					String lastThemeName = (String) in.readObject();
+					HashMap<String, MOGColorThemes> themes = (HashMap<String, MOGColorThemes>) in.readObject();
+
+					if (lastThemeName != null && themes != null && themes.size() > 0) {
+						initThemes(themes);
+						setCurrentTheme(lastThemeName);
+					} else {
+						initThemes();
+						setCurrentTheme("light");
+					}
+				} catch (Exception ex) {
 					initThemes();
 					setCurrentTheme("light");
 				}

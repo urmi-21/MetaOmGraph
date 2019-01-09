@@ -84,48 +84,8 @@ public class ColorProperties extends JInternalFrame {
 		JButton btnApply = new JButton("Apply");
 		btnApply.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//if currently selected themes are light, default then create a new theme
-				//if theme is not a default theme overwrite or save as new theme
-				String selTheme=comboBox.getSelectedItem().toString();
-				boolean overWrite=false;
-				if(themeEdited) {
-					if(selTheme!="light" && selTheme!="dark") {
-						overWrite=true;
-					}
-					if(overWrite) {
-						//display overwrite theme option
-						int n = JOptionPane.showConfirmDialog(
-							    ColorProperties.this,
-							    "Would you like to overwrite to the existing theme",
-							    "An Inane Question",
-							    JOptionPane.YES_NO_OPTION);
-						if(n==JOptionPane.YES_OPTION) {
-							overWrite=true;
-						}else {
-							overWrite=false;
-						}
-					}
-					
-					if(overWrite) {
-						//overWrite
-						MOGColorThemes thisTheme=MetaOmGraph.getTheme(selTheme);
-						updateTheme(thisTheme);
-					}else {
-						//display save as new theme option	
-						String newName = JOptionPane.showInputDialog(
-								ColorProperties.this, 
-						        "Enter a name for new theme", 
-						        "Please enter a name", 
-						        JOptionPane.OK_OPTION
-						    );
-						
-						MOGColorThemes newTheme= new MOGColorThemes(newName);
-						updateTheme(newTheme);
-			                    
-			                   
-					}
-					
-				}
+				saveTheme();
+				
 			}
 		});
 		panel.add(btnApply);
@@ -133,7 +93,7 @@ public class ColorProperties extends JInternalFrame {
 		JButton btnOk = new JButton("OK");
 		btnOk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				//if currently selected themes are light, default then create a new theme
+				saveTheme();
 				
 				dispose();
 			}
@@ -386,9 +346,58 @@ public class ColorProperties extends JInternalFrame {
 		repaint();
 	}
 	
-	private void applyTheme() {
-		String selTheme = comboBox.getSelectedItem().toString();
-		MetaOmGraph.setCurrentTheme(selTheme);
+	private void saveTheme() {
+		//if currently selected themes are light, default then create a new theme
+		//if theme is not a default theme overwrite or save as new theme
+		String selTheme=comboBox.getSelectedItem().toString();
+		boolean overWrite=false;
+		MOGColorThemes thisTheme=null;
+		if(themeEdited) {
+			if(selTheme!="light" && selTheme!="dark") {
+				overWrite=true;
+			}
+			if(overWrite) {
+				//display overwrite theme option
+				int n = JOptionPane.showConfirmDialog(
+					    ColorProperties.this,
+					    "Would you like to overwrite to the existing theme",
+					    "An Inane Question",
+					    JOptionPane.YES_NO_OPTION);
+				if(n==JOptionPane.YES_OPTION) {
+					overWrite=true;
+				}else {
+					overWrite=false;
+				}
+			}
+			
+			if(overWrite) {
+				//overWrite
+				thisTheme=MetaOmGraph.getTheme(selTheme);
+				updateTheme(thisTheme);
+				
+			}else {
+				//display save as new theme option	
+				String newName = JOptionPane.showInputDialog(
+						ColorProperties.this, 
+				        "Enter a name for new theme", 
+				        "Please enter a name", 
+				        JOptionPane.OK_OPTION
+				    );
+				
+				thisTheme= new MOGColorThemes(newName);
+				updateTheme(thisTheme);
+				//save theme to MOG
+				MetaOmGraph.addTheme(thisTheme);
+				//reload combobox
+			}
+			
+		}
+		
+		applyTheme(thisTheme);
+	}
+	
+	private void applyTheme(MOGColorThemes newTheme) {
+		MetaOmGraph.setCurrentTheme(newTheme.getThemeName());
 		MetaOmGraph.getActiveTable().getMetadataTableDisplay().updateColors();
 		MetaOmGraph.getActiveTable().getMetadataTreeDisplay().updateColors();
 		MetaOmGraph.getActiveTable().getStripedTable().updateColors();
