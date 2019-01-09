@@ -780,7 +780,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 
 			};
 			
-			myChart.setBackgroundPaint(chartbg); //urmi
+			
 			// ToolTipManager.sharedInstance().setDismissDelay(0);
 			if (myChartPanel.getChart().getPlot() != null) {
 				myChartPanel.restoreAutoRangeBounds();
@@ -1166,7 +1166,9 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 			// Construct and configure the chart
 			myChart = ChartFactory.createXYLineChart(title, xaxisLabel, yaxisLabel, myXYDataset,
 					PlotOrientation.VERTICAL, true, true, false);
+			//urmi
 			myChart.getPlot().setBackgroundPaint(plotbg);
+			myChart.setBackgroundPaint(chartbg);
 			myAnnotator.redrawAnnotations(); // by mhhur
 
 			((XYPlot) myChart.getPlot()).setRangeGridlinePaint(Color.LIGHT_GRAY);

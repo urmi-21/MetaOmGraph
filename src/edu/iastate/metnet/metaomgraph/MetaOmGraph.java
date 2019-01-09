@@ -400,8 +400,8 @@ public class MetaOmGraph implements ActionListener {
 	}
 
 	/////////////////////
-	private static final String VERSION = "1.7.2";
-	private static final String DATE = "Dec 22, 2018";
+	private static final String VERSION = "1.7.3";
+	private static final String DATE = "Jan 08, 2019";
 
 	public static String getVersion() {
 		return VERSION;
@@ -665,7 +665,7 @@ public class MetaOmGraph implements ActionListener {
 	 */
 	@SuppressWarnings("unchecked")
 	public static void init(boolean useBuffer) {
-		System.setProperty("MOG.version", VERSION);
+		System.setProperty("MOG.version", " v. "+VERSION);
 		System.setProperty("MOG.date", DATE);
 
 		myself = new MetaOmGraph();
