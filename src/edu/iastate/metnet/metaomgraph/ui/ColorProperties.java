@@ -13,6 +13,7 @@ import org.jvnet.substance.theme.ThemeChangeListener;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.utils.MOGColorThemes;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import java.awt.GridBagLayout;
 import javax.swing.JLabel;
@@ -24,6 +25,7 @@ import java.awt.Insets;
 import java.awt.Color;
 import javax.swing.SwingConstants;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.awt.event.ActionEvent;
 
@@ -84,8 +86,13 @@ public class ColorProperties extends JInternalFrame {
 		JButton btnApply = new JButton("Apply");
 		btnApply.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				saveTheme();
-				
+				if (!themeEdited) {
+					String selTheme=comboBox.getSelectedItem().toString();
+					applyTheme(MetaOmGraph.getTheme(selTheme));
+				} else {
+					saveTheme();
+				}
+
 			}
 		});
 		panel.add(btnApply);
@@ -93,8 +100,13 @@ public class ColorProperties extends JInternalFrame {
 		JButton btnOk = new JButton("OK");
 		btnOk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				saveTheme();
-				
+				if (!themeEdited) {
+					String selTheme=comboBox.getSelectedItem().toString();
+					applyTheme(MetaOmGraph.getTheme(selTheme));
+				} else {
+					saveTheme();
+				}
+
 				dispose();
 			}
 		});
@@ -118,9 +130,8 @@ public class ColorProperties extends JInternalFrame {
 		// gbc_lblLoadPreset.gridheight=2;
 		panel_1.add(lblLoadPreset, gbc_lblLoadPreset);
 
-		comboBox = new JComboBox(MetaOmGraph.getAllThemeNames());
-		comboBox.setSelectedItem(MetaOmGraph.getCurrentThemeName());
 		initButtons(MetaOmGraph.getTheme(MetaOmGraph.getCurrentThemeName()));
+		comboBox = new JComboBox();
 		comboBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				String selectedTheme = comboBox.getSelectedItem().toString();
@@ -128,6 +139,10 @@ public class ColorProperties extends JInternalFrame {
 				changeButtons(MetaOmGraph.getTheme(selectedTheme));
 			}
 		});
+		
+		initcomboBox();
+		
+		
 
 		GridBagConstraints gbc_comboBox = new GridBagConstraints();
 		gbc_comboBox.insets = new Insets(0, 0, 5, 0);
@@ -269,11 +284,11 @@ public class ColorProperties extends JInternalFrame {
 	}
 
 	private void editTheme() {
-		this.themeEdited=true;		
+		this.themeEdited = true;
 	}
 
 	private void initButtons(MOGColorThemes theme) {
-		this.themeEdited=false;
+		this.themeEdited = false;
 		tabCol1Button = new ColorChooseButton(theme.getTableColor1(), "Table background color 1");
 		tabCol1Button.setColor(theme.getTableColor1());
 
@@ -334,7 +349,7 @@ public class ColorProperties extends JInternalFrame {
 	}
 
 	private void changeButtons(MOGColorThemes theme) {
-		this.themeEdited=false;
+		this.themeEdited = false;
 		tabCol1Button.setColor(theme.getTableColor1());
 		tabCol2Button.setColor(theme.getTableColor2());
 		tabSelButton.setColor(theme.getTableSelectionColor());
@@ -345,62 +360,65 @@ public class ColorProperties extends JInternalFrame {
 		revalidate();
 		repaint();
 	}
-	
+
 	private void saveTheme() {
-		//if currently selected themes are light, default then create a new theme
-		//if theme is not a default theme overwrite or save as new theme
-		String selTheme=comboBox.getSelectedItem().toString();
-		boolean overWrite=false;
-		MOGColorThemes thisTheme=null;
-		if(themeEdited) {
-			if(selTheme!="light" && selTheme!="dark") {
-				overWrite=true;
+		// if currently selected themes are light, default then create a new theme
+		// if theme is not a default theme overwrite or save as new theme
+		String selTheme = comboBox.getSelectedItem().toString();
+		boolean overWrite = false;
+		MOGColorThemes thisTheme = null;
+		if (themeEdited) {
+			if (selTheme != "light" && selTheme != "dark") {
+				overWrite = true;
 			}
-			if(overWrite) {
-				//display overwrite theme option
-				int n = JOptionPane.showConfirmDialog(
-					    ColorProperties.this,
-					    "Would you like to overwrite to the existing theme",
-					    "An Inane Question",
-					    JOptionPane.YES_NO_OPTION);
-				if(n==JOptionPane.YES_OPTION) {
-					overWrite=true;
-				}else {
-					overWrite=false;
+			if (overWrite) {
+				// display overwrite theme option
+				int n = JOptionPane.showConfirmDialog(ColorProperties.this,
+						"Would you like to overwrite to the existing theme", "An Inane Question",
+						JOptionPane.YES_NO_OPTION);
+				if (n == JOptionPane.YES_OPTION) {
+					overWrite = true;
+				} else {
+					overWrite = false;
 				}
 			}
-			
-			if(overWrite) {
-				//overWrite
-				thisTheme=MetaOmGraph.getTheme(selTheme);
+
+			if (overWrite) {
+				// overWrite
+				thisTheme = MetaOmGraph.getTheme(selTheme);
 				updateTheme(thisTheme);
-				
-			}else {
-				//display save as new theme option	
-				String newName = JOptionPane.showInputDialog(
-						ColorProperties.this, 
-				        "Enter a name for new theme", 
-				        "Please enter a name", 
-				        JOptionPane.OK_OPTION
-				    );
-				
-				thisTheme= new MOGColorThemes(newName);
+
+			} else {
+				// display save as new theme option
+				String newName = JOptionPane.showInputDialog(ColorProperties.this, "Enter a name for new theme",
+						"Please enter a name", JOptionPane.OK_OPTION);
+
+				thisTheme = new MOGColorThemes(newName);
 				updateTheme(thisTheme);
-				//save theme to MOG
+				// save theme to MOG
 				MetaOmGraph.addTheme(thisTheme);
-				//reload combobox
+				// reload combobox
+				
 			}
-			
+
 		}
-		
+
 		applyTheme(thisTheme);
+		initcomboBox();
 	}
-	
+
 	private void applyTheme(MOGColorThemes newTheme) {
 		MetaOmGraph.setCurrentTheme(newTheme.getThemeName());
 		MetaOmGraph.getActiveTable().getMetadataTableDisplay().updateColors();
 		MetaOmGraph.getActiveTable().getMetadataTreeDisplay().updateColors();
 		MetaOmGraph.getActiveTable().getStripedTable().updateColors();
+	}
+
+	private void initcomboBox() {
+		comboBox.setModel(new DefaultComboBoxModel(MetaOmGraph.getAllThemeNames()));
+		comboBox.setSelectedItem(MetaOmGraph.getCurrentThemeName());
+		//revalidate();
+		//repaint();
 	}
 
 }
