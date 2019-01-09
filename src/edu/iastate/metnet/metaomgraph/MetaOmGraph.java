@@ -134,14 +134,13 @@ import edu.stanford.ejalbert.exceptionhandler.BrowserLauncherErrorHandler;
 public class MetaOmGraph implements ActionListener {
 
 	// default colors
-	/*private static Color tableColor1 = null;
-	private static Color tableColor2 = null;
-	private static Color tableSelectionColor = null;
-	private static Color tableHighlightColor = null;
-	private static Color tableHyperlinkColor = null;
-	private static Color chartBackgroundColor = null;
-	private static Color plotBackgroundColor = null;
-	*/
+	/*
+	 * private static Color tableColor1 = null; private static Color tableColor2 =
+	 * null; private static Color tableSelectionColor = null; private static Color
+	 * tableHighlightColor = null; private static Color tableHyperlinkColor = null;
+	 * private static Color chartBackgroundColor = null; private static Color
+	 * plotBackgroundColor = null;
+	 */
 
 	public static Color getTableColor1() {
 		return currentTheme.getTableColor1();
@@ -172,31 +171,31 @@ public class MetaOmGraph implements ActionListener {
 	}
 
 	public static void setTableColor1(Color col) {
-		 currentTheme.setTableColor1(col);
+		currentTheme.setTableColor1(col);
 	}
 
 	public static void setTableColor2(Color col) {
-		 currentTheme.setTableColor2(col);
+		currentTheme.setTableColor2(col);
 	}
 
 	public static void setTableSelectionColor(Color col) {
-		 currentTheme.setTableSelectionColor(col);
+		currentTheme.setTableSelectionColor(col);
 	}
 
 	public static void setTableHighlightColor(Color col) {
-		 currentTheme.setTableHighlightColor(col);
+		currentTheme.setTableHighlightColor(col);
 	}
 
 	public static void setTableHyperlinkColor(Color col) {
-		 currentTheme.setTableHyperlinkColor(col);
+		currentTheme.setTableHyperlinkColor(col);
 	}
 
 	public static void setChartBackgroundColor(Color col) {
-		 currentTheme.setChartBackgroundColor(col);
+		currentTheme.setChartBackgroundColor(col);
 	}
 
 	public static void setPlotBackgroundColor(Color col) {
-		 currentTheme.setPlotBackgroundColor(col);
+		currentTheme.setPlotBackgroundColor(col);
 	}
 
 	// create themes
@@ -214,14 +213,30 @@ public class MetaOmGraph implements ActionListener {
 		mogThemes.put(themeDark.getThemeName(), themeDark);
 	}
 	
+	public static HashMap<String, MOGColorThemes> getAllThemes() {
+		return mogThemes;
+	}
+	
+	public static  MOGColorThemes getTheme(String name) {
+		if(mogThemes.containsKey(name)) {
+			return mogThemes.get(name);
+		}else {
+			return null;
+		}
+	}
+	
+	public static Object[] getAllThemeNames() {
+		return mogThemes.keySet().toArray();
+	}
+
 	public static void initThemes(HashMap<String, MOGColorThemes> themes) {
-		mogThemes=themes;
+		mogThemes = themes;
 	}
 
 	public static void setCurrentThemeName(String name) {
-		currentmogThemeName=name;
+		currentmogThemeName = name;
 	}
-	
+
 	public static void setCurrentTheme() {
 		setCurrentTheme(currentmogThemeName);
 	}
@@ -230,9 +245,13 @@ public class MetaOmGraph implements ActionListener {
 		if (mogThemes.containsKey(theme)) {
 			currentTheme = mogThemes.get(theme);
 			setCurrentThemeName(theme);
-		}else {
-			JOptionPane.showMessageDialog(null, "Changing theme failed","Failed",JOptionPane.ERROR_MESSAGE);
+		} else {
+			JOptionPane.showMessageDialog(null, "Changing theme failed", "Failed", JOptionPane.ERROR_MESSAGE);
 		}
+	}
+	
+	public static String getCurrentThemeName() {
+		return currentmogThemeName;
 	}
 
 	// save hyperlink columns while loading project
@@ -651,18 +670,26 @@ public class MetaOmGraph implements ActionListener {
 				Utils.setLastDir((File) recentProjects.get(0));
 				showTips = (MetaOmShowTipsChoice) in.readObject();
 				currentTip = (Integer) in.readObject();
-
+				try {
 				List<String> rObs = (List<String>) in.readObject();
-				// JOptionPane.showMessageDialog(null, Robs.toString());
 				setUserRPath(rObs.get(0));
 				setpathtoRscrips(rObs.get(1));
+				}catch(Exception ex) {
+					setUserRPath("");
+				}
 				//read mog themes
+				try {
 				String lastThemeName= (String) in.readObject();
 				HashMap<String,MOGColorThemes> themes=(HashMap<String, MOGColorThemes>) in.readObject();
-				if(themes!=null) {
+				
+				if(lastThemeName !=null && themes!=null && themes.size()>0) {
 					initThemes(themes);
 					setCurrentTheme(lastThemeName);
 				}else {
+					initThemes();
+					setCurrentTheme("light");
+				}
+				}catch(Exception ex) {
 					initThemes();
 					setCurrentTheme("light");
 				}
@@ -1486,7 +1513,7 @@ public class MetaOmGraph implements ActionListener {
 				}
 
 				out.writeObject(rObs);
-				
+
 				out.writeObject(currentmogThemeName);
 				out.writeObject(mogThemes);
 

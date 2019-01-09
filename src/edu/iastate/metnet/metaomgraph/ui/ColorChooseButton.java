@@ -55,6 +55,10 @@ public class ColorChooseButton
     public Color getColor() {
         return myColor;
     }
+    
+    public void setColor(Color newColor) {
+        myColor=newColor;
+    }
 
 
     protected void paintComponent(Graphics g) {

@@ -1,10 +1,11 @@
 package edu.iastate.metnet.metaomgraph.utils;
 
 import java.awt.Color;
+import java.io.Serializable;
 
 import javax.swing.plaf.ColorUIResource;
 
-public class MOGColorThemes {
+public class MOGColorThemes implements Serializable{
 	private String themeName;
 	private  Color tableColor1=null;
 	private  Color tableColor2=null;
@@ -19,7 +20,7 @@ public class MOGColorThemes {
 		this.tableColor1=tableCol1;
 		this.tableColor2=tableCol2;
 		this.tableHighlightColor=tableHlColor;
-		this.tableHyperlinkColor=tableHlColor;
+		this.tableHyperlinkColor=tableHlinkColor;
 		this.tableSelectionColor=tableSelColor;
 		this.chartBackgroundColor=chartBgColor;
 		this.plotBackgroundColor=plotBgColor;
