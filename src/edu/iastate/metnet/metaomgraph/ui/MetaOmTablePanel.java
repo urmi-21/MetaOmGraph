@@ -915,7 +915,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 	public void graphPairs() {
 		int[] selected = getSelectedRowsInList();
-		if (selected.length < 1) {
+		if (selected.length < 2) {
 			JOptionPane.showMessageDialog(null, "Please select two or more rows and try again to plot a scatterplot.",
 					"Invalid number of rows selected", JOptionPane.ERROR_MESSAGE);
 			return;
