@@ -94,13 +94,35 @@ public class ColorProperties extends JInternalFrame {
 					}
 					if(overWrite) {
 						//display overwrite theme option
-						//overwrite=.toString().
+						int n = JOptionPane.showConfirmDialog(
+							    ColorProperties.this,
+							    "Would you like to overwrite to the existing theme",
+							    "An Inane Question",
+							    JOptionPane.YES_NO_OPTION);
+						if(n==JOptionPane.YES_OPTION) {
+							overWrite=true;
+						}else {
+							overWrite=false;
+						}
 					}
 					
 					if(overWrite) {
 						//overWrite
+						MOGColorThemes thisTheme=MetaOmGraph.getTheme(selTheme);
+						updateTheme(thisTheme);
 					}else {
 						//display save as new theme option	
+						String newName = JOptionPane.showInputDialog(
+								ColorProperties.this, 
+						        "Enter a name for new theme", 
+						        "Please enter a name", 
+						        JOptionPane.OK_OPTION
+						    );
+						
+						MOGColorThemes newTheme= new MOGColorThemes(newName);
+						updateTheme(newTheme);
+			                    
+			                   
 					}
 					
 				}
@@ -276,14 +298,14 @@ public class ColorProperties extends JInternalFrame {
 
 	}
 
-	public void setColors() {
-		MetaOmGraph.setTableColor1(tabCol1Button.getColor());
-		MetaOmGraph.setTableColor2(tabCol2Button.getColor());
-		MetaOmGraph.setTableSelectionColor(tabSelButton.getColor());
-		MetaOmGraph.setTableHighlightColor(tabHighlightButton.getColor());
-		MetaOmGraph.setTableHyperlinkColor(tabHyprlnkButton.getColor());
-		MetaOmGraph.setChartBackgroundColor(chartBckButton.getColor());
-		MetaOmGraph.setPlotBackgroundColor(plotBckButton.getColor());
+	public void updateTheme(MOGColorThemes theme) {
+		theme.setTableColor1(tabCol1Button.getColor());
+		theme.setTableColor2(tabCol2Button.getColor());
+		theme.setTableSelectionColor(tabSelButton.getColor());
+		theme.setTableHighlightColor(tabHighlightButton.getColor());
+		theme.setTableHyperlinkColor(tabHyprlnkButton.getColor());
+		theme.setChartBackgroundColor(chartBckButton.getColor());
+		theme.setPlotBackgroundColor(plotBckButton.getColor());
 	}
 
 	private void editTheme() {
