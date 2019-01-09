@@ -266,6 +266,10 @@ public class MetaOmGraph implements ActionListener {
 	public static String getCurrentThemeName() {
 		return currentmogThemeName;
 	}
+	
+	public static MOGColorThemes getCurrentTheme() {
+		return mogThemes.get(getCurrentThemeName());
+	}
 
 	// save hyperlink columns while loading project
 	// initialize to -1 and only be updated if read in project file

@@ -40,6 +40,8 @@ public class ColorProperties extends JInternalFrame {
 	private ColorChooseButton plotBckButton;
 	private boolean themeEdited;
 	private JComboBox comboBox;
+	
+	private String _defaulttheme="light";
 
 	/**
 	 * Launch the application.
@@ -120,6 +122,8 @@ public class ColorProperties extends JInternalFrame {
 					JOptionPane.showMessageDialog(ColorProperties.this, "Can't remove default themes", "Can't remove selected theme", JOptionPane.INFORMATION_MESSAGE);
 				}else {
 					MetaOmGraph.removeTheme(selTheme);	
+					applyTheme(MetaOmGraph.getTheme(_defaulttheme));					
+					initcomboBox();
 				}
 				
 			}
@@ -379,10 +383,11 @@ public class ColorProperties extends JInternalFrame {
 		// if currently selected themes are light, default then create a new theme
 		// if theme is not a default theme overwrite or save as new theme
 		String selTheme = comboBox.getSelectedItem().toString();
+		
 		boolean overWrite = false;
 		MOGColorThemes thisTheme = null;
 		if (themeEdited) {
-			if (selTheme != "light" && selTheme != "dark") {
+			if ( !(selTheme.equals("light") || selTheme.equals("dark")) ) {
 				overWrite = true;
 			}
 			if (overWrite) {
@@ -400,15 +405,17 @@ public class ColorProperties extends JInternalFrame {
 			if (overWrite) {
 				// overWrite
 				thisTheme = MetaOmGraph.getTheme(selTheme);
-				updateTheme(thisTheme);
+				
 
 			} else {
 				// display save as new theme option
 				String newName = JOptionPane.showInputDialog(ColorProperties.this, "Enter a name for new theme",
 						"Please enter a name", JOptionPane.OK_OPTION);
-
+				if(newName==null || newName.equals("")) {
+					return;
+				}
 				thisTheme = new MOGColorThemes(newName);
-				updateTheme(thisTheme);
+				
 				// save theme to MOG
 				MetaOmGraph.addTheme(thisTheme);
 				// reload combobox
@@ -417,6 +424,7 @@ public class ColorProperties extends JInternalFrame {
 
 		}
 
+		updateTheme(thisTheme);
 		applyTheme(thisTheme);
 		initcomboBox();
 	}

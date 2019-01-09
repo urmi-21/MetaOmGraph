@@ -199,6 +199,10 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 	}
 
 	public boolean repPlot = false;
+	
+	//chart colors
+	private Color chartbg=MetaOmGraph.getChartBackgroundColor();
+	private Color plotbg=MetaOmGraph.getPlotBackgroundColor();
 
 	// private TreeMap<String, List<Integer>> repsMapUsed;
 
@@ -365,7 +369,8 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 							GradientPaint gp = (GradientPaint) myChart.getBackgroundPaint();
 							// myChart.setBackgroundPaint(new GradientPaint(0, getHeight(), gp.getColor1(),
 							// getWidth(), 0, gp.getColor2())); // mhhur
-							myChart.setBackgroundPaint(Color.WHITE); // by mhhur
+							//myChart.setBackgroundPaint(chartbg); // by mhhur
+							//myChart.setpa
 						}
 					}
 
@@ -774,7 +779,8 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 				}
 
 			};
-
+			
+			myChart.setBackgroundPaint(chartbg); //urmi
 			// ToolTipManager.sharedInstance().setDismissDelay(0);
 			if (myChartPanel.getChart().getPlot() != null) {
 				myChartPanel.restoreAutoRangeBounds();
@@ -1160,7 +1166,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 			// Construct and configure the chart
 			myChart = ChartFactory.createXYLineChart(title, xaxisLabel, yaxisLabel, myXYDataset,
 					PlotOrientation.VERTICAL, true, true, false);
-			myChart.getPlot().setBackgroundPaint(Color.WHITE);
+			myChart.getPlot().setBackgroundPaint(plotbg);
 			myAnnotator.redrawAnnotations(); // by mhhur
 
 			((XYPlot) myChart.getPlot()).setRangeGridlinePaint(Color.LIGHT_GRAY);
