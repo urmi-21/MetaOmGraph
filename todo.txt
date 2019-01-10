@@ -94,3 +94,4 @@ add actions to help buttons
 mog correlation detail remove load table function for now
 filter corrleation details table by r and pval
 user function for transformation
+update boxplot
