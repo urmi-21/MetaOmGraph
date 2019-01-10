@@ -16,6 +16,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.renderer.category.BoxAndWhiskerRenderer;
 import org.jfree.data.statistics.DefaultBoxAndWhiskerCategoryDataset;
 
 public class BoxPlotter {
@@ -61,12 +62,20 @@ public class BoxPlotter {
         if (progress.isCanceled()) {
             return null;
         }
+        
+        
         JFreeChart myChart = ChartFactory.createBoxAndWhiskerChart("BoxPlot",
                 "Sample", "Value", dataset, false);
-
-        myChart.getCategoryPlot().getDomainAxis().setCategoryLabelPositions(
-
-                CategoryLabelPositions.createUpRotationLabelPositions(1.5707963267948966D));
+        
+        //urmi add chat options
+        final BoxAndWhiskerRenderer renderer = new BoxAndWhiskerRenderer();
+        renderer.setFillBox(false);
+        renderer.setMeanVisible(false);
+        myChart.getCategoryPlot().getDomainAxis().setCategoryLabelPositions(CategoryLabelPositions.createUpRotationLabelPositions(1.5707963267948966D));
+        myChart.getCategoryPlot().setRenderer(renderer);
+        myChart.getCategoryPlot().setBackgroundPaint(MetaOmGraph.getPlotBackgroundColor());
+        myChart.setBackgroundPaint(MetaOmGraph.getChartBackgroundColor());
+        
         ChartPanel cPanel = new ChartPanel(myChart, Toolkit.getDefaultToolkit()
                 .getScreenSize().width, Toolkit.getDefaultToolkit()
                 .getScreenSize().height, 0, 0, Toolkit.getDefaultToolkit()
