@@ -60,15 +60,6 @@ public class BoxPlotter {
 					for (int i = 0; i < rows.length && !progress.isCanceled(); i++) {
 						int row = rows[i];
 						double[] data = myProject.getIncludedData(row);
-						// if (MetaOmGraph.getInstance().isLogging()) {
-						// for (int j=0;j<data.length;j++) {
-						// if (!Double.isNaN(data[j])) {
-						// data[j]=Math.log(data[j])/Math.log(2);
-						// } else {
-						// data[j]=Double.NaN;
-						// }
-						// }
-						// }
 						ArrayList<Double> list = new ArrayList<Double>(data.length);
 						for (double d : data) {
 							list.add(d);
@@ -229,6 +220,7 @@ public class BoxPlotter {
 
 				// draw outliers
 				//double oRadius = 0 == null ? state.getBarWidth() / 3 : outlierRadius; // outlier radius
+				//display no outliers
 				double oRadius=0;
 				List outliers = new ArrayList();
 				OutlierListCollection outlierListCollection = new OutlierListCollection();
