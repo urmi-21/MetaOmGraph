@@ -2448,7 +2448,12 @@ public class MetaOmProject {
 		return resultList;
 	}
 	
-	
+	/**
+	 * Apply transformation on data and return transformed data
+	 * @param dataIn
+	 * @param transform
+	 * @return
+	 */
 	private double[] transformData(double[] dataIn,String transform) {
 		
 		if (MetaOmGraph.getInstance() != null) {
