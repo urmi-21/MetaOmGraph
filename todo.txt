@@ -94,7 +94,7 @@ add actions to help buttons
 mog correlation detail remove load table function for now
 filter corrleation details table by r and pval
 user function for transformation
-update boxplot
-set -ve values to 0
+update boxplot/add more options to boxplot interactions/split box plots type by metadata/color by different types categories
+set -ve values to 0 (not set let user preprocess data)
 make color themes
 execute other R script ask for out file name 
