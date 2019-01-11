@@ -999,8 +999,10 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 				}
 			};
 		}
-		myRenderer.setShapesVisible(props.isShapePainted());
-		myRenderer.setLinesVisible(props.isLinePainted());
+		//myRenderer.setShapesVisible(props.isShapePainted());
+		//myRenderer.setLinesVisible(props.isLinePainted());
+		myRenderer.setDefaultShapesVisible(props.isLinePainted());
+		myRenderer.setDefaultLinesVisible(props.isLinePainted());
 
 		ChartColorScheme colorScheme = props.getColorScheme();
 		if (colorScheme != null) {

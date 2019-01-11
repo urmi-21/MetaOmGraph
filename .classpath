@@ -7,10 +7,7 @@
 	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/commons-io-2.6.jar"/>
 	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/CustomBrowserLauncher.jar"/>
 	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/filedrop.jar"/>
-	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/jcommon-1.0.17.jar"/>
-	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/jcommon-1.0.24.jar"/>
 	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/jdom.jar"/>
-	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/jfreechart-1.0.19.jar"/>
 	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/l2fprod-common-tasks.jar"/>
 	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/l2fprod-common-totd-shrunk.jar"/>
 	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/MAGEstk-2006-07-12-v1.x-compatible.jar"/>
@@ -57,5 +54,12 @@
 	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/integration/mysql-connector-java-3.1.14-bin.jar"/>
 	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/integration/slf4j-api-1.7.25.jar"/>
 	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/integration/slf4j-simple-1.7.25.jar"/>
+	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/jfreechart-1.5.0.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/D:/mogGIT/MetaOmGraph/src/lib/jfreechart-1.5.0-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/jcommon-1.0.23/jcommon-1.0.23.jar"/>
+	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/jcommon-1.0.23/jcommon-xml-1.0.23.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
