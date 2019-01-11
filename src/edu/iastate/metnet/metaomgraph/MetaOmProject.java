@@ -2410,32 +2410,72 @@ public class MetaOmProject {
 	 * @throws IOException
 	 */
 	public List<double[]> getAllData() throws IOException {
-		List<double[]> result = new ArrayList<>();
+		List<double[]> resultList = new ArrayList<>();
+		// urmi
+		String transform = MetaOmGraph.getInstance().getTransform();
 		if (!streamMode) {
 			dataIn = new RandomAccessFile(getSourceFile().getAbsolutePath(), "r", 20000);
-			double[] thisData = new double[getDataColumnCount()];
+			double[] result = new double[getDataColumnCount()];
 
 			for (int i = 0; i < getRowCount(); i++) {
 				dataIn.seek(getFileIndex(i));
-				for (int x = 0; x < thisData.length; x++) {
+				for (int x = 0; x < result.length; x++) {
 					String tmp = Utils.clean(dataIn.readString(delimiter, ignoreConsecutiveDelimiters));
 					try {
-						thisData[x] = Double.parseDouble(tmp);
+						result[x] = Double.parseDouble(tmp);
 					} catch (NumberFormatException nfe) {
-						thisData[x] = Double.NaN;
+						result[x] = Double.NaN;
 					} catch (NullPointerException npe) {
-						thisData[x] = Double.NaN;
+						result[x] = Double.NaN;
+					}
+				}
+				double[] resCopy=result.clone();
+				transformData(resCopy,transform);
+				resultList.add(resCopy);
+			}
+			return resultList;
+			
+			
+		}
+		for (int i = 0; i < getRowCount(); i++) {
+			double[] result =getDataFromMemory(i);
+			transformData(result,transform);
+			resultList.add(result);
+		}
+				
+						
+				
+		return resultList;
+	}
+	
+	
+	private double[] transformData(double[] dataIn,String transform) {
+		
+		if (MetaOmGraph.getInstance() != null) {
+			if (transform.equals("NONE")) {
+				return dataIn;
+			}
+			for (int i = 0; i < dataIn.length; i++) {
+				// add +1 to before applying log
+				if (transform.equals("log2")) {
+					double log2b10 = Math.log(2.0D);
+					dataIn[i] = (Math.log(dataIn[i] + 1) / log2b10);
+				} else if (transform.equals("log10")) {
+					dataIn[i] = Math.log10(dataIn[i] + 1);
+				} else if (transform.equals("loge")) {
+					dataIn[i] = Math.log(dataIn[i] + 1);
+				} else if (transform.equals("sqrt")) {
+					if (dataIn[i] <= 0) {
+						dataIn[i] = 0.00;
+					} else {
+						dataIn[i] = Math.sqrt(dataIn[i]);
 					}
 				}
 
-				result.add(thisData.clone());
 			}
-			return result;
 		}
-		for (int i = 0; i < getRowCount(); i++) {
-			result.add(getDataFromMemory(i));
-		}
-		return result;
+		
+		return dataIn;
 	}
 
 	private double[] getDataFromFile(int row) throws IOException {
