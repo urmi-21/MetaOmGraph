@@ -37,6 +37,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.chart.renderer.xy.ClusteredXYBarRenderer;
+import org.jfree.chart.renderer.xy.XYBarPainter;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
@@ -88,7 +89,7 @@ public class GeneHistogram {
         final XYPlot plot = chart.getXYPlot();
         ClusteredXYBarRenderer renderer = new ClusteredXYBarRenderer();
         renderer.setShadowVisible(false);
-        renderer.setBarPainter(new org.jfree.chart.renderer.xy.XYBarPainter() {
+        renderer.setBarPainter(new XYBarPainter() {
 
             public void paintBar(Graphics2D g2, XYBarRenderer renderer, int row, int column, RectangularShape bar, RectangleEdge base) {
                 Paint p = renderer.getSeriesPaint(row);
@@ -98,6 +99,20 @@ public class GeneHistogram {
 
             public void paintBarShadow(Graphics2D g2, XYBarRenderer renderer, int row, int column, RectangularShape bar, RectangleEdge base, boolean pegShadow) {
             }
+
+			@Override
+			public void paintBar(Graphics2D g2, XYBarRenderer renderer, int row, int column, RectangularShape bar,
+					org.jfree.chart.ui.RectangleEdge base) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void paintBarShadow(Graphics2D g2, XYBarRenderer renderer, int row, int column, RectangularShape bar,
+					org.jfree.chart.ui.RectangleEdge base, boolean pegShadow) {
+				// TODO Auto-generated method stub
+				
+			}
         });
         plot.setRenderer(renderer);
         panel.addChartMouseListener(new ChartMouseListener() {
@@ -106,7 +121,7 @@ public class GeneHistogram {
                     int series = -1;
                     if ((event.getEntity() instanceof LegendItemEntity)) {
                         series =
-                                ((LegendItemEntity) event.getEntity()).getSeriesIndex();
+                                ((XYItemEntity) event.getEntity()).getSeriesIndex();
                     } else if ((event.getEntity() instanceof XYItemEntity)) {
                         series =
                                 ((XYItemEntity) event.getEntity()).getSeriesIndex();
@@ -274,10 +289,8 @@ public class GeneHistogram {
         chart.getCategoryPlot().getRenderer().setSeriesItemLabelGenerator(0, new StandardCategoryItemLabelGenerator());
         chart.getCategoryPlot().getDomainAxis().setLabel("Sample Value");
         chart.getCategoryPlot().getRangeAxis().setLabel("# of Samples");
-        chart.getCategoryPlot().getRenderer().setPositiveItemLabelPosition(
-                new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12,
-                        TextAnchor.BOTTOM_CENTER, TextAnchor.CENTER,
-                        4.71238898038469D));
+        chart.getCategoryPlot().getRenderer().setDefaultPositiveItemLabelPosition(
+                new ItemLabelPosition());
 
         chart.getCategoryPlot().getRenderer().setSeriesItemLabelsVisible(0, true);
 
@@ -339,10 +352,8 @@ public class GeneHistogram {
         JFreeChart chart = ChartFactory.createBarChart(null, null, null, dataset, PlotOrientation.VERTICAL, false, true, true);
         chart.getCategoryPlot().getDomainAxis().setCategoryLabelPositions(CategoryLabelPositions.UP_90);
         chart.getCategoryPlot().getRenderer().setSeriesItemLabelGenerator(0, new StandardCategoryItemLabelGenerator());
-        chart.getCategoryPlot().getRenderer().setPositiveItemLabelPosition(
-                new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12,
-                        TextAnchor.BOTTOM_CENTER, TextAnchor.CENTER,
-                        4.71238898038469D));
+        chart.getCategoryPlot().getRenderer().setDefaultPositiveItemLabelPosition(
+                new ItemLabelPosition());
 
 
         chart.getCategoryPlot().getRenderer().setSeriesItemLabelsVisible(0, true);

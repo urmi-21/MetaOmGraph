@@ -84,7 +84,7 @@ public class BoxPlotter {
 
 		// urmi add chat options
 		final BoxAndWhiskerRenderer renderer = getBoxAndWhiskerRenderer();
-		renderer.setToolTipGenerator(new BoxAndWhiskerToolTipGenerator());
+		//renderer.setToolTipGenerator(new BoxAndWhiskerToolTipGenerator());
 		renderer.setFillBox(true);
 		renderer.setMeanVisible(false);
 		myChart.getCategoryPlot().getDomainAxis()
@@ -128,7 +128,7 @@ public class BoxPlotter {
 
 		// urmi add chat options
 		final BoxAndWhiskerRenderer renderer = getBoxAndWhiskerRenderer();
-		renderer.setToolTipGenerator(new BoxAndWhiskerToolTipGenerator());
+		//renderer.setToolTipGenerator(new BoxAndWhiskerToolTipGenerator());
 		renderer.setFillBox(true);
 		renderer.setMeanVisible(false);
 		myChart.getCategoryPlot().getDomainAxis()
@@ -193,7 +193,7 @@ public class BoxPlotter {
 
 				double aRadius = 0; // average radius
 
-				RectangleEdge location = plot.getRangeAxisEdge();
+				org.jfree.chart.ui.RectangleEdge location = plot.getRangeAxisEdge();
 
 				Number yQ1 = bawDataset.getQ1Value(row, column);
 				Number yQ3 = bawDataset.getQ3Value(row, column);

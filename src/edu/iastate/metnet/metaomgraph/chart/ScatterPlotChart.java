@@ -247,7 +247,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		//plot.setpaint
 		// XYItemRenderer renderer = plot.getRenderer();
 		myRenderer = plot.getRenderer();
-		myRenderer.setBaseShape(shape);
+		///myRenderer.setBaseShape(shape);
 		/*
 		 * renderer.setBaseToolTipGenerator(new StandardXYToolTipGenerator() { public
 		 * String generateToolTip(XYDataset dataset, int series, int item) { double y =
