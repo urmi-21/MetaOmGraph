@@ -1327,7 +1327,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			JPanel boxPlot = BoxPlotter.getFeatureBoxPlot(myProject, getSelectedRowsInList());
 			String title = "Box Plot";
 			MetaOmGraph.addInternalFrame(boxPlot, title);
-			MetaOmGraph.addInternalFrame(BoxPlotter.getColumnBoxPlot(myProject),"Box Plot");
 			return;
 		}
 		if ("col boxplot".equals(e.getActionCommand())) {
