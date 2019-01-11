@@ -171,10 +171,6 @@ public class CorrelationCalc {
 
 	
 
-	
-
-	
-
 	// using apache
 	public double newSpearmanCorrelation(double[] b) {
 		/*SpearmansCorrelation spc = new SpearmansCorrelation();
