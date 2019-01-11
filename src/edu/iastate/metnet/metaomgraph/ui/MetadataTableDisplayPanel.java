@@ -313,7 +313,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 									}
 									// create box plot of selected data
 									
-									MetaOmGraph.addInternalFrame(BoxPlotter.getColumnBoxPlot2(databyCols),"Box Plot");
+									MetaOmGraph.addInternalFrame(BoxPlotter.getSampleBoxPlot(databyCols),"Box Plot");
 
 								} catch (IOException e1) {
 									// TODO Auto-generated catch block

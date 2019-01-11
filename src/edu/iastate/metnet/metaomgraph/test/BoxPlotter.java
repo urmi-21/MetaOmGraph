@@ -101,73 +101,8 @@ public class BoxPlotter {
 		return cPanel;
 	}
 
-	public static javax.swing.JPanel getColumnBoxPlot(final MetaOmProject myProject) {
-		final DefaultBoxAndWhiskerCategoryDataset dataset = new DefaultBoxAndWhiskerCategoryDataset();
-		final int rows = myProject.getRowCount();
-		final int cols = myProject.getDataColumnCount();
-		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(), "Working",
-				"Generating BoxPlot", 0L, rows, true);
-		new Thread() {
-			public void run() {
-				try {
-					ArrayList<ArrayList<Double>> allData = new ArrayList<ArrayList<Double>>();
-					for (int row = 0; row < rows && !progress.isCanceled(); row++) {
-						progress.setProgress(row);
-						double[] data = myProject.getAllData(row);
-						for (int col = 0; col < cols && !progress.isCanceled(); col++) {
-							ArrayList<Double> myData;
-							if (row != 0) {
-								myData = allData.get(col);
-							} else {
-								myData = new ArrayList<Double>(rows);
-							}
-							myData.add(data[col]);
-							if (row != 0) {
-								allData.remove(col);
-							}
-							allData.add(col, myData);
-						}
-						// dataset.add(data, 0, myProject.getDataColumnHeader(col));
-						// System.out.println("col "+col+" finished");
-					}
-					for (int i = 0; i < allData.size(); i++) {
-						dataset.add(allData.get(i), 0, myProject.getDataColumnHeader(i));
-					}
-				} catch (IOException ioe) {
-					ioe.printStackTrace();
-				}
-				progress.dispose();
-			}
-		}.start();
-		progress.setVisible(true);
-		if (progress.isCanceled()) {
-			return null;
-		}
-
-		JFreeChart myChart = ChartFactory.createBoxAndWhiskerChart("BoxPlot", "Sample", "Value", dataset, false);
-
-		// urmi add chat options
-		final BoxAndWhiskerRenderer renderer = getBoxAndWhiskerRenderer();
-		renderer.setToolTipGenerator(new BoxAndWhiskerToolTipGenerator());
-		renderer.setFillBox(true);
-		renderer.setMeanVisible(false);
-		myChart.getCategoryPlot().getDomainAxis()
-				.setCategoryLabelPositions(CategoryLabelPositions.createUpRotationLabelPositions(1.5707963267948966D));
-		myChart.getCategoryPlot().setRenderer(renderer);
-		myChart.getCategoryPlot().setBackgroundPaint(MetaOmGraph.getPlotBackgroundColor());
-		myChart.setBackgroundPaint(MetaOmGraph.getChartBackgroundColor());
-
-		myChart.getCategoryPlot().getDomainAxis().setCategoryLabelPositions(
-
-				CategoryLabelPositions.createUpRotationLabelPositions(1.5707963267948966D));
-		ChartPanel cPanel = new ChartPanel(myChart, Toolkit.getDefaultToolkit().getScreenSize().width,
-				Toolkit.getDefaultToolkit().getScreenSize().height, 0, 0,
-				Toolkit.getDefaultToolkit().getScreenSize().width, Toolkit.getDefaultToolkit().getScreenSize().height,
-				true, true, true, true, true, true);
-		return cPanel;
-	}
-
-	public static javax.swing.JPanel getColumnBoxPlot2(final HashMap<Integer, double[]> databyCols) {
+	
+	public static javax.swing.JPanel getSampleBoxPlot(final HashMap<Integer, double[]> databyCols) {
 		final DefaultBoxAndWhiskerCategoryDataset dataset = new DefaultBoxAndWhiskerCategoryDataset();
 		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(), "Working",
 				"Generating BoxPlot", 0L, databyCols.size(), true);
