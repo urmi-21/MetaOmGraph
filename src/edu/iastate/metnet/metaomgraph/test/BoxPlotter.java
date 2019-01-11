@@ -80,7 +80,7 @@ public class BoxPlotter {
 			return null;
 		}
 
-		JFreeChart myChart = ChartFactory.createBoxAndWhiskerChart("BoxPlot", "Sample", "Value", dataset, false);
+		JFreeChart myChart = ChartFactory.createBoxAndWhiskerChart("BoxPlot", "Feature", "Value", dataset, false);
 
 		// urmi add chat options
 		final BoxAndWhiskerRenderer renderer = getBoxAndWhiskerRenderer();
