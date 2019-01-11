@@ -435,6 +435,8 @@ public class MetadataTableDisplayPanel extends JPanel {
 		mntmReset_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				obj.resetRowFilter();
+				//clear last searched
+				clearLastSearchedRows();
 				// update exclude list
 				MetaOmAnalyzer.updateExcluded(obj.getExcluded());
 				updateTable();
@@ -729,12 +731,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 		mntmRemovePrevious.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				toHighlight = new HashMap<Integer, List<String>>();
-				// initialize with garbage value for alternate coloring to take effect via
-				// prepareRenderer
-				toHighlight.put(0, null);
-				highlightedRows = null;
-				table.repaint();
+				clearLastSearchedRows();
 
 			}
 		});
@@ -1621,5 +1618,14 @@ public class MetadataTableDisplayPanel extends JPanel {
 					table.getColumn(obj.getDatacol()).getModelIndex()).toString();
 		}
 		return selectedNames;
+	}
+	
+	private void clearLastSearchedRows() {
+		toHighlight = new HashMap<Integer, List<String>>();
+		// initialize with garbage value for alternate coloring to take effect via
+		// prepareRenderer
+		toHighlight.put(0, null);
+		highlightedRows = null;
+		table.repaint();
 	}
 }
