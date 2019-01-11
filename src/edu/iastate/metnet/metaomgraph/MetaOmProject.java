@@ -2372,19 +2372,25 @@ public class MetaOmProject {
 			// JOptionPane.showMessageDialog(null, "From mem...");
 			result = getDataFromMemory(row);
 		}
+		
 		// urmi
+		String transform = MetaOmGraph.getInstance().getTransform();
+		if (transform.equals("NONE")) {
+			return result;
+		}
+				
 		if (MetaOmGraph.getInstance() != null) {
-			String transform = MetaOmGraph.getInstance().getTransform();
+			
 			for (int i = 0; i < result.length; i++) {
 				// add +1 to before applying log
-				if (transform == "log2") {
+				if (transform.equals("log2")) {
 					double log2b10 = Math.log(2.0D);
 					result[i] = (Math.log(result[i] + 1) / log2b10);
-				} else if (transform == "log10") {
+				} else if (transform.equals("log10")) {
 					result[i] = Math.log10(result[i] + 1);
-				} else if (transform == "loge") {
+				} else if (transform.equals("loge")) {
 					result[i] = Math.log(result[i] + 1);
-				} else if (transform == "sqrt") {
+				} else if (transform.equals("sqrt")) {
 					if (result[i] <= 0) {
 						result[i] = 0.00;
 					} else {
