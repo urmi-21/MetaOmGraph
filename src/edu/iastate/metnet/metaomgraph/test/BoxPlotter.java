@@ -19,11 +19,14 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -44,13 +47,11 @@ import org.jfree.data.statistics.BoxAndWhiskerCategoryDataset;
 import org.jfree.data.statistics.DefaultBoxAndWhiskerCategoryDataset;
 import org.jfree.ui.RectangleEdge;
 
-
-
 public class BoxPlotter {
 	public BoxPlotter() {
 	}
 
-	public static javax.swing.JPanel getSampleBoxPlot(final MetaOmProject myProject, final int[] rows) {
+	public static javax.swing.JPanel getFeatureBoxPlot(final MetaOmProject myProject, final int[] rows) {
 		final DefaultBoxAndWhiskerCategoryDataset dataset = new DefaultBoxAndWhiskerCategoryDataset();
 		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(), "Working",
 				"Generating BoxPlot", 0L, rows.length, true);
@@ -84,14 +85,13 @@ public class BoxPlotter {
 		// urmi add chat options
 		final BoxAndWhiskerRenderer renderer = getBoxAndWhiskerRenderer();
 		renderer.setToolTipGenerator(new BoxAndWhiskerToolTipGenerator());
-		renderer.setFillBox(false);
+		renderer.setFillBox(true);
 		renderer.setMeanVisible(false);
 		myChart.getCategoryPlot().getDomainAxis()
 				.setCategoryLabelPositions(CategoryLabelPositions.createUpRotationLabelPositions(1.5707963267948966D));
 		myChart.getCategoryPlot().setRenderer(renderer);
 		myChart.getCategoryPlot().setBackgroundPaint(MetaOmGraph.getPlotBackgroundColor());
 		myChart.setBackgroundPaint(MetaOmGraph.getChartBackgroundColor());
-		
 
 		ChartPanel cPanel = new ChartPanel(myChart, Toolkit.getDefaultToolkit().getScreenSize().width,
 				Toolkit.getDefaultToolkit().getScreenSize().height, 0, 0,
@@ -100,9 +100,123 @@ public class BoxPlotter {
 		cPanel.setPreferredSize(new Dimension(800, 600));
 		return cPanel;
 	}
-	
+
+	public static javax.swing.JPanel getColumnBoxPlot(final MetaOmProject myProject) {
+		final DefaultBoxAndWhiskerCategoryDataset dataset = new DefaultBoxAndWhiskerCategoryDataset();
+		final int rows = myProject.getRowCount();
+		final int cols = myProject.getDataColumnCount();
+		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(), "Working",
+				"Generating BoxPlot", 0L, rows, true);
+		new Thread() {
+			public void run() {
+				try {
+					ArrayList<ArrayList<Double>> allData = new ArrayList<ArrayList<Double>>();
+					for (int row = 0; row < rows && !progress.isCanceled(); row++) {
+						progress.setProgress(row);
+						double[] data = myProject.getAllData(row);
+						for (int col = 0; col < cols && !progress.isCanceled(); col++) {
+							ArrayList<Double> myData;
+							if (row != 0) {
+								myData = allData.get(col);
+							} else {
+								myData = new ArrayList<Double>(rows);
+							}
+							myData.add(data[col]);
+							if (row != 0) {
+								allData.remove(col);
+							}
+							allData.add(col, myData);
+						}
+						// dataset.add(data, 0, myProject.getDataColumnHeader(col));
+						// System.out.println("col "+col+" finished");
+					}
+					for (int i = 0; i < allData.size(); i++) {
+						dataset.add(allData.get(i), 0, myProject.getDataColumnHeader(i));
+					}
+				} catch (IOException ioe) {
+					ioe.printStackTrace();
+				}
+				progress.dispose();
+			}
+		}.start();
+		progress.setVisible(true);
+		if (progress.isCanceled()) {
+			return null;
+		}
+
+		JFreeChart myChart = ChartFactory.createBoxAndWhiskerChart("BoxPlot", "Sample", "Value", dataset, false);
+
+		// urmi add chat options
+		final BoxAndWhiskerRenderer renderer = getBoxAndWhiskerRenderer();
+		renderer.setToolTipGenerator(new BoxAndWhiskerToolTipGenerator());
+		renderer.setFillBox(true);
+		renderer.setMeanVisible(false);
+		myChart.getCategoryPlot().getDomainAxis()
+				.setCategoryLabelPositions(CategoryLabelPositions.createUpRotationLabelPositions(1.5707963267948966D));
+		myChart.getCategoryPlot().setRenderer(renderer);
+		myChart.getCategoryPlot().setBackgroundPaint(MetaOmGraph.getPlotBackgroundColor());
+		myChart.setBackgroundPaint(MetaOmGraph.getChartBackgroundColor());
+
+		myChart.getCategoryPlot().getDomainAxis().setCategoryLabelPositions(
+
+				CategoryLabelPositions.createUpRotationLabelPositions(1.5707963267948966D));
+		ChartPanel cPanel = new ChartPanel(myChart, Toolkit.getDefaultToolkit().getScreenSize().width,
+				Toolkit.getDefaultToolkit().getScreenSize().height, 0, 0,
+				Toolkit.getDefaultToolkit().getScreenSize().width, Toolkit.getDefaultToolkit().getScreenSize().height,
+				true, true, true, true, true, true);
+		return cPanel;
+	}
+
+	public static javax.swing.JPanel getColumnBoxPlot2(final HashMap<Integer, double[]> databyCols) {
+		final DefaultBoxAndWhiskerCategoryDataset dataset = new DefaultBoxAndWhiskerCategoryDataset();
+		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(), "Working",
+				"Generating BoxPlot", 0L, databyCols.size(), true);
+		new Thread() {
+			public void run() {
+				for(int key:databyCols.keySet()) {
+					List list = new ArrayList();
+					//list=Arrays.asList(databyCols.get(key));
+					for(double d:databyCols.get(key)) {
+						list.add(d);
+					}
+					dataset.add(list, 0, MetaOmGraph.getActiveProject().getDataColumnHeader(key));
+				}
+				progress.dispose();
+			}
+		}.start();
+		progress.setVisible(true);
+		if (progress.isCanceled()) {
+			return null;
+		}
+
+		JFreeChart myChart = ChartFactory.createBoxAndWhiskerChart("BoxPlot", "Sample", "Value", dataset, false);
+
+		// urmi add chat options
+		final BoxAndWhiskerRenderer renderer = getBoxAndWhiskerRenderer();
+		renderer.setToolTipGenerator(new BoxAndWhiskerToolTipGenerator());
+		renderer.setFillBox(true);
+		renderer.setMeanVisible(false);
+		myChart.getCategoryPlot().getDomainAxis()
+				.setCategoryLabelPositions(CategoryLabelPositions.createUpRotationLabelPositions(1.5707963267948966D));
+		myChart.getCategoryPlot().setRenderer(renderer);
+		myChart.getCategoryPlot().setBackgroundPaint(MetaOmGraph.getPlotBackgroundColor());
+		myChart.setBackgroundPaint(MetaOmGraph.getChartBackgroundColor());
+
+		myChart.getCategoryPlot().getDomainAxis().setCategoryLabelPositions(
+
+				CategoryLabelPositions.createUpRotationLabelPositions(1.5707963267948966D));
+		ChartPanel cPanel = new ChartPanel(myChart, Toolkit.getDefaultToolkit().getScreenSize().width,
+				Toolkit.getDefaultToolkit().getScreenSize().height, 0, 0,
+				Toolkit.getDefaultToolkit().getScreenSize().width, Toolkit.getDefaultToolkit().getScreenSize().height,
+				true, true, true, true, true, true);
+		cPanel.setPreferredSize(new Dimension(800, 600));
+		return cPanel;
+	}
+
+	///////////////////////// BoxPlot Renderer
+	///////////////////////// functions*//////////////////////////////////////////////
 	public static BoxAndWhiskerRenderer getBoxAndWhiskerRenderer() {
-		BoxAndWhiskerRenderer renderer=new BoxAndWhiskerRenderer() {
+		BoxAndWhiskerRenderer renderer = new BoxAndWhiskerRenderer() {
 			@Override
 			public void drawVerticalItem(Graphics2D g2, CategoryItemRendererState state, Rectangle2D dataArea,
 					CategoryPlot plot, CategoryAxis domainAxis, ValueAxis rangeAxis, CategoryDataset dataset, int row,
@@ -219,9 +333,10 @@ public class BoxPlotter {
 				g2.setPaint(itemPaint);
 
 				// draw outliers
-				//double oRadius = 0 == null ? state.getBarWidth() / 3 : outlierRadius; // outlier radius
-				//display no outliers
-				double oRadius=0;
+				// double oRadius = 0 == null ? state.getBarWidth() / 3 : outlierRadius; //
+				// outlier radius
+				// display no outliers
+				double oRadius = 0;
 				List outliers = new ArrayList();
 				OutlierListCollection outlierListCollection = new OutlierListCollection();
 
@@ -266,7 +381,7 @@ public class BoxPlotter {
 							drawMultipleEllipse(point, state.getBarWidth(), oRadius, g2);
 						} else {
 							drawEllipse(point, oRadius, g2);
-							
+
 						}
 					}
 
@@ -290,236 +405,81 @@ public class BoxPlotter {
 			}
 
 		};
-		
+
 		return renderer;
 	}
 
-	public static void showSampleBoxPlot(final MetaOmProject myProject, final int[] rows) {
-		final DefaultBoxAndWhiskerCategoryDataset dataset = new DefaultBoxAndWhiskerCategoryDataset();
-		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(), "Working",
-				"Generating BoxPlot", 0L, rows.length, true);
-		new Thread() {
-			public void run() {
-				try {
-					for (int i = 0; i < rows.length && !progress.isCanceled(); i++) {
-						int row = rows[i];
-						double[] data = myProject.getIncludedData(row);
-						ArrayList<Double> list = new ArrayList<Double>(data.length);
-						for (double d : data) {
-							list.add(d);
-						}
-						dataset.add(list, 0, myProject.getRowName(row)[myProject.getDefaultColumn()] + "");
-					}
-
-				} catch (IOException e) {
-
-					e.printStackTrace();
-				}
-				progress.dispose();
-			}
-		}.start();
-		progress.setVisible(true);
-		if (progress.isCanceled()) {
-			return;
-		}
-		
-		
-		JFreeChart myChart = ChartFactory.createBoxAndWhiskerChart("BoxPlot", "Sample", "Value", dataset, false);
-
-		myChart.getCategoryPlot().getDomainAxis().setCategoryLabelPositions(
-
-				CategoryLabelPositions.createUpRotationLabelPositions(1.5707963267948966D));
-		ChartPanel cPanel = new ChartPanel(myChart, Toolkit.getDefaultToolkit().getScreenSize().width,
-				Toolkit.getDefaultToolkit().getScreenSize().height, 0, 0,
-				Toolkit.getDefaultToolkit().getScreenSize().width, Toolkit.getDefaultToolkit().getScreenSize().height,
-				true, true, true, true, true, true);
-		JFrame f = new JFrame("BoxPlot");
-		f.getContentPane().add(cPanel, "Center");
-		f.setSize(MetaOmGraph.getMainWindow().getWidth() - 100, MetaOmGraph.getMainWindow().getHeight() - 100);
-		cPanel.setPreferredSize(f.getContentPane().getSize());
-		f.setLocationRelativeTo(MetaOmGraph.getMainWindow());
-		f.setDefaultCloseOperation(2);
-		f.setVisible(true);
-	}
-	
 	/**
-     * Draws two dots to represent the average value of more than one outlier.
-     *
-     * @param point  the location
-     * @param boxWidth  the box width.
-     * @param oRadius  the radius.
-     * @param g2  the graphics device.
-     */
-    private static void drawMultipleEllipse(Point2D point, double boxWidth,
-                                     double oRadius, Graphics2D g2)  {
+	 * Draws two dots to represent the average value of more than one outlier.
+	 *
+	 * @param point
+	 *            the location
+	 * @param boxWidth
+	 *            the box width.
+	 * @param oRadius
+	 *            the radius.
+	 * @param g2
+	 *            the graphics device.
+	 */
+	private static void drawMultipleEllipse(Point2D point, double boxWidth, double oRadius, Graphics2D g2) {
 
-        Ellipse2D dot1 = new Ellipse2D.Double(point.getX() - (boxWidth / 2)
-                + oRadius, point.getY(), oRadius, oRadius);
-        Ellipse2D dot2 = new Ellipse2D.Double(point.getX() + (boxWidth / 2),
-                point.getY(), oRadius, oRadius);
-        g2.draw(dot1);
-        g2.draw(dot2);
-    }
-
-
-    /**
-     * Draws a dot to represent an outlier.
-     *
-     * @param point  the location.
-     * @param oRadius  the radius.
-     * @param g2  the graphics device.
-     */
-    private static void drawEllipse(Point2D point, double oRadius, Graphics2D g2) {
-        Ellipse2D dot = new Ellipse2D.Double(point.getX() + oRadius / 2,
-                point.getY(), oRadius, oRadius);
-        g2.draw(dot);
-    }
-
-    /**
-     * Draws a triangle to indicate the presence of far-out values.
-     *
-     * @param aRadius  the radius.
-     * @param g2  the graphics device.
-     * @param xx  the x coordinate.
-     * @param m  the y coordinate.
-     */
-    private static void drawHighFarOut(double aRadius, Graphics2D g2, double xx,
-                                double m) {
-        double side = aRadius * 2;
-        g2.draw(new Line2D.Double(xx - side, m + side, xx + side, m + side));
-        g2.draw(new Line2D.Double(xx - side, m + side, xx, m));
-        g2.draw(new Line2D.Double(xx + side, m + side, xx, m));
-    }
-
-
-    /**
-     * Draws a triangle to indicate the presence of far-out values.
-     *
-     * @param aRadius  the radius.
-     * @param g2  the graphics device.
-     * @param xx  the x coordinate.
-     * @param m  the y coordinate.
-     */
-    private static void drawLowFarOut(double aRadius, Graphics2D g2, double xx,
-                               double m) {
-        double side = aRadius * 2;
-        g2.draw(new Line2D.Double(xx - side, m - side, xx + side, m - side));
-        g2.draw(new Line2D.Double(xx - side, m - side, xx, m));
-        g2.draw(new Line2D.Double(xx + side, m - side, xx, m));
-    }
-
-
-	public static javax.swing.JPanel getColumnBoxPlot(final MetaOmProject myProject) {
-		final DefaultBoxAndWhiskerCategoryDataset dataset = new DefaultBoxAndWhiskerCategoryDataset();
-		final int rows = myProject.getRowCount();
-		final int cols = myProject.getDataColumnCount();
-		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(), "Working",
-				"Generating BoxPlot", 0L, rows, true);
-		new Thread() {
-			public void run() {
-				try {
-					ArrayList<ArrayList<Double>> allData = new ArrayList<ArrayList<Double>>();
-					for (int row = 0; row < rows && !progress.isCanceled(); row++) {
-						progress.setProgress(row);
-						double[] data = myProject.getAllData(row);
-						for (int col = 0; col < cols && !progress.isCanceled(); col++) {
-							ArrayList<Double> myData;
-							if (row != 0) {
-								myData = allData.get(col);
-							} else {
-								myData = new ArrayList<Double>(rows);
-							}
-							myData.add(data[col]);
-							if (row != 0) {
-								allData.remove(col);
-							}
-							allData.add(col, myData);
-						}
-						// dataset.add(data, 0, myProject.getDataColumnHeader(col));
-						// System.out.println("col "+col+" finished");
-					}
-					for (int i = 0; i < allData.size(); i++) {
-						dataset.add(allData.get(i), 0, myProject.getDataColumnHeader(i));
-					}
-				} catch (IOException ioe) {
-					ioe.printStackTrace();
-				}
-				progress.dispose();
-			}
-		}.start();
-		progress.setVisible(true);
-		if (progress.isCanceled()) {
-			return null;
-		}
-		JFreeChart myChart = ChartFactory.createBoxAndWhiskerChart("BoxPlot", "Sample", "Value", dataset, false);
-
-		myChart.getCategoryPlot().getDomainAxis().setCategoryLabelPositions(
-
-				CategoryLabelPositions.createUpRotationLabelPositions(1.5707963267948966D));
-		ChartPanel cPanel = new ChartPanel(myChart, Toolkit.getDefaultToolkit().getScreenSize().width,
-				Toolkit.getDefaultToolkit().getScreenSize().height, 0, 0,
-				Toolkit.getDefaultToolkit().getScreenSize().width, Toolkit.getDefaultToolkit().getScreenSize().height,
-				true, true, true, true, true, true);
-		return cPanel;
+		Ellipse2D dot1 = new Ellipse2D.Double(point.getX() - (boxWidth / 2) + oRadius, point.getY(), oRadius, oRadius);
+		Ellipse2D dot2 = new Ellipse2D.Double(point.getX() + (boxWidth / 2), point.getY(), oRadius, oRadius);
+		g2.draw(dot1);
+		g2.draw(dot2);
 	}
 
-	public static void showColumnBoxPlot(final MetaOmProject myProject) {
-		final DefaultBoxAndWhiskerCategoryDataset dataset = new DefaultBoxAndWhiskerCategoryDataset();
-		final int rows = myProject.getRowCount();
-		final int cols = myProject.getDataColumnCount();
-		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(), "Working",
-				"Generating BoxPlot", 0L, rows, true);
-		new Thread() {
-			public void run() {
-				try {
-					ArrayList<ArrayList<Double>> allData = new ArrayList<ArrayList<Double>>();
-					for (int row = 0; row < rows && !progress.isCanceled(); row++) {
-						progress.setProgress(row);
-						double[] data = myProject.getAllData(row);
-						for (int col = 0; col < cols && !progress.isCanceled(); col++) {
-							ArrayList<Double> myData;
-							if (row != 0) {
-								myData = allData.get(col);
-							} else {
-								myData = new ArrayList<Double>(rows);
-							}
-							myData.add(data[col]);
-							if (row != 0) {
-								allData.remove(col);
-							}
-							allData.add(col, myData);
-						}
-						// dataset.add(data, 0, myProject.getDataColumnHeader(col));
-						// System.out.println("col "+col+" finished");
-					}
-					for (int i = 0; i < allData.size(); i++) {
-						dataset.add(allData.get(i), 0, myProject.getDataColumnHeader(i));
-					}
-				} catch (IOException ioe) {
-					ioe.printStackTrace();
-				}
-				progress.dispose();
-			}
-		}.start();
-		progress.setVisible(true);
-		if (progress.isCanceled()) {
-			return;
-		}
-		JFreeChart myChart = ChartFactory.createBoxAndWhiskerChart("BoxPlot", "Sample", "Value", dataset, false);
-
-		myChart.getCategoryPlot().getDomainAxis().setCategoryLabelPositions(
-
-				CategoryLabelPositions.createUpRotationLabelPositions(1.5707963267948966D));
-		ChartPanel cPanel = new ChartPanel(myChart, Toolkit.getDefaultToolkit().getScreenSize().width,
-				Toolkit.getDefaultToolkit().getScreenSize().height, 0, 0,
-				Toolkit.getDefaultToolkit().getScreenSize().width, Toolkit.getDefaultToolkit().getScreenSize().height,
-				true, true, true, true, true, true);
-		JFrame f = new JFrame("BoxPlot");
-		f.getContentPane().add(cPanel, "Center");
-		f.setSize(MetaOmGraph.getMainWindow().getWidth() - 100, MetaOmGraph.getMainWindow().getHeight() - 100);
-		cPanel.setPreferredSize(f.getContentPane().getSize());
-		f.setLocationRelativeTo(MetaOmGraph.getMainWindow());
-		f.setDefaultCloseOperation(2);
-		f.setVisible(true);
+	/**
+	 * Draws a dot to represent an outlier.
+	 *
+	 * @param point
+	 *            the location.
+	 * @param oRadius
+	 *            the radius.
+	 * @param g2
+	 *            the graphics device.
+	 */
+	private static void drawEllipse(Point2D point, double oRadius, Graphics2D g2) {
+		Ellipse2D dot = new Ellipse2D.Double(point.getX() + oRadius / 2, point.getY(), oRadius, oRadius);
+		g2.draw(dot);
 	}
+
+	/**
+	 * Draws a triangle to indicate the presence of far-out values.
+	 *
+	 * @param aRadius
+	 *            the radius.
+	 * @param g2
+	 *            the graphics device.
+	 * @param xx
+	 *            the x coordinate.
+	 * @param m
+	 *            the y coordinate.
+	 */
+	private static void drawHighFarOut(double aRadius, Graphics2D g2, double xx, double m) {
+		double side = aRadius * 2;
+		g2.draw(new Line2D.Double(xx - side, m + side, xx + side, m + side));
+		g2.draw(new Line2D.Double(xx - side, m + side, xx, m));
+		g2.draw(new Line2D.Double(xx + side, m + side, xx, m));
+	}
+
+	/**
+	 * Draws a triangle to indicate the presence of far-out values.
+	 *
+	 * @param aRadius
+	 *            the radius.
+	 * @param g2
+	 *            the graphics device.
+	 * @param xx
+	 *            the x coordinate.
+	 * @param m
+	 *            the y coordinate.
+	 */
+	private static void drawLowFarOut(double aRadius, Graphics2D g2, double xx, double m) {
+		double side = aRadius * 2;
+		g2.draw(new Line2D.Double(xx - side, m - side, xx + side, m - side));
+		g2.draw(new Line2D.Double(xx - side, m - side, xx, m));
+		g2.draw(new Line2D.Double(xx + side, m - side, xx, m));
+	}
+
 }

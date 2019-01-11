@@ -51,7 +51,7 @@ import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.chart.MetaOmChartPanel;
 import edu.iastate.metnet.metaomgraph.chart.PlotRunsasSeries;
 import edu.iastate.metnet.metaomgraph.chart.RangeMarker;
-
+import edu.iastate.metnet.metaomgraph.test.BoxPlotter;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 import javax.swing.DefaultCellEditor;
@@ -103,13 +103,12 @@ public class MetadataTableDisplayPanel extends JPanel {
 	/**
 	 * Default Properties
 	 */
-	
-	
+
 	private Color SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
 	private Color BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
 	private Color BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
 	private Color HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
-	private Color HYPERLINKCOLOR =MetaOmGraph.getTableHyperlinkColor();
+	private Color HYPERLINKCOLOR = MetaOmGraph.getTableHyperlinkColor();
 
 	public MetadataTableDisplayPanel() {
 		this(null);
@@ -154,23 +153,6 @@ public class MetadataTableDisplayPanel extends JPanel {
 				/**
 				 * select 2 or more runs and display the cosine simmilarity between them
 				 */
-				// get selected rows
-				int[] selectedInd = table.getSelectedRows();
-
-				if (selectedInd == null || selectedInd.length < 2) {
-					JOptionPane.showMessageDialog(null, "Please select at least two rows from table",
-							"Invalid selection", JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				String[] selectedNames = new String[selectedInd.length];
-				DefaultTableModel model = (DefaultTableModel) table.getModel();
-				for (int i = 0; i < selectedInd.length; i++) {
-					selectedNames[i] = model.getValueAt(table.convertRowIndexToModel(selectedInd[i]),
-							table.getColumn(obj.getDatacol()).getModelIndex()).toString();
-				}
-				// for the selected runs find their index in the data file and get data by the
-				// index in data file
-				int[] selectedIndinData = MetaOmGraph.getActiveProject().getColumnIndexbyHeader(selectedNames);
 				new AnimatedSwingWorker("Working...", true) {
 					@Override
 					public Object construct() {
@@ -181,14 +163,14 @@ public class MetadataTableDisplayPanel extends JPanel {
 									/**
 									 * get all the row data for each col map colnum to data array
 									 */
-									HashMap<Integer, double[]> databyCols = MetaOmGraph.getActiveProject()
-											.getAllRowData(selectedIndinData);
+									HashMap<Integer, double[]> databyCols = getDataForSelectedDataCols();
+									if (databyCols == null) {
+										return;
+									}
 									// compute similarity here
 									ComputeRunsSimilarity ob = new ComputeRunsSimilarity(1, databyCols);
 									HashMap<String, Double> res = ob.doComputation();
 									// display res in JTable
-									// displaySimilarityTable(res, "cosine similarity");
-
 									EventQueue.invokeLater(new Runnable() {
 										public void run() {
 											try {
@@ -205,23 +187,15 @@ public class MetadataTableDisplayPanel extends JPanel {
 											}
 										}
 									});
-
-								} catch (IOException e1) {
+								} catch (IOException | InterruptedException | ExecutionException e1) {
 									// TODO Auto-generated catch block
 									e1.printStackTrace();
-								} catch (InterruptedException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								} catch (ExecutionException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
 								}
 							}
 						});
 						return null;
 					}
 				}.start();
-
 			}
 		});
 		mnAnalyze.add(mntmCosineSililarity);
@@ -229,25 +203,10 @@ public class MetadataTableDisplayPanel extends JPanel {
 		JMenuItem mntmPearsonCorrelation = new JMenuItem("Pearson Correlation");
 		mntmPearsonCorrelation.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+
 				/**
-				 * select 2 or more runs and display the cosine simmilarity between them
+				 * select 2 or more runs and display the pearson correlation between them
 				 */
-				// get selected rows
-				int[] selectedInd = table.getSelectedRows();
-				if (selectedInd == null || selectedInd.length < 2) {
-					JOptionPane.showMessageDialog(null, "Please select at least two rows from table",
-							"Invalid selection", JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				String[] selectedNames = new String[selectedInd.length];
-				DefaultTableModel model = (DefaultTableModel) table.getModel();
-				for (int i = 0; i < selectedInd.length; i++) {
-					selectedNames[i] = model.getValueAt(table.convertRowIndexToModel(selectedInd[i]),
-							table.getColumn(obj.getDatacol()).getModelIndex()).toString();
-				}
-				// for the selected runs find their index in the data file and get data by the
-				// index in data file
-				int[] selectedIndinData = MetaOmGraph.getActiveProject().getColumnIndexbyHeader(selectedNames);
 				new AnimatedSwingWorker("Working...", true) {
 					@Override
 					public Object construct() {
@@ -258,8 +217,10 @@ public class MetadataTableDisplayPanel extends JPanel {
 									/**
 									 * get all the row data for each col map colnum to data array
 									 */
-									HashMap<Integer, double[]> databyCols = MetaOmGraph.getActiveProject()
-											.getAllRowData(selectedIndinData);
+									HashMap<Integer, double[]> databyCols = getDataForSelectedDataCols();
+									if (databyCols == null) {
+										return;
+									}
 									// compute correlation here 2 for correlation
 									ComputeRunsSimilarity ob = new ComputeRunsSimilarity(2, databyCols);
 									HashMap<String, Double> res = ob.doComputation();
@@ -281,23 +242,15 @@ public class MetadataTableDisplayPanel extends JPanel {
 											}
 										}
 									});
-
-								} catch (IOException e1) {
+								} catch (IOException | InterruptedException | ExecutionException e1) {
 									// TODO Auto-generated catch block
 									e1.printStackTrace();
-								} catch (InterruptedException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								} catch (ExecutionException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
 								}
 							}
 						});
 						return null;
 					}
 				}.start();
-
 			}
 		});
 		mnAnalyze.add(mntmPearsonCorrelation);
@@ -311,23 +264,6 @@ public class MetadataTableDisplayPanel extends JPanel {
 		JMenuItem mntmAsSeries = new JMenuItem("As series");
 		mntmAsSeries.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// plot variation of all genes in selected runs
-				// get selected rows
-				int[] selectedInd = table.getSelectedRows();
-				if (selectedInd == null || selectedInd.length < 1) {
-					JOptionPane.showMessageDialog(null, "Please select at least one row from table",
-							"Invalid selection", JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				String[] selectedNames = new String[selectedInd.length];
-				DefaultTableModel model = (DefaultTableModel) table.getModel();
-				for (int i = 0; i < selectedInd.length; i++) {
-					selectedNames[i] = model.getValueAt(table.convertRowIndexToModel(selectedInd[i]),
-							table.getColumn(obj.getDatacol()).getModelIndex()).toString();
-				}
-				// for the selected runs find their index in the data file and get data by the
-				// index in data file
-				int[] selectedIndinData = MetaOmGraph.getActiveProject().getColumnIndexbyHeader(selectedNames);
 				new AnimatedSwingWorker("Working...", true) {
 					@Override
 					public Object construct() {
@@ -338,8 +274,10 @@ public class MetadataTableDisplayPanel extends JPanel {
 									/**
 									 * get all the row data for each col map colnum to data array
 									 */
-									HashMap<Integer, double[]> databyCols = MetaOmGraph.getActiveProject()
-											.getAllRowData(selectedIndinData);
+									HashMap<Integer, double[]> databyCols = getDataForSelectedDataCols();
+									if (databyCols == null) {
+										return;
+									}
 									PlotRunsasSeries obj = new PlotRunsasSeries("runsPlot", databyCols, 2);
 									obj.createPlot();
 								} catch (IOException e1) {
@@ -355,6 +293,41 @@ public class MetadataTableDisplayPanel extends JPanel {
 			}
 		});
 		mnPlot.add(mntmAsSeries);
+
+		JMenuItem mntmBoxPlot = new JMenuItem("Box plot");
+		mntmBoxPlot.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				new AnimatedSwingWorker("Working...", true) {
+					@Override
+					public Object construct() {
+						EventQueue.invokeLater(new Runnable() {
+							public void run() {
+								// get data for all selceted cols
+								try {
+									/**
+									 * get all the row data for each col map colnum to data array
+									 */
+									HashMap<Integer, double[]> databyCols = getDataForSelectedDataCols();
+									if (databyCols == null) {
+										return;
+									}
+									// create box plot of selected data
+									
+									MetaOmGraph.addInternalFrame(BoxPlotter.getColumnBoxPlot2(databyCols),"Box Plot");
+
+								} catch (IOException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+							}
+						});
+						return null;
+					}
+				}.start();
+
+			}
+		});
+		mnPlot.add(mntmBoxPlot);
 
 		JMenuItem mntmSwitchToTree_1 = new JMenuItem("Switch to tree");
 		mntmSwitchToTree_1.addActionListener(new ActionListener() {
@@ -1617,7 +1590,36 @@ public class MetadataTableDisplayPanel extends JPanel {
 		BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
 		BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
 		HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
-		HYPERLINKCOLOR =MetaOmGraph.getTableHyperlinkColor();
+		HYPERLINKCOLOR = MetaOmGraph.getTableHyperlinkColor();
 		table.repaint();
+	}
+
+	private HashMap<Integer, double[]> getDataForSelectedDataCols() throws IOException {
+		String[] selectedNames = getSelectDataColsName();
+		if (selectedNames == null) {
+			return null;
+		}
+		// for the selected runs find their index in the data file and get data by the
+		// index in data file
+		int[] selectedIndinData = MetaOmGraph.getActiveProject().getColumnIndexbyHeader(selectedNames);
+		final HashMap<Integer, double[]> databyCols;
+		databyCols = MetaOmGraph.getActiveProject().getAllRowData(selectedIndinData);
+		return databyCols;
+	}
+
+	private String[] getSelectDataColsName() {
+		int[] selectedInd = table.getSelectedRows();
+		if (selectedInd == null || selectedInd.length < 1) {
+			JOptionPane.showMessageDialog(null, "Please select at least one row from table", "Invalid selection",
+					JOptionPane.ERROR_MESSAGE);
+			return null;
+		}
+		String[] selectedNames = new String[selectedInd.length];
+		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		for (int i = 0; i < selectedInd.length; i++) {
+			selectedNames[i] = model.getValueAt(table.convertRowIndexToModel(selectedInd[i]),
+					table.getColumn(obj.getDatacol()).getModelIndex()).toString();
+		}
+		return selectedNames;
 	}
 }

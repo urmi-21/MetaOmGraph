@@ -1324,13 +1324,14 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 
 		if ("make boxplot".equals(e.getActionCommand())) {
-			JPanel boxPlot = BoxPlotter.getSampleBoxPlot(myProject, getSelectedRowsInList());
+			JPanel boxPlot = BoxPlotter.getFeatureBoxPlot(myProject, getSelectedRowsInList());
 			String title = "Box Plot";
 			MetaOmGraph.addInternalFrame(boxPlot, title);
+			MetaOmGraph.addInternalFrame(BoxPlotter.getColumnBoxPlot(myProject),"Box Plot");
 			return;
 		}
 		if ("col boxplot".equals(e.getActionCommand())) {
-			BoxPlotter.showColumnBoxPlot(myProject);
+			//MetaOmGraph.addInternalFrame(BoxPlotter.getColumnBoxPlot(myProject),"colBP");
 			return;
 		}
 		if ("create histogram".equals(e.getActionCommand())) {
