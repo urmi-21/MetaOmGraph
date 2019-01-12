@@ -100,3 +100,6 @@ fix histogram
 set -ve values to 0 (not set let user preprocess data)
 make color themes
 execute other R script ask for out file name 
+initialize trivial metadata table is none is given
+show list size on hover
+Invert selection in Dual table panel while editing or creating list
