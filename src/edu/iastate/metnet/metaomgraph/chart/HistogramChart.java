@@ -8,6 +8,9 @@ import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.Random;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
@@ -19,8 +22,11 @@ import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -38,9 +44,9 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 	private ChartToolBar myToolbar;
 	private ChartPanel chartPanel;
 	private JFreeChart myChart;
-	private XYDataset dataset;
+	private HistogramDataset dataset;
 	// private XYLineAndShapeRenderer myRenderer;
-	private XYItemRenderer myRenderer;
+	private XYBarRenderer myRenderer;
 	JScrollPane scrollPane;
 
 	// chart colors
@@ -107,32 +113,39 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 
 	public ChartPanel makeHistogram() throws IOException {
 		// Create dataset
-		dataset = createHistDataset();
-		// Create chart
-		myChart = ChartFactory.createScatterPlot("", "", "", dataset);
+		// dataset = createHistDataset();
+		dataset = new HistogramDataset();
+		double[] r = new double[100];
+		//r=IntStream.generate(() -> new Random().nextInt(100)).limit(100).toArray();
+		r=DoubleStream.generate(() -> new Random().nextDouble()).limit(100).toArray();
+		dataset.addSeries("Red", r, 10);
+		r=DoubleStream.generate(() -> new Random().nextDouble()).limit(100).toArray();
+		dataset.addSeries("Green", r, 10);
+		r=DoubleStream.generate(() -> new Random().nextDouble()).limit(100).toArray();
+		dataset.addSeries("Blue", r, 10);
+
+		// chart
+		JFreeChart chart = ChartFactory.createHistogram("Histogram", "Value", "Count", dataset,
+				PlotOrientation.VERTICAL, true, true, false);
+		XYPlot plot = (XYPlot) chart.getPlot();
 		// Changes background color
-		Shape shape = ShapeUtilities.createRegularCross(2, 1);
-		XYPlot plot = (XYPlot) myChart.getPlot();
 		plot.setBackgroundPaint(plotbg);
 		myChart.setBackgroundPaint(chartbg);
-		// plot.setpaint
-		// XYItemRenderer renderer = plot.getRenderer();
-		myRenderer = plot.getRenderer();
-		/// myRenderer.setBaseShape(shape);
+		myRenderer = (XYBarRenderer) plot.getRenderer();
+		// translucent red, green & blue
 		/*
-		 * renderer.setBaseToolTipGenerator(new StandardXYToolTipGenerator() { public
-		 * String generateToolTip(XYDataset dataset, int series, int item) { double y =
-		 * dataset.getYValue(series, item); double x = dataset.getXValue(series, item);
-		 * // JOptionPane.showMessageDialog(null, "item:"+item); return
-		 * createTooltip(item, x, y); // return x+" m, "+y+" %"; } });
+		 * Paint[] paintArray = { new Color(0x80ff0000, true), new Color(0x8000ff00,
+		 * true), new Color(0x800000ff, true) }; plot.setDrawingSupplier(new
+		 * DefaultDrawingSupplier(paintArray,
+		 * DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
+		 * DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
+		 * DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
+		 * DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
+		 * DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE));
 		 */
-		// renderer.setSeriesShape(0, shape);
-		// renderer.setSeriesPaint(0, Color.red);
-		// Create Panel
-		// use full constructor otherwise tooltips dont work
-		ChartPanel chartPanel = new ChartPanel(myChart, 800, 600, 2, 2, 10000, 10000, true, true, true, true, true,
-				true);
-		return null;
+		ChartPanel panel = new ChartPanel(chart);
+		panel.setMouseWheelEnabled(true);
+		return panel;
 	}
 
 	private XYDataset createHistDataset() throws IOException {
