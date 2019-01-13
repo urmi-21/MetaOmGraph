@@ -13,6 +13,8 @@ import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -34,9 +36,12 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.EntityCollection;
+import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.labels.BoxAndWhiskerToolTipGenerator;
 import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.Outlier;
 import org.jfree.chart.renderer.OutlierList;
 import org.jfree.chart.renderer.OutlierListCollection;
@@ -45,6 +50,7 @@ import org.jfree.chart.renderer.category.CategoryItemRendererState;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.statistics.BoxAndWhiskerCategoryDataset;
 import org.jfree.data.statistics.DefaultBoxAndWhiskerCategoryDataset;
+import org.jfree.data.xy.XYDataset;
 import org.jfree.ui.RectangleEdge;
 
 public class BoxPlotter {
@@ -85,6 +91,7 @@ public class BoxPlotter {
 		// urmi add chat options
 		final BoxAndWhiskerRenderer renderer = getBoxAndWhiskerRenderer();
 		//renderer.setToolTipGenerator(new BoxAndWhiskerToolTipGenerator());
+		renderer.setDefaultToolTipGenerator(new BoxAndWhiskerToolTipGenerator());
 		renderer.setFillBox(true);
 		renderer.setMeanVisible(false);
 		myChart.getCategoryPlot().getDomainAxis()
@@ -96,22 +103,50 @@ public class BoxPlotter {
 		ChartPanel cPanel = new ChartPanel(myChart, Toolkit.getDefaultToolkit().getScreenSize().width,
 				Toolkit.getDefaultToolkit().getScreenSize().height, 0, 0,
 				Toolkit.getDefaultToolkit().getScreenSize().width, Toolkit.getDefaultToolkit().getScreenSize().height,
-				true, true, true, true, true, true);
+				true, true, true, true, true, true) {
+			public void actionPerformed(ActionEvent e) {
+			}
+				/*@Override
+				public String getToolTipText(MouseEvent event) {
+					if (myProject.getMetadataHybrid() == null) {
+						return null;
+					}
+					
+					//BoxAndWhiskerToolTipGenerator plot = (XYPlot) myChart.getPlot(); // your plot
+					ChartEntity entity = getChartRenderingInfo().getEntityCollection().getEntity(event.getPoint().getX(),
+							event.getPoint().getY());
+					// JOptionPane.showMessageDialog(null, entity);
+					if (!(entity instanceof XYItemEntity)) {
+						// JOptionPane.showMessageDialog(null, "null");
+						return null;
+					}
+					XYItemEntity item = (XYItemEntity) entity;
+					int thisXind = item.getItem();
+					// get x and y points
+
+					XYDataset thisDS = item.getDataset();
+					double chartX = thisDS.getXValue(item.getSeriesIndex(), thisXind);
+					double chartY = thisDS.getYValue(item.getSeriesIndex(), thisXind);
+					return "ToolTIP";
+				}*/
+				
+			
+		};
+		
 		cPanel.setPreferredSize(new Dimension(800, 600));
 		return cPanel;
 	}
 
-	
 	public static javax.swing.JPanel getSampleBoxPlot(final HashMap<Integer, double[]> databyCols) {
 		final DefaultBoxAndWhiskerCategoryDataset dataset = new DefaultBoxAndWhiskerCategoryDataset();
 		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(), "Working",
 				"Generating BoxPlot", 0L, databyCols.size(), true);
 		new Thread() {
 			public void run() {
-				for(int key:databyCols.keySet()) {
+				for (int key : databyCols.keySet()) {
 					List list = new ArrayList();
-					//list=Arrays.asList(databyCols.get(key));
-					for(double d:databyCols.get(key)) {
+					// list=Arrays.asList(databyCols.get(key));
+					for (double d : databyCols.get(key)) {
 						list.add(d);
 					}
 					dataset.add(list, 0, MetaOmGraph.getActiveProject().getDataColumnHeader(key));
@@ -128,7 +163,7 @@ public class BoxPlotter {
 
 		// urmi add chat options
 		final BoxAndWhiskerRenderer renderer = getBoxAndWhiskerRenderer();
-		//renderer.setToolTipGenerator(new BoxAndWhiskerToolTipGenerator());
+		renderer.setDefaultToolTipGenerator(new BoxAndWhiskerToolTipGenerator());
 		renderer.setFillBox(true);
 		renderer.setMeanVisible(false);
 		myChart.getCategoryPlot().getDomainAxis()

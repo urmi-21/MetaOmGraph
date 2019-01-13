@@ -392,9 +392,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 				if (myProject.getMetadataHybrid() == null) {
 					return null;
 				}
-				// get x axis position
-				Point2D p = translateScreenToJava2D(event.getPoint());
-				Rectangle2D plotArea = getScreenDataArea();
+			
 				XYPlot plot = (XYPlot) myChart.getPlot(); // your plot
 				// double chartX = plot.getDomainAxis().java2DToValue(p.getX(), plotArea,
 				// plot.getDomainAxisEdge());
