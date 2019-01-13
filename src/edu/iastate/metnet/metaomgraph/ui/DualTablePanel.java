@@ -64,6 +64,9 @@ public class DualTablePanel extends JPanel implements ActionListener {
 	private JButton addAllButton;
 	private JButton addButton;
 	private JButton removeButton;
+	//urmi
+	private JButton iaddButton;
+	private JButton iremoveButton;
 	private JButton resetButton;
 	private NoneditableTableModel activeModel;
 	private NoneditableTableModel inactiveModel;
@@ -168,17 +171,29 @@ public class DualTablePanel extends JPanel implements ActionListener {
 		resetButton = new JButton("Reset");
 		resetButton.setActionCommand("reset");
 		resetButton.addActionListener(this);
+		//urmi
+		iaddButton = new JButton("Invert+Add >>");
+		iaddButton.setActionCommand("iadd");
+		iaddButton.addActionListener(this);
+		iremoveButton = new JButton("<< Invert+Remove");
+		iremoveButton.setActionCommand("iremove");
+		iremoveButton.addActionListener(this);
 
 		Dimension maxSize = addButton.getMaximumSize();
 		maxSize.width = 10000;
 		addButton.setMaximumSize(maxSize);
 		removeButton.setMaximumSize(maxSize);
 		resetButton.setMaximumSize(maxSize);
+		//urmi
+		iaddButton.setMaximumSize(maxSize);
+		iremoveButton.setMaximumSize(maxSize);
 		buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, 1));
 		// buttonPanel.add(addAllButton);
 		buttonPanel.add(addButton);
+		buttonPanel.add(iaddButton);
 		buttonPanel.add(removeButton);
+		buttonPanel.add(iremoveButton);
 		// buttonPanel.add(resetButton);
 		setLayout(new BoxLayout(this, 0));
 		add(inactivePanel);
