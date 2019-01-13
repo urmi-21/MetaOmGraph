@@ -4,16 +4,19 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
+import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
@@ -22,8 +25,11 @@ import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.DefaultDrawingSupplier;
+import org.jfree.chart.plot.DrawingSupplier;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.StandardXYBarPainter;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.statistics.HistogramDataset;
@@ -117,35 +123,39 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		dataset = new HistogramDataset();
 		double[] r = new double[100];
 		//r=IntStream.generate(() -> new Random().nextInt(100)).limit(100).toArray();
-		r=DoubleStream.generate(() -> new Random().nextDouble()).limit(100).toArray();
-		dataset.addSeries("Red", r, 10);
-		r=DoubleStream.generate(() -> new Random().nextDouble()).limit(100).toArray();
-		dataset.addSeries("Green", r, 10);
-		r=DoubleStream.generate(() -> new Random().nextDouble()).limit(100).toArray();
-		dataset.addSeries("Blue", r, 10);
+		r=DoubleStream.generate(() -> new Random().nextDouble()).limit(10000).toArray();
+		dataset.addSeries("Red", r, 5);
+		r=DoubleStream.generate(() -> new Random().nextDouble()).limit(10000).toArray();
+		dataset.addSeries("Green", r, 5);
+		r=DoubleStream.generate(() -> new Random().nextDouble()).limit(10000).toArray();
+		dataset.addSeries("Blue", r, 5);
 
-		// chart
-		JFreeChart chart = ChartFactory.createHistogram("Histogram", "Value", "Count", dataset,
-				PlotOrientation.VERTICAL, true, true, false);
-		XYPlot plot = (XYPlot) chart.getPlot();
-		// Changes background color
-		plot.setBackgroundPaint(plotbg);
+		 // chart
+         myChart = ChartFactory.createHistogram("Histogram", "Value",
+            "Count", dataset, PlotOrientation.VERTICAL, true, true, false);
+        XYPlot plot = (XYPlot) myChart.getPlot();
+        //bg colors
+        plot.setBackgroundPaint(plotbg);
 		myChart.setBackgroundPaint(chartbg);
-		myRenderer = (XYBarRenderer) plot.getRenderer();
-		// translucent red, green & blue
-		/*
-		 * Paint[] paintArray = { new Color(0x80ff0000, true), new Color(0x8000ff00,
-		 * true), new Color(0x800000ff, true) }; plot.setDrawingSupplier(new
-		 * DefaultDrawingSupplier(paintArray,
-		 * DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
-		 * DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
-		 * DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
-		 * DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
-		 * DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE));
-		 */
-		ChartPanel panel = new ChartPanel(chart);
-		panel.setMouseWheelEnabled(true);
-		return panel;
+		
+        myRenderer = (XYBarRenderer) plot.getRenderer();
+        myRenderer.setBarPainter(new StandardXYBarPainter());
+        // translucent red, green & blue
+        Paint[] paintArray = {
+            new Color(0x80ff0000, true),
+            new Color(0x8000ff00, true),
+            new Color(0x800000ff, true)
+        };
+        plot.setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(
+            paintArray,
+            DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
+            DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
+            DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
+            DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
+            DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE));
+        ChartPanel panel = new ChartPanel(myChart);
+        panel.setMouseWheelEnabled(true);
+        return panel;
 	}
 
 	private XYDataset createHistDataset() throws IOException {
