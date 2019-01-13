@@ -1,8 +1,10 @@
 package edu.iastate.metnet.metaomgraph.chart;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
+import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -12,21 +14,24 @@ import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.util.ShapeUtilities;
 
+import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 
 public class HistogramChart extends JInternalFrame implements ChartMouseListener, ActionListener {
 
 	private int[] selected;
-	// pivotIndex is the ith index in the selected rows which is the x axis for the
-	// scatterplot
-	private int pivotIndex;
 	String[] rowNames;
 	private MetaOmProject myProject;
 	private String xAxisname;
@@ -38,6 +43,10 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 	private XYItemRenderer myRenderer;
 	JScrollPane scrollPane;
 
+	// chart colors
+	private Color chartbg = MetaOmGraph.getChartBackgroundColor();
+	private Color plotbg = MetaOmGraph.getPlotBackgroundColor();
+
 	/**
 	 * Launch the application.
 	 */
@@ -45,7 +54,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					HistogramChart frame = new HistogramChart(null,null);
+					HistogramChart frame = new HistogramChart(null, null);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -63,7 +72,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		// init rownames
 		rowNames = mp.getDefaultRowNames(selected);
 		// JOptionPane.showMessageDialog(null, Arrays.toString(rowNames));
-		pivotIndex = xind;
+
 		myProject = mp;
 		chartPanel = null;
 		setBounds(100, 100, 450, 300);
@@ -89,11 +98,46 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		// create sample plot
 
 		try {
-			chartPanel = makeScatterPlot();
+			chartPanel = makeHistogram();
 		} catch (IOException e) {
 		}
 		scrollPane.setViewportView(chartPanel);
 
+	}
+
+	public ChartPanel makeHistogram() throws IOException {
+		// Create dataset
+		dataset = createHistDataset();
+		// Create chart
+		myChart = ChartFactory.createScatterPlot("", "", "", dataset);
+		// Changes background color
+		Shape shape = ShapeUtilities.createRegularCross(2, 1);
+		XYPlot plot = (XYPlot) myChart.getPlot();
+		plot.setBackgroundPaint(plotbg);
+		myChart.setBackgroundPaint(chartbg);
+		// plot.setpaint
+		// XYItemRenderer renderer = plot.getRenderer();
+		myRenderer = plot.getRenderer();
+		/// myRenderer.setBaseShape(shape);
+		/*
+		 * renderer.setBaseToolTipGenerator(new StandardXYToolTipGenerator() { public
+		 * String generateToolTip(XYDataset dataset, int series, int item) { double y =
+		 * dataset.getYValue(series, item); double x = dataset.getXValue(series, item);
+		 * // JOptionPane.showMessageDialog(null, "item:"+item); return
+		 * createTooltip(item, x, y); // return x+" m, "+y+" %"; } });
+		 */
+		// renderer.setSeriesShape(0, shape);
+		// renderer.setSeriesPaint(0, Color.red);
+		// Create Panel
+		// use full constructor otherwise tooltips dont work
+		ChartPanel chartPanel = new ChartPanel(myChart, 800, 600, 2, 2, 10000, 10000, true, true, true, true, true,
+				true);
+		return null;
+	}
+
+	private XYDataset createHistDataset() throws IOException {
+
+		return null;
 	}
 
 	@Override
