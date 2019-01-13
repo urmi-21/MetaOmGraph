@@ -20,6 +20,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import org.apache.commons.math3.distribution.BetaDistribution;
+import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.distribution.PoissonDistribution;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
@@ -122,13 +125,18 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		// dataset = createHistDataset();
 		dataset = new HistogramDataset();
 		double[] r = new double[100];
-		//r=IntStream.generate(() -> new Random().nextInt(100)).limit(100).toArray();
-		r=DoubleStream.generate(() -> new Random().nextDouble()).limit(10000).toArray();
-		dataset.addSeries("Red", r, 5);
-		r=DoubleStream.generate(() -> new Random().nextDouble()).limit(10000).toArray();
-		dataset.addSeries("Green", r, 5);
-		r=DoubleStream.generate(() -> new Random().nextDouble()).limit(10000).toArray();
-		dataset.addSeries("Blue", r, 5);
+		
+		NormalDistribution dist = new NormalDistribution(0.0, 1);
+		
+		r=DoubleStream.generate(() -> new NormalDistribution(0.0, 1).sample()).limit(5000).toArray();
+		dataset.addSeries("Red", r, 50);
+		
+		
+		r=DoubleStream.generate(() -> new NormalDistribution(2, 4).sample()).limit(5000).toArray();
+		dataset.addSeries("Green", r, 50);
+		
+		r=DoubleStream.generate(() -> new BetaDistribution(.5,.40).sample()).limit(5000).toArray();
+		dataset.addSeries("Blue", r, 50);
 
 		 // chart
          myChart = ChartFactory.createHistogram("Histogram", "Value",
