@@ -595,14 +595,14 @@ public class DualTablePanel extends JPanel implements ActionListener {
 	private void doAdd(boolean invert) {
 		if (inactiveTable.getSelectedRowCount() <= 0)
 			return;
-		int[] selectedRows=activeTable.getTrueSelectedRows();
+		int[] selectedRows=inactiveTable.getTrueSelectedRows();
 		List<Integer> selRows= Arrays.stream(selectedRows).boxed().collect(Collectors.toList());
 		if(invert) {
 			//invert selection
-			selectedRows=new int[activeTable.getRowCount()-selRows.size()];
+			selectedRows=new int[inactiveTable.getRowCount()-selRows.size()];
 			int k=0;
 			List<Integer> temp=new ArrayList<>();
-			for(int i=0;i<activeTable.getRowCount();i++) {
+			for(int i=0;i<inactiveTable.getRowCount();i++) {
 				if(!selRows.contains(i)) {
 					selectedRows[k]=i;
 					k++;
