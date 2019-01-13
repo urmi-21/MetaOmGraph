@@ -689,7 +689,6 @@ public class DualTablePanel extends JPanel implements ActionListener {
 			return;
 		}
 		if (arg0.getActionCommand().equals("iremove")) {
-			JOptionPane.showMessageDialog(null, "ir");
 			doRemove(true);
 			return;
 		}
