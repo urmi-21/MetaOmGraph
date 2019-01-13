@@ -4,6 +4,7 @@ import edu.iastate.metnet.metaomgraph.*;
 import edu.iastate.metnet.metaomgraph.SwingWorker;
 import edu.iastate.metnet.metaomgraph.MetaOmProject.RepAveragedData;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
+import edu.iastate.metnet.metaomgraph.chart.HistogramChart;
 import edu.iastate.metnet.metaomgraph.chart.MakeChartWithR;
 import edu.iastate.metnet.metaomgraph.chart.MetaOmChartPanel;
 import edu.iastate.metnet.metaomgraph.chart.ScatterPlotChart;
@@ -1334,7 +1335,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			return;
 		}
 		if ("create histogram".equals(e.getActionCommand())) {
-			try {
+			/*try {
 				int[] rows = getSelectedRowsInList();
 
 				JPanel messagePanel = new JPanel();
@@ -1359,7 +1360,31 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				MetaOmGraph.addInternalFrame(histogram, "Histogram");
 			} catch (IOException e1) {
 				e1.printStackTrace();
-			}
+			}*/
+			
+			EventQueue.invokeLater(new Runnable() {
+				public void run() {
+					try {// get data for selected rows
+						int[] selected = getSelectedRowsInList();
+						HistogramChart f = new HistogramChart(selected, myProject);
+						MetaOmGraph.getDesktop().add(f);
+						f.setDefaultCloseOperation(2);
+						f.setClosable(true);
+						f.setResizable(true);
+						f.pack();
+						f.setSize(1000, 700);
+						f.setVisible(true);
+						f.toFront();
+
+					} catch (Exception e) {
+						JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
+								JOptionPane.ERROR_MESSAGE);
+
+						e.printStackTrace();
+						return;
+					}
+				}
+			});
 			return;
 		}
 		if ("create heatmap".equals(e.getActionCommand())) {
