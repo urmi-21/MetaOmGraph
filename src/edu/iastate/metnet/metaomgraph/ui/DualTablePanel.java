@@ -592,16 +592,47 @@ public class DualTablePanel extends JPanel implements ActionListener {
 		}
 	}
 
-	private void doAdd() {
+	private void doAdd(boolean invert) {
 		if (inactiveTable.getSelectedRowCount() <= 0)
 			return;
-		makeActive(inactiveTable.getTrueSelectedRows());
+		int[] selectedRows=activeTable.getTrueSelectedRows();
+		List<Integer> selRows= Arrays.stream(selectedRows).boxed().collect(Collectors.toList());
+		if(invert) {
+			//invert selection
+			selectedRows=new int[activeTable.getRowCount()-selRows.size()];
+			int k=0;
+			List<Integer> temp=new ArrayList<>();
+			for(int i=0;i<activeTable.getRowCount();i++) {
+				if(!selRows.contains(i)) {
+					selectedRows[k]=i;
+					k++;
+				}
+			}
+			
+		}
+		makeActive(selectedRows);
 	}
 
-	private void doRemove() {
+	private void doRemove(boolean invert) {
 		if (activeTable.getSelectedRowCount() <= 0)
 			return;
-		makeInactive(activeTable.getTrueSelectedRows());
+		
+		int[] selectedRows=activeTable.getTrueSelectedRows();
+		List<Integer> selRows= Arrays.stream(selectedRows).boxed().collect(Collectors.toList());
+		if(invert) {
+			//invert selection
+			selectedRows=new int[activeTable.getRowCount()-selRows.size()];
+			int k=0;
+			List<Integer> temp=new ArrayList<>();
+			for(int i=0;i<activeTable.getRowCount();i++) {
+				if(!selRows.contains(i)) {
+					selectedRows[k]=i;
+					k++;
+				}
+			}
+			
+		}
+		makeInactive(selectedRows);
 	}
 
 	private void doReset() {
@@ -646,11 +677,20 @@ public class DualTablePanel extends JPanel implements ActionListener {
 
 	public void actionPerformed(ActionEvent arg0) {
 		if (arg0.getActionCommand().equals("add")) {
-			doAdd();
+			doAdd(false);
+			return;
+		}
+		if (arg0.getActionCommand().equals("iadd")) {
+			doAdd(true);
 			return;
 		}
 		if (arg0.getActionCommand().equals("remove")) {
-			doRemove();
+			doRemove(false);
+			return;
+		}
+		if (arg0.getActionCommand().equals("iremove")) {
+			JOptionPane.showMessageDialog(null, "ir");
+			doRemove(true);
 			return;
 		}
 		if (arg0.getActionCommand().equals("reset")) {
