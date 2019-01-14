@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Arrays;
+import java.util.Hashtable;
 import java.util.Random;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
@@ -28,6 +29,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.text.DefaultFormatterFactory;
 
 import org.apache.commons.math3.distribution.BetaDistribution;
@@ -62,6 +64,10 @@ import edu.iastate.metnet.metaomgraph.IconTheme;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
+import edu.iastate.metnet.metaomgraph.utils.Utils.ChangeableInt;
+
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
 
 public class HistogramChart extends JInternalFrame implements ChartMouseListener, ActionListener {
 
@@ -95,6 +101,12 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 	private Color chartbg = MetaOmGraph.getChartBackgroundColor();
 	private Color plotbg = MetaOmGraph.getPlotBackgroundColor();
 	Color[] colorArray = null;
+	
+	//for slider to adjust transparency
+	private float minAlpha=0;
+	private float maxAlpha=1;
+	private float initAlpha=0.8F;
+	JSlider alphaSlider;
 
 	/**
 	 * Launch the application.
@@ -194,6 +206,28 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		panel.add(zoomOut);
 		panel.add(defaultZoom);
 		panel.add(changePalette);
+		
+		alphaSlider=new JSlider();
+		alphaSlider.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+				JOptionPane.showMessageDialog(null, "val:"+alphaSlider.getValue());
+				updateChartAlpha(alphaSlider.getValue()/10);
+			}
+		});
+		Hashtable labelTable = new Hashtable();
+		labelTable.put( new Integer( 0 ), new JLabel("0.0") );
+		labelTable.put( new Integer( 5 ), new JLabel("0.5") );
+		labelTable.put( new Integer( 10 ), new JLabel("1.0") );
+		alphaSlider.setMaximum(10);
+		alphaSlider.setMinimum(0);
+		alphaSlider.setMajorTickSpacing(3);
+		alphaSlider.setMinorTickSpacing(1);
+		alphaSlider.setPaintTicks(true);
+		alphaSlider.setLabelTable(labelTable);;
+		panel.add(alphaSlider);
+		
+		//alphaSlid
+		
 
 		// frame properties
 		this.setClosable(true);
@@ -218,7 +252,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		// bg colors
 		plot.setBackgroundPaint(plotbg);
 		myChart.setBackgroundPaint(chartbg);
-		plot.setForegroundAlpha(0.95F);
+		plot.setForegroundAlpha(initAlpha);
 
 		myRenderer = (XYBarRenderer) plot.getRenderer();
 		myRenderer.setBarPainter(new StandardXYBarPainter());
@@ -522,6 +556,11 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		}
 
 		return;
+	}
+	
+	private void updateChartAlpha(float alpha) {
+		myChart.getXYPlot().setForegroundAlpha(alpha);
+		
 	}
 
 }
