@@ -273,6 +273,15 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		            DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
 		            DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
 		            DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE));
+		}else {
+			Paint[] defaultPaint = DefaultDrawingSupplier.DEFAULT_PAINT_SEQUENCE;
+			Color[] defaultColor = Utils.paintArraytoColor(defaultPaint);
+			plot.setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(Utils.filterColors(defaultColor),
+					DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
+					DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
+					DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
+					DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
+					DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE));
 		}
 		// Create Panel
 		// use full constructor otherwise tooltips dont work
