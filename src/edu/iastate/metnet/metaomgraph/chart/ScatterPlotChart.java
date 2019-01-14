@@ -659,11 +659,6 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 				myChart.getXYPlot().getDataset().getSeriesKey(series) + " color", oldColor);
 		if (newColor != null) {
 			myRenderer.setSeriesPaint(series, newColor);
-			// CustomColorScheme newColorScheme = new
-			// CustomColorScheme(props.getColorScheme(), selected.length);
-			// newColorScheme.setSeriesPaint(series, newColor);
-			// newColorScheme.setSelectionPaint(series, newColor);
-			// props.setColorScheme(newColorScheme);
 		}
 	}
 
