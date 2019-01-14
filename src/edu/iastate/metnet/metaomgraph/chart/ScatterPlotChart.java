@@ -114,11 +114,9 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 	private JButton zoomOut;
 	private JButton defaultZoom;
 	private JButton changePalette;
-	
-	
-	//bottom toolbar
+
+	// bottom toolbar
 	private JButton btnNewButton_1;
-	
 
 	public static final String ZOOM_IN_COMMAND = "zoomIn";
 	public static final String ZOOM_OUT_COMMAND = "zoomOut";
@@ -217,6 +215,11 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		changePalette.setToolTipText("Color Palette");
 		changePalette.setActionCommand("changePalette");
 		changePalette.addActionListener(this);
+
+		changePalette.setOpaque(false);
+		changePalette.setContentAreaFilled(false);
+		changePalette.setBorderPainted(true);
+
 		panel.add(properties);
 		panel.add(save);
 		panel.add(print);
@@ -253,10 +256,10 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		XYPlot plot = (XYPlot) myChart.getPlot();
 		plot.setBackgroundPaint(plotbg);
 		myChart.setBackgroundPaint(chartbg);
-		//plot.setpaint
+		// plot.setpaint
 		// XYItemRenderer renderer = plot.getRenderer();
 		myRenderer = plot.getRenderer();
-		///myRenderer.setBaseShape(shape);
+		/// myRenderer.setBaseShape(shape);
 		/*
 		 * renderer.setBaseToolTipGenerator(new StandardXYToolTipGenerator() { public
 		 * String generateToolTip(XYDataset dataset, int series, int item) { double y =
@@ -401,7 +404,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 				if (myProject.getMetadataHybrid() == null) {
 					return null;
 				}
-			
+
 				XYPlot plot = (XYPlot) myChart.getPlot(); // your plot
 				// double chartX = plot.getDomainAxis().java2DToValue(p.getX(), plotArea,
 				// plot.getDomainAxisEdge());
@@ -592,10 +595,10 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 			String[] options = rowNames;
 			String selectedValue = (String) JOptionPane.showInputDialog(null, "Select a row:", "Rows...",
 					JOptionPane.QUESTION_MESSAGE, null, options, options[pivotIndex]);
-			if(selectedValue==null || selectedValue.length()<1) {
+			if (selectedValue == null || selectedValue.length() < 1) {
 				return;
 			}
-			
+
 			for (int i = 0; i < options.length; i++) {
 				if (selectedValue.equals(options[i])) {
 					this.pivotIndex = i;
@@ -605,12 +608,11 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 			updateChart();
 			return;
 		}
-		
+
 		if ("changePalette".equals(e.getActionCommand())) {
 			JOptionPane.showConfirmDialog(null, "Show pallete");
 			return;
 		}
-
 
 	}
 
