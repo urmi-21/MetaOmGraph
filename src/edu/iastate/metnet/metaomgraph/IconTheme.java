@@ -56,4 +56,6 @@ public interface IconTheme {
     ImageIcon getExcel();
 
     ImageIcon getMetadata();
+    
+    ImageIcon getPalette();
 }

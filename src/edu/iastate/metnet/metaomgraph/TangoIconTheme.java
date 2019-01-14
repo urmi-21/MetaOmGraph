@@ -30,6 +30,8 @@ public class TangoIconTheme implements IconTheme {
     private ImageIcon excel;
     private ImageIcon report;
     private ImageIcon metadata;
+    private ImageIcon palette;
+    
     private String dir = "/resource/tango/16x16/";
 
     private String defaultZoomPath = dir + "actions/system-search.png";
@@ -95,6 +97,16 @@ public class TangoIconTheme implements IconTheme {
         }
         return properties;
     }
+    
+    //urmi
+    public ImageIcon getPalette() {
+        if (palette == null) {
+        	palette = new ImageIcon(getClass().getResource(propertiesPath));
+        }
+        return palette;
+    }
+    
+    
 
     public ImageIcon getSaveAs() {
         if (saveAs == null) {

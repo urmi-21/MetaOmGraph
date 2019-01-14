@@ -113,8 +113,12 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 	private JButton zoomIn;
 	private JButton zoomOut;
 	private JButton defaultZoom;
-	private JButton exportButton;
-	private JButton metadataButton;
+	private JButton changePalette;
+	
+	
+	//bottom toolbar
+	private JButton btnNewButton_1;
+	
 
 	public static final String ZOOM_IN_COMMAND = "zoomIn";
 	public static final String ZOOM_OUT_COMMAND = "zoomOut";
@@ -167,7 +171,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		JPanel panel_1 = new JPanel();
 		getContentPane().add(panel_1, BorderLayout.SOUTH);
 
-		JButton btnNewButton_1 = new JButton("Change X axis");
+		btnNewButton_1 = new JButton("Change X axis");
 		btnNewButton_1.setActionCommand("chooseX");
 		btnNewButton_1.addActionListener(this);
 		panel_1.add(btnNewButton_1);
@@ -209,12 +213,17 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		zoomOut.addActionListener(this);
 		defaultZoom.setActionCommand("defaultZoom");
 		defaultZoom.addActionListener(this);
+		changePalette = new JButton(theme.getPalette());
+		changePalette.setToolTipText("Color Palette");
+		changePalette.setActionCommand("changePalette");
+		changePalette.addActionListener(this);
 		panel.add(properties);
 		panel.add(save);
 		panel.add(print);
 		panel.add(zoomIn);
 		panel.add(zoomOut);
 		panel.add(defaultZoom);
+		panel.add(changePalette);
 
 		// frame properties
 		this.setClosable(true);
@@ -583,6 +592,10 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 			String[] options = rowNames;
 			String selectedValue = (String) JOptionPane.showInputDialog(null, "Select a row:", "Rows...",
 					JOptionPane.QUESTION_MESSAGE, null, options, options[pivotIndex]);
+			if(selectedValue==null || selectedValue.length()<1) {
+				return;
+			}
+			
 			for (int i = 0; i < options.length; i++) {
 				if (selectedValue.equals(options[i])) {
 					this.pivotIndex = i;
@@ -592,6 +605,12 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 			updateChart();
 			return;
 		}
+		
+		if ("changePalette".equals(e.getActionCommand())) {
+			JOptionPane.showConfirmDialog(null, "Show pallete");
+			return;
+		}
+
 
 	}
 
