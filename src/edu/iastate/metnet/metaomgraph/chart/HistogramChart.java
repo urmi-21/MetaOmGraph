@@ -23,6 +23,8 @@ import javax.swing.JScrollPane;
 import org.apache.commons.math3.distribution.BetaDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.distribution.PoissonDistribution;
+import org.jcolorbrewer.ColorBrewer;
+import org.jcolorbrewer.ui.ColorPaletteChooserDialog;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
@@ -132,7 +134,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
         //bg colors
         plot.setBackgroundPaint(plotbg);
 		myChart.setBackgroundPaint(chartbg);
-		plot.setForegroundAlpha(0.65F);
+		plot.setForegroundAlpha(0.95F);
         
         myRenderer = (XYBarRenderer) plot.getRenderer();
         myRenderer.setBarPainter(new StandardXYBarPainter());
@@ -143,13 +145,14 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
             new Color(0x8000ff00, true),
             new Color(0x800000ff, true)
         };*/
-        /*plot.setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(
-            getpaintArray(2),
+        plot.setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(
+            new JColorbrewerChooser().getpaintArray(2),
             DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
             DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
             DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
             DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
-            DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE));*/
+            DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE));
+        //getpaintArray(1);
         ChartPanel panel = new ChartPanel(myChart, 800, 600, 2, 2, 10000, 10000, true, true, true, true, true,
 				true);
         panel.setMouseWheelEnabled(true);
@@ -188,48 +191,5 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 	}
 	
 	
-	/**
-	 * creata a paint array
-	 * @param n
-	 * @return
-	 */
-	private Paint[] getpaintArray(int n) {
-		/*Paint[] res=new Paint[n];
-		//sample
-		PRGn (1, "Purple-Red-Green", true, new int[][]{
-			 {0xAF8DC3},
-	         {0xAF8DC3, 0x7FBF7B},
-	         {0xAF8DC3, 0xF7F7F7, 0x7FBF7B},
-	         {0x7B3294, 0xC2A5CF, 0xA6DBA0, 0x008837},
-	         {0x7B3294, 0xC2A5CF, 0xF7F7F7, 0xA6DBA0, 0x008837},
-	         {0x762A83, 0xAF8DC3, 0xE7D4E8, 0xD9F0D3, 0x7FBF7B, 0x1B7837},
-	         {0x762A83, 0xAF8DC3, 0xE7D4E8, 0xF7F7F7, 0xD9F0D3, 0x7FBF7B, 0x1B7837},
-	         {0x762A83, 0x9970AB, 0xC2A5CF, 0xE7D4E8, 0xD9F0D3, 0xA6DBA0, 0x5AAE61, 0x1B7837},
-	         {0x762A83, 0x9970AB, 0xC2A5CF, 0xE7D4E8, 0xF7F7F7, 0xD9F0D3, 0xA6DBA0, 0x5AAE61, 0x1B7837},
-	         {0x40004B, 0x762A83, 0x9970AB, 0xC2A5CF, 0xE7D4E8, 0xD9F0D3, 0xA6DBA0, 0x5AAE61, 0x1B7837, 0x00441B},
-	         {0x40004B, 0x762A83, 0x9970AB, 0xC2A5CF, 0xE7D4E8, 0xF7F7F7, 0xD9F0D3, 0xA6DBA0, 0x5AAE61, 0x1B7837, 0x00441B}
-			})*/
-		
-		Paint[] paintArray = {
-	            new Color(0xAF8DC3, false),
-	            new Color(0x7FBF7B, false),
-	            new Color(0xF7F7F7, false),
-	            new Color(0xA6DBA0, false),
-	            new Color(0x40004B, false),
-	            new Color(0x762A83, false),
-	            new Color(0x9970AB, false),
-	            new Color(0xC2A5CF, false),
-	            new Color(0xE7D4E8, false),
-	            new Color(0xD9F0D3, false),
-	            new Color(0xA6DBA0, false),
-	            new Color(0x5AAE61, false),
-	            new Color(0x1B7837, false),
-	            new Color(0x00441B, false)            
-	            
-		};
-		
-		
-		return paintArray;
-	}
 
 }
