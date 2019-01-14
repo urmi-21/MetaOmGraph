@@ -101,11 +101,11 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 	private Color chartbg = MetaOmGraph.getChartBackgroundColor();
 	private Color plotbg = MetaOmGraph.getPlotBackgroundColor();
 	Color[] colorArray = null;
-	
-	//for slider to adjust transparency
-	private float minAlpha=0;
-	private float maxAlpha=1;
-	private float initAlpha=0.8F;
+
+	// for slider to adjust transparency
+	private float minAlpha = 0;
+	private float maxAlpha = 10;
+	private float initAlpha = 0.8F;
 	JSlider alphaSlider;
 
 	/**
@@ -148,8 +148,8 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		JPanel panel_1 = new JPanel();
 		getContentPane().add(panel_1, BorderLayout.SOUTH);
 
-		JButton btnNewButton_1 = new JButton("Change X axis");
-		btnNewButton_1.setActionCommand("chooseX");
+		JButton btnNewButton_1 = new JButton("Change bins");
+		btnNewButton_1.setActionCommand("chooseBins");
 		btnNewButton_1.addActionListener(this);
 		panel_1.add(btnNewButton_1);
 
@@ -206,28 +206,30 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		panel.add(zoomOut);
 		panel.add(defaultZoom);
 		panel.add(changePalette);
-		
-		alphaSlider=new JSlider();
+
+		alphaSlider = new JSlider();
+		alphaSlider.setValue((int) (initAlpha * 10F));
 		alphaSlider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
-				JOptionPane.showMessageDialog(null, "val:"+alphaSlider.getValue());
-				updateChartAlpha(alphaSlider.getValue()/10);
+				float alphaVal = alphaSlider.getValue() / 10.0F;
+				// JOptionPane.showMessageDialog(null, "val:"+alphaVal);
+				updateChartAlpha(alphaVal);
 			}
 		});
 		Hashtable labelTable = new Hashtable();
-		labelTable.put( new Integer( 0 ), new JLabel("0.0") );
-		labelTable.put( new Integer( 5 ), new JLabel("0.5") );
-		labelTable.put( new Integer( 10 ), new JLabel("1.0") );
-		alphaSlider.setMaximum(10);
-		alphaSlider.setMinimum(0);
+		labelTable.put(new Integer(0), new JLabel("0.0"));
+		labelTable.put(new Integer(5), new JLabel("0.5"));
+		labelTable.put(new Integer(10), new JLabel("1.0"));
+		alphaSlider.setMaximum((int) maxAlpha);
+		alphaSlider.setMinimum((int) minAlpha);
 		alphaSlider.setMajorTickSpacing(3);
 		alphaSlider.setMinorTickSpacing(1);
 		alphaSlider.setPaintTicks(true);
-		alphaSlider.setLabelTable(labelTable);;
+		alphaSlider.setLabelTable(labelTable);
+		;
 		panel.add(alphaSlider);
-		
-		//alphaSlid
-		
+
+		// alphaSlid
 
 		// frame properties
 		this.setClosable(true);
@@ -407,15 +409,30 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 			return;
 		}
 
-		if ("changePalette".equals(e.getActionCommand())) {
+		if ("chooseBins".equals(e.getActionCommand())) {
+			int newBins = 0;
+			boolean success = false;
+			while (!success) {
+				try {
+					newBins = Integer.parseInt((String) JOptionPane.showInputDialog(null, "Please Enter number of bins",
+							"Input number of bins", JOptionPane.QUESTION_MESSAGE, null, null,
+							String.valueOf(_bins)));
+					if(newBins>0) {
+						success=true;
+					}
+				} catch (NumberFormatException nfe) {
+					JOptionPane.showMessageDialog(null, "Invalid number entered. Please try again.", "Error",
+							JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+			}
+			
+			this._bins=newBins;
+			updateChart();
 
-			/*
-			 * JColorbrewerChooser frame = new JColorbrewerChooser();
-			 * frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2,
-			 * MetaOmGraph.getMainWindow().getHeight() / 2); frame.pack();
-			 * frame.setTitle("Change parameters"); MetaOmGraph.getDesktop().add(frame);
-			 * frame.setVisible(true);
-			 */
+		}
+
+		if ("changePalette".equals(e.getActionCommand())) {
 
 			ColorPaletteChooserDialog dialog = new ColorPaletteChooserDialog();
 			ColorBrewer cb = null;
@@ -557,10 +574,10 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 
 		return;
 	}
-	
+
 	private void updateChartAlpha(float alpha) {
 		myChart.getXYPlot().setForegroundAlpha(alpha);
-		
+
 	}
 
 }
