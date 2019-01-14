@@ -247,6 +247,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 	public ChartPanel makeHistogram() throws IOException {
 		// Create dataset
 		dataset = createHistDataset();
+		alphaSlider.setValue((int) (initAlpha * 10F));
 		// chart
 		myChart = ChartFactory.createHistogram("Histogram", "Value", "Count", dataset, PlotOrientation.VERTICAL, true,
 				true, false);
@@ -457,7 +458,9 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 				numColors = Math.min(numColors, 10);
 				// get color array
 				colorArray = cb.getColorPalette(numColors);
-				setPalette(colorArray);
+				//setPalette(colorArray);
+				setPalette(Utils.filterColors(colorArray));
+				
 			} else {
 				// reset was pressed and the OK. show default colors
 				colorArray = null;

@@ -26,6 +26,7 @@ import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
@@ -52,6 +53,8 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
+
+import org.biomage.Array.Array;
 
 import edu.iastate.metnet.metaomgraph.GraphFileFilter;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
@@ -1109,12 +1112,14 @@ public class Utils {
 	public static int saveJTabletofile(JTable table) {
 		return saveJTabletofile(table, "\t");
 	}
-/**
- * 
- * @param table
- * @param delim delimiter
- * @return
- */
+
+	/**
+	 * 
+	 * @param table
+	 * @param delim
+	 *            delimiter
+	 * @return
+	 */
 	public static int saveJTabletofile(JTable table, String delim) {
 		int status = 1; // 0 success; 1 fail
 		// export file as tab delimited .txt
@@ -1163,5 +1168,41 @@ public class Utils {
 			status = 1;
 		}
 		return status;
+	}
+	
+	public static Color[] filterColors(Color[] carray) {
+		Color[] newArray;
+		List<Color> cList=new ArrayList<>();
+		Color plotBG=MetaOmGraph.getPlotBackgroundColor();
+		for(int i=0;i<carray.length;i++) {
+			//threshold 
+			if(getColorSimilarity(carray[i], plotBG)>60) {
+				cList.add(carray[i]);
+			}
+		}
+		newArray = new Color[cList.size()];
+		newArray = cList.toArray(newArray);
+		return newArray;
+	}
+
+	/**
+	 * Compare RGB components of two colors and return euc distance
+	 * 
+	 * @param c1
+	 * @param c2
+	 * @return
+	 */
+	public static double getColorSimilarity(Color c1, Color c2) {
+		double res = 0;
+		int g1 = c1.getGreen();
+		int r1 = c1.getRed();
+		int b1 = c1.getBlue();
+		int g2 = c2.getGreen();
+		int r2 = c2.getRed();
+		int b2 = c2.getBlue();
+		double n1=((g1-g2)*(g1-g2)) + ((r1-r2)*(r1-r2)) + ((b1-b2)*(b1-b2));
+		res=Math.sqrt(n1);
+		return res;
+
 	}
 }
