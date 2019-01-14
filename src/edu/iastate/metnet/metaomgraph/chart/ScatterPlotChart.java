@@ -610,7 +610,14 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		}
 
 		if ("changePalette".equals(e.getActionCommand())) {
-			JOptionPane.showConfirmDialog(null, "Show pallete");
+
+			JColorbrewerChooser frame = new JColorbrewerChooser();
+			frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
+			frame.pack();
+			frame.setTitle("Change parameters");
+			MetaOmGraph.getDesktop().add(frame);
+			frame.setVisible(true);
+
 			return;
 		}
 
