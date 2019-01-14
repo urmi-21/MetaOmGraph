@@ -527,7 +527,7 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 
 			if (cb != null) {
 				int numColors=myChartPanel.getChart().getXYPlot().getSeriesCount();
-				numColors=Math.min(numColors, 10);
+				numColors=Math.min(numColors, 30);
 				// get color array
 				colorArray = cb.getColorPalette(numColors);
 				myChartPanel.setPalette(Utils.filterColors(colorArray));

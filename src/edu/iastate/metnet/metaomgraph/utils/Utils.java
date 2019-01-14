@@ -1178,7 +1178,7 @@ public class Utils {
 		Color plotBG=MetaOmGraph.getPlotBackgroundColor();
 		for(int i=0;i<carray.length;i++) {
 			//threshold 
-			if(getColorSimilarity(carray[i], plotBG)>60) {
+			if(getColorSimilarity(carray[i], plotBG)>150) {
 				cList.add(carray[i]);
 			}
 		}
@@ -1211,7 +1211,6 @@ public class Utils {
 		Color[] res=new Color[parray.length];
 		for(int i=0;i<parray.length;i++) {
 			res[i]=(Color)parray[i];
-			res[i]=Color.blue;
 		}
 		
 		//JOptionPane.showMessageDialog(null, Arrays.toString(res));
