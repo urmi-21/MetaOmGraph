@@ -2653,6 +2653,14 @@ public class MetaOmProject {
 		}
 		return result;
 	}
+	
+	/**
+	 * return the number of included data columns
+	 * @return
+	 */
+	public int getIncludedDataColumnCount() {
+		return getIncludedDataColumnHeaders().length;
+	}
 
 	public synchronized double[] getDataForColumn(int col) throws IOException {
 		if (dataIn == null)
