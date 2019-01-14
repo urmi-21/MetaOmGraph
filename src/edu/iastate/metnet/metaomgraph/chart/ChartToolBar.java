@@ -11,6 +11,7 @@ import edu.iastate.metnet.metaomgraph.MetadataCollection;
 import edu.iastate.metnet.metaomgraph.ui.MenuButton;
 import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel;
 import edu.iastate.metnet.metaomgraph.ui.ReadMetadata;
+import edu.iastate.metnet.metaomgraph.utils.Utils;
 import edu.iastate.metnet.metaomgraph.utils.qdxml.SimpleXMLElement;
 
 import java.awt.Color;
@@ -76,6 +77,8 @@ import org.jfree.chart.event.AxisChangeEvent;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYDataset;
+
+import com.mysql.jdbc.Util;
 
 //import com.itextpdf.text.pdf.PdfStructTreeController.returnType;
 
@@ -527,7 +530,7 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 				numColors=Math.min(numColors, 10);
 				// get color array
 				colorArray = cb.getColorPalette(numColors);
-				myChartPanel.setPalette(colorArray);
+				myChartPanel.setPalette(Utils.filterColors(colorArray));
 			}else {
 				//reset was pressed and the OK. show default colors
 				colorArray=null;
