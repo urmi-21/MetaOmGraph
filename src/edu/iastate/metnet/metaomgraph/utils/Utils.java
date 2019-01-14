@@ -1178,13 +1178,17 @@ public class Utils {
 		Color plotBG=MetaOmGraph.getPlotBackgroundColor();
 		for(int i=0;i<carray.length;i++) {
 			//threshold 
-			if(getColorSimilarity(carray[i], plotBG)>150) {
+			if(getColorSimilarity(carray[i], plotBG)>300) {
 				cList.add(carray[i]);
 			}
 		}
 		newArray = new Color[cList.size()];
 		newArray = cList.toArray(newArray);
+		if(newArray.length>3) {
 		return newArray;
+		}else {
+			return carray;
+		}
 	}
 
 	/**
@@ -1202,7 +1206,7 @@ public class Utils {
 		int g2 = c2.getGreen();
 		int r2 = c2.getRed();
 		int b2 = c2.getBlue();
-		double n1=((g1-g2)*(g1-g2)) + ((r1-r2)*(r1-r2)) + ((b1-b2)*(b1-b2));
+		double n1=(4*(g1-g2)*(g1-g2)) + (2*(r1-r2)*(r1-r2)) + (3*(b1-b2)*(b1-b2));
 		res=Math.sqrt(n1);
 		return res;
 	}
