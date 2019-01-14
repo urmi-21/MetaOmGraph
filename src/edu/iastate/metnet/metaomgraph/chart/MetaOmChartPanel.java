@@ -1170,7 +1170,17 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 					PlotOrientation.VERTICAL, true, true, false);
 			//urmi
 			myChart.getPlot().setBackgroundPaint(plotbg);
+			//change chart colors
+			myChart.getPlot().setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(
+		            new JColorbrewerChooser().getpaintArray(2),
+		            DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
+		            DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
+		            DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
+		            DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
+		            DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE));
 			myChart.setBackgroundPaint(chartbg);
+			
+			
 			myAnnotator.redrawAnnotations(); // by mhhur
 
 			((XYPlot) myChart.getPlot()).setRangeGridlinePaint(Color.LIGHT_GRAY);
