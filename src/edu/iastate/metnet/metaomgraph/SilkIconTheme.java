@@ -29,6 +29,8 @@ public class SilkIconTheme implements IconTheme {
     private ImageIcon sort;
     private ImageIcon excel;
     private ImageIcon report;
+    private ImageIcon palette;
+    
     private String defaultZoomPath = "/resource/silkicon/zoom.png";
 
     private String externalSourcePath = "/resource/silkicon/world_link.png";
@@ -266,6 +268,14 @@ public class SilkIconTheme implements IconTheme {
         }
         return excel;
     }
+    
+    //urmi
+    public ImageIcon getPalette() {
+		if (palette == null) {
+			palette = new ImageIcon(getClass().getResource(propertiesPath));
+		}
+		return palette;
+	}
 
     public static void main(String[] args) {
         java.lang.reflect.Method[] methods = SilkIconTheme.class.getDeclaredMethods();
