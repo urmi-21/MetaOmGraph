@@ -156,11 +156,29 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		scrollPane = new JScrollPane();
 		getContentPane().add(scrollPane, BorderLayout.CENTER);
 
+		alphaSlider = new JSlider();
+		alphaSlider.setValue((int) (initAlpha * 10F));
+		alphaSlider.setMaximum((int) maxAlpha);
+		alphaSlider.setMinimum((int) minAlpha);
+		alphaSlider.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+				float alphaVal = alphaSlider.getValue() / 10.0F;
+				// JOptionPane.showMessageDialog(null, "val:"+alphaVal);
+				updateChartAlpha(alphaVal);
+			}
+		});
+		/*Hashtable labelTable = new Hashtable();
+		labelTable.put(new Integer(0), new JLabel("0.0"));
+		labelTable.put(new Integer(5), new JLabel("0.5"));
+		labelTable.put(new Integer(10), new JLabel("1.0"));*/
+		
+		
 		// create sample plot
 
 		try {
 			chartPanel = makeHistogram();
 		} catch (IOException e) {
+			JOptionPane.showMessageDialog(null, "ERRRRRRRRRRRRRR");
 		}
 		scrollPane.setViewportView(chartPanel);
 
@@ -206,27 +224,6 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		panel.add(zoomOut);
 		panel.add(defaultZoom);
 		panel.add(changePalette);
-
-		alphaSlider = new JSlider();
-		alphaSlider.setValue((int) (initAlpha * 10F));
-		alphaSlider.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent arg0) {
-				float alphaVal = alphaSlider.getValue() / 10.0F;
-				// JOptionPane.showMessageDialog(null, "val:"+alphaVal);
-				updateChartAlpha(alphaVal);
-			}
-		});
-		Hashtable labelTable = new Hashtable();
-		labelTable.put(new Integer(0), new JLabel("0.0"));
-		labelTable.put(new Integer(5), new JLabel("0.5"));
-		labelTable.put(new Integer(10), new JLabel("1.0"));
-		alphaSlider.setMaximum((int) maxAlpha);
-		alphaSlider.setMinimum((int) minAlpha);
-		alphaSlider.setMajorTickSpacing(3);
-		alphaSlider.setMinorTickSpacing(1);
-		alphaSlider.setPaintTicks(true);
-		alphaSlider.setLabelTable(labelTable);
-		;
 		panel.add(alphaSlider);
 
 		// alphaSlid
@@ -247,7 +244,9 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 	public ChartPanel makeHistogram() throws IOException {
 		// Create dataset
 		dataset = createHistDataset();
-		alphaSlider.setValue((int) (initAlpha * 10F));
+		if (alphaSlider != null) {
+			alphaSlider.setValue((int) (initAlpha * 10F));
+		}
 		// chart
 		myChart = ChartFactory.createHistogram("Histogram", "Value", "Count", dataset, PlotOrientation.VERTICAL, true,
 				true, false);
@@ -261,6 +260,15 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		myRenderer.setBarPainter(new StandardXYBarPainter());
 		if (colorArray != null) {
 			plot.setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(colorArray,
+					DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
+					DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
+					DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
+					DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
+					DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE));
+		} else {
+			Paint[] defaultPaint = DefaultDrawingSupplier.DEFAULT_PAINT_SEQUENCE;
+			Color[] defaultColor = Utils.paintArraytoColor(defaultPaint);
+			plot.setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(Utils.filterColors(defaultColor),
 					DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
@@ -416,29 +424,27 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 			boolean success = false;
 			while (!success) {
 				try {
-					
-					String input=(String) JOptionPane.showInputDialog(null, "Please Enter number of bins",
-							"Input number of bins", JOptionPane.QUESTION_MESSAGE, null, null,
-							String.valueOf(_bins));
-					//cancel pressed
-					if(input==null) {
+
+					String input = (String) JOptionPane.showInputDialog(null, "Please Enter number of bins",
+							"Input number of bins", JOptionPane.QUESTION_MESSAGE, null, null, String.valueOf(_bins));
+					// cancel pressed
+					if (input == null) {
 						return;
 					}
 					newBins = Integer.parseInt(input);
-					
-					if(newBins>0) {
-						success=true;
+
+					if (newBins > 0) {
+						success = true;
 					}
-					
-					
+
 				} catch (NumberFormatException nfe) {
 					JOptionPane.showMessageDialog(null, "Invalid number entered. Please try again.", "Error",
 							JOptionPane.ERROR_MESSAGE);
-					
+
 				}
 			}
-			
-			this._bins=newBins;
+
+			this._bins = newBins;
 			updateChart();
 
 		}
@@ -458,9 +464,9 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 				numColors = Math.min(numColors, 10);
 				// get color array
 				colorArray = cb.getColorPalette(numColors);
-				//setPalette(colorArray);
+				// setPalette(colorArray);
 				setPalette(Utils.filterColors(colorArray));
-				
+
 			} else {
 				// reset was pressed and the OK. show default colors
 				colorArray = null;
@@ -537,7 +543,6 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 	@Override
 	public void chartMouseMoved(ChartMouseEvent arg0) {
 		// TODO Auto-generated method stub
-		
 
 	}
 
