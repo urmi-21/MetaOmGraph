@@ -107,4 +107,5 @@ allow user to add a short description to correlation column which will be displa
 Allow to add rows in data as function of selected rows e.g. select genes and add avg of those in each sample or all sample as a new row, or select one gene and its avg over all the sample
 How error is plotted in avg chart??
 use "feature" instead of genes/rows
+add java color e.g. https://github.com/rcsb/colorbrewer ?
 
