@@ -263,16 +263,17 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		// plot.setpaint
 		// XYItemRenderer renderer = plot.getRenderer();
 		myRenderer = plot.getRenderer();
-		/// myRenderer.setBaseShape(shape);
-		/*
-		 * renderer.setBaseToolTipGenerator(new StandardXYToolTipGenerator() { public
-		 * String generateToolTip(XYDataset dataset, int series, int item) { double y =
-		 * dataset.getYValue(series, item); double x = dataset.getXValue(series, item);
-		 * // JOptionPane.showMessageDialog(null, "item:"+item); return
-		 * createTooltip(item, x, y); // return x+" m, "+y+" %"; } });
-		 */
-		// renderer.setSeriesShape(0, shape);
-		// renderer.setSeriesPaint(0, Color.red);
+		
+		//use palette if available
+		if(colorArray!=null) {
+			plot.setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(
+		           colorArray,
+		            DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
+		            DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
+		            DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
+		            DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
+		            DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE));
+		}
 		// Create Panel
 		// use full constructor otherwise tooltips dont work
 		ChartPanel chartPanel = new ChartPanel(myChart, 800, 600, 2, 2, 10000, 10000, true, true, true, true, true,
@@ -632,9 +633,16 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 			}
 
 			if (cb != null) {
+				int numColors=myChart.getXYPlot().getSeriesCount();
+				numColors=Math.min(numColors, 10);
 				// get color array
-				colorArray = cb.getColorPalette(10);
+				colorArray = cb.getColorPalette(numColors);
 				setPalette(colorArray);
+			}else {
+				//reset was pressed and the OK. show default colors
+				colorArray=null;
+				updateChart();
+				
 			}
 
 			return;
@@ -656,7 +664,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 			
 		}
 		
-		updateChart();
+		//updateChart();
 
 	}
 
@@ -748,6 +756,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 			properties.addActionListener(chartPanel);
 			print.addActionListener(chartPanel);
 			save.addActionListener(chartPanel);
+			
 			this.repaint();
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
@@ -755,7 +764,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 			JOptionPane.showMessageDialog(null, "ERRRRR");
 		}
 		
-		setPalette(colorArray);
+		
 
 		return;
 	}
