@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.FontMetrics;
 import java.awt.Frame;
+import java.awt.Paint;
 import java.awt.event.ActionEvent;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -25,6 +26,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -1203,6 +1205,16 @@ public class Utils {
 		double n1=((g1-g2)*(g1-g2)) + ((r1-r2)*(r1-r2)) + ((b1-b2)*(b1-b2));
 		res=Math.sqrt(n1);
 		return res;
-
+	}
+	
+	public static Color[] paintArraytoColor(Paint[] parray) {
+		Color[] res=new Color[parray.length];
+		for(int i=0;i<parray.length;i++) {
+			res[i]=(Color)parray[i];
+			res[i]=Color.blue;
+		}
+		
+		//JOptionPane.showMessageDialog(null, Arrays.toString(res));
+		return res;
 	}
 }

@@ -1168,9 +1168,12 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 			myChart.getPlot().setBackgroundPaint(plotbg);
 			// change chart colors
 			myChart.setBackgroundPaint(chartbg);
+			
 			// init colors
 			//Color[] defaultColors= Utils.filterColors((Color[]) new DefaultDrawingSupplier().DEFAULT_PAINT_SEQUENCE);
-			myChart.getPlot().setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(DefaultDrawingSupplier.DEFAULT_PAINT_SEQUENCE,
+			Paint[] defaultPaint=DefaultDrawingSupplier.DEFAULT_PAINT_SEQUENCE;
+			Color[] defaultColor=Utils.paintArraytoColor(defaultPaint);
+			myChart.getPlot().setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(Utils.filterColors(defaultColor),
 					DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
