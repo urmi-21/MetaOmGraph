@@ -57,6 +57,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 	// private XYLineAndShapeRenderer myRenderer;
 	private XYBarRenderer myRenderer;
 	JScrollPane scrollPane;
+	private int _bins;
 
 	// chart colors
 	private Color chartbg = MetaOmGraph.getChartBackgroundColor();
@@ -69,7 +70,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					HistogramChart frame = new HistogramChart(null, null);
+					HistogramChart frame = new HistogramChart(null,1, null);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -81,7 +82,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 	/**
 	 * Create the frame.
 	 */
-	public HistogramChart(int[] selected, MetaOmProject mp) {
+	public HistogramChart(int[] selected,int bins, MetaOmProject mp) {
 		setBounds(100, 100, 450, 300);
 		this.selected = selected;
 		// init rownames
@@ -89,6 +90,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		// JOptionPane.showMessageDialog(null, Arrays.toString(rowNames));
 
 		myProject = mp;
+		_bins=bins;
 		chartPanel = null;
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(new BorderLayout(0, 0));
@@ -122,8 +124,8 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 
 	public ChartPanel makeHistogram() throws IOException {
 		// Create dataset
-		// dataset = createHistDataset();
-		dataset = new HistogramDataset();
+		dataset = createHistDataset();
+		/*dataset = new HistogramDataset();
 		double[] r = new double[100];
 		
 		NormalDistribution dist = new NormalDistribution(0.0, 1);
@@ -137,7 +139,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		
 		r=DoubleStream.generate(() -> new BetaDistribution(.5,.40).sample()).limit(5000).toArray();
 		dataset.addSeries("Blue", r, 50);
-
+		*/
 		 // chart
          myChart = ChartFactory.createHistogram("Histogram", "Value",
             "Count", dataset, PlotOrientation.VERTICAL, true, true, false);
@@ -148,8 +150,9 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		
         myRenderer = (XYBarRenderer) plot.getRenderer();
         myRenderer.setBarPainter(new StandardXYBarPainter());
+       
         // translucent red, green & blue
-        Paint[] paintArray = {
+       /* Paint[] paintArray = {
             new Color(0x80ff0000, true),
             new Color(0x8000ff00, true),
             new Color(0x800000ff, true)
@@ -160,15 +163,23 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
             DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
             DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
             DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
-            DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE));
+            DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE));*/
         ChartPanel panel = new ChartPanel(myChart);
         panel.setMouseWheelEnabled(true);
         return panel;
 	}
 
-	private XYDataset createHistDataset() throws IOException {
+	private HistogramDataset createHistDataset() throws IOException {
 
-		return null;
+		HistogramDataset dataset = new HistogramDataset();
+		String thisName = "";
+		for (int i = 0; i < selected.length; i++) {
+		
+			double[] dataY = myProject.getIncludedData(selected[i]);
+			thisName = myProject.getRowName(selected[i])[myProject.getDefaultColumn()].toString();
+			dataset.addSeries(thisName, dataY, _bins);
+		}
+		return dataset;
 	}
 
 	@Override
