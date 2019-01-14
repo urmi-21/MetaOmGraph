@@ -49,6 +49,8 @@ import javax.swing.JColorChooser;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 
+import org.jcolorbrewer.ColorBrewer;
+import org.jcolorbrewer.ui.ColorPaletteChooserDialog;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
@@ -127,6 +129,8 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 	// chart colors
 	private Color chartbg = MetaOmGraph.getChartBackgroundColor();
 	private Color plotbg = MetaOmGraph.getPlotBackgroundColor();
+	
+	Color[] colorArray=null;
 
 	/**
 	 * Launch the application.
@@ -611,15 +615,48 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 
 		if ("changePalette".equals(e.getActionCommand())) {
 
-			JColorbrewerChooser frame = new JColorbrewerChooser();
-			frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
-			frame.pack();
-			frame.setTitle("Change parameters");
-			MetaOmGraph.getDesktop().add(frame);
-			frame.setVisible(true);
+			/*
+			 * JColorbrewerChooser frame = new JColorbrewerChooser();
+			 * frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2,
+			 * MetaOmGraph.getMainWindow().getHeight() / 2); frame.pack();
+			 * frame.setTitle("Change parameters"); MetaOmGraph.getDesktop().add(frame);
+			 * frame.setVisible(true);
+			 */
+
+			ColorPaletteChooserDialog dialog = new ColorPaletteChooserDialog();
+			ColorBrewer cb = null;
+			dialog.setModal(true);
+			dialog.show();
+			if (dialog.wasOKPressed()) {
+				cb = dialog.getColorPalette();
+			}
+
+			if (cb != null) {
+				// get color array
+				colorArray = cb.getColorPalette(10);
+				setPalette(colorArray);
+			}
 
 			return;
 		}
+
+	}
+
+	private void setPalette(Color[] colors) {
+		if(colors==null) {
+			return;
+		}
+		//JOptionPane.showMessageDialog(null, "cols:"+Arrays.toString(colors));
+		XYPlot plot = (XYPlot) myChart.getPlot();
+		
+		int seriesCount=plot.getSeriesCount();
+		for(int i=0;i<seriesCount;i++) {
+			//call change series color
+			changeSeriesColor(i, colors[i%colors.length]);
+			
+		}
+		
+		updateChart();
 
 	}
 
@@ -689,6 +726,12 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 			myRenderer.setSeriesPaint(series, newColor);
 		}
 	}
+	
+	public void changeSeriesColor(int series,Color newColor) {
+		if (newColor != null) {
+			myRenderer.setSeriesPaint(series, newColor);
+		}
+	}
 
 	/**
 	 * call this after changing chart values
@@ -711,6 +754,8 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 			e1.printStackTrace();
 			JOptionPane.showMessageDialog(null, "ERRRRR");
 		}
+		
+		setPalette(colorArray);
 
 		return;
 	}
