@@ -1,6 +1,7 @@
 package edu.iastate.metnet.metaomgraph;
 
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 
 public class TangoIconTheme implements IconTheme {
     private ImageIcon defaultZoom;
@@ -46,9 +47,6 @@ public class TangoIconTheme implements IconTheme {
 
     private String listEditPath = dir + "apps/accessories-text-editor.png";
 
-    public TangoIconTheme() {
-    }
-
     private String listLoadPath = dir + "actions/document-open.png";
 
     private String listRenamePath = "/resource/silkicon/textfield_rename.png";
@@ -68,6 +66,8 @@ public class TangoIconTheme implements IconTheme {
     private String printPath = dir + "actions/document-print.png";
 
     private String propertiesPath = dir + "actions/document-properties.png";
+    
+    private String palettePath = dir + "palette16x16.png";
 
     private String saveAsPath = dir + "actions/document-save-as.png";
 
@@ -90,10 +90,14 @@ public class TangoIconTheme implements IconTheme {
     private String reportPath = dir + "mimetypes/text-x-generic.png";
 
     private String metadataPath = dir + "status/dialog-information.png";
+    
+    public TangoIconTheme() {
+    }
 
     public ImageIcon getProperties() {
         if (properties == null) {
             properties = new ImageIcon(getClass().getResource(propertiesPath));
+            
         }
         return properties;
     }
@@ -101,9 +105,16 @@ public class TangoIconTheme implements IconTheme {
     //urmi
     public ImageIcon getPalette() {
         if (palette == null) {
-        	palette = new ImageIcon(getClass().getResource(propertiesPath));
+        	try {
+        	palette = new ImageIcon(getClass().getResource(palettePath));
+        	}catch(Exception e) {
+        		JOptionPane.showMessageDialog(null, "Error in palettePath");
+        	}
         }
+       
         return palette;
+    	
+    	
     }
     
     
