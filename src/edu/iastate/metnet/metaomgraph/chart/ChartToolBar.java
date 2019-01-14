@@ -65,6 +65,8 @@ import org.dizitart.no2.filters.Filters;
 import org.dizitart.no2.internals.NitriteService;
 import org.dizitart.no2.objects.Cursor;
 import org.dizitart.no2.store.NitriteMap;
+import org.jcolorbrewer.ColorBrewer;
+import org.jcolorbrewer.ui.ColorPaletteChooserDialog;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryLabelPositions;
@@ -146,6 +148,9 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 	private DefaultColorScheme defaultColorScheme;
 	// urmi
 	private JButton changeAxislabelBtn = new JButton("Change X-Axis labels");
+	Color[] colorArray=null;
+	private JButton changePalette;
+	
 
 	public ChartToolBar(MetaOmChartPanel aChartPanel) {
 		chartProps = aChartPanel.getChartProperties();
@@ -351,7 +356,15 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 		changeAxislabelBtn.setContentAreaFilled(true);
 		changeAxislabelBtn.setBorder(BorderFactory.createEtchedBorder(0));
 		add(changeAxislabelBtn);
-
+		add(new JToolBar.Separator());
+		changePalette = new JButton(theme.getPalette());
+		changePalette.setToolTipText("Color Palette");
+		changePalette.setActionCommand("changePalette");
+		changePalette.addActionListener(this);
+		changePalette.setOpaque(false);
+		changePalette.setContentAreaFilled(false);
+		changePalette.setBorderPainted(true);
+		add(changePalette);
 	}
 
 	public void setExtendedInfoEnabled(boolean enabled) {
@@ -496,6 +509,31 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 				}
 
 			}.start();
+
+			return;
+		}
+		
+		if ("changePalette".equals(e.getActionCommand())) {
+			ColorPaletteChooserDialog dialog = new ColorPaletteChooserDialog();
+			ColorBrewer cb = null;
+			dialog.setModal(true);
+			dialog.show();
+			if (dialog.wasOKPressed()) {
+				cb = dialog.getColorPalette();
+			}
+
+			if (cb != null) {
+				int numColors=myChartPanel.getChart().getXYPlot().getSeriesCount();
+				numColors=Math.min(numColors, 10);
+				// get color array
+				colorArray = cb.getColorPalette(numColors);
+				myChartPanel.setPalette(colorArray);
+			}else {
+				//reset was pressed and the OK. show default colors
+				colorArray=null;
+				//myChartPanel.updateChart();
+				
+			}
 
 			return;
 		}
@@ -805,6 +843,8 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 		}
 	}
 
+	
+	
 	public int getNameLength() {
 		return nameLengthSlider.getValue();
 	}

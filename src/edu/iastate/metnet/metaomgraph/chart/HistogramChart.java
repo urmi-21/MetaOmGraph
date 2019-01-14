@@ -266,7 +266,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 					DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE));
 		}
-		ChartPanel panel = new ChartPanel(myChart, 800, 600, 2, 2, 10000, 10000, true, true, true, true, true, true) {
+		chartPanel = new ChartPanel(myChart, 800, 600, 2, 2, 10000, 10000, true, true, true, true, true, true) {
 			public void actionPerformed(ActionEvent e) {
 				if (e.getActionCommand().equals(ChartPanel.SAVE_COMMAND)) {
 					File destination = null;
@@ -373,8 +373,9 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 					super.actionPerformed(e);
 			}
 		};
-		panel.setMouseWheelEnabled(true);
-		return panel;
+		chartPanel.setMouseWheelEnabled(true);
+		chartPanel.addChartMouseListener(this);
+		return chartPanel;
 	}
 
 	private HistogramDataset createHistDataset() throws IOException {
@@ -414,16 +415,25 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 			boolean success = false;
 			while (!success) {
 				try {
-					newBins = Integer.parseInt((String) JOptionPane.showInputDialog(null, "Please Enter number of bins",
+					
+					String input=(String) JOptionPane.showInputDialog(null, "Please Enter number of bins",
 							"Input number of bins", JOptionPane.QUESTION_MESSAGE, null, null,
-							String.valueOf(_bins)));
+							String.valueOf(_bins));
+					//cancel pressed
+					if(input==null) {
+						return;
+					}
+					newBins = Integer.parseInt(input);
+					
 					if(newBins>0) {
 						success=true;
 					}
+					
+					
 				} catch (NumberFormatException nfe) {
 					JOptionPane.showMessageDialog(null, "Invalid number entered. Please try again.", "Error",
 							JOptionPane.ERROR_MESSAGE);
-					return;
+					
 				}
 			}
 			
@@ -524,7 +534,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 	@Override
 	public void chartMouseMoved(ChartMouseEvent arg0) {
 		// TODO Auto-generated method stub
-		// JOptionPane.showMessageDialog(null, "CLICKED2");
+		
 
 	}
 
