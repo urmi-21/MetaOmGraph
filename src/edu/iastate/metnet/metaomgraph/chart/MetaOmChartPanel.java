@@ -199,10 +199,10 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 	}
 
 	public boolean repPlot = false;
-	
-	//chart colors
-	private Color chartbg=MetaOmGraph.getChartBackgroundColor();
-	private Color plotbg=MetaOmGraph.getPlotBackgroundColor();
+
+	// chart colors
+	private Color chartbg = MetaOmGraph.getChartBackgroundColor();
+	private Color plotbg = MetaOmGraph.getPlotBackgroundColor();
 
 	// private TreeMap<String, List<Integer>> repsMapUsed;
 
@@ -369,8 +369,8 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 							GradientPaint gp = (GradientPaint) myChart.getBackgroundPaint();
 							// myChart.setBackgroundPaint(new GradientPaint(0, getHeight(), gp.getColor1(),
 							// getWidth(), 0, gp.getColor2())); // mhhur
-							//myChart.setBackgroundPaint(chartbg); // by mhhur
-							//myChart.setpa
+							// myChart.setBackgroundPaint(chartbg); // by mhhur
+							// myChart.setpa
 						}
 					}
 
@@ -618,7 +618,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 					ChartEntity entity = myChartPanel.getChartRenderingInfo().getEntityCollection()
 							.getEntity(event.getPoint().getX(), event.getPoint().getY());
 					if (!(entity instanceof XYItemEntity)) {
-						
+
 						return null;
 					}
 					XYItemEntity item = (XYItemEntity) entity;
@@ -632,8 +632,8 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 					// change to display metadata of group
 					if (stddev != null) {
 						int maxrowsinMD = 40;
-						int maxStringLen=500;
-						int maxGrpStringLen=100;
+						int maxStringLen = 500;
+						int maxGrpStringLen = 100;
 						// find group name for a sample in default reps
 						String thisSampname = getFormatter().format(itemX);
 						String thisGname = getGroupName(thisSampname);
@@ -653,8 +653,8 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 						String text = "<html><table bgcolor=\"#FFFFFF\">" + " <tr>\n"
 								+ "            <th>Attribute</th>\n" + "            <th>Value</th>\n" + "        </tr>";
 
-						String bgColor = "#"
-								+ Integer.toHexString(MetaOmGraph.getTableColor1().getRGB()).substring(2);;
+						String bgColor = "#" + Integer.toHexString(MetaOmGraph.getTableColor1().getRGB()).substring(2);
+						;
 						String bgColorAlt = "#"
 								+ Integer.toHexString(MetaOmGraph.getTableColor2().getRGB()).substring(2);
 						text += "<tr bgcolor=" + bgColor + "><td><font size=-2>Group Name</font></td>";
@@ -671,15 +671,14 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 								text += "</tr>";
 								break;
 							}
-							String thisAtt=tableData[i][0];
-							String thisData=tableData[i][1];
+							String thisAtt = tableData[i][0];
+							String thisData = tableData[i][1];
 							if (thisData.length() > maxStringLen) {
 								thisData = thisData.substring(0, maxStringLen) + "...";
 							}
-							
+
 							text += "<tr bgcolor=" + rowColors[colorIndex] + ">";
-							text += "<td><font size=-2>" + Utils.wrapText(thisAtt.trim(), 100, "<br>")
-									+ "</font></td>";
+							text += "<td><font size=-2>" + Utils.wrapText(thisAtt.trim(), 100, "<br>") + "</font></td>";
 							text += "<td><font size=-2>" + Utils.wrapText(thisData.trim(), 100, "<br>")
 									+ "</font></td>";
 							text += "</tr>";
@@ -697,18 +696,18 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 					 * order): R1 --> 0 R2-->1 R3 -->2 R4-->3
 					 */
 
-					String[][] tableData = getProject().getMetadataHybrid().getNodeMetadata(sortOrder[plottedColumns[(int) itemX]]);
+					String[][] tableData = getProject().getMetadataHybrid()
+							.getNodeMetadata(sortOrder[plottedColumns[(int) itemX]]);
 					int maxrowsinMD = 40;
-					int maxStringLen=500;
+					int maxStringLen = 500;
 					String text = "<html><head> " + "<style>" + ".scrollit {\n" + "    overflow:scroll;\n"
 							+ "    height:100px;\n" + "}" + "</style></head><body>"
 
 							+ "<div class=\"scrollit\"> <table bgcolor=\"#FFFFFF\" width=\"400\">" + " <tr>\n"
 							+ "            <th>Attribute</th>\n" + "            <th >Value</th>\n" + "        </tr>";
-					String bgColor = "#"
-							+ Integer.toHexString(MetaOmGraph.getTableColor1().getRGB()).substring(2);;
-					String bgColorAlt = "#"
-							+ Integer.toHexString(MetaOmGraph.getTableColor2().getRGB()).substring(2);
+					String bgColor = "#" + Integer.toHexString(MetaOmGraph.getTableColor1().getRGB()).substring(2);
+					;
+					String bgColorAlt = "#" + Integer.toHexString(MetaOmGraph.getTableColor2().getRGB()).substring(2);
 					String[] rowColors = { bgColor, bgColorAlt };
 					int colorIndex = 0;
 					for (int i = 0; i < tableData.length; i++) {
@@ -719,18 +718,16 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 							text += "</tr>";
 							break;
 						}
-						String thisAtt=tableData[i][0];
-						String thisData=tableData[i][1];
+						String thisAtt = tableData[i][0];
+						String thisData = tableData[i][1];
 						if (thisData.length() > maxStringLen) {
 							thisData = thisData.substring(0, maxStringLen) + "...";
 						}
-						
+
 						text += "<tr bgcolor=" + rowColors[colorIndex] + ">";
-						text += "<td><font size=-2>" + Utils.wrapText(thisAtt.trim(), 100, "<br>")
-								+ "</font></td>";
-						text += "<td><font size=-2>" + Utils.wrapText(thisData.trim(), 100, "<br>")
-								+ "</font></td>";
-						
+						text += "<td><font size=-2>" + Utils.wrapText(thisAtt.trim(), 100, "<br>") + "</font></td>";
+						text += "<td><font size=-2>" + Utils.wrapText(thisData.trim(), 100, "<br>") + "</font></td>";
+
 						text += "</tr>";
 						colorIndex = (colorIndex + 1) % rowColors.length;
 
@@ -779,8 +776,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 				}
 
 			};
-			
-			
+
 			// ToolTipManager.sharedInstance().setDismissDelay(0);
 			if (myChartPanel.getChart().getPlot() != null) {
 				myChartPanel.restoreAutoRangeBounds();
@@ -832,16 +828,16 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 			});
 			manageMenu.add(manageAnnotationsItem);
 			manageMenu.add(manageColumnsItem);
-			//urmi add manage range markers
+			// urmi add manage range markers
 			JMenuItem manageMarkersItem = new JMenuItem("Markers...");
 			manageAnnotationsItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					myAnnotator.manageAnnotations();
-					 
+
 				}
 
 			});
-			//manageMenu.add(manageMarkersItem);
+			// manageMenu.add(manageMarkersItem);
 
 			// transform data from chart right click menu
 
@@ -999,8 +995,8 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 				}
 			};
 		}
-		//myRenderer.setShapesVisible(props.isShapePainted());
-		//myRenderer.setLinesVisible(props.isLinePainted());
+		// myRenderer.setShapesVisible(props.isShapePainted());
+		// myRenderer.setLinesVisible(props.isLinePainted());
 		myRenderer.setDefaultShapesVisible(props.isShapePainted());
 		myRenderer.setDefaultLinesVisible(props.isLinePainted());
 
@@ -1168,19 +1164,11 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 			// Construct and configure the chart
 			myChart = ChartFactory.createXYLineChart(title, xaxisLabel, yaxisLabel, myXYDataset,
 					PlotOrientation.VERTICAL, true, true, false);
-			//urmi
+			// urmi
 			myChart.getPlot().setBackgroundPaint(plotbg);
-			//change chart colors
-			myChart.getPlot().setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(
-		            new JColorbrewerChooser().getpaintArray(2),
-		            DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
-		            DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
-		            DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
-		            DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
-		            DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE));
+			// change chart colors
 			myChart.setBackgroundPaint(chartbg);
-			
-			
+
 			myAnnotator.redrawAnnotations(); // by mhhur
 
 			((XYPlot) myChart.getPlot()).setRangeGridlinePaint(Color.LIGHT_GRAY);
@@ -1362,8 +1350,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 	}
 
 	/**
-	 * @author urmi
-	 * Update the active chart after filtering metadata
+	 * @author urmi Update the active chart after filtering metadata
 	 */
 	public void updateChartAfterFilter() {
 		visibleColumns = myProject.getDataColumnCount() - MetaOmAnalyzer.getExcludeCount();
@@ -1376,11 +1363,10 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 		if (hscroll != null) {
 			hscroll.setMax(visibleColumns);
 		}
-		
-		//clear rangemarkers
+
+		// clear rangemarkers
 		getDataSorter().setRangeMarkers(null);
-	
-		
+
 	}
 
 	/**
@@ -2027,6 +2013,28 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 		}
 	}
 
+	public void changeSeriesColor(int series, Color newColor) {
+		if (newColor != null) {
+			myRenderer.setSeriesPaint(series, newColor);
+		}
+	}
+
+	// urmi
+	void setPalette(Color[] colors) {
+		if (colors == null) {
+			return;
+		}
+		// JOptionPane.showMessageDialog(null, "cols:"+Arrays.toString(colors));
+		XYPlot plot = (XYPlot) getChart().getPlot();
+
+		int seriesCount = plot.getSeriesCount();
+		for (int i = 0; i < seriesCount; i++) {
+			// call change series color
+			changeSeriesColor(i, colors[i % colors.length]);
+
+		}
+	}
+
 	/**
 	 * Captures the action event triggered by the user
 	 */
@@ -2229,7 +2237,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 	}
 
 	public void doTransformation() {
-		
+
 		if (log2Item.isSelected()) {
 			MetaOmGraph.setTransform("log2");
 			log2Item.setSelected(true);
