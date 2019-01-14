@@ -125,21 +125,6 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 	public ChartPanel makeHistogram() throws IOException {
 		// Create dataset
 		dataset = createHistDataset();
-		/*dataset = new HistogramDataset();
-		double[] r = new double[100];
-		
-		NormalDistribution dist = new NormalDistribution(0.0, 1);
-		
-		r=DoubleStream.generate(() -> new NormalDistribution(0.0, 1).sample()).limit(5000).toArray();
-		dataset.addSeries("Red", r, 50);
-		
-		
-		r=DoubleStream.generate(() -> new NormalDistribution(2, 4).sample()).limit(5000).toArray();
-		dataset.addSeries("Green", r, 50);
-		
-		r=DoubleStream.generate(() -> new BetaDistribution(.5,.40).sample()).limit(5000).toArray();
-		dataset.addSeries("Blue", r, 50);
-		*/
 		 // chart
          myChart = ChartFactory.createHistogram("Histogram", "Value",
             "Count", dataset, PlotOrientation.VERTICAL, true, true, false);
@@ -164,7 +149,8 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
             DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
             DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
             DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE));*/
-        ChartPanel panel = new ChartPanel(myChart);
+        ChartPanel panel = new ChartPanel(myChart, 800, 600, 2, 2, 10000, 10000, true, true, true, true, true,
+				true);
         panel.setMouseWheelEnabled(true);
         return panel;
 	}
