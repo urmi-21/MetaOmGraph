@@ -9,6 +9,9 @@ import javax.swing.JOptionPane;
 
 import org.jcolorbrewer.ColorBrewer;
 import org.jcolorbrewer.ui.ColorPaletteChooserDialog;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
+import javax.swing.JButton;
 
 public class JColorbrewerChooser extends JInternalFrame {
 
@@ -34,8 +37,24 @@ public class JColorbrewerChooser extends JInternalFrame {
 	public JColorbrewerChooser() {
 		setBounds(100, 100, 450, 300);
 
-		final ColorPaletteChooserDialog dialog = new ColorPaletteChooserDialog();
-		add(dialog);
+		final ColorPaletteChooserDialog dialog = new ColorPaletteChooserDialog();		
+		JPanel panel = new JPanel();
+		getContentPane().add(panel, BorderLayout.NORTH);
+		
+		JButton btnNewButton_1 = new JButton("New button");
+		panel.add(btnNewButton_1);
+		
+		JPanel panel_1 = new JPanel();
+		getContentPane().add(panel_1, BorderLayout.SOUTH);
+		
+		JButton btnNewButton = new JButton("New button");
+		panel_1.add(btnNewButton);
+		
+		JPanel panel_2 = new JPanel();
+		panel_2.add(dialog);
+		getContentPane().add(panel_2, BorderLayout.CENTER);
+		
+		
 	}
 
 	/**
