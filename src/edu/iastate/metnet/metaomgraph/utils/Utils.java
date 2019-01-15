@@ -1173,12 +1173,15 @@ public class Utils {
 	}
 	
 	public static Color[] filterColors(Color[] carray) {
+		return filterColors(carray,330);
+	}
+	public static Color[] filterColors(Color[] carray, int thresh) {
 		Color[] newArray;
 		List<Color> cList=new ArrayList<>();
 		Color plotBG=MetaOmGraph.getPlotBackgroundColor();
 		for(int i=0;i<carray.length;i++) {
 			//threshold 
-			if(getColorSimilarity(carray[i], plotBG)>300) {
+			if(getColorSimilarity(carray[i], plotBG)>thresh) {
 				cList.add(carray[i]);
 			}
 		}
@@ -1187,7 +1190,8 @@ public class Utils {
 		if(newArray.length>3) {
 		return newArray;
 		}else {
-			return carray;
+			return filterColors(carray, thresh-30);
+			//return carray;
 		}
 	}
 
