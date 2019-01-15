@@ -1191,7 +1191,7 @@ public class Utils {
 		return newArray;
 		}else {
 			return filterColors(carray, thresh-30);
-			//return carray;
+			//return carray; 
 		}
 	}
 
