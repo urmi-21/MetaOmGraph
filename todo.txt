@@ -109,4 +109,5 @@ How error is plotted in avg chart??
 use "feature" instead of genes/rows
 add java color e.g. https://github.com/rcsb/colorbrewer ?
 add utility function to filter out colors that match background of plot
+p values histogram
 
