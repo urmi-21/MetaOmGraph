@@ -55,6 +55,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.entity.CategoryItemEntity;
 import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.entity.LegendItemEntity;
@@ -72,6 +73,7 @@ import org.jfree.chart.renderer.category.CategoryItemRendererState;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.statistics.BoxAndWhiskerCategoryDataset;
+import org.jfree.data.statistics.BoxAndWhiskerItem;
 import org.jfree.data.statistics.DefaultBoxAndWhiskerCategoryDataset;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
@@ -102,7 +104,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	private JFreeChart myChart;
 
 	// private XYLineAndShapeRenderer myRenderer;
-	private XYItemRenderer myRenderer;
+	private BoxAndWhiskerRenderer myRenderer;
 	JScrollPane scrollPane;
 
 	// toolbar buttons
@@ -129,6 +131,8 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	Color[] colorArray = null;
 	
 	DefaultBoxAndWhiskerCategoryDataset initdataset;
+	String splitCol;
+	List<String> seriesNames;
 
 	/**
 	 * Launch the application.
@@ -248,28 +252,29 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 
 	public ChartPanel makeBoxPlot(DefaultBoxAndWhiskerCategoryDataset dataset) throws IOException {
 
-		JFreeChart myChart = ChartFactory.createBoxAndWhiskerChart("BoxPlot", "Sample", "Value", dataset, false);
+		JFreeChart myChart = ChartFactory.createBoxAndWhiskerChart("BoxPlot", "Sample", "Value", dataset, true);
 
 		// urmi add chat options
-		final BoxAndWhiskerRenderer renderer = getBoxAndWhiskerRenderer();
-		renderer.setDefaultToolTipGenerator(new BoxAndWhiskerToolTipGenerator());
-		renderer.setFillBox(true);
-		renderer.setMeanVisible(false);
+		myRenderer = getBoxAndWhiskerRenderer();
+		myRenderer.setDefaultToolTipGenerator(new BoxAndWhiskerToolTipGenerator());
+		myRenderer.setFillBox(true);
+		myRenderer.setMeanVisible(false);
 		myChart.getCategoryPlot().getDomainAxis()
 				.setCategoryLabelPositions(CategoryLabelPositions.createUpRotationLabelPositions(1.5707963267948966D));
-		myChart.getCategoryPlot().setRenderer(renderer);
+		myChart.getCategoryPlot().setRenderer(myRenderer);
 		myChart.getCategoryPlot().setBackgroundPaint(MetaOmGraph.getPlotBackgroundColor());
 		myChart.setBackgroundPaint(MetaOmGraph.getChartBackgroundColor());
 
 		myChart.getCategoryPlot().getDomainAxis().setCategoryLabelPositions(
 
 				CategoryLabelPositions.createUpRotationLabelPositions(1.5707963267948966D));
-		ChartPanel cPanel = new ChartPanel(myChart, Toolkit.getDefaultToolkit().getScreenSize().width,
+		ChartPanel chartPanel = new ChartPanel(myChart, Toolkit.getDefaultToolkit().getScreenSize().width,
 				Toolkit.getDefaultToolkit().getScreenSize().height, 0, 0,
 				Toolkit.getDefaultToolkit().getScreenSize().width, Toolkit.getDefaultToolkit().getScreenSize().height,
 				true, true, true, true, true, true);
-		cPanel.setPreferredSize(new Dimension(800, 600));
-		return cPanel;
+		chartPanel.setPreferredSize(new Dimension(800, 600));
+		chartPanel.addChartMouseListener(this);
+		return chartPanel;
 
 	}
 
@@ -280,13 +285,20 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		new Thread() {
 			public void run() {
 				int n = 0;
+				
+				seriesNames=new ArrayList<>();
+				if(splitCol==null ||splitCol.length()<1) {
+					//no split
+				}
+				
 				for (int key : plotData.keySet()) {
 					List list = new ArrayList();
 					// list=Arrays.asList(databyCols.get(key));
 					for (double d : plotData.get(key)) {
 						list.add(d);
 					}
-					dataset.add(list, 0, rowNames[n++]);
+					dataset.add(list, "s"+n, rowNames[n++]);
+					
 				}
 				progress.dispose();
 			}
@@ -299,71 +311,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		return dataset;
 	}
 
-	private String createTooltip(int colIndex, double x, double y) {
-		DecimalFormat df = new DecimalFormat("####0.00");
-		String bgColor = "#" + Integer.toHexString(MetaOmGraph.getTableColor1().getRGB()).substring(2);
-		;
-		String bgColorAlt = "#" + Integer.toHexString(MetaOmGraph.getTableColor2().getRGB()).substring(2);
-		String[] rowColors = { bgColor, bgColorAlt };
-		String text = "<html><head> " + "<style>" + ".scrollit {\n" + "    overflow:scroll;\n" + "    height:100px;\n"
-				+ "}" + "</style></head><body>"
-
-				+ "<div class=\"scrollit\"> <table bgcolor=\"#FFFFFF\" width=\"400\">" + " <tr>\n"
-				+ "            <th>Attribute</th>\n" + "            <th >Value</th>\n" + "        </tr>";
-
-		text += "<tr bgcolor=" + rowColors[1] + ">";
-		text += "<td><font size=-2>" + Utils.wrapText("Point", 100, "<br>") + "</font></td>";
-		text += "<td><font size=-2>" + Utils.wrapText("(" + df.format(x) + "," + df.format(y) + ")", 100, "<br>")
-				+ "</font></td>";
-
-		text += "</tr>";
-
-		if (MetaOmGraph.getActiveProject().getMetadataHybrid() == null) {
-			return text;
-		}
-
-		String[][] tableData = myProject.getMetadataHybrid().getMetadataForCol(colIndex);
-		int maxrowsinMD = 40;
-		int maxStringLen = 500;
-
-		int colorIndex = 0;
-		for (int i = 0; i < tableData.length; i++) {
-			if (i == maxrowsinMD) {
-				text += "<tr bgcolor=" + rowColors[colorIndex] + ">";
-				text += "<td><font size=-2>" + "..." + "</font></td>";
-				text += "<td><font size=-2>" + "..." + "</font></td>";
-				text += "</tr>";
-				break;
-			}
-			String thisAtt = tableData[i][0];
-			String thisData = tableData[i][1];
-			if (thisData.length() > maxStringLen) {
-				thisData = thisData.substring(0, maxStringLen) + "...";
-			}
-
-			text += "<tr bgcolor=" + rowColors[colorIndex] + ">";
-			text += "<td><font size=-2>" + Utils.wrapText(thisAtt.trim(), 100, "<br>") + "</font></td>";
-			text += "<td><font size=-2>" + Utils.wrapText(thisData.trim(), 100, "<br>") + "</font></td>";
-
-			text += "</tr>";
-			colorIndex = (colorIndex + 1) % rowColors.length;
-
-		}
-
-		// added by mhhur
-		if (tableData.length == 0 || tableData == null) {
-			text += "<tr bgcolor=" + rowColors[colorIndex] + ">";
-			text += "<td><font size=-2>" + "There is no metadata" + "<br>" + "</font></td>";
-			text += "<td><font size=-2>" + "" + "<br>" + "</font></td>";
-			text += "</tr>";
-		}
-
-		text += "</table> </div> </body></html>";
-		// System.out.println(text);
-
-		return text;
-
-	}
+	
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -428,7 +376,8 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 			
 			JOptionPane.showMessageDialog(null, "val:"+col_val);
 			//split data set by values of col_val
-
+			splitCol=col_val;
+			
 			return;
 		}
 
@@ -485,13 +434,15 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		if (event.getTrigger().getClickCount() == 2) {
 			if (event.getEntity() instanceof LegendItemEntity) {
 				Comparable seriesKey = ((LegendItemEntity) event.getEntity()).getSeriesKey();
-				int index = myChart.getXYPlot().getDataset().indexOf(seriesKey);
-				// JOptionPane.showMessageDialog(null, "CLICKED");
+				JOptionPane.showMessageDialog(null, "indexcol:"+seriesKey.toString());
+				//int index = myChart.getXYPlot().getDataset().indexOf(seriesKey);
+				int index=seriesNames.indexOf(seriesKey.toString())+1;
 				changeSeriesColor(index);
+				
 				return;
-			} else if (event.getEntity() instanceof XYItemEntity) {
-				changeSeriesColor(((XYItemEntity) event.getEntity()).getSeriesIndex());
-				// JOptionPane.showMessageDialog(null, "CLICKED2");
+			} else if (event.getEntity() instanceof CategoryItemEntity) {
+				//changeSeriesColor(((CategoryItemEntity) event.getEntity()).get);
+				 //JOptionPane.showMessageDialog(null, "CLICKED2");
 				return;
 			}
 		}
@@ -501,9 +452,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	@Override
 	public void chartMouseMoved(ChartMouseEvent arg0) {
 		// TODO Auto-generated method stub
-		// JOptionPane.showMessageDialog(null, "CLICKED2");
-
-	}
+		}
 
 	/**
 	 * Changes the colour of the Selected series
@@ -513,8 +462,9 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	 */
 	public void changeSeriesColor(int series) {
 		Color oldColor = (Color) myRenderer.getSeriesPaint(series);
+		
 		Color newColor = JColorChooser.showDialog(MetaOmGraph.getMainWindow(),
-				myChart.getXYPlot().getDataset().getSeriesKey(series) + " color", oldColor);
+				"myChart.get getXYPlot().getDataset().getSeriesKey(series)" + " color", oldColor);
 		if (newColor != null) {
 			myRenderer.setSeriesPaint(series, newColor);
 		}
