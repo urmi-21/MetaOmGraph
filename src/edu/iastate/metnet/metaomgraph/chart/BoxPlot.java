@@ -28,10 +28,12 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JButton;
@@ -133,6 +135,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	DefaultBoxAndWhiskerCategoryDataset initdataset;
 	String splitCol;
 	List<String> seriesNames;
+	Map<String, Collection<Integer>> splitIndex;
 
 	/**
 	 * Launch the application.
@@ -220,7 +223,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		if (plotType == 0) {
 			splitDataset = new JButton("split");
 			splitDataset.setToolTipText("s");
-			splitDataset.setActionCommand("split");
+			splitDataset.setActionCommand("splitDataset");
 			splitDataset.addActionListener(this);
 			splitDataset.setOpaque(false);
 			splitDataset.setContentAreaFilled(false);
@@ -284,22 +287,41 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				"Generating BoxPlot", 0L, plotData.size(), true);
 		new Thread() {
 			public void run() {
-				int n = 0;
+				
 				
 				seriesNames=new ArrayList<>();
-				if(splitCol==null ||splitCol.length()<1) {
+				if(splitIndex==null || splitCol==null ||splitCol.length()<1) {
 					//no split
+					int n = 0;
+					for (int key : plotData.keySet()) {
+						List list = new ArrayList();
+						// list=Arrays.asList(databyCols.get(key));
+						for (double d : plotData.get(key)) {
+							list.add(d);
+						}
+						dataset.add(list, "All", rowNames[n++]);
+						seriesNames.add("All");
+					}
+				}
+				else {
+					
+					for (String key : splitIndex.keySet()) {
+						seriesNames.add(key);
+						Collection<Integer> thisInd=splitIndex.get(key);
+						int n = 0;
+						for (int rKey : plotData.keySet()) {
+							List list = new ArrayList();
+							double [] thisData= plotData.get(rKey);
+							for(int ind:thisInd) {
+								list.add(thisData[ind]);
+							}
+							dataset.add(list, key, rowNames[n++]);
+							
+						}
+					}
 				}
 				
-				for (int key : plotData.keySet()) {
-					List list = new ArrayList();
-					// list=Arrays.asList(databyCols.get(key));
-					for (double d : plotData.get(key)) {
-						list.add(d);
-					}
-					dataset.add(list, "s"+n, rowNames[n++]);
-					
-				}
+				
 				progress.dispose();
 			}
 		}.start();
@@ -357,7 +379,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 			return;
 		}
 		
-		if ("split".equals(e.getActionCommand())) {
+		if ("splitDataset".equals(e.getActionCommand())) {
 			
 			//show metadata categories
 			if (MetaOmGraph.getActiveProject().getMetadataHybrid() == null) {
@@ -377,12 +399,17 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 			JOptionPane.showMessageDialog(null, "val:"+col_val);
 			//split data set by values of col_val
 			splitCol=col_val;
+			splitIndex=myProject.getMetadataHybrid().cluster(splitCol);
+			JOptionPane.showConfirmDialog(null, splitIndex.toString());
+			createDataset();
+			updateChart();
 			
 			return;
 		}
 
 	}
 
+	
 	private void setPalette(Color[] colors) {
 		if (colors == null) {
 			return;
@@ -436,6 +463,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				Comparable seriesKey = ((LegendItemEntity) event.getEntity()).getSeriesKey();
 				JOptionPane.showMessageDialog(null, "indexcol:"+seriesKey.toString());
 				//int index = myChart.getXYPlot().getDataset().indexOf(seriesKey);
+				//int index=seriesNames.indexOf(seriesKey.toString())+1;
 				int index=seriesNames.indexOf(seriesKey.toString())+1;
 				changeSeriesColor(index);
 				
@@ -486,8 +514,8 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		save.removeActionListener(chartPanel);
 		this.chartPanel = null;
 		try {
-
-			this.chartPanel = makeBoxPlot(createDataset());
+			initdataset=createDataset();
+			this.chartPanel = makeBoxPlot(initdataset);
 			scrollPane.setViewportView(chartPanel);
 			properties.addActionListener(chartPanel);
 			print.addActionListener(chartPanel);
