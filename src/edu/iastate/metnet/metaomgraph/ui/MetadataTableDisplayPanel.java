@@ -319,7 +319,6 @@ public class MetadataTableDisplayPanel extends JPanel {
 									EventQueue.invokeLater(new Runnable() {
 										public void run() {
 											try {// get data for selected rows
-
 												BoxPlot f = new BoxPlot(databyCols, 1, MetaOmGraph.getActiveProject());
 												MetaOmGraph.getDesktop().add(f);
 												f.setDefaultCloseOperation(2);

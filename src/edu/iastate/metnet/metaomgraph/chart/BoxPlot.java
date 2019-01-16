@@ -137,6 +137,8 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	List<String> seriesNames;
 	Map<String, Collection<Integer>> splitIndex;
 
+	private boolean[] excludedCopy;
+
 	/**
 	 * Launch the application.
 	 */
@@ -148,7 +150,13 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	 * Create the frame.
 	 */
 	public BoxPlot(HashMap<Integer, double[]> plotData, int pType, MetaOmProject mp) {
-
+		//make copy of excluded
+		boolean[] excluded = MetaOmAnalyzer.getExclude();
+		if (excluded != null) {
+			excludedCopy = new boolean[excluded.length];
+			System.arraycopy(excluded, 0, excludedCopy, 0, excluded.length);
+		}
+		
 		this.plotData = plotData;
 		this.plotType = pType;
 		myProject = mp;
@@ -288,7 +296,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		new Thread() {
 			public void run() {
 
-				boolean[] exclude = MetaOmAnalyzer.getExclude();
+				
 				seriesNames = new ArrayList<>();
 				if (splitIndex == null || splitCol == null || splitCol.length() < 1) {
 					// no split
@@ -297,10 +305,10 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 						List<Double> list = new ArrayList();
 						double[] thisData = plotData.get(rKey);
 						for (int j = 0; j < thisData.length; j++) {
-							if (exclude == null) {
+							if (excludedCopy == null) {
 								list.add(thisData[j]);
 							} else {
-								if (!exclude[j]) {
+								if (!excludedCopy[j]) {
 									list.add(thisData[j]);
 								}
 							}
@@ -318,10 +326,10 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 							List list = new ArrayList();
 							double[] thisData = plotData.get(rKey);
 							for (int ind : thisInd) {
-								if (exclude == null) {
+								if (excludedCopy == null) {
 									list.add(thisData[ind]);
 								} else {
-									if (!exclude[ind]) {
+									if (!excludedCopy[ind]) {
 										list.add(thisData[ind]);
 									}
 								}
@@ -373,10 +381,9 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 
 			if (cb != null) {
 				int numColors = seriesNames.size();
-				numColors = Math.min(numColors, 10);
 				// get color array
 				colorArray = cb.getColorPalette(numColors);
-				setPalette(Utils.filterColors(colorArray));
+				setPalette(colorArray);
 			} else {
 				// reset was pressed and the OK. show default colors
 				colorArray = null;
@@ -404,7 +411,6 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 					selectedInd = i + 1;
 				}
 			}
-			String dataColName = MetaOmGraph.getActiveProject().getMetadataHybrid().getDataColName();
 
 			String col_val = (String) JOptionPane.showInputDialog(null, "Choose the column:\n", "Please choose",
 					JOptionPane.PLAIN_MESSAGE, null, fields2, fields2[selectedInd]);
@@ -514,8 +520,8 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	public void changeSeriesColor(int series) {
 		Color oldColor = (Color) myRenderer.getSeriesPaint(series);
 
-		Color newColor = JColorChooser.showDialog(MetaOmGraph.getMainWindow(),
-				"myChart.get getXYPlot().getDataset().getSeriesKey(series)" + " color", oldColor);
+		Color newColor = JColorChooser.showDialog(MetaOmGraph.getMainWindow(), seriesNames.get(series) + " color",
+				oldColor);
 		if (newColor != null) {
 			myRenderer.setSeriesPaint(series, newColor);
 			// myRenderer.setpaint
