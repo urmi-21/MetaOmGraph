@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -88,9 +89,10 @@ import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 public class BoxPlot extends JInternalFrame implements ChartMouseListener, ActionListener {
 
-	//hasmap mapping feature num to expression data or datacol to sample depending on the box plot
+	// hasmap mapping feature num to expression data or datacol to sample depending
+	// on the box plot
 	HashMap<Integer, double[]> plotData;
-	//plot type 0 for feature 1 for sample
+	// plot type 0 for feature 1 for sample
 	int plotType;
 	String[] rowNames;
 	private MetaOmProject myProject;
@@ -98,7 +100,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	private ChartToolBar myToolbar;
 	private ChartPanel chartPanel;
 	private JFreeChart myChart;
-	
+
 	// private XYLineAndShapeRenderer myRenderer;
 	private XYItemRenderer myRenderer;
 	JScrollPane scrollPane;
@@ -119,8 +121,6 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	public static final String ZOOM_OUT_COMMAND = "zoomOut";
 	public static final String ZOOM_DEFAULT_COMMAND = "defaultZoom";
 
-	
-
 	// chart colors
 	private Color chartbg = MetaOmGraph.getChartBackgroundColor();
 	private Color plotbg = MetaOmGraph.getPlotBackgroundColor();
@@ -131,7 +131,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		
+
 	}
 
 	/**
@@ -140,9 +140,10 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	public BoxPlot(HashMap<Integer, double[]> plotData, int pType, MetaOmProject mp) {
 
 		this.plotData = plotData;
-		this.plotType=pType;
+		this.plotType = pType;
 		// init rownames
-		rowNames = mp.initr(plotData.keySet(),pType);
+		rowNames = initRowNames(plotData.keySet(), pType);
+		JOptionPane.showMessageDialog(null, Arrays.toString(rowNames));
 
 		myProject = mp;
 		chartPanel = null;
@@ -167,9 +168,10 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		getContentPane().add(scrollPane, BorderLayout.CENTER);
 
 		// create sample plot
+		DefaultBoxAndWhiskerCategoryDataset initdataset = createDataset();
 
 		try {
-			chartPanel = makeScatterPlot();
+			chartPanel = makeBoxPlot(initdataset);
 		} catch (IOException e) {
 		}
 		scrollPane.setViewportView(chartPanel);
@@ -229,28 +231,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		this.setTitle(chartTitle);
 	}
 
-	public ChartPanel makeScatterPlot(final HashMap<Integer, double[]> databyCols, int type) throws IOException {
-
-		final DefaultBoxAndWhiskerCategoryDataset dataset = new DefaultBoxAndWhiskerCategoryDataset();
-		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(), "Working",
-				"Generating BoxPlot", 0L, databyCols.size(), true);
-		new Thread() {
-			public void run() {
-				for (int key : databyCols.keySet()) {
-					List list = new ArrayList();
-					// list=Arrays.asList(databyCols.get(key));
-					for (double d : databyCols.get(key)) {
-						list.add(d);
-					}
-					dataset.add(list, 0, MetaOmGraph.getActiveProject().getDataColumnHeader(key));
-				}
-				progress.dispose();
-			}
-		}.start();
-		progress.setVisible(true);
-		if (progress.isCanceled()) {
-			return null;
-		}
+	public ChartPanel makeBoxPlot(DefaultBoxAndWhiskerCategoryDataset dataset) throws IOException {
 
 		JFreeChart myChart = ChartFactory.createBoxAndWhiskerChart("BoxPlot", "Sample", "Value", dataset, false);
 
@@ -277,23 +258,29 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 
 	}
 
-	private XYDataset createDataset() throws IOException {
-		XYSeriesCollection dataset = new XYSeriesCollection();
-		double[] dataX = myProject.getIncludedData(selected[pivotIndex]);
-		xAxisname = myProject.getRowName(selected[pivotIndex])[myProject.getDefaultColumn()].toString();
-		String yAxisname = "";
-		for (int i = 0; i < selected.length; i++) {
-			if (i == pivotIndex) {
-				continue;
+	private DefaultBoxAndWhiskerCategoryDataset createDataset() {
+		DefaultBoxAndWhiskerCategoryDataset dataset = new DefaultBoxAndWhiskerCategoryDataset();
+		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(), "Working",
+				"Generating BoxPlot", 0L, plotData.size(), true);
+		new Thread() {
+			public void run() {
+				int n = 0;
+				for (int key : plotData.keySet()) {
+					List list = new ArrayList();
+					// list=Arrays.asList(databyCols.get(key));
+					for (double d : plotData.get(key)) {
+						list.add(d);
+					}
+					dataset.add(list, 0, rowNames[n++]);
+				}
+				progress.dispose();
 			}
-			double[] dataY = myProject.getIncludedData(selected[i]);
-			yAxisname = myProject.getRowName(selected[i])[myProject.getDefaultColumn()].toString();
-			XYSeries series1 = new XYSeries(xAxisname + " vs. " + yAxisname);
-			for (int j = 0; j < dataX.length; j++) {
-				series1.add(dataX[j], dataY[j]);
-			}
-			dataset.addSeries(series1);
+		}.start();
+		progress.setVisible(true);
+		if (progress.isCanceled()) {
+			return null;
 		}
+
 		return dataset;
 	}
 
@@ -379,24 +366,6 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		}
 		if (ZOOM_DEFAULT_COMMAND.equals(e.getActionCommand())) {
 			chartPanel.restoreAutoBounds();
-			return;
-		}
-
-		if ("chooseX".equals(e.getActionCommand())) {
-			String[] options = rowNames;
-			String selectedValue = (String) JOptionPane.showInputDialog(null, "Select a row:", "Rows...",
-					JOptionPane.QUESTION_MESSAGE, null, options, options[pivotIndex]);
-			if (selectedValue == null || selectedValue.length() < 1) {
-				return;
-			}
-
-			for (int i = 0; i < options.length; i++) {
-				if (selectedValue.equals(options[i])) {
-					this.pivotIndex = i;
-					break;
-				}
-			}
-			updateChart();
 			return;
 		}
 
@@ -528,7 +497,8 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		save.removeActionListener(chartPanel);
 		this.chartPanel = null;
 		try {
-			this.chartPanel = makeScatterPlot();
+
+			this.chartPanel = makeBoxPlot(createDataset());
 			scrollPane.setViewportView(chartPanel);
 			properties.addActionListener(chartPanel);
 			print.addActionListener(chartPanel);
@@ -543,9 +513,20 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 
 		return;
 	}
-	
-	String[] initRowNames(Set<Integer> keyset,int type) {
-		
+
+	private String[] initRowNames(Set<Integer> keyset, int type) {
+		int[] selectedInd = new int[keyset.size()];
+		int k = 0;
+		for (int i : keyset) {
+			selectedInd[k++] = i;
+		}
+
+		if (type == 0) {
+			return myProject.getDefaultRowNames(selectedInd);
+		} else if (type == 1) {
+			return myProject.getDataColumnHeaders(selectedInd);
+		}
+
 		return null;
 	}
 
