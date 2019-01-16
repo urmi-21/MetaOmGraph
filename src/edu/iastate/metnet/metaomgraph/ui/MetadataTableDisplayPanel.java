@@ -45,9 +45,11 @@ import edu.iastate.metnet.metaomgraph.CorrelationValue;
 import edu.iastate.metnet.metaomgraph.FilterableTableModel;
 import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
+import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
 import edu.iastate.metnet.metaomgraph.TableSorter;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
+import edu.iastate.metnet.metaomgraph.chart.BoxPlot;
 import edu.iastate.metnet.metaomgraph.chart.MetaOmChartPanel;
 import edu.iastate.metnet.metaomgraph.chart.PlotRunsasSeries;
 import edu.iastate.metnet.metaomgraph.chart.RangeMarker;
@@ -312,8 +314,33 @@ public class MetadataTableDisplayPanel extends JPanel {
 										return;
 									}
 									// create box plot of selected data
-									
-									MetaOmGraph.addInternalFrame(BoxPlotter.getSampleBoxPlot(databyCols),"Box Plot");
+
+									// MetaOmGraph.addInternalFrame(BoxPlotter.getSampleBoxPlot(databyCols),"Box
+									// Plot");
+									EventQueue.invokeLater(new Runnable() {
+										public void run() {
+											try {// get data for selected rows
+
+												BoxPlot f = new BoxPlot(databyCols, 0, MetaOmGraph.getActiveProject());
+												MetaOmGraph.getDesktop().add(f);
+												f.setDefaultCloseOperation(2);
+												f.setClosable(true);
+												f.setResizable(true);
+												f.pack();
+												f.setSize(1000, 700);
+												f.setVisible(true);
+												f.toFront();
+
+											} catch (Exception e) {
+												JOptionPane.showMessageDialog(null,
+														"Error occured while reading data!!!", "Error",
+														JOptionPane.ERROR_MESSAGE);
+
+												e.printStackTrace();
+												return;
+											}
+										}
+									});
 
 								} catch (IOException e1) {
 									// TODO Auto-generated catch block
@@ -435,7 +462,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 		mntmReset_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				obj.resetRowFilter();
-				//clear last searched
+				// clear last searched
 				clearLastSearchedRows();
 				// update exclude list
 				MetaOmAnalyzer.updateExcluded(obj.getExcluded());
@@ -1619,7 +1646,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 		}
 		return selectedNames;
 	}
-	
+
 	private void clearLastSearchedRows() {
 		toHighlight = new HashMap<Integer, List<String>>();
 		// initialize with garbage value for alternate coloring to take effect via

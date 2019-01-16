@@ -4,6 +4,7 @@ import edu.iastate.metnet.metaomgraph.*;
 import edu.iastate.metnet.metaomgraph.SwingWorker;
 import edu.iastate.metnet.metaomgraph.MetaOmProject.RepAveragedData;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
+import edu.iastate.metnet.metaomgraph.chart.BoxPlot;
 import edu.iastate.metnet.metaomgraph.chart.HistogramChart;
 import edu.iastate.metnet.metaomgraph.chart.MakeChartWithR;
 import edu.iastate.metnet.metaomgraph.chart.MetaOmChartPanel;
@@ -37,6 +38,7 @@ import javax.swing.tree.TreePath;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.biomage.Array.Array;
 import org.jdom.Element;
+import org.jfree.data.xy.XYSeries;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -914,6 +916,54 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						.createInternalFrame();
 	}
 
+	public void makeBoxPlot() {
+		int[] selected = getSelectedRowsInList();
+		if (selected.length < 1) {
+			JOptionPane.showMessageDialog(null, "Please select one or more rows and try again.",
+					"Invalid number of rows selected", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		
+		//get data for box plot as hasmap
+		HashMap<Integer,double[]> plotData=new HashMap<>();
+		for (int i = 0; i < selected.length; i++) {
+			double[] dataY=null;
+			try {
+				dataY = myProject.getIncludedData(selected[i]);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			plotData.put(selected[i], dataY);
+		}
+
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {// get data for selected rows
+
+					BoxPlot f = new BoxPlot(plotData, 0, myProject);
+					MetaOmGraph.getDesktop().add(f);
+					f.setDefaultCloseOperation(2);
+					f.setClosable(true);
+					f.setResizable(true);
+					f.pack();
+					f.setSize(1000, 700);
+					f.setVisible(true);
+					f.toFront();
+
+				} catch (Exception e) {
+					JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
+							JOptionPane.ERROR_MESSAGE);
+
+					e.printStackTrace();
+					return;
+				}
+			}
+		});
+
+		return;
+	}
+	
 	public void graphPairs() {
 		int[] selected = getSelectedRowsInList();
 		if (selected.length < 2) {
@@ -1330,38 +1380,12 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			MetaOmGraph.addInternalFrame(boxPlot, title);
 			return;
 		}
+		
 		if ("col boxplot".equals(e.getActionCommand())) {
 			//MetaOmGraph.addInternalFrame(BoxPlotter.getColumnBoxPlot(myProject),"colBP");
 			return;
 		}
 		if ("create histogram".equals(e.getActionCommand())) {
-			/*try {
-				int[] rows = getSelectedRowsInList();
-
-				JPanel messagePanel = new JPanel();
-				SpinnerNumberModel model = new SpinnerNumberModel(Integer.valueOf(50), Integer.valueOf(1), null,
-						Integer.valueOf(1));
-				JSpinner spinner = new JSpinner(model);
-				messagePanel.add(new JLabel("Number of bins:"));
-				messagePanel.add(spinner);
-
-				spinner.setMinimumSize(new Dimension(75, spinner.getMinimumSize().height));
-				spinner.setPreferredSize(new Dimension(75, spinner.getPreferredSize().height));
-				int result = JOptionPane.showConfirmDialog(MetaOmGraph.getMainWindow(), messagePanel, "Histogram", 2);
-				if (result != 0)
-					return;
-
-				JPanel histogram = GeneHistogram.makeHistogram(myProject, rows,
-						Integer.parseInt(spinner.getValue() + ""));
-
-				if (histogram == null)
-					return;
-
-				MetaOmGraph.addInternalFrame(histogram, "Histogram");
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}*/
-			
 			EventQueue.invokeLater(new Runnable() {
 				public void run() {
 					try {// get data for selected rows
