@@ -285,6 +285,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				true, true, true, true, true, true);
 		chartPanel.setPreferredSize(new Dimension(800, 600));
 		chartPanel.addChartMouseListener(this);
+		setDefaultPalette();
 		return chartPanel;
 
 	}
@@ -442,16 +443,19 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		if (colors == null) {
 			return;
 		}
-
 		int seriesCount = seriesNames.size();
 		for (int i = 0; i < seriesCount; i++) {
 			// call change series color
 			changeSeriesColor(i, colors[i % colors.length]);
-
 		}
-
-		// updateChart();
-
+	}
+	
+	private void setDefaultPalette() {
+		ColorBrewer[] qlPalettes = ColorBrewer.getQualitativeColorPalettes(false);
+		//choose default
+		ColorBrewer myBrewer = qlPalettes[6];
+		Color[] myFills = myBrewer.getColorPalette(seriesNames.size());
+		setPalette(myFills);
 	}
 
 	private Point2D getCenterPoint() {

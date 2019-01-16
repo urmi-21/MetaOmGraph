@@ -114,4 +114,5 @@ add separate correlation pane?
 DTP bring to top
 combine metadata terms to group expression e.g. tumor+tissue will give liver,normal; liver,tumor; stomach,normal;stomach,tumor etc.
 add threshold to all pairwise computation
+plot selected series/features in box plot
 
