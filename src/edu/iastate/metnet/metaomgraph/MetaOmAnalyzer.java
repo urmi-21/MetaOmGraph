@@ -182,14 +182,11 @@ public class MetaOmAnalyzer {
 				try {
 					// source data is selected data row
 					double[] sourceData = project.getIncludedData(entries[row]);
-					/*double[] sourceData = project.getAllData(entries[row]);
-					if (MetaOmAnalyzer.exclude != null) {
-						for (int i = 0; i < sourceData.length; i++) {
-							if (MetaOmAnalyzer.exclude[i]) {
-								sourceData[i] = Double.NaN;
-							}
-						}
-					}*/
+					/*
+					 * double[] sourceData = project.getAllData(entries[row]); if
+					 * (MetaOmAnalyzer.exclude != null) { for (int i = 0; i < sourceData.length;
+					 * i++) { if (MetaOmAnalyzer.exclude[i]) { sourceData[i] = Double.NaN; } } }
+					 */
 
 					CorrelationCalc calcy = new CorrelationCalc(sourceData, MetaOmAnalyzer.exclude);
 
@@ -197,7 +194,7 @@ public class MetaOmAnalyzer {
 					do {
 						progress.setProgress(i);
 
-						//double[] data = project.getAllData(entries[i]);
+						// double[] data = project.getAllData(entries[i]);
 						double[] data = project.getIncludedData(entries[i]);
 						// JOptionPane.showMessageDialog(null, "data:"+Arrays.toString(data));
 						if (method == 2) {
@@ -264,16 +261,6 @@ public class MetaOmAnalyzer {
 		analyzeWorker.start();
 		progress.setVisible(true);
 	}
-
-	
-
-	
-
-	
-
-	
-
-	
 
 	public static void pairwiseMI(final MetaOmProject project, String geneList, final int nameCol, int bins, int kFinal,
 			double[] knotVec, boolean relatedness) throws IOException {
@@ -385,9 +372,8 @@ public class MetaOmAnalyzer {
 							}
 
 							if ((row == 0) && (bufferSize < 0L)) {
-								System.gc();
-								System.gc();
-								System.gc();
+								//System.gc();
+								
 								long freemem = Runtime.getRuntime().freeMemory();
 								long maxmem = Runtime.getRuntime().maxMemory();
 								long totmem = Runtime.getRuntime().totalMemory();
@@ -555,8 +541,6 @@ public class MetaOmAnalyzer {
 
 	}
 
-	
-
 	public static void pairwise(final MetaOmProject project, String geneList, final int nameCol, final int method)
 			throws IOException {
 		if ((method != 1) && (method != 2)) {
@@ -603,15 +587,9 @@ public class MetaOmAnalyzer {
 					long timeStarted = System.nanoTime();
 					String timeString = "Preparing...";
 					for (int row = 0; (row < entries.length) && (!progress.isCanceled()); row++) {
+						
 						double[] sourceData = project.getIncludedData(entries[row]);
-						/*double[] sourceData =project.getAllData(entries[row]);
-						if (MetaOmAnalyzer.exclude != null) {
-							for (int i = 0; i < sourceData.length; i++) {
-								if (MetaOmAnalyzer.exclude[i]) {
-									sourceData[i] = Double.NaN;
-								}
-							}
-						}*/
+						
 
 						CorrelationCalc calcy = new CorrelationCalc(sourceData, MetaOmAnalyzer.exclude);
 
@@ -619,7 +597,7 @@ public class MetaOmAnalyzer {
 							timeString = "Estimating time remaining...";
 						}
 						if ((row == 5) || ((row % 10 == 0) && (row != 0))) {
-							
+
 							int rowsLeft = entries.length - row;
 							int corrLoss = (int) ((rowsLeft + 1) * (rowsLeft / 2.0D));
 
@@ -650,14 +628,17 @@ public class MetaOmAnalyzer {
 
 							if ((row > 0) && (i >= entries.length - dataBuffer.size())) {
 								data = dataBuffer.get(i - (entries.length - dataBuffer.size()));
+								//JOptionPane.showMessageDialog(null, "buff size:"+dataBuffer.size());
 							} else {
+								//long st = System.currentTimeMillis();
+								
 								data = project.getIncludedData(entries[i]);
+								//long spt = System.currentTimeMillis();
+								//long elapsedTime = spt - st;
+								//JOptionPane.showMessageDialog(null, "Time taken:"+elapsedTime);
 							}
 
 							if ((row == 0) && (bufferSize < 0L)) {
-								System.gc();
-								System.gc();
-								System.gc();
 								long freemem = Runtime.getRuntime().freeMemory();
 								long maxmem = Runtime.getRuntime().maxMemory();
 								long totmem = Runtime.getRuntime().totalMemory();
@@ -678,6 +659,7 @@ public class MetaOmAnalyzer {
 							if ((row == 0) && (i >= entries.length - bufferSize)) {
 								dataBuffer.add(data);
 							}
+							
 							if (nameCol >= 0) {
 								out.write(rowNames[row][nameCol] + "\t" + rowNames[i][nameCol]);
 							} else {
@@ -690,8 +672,8 @@ public class MetaOmAnalyzer {
 										project.getBlankValue());
 							} else if (method == 2) {
 								val = calcy.newSpearmanCorrelation(data);
-							}else {
-								val=0;
+							} else {
+								val = 0;
 							}
 							out.write("\t" + format.format(val));
 							out.write("\r\n");

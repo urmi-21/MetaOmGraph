@@ -432,7 +432,7 @@ public class MetaOmProject {
 			if (hasGeneIDs) {
 			}
 
-			System.gc();
+			//System.gc();
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 			return false;

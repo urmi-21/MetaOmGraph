@@ -110,4 +110,7 @@ use "feature" instead of genes/rows
 add java color e.g. https://github.com/rcsb/colorbrewer ?
 add utility function to filter out colors that match background of plot
 p values histogram
+add separate correlation pane?
+DTP bring to top
+combine metadata terms to group expression e.g. tumor+tissue will give liver,normal; liver,tumor; stomach,normal;stomach,tumor etc.
 
