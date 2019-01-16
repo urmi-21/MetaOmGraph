@@ -1187,7 +1187,8 @@ public class Utils {
 		}
 		newArray = new Color[cList.size()];
 		newArray = cList.toArray(newArray);
-		if(newArray.length>3) {
+		//atleast half color remains
+		if(newArray.length>carray.length/2) {
 		return newArray;
 		}else {
 			return filterColors(carray, thresh-30);

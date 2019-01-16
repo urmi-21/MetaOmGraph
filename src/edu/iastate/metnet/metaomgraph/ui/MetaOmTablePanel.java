@@ -929,7 +929,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		for (int i = 0; i < selected.length; i++) {
 			double[] dataY=null;
 			try {
-				dataY = myProject.getIncludedData(selected[i]);
+				//dataY = myProject.getIncludedData(selected[i]);
+				//send all data; excluded data will be excluded in the boxplot class; this helps in splitting data by categories by reusing cluster function
+				dataY = myProject.getAllData(selected[i]);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

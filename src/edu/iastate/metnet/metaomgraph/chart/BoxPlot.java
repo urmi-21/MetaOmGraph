@@ -131,7 +131,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	private Color plotbg = MetaOmGraph.getPlotBackgroundColor();
 
 	Color[] colorArray = null;
-	
+
 	DefaultBoxAndWhiskerCategoryDataset initdataset;
 	String splitCol;
 	List<String> seriesNames;
@@ -236,7 +236,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		// panel.add(zoomIn);
 		// panel.add(zoomOut);
 		panel.add(defaultZoom);
-		if(plotType==0) {
+		if (plotType == 0) {
 			panel.add(splitDataset);
 		}
 		panel.add(changePalette);
@@ -287,41 +287,51 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				"Generating BoxPlot", 0L, plotData.size(), true);
 		new Thread() {
 			public void run() {
-				
-				
-				seriesNames=new ArrayList<>();
-				if(splitIndex==null || splitCol==null ||splitCol.length()<1) {
-					//no split
+
+				boolean[] exclude = MetaOmAnalyzer.getExclude();
+				seriesNames = new ArrayList<>();
+				if (splitIndex == null || splitCol == null || splitCol.length() < 1) {
+					// no split
 					int n = 0;
-					for (int key : plotData.keySet()) {
-						List list = new ArrayList();
-						// list=Arrays.asList(databyCols.get(key));
-						for (double d : plotData.get(key)) {
-							list.add(d);
+					for (int rKey : plotData.keySet()) {
+						List<Double> list = new ArrayList();
+						double[] thisData = plotData.get(rKey);
+						for (int j = 0; j < thisData.length; j++) {
+							if (exclude == null) {
+								list.add(thisData[j]);
+							} else {
+								if (!exclude[j]) {
+									list.add(thisData[j]);
+								}
+							}
 						}
 						dataset.add(list, "All", rowNames[n++]);
 					}
 					seriesNames.add("All");
-				}
-				else {
-					
+				} else {
+
 					for (String key : splitIndex.keySet()) {
 						seriesNames.add(key);
-						Collection<Integer> thisInd=splitIndex.get(key);
+						Collection<Integer> thisInd = splitIndex.get(key);
 						int n = 0;
 						for (int rKey : plotData.keySet()) {
 							List list = new ArrayList();
-							double [] thisData= plotData.get(rKey);
-							for(int ind:thisInd) {
-								list.add(thisData[ind]);
+							double[] thisData = plotData.get(rKey);
+							for (int ind : thisInd) {
+								if (exclude == null) {
+									list.add(thisData[ind]);
+								} else {
+									if (!exclude[ind]) {
+										list.add(thisData[ind]);
+									}
+								}
 							}
 							dataset.add(list, key, rowNames[n++]);
-							
+
 						}
 					}
 				}
-				
-				
+
 				progress.dispose();
 			}
 		}.start();
@@ -332,8 +342,6 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 
 		return dataset;
 	}
-
-	
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -364,7 +372,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 			}
 
 			if (cb != null) {
-				int numColors = myChart.getXYPlot().getSeriesCount();
+				int numColors = seriesNames.size();
 				numColors = Math.min(numColors, 10);
 				// get color array
 				colorArray = cb.getColorPalette(numColors);
@@ -378,46 +386,58 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 
 			return;
 		}
-		
+
 		if ("splitDataset".equals(e.getActionCommand())) {
-			
-			//show metadata categories
+
+			// show metadata categories
 			if (MetaOmGraph.getActiveProject().getMetadataHybrid() == null) {
 				JOptionPane.showMessageDialog(this, "No metadata found.");
 				return;
 			}
 			String[] fields = MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataHeaders();
-			// JOptionPane.showMessageDialog(null, "8888flds:"+Arrays.toString(fields));
+			String[] fields2 = new String[fields.length + 1];
+			fields2[0] = "Reset";
+			int selectedInd = 0;
+			for (int i = 0; i < fields.length; i++) {
+				fields2[i + 1] = fields[i];
+				if (splitCol != null && splitCol.equals(fields2[i + 1])) {
+					selectedInd = i + 1;
+				}
+			}
 			String dataColName = MetaOmGraph.getActiveProject().getMetadataHybrid().getDataColName();
 
 			String col_val = (String) JOptionPane.showInputDialog(null, "Choose the column:\n", "Please choose",
-					JOptionPane.PLAIN_MESSAGE, null, fields, fields[0]);
+					JOptionPane.PLAIN_MESSAGE, null, fields2, fields2[selectedInd]);
 			if (col_val == null) {
 				return;
 			}
-			
-			JOptionPane.showMessageDialog(null, "val:"+col_val);
-			//split data set by values of col_val
-			splitCol=col_val;
-			splitIndex=myProject.getMetadataHybrid().cluster(splitCol);
-			JOptionPane.showConfirmDialog(null, splitIndex.toString());
+
+			if (col_val.equals("Reset")) {
+				splitCol = null;
+				splitIndex = null;
+				createDataset();
+				updateChart();
+				return;
+			}
+
+			// split data set by values of col_val
+			splitCol = col_val;
+			splitIndex = myProject.getMetadataHybrid().cluster(splitCol);
+			// JOptionPane.showConfirmDialog(null, splitIndex.toString());
 			createDataset();
 			updateChart();
-			
+
 			return;
 		}
 
 	}
 
-	
 	private void setPalette(Color[] colors) {
 		if (colors == null) {
 			return;
 		}
-		// JOptionPane.showMessageDialog(null, "cols:"+Arrays.toString(colors));
-		XYPlot plot = (XYPlot) myChart.getPlot();
 
-		int seriesCount = plot.getSeriesCount();
+		int seriesCount = seriesNames.size();
 		for (int i = 0; i < seriesCount; i++) {
 			// call change series color
 			changeSeriesColor(i, colors[i % colors.length]);
@@ -461,18 +481,19 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		if (event.getTrigger().getClickCount() == 2) {
 			if (event.getEntity() instanceof LegendItemEntity) {
 				Comparable seriesKey = ((LegendItemEntity) event.getEntity()).getSeriesKey();
-				//JOptionPane.showMessageDialog(null, "indexcol:"+seriesKey.toString());
-				//int index = myChart.getXYPlot().getDataset().indexOf(seriesKey);
-				//int index=seriesNames.indexOf(seriesKey.toString())+1;
-				//JOptionPane.showMessageDialog(null, "SR:"+seriesNames.toString());
-				int index=seriesNames.indexOf(seriesKey.toString());
-				//JOptionPane.showMessageDialog(null, "SR:"+seriesNames.toString()+"ind of:"+index);
+				// JOptionPane.showMessageDialog(null, "indexcol:"+seriesKey.toString());
+				// int index = myChart.getXYPlot().getDataset().indexOf(seriesKey);
+				// int index=seriesNames.indexOf(seriesKey.toString())+1;
+				// JOptionPane.showMessageDialog(null, "SR:"+seriesNames.toString());
+				int index = seriesNames.indexOf(seriesKey.toString());
+				// JOptionPane.showMessageDialog(null, "SR:"+seriesNames.toString()+"ind
+				// of:"+index);
 				changeSeriesColor(index);
-				
+
 				return;
 			} else if (event.getEntity() instanceof CategoryItemEntity) {
-				//changeSeriesColor(((CategoryItemEntity) event.getEntity()).get);
-				 //JOptionPane.showMessageDialog(null, "CLICKED2");
+				// changeSeriesColor(((CategoryItemEntity) event.getEntity()).get);
+				// JOptionPane.showMessageDialog(null, "CLICKED2");
 				return;
 			}
 		}
@@ -482,7 +503,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	@Override
 	public void chartMouseMoved(ChartMouseEvent arg0) {
 		// TODO Auto-generated method stub
-		}
+	}
 
 	/**
 	 * Changes the colour of the Selected series
@@ -492,12 +513,12 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	 */
 	public void changeSeriesColor(int series) {
 		Color oldColor = (Color) myRenderer.getSeriesPaint(series);
-		
+
 		Color newColor = JColorChooser.showDialog(MetaOmGraph.getMainWindow(),
 				"myChart.get getXYPlot().getDataset().getSeriesKey(series)" + " color", oldColor);
 		if (newColor != null) {
 			myRenderer.setSeriesPaint(series, newColor);
-			//myRenderer.setpaint
+			// myRenderer.setpaint
 		}
 	}
 
@@ -517,7 +538,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		save.removeActionListener(chartPanel);
 		this.chartPanel = null;
 		try {
-			initdataset=createDataset();
+			initdataset = createDataset();
 			this.chartPanel = makeBoxPlot(initdataset);
 			scrollPane.setViewportView(chartPanel);
 			properties.addActionListener(chartPanel);
