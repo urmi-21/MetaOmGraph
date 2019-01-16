@@ -2042,6 +2042,21 @@ public class MetaOmProject {
 			result[(x - infoColumns)] = columnHeaders[x];
 		return result;
 	}
+	
+	/**
+	 * return dataColumn names for selected indices
+	 * @param selected
+	 * @return
+	 */
+	public String[] getDataColumnHeaders(int selected[]) {
+		String[] result = new String[selected.length];
+		String[] allresult = getDataColumnHeaders();
+		for(int i=0;i<selected.length;i++) {
+			result[i]=allresult[selected[i]];
+		}
+		return result;
+	}
+	
 
 	public char getDelimiter() {
 		return delimiter;
