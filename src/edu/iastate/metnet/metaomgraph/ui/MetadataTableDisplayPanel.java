@@ -315,13 +315,12 @@ public class MetadataTableDisplayPanel extends JPanel {
 									}
 									// create box plot of selected data
 
-									// MetaOmGraph.addInternalFrame(BoxPlotter.getSampleBoxPlot(databyCols),"Box
-									// Plot");
+									//MetaOmGraph.addInternalFrame(BoxPlotter.getSampleBoxPlot(databyCols),"Box Plot");
 									EventQueue.invokeLater(new Runnable() {
 										public void run() {
 											try {// get data for selected rows
 
-												BoxPlot f = new BoxPlot(databyCols, 0, MetaOmGraph.getActiveProject());
+												BoxPlot f = new BoxPlot(databyCols, 1, MetaOmGraph.getActiveProject());
 												MetaOmGraph.getDesktop().add(f);
 												f.setDefaultCloseOperation(2);
 												f.setClosable(true);

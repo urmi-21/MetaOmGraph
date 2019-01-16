@@ -113,6 +113,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	private JButton zoomOut;
 	private JButton defaultZoom;
 	private JButton changePalette;
+	private JButton splitDataset;
 
 	// bottom toolbar
 	private JButton btnNewButton_1;
@@ -126,6 +127,8 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	private Color plotbg = MetaOmGraph.getPlotBackgroundColor();
 
 	Color[] colorArray = null;
+	
+	DefaultBoxAndWhiskerCategoryDataset initdataset;
 
 	/**
 	 * Launch the application.
@@ -141,12 +144,11 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 
 		this.plotData = plotData;
 		this.plotType = pType;
-		// init rownames
-		rowNames = initRowNames(plotData.keySet(), pType);
-		JOptionPane.showMessageDialog(null, Arrays.toString(rowNames));
-
 		myProject = mp;
 		chartPanel = null;
+		// init rownames
+		rowNames = initRowNames(plotData.keySet(), pType);
+		// JOptionPane.showMessageDialog(null, Arrays.toString(rowNames));
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(new BorderLayout(0, 0));
 
@@ -168,7 +170,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		getContentPane().add(scrollPane, BorderLayout.CENTER);
 
 		// create sample plot
-		DefaultBoxAndWhiskerCategoryDataset initdataset = createDataset();
+		initdataset = createDataset();
 
 		try {
 			chartPanel = makeBoxPlot(initdataset);
@@ -211,12 +213,25 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		changePalette.setContentAreaFilled(false);
 		changePalette.setBorderPainted(true);
 
+		if (plotType == 0) {
+			splitDataset = new JButton("split");
+			splitDataset.setToolTipText("s");
+			splitDataset.setActionCommand("split");
+			splitDataset.addActionListener(this);
+			splitDataset.setOpaque(false);
+			splitDataset.setContentAreaFilled(false);
+			splitDataset.setBorderPainted(true);
+		}
+
 		panel.add(properties);
 		panel.add(save);
 		panel.add(print);
-		panel.add(zoomIn);
-		panel.add(zoomOut);
+		// panel.add(zoomIn);
+		// panel.add(zoomOut);
 		panel.add(defaultZoom);
+		if(plotType==0) {
+			panel.add(splitDataset);
+		}
 		panel.add(changePalette);
 
 		// frame properties
@@ -227,7 +242,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		setMaximizable(true);
 		setIconifiable(true);
 		setClosable(true);
-		String chartTitle = "Scatter Plot:" + String.join(",", rowNames);
+		String chartTitle = "Box Plot:" + String.join(",", rowNames);
 		this.setTitle(chartTitle);
 	}
 
@@ -393,6 +408,29 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 
 			return;
 		}
+		
+		if ("split".equals(e.getActionCommand())) {
+			
+			//show metadata categories
+			if (MetaOmGraph.getActiveProject().getMetadataHybrid() == null) {
+				JOptionPane.showMessageDialog(this, "No metadata found.");
+				return;
+			}
+			String[] fields = MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataHeaders();
+			// JOptionPane.showMessageDialog(null, "8888flds:"+Arrays.toString(fields));
+			String dataColName = MetaOmGraph.getActiveProject().getMetadataHybrid().getDataColName();
+
+			String col_val = (String) JOptionPane.showInputDialog(null, "Choose the column:\n", "Please choose",
+					JOptionPane.PLAIN_MESSAGE, null, fields, fields[0]);
+			if (col_val == null) {
+				return;
+			}
+			
+			JOptionPane.showMessageDialog(null, "val:"+col_val);
+			//split data set by values of col_val
+
+			return;
+		}
 
 	}
 
@@ -416,13 +454,14 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 
 	private Point2D getCenterPoint() {
 		JFreeChart myChart = this.myChart;
-		ValueAxis domain = myChart.getXYPlot().getDomainAxis();
-		ValueAxis range = myChart.getXYPlot().getRangeAxis();
+		CategoryAxis domain = myChart.getCategoryPlot().getDomainAxis();
+		ValueAxis range = myChart.getCategoryPlot().getRangeAxis();
 
-		double minx = domain.getLowerBound();
-		final double maxx = domain.getUpperBound();
+		double minx = domain.getLowerMargin();
+		final double maxx = domain.getUpperMargin();
 		final double miny = range.getLowerBound();
 		final double maxy = range.getUpperBound();
+
 		Point2D result = new Point2D() {
 			public double getX() {
 				return (maxx - maxy) / 2.0D;
