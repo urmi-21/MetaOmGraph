@@ -54,6 +54,8 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.ui.RectangleEdge;
 
 public class BoxPlotter {
+	
+	
 	public BoxPlotter() {
 	}
 
@@ -105,31 +107,7 @@ public class BoxPlotter {
 				Toolkit.getDefaultToolkit().getScreenSize().width, Toolkit.getDefaultToolkit().getScreenSize().height,
 				true, true, true, true, true, true) {
 			public void actionPerformed(ActionEvent e) {
-			}
-				/*@Override
-				public String getToolTipText(MouseEvent event) {
-					if (myProject.getMetadataHybrid() == null) {
-						return null;
-					}
-					
-					//BoxAndWhiskerToolTipGenerator plot = (XYPlot) myChart.getPlot(); // your plot
-					ChartEntity entity = getChartRenderingInfo().getEntityCollection().getEntity(event.getPoint().getX(),
-							event.getPoint().getY());
-					// JOptionPane.showMessageDialog(null, entity);
-					if (!(entity instanceof XYItemEntity)) {
-						// JOptionPane.showMessageDialog(null, "null");
-						return null;
-					}
-					XYItemEntity item = (XYItemEntity) entity;
-					int thisXind = item.getItem();
-					// get x and y points
-
-					XYDataset thisDS = item.getDataset();
-					double chartX = thisDS.getXValue(item.getSeriesIndex(), thisXind);
-					double chartY = thisDS.getYValue(item.getSeriesIndex(), thisXind);
-					return "ToolTIP";
-				}*/
-				
+			}			
 			
 		};
 		
