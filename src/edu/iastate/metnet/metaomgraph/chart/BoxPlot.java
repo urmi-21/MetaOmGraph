@@ -300,8 +300,8 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 							list.add(d);
 						}
 						dataset.add(list, "All", rowNames[n++]);
-						seriesNames.add("All");
 					}
+					seriesNames.add("All");
 				}
 				else {
 					
@@ -461,10 +461,12 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		if (event.getTrigger().getClickCount() == 2) {
 			if (event.getEntity() instanceof LegendItemEntity) {
 				Comparable seriesKey = ((LegendItemEntity) event.getEntity()).getSeriesKey();
-				JOptionPane.showMessageDialog(null, "indexcol:"+seriesKey.toString());
+				//JOptionPane.showMessageDialog(null, "indexcol:"+seriesKey.toString());
 				//int index = myChart.getXYPlot().getDataset().indexOf(seriesKey);
 				//int index=seriesNames.indexOf(seriesKey.toString())+1;
-				int index=seriesNames.indexOf(seriesKey.toString())+1;
+				//JOptionPane.showMessageDialog(null, "SR:"+seriesNames.toString());
+				int index=seriesNames.indexOf(seriesKey.toString());
+				//JOptionPane.showMessageDialog(null, "SR:"+seriesNames.toString()+"ind of:"+index);
 				changeSeriesColor(index);
 				
 				return;
@@ -495,6 +497,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				"myChart.get getXYPlot().getDataset().getSeriesKey(series)" + " color", oldColor);
 		if (newColor != null) {
 			myRenderer.setSeriesPaint(series, newColor);
+			//myRenderer.setpaint
 		}
 	}
 
