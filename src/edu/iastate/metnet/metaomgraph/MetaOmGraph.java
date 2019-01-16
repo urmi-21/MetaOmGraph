@@ -2075,7 +2075,7 @@ public class MetaOmGraph implements ActionListener {
 			if (comps[x] instanceof JInternalFrame)
 				((JInternalFrame) (comps[x])).dispose();
 		MetaOmAnalyzer.reset();
-		System.gc();
+		//System.gc();
 		return true;
 	}
 
@@ -2780,7 +2780,7 @@ public class MetaOmGraph implements ActionListener {
 					getActiveTable().getTable().paintImmediately(0, 0, getActiveTable().getTable().getWidth(),
 							getActiveTable().getTable().getHeight());
 					getActiveTable().refresh();
-					System.gc();
+					//System.gc();
 				}
 			}.start();
 			return;
