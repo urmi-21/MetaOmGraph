@@ -100,7 +100,6 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 	String[] rowNames;
 	private MetaOmProject myProject;
 	private String xAxisname;
-	private ChartToolBar myToolbar;
 	private ChartPanel chartPanel;
 	private JFreeChart myChart;
 	private XYDataset dataset;
