@@ -141,7 +141,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 
 	String splitCol;
 	Map<String, Collection<Integer>> splitIndex;
-	HashMap<String,String> seriesNameToKeyMap;
+	HashMap<String, String> seriesNameToKeyMap;
 
 	/**
 	 * Launch the application.
@@ -272,7 +272,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		dataset = createDataset();
 		// Create chart
 		myChart = ChartFactory.createScatterPlot("", rowNames[pivotIndex], "", dataset);
-		
+
 		// Changes background color
 		Shape shape = ShapeUtilities.createRegularCross(2, 1);
 		XYPlot plot = (XYPlot) myChart.getPlot();
@@ -455,34 +455,31 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 				XYDataset thisDS = item.getDataset();
 				double chartX = thisDS.getXValue(item.getSeriesIndex(), thisXind);
 				double chartY = thisDS.getYValue(item.getSeriesIndex(), thisXind);
-				
-				
-				
+
 				int correctColIndex = -1;
 				try {
-					//get correct colIndex
-					if(splitIndex==null) {
-					//correctColIndex = myProject.getMetadataHybrid().getColIndexbyName(myProject.getDatainSortedOrder(selected[pivotIndex], thisXind, excludedCopy));
-					//create collection of 0 till #Samples-1
+					// get correct colIndex
+					if (splitIndex == null) {
+						// correctColIndex =
+						// myProject.getMetadataHybrid().getColIndexbyName(myProject.getDatainSortedOrder(selected[pivotIndex],
+						// thisXind, excludedCopy));
+						// create collection of 0 till #Samples-1
+
+						Collection<Integer> thisIndices = new ArrayList<>(
+								IntStream.rangeClosed(0, myProject.getDataColumnCount() - 1).boxed()
+										.collect(Collectors.toList()));
+						correctColIndex = myProject.getCorrectDataColumnForScatterPlot(selected[pivotIndex], thisXind,
+								thisIndices, excludedCopy);
+
+					} else {
+						String splitIndexKey = seriesNameToKeyMap
+								.get(thisDS.getSeriesKey(item.getSeriesIndex()).toString());
 						
-					Collection<Integer> thisIndices=new ArrayList<>(IntStream.rangeClosed(0, myProject.getDataColumnCount()-1).boxed().collect(Collectors.toList()));
-					correctColIndex=myProject.getCorrectDataColumnForScatterPlot(selected[pivotIndex], thisXind, thisIndices, excludedCopy);
-					
-					}else {
-						String splitIndexKey=seriesNameToKeyMap.get(thisDS.getSeriesKey(item.getSeriesIndex()).toString());
-						//JOptionPane.showMessageDialog(null, "thisInd:"+thisXind+"ser:"+item.getSeriesIndex()+"SK:"+thisDS.getSeriesKey(item.getSeriesIndex()).toString());
-						//JOptionPane.showMessageDialog(null, "thisKey:"+splitIndexKey+"thisInd:"+thisXind);
-						correctColIndex=myProject.getCorrectDataColumnForScatterPlot(selected[pivotIndex], thisXind, splitIndex.get(splitIndexKey), excludedCopy);
+						correctColIndex = myProject.getCorrectDataColumnForScatterPlot(selected[pivotIndex], thisXind,
+								splitIndex.get(splitIndexKey), excludedCopy);
 					}
 
-					/*
-					 * JOptionPane.showMessageDialog(null, "exc:"+Arrays.toString(excludedCopy));
-					 * JOptionPane.showMessageDialog(null, "sel::"+Arrays.toString(selected));
-					 * JOptionPane.showMessageDialog(null, "pivInd:"+selected[pivotIndex]);
-					 * JOptionPane.showMessageDialog(null, "thisXind:"+thisXind);
-					 * JOptionPane.showMessageDialog(null, "correctColIndex:"+correctColIndex);
-					 */
-
+					
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -552,11 +549,13 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 	}
 
 	private XYDataset createDataset() throws IOException {
-		
-		//int serInd=0;
+
+		// int serInd=0;
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		double[] dataX = myProject.getAllData(selected[pivotIndex]);
-
+		if (splitIndex != null) {
+			seriesNameToKeyMap = new HashMap<>();
+		}
 		xAxisname = myProject.getRowName(selected[pivotIndex])[myProject.getDefaultColumn()].toString();
 		String yAxisname = "";
 		for (int i = 0; i < selected.length; i++) {
@@ -566,13 +565,14 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 			double[] dataY = myProject.getAllData(selected[i]);
 
 			if (splitIndex != null) {
-				seriesNameToKeyMap=new HashMap<>();
+
 				// split dataX
-				for(String key:splitIndex.keySet()) {
-					yAxisname = myProject.getRowName(selected[i])[myProject.getDefaultColumn()].toString()+"("+key+")";
+				for (String key : splitIndex.keySet()) {
+					yAxisname = myProject.getRowName(selected[i])[myProject.getDefaultColumn()].toString() + "(" + key
+							+ ")";
 					XYSeries series1 = new XYSeries(xAxisname + " vs. " + yAxisname);
-					Collection<Integer> thisInd=splitIndex.get(key);
-					
+					Collection<Integer> thisInd = splitIndex.get(key);
+
 					for (int ind : thisInd) {
 						if (excludedCopy == null) {
 							series1.add(dataX[ind], dataY[ind]);
@@ -581,7 +581,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 								series1.add(dataX[ind], dataY[ind]);
 							}
 						}
-						
+
 					}
 					dataset.addSeries(series1);
 					seriesNameToKeyMap.put(xAxisname + " vs. " + yAxisname, key);
@@ -598,7 +598,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 							series1.add(dataX[j], dataY[j]);
 						}
 					}
-					
+
 				}
 				dataset.addSeries(series1);
 			}
