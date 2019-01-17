@@ -31,6 +31,8 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
@@ -136,6 +138,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 
 	String splitCol;
 	Map<String, Collection<Integer>> splitIndex;
+	HashMap<String,String> seriesNameToKeyMap;
 
 	/**
 	 * Launch the application.
@@ -450,12 +453,18 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 				double chartX = thisDS.getXValue(item.getSeriesIndex(), thisXind);
 				double chartY = thisDS.getYValue(item.getSeriesIndex(), thisXind);
 				
-				JOptionPane.showMessageDialog(null, "thisInd:"+thisXind);
+				
+				
 				int correctColIndex = -1;
 				try {
-
+					if(splitIndex==null) {
 					correctColIndex = myProject.getMetadataHybrid().getColIndexbyName(
 							myProject.getDatainSortedOrder(selected[pivotIndex], thisXind, excludedCopy));
+					}else {
+						String splitIndexKey=seriesNameToKeyMap.get(thisDS.getSeriesKey(item.getSeriesIndex()).toString());
+						//JOptionPane.showMessageDialog(null, "thisInd:"+thisXind+"ser:"+item.getSeriesIndex()+"SK:"+thisDS.getSeriesKey(item.getSeriesIndex()).toString());
+						JOptionPane.showMessageDialog(null, "thisKey:"+splitIndexKey);
+					}
 
 					/*
 					 * JOptionPane.showMessageDialog(null, "exc:"+Arrays.toString(excludedCopy));
@@ -534,6 +543,8 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 	}
 
 	private XYDataset createDataset() throws IOException {
+		
+		//int serInd=0;
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		double[] dataX = myProject.getAllData(selected[pivotIndex]);
 
@@ -546,6 +557,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 			double[] dataY = myProject.getAllData(selected[i]);
 
 			if (splitIndex != null) {
+				seriesNameToKeyMap=new HashMap<>();
 				// split dataX
 				for(String key:splitIndex.keySet()) {
 					yAxisname = myProject.getRowName(selected[i])[myProject.getDefaultColumn()].toString()+"("+key+")";
@@ -563,6 +575,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 						
 					}
 					dataset.addSeries(series1);
+					seriesNameToKeyMap.put(xAxisname + " vs. " + yAxisname, key);
 				}
 			} else {
 
