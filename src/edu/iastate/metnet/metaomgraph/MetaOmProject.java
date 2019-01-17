@@ -1960,6 +1960,8 @@ public class MetaOmProject {
 	/*
 	 * Sort data in rowindex and return the datacolumn at index after sorting
 	 * increasing order
+	 * 
+	 * NOT USED
 	 */
 	public String getDatainSortedOrderNoExclude(int rowIndex, int index) throws IOException {
 		double[] thisData = getAllData(rowIndex);
@@ -1988,7 +1990,7 @@ public class MetaOmProject {
 	/**
 	 * return datacolumn headers according to sorted data. Used in finding metadata
 	 * of a point in scatter plot
-	 * 
+	 * NOT USED 
 	 * @param rowIndex
 	 * @param index
 	 * @param excludedCopy
@@ -2045,20 +2047,34 @@ public class MetaOmProject {
 	}
 
 	public int getCorrectDataColumnForScatterPlot(int rowIndex, int index, Collection<Integer> dataColInd,
-			boolean[] excludedCopy) {
+			boolean[] excludedCopy) throws IOException {
 
 		List<Integer> includedDataCol = new ArrayList<>();
-
-		for (int i : dataColInd) {
-			if (!excludedCopy[i]) {
+		double[] thisData = getAllData(rowIndex);
+		List<Double> dataInSeries=new ArrayList<>();
+		if (excludedCopy != null) {
+			for (int i : dataColInd) {
+				if (!excludedCopy[i]) {
+					includedDataCol.add(i);
+				}
+			}
+		} else {
+			for (int i : dataColInd) {
 				includedDataCol.add(i);
 			}
 		}
-
-		// sort in increasing order
-		Collections.sort(includedDataCol);
-		// return getDataColumnHeader(includedDataCol.get(index));
-		return (includedDataCol.get(index));
+		
+		for(int i:includedDataCol) {
+			dataInSeries.add(thisData[i]);
+		}
+		//create a copy
+		List<Double> dataInSeriesOrig=new ArrayList<>(dataInSeries);
+		Collections.sort(dataInSeries);
+		//get index in the orignal data array
+		//this approach may fail for repeating data values
+		int thisInd=dataInSeriesOrig.indexOf(dataInSeries.get(index));
+				
+		return includedDataCol.get(thisInd);
 	}
 
 	public String getDataColumnHeader(int index, boolean shorten) {

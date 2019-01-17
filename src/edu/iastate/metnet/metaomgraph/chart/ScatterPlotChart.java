@@ -29,12 +29,15 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
@@ -459,12 +462,16 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 				try {
 					//get correct colIndex
 					if(splitIndex==null) {
-					correctColIndex = myProject.getMetadataHybrid().getColIndexbyName(
-							myProject.getDatainSortedOrder(selected[pivotIndex], thisXind, excludedCopy));
+					//correctColIndex = myProject.getMetadataHybrid().getColIndexbyName(myProject.getDatainSortedOrder(selected[pivotIndex], thisXind, excludedCopy));
+					//create collection of 0 till #Samples-1
+						
+					Collection<Integer> thisIndices=new ArrayList<>(IntStream.rangeClosed(0, myProject.getDataColumnCount()-1).boxed().collect(Collectors.toList()));
+					correctColIndex=myProject.getCorrectDataColumnForScatterPlot(selected[pivotIndex], thisXind, thisIndices, excludedCopy);
+					
 					}else {
 						String splitIndexKey=seriesNameToKeyMap.get(thisDS.getSeriesKey(item.getSeriesIndex()).toString());
 						//JOptionPane.showMessageDialog(null, "thisInd:"+thisXind+"ser:"+item.getSeriesIndex()+"SK:"+thisDS.getSeriesKey(item.getSeriesIndex()).toString());
-						JOptionPane.showMessageDialog(null, "thisKey:"+splitIndexKey+"thisInd:"+thisXind);
+						//JOptionPane.showMessageDialog(null, "thisKey:"+splitIndexKey+"thisInd:"+thisXind);
 						correctColIndex=myProject.getCorrectDataColumnForScatterPlot(selected[pivotIndex], thisXind, splitIndex.get(splitIndexKey), excludedCopy);
 					}
 
