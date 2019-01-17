@@ -233,13 +233,10 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		changePalette.setBorderPainted(true);
 
 		if (plotType == 0) {
-			splitDataset = new JButton("split");
-			splitDataset.setToolTipText("s");
+			splitDataset = new JButton(theme.getSort());
+			splitDataset.setToolTipText("Split by categories");
 			splitDataset.setActionCommand("splitDataset");
 			splitDataset.addActionListener(this);
-			splitDataset.setOpaque(false);
-			splitDataset.setContentAreaFilled(false);
-			splitDataset.setBorderPainted(true);
 		}
 
 		panel.add(properties);
