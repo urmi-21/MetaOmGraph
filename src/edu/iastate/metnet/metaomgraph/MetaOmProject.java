@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 //import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -432,7 +433,7 @@ public class MetaOmProject {
 			if (hasGeneIDs) {
 			}
 
-			//System.gc();
+			// System.gc();
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 			return false;
@@ -1943,6 +1944,12 @@ public class MetaOmProject {
 		return res;
 	}
 
+	/**
+	 * get name of data column by its index
+	 * 
+	 * @param index
+	 * @return
+	 */
 	public String getDataColumnHeader(int index) {
 		if (index + infoColumns >= columnHeaders.length) {
 			return "";
@@ -1979,7 +1986,9 @@ public class MetaOmProject {
 	}
 
 	/**
-	 * return datacolumn headers according to sorted data. Used in finding metadata of a point in scatter plot
+	 * return datacolumn headers according to sorted data. Used in finding metadata
+	 * of a point in scatter plot
+	 * 
 	 * @param rowIndex
 	 * @param index
 	 * @param excludedCopy
@@ -2035,6 +2044,23 @@ public class MetaOmProject {
 		return getDataColumnHeader(thisDatacolIndex[res]);
 	}
 
+	public int getCorrectDataColumnForScatterPlot(int rowIndex, int index, Collection<Integer> dataColInd,
+			boolean[] excludedCopy) {
+
+		List<Integer> includedDataCol = new ArrayList<>();
+
+		for (int i : dataColInd) {
+			if (!excludedCopy[i]) {
+				includedDataCol.add(i);
+			}
+		}
+
+		// sort in increasing order
+		Collections.sort(includedDataCol);
+		// return getDataColumnHeader(includedDataCol.get(index));
+		return (includedDataCol.get(index));
+	}
+
 	public String getDataColumnHeader(int index, boolean shorten) {
 		if (!shorten)
 			return getDataColumnHeader(index);
@@ -2050,21 +2076,21 @@ public class MetaOmProject {
 			result[(x - infoColumns)] = columnHeaders[x];
 		return result;
 	}
-	
+
 	/**
 	 * return dataColumn names for selected indices
+	 * 
 	 * @param selected
 	 * @return
 	 */
 	public String[] getDataColumnHeaders(int selected[]) {
 		String[] result = new String[selected.length];
 		String[] allresult = getDataColumnHeaders();
-		for(int i=0;i<selected.length;i++) {
-			result[i]=allresult[selected[i]];
+		for (int i = 0; i < selected.length; i++) {
+			result[i] = allresult[selected[i]];
 		}
 		return result;
 	}
-	
 
 	public char getDelimiter() {
 		return delimiter;
@@ -2395,15 +2421,15 @@ public class MetaOmProject {
 			// JOptionPane.showMessageDialog(null, "From mem...");
 			result = getDataFromMemory(row);
 		}
-		
+
 		// urmi
 		String transform = MetaOmGraph.getInstance().getTransform();
 		if (transform.equals("NONE")) {
 			return result;
 		}
-				
+
 		if (MetaOmGraph.getInstance() != null) {
-			
+
 			for (int i = 0; i < result.length; i++) {
 				// add +1 to before applying log
 				if (transform.equals("log2")) {
@@ -2452,33 +2478,31 @@ public class MetaOmProject {
 						result[x] = Double.NaN;
 					}
 				}
-				double[] resCopy=result.clone();
-				transformData(resCopy,transform);
+				double[] resCopy = result.clone();
+				transformData(resCopy, transform);
 				resultList.add(resCopy);
 			}
 			return resultList;
-			
-			
+
 		}
 		for (int i = 0; i < getRowCount(); i++) {
-			double[] result =getDataFromMemory(i);
-			transformData(result,transform);
+			double[] result = getDataFromMemory(i);
+			transformData(result, transform);
 			resultList.add(result);
 		}
-				
-						
-				
+
 		return resultList;
 	}
-	
+
 	/**
 	 * Apply transformation on data and return transformed data
+	 * 
 	 * @param dataIn
 	 * @param transform
 	 * @return
 	 */
-	private double[] transformData(double[] dataIn,String transform) {
-		
+	private double[] transformData(double[] dataIn, String transform) {
+
 		if (MetaOmGraph.getInstance() != null) {
 			if (transform.equals("NONE")) {
 				return dataIn;
@@ -2502,7 +2526,7 @@ public class MetaOmProject {
 
 			}
 		}
-		
+
 		return dataIn;
 	}
 
@@ -2676,9 +2700,10 @@ public class MetaOmProject {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * return the number of included data columns
+	 * 
 	 * @return
 	 */
 	public int getIncludedDataColumnCount() {
