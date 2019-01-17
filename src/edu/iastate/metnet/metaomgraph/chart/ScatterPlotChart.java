@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.JInternalFrame;
@@ -115,6 +117,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 	private JButton zoomOut;
 	private JButton defaultZoom;
 	private JButton changePalette;
+	private JButton splitDataset;
 
 	// bottom toolbar
 	private JButton btnNewButton_1;
@@ -128,8 +131,11 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 	// chart colors
 	private Color chartbg = MetaOmGraph.getChartBackgroundColor();
 	private Color plotbg = MetaOmGraph.getPlotBackgroundColor();
-	
-	Color[] colorArray=null;
+
+	Color[] colorArray = null;
+
+	String splitCol;
+	Map<String, Collection<Integer>> splitIndex;
 
 	/**
 	 * Launch the application.
@@ -214,11 +220,16 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		zoomOut.addActionListener(this);
 		defaultZoom.setActionCommand("defaultZoom");
 		defaultZoom.addActionListener(this);
+
+		splitDataset = new JButton(theme.getSort());
+		splitDataset.setToolTipText("Split by categories");
+		splitDataset.setActionCommand("splitDataset");
+		splitDataset.addActionListener(this);
+
 		changePalette = new JButton(theme.getPalette());
 		changePalette.setToolTipText("Color Palette");
 		changePalette.setActionCommand("changePalette");
 		changePalette.addActionListener(this);
-
 		changePalette.setOpaque(false);
 		changePalette.setContentAreaFilled(false);
 		changePalette.setBorderPainted(true);
@@ -229,6 +240,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		panel.add(zoomIn);
 		panel.add(zoomOut);
 		panel.add(defaultZoom);
+		panel.add(splitDataset);
 		panel.add(changePalette);
 
 		// frame properties
@@ -254,6 +266,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		dataset = createDataset();
 		// Create chart
 		myChart = ChartFactory.createScatterPlot("", rowNames[pivotIndex], "", dataset);
+		
 		// Changes background color
 		Shape shape = ShapeUtilities.createRegularCross(2, 1);
 		XYPlot plot = (XYPlot) myChart.getPlot();
@@ -262,17 +275,16 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		// plot.setpaint
 		// XYItemRenderer renderer = plot.getRenderer();
 		myRenderer = plot.getRenderer();
-		
-		//use palette if available
-		if(colorArray!=null) {
-			plot.setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(
-		           colorArray,
-		            DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
-		            DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
-		            DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
-		            DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
-		            DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE));
-		}else {
+
+		// use palette if available
+		if (colorArray != null) {
+			plot.setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(colorArray,
+					DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
+					DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
+					DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
+					DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
+					DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE));
+		} else {
 			Paint[] defaultPaint = DefaultDrawingSupplier.DEFAULT_PAINT_SEQUENCE;
 			Color[] defaultColor = Utils.paintArraytoColor(defaultPaint);
 			plot.setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(Utils.filterColors(defaultColor),
@@ -437,7 +449,8 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 				XYDataset thisDS = item.getDataset();
 				double chartX = thisDS.getXValue(item.getSeriesIndex(), thisXind);
 				double chartY = thisDS.getYValue(item.getSeriesIndex(), thisXind);
-
+				
+				JOptionPane.showMessageDialog(null, "thisInd:"+thisXind);
 				int correctColIndex = -1;
 				try {
 
@@ -499,7 +512,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 
 	}
 
-	private XYDataset createDataset() throws IOException {
+	private XYDataset createDataset2() throws IOException {
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		double[] dataX = myProject.getIncludedData(selected[pivotIndex]);
 		xAxisname = myProject.getRowName(selected[pivotIndex])[myProject.getDefaultColumn()].toString();
@@ -516,6 +529,59 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 			}
 			dataset.addSeries(series1);
 		}
+
+		return dataset;
+	}
+
+	private XYDataset createDataset() throws IOException {
+		XYSeriesCollection dataset = new XYSeriesCollection();
+		double[] dataX = myProject.getAllData(selected[pivotIndex]);
+
+		xAxisname = myProject.getRowName(selected[pivotIndex])[myProject.getDefaultColumn()].toString();
+		String yAxisname = "";
+		for (int i = 0; i < selected.length; i++) {
+			if (i == pivotIndex) {
+				continue;
+			}
+			double[] dataY = myProject.getAllData(selected[i]);
+
+			if (splitIndex != null) {
+				// split dataX
+				for(String key:splitIndex.keySet()) {
+					yAxisname = myProject.getRowName(selected[i])[myProject.getDefaultColumn()].toString()+"("+key+")";
+					XYSeries series1 = new XYSeries(xAxisname + " vs. " + yAxisname);
+					Collection<Integer> thisInd=splitIndex.get(key);
+					
+					for (int ind : thisInd) {
+						if (excludedCopy == null) {
+							series1.add(dataX[ind], dataY[ind]);
+						} else {
+							if (!excludedCopy[ind]) {
+								series1.add(dataX[ind], dataY[ind]);
+							}
+						}
+						
+					}
+					dataset.addSeries(series1);
+				}
+			} else {
+
+				yAxisname = myProject.getRowName(selected[i])[myProject.getDefaultColumn()].toString();
+				XYSeries series1 = new XYSeries(xAxisname + " vs. " + yAxisname);
+				for (int j = 0; j < dataX.length; j++) {
+					if (excludedCopy == null) {
+						series1.add(dataX[j], dataY[j]);
+					} else {
+						if (!excludedCopy[j]) {
+							series1.add(dataX[j], dataY[j]);
+						}
+					}
+					
+				}
+				dataset.addSeries(series1);
+			}
+		}
+
 		return dataset;
 	}
 
@@ -632,17 +698,67 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 			}
 
 			if (cb != null) {
-				int numColors=myChart.getXYPlot().getSeriesCount();
-				numColors=Math.min(numColors, 10);
+				int numColors = myChart.getXYPlot().getSeriesCount();
+				numColors = Math.min(numColors, 10);
 				// get color array
 				colorArray = cb.getColorPalette(numColors);
 				setPalette(Utils.filterColors(colorArray));
-			}else {
-				//reset was pressed and the OK. show default colors
-				colorArray=null;
+			} else {
+				// reset was pressed and the OK. show default colors
+				colorArray = null;
 				updateChart();
-				
+
 			}
+
+			return;
+		}
+
+		if ("splitDataset".equals(e.getActionCommand())) {
+
+			// show metadata categories
+			if (MetaOmGraph.getActiveProject().getMetadataHybrid() == null) {
+				JOptionPane.showMessageDialog(this, "No metadata found.");
+				return;
+			}
+			String[] fields = MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataHeaders();
+			String[] fields2 = new String[fields.length + 1];
+			fields2[0] = "Reset";
+			int selectedInd = 0;
+			for (int i = 0; i < fields.length; i++) {
+				fields2[i + 1] = fields[i];
+				if (splitCol != null && splitCol.equals(fields2[i + 1])) {
+					selectedInd = i + 1;
+				}
+			}
+
+			String col_val = (String) JOptionPane.showInputDialog(null, "Choose the column:\n", "Please choose",
+					JOptionPane.PLAIN_MESSAGE, null, fields2, fields2[selectedInd]);
+			if (col_val == null) {
+				return;
+			}
+
+			if (col_val.equals("Reset")) {
+				splitCol = null;
+				try {
+					createDataset();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				updateChart();
+				return;
+			}
+
+			// split data set by values of col_val
+			splitCol = col_val;
+			splitIndex = myProject.getMetadataHybrid().cluster(splitCol);
+			try {
+				createDataset();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			updateChart();
 
 			return;
 		}
@@ -650,20 +766,20 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 	}
 
 	private void setPalette(Color[] colors) {
-		if(colors==null) {
+		if (colors == null) {
 			return;
 		}
-		//JOptionPane.showMessageDialog(null, "cols:"+Arrays.toString(colors));
+		// JOptionPane.showMessageDialog(null, "cols:"+Arrays.toString(colors));
 		XYPlot plot = (XYPlot) myChart.getPlot();
-		
-		int seriesCount=plot.getSeriesCount();
-		for(int i=0;i<seriesCount;i++) {
-			//call change series color
-			changeSeriesColor(i, colors[i%colors.length]);
-			
+
+		int seriesCount = plot.getSeriesCount();
+		for (int i = 0; i < seriesCount; i++) {
+			// call change series color
+			changeSeriesColor(i, colors[i % colors.length]);
+
 		}
-		
-		//updateChart();
+
+		// updateChart();
 
 	}
 
@@ -733,8 +849,8 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 			myRenderer.setSeriesPaint(series, newColor);
 		}
 	}
-	
-	public void changeSeriesColor(int series,Color newColor) {
+
+	public void changeSeriesColor(int series, Color newColor) {
 		if (newColor != null) {
 			myRenderer.setSeriesPaint(series, newColor);
 		}
@@ -755,15 +871,13 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 			properties.addActionListener(chartPanel);
 			print.addActionListener(chartPanel);
 			save.addActionListener(chartPanel);
-			
+
 			this.repaint();
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 			JOptionPane.showMessageDialog(null, "ERRRRR");
 		}
-		
-		
 
 		return;
 	}

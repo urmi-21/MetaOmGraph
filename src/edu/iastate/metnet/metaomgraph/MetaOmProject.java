@@ -1978,6 +1978,14 @@ public class MetaOmProject {
 		return getDataColumnHeader(thisDatacolIndex[index]);
 	}
 
+	/**
+	 * return datacolumn headers according to sorted data. Used in finding metadata of a point in scatter plot
+	 * @param rowIndex
+	 * @param index
+	 * @param excludedCopy
+	 * @return
+	 * @throws IOException
+	 */
 	public String getDatainSortedOrder(int rowIndex, int index, boolean[] excludedCopy) throws IOException {
 
 		if (excludedCopy == null) {
