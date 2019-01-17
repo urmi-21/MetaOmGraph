@@ -457,13 +457,15 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 				
 				int correctColIndex = -1;
 				try {
+					//get correct colIndex
 					if(splitIndex==null) {
 					correctColIndex = myProject.getMetadataHybrid().getColIndexbyName(
 							myProject.getDatainSortedOrder(selected[pivotIndex], thisXind, excludedCopy));
 					}else {
 						String splitIndexKey=seriesNameToKeyMap.get(thisDS.getSeriesKey(item.getSeriesIndex()).toString());
 						//JOptionPane.showMessageDialog(null, "thisInd:"+thisXind+"ser:"+item.getSeriesIndex()+"SK:"+thisDS.getSeriesKey(item.getSeriesIndex()).toString());
-						JOptionPane.showMessageDialog(null, "thisKey:"+splitIndexKey);
+						JOptionPane.showMessageDialog(null, "thisKey:"+splitIndexKey+"thisInd:"+thisXind);
+						correctColIndex=myProject.getCorrectDataColumnForScatterPlot(selected[pivotIndex], thisXind, splitIndex.get(splitIndexKey), excludedCopy);
 					}
 
 					/*
