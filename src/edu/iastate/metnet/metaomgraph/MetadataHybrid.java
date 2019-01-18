@@ -351,12 +351,40 @@ public String[][] getNodeMetadata(String dataColName) {
 	public Map<String, Collection<Integer>> cluster(String field) {
 		Map<String, Collection<Integer>> result = new TreeMap();
 		// knowncols are data columns or Runs
-		Set<Integer> cols = knownCols.keySet();
 		//get all data
 		List<Document> allData=mogCollection.getAllData();
 		for(int i=0;i<allData.size();i++) {
 			Document thisRow=allData.get(i);
 			String thisVal= thisRow.get(field).toString();
+			String thisDc=thisRow.get(dataColumn).toString();
+			int thisInd=MetaOmGraph.getActiveProject().findDataColumnHeader(thisDc);
+			Collection<Integer> thisBin = result.get(thisVal);
+			if (thisBin == null) {
+				thisBin = new ArrayList();
+			}
+			thisBin.add(Integer.valueOf(thisInd));
+			result.put(thisVal, thisBin);
+		}
+		return result;
+	}
+	
+	/**
+	 * Cluster by multiple fields
+	 * @param field
+	 * @return
+	 */
+	public Map<String, Collection<Integer>> cluster(List<String> field) {
+		Map<String, Collection<Integer>> result = new TreeMap();
+		// knowncols are data columns or Runs
+		//get all data
+		List<Document> allData=mogCollection.getAllData();
+		for(int i=0;i<allData.size();i++) {
+			Document thisRow=allData.get(i);
+			String thisVal= "";
+			for(String f: field) {
+				thisVal+=thisRow.get(f).toString()+";";
+			}
+			thisVal=thisVal.substring(0,thisVal.length()-1);
 			String thisDc=thisRow.get(dataColumn).toString();
 			int thisInd=MetaOmGraph.getActiveProject().findDataColumnHeader(thisDc);
 			Collection<Integer> thisBin = result.get(thisVal);
