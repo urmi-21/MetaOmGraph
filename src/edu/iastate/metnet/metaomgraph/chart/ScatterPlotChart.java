@@ -9,6 +9,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.HeadlessException;
 import java.awt.Paint;
 import java.awt.Point;
@@ -52,6 +53,7 @@ import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
@@ -474,12 +476,11 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 					} else {
 						String splitIndexKey = seriesNameToKeyMap
 								.get(thisDS.getSeriesKey(item.getSeriesIndex()).toString());
-						
+
 						correctColIndex = myProject.getCorrectDataColumnForScatterPlot(selected[pivotIndex], thisXind,
 								splitIndex.get(splitIndexKey), excludedCopy);
 					}
 
-					
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -743,7 +744,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 				return;
 			}
 			String[] fields = MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataHeaders();
-			String[] fields2 = new String[fields.length + 1];
+			String[] fields2 = new String[fields.length + 2];
 			fields2[0] = "Reset";
 			int selectedInd = 0;
 			for (int i = 0; i < fields.length; i++) {
@@ -752,7 +753,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 					selectedInd = i + 1;
 				}
 			}
-
+			fields2[fields2.length - 1] = "More...";
 			String col_val = (String) JOptionPane.showInputDialog(null, "Choose the column:\n", "Please choose",
 					JOptionPane.PLAIN_MESSAGE, null, fields2, fields2[selectedInd]);
 			if (col_val == null) {
@@ -771,9 +772,37 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 				return;
 			}
 
-			// split data set by values of col_val
-			splitCol = col_val;
-			splitIndex = myProject.getMetadataHybrid().cluster(splitCol);
+			List<String> selectedVals = new ArrayList<>();
+			if (col_val.equals("More...")) {
+				// display jpanel with check box
+				JCheckBox[] cBoxes = new JCheckBox[fields.length];
+				JPanel cbPanel = new JPanel();
+				cbPanel.setLayout(new GridLayout(0, 3));
+				for (int i = 0; i < fields.length; i++) {
+					cBoxes[i] = new JCheckBox(fields[i]);
+					cbPanel.add(cBoxes[i]);
+				}
+				int res = JOptionPane.showConfirmDialog(null, cbPanel, "Select categories",
+						JOptionPane.OK_CANCEL_OPTION);
+				if (res == JOptionPane.OK_OPTION) {
+					for (int i = 0; i < fields.length; i++) {
+						if (cBoxes[i].isSelected()) {
+							selectedVals.add(fields[i]);
+						}
+					}
+					splitCol = col_val;
+				} else {
+					return;
+				}
+
+			} else {
+				// split data set by values of col_val
+				selectedVals.add(col_val);
+				splitCol = col_val;
+			}
+			
+			splitIndex = myProject.getMetadataHybrid().cluster(selectedVals);
+
 			try {
 				createDataset();
 			} catch (IOException e1) {
