@@ -666,6 +666,7 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 				return;
 			}
 			new AnimatedSwingWorker("Sorting...", true) {
+
 				public Object construct() {
 					if (newOrder == null) {
 						lastSelected.setSelected(true);
@@ -686,48 +687,40 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 		}
 		if ((e.getActionCommand() != null) && (e.getActionCommand().startsWith("clusterMetadataSort"))) {
 
+			String[] splitCommand = e.getActionCommand().split("::", 2);
+			java.util.List<String> selectedVals = new ArrayList<>();
+			if (splitCommand.length == 2) {
+				if (splitCommand[1].equals("More...")) {
+					String[] metadataHeaders = myChartPanel.getProject().getMetadataHybrid().getMetadataHeaders();
+					// display jpanel with check box
+					JCheckBox[] cBoxes = new JCheckBox[metadataHeaders.length];
+					JPanel cbPanel = new JPanel();
+					cbPanel.setLayout(new GridLayout(0, 3));
+					for (int i = 0; i < metadataHeaders.length; i++) {
+						cBoxes[i] = new JCheckBox(metadataHeaders[i]);
+						cbPanel.add(cBoxes[i]);
+					}
+					int res = JOptionPane.showConfirmDialog(null, cbPanel, "Select categories",
+							JOptionPane.OK_CANCEL_OPTION);
+					if (res == JOptionPane.OK_OPTION) {
+						for (int i = 0; i < metadataHeaders.length; i++) {
+							if (cBoxes[i].isSelected()) {
+								selectedVals.add(metadataHeaders[i]);
+							}
+						}
+					} else {
+						return;
+					}
+				} else {
+					selectedVals.add(splitCommand[1]);
+					newOrder = myChartPanel.getDataSorter().clusterByMetadata(selectedVals);
+				}
+			}
 			new AnimatedSwingWorker("Working...", false) {
 				public Object construct() {
-					String[] splitCommand = e.getActionCommand().split("::", 2);
-
-					if (splitCommand.length == 2) {
-						java.util.List<String> selectedVals = new ArrayList<>();
-
-						if (splitCommand[1].equals("More...")) {
-
-							String[] metadataHeaders = myChartPanel.getProject().getMetadataHybrid()
-									.getMetadataHeaders();
-							// display jpanel with check box
-							JCheckBox[] cBoxes = new JCheckBox[metadataHeaders.length];
-							JPanel cbPanel = new JPanel();
-							cbPanel.setLayout(new GridLayout(0,3));
-							for (int i = 0; i < metadataHeaders.length; i++) {
-								cBoxes[i] = new JCheckBox(metadataHeaders[i]);
-								cbPanel.add(cBoxes[i]);
-							}
-
-							int res = JOptionPane.showConfirmDialog(null, cbPanel, "Select categories",
-									JOptionPane.OK_CANCEL_OPTION);
-							if (res == JOptionPane.OK_OPTION) {
-
-								for (int i = 0; i < metadataHeaders.length; i++) {
-									if (cBoxes[i].isSelected()) {
-										selectedVals.add(metadataHeaders[i]);
-									}
-								}
-								newOrder = myChartPanel.getDataSorter().clusterByMetadata(selectedVals);
-							} else {
-
-								return null;
-							}
-
-						} else {
-							selectedVals.add(splitCommand[1]);
-							newOrder = myChartPanel.getDataSorter().clusterByMetadata(selectedVals);
-						}
-						if (newOrder.length == 0 || newOrder == null) {
-							return null;
-						}
+					newOrder = myChartPanel.getDataSorter().clusterByMetadata(selectedVals);
+					if (newOrder.length == 0 || newOrder == null) {
+						return null;
 					}
 					if (newOrder == null) {
 						lastSelected.setSelected(true);
