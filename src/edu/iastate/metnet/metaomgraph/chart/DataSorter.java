@@ -218,7 +218,7 @@ public class DataSorter {
 	 * @author urmi changed to new metadata class
 	 * 
 	 */
-	public int[] clusterByMetadata(String field) {
+	/*public int[] clusterByMetadata(String field) {
 		// Map<String, Collection<Integer>> clusters =
 		// myChartPanel.getProject().getMetadata().cluster(field, 0);
 		Map<String, Collection<Integer>> clusters = myChartPanel.getProject().getMetadataHybrid().cluster(field);
@@ -248,10 +248,7 @@ public class DataSorter {
 			Collection<Integer> members = clusters.get(groupName);
 			// JOptionPane.showMessageDialog(null, "gname:" + groupName);
 			// JOptionPane.showMessageDialog(null, "membr:" + members.toString());
-			/**
-			 * @author urmi Remove the excluded columns to create range markers only for
-			 *         shown columns
-			 */
+			
 			boolean[] excluded = MetaOmAnalyzer.getExclude();
 			if (excluded != null) {
 				java.util.List<Integer> temp = new ArrayList<>();
@@ -280,9 +277,14 @@ public class DataSorter {
 			result[index++] = col;
 
 		return result;
-	}
+	}*/
 	
-	
+	/**
+	 * cluster by metadata
+	 * @author urmi changed to new metadata class
+	 * @param field
+	 * @return
+	 */
 	public int[] clusterByMetadata(List<String> field) {
 		// Map<String, Collection<Integer>> clusters =
 		// myChartPanel.getProject().getMetadata().cluster(field, 0);

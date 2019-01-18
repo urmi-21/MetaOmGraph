@@ -43,7 +43,7 @@ public class MetadataHybrid {
 	private MetadataCollection mogCollection;
 	private Element XMLroot;
 	private JTree treeStructure; // tree structure created by user
-	//private List<Document> metadata;
+	// private List<Document> metadata;
 	private String dataColumn;
 	private String[] metadataHeaders; // only those columns imported in tree structure subset of metadata headers from
 										// MOGcollection object
@@ -89,7 +89,7 @@ public class MetadataHybrid {
 			String defaultrepsCol, List<String> missingDC, List<String> extraDC, List<String> removedColsfromMD) {
 		this.mogCollection = mogCollection;
 		this.XMLroot = XMLroot;
-		//this.metadata = this.mogCollection.getAllData();
+		// this.metadata = this.mogCollection.getAllData();
 		this.knownCols = tm;
 		this.dataColumn = colName;
 		this.metadataHeaders = mdheaders;
@@ -184,19 +184,22 @@ public class MetadataHybrid {
 
 	/**
 	 * return headers. sorted by default
+	 * 
 	 * @return
 	 */
 	public String[] getMetadataHeaders() {
 		return getMetadataHeaders(true);
 	}
+
 	/**
 	 * 
-	 * @param sorted if true return sorted by name
+	 * @param sorted
+	 *            if true return sorted by name
 	 * @return
 	 */
 	public String[] getMetadataHeaders(boolean sorted) {
-		if(sorted) {
-			String []temp=new String[metadataHeaders.length];
+		if (sorted) {
+			String[] temp = new String[metadataHeaders.length];
 			System.arraycopy(metadataHeaders, 0, temp, 0, metadataHeaders.length);
 			Arrays.sort(temp);
 			return temp;
@@ -237,26 +240,25 @@ public class MetadataHybrid {
 	 * @return Metadata for a given datacolumn in String[][] attribute,value pairs
 	 */
 	public String[][] getMetadataForCol(int colIndex) {
-		String[][] res=getNodeMetadata(colIndex);
+		String[][] res = getNodeMetadata(colIndex);
 		return res;
 	}
 
-	
-	
 	/**
 	 * @author urmi This function takes a node and returns associated metadata This
 	 *         function searches all the parents, their attributes, children and
 	 *         their attributes.
-	 * @param dataColName data column
+	 * @param dataColName
+	 *            data column
 	 * @return
 	 */
-	
-public String[][] getNodeMetadata(String dataColName) {
-		
+
+	public String[][] getNodeMetadata(String dataColName) {
+
 		String[][] md = null;
 		String thisDC = dataColName;
 		Document thisRow = mogCollection.getDataColumnRow(thisDC);
-		//JOptionPane.showMessageDialog(null, thisRow.toString());
+		// JOptionPane.showMessageDialog(null, thisRow.toString());
 		// convert to 2d array
 		Set<String> entries = thisRow.keySet();
 		// minus 3 for Document class keys i.e. id, revision, modified
@@ -264,18 +266,18 @@ public String[][] getNodeMetadata(String dataColName) {
 		int rowNum = 0;
 		for (String s : entries) {
 			String thisAtt = s;
-			if (thisAtt.equals("_id") || thisAtt.equals("_revision") ||thisAtt.equals("_modified")) {
+			if (thisAtt.equals("_id") || thisAtt.equals("_revision") || thisAtt.equals("_modified")) {
 				continue;
 			}
 			md[rowNum][0] = thisAtt;
 			md[rowNum][1] = thisRow.get(s).toString();
 			rowNum++;
 		}
-		//JOptionPane.showMessageDialog(null, Arrays.deepToString(md));
+		// JOptionPane.showMessageDialog(null, Arrays.deepToString(md));
 		return md;
-		
+
 	}
-	
+
 	public String[][] getNodeMetadata(int nodeNum) {
 		if (nodeNum < 0) {
 			return new String[0][0];
@@ -284,13 +286,12 @@ public String[][] getNodeMetadata(String dataColName) {
 		String thisDC = myProj.getDataColumnHeader(nodeNum);
 		return getNodeMetadata(thisDC);
 	}
-	
-		
+
 	public String[][] getNodeMetadata(Element node) {
 		if (node == null) {
 			return new String[0][0];
 		}
-		int thisKey=-1;
+		int thisKey = -1;
 		MetaOmProject myProj = MetaOmGraph.getActiveProject();
 		for (Map.Entry<Integer, Element> entry : knownCols.entrySet()) {
 			Integer key = entry.getKey();
@@ -340,53 +341,41 @@ public String[][] getNodeMetadata(String dataColName) {
 		return knownCols.get(Integer.valueOf(col)).getParentElement();
 	}
 
-	
 	/**
 	 * cluster the indices by values together
-	 * @author urmi 
+	 * 
+	 * @author urmi
 	 * @param field
 	 * 
 	 * @return
 	 */
+
 	public Map<String, Collection<Integer>> cluster(String field) {
-		Map<String, Collection<Integer>> result = new TreeMap();
-		// knowncols are data columns or Runs
-		//get all data
-		List<Document> allData=mogCollection.getAllData();
-		for(int i=0;i<allData.size();i++) {
-			Document thisRow=allData.get(i);
-			String thisVal= thisRow.get(field).toString();
-			String thisDc=thisRow.get(dataColumn).toString();
-			int thisInd=MetaOmGraph.getActiveProject().findDataColumnHeader(thisDc);
-			Collection<Integer> thisBin = result.get(thisVal);
-			if (thisBin == null) {
-				thisBin = new ArrayList();
-			}
-			thisBin.add(Integer.valueOf(thisInd));
-			result.put(thisVal, thisBin);
-		}
-		return result;
+		List<String> fieldList = new ArrayList<>();
+		fieldList.add(field);
+		return cluster(fieldList);
 	}
-	
+
 	/**
 	 * Cluster by multiple fields
+	 * 
 	 * @param field
 	 * @return
 	 */
 	public Map<String, Collection<Integer>> cluster(List<String> field) {
 		Map<String, Collection<Integer>> result = new TreeMap();
 		// knowncols are data columns or Runs
-		//get all data
-		List<Document> allData=mogCollection.getAllData();
-		for(int i=0;i<allData.size();i++) {
-			Document thisRow=allData.get(i);
-			String thisVal= "";
-			for(String f: field) {
-				thisVal+=thisRow.get(f).toString()+";";
+		// get all data
+		List<Document> allData = mogCollection.getAllData();
+		for (int i = 0; i < allData.size(); i++) {
+			Document thisRow = allData.get(i);
+			String thisVal = "";
+			for (String f : field) {
+				thisVal += thisRow.get(f).toString() + ";";
 			}
-			thisVal=thisVal.substring(0,thisVal.length()-1);
-			String thisDc=thisRow.get(dataColumn).toString();
-			int thisInd=MetaOmGraph.getActiveProject().findDataColumnHeader(thisDc);
+			thisVal = thisVal.substring(0, thisVal.length() - 1);
+			String thisDc = thisRow.get(dataColumn).toString();
+			int thisInd = MetaOmGraph.getActiveProject().findDataColumnHeader(thisDc);
 			Collection<Integer> thisBin = result.get(thisVal);
 			if (thisBin == null) {
 				thisBin = new ArrayList();
@@ -396,26 +385,26 @@ public String[][] getNodeMetadata(String dataColName) {
 		}
 		return result;
 	}
-	
+
 	/**
-	 * create and return a map mapping datacolumn --> givenCol 
+	 * create and return a map mapping datacolumn --> givenCol
+	 * 
 	 * @param field
-	 * @param exclude true --> don't get data for excluded cols
+	 * @param exclude
+	 *            true --> don't get data for excluded cols
 	 * @return
 	 */
-	public HashMap<String,String> getDataColMap(String field, boolean exclude){
-		HashMap<String,String> res=new HashMap<>();
-		List<Document> allData=mogCollection.getAllData(exclude);
-		for(int i=0;i<allData.size();i++) {
-			Document thisRow=allData.get(i);
-			String thisVal= thisRow.get(field).toString();
-			String thisDc=thisRow.get(dataColumn).toString();
-			res.put(thisDc,thisVal);
-		}		
+	public HashMap<String, String> getDataColMap(String field, boolean exclude) {
+		HashMap<String, String> res = new HashMap<>();
+		List<Document> allData = mogCollection.getAllData(exclude);
+		for (int i = 0; i < allData.size(); i++) {
+			Document thisRow = allData.get(i);
+			String thisVal = thisRow.get(field).toString();
+			String thisDc = thisRow.get(dataColumn).toString();
+			res.put(thisDc, thisVal);
+		}
 		return res;
 	}
-	
-	
 
 	/**
 	 * @author urmi This function takes queries and returns array of datacol indexes
@@ -851,14 +840,10 @@ public String[][] getNodeMetadata(String dataColName) {
 		return res;
 	}
 
-
-
 	public void setDefaultRepsMap(TreeMap<String, List<Integer>> repsMap) {
 		this.defaultrepsMap = repsMap;
 	}
 
-		
-	
 	/**
 	 * Function to build custom reps map.
 	 * 
@@ -866,20 +851,20 @@ public String[][] getNodeMetadata(String dataColName) {
 	 *            The columnname which will be used to group the datacolumn
 	 * @return
 	 */
-		
+
 	public TreeMap<String, List<Integer>> buildRepsMap(String repColName) {
 		MetaOmProject myProj = MetaOmGraph.getActiveProject();
 		if (myProj == null) {
 			return null;
 		}
-		
+
 		TreeMap<String, List<Integer>> repsMap = new TreeMap<>();
-		//Map<String, Collection<Integer>> clusterResult = new TreeMap();
+		// Map<String, Collection<Integer>> clusterResult = new TreeMap();
 		new AnimatedSwingWorker("Working...", true) {
 			@Override
 			public Object construct() {
-				Map<String, Collection<Integer>> clusterResult=cluster(repColName);
-				for(String s: clusterResult.keySet()) {
+				Map<String, Collection<Integer>> clusterResult = cluster(repColName);
+				for (String s : clusterResult.keySet()) {
 					repsMap.put(s, new ArrayList(clusterResult.get(s)));
 				}
 				return null;
@@ -891,11 +876,9 @@ public String[][] getNodeMetadata(String dataColName) {
 			}
 
 		}.start();
-				
+
 		return repsMap;
 	}
-		
-	
 
 	/**
 	 * After reading metadata file save list of excluded rows from metadata file
