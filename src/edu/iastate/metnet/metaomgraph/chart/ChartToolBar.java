@@ -43,12 +43,14 @@ import java.util.Vector;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDesktopPane;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSlider;
@@ -151,9 +153,8 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 	private DefaultColorScheme defaultColorScheme;
 	// urmi
 	private JButton changeAxislabelBtn = new JButton("Change X-Axis labels");
-	Color[] colorArray=null;
+	Color[] colorArray = null;
 	private JButton changePalette;
-	
 
 	public ChartToolBar(MetaOmChartPanel aChartPanel) {
 		chartProps = aChartPanel.getChartProperties();
@@ -451,8 +452,10 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 								// long tStart = System.currentTimeMillis();
 
 								// create a hashmap
-								//use false to get names for excluded cols too in case they are added back later. Otherwise results will show NA when excluded cols added back to chart
-								HashMap<String, String> dcMap = MetaOmGraph.getActiveProject().getMetadataHybrid().getDataColMap(col_val,false);
+								// use false to get names for excluded cols too in case they are added back
+								// later. Otherwise results will show NA when excluded cols added back to chart
+								HashMap<String, String> dcMap = MetaOmGraph.getActiveProject().getMetadataHybrid()
+										.getDataColMap(col_val, false);
 
 								for (int j = 0; j < tempLabels.length; j++) {
 
@@ -515,7 +518,7 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 
 			return;
 		}
-		
+
 		if ("changePalette".equals(e.getActionCommand())) {
 			ColorPaletteChooserDialog dialog = new ColorPaletteChooserDialog();
 			ColorBrewer cb = null;
@@ -526,16 +529,16 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 			}
 
 			if (cb != null) {
-				int numColors=myChartPanel.getChart().getXYPlot().getSeriesCount();
-				numColors=Math.min(numColors, 30);
+				int numColors = myChartPanel.getChart().getXYPlot().getSeriesCount();
+				numColors = Math.min(numColors, 30);
 				// get color array
 				colorArray = cb.getColorPalette(numColors);
 				myChartPanel.setPalette(Utils.filterColors(colorArray));
-			}else {
-				//reset was pressed and the OK. show default colors
-				colorArray=null;
-				//myChartPanel.updateChart();
-				
+			} else {
+				// reset was pressed and the OK. show default colors
+				colorArray = null;
+				// myChartPanel.updateChart();
+
 			}
 
 			return;
@@ -685,9 +688,41 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 			new AnimatedSwingWorker("Working...", false) {
 				public Object construct() {
 					String[] splitCommand = e.getActionCommand().split("::", 2);
+
 					if (splitCommand.length == 2) {
-						// JOptionPane.showMessageDialog(null, "command:"+splitCommand[1]);
-						newOrder = myChartPanel.getDataSorter().clusterByMetadata(splitCommand[1]);
+						java.util.List<String> selectedVals = new ArrayList<>();
+
+						if (splitCommand[1].equals("More...")) {
+
+							String[] metadataHeaders = myChartPanel.getProject().getMetadataHybrid()
+									.getMetadataHeaders();
+							// display jpanel with check box
+							JCheckBox[] cBoxes = new JCheckBox[metadataHeaders.length];
+							JPanel cbPanel = new JPanel();
+							for (int i = 0; i < metadataHeaders.length; i++) {
+								cBoxes[i] = new JCheckBox(metadataHeaders[i]);
+								cbPanel.add(cBoxes[i]);
+							}
+
+							int res = JOptionPane.showConfirmDialog(null, cbPanel, "Select categories",
+									JOptionPane.OK_CANCEL_OPTION);
+							if (res == JOptionPane.OK_OPTION) {
+
+								for (int i = 0; i < metadataHeaders.length; i++) {
+									if (cBoxes[i].isSelected()) {
+										selectedVals.add(metadataHeaders[i]);
+									}
+								}
+								newOrder = myChartPanel.getDataSorter().clusterByMetadata(selectedVals);
+							} else {
+
+								return null;
+							}
+
+						} else {
+							selectedVals.add(splitCommand[1]);
+							newOrder = myChartPanel.getDataSorter().clusterByMetadata(selectedVals);
+						}
 						if (newOrder.length == 0 || newOrder == null) {
 							return null;
 						}
@@ -701,9 +736,8 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 					myChartPanel.getInfoPanel().reselect();
 					myChartPanel.initializeDataset();
 					lastSelected = extInfoSortItem;
-					// update(myChartPanel.getGraphics());
+
 					repaint();
-					// System.out.println("Done sorting");
 
 					return null;
 				}
@@ -846,8 +880,6 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 		}
 	}
 
-	
-	
 	public int getNameLength() {
 		return nameLengthSlider.getValue();
 	}
@@ -896,7 +928,13 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 
 		}
 		final String[] fields = myChartPanel.getProject().getMetadataHybrid().getMetadataHeaders();
-		// Arrays.sort(fields);
+		final String[] fields2 = new String[fields.length + 1];
+		int k = 0;
+		for (String f : fields) {
+			fields2[k++] = f;
+		}
+		fields2[fields2.length - 1] = "More...";
+
 		Component[] components = clusterMetadataMenu.getMenuComponents();
 		for (Component c : components) {
 			if (!(c instanceof JMenuItem))
@@ -909,8 +947,8 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 		}
 		clusterMetadataMenu.removeAll();
 		ButtonGroup group = new ButtonGroup();
-		for (int i = 0; i < fields.length; i++) {
-			JCheckBoxMenuItem item = new JCheckBoxMenuItem(fields[i]);
+		for (int i = 0; i < fields2.length; i++) {
+			JCheckBoxMenuItem item = new JCheckBoxMenuItem(fields2[i]);
 			item.setActionCommand(SORT_CLUSTER_METADATA_COMMAND + "::" + item.getText());
 			item.addActionListener(this);
 			group.add(item);
@@ -986,8 +1024,7 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 			oldSortOrder = oldSO.stream().mapToInt(i -> i).toArray();
 			newSortOrder = newSO.stream().mapToInt(i -> i).toArray();
 		}
-		
-		
+
 		for (RangeMarker r : oldRangeMarkers) {
 			int thisStrt = r.getStart();
 			int thisEnd = r.getEnd();
