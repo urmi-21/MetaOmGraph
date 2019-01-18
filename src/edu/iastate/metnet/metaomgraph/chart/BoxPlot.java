@@ -152,14 +152,12 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	 * Create the frame.
 	 */
 	public BoxPlot(HashMap<Integer, double[]> plotData, int pType, MetaOmProject mp) {
-		
-		
-		
+
 		this.plotData = plotData;
 		this.plotType = pType;
 		myProject = mp;
-		if(plotType==0) {
-			//make copy of excluded
+		if (plotType == 0) {
+			// make copy of excluded
 			boolean[] excluded = MetaOmAnalyzer.getExclude();
 			if (excluded != null) {
 				excludedCopy = new boolean[excluded.length];
@@ -185,7 +183,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		btnNewButton_1 = new JButton("Change X axis");
 		btnNewButton_1.setActionCommand("chooseX");
 		btnNewButton_1.addActionListener(this);
-		//panel_1.add(btnNewButton_1);
+		// panel_1.add(btnNewButton_1);
 
 		scrollPane = new JScrollPane();
 		getContentPane().add(scrollPane, BorderLayout.CENTER);
@@ -289,6 +287,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		chartPanel.setPreferredSize(new Dimension(800, 600));
 		chartPanel.addChartMouseListener(this);
 		setDefaultPalette();
+
 		return chartPanel;
 
 	}
@@ -299,7 +298,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				"Generating BoxPlot", 0L, plotData.size(), true);
 		new Thread() {
 			public void run() {
-				
+
 				seriesNames = new ArrayList<>();
 				if (splitIndex == null || splitCol == null || splitCol.length() < 1) {
 					// no split
@@ -424,11 +423,11 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 			if (col_val.equals("Reset")) {
 				splitCol = null;
 				splitIndex = null;
-				createDataset();
+				// createDataset();
 				updateChart();
 				return;
 			}
-			
+
 			List<String> selectedVals = new ArrayList<>();
 			if (col_val.equals("More...")) {
 				// display jpanel with check box
@@ -457,10 +456,10 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				selectedVals.add(col_val);
 				splitCol = col_val;
 			}
-			
+
 			splitIndex = myProject.getMetadataHybrid().cluster(selectedVals);
-			
-			createDataset();
+
+			// createDataset();
 			updateChart();
 
 			return;
@@ -478,10 +477,10 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 			changeSeriesColor(i, colors[i % colors.length]);
 		}
 	}
-	
+
 	private void setDefaultPalette() {
 		ColorBrewer[] qlPalettes = ColorBrewer.getQualitativeColorPalettes(false);
-		//choose default
+		// choose default
 		ColorBrewer myBrewer = qlPalettes[6];
 		Color[] myFills = myBrewer.getColorPalette(seriesNames.size());
 		setPalette(myFills);
@@ -532,9 +531,9 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				return;
 			} else if (event.getEntity() instanceof CategoryItemEntity) {
 				// changeSeriesColor(((CategoryItemEntity) event.getEntity()).get);
-				// 
-				String ck=((CategoryItemEntity) event.getEntity()).getColumnKey().toString();
-				JOptionPane.showMessageDialog(null, "CLICKED2:"+ck);
+				//
+				String ck = ((CategoryItemEntity) event.getEntity()).getColumnKey().toString();
+				JOptionPane.showMessageDialog(null, "CLICKED2:" + ck);
 				return;
 			}
 		}
