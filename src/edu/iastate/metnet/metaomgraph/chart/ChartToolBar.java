@@ -17,6 +17,7 @@ import edu.iastate.metnet.metaomgraph.utils.qdxml.SimpleXMLElement;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.EventQueue;
+import java.awt.GridLayout;
 import java.awt.List;
 import java.awt.Paint;
 import java.awt.event.ActionEvent;
@@ -699,6 +700,7 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 							// display jpanel with check box
 							JCheckBox[] cBoxes = new JCheckBox[metadataHeaders.length];
 							JPanel cbPanel = new JPanel();
+							cbPanel.setLayout(new GridLayout(0,3));
 							for (int i = 0; i < metadataHeaders.length; i++) {
 								cBoxes[i] = new JCheckBox(metadataHeaders[i]);
 								cbPanel.add(cBoxes[i]);
