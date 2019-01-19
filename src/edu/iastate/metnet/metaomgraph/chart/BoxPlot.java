@@ -494,12 +494,6 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 							hits = temp.toArray(hits);
 						}
 
-						// return if no hits
-						if (hits.length == 0) {
-							// JOptionPane.showMessageDialog(null, "hits len:"+hits.length);
-							// nohits=true;
-							return null;
-						}
 						int index;
 						for (index = 0; index < hits.length; index++) {
 							result.add(hits[index]);
@@ -516,6 +510,10 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 
 				// create a split index with "hits" as one category and all others as second
 				// category
+				if(resList.get(0).size()<1) {
+					JOptionPane.showMessageDialog(null, "No hits found","No hits",JOptionPane.INFORMATION_MESSAGE);
+					return;
+				}
 				splitIndex = createSplitIndex(resList, Arrays.asList("Hits", "Other"));
 			}
 
@@ -543,7 +541,9 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	private Map<String, Collection<Integer>> createSplitIndex(List<Collection<Integer>> collList, List<String> names) {
 		Map<String, Collection<Integer>> res = new TreeMap();
 		for (int i = 0; i < collList.size(); i++) {
-			res.put(names.get(i), collList.get(i));
+			if (collList.get(i).size() > 0) {
+				res.put(names.get(i), collList.get(i));
+			}
 
 		}
 		return res;

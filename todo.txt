@@ -118,3 +118,4 @@ plot selected series/features in box plot
 venn diagrams fo correlated genes?
 Have chart its own excluded data values; Add refresh options to chart sync with current workspace; Allow to filter in current chart only. 
 Allow to hide show series; arrange histogram. make more interactive
+gif support ??
