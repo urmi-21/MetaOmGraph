@@ -36,6 +36,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -454,6 +455,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				} else {
 					return;
 				}
+				splitIndex = myProject.getMetadataHybrid().cluster(selectedVals);
 
 			} else if (col_val.equals("By Query")) {
 				splitCol = col_val;
@@ -466,21 +468,23 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 					// User didn't enter any queries
 					return;
 				}
-				final int[] result = new int[myProject.getDataColumnCount()];
+				// final int[] result = new int[myProject.getDataColumnCount()];
+				Collection<Integer> result = new ArrayList<>();
+				List<Collection<Integer>> resList = new ArrayList<>();
 				final boolean nohits;
 				new AnimatedSwingWorker("Searching...", true) {
 					@Override
 					public Object construct() {
-						ArrayList<Integer> toAdd = new ArrayList<Integer>(result.length);
-						for (int i = 0; i < result.length; i++) {
+						ArrayList<Integer> toAdd = new ArrayList<Integer>(result.size());
+						for (int i = 0; i < myProject.getDataColumnCount(); i++) {
 							toAdd.add(i);
 						}
-						Integer[] hits =myProject.getMetadataHybrid().search(queries, tsp.matchAll());
-						// remove excluded cols from list to display corect range markers
+						Integer[] hits = myProject.getMetadataHybrid().search(queries, tsp.matchAll());
+						// remove excluded cols from list
 						// urmi
 						boolean[] excluded = excludedCopy;
 						if (excluded != null) {
-							java.util.List<Integer> temp = new ArrayList<>();
+							List<Integer> temp = new ArrayList<>();
 							for (Integer i : hits) {
 								if (!excluded[i]) {
 									temp.add(i);
@@ -494,39 +498,55 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 						if (hits.length == 0) {
 							// JOptionPane.showMessageDialog(null, "hits len:"+hits.length);
 							// nohits=true;
-							result[0] = -1;
 							return null;
 						}
 						int index;
 						for (index = 0; index < hits.length; index++) {
-							result[index] = hits[index];
+							result.add(hits[index]);
 							toAdd.remove(hits[index]);
 						}
-						for (int i = 0; i < toAdd.size(); i++) {
-							result[index++] = toAdd.get(i);
-						}
+						/*
+						 * for (int i = 0; i < toAdd.size(); i++) { other.add(toAdd.get(i)); }
+						 */
+						resList.add(result);
+						resList.add(toAdd);
 						return null;
 					}
 				}.start();
-				
-				//create a split index with "hits" as one category and all others as second  category
-				
+
+				// create a split index with "hits" as one category and all others as second
+				// category
+				splitIndex = createSplitIndex(resList, Arrays.asList("Hits", "Other"));
 			}
 
 			else {
 				// split data set by values of col_val
 				selectedVals.add(col_val);
 				splitCol = col_val;
+				splitIndex = myProject.getMetadataHybrid().cluster(selectedVals);
 			}
 
-			splitIndex = myProject.getMetadataHybrid().cluster(selectedVals);
-
-			// createDataset();
 			updateChart();
 
 			return;
 		}
 
+	}
+
+	/**
+	 * create a map of name to indices
+	 * 
+	 * @param collList
+	 * @param names
+	 * @return
+	 */
+	private Map<String, Collection<Integer>> createSplitIndex(List<Collection<Integer>> collList, List<String> names) {
+		Map<String, Collection<Integer>> res = new TreeMap();
+		for (int i = 0; i < collList.size(); i++) {
+			res.put(names.get(i), collList.get(i));
+
+		}
+		return res;
 	}
 
 	private void setPalette(Color[] colors) {
