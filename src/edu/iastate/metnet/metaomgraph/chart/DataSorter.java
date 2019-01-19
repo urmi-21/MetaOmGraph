@@ -130,8 +130,7 @@ public class DataSorter {
 
 	// to change
 	public int[] sortByMetadata() {
-		final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(myChartPanel.getProject(),
-				false);
+		final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(myChartPanel.getProject(),false);
 		final MetadataQuery[] queries;
 		queries = tsp.showSearchDialog();
 		if (tsp.getQueryCount() <= 0) {
@@ -142,21 +141,12 @@ public class DataSorter {
 		final int[] result = new int[myChartPanel.getProject().getDataColumnCount()];
 		final boolean nohits;
 		new AnimatedSwingWorker("Searching...", true) {
-
 			@Override
 			public Object construct() {
 				ArrayList<Integer> toAdd = new ArrayList<Integer>(result.length);
 				for (int i = 0; i < result.length; i++) {
 					toAdd.add(i);
 				}
-				// Integer[] hits = myChartPanel.getProject().getMetadata().search(queries,
-				// tsp.matchAll());
-				/**
-				 * Changed urmi
-				 */
-				// List<String> hitsList =
-				// MetaOmGraph.getActiveProject().getMetadataHybrid().getMatchingRows(queries,
-				// tsp.matchAll(), tsp.matchCase());
 				Integer[] hits = myChartPanel.getProject().getMetadataHybrid().search(queries, tsp.matchAll());
 
 				// remove excluded cols from list to display corect range markers
