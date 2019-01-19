@@ -84,13 +84,16 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.util.ShapeUtilities;
 
+import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.ComponentToImage;
 import edu.iastate.metnet.metaomgraph.GraphFileFilter;
 import edu.iastate.metnet.metaomgraph.IconTheme;
 import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
+import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
+import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 public class BoxPlot extends JInternalFrame implements ChartMouseListener, ActionListener {
@@ -404,7 +407,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				return;
 			}
 			String[] fields = MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataHeaders();
-			String[] fields2 = new String[fields.length + 2];
+			String[] fields2 = new String[fields.length + 3];
 			fields2[0] = "Reset";
 			int selectedInd = 0;
 			for (int i = 0; i < fields.length; i++) {
@@ -413,6 +416,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 					selectedInd = i + 1;
 				}
 			}
+			fields2[fields2.length - 2] = "By Query";
 			fields2[fields2.length - 1] = "More...";
 			String col_val = (String) JOptionPane.showInputDialog(null, "Choose the column:\n", "Please choose",
 					JOptionPane.PLAIN_MESSAGE, null, fields2, fields2[selectedInd]);
@@ -451,7 +455,65 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 					return;
 				}
 
-			} else {
+			} else if (col_val.equals("By Query")) {
+				splitCol = col_val;
+				// display query panel
+				final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(myProject, false);
+				final MetadataQuery[] queries;
+				queries = tsp.showSearchDialog();
+				if (tsp.getQueryCount() <= 0) {
+					System.out.println("Search dialog cancelled");
+					// User didn't enter any queries
+					return;
+				}
+				final int[] result = new int[myProject.getDataColumnCount()];
+				final boolean nohits;
+				new AnimatedSwingWorker("Searching...", true) {
+					@Override
+					public Object construct() {
+						ArrayList<Integer> toAdd = new ArrayList<Integer>(result.length);
+						for (int i = 0; i < result.length; i++) {
+							toAdd.add(i);
+						}
+						Integer[] hits =myProject.getMetadataHybrid().search(queries, tsp.matchAll());
+						// remove excluded cols from list to display corect range markers
+						// urmi
+						boolean[] excluded = excludedCopy;
+						if (excluded != null) {
+							java.util.List<Integer> temp = new ArrayList<>();
+							for (Integer i : hits) {
+								if (!excluded[i]) {
+									temp.add(i);
+								}
+							}
+							hits = new Integer[temp.size()];
+							hits = temp.toArray(hits);
+						}
+
+						// return if no hits
+						if (hits.length == 0) {
+							// JOptionPane.showMessageDialog(null, "hits len:"+hits.length);
+							// nohits=true;
+							result[0] = -1;
+							return null;
+						}
+						int index;
+						for (index = 0; index < hits.length; index++) {
+							result[index] = hits[index];
+							toAdd.remove(hits[index]);
+						}
+						for (int i = 0; i < toAdd.size(); i++) {
+							result[index++] = toAdd.get(i);
+						}
+						return null;
+					}
+				}.start();
+				
+				//create a split index with "hits" as one category and all others as second  category
+				
+			}
+
+			else {
 				// split data set by values of col_val
 				selectedVals.add(col_val);
 				splitCol = col_val;
