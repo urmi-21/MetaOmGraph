@@ -56,6 +56,7 @@ import javax.swing.JMenuItem;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.Point;
+import javax.swing.JSeparator;
 
 public class CorrelationMetaTable extends JInternalFrame {
 	private JTable table;
@@ -255,6 +256,12 @@ public class CorrelationMetaTable extends JInternalFrame {
 			}
 		});
 		mnPlot.add(mntmPlotScatterPlot);
+		
+		JSeparator separator = new JSeparator();
+		mnPlot.add(separator);
+		
+		JMenuItem mntmPvalueHistogram = new JMenuItem("p-value histogram");
+		mnPlot.add(mntmPvalueHistogram);
 
 		JMenu mnEdit = new JMenu("Edit");
 		menuBar.add(mnEdit);
@@ -366,6 +373,19 @@ public class CorrelationMetaTable extends JInternalFrame {
 			}
 		});
 		mnEdit.add(mntmRemoveCorrelation);
+		
+		JMenuItem mntmFilter = new JMenuItem("Filter");
+		mntmFilter.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				FilterCorrelationMetaTable frame = new FilterCorrelationMetaTable();
+				frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
+				frame.pack();
+				frame.setTitle("Change parameters");
+				MetaOmGraph.getDesktop().add(frame);
+				frame.setVisible(true);
+			}
+		});
+		mnEdit.add(mntmFilter);
 
 	}
 
