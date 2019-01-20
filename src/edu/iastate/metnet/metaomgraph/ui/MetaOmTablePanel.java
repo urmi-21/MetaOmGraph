@@ -1397,7 +1397,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						int[] selected = getSelectedRowsInList();
 						//number of bins
 						int nBins=myProject.getIncludedDataColumnCount()/10;
-						HistogramChart f = new HistogramChart(selected, nBins,myProject);
+						HistogramChart f = new HistogramChart(selected, nBins,myProject,1,null);
 						MetaOmGraph.getDesktop().add(f);
 						f.setDefaultCloseOperation(2);
 						f.setClosable(true);

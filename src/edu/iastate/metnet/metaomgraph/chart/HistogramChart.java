@@ -71,6 +71,9 @@ import javax.swing.event.ChangeEvent;
 
 public class HistogramChart extends JInternalFrame implements ChartMouseListener, ActionListener {
 
+	// 1 for data rows, 2 for plotting a hist from double[]
+	private int histType;
+	private double[] plotData;
 	private int[] selected;
 	String[] rowNames;
 	private MetaOmProject myProject;
@@ -115,7 +118,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					HistogramChart frame = new HistogramChart(null, 1, null);
+					HistogramChart frame = new HistogramChart(null, 1, null, 2, null);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -127,11 +130,18 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 	/**
 	 * Create the frame.
 	 */
-	public HistogramChart(int[] selected, int bins, MetaOmProject mp) {
+	public HistogramChart(int[] selected, int bins, MetaOmProject mp, int htype, double[] data) {
+		histType = htype;
 		setBounds(100, 100, 450, 300);
 		this.selected = selected;
 		// init rownames
-		rowNames = mp.getDefaultRowNames(selected);
+		if (htype == 1) {
+			rowNames = mp.getDefaultRowNames(selected);
+		}
+		if (htype == 2) {
+			rowNames=new String[] {"A"};
+			plotData = data;
+		}
 
 		myProject = mp;
 		_bins = bins;
@@ -167,12 +177,12 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 				updateChartAlpha(alphaVal);
 			}
 		});
-		/*Hashtable labelTable = new Hashtable();
-		labelTable.put(new Integer(0), new JLabel("0.0"));
-		labelTable.put(new Integer(5), new JLabel("0.5"));
-		labelTable.put(new Integer(10), new JLabel("1.0"));*/
-		
-		
+		/*
+		 * Hashtable labelTable = new Hashtable(); labelTable.put(new Integer(0), new
+		 * JLabel("0.0")); labelTable.put(new Integer(5), new JLabel("0.5"));
+		 * labelTable.put(new Integer(10), new JLabel("1.0"));
+		 */
+
 		// create sample plot
 
 		try {
@@ -243,7 +253,12 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 
 	public ChartPanel makeHistogram() throws IOException {
 		// Create dataset
-		dataset = createHistDataset();
+		if (histType == 1) {
+			dataset = createHistDataset();
+		} else if (histType == 2) {
+			dataset = createHistDataset(plotData);
+		}
+		JOptionPane.showMessageDialog(null, "datacreated");
 		if (alphaSlider != null) {
 			alphaSlider.setValue((int) (initAlpha * 10F));
 		}
@@ -384,6 +399,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		};
 		chartPanel.setMouseWheelEnabled(true);
 		chartPanel.addChartMouseListener(this);
+		JOptionPane.showMessageDialog(null, "datacreated2");
 		return chartPanel;
 	}
 
@@ -397,6 +413,14 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 			thisName = myProject.getRowName(selected[i])[myProject.getDefaultColumn()].toString();
 			dataset.addSeries(thisName, dataY, _bins);
 		}
+		return dataset;
+	}
+
+	private HistogramDataset createHistDataset(double[] data) throws IOException {
+
+		HistogramDataset dataset = new HistogramDataset();
+		String thisName = "";
+		dataset.addSeries(thisName, data, _bins);
 		return dataset;
 	}
 

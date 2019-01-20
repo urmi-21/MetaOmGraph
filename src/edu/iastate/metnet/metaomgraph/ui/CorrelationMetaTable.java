@@ -33,6 +33,7 @@ import edu.iastate.metnet.metaomgraph.CorrelationMetaCollection;
 import edu.iastate.metnet.metaomgraph.IconTheme;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
+import edu.iastate.metnet.metaomgraph.chart.HistogramChart;
 import edu.iastate.metnet.metaomgraph.chart.MetaOmChartPanel;
 import edu.iastate.metnet.metaomgraph.chart.ScatterPlotChart;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
@@ -265,6 +266,36 @@ public class CorrelationMetaTable extends JInternalFrame {
 		mnPlot.add(separator);
 
 		JMenuItem mntmPvalueHistogram = new JMenuItem("p-value histogram");
+		mntmPvalueHistogram.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// plot histogram of current pvalues in table
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						try {// get data for selected rows
+							int nBins = 10;
+							HistogramChart f = new HistogramChart(null, nBins, null, 2,
+									new double[] { 1, 2, 2, 2, 2, 3, 3, 3, 33, 3, 4 });
+							MetaOmGraph.getDesktop().add(f);
+							f.setDefaultCloseOperation(2);
+							f.setClosable(true);
+							f.setResizable(true);
+							f.pack();
+							f.setSize(1000, 700);
+							f.setVisible(true);
+							f.toFront();
+
+						} catch (Exception e) {
+							JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
+									JOptionPane.ERROR_MESSAGE);
+
+							e.printStackTrace();
+							return;
+						}
+					}
+				});
+				return;
+			}
+		});
 		mnPlot.add(mntmPvalueHistogram);
 
 		JMenu mnEdit = new JMenu("Edit");
@@ -385,7 +416,8 @@ public class CorrelationMetaTable extends JInternalFrame {
 
 				int res = JOptionPane.showConfirmDialog(null, optPanel, "Enter values", JOptionPane.OK_CANCEL_OPTION);
 				if (res == JOptionPane.OK_OPTION) {
-					loadDatainTable(comboBox.getSelectedItem().toString(), optPanel.getMinr(), optPanel.getMaxr(), optPanel.getMinp(), optPanel.getMaxp());
+					loadDatainTable(comboBox.getSelectedItem().toString(), optPanel.getMinr(), optPanel.getMaxr(),
+							optPanel.getMinp(), optPanel.getMaxp());
 				} else {
 					return;
 				}
