@@ -73,7 +73,6 @@ public class CorrelationMetaTable extends JInternalFrame {
 	private double minpVal = -99999;
 	private double maxpVal = -99999;
 
-
 	/**
 	 * Launch the application.
 	 */
@@ -188,7 +187,7 @@ public class CorrelationMetaTable extends JInternalFrame {
 		mnFile.add(mntmSaveTable);
 
 		JMenuItem mntmLoadTable = new JMenuItem("Load table");
-		//mnFile.add(mntmLoadTable);
+		// mnFile.add(mntmLoadTable);
 
 		JMenu mnPlot = new JMenu("Plot");
 		menuBar.add(mnPlot);
@@ -261,10 +260,10 @@ public class CorrelationMetaTable extends JInternalFrame {
 			}
 		});
 		mnPlot.add(mntmPlotScatterPlot);
-		
+
 		JSeparator separator = new JSeparator();
 		mnPlot.add(separator);
-		
+
 		JMenuItem mntmPvalueHistogram = new JMenuItem("p-value histogram");
 		mnPlot.add(mntmPvalueHistogram);
 
@@ -378,16 +377,18 @@ public class CorrelationMetaTable extends JInternalFrame {
 			}
 		});
 		mnEdit.add(mntmRemoveCorrelation);
-		
+
 		JMenuItem mntmFilter = new JMenuItem("Filter");
 		mntmFilter.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				FilterCorrelationMetaTable frame = new FilterCorrelationMetaTable(CorrelationMetaTable.this);
-				frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
-				frame.pack();
-				frame.setTitle("Change parameters");
-				MetaOmGraph.getDesktop().add(frame);
-				frame.setVisible(true);
+				FilterCorrMetaTablePanel optPanel = new FilterCorrMetaTablePanel();
+
+				int res = JOptionPane.showConfirmDialog(null, optPanel, "Enter values", JOptionPane.OK_CANCEL_OPTION);
+				if (res == JOptionPane.OK_OPTION) {
+					loadDatainTable(comboBox.getSelectedItem().toString(), optPanel.getMinr(), optPanel.getMaxr(), optPanel.getMinp(), optPanel.getMaxp());
+				} else {
+					return;
+				}
 			}
 		});
 		mnEdit.add(mntmFilter);
@@ -410,11 +411,11 @@ public class CorrelationMetaTable extends JInternalFrame {
 	 * @param s
 	 */
 	private void loadDatainTable(String s) {
-		//this is call called by default when no rows are filtered
-		loadDatainTable(s,-9999,9999,-9999,9999);
+		// this is call called by default when no rows are filtered
+		loadDatainTable(s, -9999, 9999, -9999, 9999);
 	}
-	private void loadDatainTable(String s, double minr,double maxr,double minp,double maxp) {
 
+	private void loadDatainTable(String s, double minr, double maxr, double minp, double maxp) {
 		CorrelationMetaCollection cmcObj = metaCorrRes.get(s);
 		// check values of table depending on cmcObj and populate the table
 		int corrTypeId = cmcObj.getCorrTypeId();
@@ -422,6 +423,7 @@ public class CorrelationMetaTable extends JInternalFrame {
 		List<CorrelationMeta> corrList = cmcObj.getCorrList();
 
 		if (corrList != null) {
+			// if object is type of metacorrelation
 			if (corrTypeId == 0) {
 				DefaultTableModel model = new DefaultTableModel() {
 					@Override
@@ -459,18 +461,18 @@ public class CorrelationMetaTable extends JInternalFrame {
 				for (int i = 0; i < corrList.size(); i++) {
 					CorrelationMeta thisObj = corrList.get(i);
 					Vector row = new Vector();
-					double thisr=thisObj.getrVal();
-					double thisp=thisObj.getpVal();
-					if(thisr>=minr && thisr<=maxr && thisp>=minp && thisp <=maxp) {
-					row.add(thisObj.getName());
-					row.add(thisObj.getrVal());
-					row.add(thisObj.getpVal());
-					row.add(thisObj.getrCI(alpha));
-					row.add(thisObj.getzVal());
-					row.add(thisObj.getqVal());
+					double thisr = thisObj.getrVal();
+					double thisp = thisObj.getpVal();
+					if (thisr >= minr && thisr <= maxr && thisp >= minp && thisp <= maxp) {
+						row.add(thisObj.getName());
+						row.add(thisObj.getrVal());
+						row.add(thisObj.getpVal());
+						row.add(thisObj.getrCI(alpha));
+						row.add(thisObj.getzVal());
+						row.add(thisObj.getqVal());
+						model.addRow(row);
 					}
 
-					model.addRow(row);
 				}
 				scrollPane.setViewportView(table);
 			} else {
@@ -504,10 +506,16 @@ public class CorrelationMetaTable extends JInternalFrame {
 				for (int i = 0; i < corrList.size(); i++) {
 					CorrelationMeta thisObj = corrList.get(i);
 					Vector row = new Vector();
-					row.add(thisObj.getName());
-					row.add(thisObj.getrVal());
-					row.add(thisObj.getpVal());
-					model.addRow(row);
+
+					double thisr = thisObj.getrVal();
+					double thisp = thisObj.getpVal();
+
+					if (thisr >= minr && thisr <= maxr && thisp >= minp && thisp <= maxp) {
+						row.add(thisObj.getName());
+						row.add(thisObj.getrVal());
+						row.add(thisObj.getpVal());
+						model.addRow(row);
+					}
 				}
 				scrollPane.setViewportView(table);
 			}
@@ -543,12 +551,6 @@ public class CorrelationMetaTable extends JInternalFrame {
 			val = formatter.format((Number) val);
 			return super.getTableCellRendererComponent(table, val, isSelected, hasFocus, row, column);
 		}
-	}
-	
-	public void filterTablebyValues(double minr,double maxr,double minp,double maxp) {
-		JOptionPane.showMessageDialog(null, "vals:"+minr+"-"+maxr+"-"+minp+"-"+maxp+"sel:"+comboBox.getSelectedItem().toString());
-		//apply filter to table
-		loadDatainTable(comboBox.getSelectedItem().toString(),minr, maxr, minp, maxp);
 	}
 
 }
