@@ -31,7 +31,7 @@ public class FilterCorrelationMetaTable extends JInternalFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					FilterCorrelationMetaTable frame = new FilterCorrelationMetaTable();
+					FilterCorrelationMetaTable frame = new FilterCorrelationMetaTable(null);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -43,7 +43,7 @@ public class FilterCorrelationMetaTable extends JInternalFrame {
 	/**
 	 * Create the frame.
 	 */
-	public FilterCorrelationMetaTable() {
+	public FilterCorrelationMetaTable(CorrelationMetaTable parent) {
 		setBounds(100, 100, 450, 300);
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 434, 0 };
@@ -199,29 +199,40 @@ public class FilterCorrelationMetaTable extends JInternalFrame {
 		JButton btnOk = new JButton("OK");
 		btnOk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				double minrVal=0;
-				double maxrVal=0;
-				double minpVal=0;
-				double maxpVal=0;
-				
-				//parse values
-				boolean okflag = false;
-				while (!okflag) {
-					try {
-						minrVal = Double.parseDouble(minr.getText().trim());
-						maxrVal = Double.parseDouble(maxr.getText().trim());
-						minpVal = Double.parseDouble(minp.getText().trim());
-						maxpVal = Double.parseDouble(maxp.getText().trim());
-						
-						okflag = true;
-					} catch (NumberFormatException nfe) {
-						okflag = false;
-						JOptionPane.showMessageDialog(null,
-								"Please enter a valid integer in the number of permutations field", "Error",
-								JOptionPane.ERROR_MESSAGE);
-					}
+				double minrVal = 0;
+				double maxrVal = 0;
+				double minpVal = 0;
+				double maxpVal = 0;
 
+				// parse values
+				try {
+					minrVal = Double.parseDouble(minr.getText().trim());
+					maxrVal = Double.parseDouble(maxr.getText().trim());
+					minpVal = Double.parseDouble(minp.getText().trim());
+					maxpVal = Double.parseDouble(maxp.getText().trim());
+					
+				} catch (NumberFormatException nfe) {
+					// okflag = false;
+					JOptionPane.showMessageDialog(null, "Please enter valid values", "Please check the values",
+							JOptionPane.ERROR_MESSAGE);
+					return;
 				}
+				if(chckbxCorrelationValue.isSelected() && chckbxPvalue.isSelected()) {
+					parent.filterTablebyValues(minrVal, maxrVal, minpVal, maxpVal);
+					return;
+				}
+				
+				if(chckbxCorrelationValue.isSelected()) {
+					parent.filterTablebyValues(minrVal, maxrVal, -9999, 9999);
+					return;
+				}
+				
+				if(chckbxPvalue.isSelected()) {
+					parent.filterTablebyValues(-9999, 9999, minpVal, maxpVal);
+					return;
+				}
+
+				return;
 			}
 		});
 		panel.add(btnOk);
@@ -245,8 +256,8 @@ public class FilterCorrelationMetaTable extends JInternalFrame {
 		maxr.setText("1.0");
 		minp.setText("0.0");
 		maxp.setText("1.0");
-		chckbxCorrelationValue.setSelected(false);
-		chckbxPvalue.setSelected(false);
+		chckbxCorrelationValue.setSelected(true);
+		chckbxPvalue.setSelected(true);
 
 	}
 
