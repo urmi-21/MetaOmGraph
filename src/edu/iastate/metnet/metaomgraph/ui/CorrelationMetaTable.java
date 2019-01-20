@@ -269,12 +269,16 @@ public class CorrelationMetaTable extends JInternalFrame {
 		mntmPvalueHistogram.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// plot histogram of current pvalues in table
+				double []pdata=new double[table.getRowCount()];
+				for(int r=0;r<table.getRowCount();r++) {
+					
+					pdata[r]=(double) table.getModel().getValueAt(r, table.getColumn("pval").getModelIndex() );
+				}
 				EventQueue.invokeLater(new Runnable() {
 					public void run() {
 						try {// get data for selected rows
 							int nBins = 10;
-							HistogramChart f = new HistogramChart(null, nBins, null, 2,
-									new double[] { 1, 2, 2, 2, 2, 3, 3, 3, 33, 3, 4 });
+							HistogramChart f = new HistogramChart(null, nBins, null, 2,pdata);
 							MetaOmGraph.getDesktop().add(f);
 							f.setDefaultCloseOperation(2);
 							f.setClosable(true);

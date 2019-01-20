@@ -159,8 +159,11 @@ public abstract class AnimatedSwingWorker implements ExceptionListener {
 			if (!blockCaller) {
 				dialogThread.start();
 			} else {
-				
+				try {
 				dialog.setVisible(true);
+				}catch(Exception e) {
+					
+				}
 			}
 		}
 	}

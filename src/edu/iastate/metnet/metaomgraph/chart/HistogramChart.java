@@ -258,7 +258,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		} else if (histType == 2) {
 			dataset = createHistDataset(plotData);
 		}
-		JOptionPane.showMessageDialog(null, "datacreated");
+		
 		if (alphaSlider != null) {
 			alphaSlider.setValue((int) (initAlpha * 10F));
 		}
@@ -399,7 +399,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		};
 		chartPanel.setMouseWheelEnabled(true);
 		chartPanel.addChartMouseListener(this);
-		JOptionPane.showMessageDialog(null, "datacreated2");
+		
 		return chartPanel;
 	}
 
