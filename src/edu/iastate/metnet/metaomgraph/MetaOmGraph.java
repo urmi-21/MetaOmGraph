@@ -110,6 +110,7 @@ import edu.iastate.metnet.metaomgraph.ui.SetProgramParameters;
 import edu.iastate.metnet.metaomgraph.ui.WelcomePanel;
 import edu.iastate.metnet.metaomgraph.ui.WelcomePanelWin10;
 import edu.iastate.metnet.metaomgraph.ui.logFCPanel;
+import edu.iastate.metnet.metaomgraph.ui.logFCResultsFrame;
 import edu.iastate.metnet.metaomgraph.ui.NewProjectDialog.FileBrowseListener;
 import edu.iastate.metnet.metaomgraph.utils.DataNormalizer;
 import edu.iastate.metnet.metaomgraph.utils.DataNormalizer.MeanResult;
@@ -3023,15 +3024,25 @@ public class MetaOmGraph implements ActionListener {
 				if(!ob.createGroup()) {
 					return;
 				}else {
-					JOptionPane.showMessageDialog(null, "Calcul..........");
+					//JOptionPane.showMessageDialog(null, "Calcul..........");
 					try {
 						ob.doCalc();
+						
+						//display result
+						logFCResultsFrame frame=new logFCResultsFrame(ob.getFeatureNames(), ob.getMean1(), ob.getMean2());
+						frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
+						frame.pack();
+						frame.setTitle("Change parameters");
+						MetaOmGraph.getDesktop().add(frame);
+						frame.setVisible(true);
+						
+						
 					} catch (IOException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
 					
-					//get all featurs in list
+					
 					
 				}
 				

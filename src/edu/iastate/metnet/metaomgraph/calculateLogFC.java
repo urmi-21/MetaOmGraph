@@ -21,6 +21,10 @@ public class calculateLogFC {
 	private MetaOmProject myProject;
 	private Map<String, Collection<Integer>> splitIndex;
 	private boolean[] excluded;
+	
+	private List<String> featureNames;
+	private List<Double> mean1;
+	private List<Double> mean2;
 
 	public calculateLogFC(String selectedList, String grpID, MetaOmProject myProject) {
 		this.selectedList = selectedList;
@@ -113,10 +117,12 @@ public class calculateLogFC {
 
 	public void doCalc() throws IOException {
 
-		JOptionPane.showMessageDialog(null, splitIndex.toString());
-
 		int[] selected = myProject.getGeneListRowNumbers(this.selectedList);
 		double[] fcVals = new double[selected.length];
+		featureNames=new ArrayList<>();
+		mean1=new ArrayList<>();
+		mean2=new ArrayList<>();
+		
 		for (int r = 0; r < selected.length; r++) {
 			double[] thisData = myProject.getAllData(selected[r], true);
 			double m1 = 0, m2 = 0, fc = 0;
@@ -143,11 +149,27 @@ public class calculateLogFC {
 			//JOptionPane.showMessageDialog(null, "mean1:" + m1 + " s:" + g1Ind.size());
 			//JOptionPane.showMessageDialog(null, "mean2:" + m2 + " s:" + g2Ind.size());
 			fcVals[r] = fc;
+			
+			featureNames.add(myProject.getDefaultRowNames(r));
+			mean1.add(m1);
+			mean2.add(m2);
 
 		}
 
 		JOptionPane.showMessageDialog(null, Arrays.toString(fcVals));
 
+	}
+	
+	public List<String> getFeatureNames(){
+		return this.featureNames;
+	}
+	
+	public List<Double> getMean1(){
+		return this.mean1;
+	}
+	
+	public List<Double> getMean2(){
+		return this.mean2;
 	}
 
 }
