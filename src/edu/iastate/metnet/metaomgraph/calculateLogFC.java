@@ -136,12 +136,12 @@ public class calculateLogFC {
 				}
 			}
 
-			JOptionPane.showMessageDialog(null, "s1:" + m1 + " s2:" + m2);
+			//JOptionPane.showMessageDialog(null, "s1:" + m1 + " s2:" + m2);
 			m1 = m1 / g1Ind.size();
 			m2 = m2 / g2Ind.size();
 			fc = m1 - m2;
-			JOptionPane.showMessageDialog(null, "mean1:" + m1 + " s:" + g1Ind.size());
-			JOptionPane.showMessageDialog(null, "mean2:" + m2 + " s:" + g2Ind.size());
+			//JOptionPane.showMessageDialog(null, "mean1:" + m1 + " s:" + g1Ind.size());
+			//JOptionPane.showMessageDialog(null, "mean2:" + m2 + " s:" + g2Ind.size());
 			fcVals[r] = fc;
 
 		}
