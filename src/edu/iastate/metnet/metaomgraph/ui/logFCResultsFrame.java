@@ -31,7 +31,15 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
 
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
+import edu.iastate.metnet.metaomgraph.chart.HistogramChart;
 import edu.iastate.metnet.metaomgraph.ui.MetadataTableDisplayPanel.AlphanumericComparator;
+import edu.iastate.metnet.metaomgraph.utils.Utils;
+
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class logFCResultsFrame extends JInternalFrame {
 	private JTable table;
@@ -91,6 +99,77 @@ public class logFCResultsFrame extends JInternalFrame {
 
 		JMenu mnFile = new JMenu("File");
 		menuBar.add(mnFile);
+		
+		JMenuItem mntmSave = new JMenuItem("Save to file");
+		mntmSave.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				Utils.saveJTabletofile(table);
+			}
+		});
+		mnFile.add(mntmSave);
+		
+		JMenu mnEdit = new JMenu("Edit");
+		menuBar.add(mnEdit);
+		
+		JMenuItem mntmExportSelectedTo = new JMenuItem("Export selected to list");
+		mnEdit.add(mntmExportSelectedTo);
+		
+		JMenu mnPlot = new JMenu("Plot");
+		menuBar.add(mnPlot);
+		
+		JMenu mnSelected = new JMenu("Selected");
+		mnPlot.add(mnSelected);
+		
+		JMenuItem mntmLineChart = new JMenuItem("Liine Chart");
+		mnSelected.add(mntmLineChart);
+		
+		JMenuItem mntmScatterplot = new JMenuItem("Scatter Plot");
+		mnSelected.add(mntmScatterplot);
+		
+		JMenuItem mntmBoxPlot = new JMenuItem("Box Plot");
+		mnSelected.add(mntmBoxPlot);
+		
+		JMenuItem mntmHistogram = new JMenuItem("Histogram");
+		mnSelected.add(mntmHistogram);
+		
+		JMenuItem mntmFcHistogram = new JMenuItem("FC histogram");
+		mntmFcHistogram.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				// plot histogram of current pvalues in table
+				double [] fcdata=new double[table.getRowCount()];
+				for(int r=0;r<table.getRowCount();r++) {
+					
+					fcdata[r]=(double) table.getModel().getValueAt(r, table.getColumn("logFC").getModelIndex() );
+				}
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						try {// get data for selected rows
+							int nBins = 10;
+							HistogramChart f = new HistogramChart(null, nBins, null, 2,fcdata);
+							MetaOmGraph.getDesktop().add(f);
+							f.setDefaultCloseOperation(2);
+							f.setClosable(true);
+							f.setResizable(true);
+							f.pack();
+							f.setSize(1000, 700);
+							f.setVisible(true);
+							f.toFront();
+
+						} catch (Exception e) {
+							JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
+									JOptionPane.ERROR_MESSAGE);
+
+							e.printStackTrace();
+							return;
+						}
+					}
+				});
+				return;
+			
+			}
+		});
+		mnPlot.add(mntmFcHistogram);
 
 		// frame properties
 		this.setClosable(true);
