@@ -2427,7 +2427,11 @@ public class MetaOmProject {
 	 * @return
 	 * @throws IOException
 	 */
+	
 	public double[] getAllData(int row) throws IOException {
+		return getAllData(row,false); //by default apply transformation
+	}
+	public double[] getAllData(int row,boolean noTransform) throws IOException {
 		double[] result;
 
 		if (!streamMode) {
@@ -2441,6 +2445,11 @@ public class MetaOmProject {
 		// urmi
 		String transform = MetaOmGraph.getInstance().getTransform();
 		if (transform.equals("NONE")) {
+			return result;
+		}
+		
+		//return raw data
+		if(noTransform) {
 			return result;
 		}
 
@@ -2468,6 +2477,8 @@ public class MetaOmProject {
 
 		return result;
 	}
+	
+	
 
 	/**
 	 * @author urmi function to return all the data as list of double[]

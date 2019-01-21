@@ -109,6 +109,7 @@ import edu.iastate.metnet.metaomgraph.ui.SetColTypes;
 import edu.iastate.metnet.metaomgraph.ui.SetProgramParameters;
 import edu.iastate.metnet.metaomgraph.ui.WelcomePanel;
 import edu.iastate.metnet.metaomgraph.ui.WelcomePanelWin10;
+import edu.iastate.metnet.metaomgraph.ui.logFCPanel;
 import edu.iastate.metnet.metaomgraph.ui.NewProjectDialog.FileBrowseListener;
 import edu.iastate.metnet.metaomgraph.utils.DataNormalizer;
 import edu.iastate.metnet.metaomgraph.utils.DataNormalizer.MeanResult;
@@ -547,6 +548,8 @@ public class MetaOmGraph implements ActionListener {
 	public static final String ARAPORT_THALEMINE_COMMAND = "ThaleMine";
 	public static final String ARAPORT_JBROWSE_COMMAND = "JBrowse";
 	private static JMenuItem findSamples;
+	private static JMenu diffExpMenu;
+	private static JMenuItem logChange;
 	public static final String REPORT_COMMAND = "report";
 
 	/** Items on the Project menu */
@@ -1164,6 +1167,19 @@ public class MetaOmGraph implements ActionListener {
 		findSamples.addActionListener(myself);
 		toolsMenu.add(findSamples);
 		mainMenuBar.add(toolsMenu);
+		
+		
+		diffExpMenu= new JMenu("Differential expression");
+		infoButtonMenu.setToolTipText("Find differentially expressed features");
+
+		logChange = new JMenuItem("log FC");
+		logChange.setActionCommand("logChange");
+		logChange.addActionListener(myself);
+		logChange.setToolTipText("Find log FC of genes over two groups");
+		
+		diffExpMenu.add(logChange);
+		
+		toolsMenu.add(diffExpMenu);
 		///////////// end tool menu//////////////////
 
 		cascadeItem = new JMenuItem("Arrange Windows");
@@ -2985,6 +3001,43 @@ public class MetaOmGraph implements ActionListener {
 			frame.setTitle("Search by expression level");
 			MetaOmGraph.getDesktop().add(frame);
 			frame.setVisible(true);
+
+			return;
+		}
+		
+		
+		if ("logChange".equals(e.getActionCommand())) {
+			if(getActiveProject().getMetadataHybrid()==null) {
+				JOptionPane.showMessageDialog(null, "No metadata read","No metadata",JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			logFCPanel panel=new logFCPanel();
+			int res = JOptionPane.showConfirmDialog(null, panel, "Select categories",
+					JOptionPane.OK_CANCEL_OPTION);
+			if (res == JOptionPane.OK_OPTION) {
+				String selectedList=panel.getselectedGeneList();
+				String grpID=panel.getselectedGrpID();
+				
+				calculateLogFC ob=new calculateLogFC(selectedList, grpID, getActiveProject());
+				
+				if(!ob.createGroup()) {
+					return;
+				}else {
+					JOptionPane.showMessageDialog(null, "Calcul..........");
+					try {
+						ob.doCalc();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					
+					//get all featurs in list
+					
+				}
+				
+			} else {
+				return;
+			}
 
 			return;
 		}
