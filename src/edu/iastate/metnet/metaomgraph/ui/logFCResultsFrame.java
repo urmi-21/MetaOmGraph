@@ -8,6 +8,7 @@ import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
@@ -31,7 +32,11 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
 
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
+import edu.iastate.metnet.metaomgraph.MetaOmProject;
+import edu.iastate.metnet.metaomgraph.chart.BoxPlot;
 import edu.iastate.metnet.metaomgraph.chart.HistogramChart;
+import edu.iastate.metnet.metaomgraph.chart.MetaOmChartPanel;
+import edu.iastate.metnet.metaomgraph.chart.ScatterPlotChart;
 import edu.iastate.metnet.metaomgraph.ui.MetadataTableDisplayPanel.AlphanumericComparator;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
@@ -46,6 +51,7 @@ public class logFCResultsFrame extends JInternalFrame {
 	private List<String> featureNames;
 	private List<Double> mean1;
 	private List<Double> mean2;
+	private MetaOmProject myProject;
 
 	/**
 	 * Default Properties
@@ -64,7 +70,7 @@ public class logFCResultsFrame extends JInternalFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					logFCResultsFrame frame = new logFCResultsFrame(null, null, null);
+					logFCResultsFrame frame = new logFCResultsFrame(null, null, null, null);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -76,10 +82,12 @@ public class logFCResultsFrame extends JInternalFrame {
 	/**
 	 * Create the frame.
 	 */
-	public logFCResultsFrame(List<String> featureNames, List<Double> mean1, List<Double> mean2) {
+	public logFCResultsFrame(List<String> featureNames, List<Double> mean1, List<Double> mean2,
+			MetaOmProject myProject) {
 		this.featureNames = featureNames;
 		this.mean1 = mean1;
 		this.mean2 = mean2;
+		this.myProject = myProject;
 		setBounds(100, 100, 450, 300);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -99,7 +107,7 @@ public class logFCResultsFrame extends JInternalFrame {
 
 		JMenu mnFile = new JMenu("File");
 		menuBar.add(mnFile);
-		
+
 		JMenuItem mntmSave = new JMenuItem("Save to file");
 		mntmSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -107,46 +115,157 @@ public class logFCResultsFrame extends JInternalFrame {
 			}
 		});
 		mnFile.add(mntmSave);
-		
+
 		JMenu mnEdit = new JMenu("Edit");
 		menuBar.add(mnEdit);
-		
+
 		JMenuItem mntmExportSelectedTo = new JMenuItem("Export selected to list");
 		mnEdit.add(mntmExportSelectedTo);
-		
+
 		JMenu mnPlot = new JMenu("Plot");
 		menuBar.add(mnPlot);
-		
+
 		JMenu mnSelected = new JMenu("Selected");
 		mnPlot.add(mnSelected);
-		
-		JMenuItem mntmLineChart = new JMenuItem("Liine Chart");
+
+		JMenuItem mntmLineChart = new JMenuItem("Line Chart");
+		mntmLineChart.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				// get selected rowindex
+				int[] rowIndices = getSelectedRowIndices();
+				if (rowIndices == null || rowIndices.length == 0) {
+					JOptionPane.showMessageDialog(null, "No rows selected", "Nothing selected",
+							JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				new MetaOmChartPanel(rowIndices, myProject.getDefaultXAxis(), myProject.getDefaultYAxis(),
+						myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject)
+								.createInternalFrame();
+
+			}
+		});
 		mnSelected.add(mntmLineChart);
-		
+
 		JMenuItem mntmScatterplot = new JMenuItem("Scatter Plot");
+		mntmScatterplot.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				// get selected rowindex
+				int[] rowIndices = getSelectedRowIndices();
+				if (rowIndices == null) {
+					JOptionPane.showMessageDialog(null, "No rows selected", "Nothing selected",
+							JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				if (rowIndices.length < 1) {
+					JOptionPane.showMessageDialog(null,
+							"Please select two or more rows and try again to plot a scatterplot.",
+							"Invalid number of rows selected", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						try {// get data for selected rows
+
+							ScatterPlotChart f = new ScatterPlotChart(rowIndices, 0, myProject);
+							MetaOmGraph.getDesktop().add(f);
+							f.setDefaultCloseOperation(2);
+							f.setClosable(true);
+							f.setResizable(true);
+							f.pack();
+							f.setSize(1000, 700);
+							f.setVisible(true);
+							f.toFront();
+
+						} catch (Exception e) {
+							JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
+									JOptionPane.ERROR_MESSAGE);
+
+							e.printStackTrace();
+							return;
+						}
+					}
+				});
+
+				return;
+
+			}
+		});
 		mnSelected.add(mntmScatterplot);
-		
+
 		JMenuItem mntmBoxPlot = new JMenuItem("Box Plot");
+		mntmBoxPlot.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int[] rowIndices = getSelectedRowIndices();
+				if (rowIndices == null || rowIndices.length == 0) {
+					JOptionPane.showMessageDialog(null, "No rows selected", "Nothing selected",
+							JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				// get data for box plot as hasmap
+				HashMap<Integer, double[]> plotData = new HashMap<>();
+				for (int i = 0; i < rowIndices.length; i++) {
+					double[] dataY = null;
+					try {
+						// dataY = myProject.getIncludedData(selected[i]);
+						// send all data; excluded data will be excluded in the boxplot class; this
+						// helps in splitting data by categories by reusing cluster function
+						dataY = myProject.getAllData(rowIndices[i]);
+					} catch (IOException eIO) {
+						// TODO Auto-generated catch block
+						eIO.printStackTrace();
+					}
+					plotData.put(rowIndices[i], dataY);
+				}
+
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						try {// get data for selected rows
+
+							BoxPlot f = new BoxPlot(plotData, 0, myProject);
+							MetaOmGraph.getDesktop().add(f);
+							f.setDefaultCloseOperation(2);
+							f.setClosable(true);
+							f.setResizable(true);
+							f.pack();
+							f.setSize(1000, 700);
+							f.setVisible(true);
+							f.toFront();
+
+						} catch (Exception e) {
+							JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
+									JOptionPane.ERROR_MESSAGE);
+
+							e.printStackTrace();
+							return;
+						}
+					}
+				});
+
+			}
+		});
 		mnSelected.add(mntmBoxPlot);
-		
+
 		JMenuItem mntmHistogram = new JMenuItem("Histogram");
 		mnSelected.add(mntmHistogram);
-		
+
 		JMenuItem mntmFcHistogram = new JMenuItem("FC histogram");
 		mntmFcHistogram.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
 				// plot histogram of current pvalues in table
-				double [] fcdata=new double[table.getRowCount()];
-				for(int r=0;r<table.getRowCount();r++) {
-					
-					fcdata[r]=(double) table.getModel().getValueAt(r, table.getColumn("logFC").getModelIndex() );
+				double[] fcdata = new double[table.getRowCount()];
+				for (int r = 0; r < table.getRowCount(); r++) {
+
+					fcdata[r] = (double) table.getModel().getValueAt(r, table.getColumn("logFC").getModelIndex());
 				}
 				EventQueue.invokeLater(new Runnable() {
 					public void run() {
 						try {// get data for selected rows
 							int nBins = 10;
-							HistogramChart f = new HistogramChart(null, nBins, null, 2,fcdata);
+							HistogramChart f = new HistogramChart(null, nBins, null, 2, fcdata);
 							MetaOmGraph.getDesktop().add(f);
 							f.setDefaultCloseOperation(2);
 							f.setClosable(true);
@@ -166,7 +285,7 @@ public class logFCResultsFrame extends JInternalFrame {
 					}
 				});
 				return;
-			
+
 			}
 		});
 		mnPlot.add(mntmFcHistogram);
@@ -252,8 +371,6 @@ public class logFCResultsFrame extends JInternalFrame {
 		// disable colum drag
 		table.getTableHeader().setReorderingAllowed(false);
 
-		
-
 		DefaultTableModel model = new DefaultTableModel() {
 			private static final long serialVersionUID = 1L;
 
@@ -293,6 +410,20 @@ public class logFCResultsFrame extends JInternalFrame {
 		table.setFillsViewportHeight(true);
 		table.getTableHeader().setFont(new Font("Garamond", Font.BOLD, 14));
 
+	}
+
+	private int[] getSelectedRowIndices() {
+		// get correct indices wrt the list
+		int[] rowIndices = table.getSelectedRows();
+		// JOptionPane.showMessageDialog(null, "sR:" + Arrays.toString(rowIndices));
+		List<String> names = new ArrayList<>();
+		int j = 0;
+		for (int i : rowIndices) {
+			names.add(table.getValueAt(i, table.getColumn("Name").getModelIndex()).toString());
+		}
+		rowIndices = myProject.getRowIndexbyName(names);
+
+		return rowIndices;
 	}
 
 }
