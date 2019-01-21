@@ -120,6 +120,21 @@ public class logFCResultsFrame extends JInternalFrame {
 		menuBar.add(mnEdit);
 
 		JMenuItem mntmExportSelectedTo = new JMenuItem("Export selected to list");
+		mntmExportSelectedTo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// get selected rowindex
+				int[] rowIndices = getSelectedRowIndices();
+				if (rowIndices == null || rowIndices.length == 0) {
+					JOptionPane.showMessageDialog(null, "No rows selected", "Nothing selected",
+							JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				 if (myProject.addGeneList("NewLSSS", rowIndices, true)) {
+		                dispose();
+		            }
+		            return;
+			}
+		});
 		mnEdit.add(mntmExportSelectedTo);
 
 		JMenu mnPlot = new JMenu("Plot");

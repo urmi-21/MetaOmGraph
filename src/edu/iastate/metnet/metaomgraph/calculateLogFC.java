@@ -12,6 +12,7 @@ import java.util.TreeMap;
 import javax.swing.JOptionPane;
 
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
+import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
 import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
 
 public class calculateLogFC {
@@ -21,7 +22,7 @@ public class calculateLogFC {
 	private MetaOmProject myProject;
 	private Map<String, Collection<Integer>> splitIndex;
 	private boolean[] excluded;
-	
+
 	private List<String> featureNames;
 	private List<Double> mean1;
 	private List<Double> mean2;
@@ -76,7 +77,7 @@ public class calculateLogFC {
 						result.add(hits[index]);
 						toAdd.remove(hits[index]);
 					}
-					//add result and complement list
+					// add result and complement list
 					resList.add(result);
 					resList.add(myProject.getComplentDataColumns(result, true));
 					return null;
@@ -115,58 +116,84 @@ public class calculateLogFC {
 
 	}
 
-	public void doCalc() throws IOException {
+	public void doCalc() {
 
 		int[] selected = myProject.getGeneListRowNumbers(this.selectedList);
 		double[] fcVals = new double[selected.length];
-		featureNames=new ArrayList<>();
-		mean1=new ArrayList<>();
-		mean2=new ArrayList<>();
-		
-		for (int r = 0; r < selected.length; r++) {
-			double[] thisData = myProject.getAllData(selected[r], true);
-			double m1 = 0, m2 = 0, fc = 0;
-			Collection<Integer> g1Ind = (Collection<Integer>) splitIndex.values().toArray()[0];
-			Collection<Integer> g2Ind = (Collection<Integer>) splitIndex.values().toArray()[1];
-			double log2b10 = Math.log(2.0D);
+		featureNames = new ArrayList<>();
+		mean1 = new ArrayList<>();
+		mean2 = new ArrayList<>();
 
-			for (int k = 0; k < thisData.length; k++) {
-				if (excluded != null && excluded[k]) {
-					continue;
-				}
-				if (g1Ind.contains(k)) {
-					m1 += (Math.log(thisData[k] + 1) / log2b10);
+		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(),
+				"Calculating...", "", 0L, selected.length, true);
+		SwingWorker analyzeWorker = new SwingWorker() {
+			boolean errored = false;
 
-				} else {
-					m2 += (Math.log(thisData[k] + 1) / log2b10);
+			public Object construct() {
+
+				for (int r = 0; r < selected.length; r++) {
+					progress.setProgress(r);
+					double[] thisData = null;
+					try {
+						thisData = myProject.getAllData(selected[r], true);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					double m1 = 0, m2 = 0, fc = 0;
+					Collection<Integer> g1Ind = (Collection<Integer>) splitIndex.values().toArray()[0];
+					Collection<Integer> g2Ind = (Collection<Integer>) splitIndex.values().toArray()[1];
+					double log2b10 = Math.log(2.0D);
+
+					for (int k = 0; k < thisData.length; k++) {
+						if (excluded != null && excluded[k]) {
+							continue;
+						}
+						if (g1Ind.contains(k)) {
+							m1 += (Math.log(thisData[k] + 1) / log2b10);
+
+						} else {
+							m2 += (Math.log(thisData[k] + 1) / log2b10);
+						}
+					}
+
+					// JOptionPane.showMessageDialog(null, "s1:" + m1 + " s2:" + m2);
+					m1 = m1 / g1Ind.size();
+					m2 = m2 / g2Ind.size();
+					fc = m1 - m2;
+					// JOptionPane.showMessageDialog(null, "mean1:" + m1 + " s:" + g1Ind.size());
+					// JOptionPane.showMessageDialog(null, "mean2:" + m2 + " s:" + g2Ind.size());
+					fcVals[r] = fc;
+
+					featureNames.add(myProject.getDefaultRowNames(r));
+					mean1.add(m1);
+					mean2.add(m2);
+
 				}
+				return null;
 			}
 
-			//JOptionPane.showMessageDialog(null, "s1:" + m1 + " s2:" + m2);
-			m1 = m1 / g1Ind.size();
-			m2 = m2 / g2Ind.size();
-			fc = m1 - m2;
-			//JOptionPane.showMessageDialog(null, "mean1:" + m1 + " s:" + g1Ind.size());
-			//JOptionPane.showMessageDialog(null, "mean2:" + m2 + " s:" + g2Ind.size());
-			fcVals[r] = fc;
-			
-			featureNames.add(myProject.getDefaultRowNames(r));
-			mean1.add(m1);
-			mean2.add(m2);
-
-		}
+			public void finished() {
+				if ((!progress.isCanceled()) && (!errored)) {
+	
+				}
+				progress.dispose();
+			}
+		};
+		analyzeWorker.start();
+		progress.setVisible(true);
 
 	}
-	
-	public List<String> getFeatureNames(){
+
+	public List<String> getFeatureNames() {
 		return this.featureNames;
 	}
-	
-	public List<Double> getMean1(){
+
+	public List<Double> getMean1() {
 		return this.mean1;
 	}
-	
-	public List<Double> getMean2(){
+
+	public List<Double> getMean2() {
 		return this.mean2;
 	}
 

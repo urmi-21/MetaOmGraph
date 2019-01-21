@@ -3023,7 +3023,7 @@ public class MetaOmGraph implements ActionListener {
 				} else {
 					// JOptionPane.showMessageDialog(null, "Calcul..........");
 
-					new AnimatedSwingWorker("Searching...", true) {
+					/*new AnimatedSwingWorker("Searching...", true) {
 						@Override
 						public Object construct() {
 							try {
@@ -3034,8 +3034,9 @@ public class MetaOmGraph implements ActionListener {
 							}
 							return null;
 						}
-					}.start();
+					}.start();*/
 
+					ob.doCalc();
 					// display result
 					logFCResultsFrame frame = new logFCResultsFrame(ob.getFeatureNames(), ob.getMean1(), ob.getMean2(),getActiveProject());
 					frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2,

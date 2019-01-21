@@ -118,3 +118,4 @@ Have chart its own excluded data values; Add refresh options to chart sync with 
 Allow to hide show series; arrange histogram. make more interactive
 gif support ??
 does cluster function exclude columns ???
+create a common class to handle plot functions from different tables
