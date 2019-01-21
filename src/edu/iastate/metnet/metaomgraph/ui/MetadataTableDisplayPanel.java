@@ -841,8 +841,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 					System.out.println(row + " " + col);
 					String url = (String) table.getModel().getValueAt(row, col);
 					System.out.println(url + " was clicked");
-					// DO here what you want to do with your url
-
+					
 					// open url
 					URI ns = null;
 					try {
