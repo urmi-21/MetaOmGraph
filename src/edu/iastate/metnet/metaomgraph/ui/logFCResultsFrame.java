@@ -173,22 +173,7 @@ public class logFCResultsFrame extends JInternalFrame {
 		// disable colum drag
 		table.getTableHeader().setReorderingAllowed(false);
 
-		table.setModel(new DefaultTableModel() {
-
-			@Override
-			public boolean isCellEditable(int row, int column) {
-				return false;
-			}
-
-			@Override
-			public Class<?> getColumnClass(int col) {
-				Class<?> returnValue;
-				returnValue = Object.class;
-				return returnValue;
-
-			}
-
-		});
+		
 
 		DefaultTableModel model = new DefaultTableModel() {
 			private static final long serialVersionUID = 1L;
@@ -224,6 +209,7 @@ public class logFCResultsFrame extends JInternalFrame {
 		}
 
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		table.setAutoCreateRowSorter(true);
 		table.setPreferredScrollableViewportSize(table.getPreferredSize());
 		table.setFillsViewportHeight(true);
 		table.getTableHeader().setFont(new Font("Garamond", Font.BOLD, 14));

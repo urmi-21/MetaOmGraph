@@ -156,8 +156,6 @@ public class calculateLogFC {
 
 		}
 
-		JOptionPane.showMessageDialog(null, Arrays.toString(fcVals));
-
 	}
 	
 	public List<String> getFeatureNames(){
