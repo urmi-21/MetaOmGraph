@@ -20,7 +20,7 @@ public class calculateLogFC {
 	private String grpID;
 	private MetaOmProject myProject;
 	private Map<String, Collection<Integer>> splitIndex;
-	private boolean[] excluded ;
+	private boolean[] excluded;
 
 	public calculateLogFC(String selectedList, String grpID, MetaOmProject myProject) {
 		this.selectedList = selectedList;
@@ -56,7 +56,6 @@ public class calculateLogFC {
 					Integer[] hits = myProject.getMetadataHybrid().search(queries, tsp.matchAll());
 					// remove excluded cols from list
 					// urmi
-					
 					if (excluded != null) {
 						List<Integer> temp = new ArrayList<>();
 						for (Integer i : hits) {
@@ -73,11 +72,9 @@ public class calculateLogFC {
 						result.add(hits[index]);
 						toAdd.remove(hits[index]);
 					}
-					/*
-					 * for (int i = 0; i < toAdd.size(); i++) { other.add(toAdd.get(i)); }
-					 */
+					//add result and complement list
 					resList.add(result);
-					resList.add(toAdd);
+					resList.add(myProject.getComplentDataColumns(result, true));
 					return null;
 				}
 			}.start();
@@ -119,32 +116,36 @@ public class calculateLogFC {
 		JOptionPane.showMessageDialog(null, splitIndex.toString());
 
 		int[] selected = myProject.getGeneListRowNumbers(this.selectedList);
-		double[] fcVals=new double[selected.length];
+		double[] fcVals = new double[selected.length];
 		for (int r = 0; r < selected.length; r++) {
-			double[] thisData = myProject.getAllData(selected[r],true);
-			double m1 = 0, m2 = 0,fc=0;
-			Collection<Integer> g1Ind = (Collection<Integer>) splitIndex.values().toArray()[0]; 
-			Collection<Integer> g2Ind = (Collection<Integer>) splitIndex.values().toArray()[0]; 
+			double[] thisData = myProject.getAllData(selected[r], true);
+			double m1 = 0, m2 = 0, fc = 0;
+			Collection<Integer> g1Ind = (Collection<Integer>) splitIndex.values().toArray()[0];
+			Collection<Integer> g2Ind = (Collection<Integer>) splitIndex.values().toArray()[1];
 			double log2b10 = Math.log(2.0D);
-			
-			for(int k=0;k<thisData.length;k++) {
-				if(excluded !=null && excluded[k]) {
+
+			for (int k = 0; k < thisData.length; k++) {
+				if (excluded != null && excluded[k]) {
 					continue;
 				}
-				if(g1Ind.contains(k)) {
-					m1+=Math.log(thisData[k] + 1) / log2b10;
-				}else {
-					m2+=Math.log(thisData[k] + 1) / log2b10;;
+				if (g1Ind.contains(k)) {
+					m1 += (Math.log(thisData[k] + 1) / log2b10);
+
+				} else {
+					m2 += (Math.log(thisData[k] + 1) / log2b10);
 				}
 			}
-			
-			m1=m1/g1Ind.size();
-			m2=m2/g2Ind.size();
-			fc=m1-m2;
-			fcVals[r]=fc;
+
+			JOptionPane.showMessageDialog(null, "s1:" + m1 + " s2:" + m2);
+			m1 = m1 / g1Ind.size();
+			m2 = m2 / g2Ind.size();
+			fc = m1 - m2;
+			JOptionPane.showMessageDialog(null, "mean1:" + m1 + " s:" + g1Ind.size());
+			JOptionPane.showMessageDialog(null, "mean2:" + m2 + " s:" + g2Ind.size());
+			fcVals[r] = fc;
 
 		}
-		
+
 		JOptionPane.showMessageDialog(null, Arrays.toString(fcVals));
 
 	}

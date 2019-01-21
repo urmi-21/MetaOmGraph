@@ -1840,6 +1840,36 @@ public class MetaOmProject {
 	}
 
 	/**
+	 * Return a list of Datacol index not in the given list
+	 * 
+	 * @param inputList
+	 * @return
+	 */
+	public Collection<Integer> getComplentDataColumns(Collection<Integer> inputList, boolean removeExcluded) {
+		List<Integer> res = new ArrayList<>();
+		for (int i = 0; i < getDataColumnCount(); i++) {
+			if (!inputList.contains(i)) {
+				res.add(i);
+			}
+		}
+
+		if (removeExcluded) {
+			boolean[] excluded = MetaOmAnalyzer.getExclude();
+			if (excluded != null) {
+				List<Integer> toRem = new ArrayList<>();
+				for (int k = 0; k < excluded.length; k++) {
+					if (excluded[k]) {
+						toRem.add(k);
+					}
+				}
+				res.removeAll(toRem);
+			}
+		}
+
+		return res;
+	}
+
+	/**
 	 * Return true if all datacolumns in data file are unique
 	 */
 	public boolean isUniqueDataCols() {
@@ -1989,8 +2019,8 @@ public class MetaOmProject {
 
 	/**
 	 * return datacolumn headers according to sorted data. Used in finding metadata
-	 * of a point in scatter plot
-	 * NOT USED 
+	 * of a point in scatter plot NOT USED
+	 * 
 	 * @param rowIndex
 	 * @param index
 	 * @param excludedCopy
@@ -2051,7 +2081,7 @@ public class MetaOmProject {
 
 		List<Integer> includedDataCol = new ArrayList<>();
 		double[] thisData = getAllData(rowIndex);
-		List<Double> dataInSeries=new ArrayList<>();
+		List<Double> dataInSeries = new ArrayList<>();
 		if (excludedCopy != null) {
 			for (int i : dataColInd) {
 				if (!excludedCopy[i]) {
@@ -2063,17 +2093,17 @@ public class MetaOmProject {
 				includedDataCol.add(i);
 			}
 		}
-		
-		for(int i:includedDataCol) {
+
+		for (int i : includedDataCol) {
 			dataInSeries.add(thisData[i]);
 		}
-		//create a copy
-		List<Double> dataInSeriesOrig=new ArrayList<>(dataInSeries);
+		// create a copy
+		List<Double> dataInSeriesOrig = new ArrayList<>(dataInSeries);
 		Collections.sort(dataInSeries);
-		//get index in the orignal data array
-		//this approach may fail for repeating data values
-		int thisInd=dataInSeriesOrig.indexOf(dataInSeries.get(index));
-				
+		// get index in the orignal data array
+		// this approach may fail for repeating data values
+		int thisInd = dataInSeriesOrig.indexOf(dataInSeries.get(index));
+
 		return includedDataCol.get(thisInd);
 	}
 
@@ -2427,11 +2457,12 @@ public class MetaOmProject {
 	 * @return
 	 * @throws IOException
 	 */
-	
+
 	public double[] getAllData(int row) throws IOException {
-		return getAllData(row,false); //by default apply transformation
+		return getAllData(row, false); // by default apply transformation
 	}
-	public double[] getAllData(int row,boolean noTransform) throws IOException {
+
+	public double[] getAllData(int row, boolean noTransform) throws IOException {
 		double[] result;
 
 		if (!streamMode) {
@@ -2447,9 +2478,9 @@ public class MetaOmProject {
 		if (transform.equals("NONE")) {
 			return result;
 		}
-		
-		//return raw data
-		if(noTransform) {
+
+		// return raw data
+		if (noTransform) {
 			return result;
 		}
 
@@ -2477,8 +2508,6 @@ public class MetaOmProject {
 
 		return result;
 	}
-	
-	
 
 	/**
 	 * @author urmi function to return all the data as list of double[]
