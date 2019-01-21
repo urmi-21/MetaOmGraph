@@ -3040,7 +3040,7 @@ public class MetaOmGraph implements ActionListener {
 					logFCResultsFrame frame = new logFCResultsFrame(ob.getFeatureNames(), ob.getMean1(), ob.getMean2(),getActiveProject());
 					frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2,
 							MetaOmGraph.getMainWindow().getHeight() / 2);
-					frame.setTitle("Change parameters");
+					frame.setTitle("Fold change results");
 					MetaOmGraph.getDesktop().add(frame);
 					frame.setVisible(true);
 

@@ -249,6 +249,44 @@ public class logFCResultsFrame extends JInternalFrame {
 		mnSelected.add(mntmBoxPlot);
 
 		JMenuItem mntmHistogram = new JMenuItem("Histogram");
+		mntmHistogram.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						try {// get data for selected rows
+							int[] selected = getSelectedRowIndices();
+							if (selected == null || selected.length == 0) {
+								JOptionPane.showMessageDialog(null, "No rows selected", "Nothing selected",
+										JOptionPane.ERROR_MESSAGE);
+								return;
+							}
+							//number of bins
+							int nBins=myProject.getIncludedDataColumnCount()/10;
+							HistogramChart f = new HistogramChart(selected, nBins,myProject,1,null);
+							MetaOmGraph.getDesktop().add(f);
+							f.setDefaultCloseOperation(2);
+							f.setClosable(true);
+							f.setResizable(true);
+							f.pack();
+							f.setSize(1000, 700);
+							f.setVisible(true);
+							f.toFront();
+
+						} catch (Exception e) {
+							JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
+									JOptionPane.ERROR_MESSAGE);
+
+							e.printStackTrace();
+							return;
+						}
+					}
+				});
+				return;
+			
+			}
+		});
 		mnSelected.add(mntmHistogram);
 
 		JMenuItem mntmFcHistogram = new JMenuItem("FC histogram");
@@ -387,9 +425,9 @@ public class logFCResultsFrame extends JInternalFrame {
 		table.setModel(model);
 		DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
 		// add data
-		tablemodel.addColumn("Feature");
-		tablemodel.addColumn("Mean1");
-		tablemodel.addColumn("Mean2");
+		tablemodel.addColumn("Name");
+		tablemodel.addColumn("Mean(log(Grp1))");
+		tablemodel.addColumn("Mean(log(Grp2))");
 		tablemodel.addColumn("logFC");
 		// for each row add each coloumn
 		for (int i = 0; i < featureNames.size(); i++) {
