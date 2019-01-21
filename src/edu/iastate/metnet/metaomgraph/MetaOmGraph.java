@@ -208,11 +208,11 @@ public class MetaOmGraph implements ActionListener {
 	private static MOGColorThemes themeDark = new MOGColorThemes("dark", new ColorUIResource(153, 153, 153),
 			new ColorUIResource(204, 204, 204), Color.black, new ColorUIResource(0, 153, 102), Color.RED,
 			new ColorUIResource(153, 153, 153), new ColorUIResource(153, 153, 153));
-	
+
 	private static MOGColorThemes themeSky = new MOGColorThemes("sky", new ColorUIResource(241, 250, 238),
-			new ColorUIResource(168, 218, 220), new ColorUIResource(69, 123, 157), new ColorUIResource(155, 197, 61), Color.green, Color.WHITE, Color.WHITE);
-	
-	
+			new ColorUIResource(168, 218, 220), new ColorUIResource(69, 123, 157), new ColorUIResource(155, 197, 61),
+			Color.green, Color.WHITE, Color.WHITE);
+
 	private static HashMap<String, MOGColorThemes> mogThemes = new HashMap<>();
 	private static String currentmogThemeName = "light";
 	private static MOGColorThemes currentTheme;
@@ -233,7 +233,7 @@ public class MetaOmGraph implements ActionListener {
 		}
 		mogThemes.put(theme.getThemeName(), theme);
 	}
-	
+
 	public static void removeTheme(String name) {
 		if (mogThemes.containsKey(name)) {
 			mogThemes.remove(name);
@@ -276,7 +276,7 @@ public class MetaOmGraph implements ActionListener {
 	public static String getCurrentThemeName() {
 		return currentmogThemeName;
 	}
-	
+
 	public static MOGColorThemes getCurrentTheme() {
 		return mogThemes.get(getCurrentThemeName());
 	}
@@ -677,7 +677,7 @@ public class MetaOmGraph implements ActionListener {
 	 */
 	@SuppressWarnings("unchecked")
 	public static void init(boolean useBuffer) {
-		System.setProperty("MOG.version", " v. "+VERSION);
+		System.setProperty("MOG.version", " v. " + VERSION);
 		System.setProperty("MOG.date", DATE);
 
 		myself = new MetaOmGraph();
@@ -1168,18 +1168,17 @@ public class MetaOmGraph implements ActionListener {
 		findSamples.addActionListener(myself);
 		toolsMenu.add(findSamples);
 		mainMenuBar.add(toolsMenu);
-		
-		
-		diffExpMenu= new JMenu("Differential expression");
+
+		diffExpMenu = new JMenu("Differential expression");
 		infoButtonMenu.setToolTipText("Find differentially expressed features");
 
 		logChange = new JMenuItem("log FC");
 		logChange.setActionCommand("logChange");
 		logChange.addActionListener(myself);
 		logChange.setToolTipText("Find log FC of genes over two groups");
-		
+
 		diffExpMenu.add(logChange);
-		
+
 		toolsMenu.add(diffExpMenu);
 		///////////// end tool menu//////////////////
 
@@ -2100,7 +2099,7 @@ public class MetaOmGraph implements ActionListener {
 			if (comps[x] instanceof JInternalFrame)
 				((JInternalFrame) (comps[x])).dispose();
 		MetaOmAnalyzer.reset();
-		//System.gc();
+		// System.gc();
 		return true;
 	}
 
@@ -2805,7 +2804,7 @@ public class MetaOmGraph implements ActionListener {
 					getActiveTable().getTable().paintImmediately(0, 0, getActiveTable().getTable().getWidth(),
 							getActiveTable().getTable().getHeight());
 					getActiveTable().refresh();
-					//System.gc();
+					// System.gc();
 				}
 			}.start();
 			return;
@@ -3005,47 +3004,48 @@ public class MetaOmGraph implements ActionListener {
 
 			return;
 		}
-		
-		
+
 		if ("logChange".equals(e.getActionCommand())) {
-			if(getActiveProject().getMetadataHybrid()==null) {
-				JOptionPane.showMessageDialog(null, "No metadata read","No metadata",JOptionPane.ERROR_MESSAGE);
+			if (getActiveProject().getMetadataHybrid() == null) {
+				JOptionPane.showMessageDialog(null, "No metadata read", "No metadata", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-			logFCPanel panel=new logFCPanel();
-			int res = JOptionPane.showConfirmDialog(null, panel, "Select categories",
-					JOptionPane.OK_CANCEL_OPTION);
+			logFCPanel panel = new logFCPanel();
+			int res = JOptionPane.showConfirmDialog(null, panel, "Select categories", JOptionPane.OK_CANCEL_OPTION);
 			if (res == JOptionPane.OK_OPTION) {
-				String selectedList=panel.getselectedGeneList();
-				String grpID=panel.getselectedGrpID();
-				
-				calculateLogFC ob=new calculateLogFC(selectedList, grpID, getActiveProject());
-				
-				if(!ob.createGroup()) {
+				String selectedList = panel.getselectedGeneList();
+				String grpID = panel.getselectedGrpID();
+
+				calculateLogFC ob = new calculateLogFC(selectedList, grpID, getActiveProject());
+
+				if (!ob.createGroup()) {
 					return;
-				}else {
-					//JOptionPane.showMessageDialog(null, "Calcul..........");
-					try {
-						ob.doCalc();
-						
-						//display result
-						logFCResultsFrame frame=new logFCResultsFrame(ob.getFeatureNames(), ob.getMean1(), ob.getMean2());
-						frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
-						frame.pack();
-						frame.setTitle("Change parameters");
-						MetaOmGraph.getDesktop().add(frame);
-						frame.setVisible(true);
-						
-						
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-					
-					
-					
+				} else {
+					// JOptionPane.showMessageDialog(null, "Calcul..........");
+
+					new AnimatedSwingWorker("Searching...", true) {
+						@Override
+						public Object construct() {
+							try {
+								ob.doCalc();
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							return null;
+						}
+					}.start();
+
+					// display result
+					logFCResultsFrame frame = new logFCResultsFrame(ob.getFeatureNames(), ob.getMean1(), ob.getMean2());
+					frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2,
+							MetaOmGraph.getMainWindow().getHeight() / 2);
+					frame.setTitle("Change parameters");
+					MetaOmGraph.getDesktop().add(frame);
+					frame.setVisible(true);
+
 				}
-				
+
 			} else {
 				return;
 			}
@@ -3481,12 +3481,11 @@ public class MetaOmGraph implements ActionListener {
 		// add info about rows
 		int totalRows = activeProject.getRowCount();
 		title.append("; " + totalRows + " features");
-		
-		if(!getInstance().getTransform().equals("NONE")) {
+
+		if (!getInstance().getTransform().equals("NONE")) {
 			title.append("; transform data:" + getInstance().getTransform());
 		}
-		
-		
+
 		getMainWindow().setTitle(title.toString());
 
 		return title.toString();
