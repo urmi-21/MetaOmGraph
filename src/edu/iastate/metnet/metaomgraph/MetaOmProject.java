@@ -1925,6 +1925,27 @@ public class MetaOmProject {
 	}
 
 	/**
+	 * return index of rows matching a list of names
+	 * 
+	 * @param names
+	 * @return
+	 */
+	public int[] getRowIndexbyName(List<String> names) {
+		if (names == null)
+			return null;
+		int[] res = new int[names.size()];
+		int k = 0;
+		for (int i = 0; i < rowNames.length; i++) {
+			String thisName = rowNames[i][defaultColumn].toString();
+			if (names.contains(thisName)) {
+				res[k++] = i;
+			}
+		}
+
+		return res;
+	}
+
+	/**
 	 * Get rowname under defaultColumn
 	 * 
 	 * @author urmi

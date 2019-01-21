@@ -196,18 +196,15 @@ public class CorrelationMetaTable extends JInternalFrame {
 		loadJCombobox();
 		loadDatainTable(comboBox.getSelectedItem().toString());
 
-		JMenuItem mntmPlotLineChart = new JMenuItem("Plot line chart");
+		JMenuItem mntmPlotLineChart = new JMenuItem("Line Chart");
 		mntmPlotLineChart.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				// get correct indices wrt the list
-				int[] rowIndices = table.getSelectedRows();
-				// JOptionPane.showMessageDialog(null, "sR:" + Arrays.toString(rowIndices));
-				int j = 0;
-				for (int i : rowIndices) {
-					rowIndices[j++] = table.convertRowIndexToModel(i);
+			public void actionPerformed(ActionEvent arg0) {		
+				//get selected rowindex
+				int[] rowIndices=getSelectedRowIndices();
+				if(rowIndices==null || rowIndices.length==0) {
+					JOptionPane.showMessageDialog(null, "No rows selected", "Nothing selected", JOptionPane.ERROR_MESSAGE);
+					return;
 				}
-				// JOptionPane.showMessageDialog(null, "sR corr:" +
-				// Arrays.toString(rowIndices));
 				new MetaOmChartPanel(rowIndices, myProject.getDefaultXAxis(), myProject.getDefaultYAxis(),
 						myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject)
 								.createInternalFrame();
@@ -215,17 +212,15 @@ public class CorrelationMetaTable extends JInternalFrame {
 		});
 		mnPlot.add(mntmPlotLineChart);
 
-		JMenuItem mntmPlotScatterPlot = new JMenuItem("Plot scatter plot");
+		JMenuItem mntmPlotScatterPlot = new JMenuItem("Scatter Plot");
 		mntmPlotScatterPlot.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				// get correct indices wrt the list
-				int[] rowIndices = table.getSelectedRows();
-				// JOptionPane.showMessageDialog(null, "sR:" + Arrays.toString(rowIndices));
-				int j = 0;
-				for (int i : rowIndices) {
-					rowIndices[j++] = table.convertRowIndexToModel(i);
+				//get selected rowindex
+				int[] rowIndices=getSelectedRowIndices();
+				if(rowIndices==null ) {
+					JOptionPane.showMessageDialog(null, "No rows selected", "Nothing selected", JOptionPane.ERROR_MESSAGE);
+					return;
 				}
-
 				if (rowIndices.length < 1) {
 					JOptionPane.showMessageDialog(null,
 							"Please select two or more rows and try again to plot a scatterplot.",
@@ -587,6 +582,20 @@ public class CorrelationMetaTable extends JInternalFrame {
 			val = formatter.format((Number) val);
 			return super.getTableCellRendererComponent(table, val, isSelected, hasFocus, row, column);
 		}
+	}
+	
+	private int[] getSelectedRowIndices() {
+		// get correct indices wrt the list
+		int[] rowIndices = table.getSelectedRows();
+		// JOptionPane.showMessageDialog(null, "sR:" + Arrays.toString(rowIndices));
+		List<String> names=new ArrayList<>();
+		int j = 0;
+		for (int i : rowIndices) {
+			names.add(table.getValueAt(i, table.getColumn("Name").getModelIndex()).toString());
+		}
+		rowIndices=myProject.getRowIndexbyName(names);
+		
+		return rowIndices;
 	}
 
 }
