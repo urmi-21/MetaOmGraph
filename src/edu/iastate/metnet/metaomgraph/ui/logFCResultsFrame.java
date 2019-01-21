@@ -129,8 +129,14 @@ public class logFCResultsFrame extends JInternalFrame {
 							JOptionPane.ERROR_MESSAGE);
 					return;
 				}
-				 if (myProject.addGeneList("NewLSSS", rowIndices, true)) {
-		                dispose();
+				String listName = JOptionPane.showInputDialog(logFCResultsFrame.this, "Enter a name for new list");
+				if(listName==null||listName.length()<1) {
+					 JOptionPane.showMessageDialog(logFCResultsFrame.this, "Invalid name", "Failed", JOptionPane.ERROR_MESSAGE);
+					 return;
+				}
+
+				 if (myProject.addGeneList(listName, rowIndices, true)) {
+		             JOptionPane.showMessageDialog(logFCResultsFrame.this, "List"+ listName +" added", "List added", JOptionPane.INFORMATION_MESSAGE);  
 		            }
 		            return;
 			}
