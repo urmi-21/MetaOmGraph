@@ -53,6 +53,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.entity.LegendItemEntity;
 import org.jfree.chart.entity.XYItemEntity;
+import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.chart.plot.DefaultDrawingSupplier;
 import org.jfree.chart.plot.DrawingSupplier;
 import org.jfree.chart.plot.PlotOrientation;
@@ -165,7 +166,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 			rowNames = mp.getDefaultRowNames(selected);
 		}
 		if (htype == 2) {
-			rowNames = new String[] { "A" };
+			rowNames = new String[] { "" };
 			plotData = data;
 		}
 
@@ -212,6 +213,12 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		// create sample plot
 
 		try {
+			// Create dataset
+			if (histType == 1) {
+				dataset = createHistDataset();
+			} else if (histType == 2) {
+				dataset = createHistDataset(plotData);
+			}
 			chartPanel = makeHistogram();
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(null, "ERRRRRRRRRRRRRR");
@@ -258,6 +265,10 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		splitDataset.setActionCommand("splitDataset");
 		splitDataset.addActionListener(this);
 
+		if (histType == 2) {
+			splitDataset.setSelected(false);
+		}
+
 		panel.add(properties);
 		panel.add(save);
 		panel.add(print);
@@ -284,12 +295,6 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 	}
 
 	public ChartPanel makeHistogram() throws IOException {
-		// Create dataset
-		if (histType == 1) {
-			dataset = createHistDataset();
-		} else if (histType == 2) {
-			dataset = createHistDataset(plotData);
-		}
 
 		if (alphaSlider != null) {
 			alphaSlider.setValue((int) (initAlpha * 10F));
@@ -482,9 +487,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 							}
 						}
 					}
-					
-					thisName=thisName+";"+key;
-					dataset.addSeries(thisName, temp.stream().mapToDouble(d -> d).toArray(), _bins);
+					dataset.addSeries(thisName + ";" + key, temp.stream().mapToDouble(d -> d).toArray(), _bins);
 				}
 			}
 
@@ -794,6 +797,22 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 			}
 		}
 
+		if (event.getTrigger().getClickCount() == 1) {/*
+			if (event.getEntity() instanceof LegendItemEntity) {
+				Comparable seriesKey = ((LegendItemEntity) event.getEntity()).getSeriesKey();
+				int index = myChart.getXYPlot().getDataset().indexOf(seriesKey);
+				JOptionPane.showMessageDialog(null,
+						"ToFront" + myChart.getXYPlot().getDatasetRenderingOrder().toString() + ":"
+								+ seriesKey.toString() + "," + dataset.getDomainOrder().toString());
+				bringToFront(seriesKey.toString());
+
+				return;
+			} else if (event.getEntity() instanceof XYItemEntity) {
+
+				return;
+			}*/
+		}
+
 	}
 
 	@Override
@@ -833,7 +852,12 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		save.removeActionListener(chartPanel);
 		this.chartPanel = null;
 		try {
-
+			// Create dataset
+			if (histType == 1) {
+				dataset = createHistDataset();
+			} else if (histType == 2) {
+				dataset = createHistDataset(plotData);
+			}
 			this.chartPanel = makeHistogram();
 			scrollPane.setViewportView(chartPanel);
 			properties.addActionListener(chartPanel);
@@ -854,5 +878,24 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		myChart.getXYPlot().setForegroundAlpha(alpha);
 
 	}
+
+	/*private void bringToFront(String seriesKey) {
+		HistogramDataset temp = new HistogramDataset();
+		for (int i = 0; i < dataset.getSeriesCount(); i++) {
+			String thisKey = dataset.getSeriesKey(i).toString();
+			if (thisKey.equals(seriesKey)) {
+				int icount = dataset.getItemCount(i);
+				double[] data = new double[icount];
+				for (int j = 0; j < icount; j++) {
+					data[j] = dataset.getYValue(i, j);
+				}
+				temp.addSeries(thisKey, data, _bins);
+				// dataset.re
+				// temp.
+			}
+		}
+		dataset = temp;
+		updateChart();
+	}*/
 
 }
