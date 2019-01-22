@@ -156,7 +156,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 			excludedCopy = new boolean[excluded.length];
 			System.arraycopy(excluded, 0, excludedCopy, 0, excluded.length);
 		}
-		
+
 		histType = htype;
 		setBounds(100, 100, 450, 300);
 		this.selected = selected;
@@ -435,7 +435,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		return chartPanel;
 	}
 
-	private HistogramDataset createHistDataset() throws IOException {
+	private HistogramDataset createHistDatasetOld() throws IOException {
 
 		HistogramDataset dataset = new HistogramDataset();
 		String thisName = "";
@@ -445,6 +445,51 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 			thisName = myProject.getRowName(selected[i])[myProject.getDefaultColumn()].toString();
 			dataset.addSeries(thisName, dataY, _bins);
 		}
+		return dataset;
+	}
+
+	private HistogramDataset createHistDataset() throws IOException {
+
+		HistogramDataset dataset = new HistogramDataset();
+		String thisName = "";
+		if (splitIndex == null || splitCol == null || splitCol.length() < 1) {
+
+			for (int i = 0; i < selected.length; i++) {
+				double[] dataY = myProject.getIncludedData(selected[i], excludedCopy);
+				thisName = myProject.getRowName(selected[i])[myProject.getDefaultColumn()].toString();
+				dataset.addSeries(thisName, dataY, _bins);
+
+			}
+
+		} else {
+
+			for (int i = 0; i < selected.length; i++) {
+				double[] dataY = myProject.getAllData(selected[i]);
+				thisName = myProject.getRowName(selected[i])[myProject.getDefaultColumn()].toString();
+				for (String key : splitIndex.keySet()) {
+					// seriesNames.add(key);
+					Collection<Integer> thisInd = splitIndex.get(key);
+					List<Double> temp = new ArrayList<>();
+					// split dataY by thisInd
+					if (excludedCopy == null) {
+						for (Integer ind : thisInd) {
+							temp.add(dataY[ind]);
+						}
+					} else {
+						for (Integer ind : thisInd) {
+							if (!excludedCopy[ind]) {
+								temp.add(dataY[ind]);
+							}
+						}
+					}
+					
+					thisName=thisName+";"+key;
+					dataset.addSeries(thisName, temp.stream().mapToDouble(d -> d).toArray(), _bins);
+				}
+			}
+
+		}
+
 		return dataset;
 	}
 
@@ -577,10 +622,10 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 					// User didn't enter any queries
 					return;
 				}
-				
+
 				Collection<Integer> result = new ArrayList<>();
 				List<Collection<Integer>> resList = new ArrayList<>();
-				
+
 				new AnimatedSwingWorker("Searching...", true) {
 					@Override
 					public Object construct() {
@@ -788,7 +833,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		save.removeActionListener(chartPanel);
 		this.chartPanel = null;
 		try {
-			
+
 			this.chartPanel = makeHistogram();
 			scrollPane.setViewportView(chartPanel);
 			properties.addActionListener(chartPanel);

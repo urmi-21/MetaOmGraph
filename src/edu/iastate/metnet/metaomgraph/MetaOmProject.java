@@ -2677,6 +2677,29 @@ public class MetaOmProject {
 		}
 		return result;
 	}
+	
+	/**
+	 * return data after removing excluded columns given as a parameter. This excluded parameter may be different than MetaOmAnalyzer.getexclude()
+	 * @param row
+	 * @return
+	 * @throws IOException
+	 */
+	public double[] getIncludedData(int row,boolean[] localExclude) throws IOException {
+		double[] data = getAllData(row);
+		boolean[] exclude = localExclude;
+		if (exclude == null) {
+			return data;
+		}
+		double[] result = new double[data.length - MetaOmAnalyzer.getExcludeCount()];
+		int addHere = 0;
+		for (int i = 0; i < data.length; i++) {
+			if (exclude[i] == false) {
+				result[addHere] = data[i];
+				addHere++;
+			}
+		}
+		return result;
+	}
 
 	public double[] getIncludedData(int row, boolean replaceMissing) throws IOException {
 		double[] data = getAllData(row);
