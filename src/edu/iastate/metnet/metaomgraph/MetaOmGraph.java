@@ -551,6 +551,8 @@ public class MetaOmGraph implements ActionListener {
 	private static JMenuItem findSamples;
 	private static JMenu diffExpMenu;
 	private static JMenuItem logChange;
+	private static JMenuItem tTest;
+	
 	public static final String REPORT_COMMAND = "report";
 
 	/** Items on the Project menu */

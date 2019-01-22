@@ -165,7 +165,7 @@ public class calculateLogFC {
 					// JOptionPane.showMessageDialog(null, "mean2:" + m2 + " s:" + g2Ind.size());
 					fcVals[r] = fc;
 
-					featureNames.add(myProject.getDefaultRowNames(r));
+					featureNames.add(myProject.getDefaultRowNames(selected[r]));
 					mean1.add(m1);
 					mean2.add(m2);
 

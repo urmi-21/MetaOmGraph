@@ -252,8 +252,9 @@ public class TableSorter extends AbstractTableModel {
 			}
 		}
 
-		if (this.getViewToModel() == null) {
-			System.out.println("viewtomodel is null");
+		//urmi add viewIndex<0
+		if (this.getViewToModel() == null || viewIndex<0) {
+			//System.out.println("viewtomodel is null");
 		} else {
 			if (viewIndex >= this.getViewToModel().length) {
 				return viewIndex;

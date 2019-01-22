@@ -789,8 +789,9 @@ public class MetadataTableDisplayPanel extends JPanel {
 			}
 
 			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+				//urmi enclose in try catch
+				try {
 				Component c = super.prepareRenderer(renderer, row, column);
-
 				if (!isRowSelected(row)) {
 					c.setBackground(getBackground());
 					int modelRow = convertRowIndexToModel(row);
@@ -804,22 +805,20 @@ public class MetadataTableDisplayPanel extends JPanel {
 							c.setBackground(BCKGRNDCOLOR2);
 						}
 					}
-					// for (int j = 0; j < table.getColumnCount(); j++) {
-					/*
-					 * for (Integer j : toHighlight.keySet()) {
-					 * 
-					 * String type = (String) getModel().getValueAt(modelRow, j); if
-					 * (highlightThisRow(j, type)) { c.setBackground(HIGHLIGHTCOLOR); if
-					 * (!highlightedRows.contains(modelRow)) { highlightedRows.add(modelRow); } }
-					 * else { if (row % 2 == 0) { c.setBackground(BCKGRNDCOLOR1); } else {
-					 * c.setBackground(BCKGRNDCOLOR2); } } }
-					 */
+					
 
 				} else {
 					c.setBackground(SELECTIONBCKGRND);
 				}
-
+			
 				return c;
+				}catch(Exception ex) {
+					
+				}
+
+				return null;
+				
+				
 			}
 
 		};
