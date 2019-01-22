@@ -14,6 +14,7 @@ import java.awt.Insets;
 import java.util.Arrays;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 
 public class logFCPanel extends JPanel {
 
@@ -23,6 +24,7 @@ public class logFCPanel extends JPanel {
 	JComboBox geneList;
 	JComboBox groupID;
 	JComboBox estimateFn;
+	JCheckBox chckbxPerformTtest;
 	
 	public logFCPanel() {
 		GridBagLayout gridBagLayout = new GridBagLayout();
@@ -71,6 +73,13 @@ public class logFCPanel extends JPanel {
 		gbc_geneList.gridy = 2;
 		add(groupID, gbc_geneList);
 		
+		chckbxPerformTtest = new JCheckBox("Perform T-test");
+		GridBagConstraints gbc_chckbxPerformTtest = new GridBagConstraints();
+		gbc_chckbxPerformTtest.insets = new Insets(0, 0, 5, 5);
+		gbc_chckbxPerformTtest.gridx = 1;
+		gbc_chckbxPerformTtest.gridy = 3;
+		add(chckbxPerformTtest, gbc_chckbxPerformTtest);
+		
 		
 
 	}
@@ -94,5 +103,12 @@ public class logFCPanel extends JPanel {
 
 	public String getselectedGrpID() {
 		return groupID.getSelectedItem().toString();
+	}
+	
+	public boolean getTTest() {
+		if(chckbxPerformTtest.isSelected()) {
+			return true;
+		}
+		return false;
 	}
 }

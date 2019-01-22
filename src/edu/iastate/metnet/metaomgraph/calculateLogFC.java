@@ -11,6 +11,8 @@ import java.util.TreeMap;
 
 import javax.swing.JOptionPane;
 
+import org.apache.commons.math3.stat.inference.TTest;
+
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
 import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
@@ -22,16 +24,19 @@ public class calculateLogFC {
 	private MetaOmProject myProject;
 	private Map<String, Collection<Integer>> splitIndex;
 	private boolean[] excluded;
+	private boolean dotTest;
 
 	private List<String> featureNames;
 	private List<Double> mean1;
 	private List<Double> mean2;
+	private List<Double> ttestPvals;
 
-	public calculateLogFC(String selectedList, String grpID, MetaOmProject myProject) {
+	public calculateLogFC(String selectedList, String grpID, MetaOmProject myProject, boolean tflag) {
 		this.selectedList = selectedList;
 		this.grpID = grpID;
 		this.myProject = myProject;
 		excluded = MetaOmAnalyzer.getExclude();
+		dotTest = tflag;
 
 	}
 
@@ -123,6 +128,15 @@ public class calculateLogFC {
 		featureNames = new ArrayList<>();
 		mean1 = new ArrayList<>();
 		mean2 = new ArrayList<>();
+		if (dotTest) {
+			ttestPvals = new ArrayList<>();
+		}
+		Collection<Integer> g1Ind = (Collection<Integer>) splitIndex.values().toArray()[0];
+		Collection<Integer> g2Ind = (Collection<Integer>) splitIndex.values().toArray()[1];
+		double log2b10 = Math.log(2.0D);
+		TTest tob = new TTest();
+		
+		//tob.
 
 		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(),
 				"Calculating...", "", 0L, selected.length, true);
@@ -141,9 +155,6 @@ public class calculateLogFC {
 						e.printStackTrace();
 					}
 					double m1 = 0, m2 = 0, fc = 0;
-					Collection<Integer> g1Ind = (Collection<Integer>) splitIndex.values().toArray()[0];
-					Collection<Integer> g2Ind = (Collection<Integer>) splitIndex.values().toArray()[1];
-					double log2b10 = Math.log(2.0D);
 
 					for (int k = 0; k < thisData.length; k++) {
 						if (excluded != null && excluded[k]) {
@@ -169,13 +180,38 @@ public class calculateLogFC {
 					mean1.add(m1);
 					mean2.add(m2);
 
+					if (dotTest) {
+						try {
+							thisData = myProject.getAllData(selected[r]);
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+
+						double[] s1 = new double[g1Ind.size()];
+						double[] s2 = new double[g2Ind.size()];
+						int s1ind = 0, s2ind = 0;
+						for (int k = 0; k < thisData.length; k++) {
+							if (excluded != null && excluded[k]) {
+								continue;
+							}
+							if (g1Ind.contains(k)) {
+								s1[s1ind++] = thisData[k];
+
+							} else {
+								s2[s2ind++] = thisData[k];
+							}
+						}
+						ttestPvals.add(tob.tTest(s1, s2));
+					}
+
 				}
 				return null;
 			}
 
 			public void finished() {
 				if ((!progress.isCanceled()) && (!errored)) {
-	
+
 				}
 				progress.dispose();
 			}
@@ -195,6 +231,10 @@ public class calculateLogFC {
 
 	public List<Double> getMean2() {
 		return this.mean2;
+	}
+
+	public List<Double> ttestPV() {
+		return this.ttestPvals;
 	}
 
 }
