@@ -260,7 +260,7 @@ public class CorrelationMetaTable extends JInternalFrame {
 		JSeparator separator = new JSeparator();
 		mnPlot.add(separator);
 
-		JMenuItem mntmPvalueHistogram = new JMenuItem("p-value histogram");
+		JMenuItem mntmPvalueHistogram = new JMenuItem("Histogram p-value");
 		mntmPvalueHistogram.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// plot histogram of current pvalues in table
@@ -296,6 +296,46 @@ public class CorrelationMetaTable extends JInternalFrame {
 			}
 		});
 		mnPlot.add(mntmPvalueHistogram);
+		
+		JMenuItem mntmHistogramRValues = new JMenuItem("Histogram r values");
+		mntmHistogramRValues.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				// plot histogram of current pvalues in table
+				double []pdata=new double[table.getRowCount()];
+				for(int r=0;r<table.getRowCount();r++) {
+					
+					pdata[r]=(double) table.getModel().getValueAt(r, table.getColumn("r").getModelIndex() );
+				}
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						try {// get data for selected rows
+							int nBins = 10;
+							HistogramChart f = new HistogramChart(null, nBins, null, 2,pdata);
+							MetaOmGraph.getDesktop().add(f);
+							f.setDefaultCloseOperation(2);
+							f.setClosable(true);
+							f.setResizable(true);
+							f.pack();
+							f.setSize(1000, 700);
+							f.setVisible(true);
+							f.toFront();
+
+						} catch (Exception e) {
+							JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
+									JOptionPane.ERROR_MESSAGE);
+
+							e.printStackTrace();
+							return;
+						}
+					}
+				});
+				return;
+			
+				
+			}
+		});
+		mnPlot.add(mntmHistogramRValues);
 
 		JMenu mnEdit = new JMenu("Edit");
 		menuBar.add(mnEdit);
