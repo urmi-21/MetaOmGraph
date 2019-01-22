@@ -30,7 +30,11 @@
 	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/xercesSamples.jar"/>
 	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/xml-apis.jar"/>
 	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/xmlbeans-2.3.0.jar"/>
-	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/commons-math3-3.6.1/commons-math3-3.6.1.jar"/>
+	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/commons-math3-3.6.1/commons-math3-3.6.1.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/D:/mogGIT/MetaOmGraph/src/lib/commons-math3-3.6.1/commons-math3-3.6.1-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/htmlparser/filterbuilder.jar"/>
 	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/htmlparser/htmllexer.jar"/>
 	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/htmlparser/htmlparser.jar"/>

@@ -3017,30 +3017,17 @@ public class MetaOmGraph implements ActionListener {
 			if (res == JOptionPane.OK_OPTION) {
 				String selectedList = panel.getselectedGeneList();
 				String grpID = panel.getselectedGrpID();
-
-				calculateLogFC ob = new calculateLogFC(selectedList, grpID, getActiveProject());
+				boolean tTestFlag=panel.getTTest();
+				calculateLogFC ob = new calculateLogFC(selectedList, grpID, getActiveProject(),tTestFlag);
 
 				if (!ob.createGroup()) {
 					return;
 				} else {
-					// JOptionPane.showMessageDialog(null, "Calcul..........");
-
-					/*new AnimatedSwingWorker("Searching...", true) {
-						@Override
-						public Object construct() {
-							try {
-								ob.doCalc();
-							} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-							return null;
-						}
-					}.start();*/
+					
 
 					ob.doCalc();
 					// display result
-					logFCResultsFrame frame = new logFCResultsFrame(ob.getFeatureNames(), ob.getMean1(), ob.getMean2(),getActiveProject());
+					logFCResultsFrame frame = new logFCResultsFrame(ob.getFeatureNames(), ob.getMean1(), ob.getMean2(),ob.ttestPV(),getActiveProject());
 					frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2,
 							MetaOmGraph.getMainWindow().getHeight() / 2);
 					frame.setTitle("Fold change results");

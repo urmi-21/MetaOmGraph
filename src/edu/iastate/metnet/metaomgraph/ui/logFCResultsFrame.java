@@ -51,6 +51,7 @@ public class logFCResultsFrame extends JInternalFrame {
 	private List<String> featureNames;
 	private List<Double> mean1;
 	private List<Double> mean2;
+	private List<Double> ttestPvals;
 	private MetaOmProject myProject;
 
 	/**
@@ -70,7 +71,7 @@ public class logFCResultsFrame extends JInternalFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					logFCResultsFrame frame = new logFCResultsFrame(null, null, null, null);
+					logFCResultsFrame frame = new logFCResultsFrame(null, null, null,null, null);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -82,12 +83,13 @@ public class logFCResultsFrame extends JInternalFrame {
 	/**
 	 * Create the frame.
 	 */
-	public logFCResultsFrame(List<String> featureNames, List<Double> mean1, List<Double> mean2,
+	public logFCResultsFrame(List<String> featureNames, List<Double> mean1, List<Double> mean2,List<Double> pv,
 			MetaOmProject myProject) {
 		this.featureNames = featureNames;
 		this.mean1 = mean1;
 		this.mean2 = mean2;
 		this.myProject = myProject;
+		ttestPvals=pv;
 		setBounds(100, 100, 450, 300);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -450,6 +452,9 @@ public class logFCResultsFrame extends JInternalFrame {
 		tablemodel.addColumn("Mean(log(Grp1))");
 		tablemodel.addColumn("Mean(log(Grp2))");
 		tablemodel.addColumn("logFC");
+		if(ttestPvals!=null) {
+			tablemodel.addColumn("pval");	
+		}
 		// for each row add each coloumn
 		for (int i = 0; i < featureNames.size(); i++) {
 			// create a temp string storing all col values for a row
@@ -458,6 +463,9 @@ public class logFCResultsFrame extends JInternalFrame {
 			temp.add(mean1.get(i));
 			temp.add(mean2.get(i));
 			temp.add(mean1.get(i) - mean2.get(i));
+			if(ttestPvals!=null) {
+				temp.add(ttestPvals.get(i));;	
+			}
 			// add ith row in table
 			tablemodel.addRow(temp);
 
