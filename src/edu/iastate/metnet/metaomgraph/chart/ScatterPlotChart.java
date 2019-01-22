@@ -741,7 +741,6 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		}
 
 		if ("splitDataset".equals(e.getActionCommand())) {
-
 			// show metadata categories
 			if (MetaOmGraph.getActiveProject().getMetadataHybrid() == null) {
 				JOptionPane.showMessageDialog(this, "No metadata found.");

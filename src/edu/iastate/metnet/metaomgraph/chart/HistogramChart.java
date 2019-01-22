@@ -6,6 +6,7 @@ import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
@@ -14,13 +15,20 @@ import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.TreeMap;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
@@ -58,11 +66,15 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.util.ShapeUtilities;
 
+import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.ComponentToImage;
 import edu.iastate.metnet.metaomgraph.GraphFileFilter;
 import edu.iastate.metnet.metaomgraph.IconTheme;
+import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
+import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
+import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import edu.iastate.metnet.metaomgraph.utils.Utils.ChangeableInt;
 
@@ -95,6 +107,9 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 	private JButton zoomOut;
 	private JButton defaultZoom;
 	private JButton changePalette;
+	private JButton splitDataset;
+
+	private boolean[] excludedCopy;
 
 	public static final String ZOOM_IN_COMMAND = "zoomIn";
 	public static final String ZOOM_OUT_COMMAND = "zoomOut";
@@ -110,6 +125,10 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 	private float maxAlpha = 10;
 	private float initAlpha = 0.8F;
 	JSlider alphaSlider;
+
+	String splitCol;
+	Map<String, Collection<Integer>> splitIndex;
+	HashMap<String, String> seriesNameToKeyMap;
 
 	/**
 	 * Launch the application.
@@ -131,6 +150,13 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 	 * Create the frame.
 	 */
 	public HistogramChart(int[] selected, int bins, MetaOmProject mp, int htype, double[] data) {
+		// create a copy of excluded
+		boolean[] excluded = MetaOmAnalyzer.getExclude();
+		if (excluded != null) {
+			excludedCopy = new boolean[excluded.length];
+			System.arraycopy(excluded, 0, excludedCopy, 0, excluded.length);
+		}
+		
 		histType = htype;
 		setBounds(100, 100, 450, 300);
 		this.selected = selected;
@@ -139,7 +165,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 			rowNames = mp.getDefaultRowNames(selected);
 		}
 		if (htype == 2) {
-			rowNames=new String[] {"A"};
+			rowNames = new String[] { "A" };
 			plotData = data;
 		}
 
@@ -227,12 +253,18 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		changePalette.setContentAreaFilled(false);
 		changePalette.setBorderPainted(true);
 
+		splitDataset = new JButton(theme.getSort());
+		splitDataset.setToolTipText("Split by categories");
+		splitDataset.setActionCommand("splitDataset");
+		splitDataset.addActionListener(this);
+
 		panel.add(properties);
 		panel.add(save);
 		panel.add(print);
 		panel.add(zoomIn);
 		panel.add(zoomOut);
 		panel.add(defaultZoom);
+		panel.add(splitDataset);
 		panel.add(changePalette);
 		panel.add(alphaSlider);
 
@@ -258,7 +290,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		} else if (histType == 2) {
 			dataset = createHistDataset(plotData);
 		}
-		
+
 		if (alphaSlider != null) {
 			alphaSlider.setValue((int) (initAlpha * 10F));
 		}
@@ -399,7 +431,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		};
 		chartPanel.setMouseWheelEnabled(true);
 		chartPanel.addChartMouseListener(this);
-		
+
 		return chartPanel;
 	}
 
@@ -473,6 +505,143 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 
 		}
 
+		if ("splitDataset".equals(e.getActionCommand())) {
+			// show metadata categories
+			if (MetaOmGraph.getActiveProject().getMetadataHybrid() == null) {
+				JOptionPane.showMessageDialog(this, "No metadata found.");
+				return;
+			}
+			String[] fields = MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataHeaders();
+			String[] fields2 = new String[fields.length + 3];
+			fields2[0] = "Reset";
+			int selectedInd = 0;
+			for (int i = 0; i < fields.length; i++) {
+				fields2[i + 1] = fields[i];
+				if (splitCol != null && splitCol.equals(fields2[i + 1])) {
+					selectedInd = i + 1;
+				}
+			}
+			fields2[fields2.length - 2] = "By Query";
+			fields2[fields2.length - 1] = "More...";
+
+			String col_val = (String) JOptionPane.showInputDialog(null, "Choose the column:\n", "Please choose",
+					JOptionPane.PLAIN_MESSAGE, null, fields2, fields2[selectedInd]);
+			if (col_val == null) {
+				return;
+			}
+
+			if (col_val.equals("Reset")) {
+				splitCol = null;
+				try {
+					createHistDataset();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				updateChart();
+				return;
+			}
+
+			List<String> selectedVals = new ArrayList<>();
+			if (col_val.equals("More...")) {
+				// display jpanel with check box
+				JCheckBox[] cBoxes = new JCheckBox[fields.length];
+				JPanel cbPanel = new JPanel();
+				cbPanel.setLayout(new GridLayout(0, 3));
+				for (int i = 0; i < fields.length; i++) {
+					cBoxes[i] = new JCheckBox(fields[i]);
+					cbPanel.add(cBoxes[i]);
+				}
+				int res = JOptionPane.showConfirmDialog(null, cbPanel, "Select categories",
+						JOptionPane.OK_CANCEL_OPTION);
+				if (res == JOptionPane.OK_OPTION) {
+					for (int i = 0; i < fields.length; i++) {
+						if (cBoxes[i].isSelected()) {
+							selectedVals.add(fields[i]);
+						}
+					}
+					splitCol = col_val;
+				} else {
+					return;
+				}
+				splitIndex = myProject.getMetadataHybrid().cluster(selectedVals);
+
+			} else if (col_val.equals("By Query")) {
+				splitCol = col_val;
+				// display query panel
+				final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(myProject, false);
+				final MetadataQuery[] queries;
+				queries = tsp.showSearchDialog();
+				if (tsp.getQueryCount() <= 0) {
+					System.out.println("Search dialog cancelled");
+					// User didn't enter any queries
+					return;
+				}
+				
+				Collection<Integer> result = new ArrayList<>();
+				List<Collection<Integer>> resList = new ArrayList<>();
+				
+				new AnimatedSwingWorker("Searching...", true) {
+					@Override
+					public Object construct() {
+						ArrayList<Integer> toAdd = new ArrayList<Integer>(result.size());
+						for (int i = 0; i < myProject.getDataColumnCount(); i++) {
+							toAdd.add(i);
+						}
+						Integer[] hits = myProject.getMetadataHybrid().search(queries, tsp.matchAll());
+						// remove excluded cols from list
+						// urmi
+						boolean[] excluded = excludedCopy;
+						if (excluded != null) {
+							List<Integer> temp = new ArrayList<>();
+							for (Integer i : hits) {
+								if (!excluded[i]) {
+									temp.add(i);
+								}
+							}
+							hits = new Integer[temp.size()];
+							hits = temp.toArray(hits);
+						}
+
+						int index;
+						for (index = 0; index < hits.length; index++) {
+							result.add(hits[index]);
+							toAdd.remove(hits[index]);
+						}
+						/*
+						 * for (int i = 0; i < toAdd.size(); i++) { other.add(toAdd.get(i)); }
+						 */
+						resList.add(result);
+						resList.add(toAdd);
+						return null;
+					}
+				}.start();
+
+				// create a split index with "hits" as one category and all others as second
+				// category
+				if (resList.get(0).size() < 1) {
+					JOptionPane.showMessageDialog(null, "No hits found", "No hits", JOptionPane.INFORMATION_MESSAGE);
+					return;
+				}
+				splitIndex = createSplitIndex(resList, Arrays.asList("Hits", "Other"));
+			} else {
+				// split data set by values of col_val
+				selectedVals.add(col_val);
+				splitCol = col_val;
+				splitIndex = myProject.getMetadataHybrid().cluster(selectedVals);
+			}
+
+			try {
+				createHistDataset();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			updateChart();
+
+			return;
+		}
+
 		if ("changePalette".equals(e.getActionCommand())) {
 
 			ColorPaletteChooserDialog dialog = new ColorPaletteChooserDialog();
@@ -501,6 +670,24 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 			return;
 		}
 
+	}
+
+	/**
+	 * create a map of name to indices
+	 * 
+	 * @param collList
+	 * @param names
+	 * @return
+	 */
+	private Map<String, Collection<Integer>> createSplitIndex(List<Collection<Integer>> collList, List<String> names) {
+		Map<String, Collection<Integer>> res = new TreeMap();
+		for (int i = 0; i < collList.size(); i++) {
+			if (collList.get(i).size() > 0) {
+				res.put(names.get(i), collList.get(i));
+			}
+
+		}
+		return res;
 	}
 
 	private void setPalette(Color[] colors) {
@@ -601,6 +788,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		save.removeActionListener(chartPanel);
 		this.chartPanel = null;
 		try {
+			
 			this.chartPanel = makeHistogram();
 			scrollPane.setViewportView(chartPanel);
 			properties.addActionListener(chartPanel);
