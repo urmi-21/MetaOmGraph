@@ -266,7 +266,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		splitDataset.addActionListener(this);
 
 		if (histType == 2) {
-			splitDataset.setSelected(false);
+			splitDataset.setEnabled(false);
 		}
 
 		panel.add(properties);
