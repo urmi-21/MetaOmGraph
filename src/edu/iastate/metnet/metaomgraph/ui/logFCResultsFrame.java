@@ -54,6 +54,7 @@ public class logFCResultsFrame extends JInternalFrame {
 	private List<Double> ttestPvals;
 	private List<Double> ftestPvals;
 	private List<Double> ftestRatiovals;
+	private List<Double> utestPvals;
 	
 	private MetaOmProject myProject;
 
@@ -82,9 +83,9 @@ public class logFCResultsFrame extends JInternalFrame {
 	 * Create the frame.
 	 */
 	public logFCResultsFrame(List<String> featureNames, List<Double> mean1, List<Double> mean2,	MetaOmProject myProject) {
-		this(featureNames,mean1,mean2,null,null,null,myProject);
+		this(featureNames,mean1,mean2,null,null,null,null,myProject);
 	}
-	public logFCResultsFrame(List<String> featureNames, List<Double> mean1, List<Double> mean2,List<Double> pv,List<Double> ftestratio,List<Double> ftestpv,
+	public logFCResultsFrame(List<String> featureNames, List<Double> mean1, List<Double> mean2,List<Double> pv,List<Double> ftestratio,List<Double> ftestpv,List<Double> utestpv,
 			MetaOmProject myProject) {
 		this.featureNames = featureNames;
 		this.mean1 = mean1;
@@ -93,6 +94,7 @@ public class logFCResultsFrame extends JInternalFrame {
 		ttestPvals=pv;
 		ftestRatiovals=ftestratio;
 		ftestPvals=ftestpv;
+		utestPvals=utestpv;
 		setBounds(100, 100, 450, 300);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -465,6 +467,7 @@ public class logFCResultsFrame extends JInternalFrame {
 			tablemodel.addColumn("F statistic");
 			tablemodel.addColumn("F test pval");
 			tablemodel.addColumn("T test pval");
+			tablemodel.addColumn("U test pval");
 		}
 		// for each row add each coloumn
 		for (int i = 0; i < featureNames.size(); i++) {
@@ -478,6 +481,7 @@ public class logFCResultsFrame extends JInternalFrame {
 				temp.add(ftestRatiovals.get(i));;
 				temp.add(ftestPvals.get(i));;
 				temp.add(ttestPvals.get(i));;	
+				temp.add(utestPvals.get(i));;
 			}
 			// add ith row in table
 			tablemodel.addRow(temp);

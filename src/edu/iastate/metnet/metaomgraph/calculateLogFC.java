@@ -35,6 +35,7 @@ public class calculateLogFC {
 	private List<Double> ttestPvals;
 	private List<Double> ftestPvals;
 	private List<Double> ftestRatiovals;
+	private List<Double> utestPvals;
 
 	public calculateLogFC(String selectedList, String grpID, MetaOmProject myProject, boolean tflag) {
 		this.selectedList = selectedList;
@@ -137,16 +138,17 @@ public class calculateLogFC {
 			ttestPvals = new ArrayList<>();
 			ftestPvals = new ArrayList<>();
 			ftestRatiovals = new ArrayList<>();
+			utestPvals = new ArrayList<>();
 		}
 		Collection<Integer> g1Ind = (Collection<Integer>) splitIndex.values().toArray()[0];
 		Collection<Integer> g2Ind = (Collection<Integer>) splitIndex.values().toArray()[1];
 		double log2b10 = Math.log(2.0D);
 		TTest tob = new TTest();
-		Variance vob= new Variance();
-		FDistribution fob=new FDistribution(g1Ind.size()-1, g2Ind.size()-1);
-		MannWhitneyUTest uob=new MannWhitneyUTest();
+		Variance vob = new Variance();
 		
-		//tob.
+		MannWhitneyUTest uob = new MannWhitneyUTest();
+
+		// tob.
 
 		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(),
 				"Calculating...", "", 0L, selected.length, true);
@@ -212,18 +214,25 @@ public class calculateLogFC {
 								s2[s2ind++] = thisData[k];
 							}
 						}
-						//do ftest
-						double vs1=vob.evaluate(s1);
-						double vs2=vob.evaluate(s2);
-						double fRatio=0;						
-						fRatio=vs1/vs2;
-						if(fRatio>=1) {
-						ftestPvals.add(2*(fob.cumulativeProbability(fRatio)));
-						}else {
-							ftestPvals.add(2*(1-fob.cumulativeProbability(fRatio)));	
+						// do ftest
+						double vs1 = vob.evaluate(s1);
+						double vs2 = vob.evaluate(s2);
+						FDistribution fob = null;
+						double fRatio = 0;
+						if (vs1 > vs2) {
+							fRatio = vs1 / vs2;
+							fob = new FDistribution(g1Ind.size() - 1, g2Ind.size() - 1);
+						} else {
+							fRatio = vs2 / vs1;
+							fob = new FDistribution(g2Ind.size() - 1, g1Ind.size() - 1);
 						}
+						
+						ftestPvals.add(1 - fob.cumulativeProbability(fRatio));
 						ftestRatiovals.add(fRatio);
 						ttestPvals.add(tob.tTest(s1, s2));
+						//mannwhitney test
+						utestPvals.add(uob.mannWhitneyUTest(s1, s2));
+						
 					}
 
 				}
@@ -257,7 +266,7 @@ public class calculateLogFC {
 	public List<Double> ttestPV() {
 		return this.ttestPvals;
 	}
-	
+
 	public List<Double> ftestPV() {
 		return this.ftestPvals;
 	}
@@ -265,6 +274,9 @@ public class calculateLogFC {
 	public List<Double> ftestRatios() {
 		return this.ftestRatiovals;
 	}
-
+	
+	public List<Double> utestPV() {
+		return this.utestPvals;
+	}
 
 }
