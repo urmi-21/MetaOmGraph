@@ -19,6 +19,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -144,7 +145,12 @@ public class ListMergePanel extends JPanel {
 					return;
 				}
 				Integer[] merged = mergePanel.getMergedList(intersect.isSelected());
-				// result.put(listName, merged);
+				
+				if(merged.length<1) {
+					JOptionPane.showMessageDialog(null, "No items to put in new list. List can't be created", "List can't be created", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				
 				int[] intMerged = new int[merged.length];
 				for (int i = 0; i < intMerged.length; i++) {
 					intMerged[i] = merged[i].intValue();
