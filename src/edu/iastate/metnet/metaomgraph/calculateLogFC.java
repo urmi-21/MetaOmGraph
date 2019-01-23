@@ -13,6 +13,7 @@ import javax.swing.JOptionPane;
 
 import org.apache.commons.math3.distribution.FDistribution;
 import org.apache.commons.math3.stat.descriptive.moment.Variance;
+import org.apache.commons.math3.stat.inference.MannWhitneyUTest;
 import org.apache.commons.math3.stat.inference.TTest;
 
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
@@ -143,6 +144,8 @@ public class calculateLogFC {
 		TTest tob = new TTest();
 		Variance vob= new Variance();
 		FDistribution fob=new FDistribution(g1Ind.size()-1, g2Ind.size()-1);
+		MannWhitneyUTest uob=new MannWhitneyUTest();
+		
 		//tob.
 
 		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(),
@@ -212,8 +215,13 @@ public class calculateLogFC {
 						//do ftest
 						double vs1=vob.evaluate(s1);
 						double vs2=vob.evaluate(s2);
-						double fRatio=vs1/vs2;
-						ftestPvals.add(1-fob.cumulativeProbability(fRatio));
+						double fRatio=0;						
+						fRatio=vs1/vs2;
+						if(fRatio>=1) {
+						ftestPvals.add(2*(fob.cumulativeProbability(fRatio)));
+						}else {
+							ftestPvals.add(2*(1-fob.cumulativeProbability(fRatio)));	
+						}
 						ftestRatiovals.add(fRatio);
 						ttestPvals.add(tob.tTest(s1, s2));
 					}
