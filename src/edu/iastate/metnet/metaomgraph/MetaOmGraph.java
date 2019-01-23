@@ -3027,7 +3027,13 @@ public class MetaOmGraph implements ActionListener {
 
 					ob.doCalc();
 					// display result
-					logFCResultsFrame frame = new logFCResultsFrame(ob.getFeatureNames(), ob.getMean1(), ob.getMean2(),ob.ttestPV(),getActiveProject());
+					logFCResultsFrame frame=null;
+					if(tTestFlag) {
+					frame = new logFCResultsFrame(ob.getFeatureNames(), ob.getMean1(), ob.getMean2(),ob.ttestPV(),ob.ftestRatios(),ob.ftestPV(),getActiveProject());
+					}
+					else {
+						frame = new logFCResultsFrame(ob.getFeatureNames(), ob.getMean1(), ob.getMean2(),getActiveProject());	
+					}
 					frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2,
 							MetaOmGraph.getMainWindow().getHeight() / 2);
 					frame.setTitle("Fold change results");
