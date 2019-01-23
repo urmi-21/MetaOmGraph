@@ -1225,4 +1225,42 @@ public class Utils {
 		//JOptionPane.showMessageDialog(null, Arrays.toString(res));
 		return res;
 	}
+	
+	/**
+	 * get intersection of lists with in a list
+	 * @param listList A list containing lists
+	 * @return
+	 */
+	public static List<Integer> getListIntersection(java.util.List<java.util.List<Integer>> listList) {
+		java.util.List<Integer> res = new ArrayList<>();
+
+		// find smallest list
+		int smIndex = -1;
+		int smSize = 999999999;
+		for (int i = 0; i < listList.size(); i++) {
+			if (listList.get(i).size() < smSize) {
+				smSize = listList.size();
+				smIndex = i;
+			}
+		}
+		java.util.List<Integer> smList = listList.get(smIndex);
+		listList.remove(smIndex);
+		//JOptionPane.showMessageDialog(null, "smlist:"+smList.toString());
+		for (int j = 0; j < smList.size(); j++) {
+			int thisItem=smList.get(j);
+			boolean breakflag=false;
+			for (int i = 0; i < listList.size(); i++) {
+				if (!listList.get(i).contains(thisItem)) {
+					breakflag=true;
+					break;
+				}
+			}
+			
+			if(!breakflag) {
+				res.add(thisItem);
+			}
+		}
+
+		return res;
+	}
 }
