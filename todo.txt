@@ -120,3 +120,4 @@ gif support ??
 does cluster function exclude columns ???
 create a common class to handle plot functions from different tables
 add data size to plot legends
+improve import list
