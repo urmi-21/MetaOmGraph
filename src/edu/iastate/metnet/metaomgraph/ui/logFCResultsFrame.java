@@ -52,6 +52,9 @@ public class logFCResultsFrame extends JInternalFrame {
 	private List<Double> mean1;
 	private List<Double> mean2;
 	private List<Double> ttestPvals;
+	private List<Double> ftestPvals;
+	private List<Double> ftestRatiovals;
+	
 	private MetaOmProject myProject;
 
 	/**
@@ -70,12 +73,7 @@ public class logFCResultsFrame extends JInternalFrame {
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				try {
-					logFCResultsFrame frame = new logFCResultsFrame(null, null, null,null, null);
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+				
 			}
 		});
 	}
@@ -83,13 +81,18 @@ public class logFCResultsFrame extends JInternalFrame {
 	/**
 	 * Create the frame.
 	 */
-	public logFCResultsFrame(List<String> featureNames, List<Double> mean1, List<Double> mean2,List<Double> pv,
+	public logFCResultsFrame(List<String> featureNames, List<Double> mean1, List<Double> mean2,	MetaOmProject myProject) {
+		this(featureNames,mean1,mean2,null,null,null,myProject);
+	}
+	public logFCResultsFrame(List<String> featureNames, List<Double> mean1, List<Double> mean2,List<Double> pv,List<Double> ftestratio,List<Double> ftestpv,
 			MetaOmProject myProject) {
 		this.featureNames = featureNames;
 		this.mean1 = mean1;
 		this.mean2 = mean2;
 		this.myProject = myProject;
 		ttestPvals=pv;
+		ftestRatiovals=ftestratio;
+		ftestPvals=ftestpv;
 		setBounds(100, 100, 450, 300);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -444,6 +447,12 @@ public class logFCResultsFrame extends JInternalFrame {
 					return Double.class;
 				}
 			}
+			
+			 @Override
+			    public boolean isCellEditable(int row, int column) {
+			       //all cells false
+			       return false;
+			    }
 		};
 		table.setModel(model);
 		DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
@@ -453,7 +462,9 @@ public class logFCResultsFrame extends JInternalFrame {
 		tablemodel.addColumn("Mean(log(Grp2))");
 		tablemodel.addColumn("logFC");
 		if(ttestPvals!=null) {
-			tablemodel.addColumn("pval");	
+			tablemodel.addColumn("F statistic");
+			tablemodel.addColumn("F test pval");
+			tablemodel.addColumn("T test pval");
 		}
 		// for each row add each coloumn
 		for (int i = 0; i < featureNames.size(); i++) {
@@ -464,6 +475,8 @@ public class logFCResultsFrame extends JInternalFrame {
 			temp.add(mean2.get(i));
 			temp.add(mean1.get(i) - mean2.get(i));
 			if(ttestPvals!=null) {
+				temp.add(ftestRatiovals.get(i));;
+				temp.add(ftestPvals.get(i));;
 				temp.add(ttestPvals.get(i));;	
 			}
 			// add ith row in table

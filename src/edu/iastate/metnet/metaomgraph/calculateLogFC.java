@@ -11,6 +11,8 @@ import java.util.TreeMap;
 
 import javax.swing.JOptionPane;
 
+import org.apache.commons.math3.distribution.FDistribution;
+import org.apache.commons.math3.stat.descriptive.moment.Variance;
 import org.apache.commons.math3.stat.inference.TTest;
 
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
@@ -30,6 +32,8 @@ public class calculateLogFC {
 	private List<Double> mean1;
 	private List<Double> mean2;
 	private List<Double> ttestPvals;
+	private List<Double> ftestPvals;
+	private List<Double> ftestRatiovals;
 
 	public calculateLogFC(String selectedList, String grpID, MetaOmProject myProject, boolean tflag) {
 		this.selectedList = selectedList;
@@ -130,12 +134,15 @@ public class calculateLogFC {
 		mean2 = new ArrayList<>();
 		if (dotTest) {
 			ttestPvals = new ArrayList<>();
+			ftestPvals = new ArrayList<>();
+			ftestRatiovals = new ArrayList<>();
 		}
 		Collection<Integer> g1Ind = (Collection<Integer>) splitIndex.values().toArray()[0];
 		Collection<Integer> g2Ind = (Collection<Integer>) splitIndex.values().toArray()[1];
 		double log2b10 = Math.log(2.0D);
 		TTest tob = new TTest();
-		
+		Variance vob= new Variance();
+		FDistribution fob=new FDistribution(g1Ind.size()-1, g2Ind.size()-1);
 		//tob.
 
 		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(),
@@ -202,6 +209,12 @@ public class calculateLogFC {
 								s2[s2ind++] = thisData[k];
 							}
 						}
+						//do ftest
+						double vs1=vob.evaluate(s1);
+						double vs2=vob.evaluate(s2);
+						double fRatio=vs1/vs2;
+						ftestPvals.add(1-fob.cumulativeProbability(fRatio));
+						ftestRatiovals.add(fRatio);
 						ttestPvals.add(tob.tTest(s1, s2));
 					}
 
@@ -236,5 +249,14 @@ public class calculateLogFC {
 	public List<Double> ttestPV() {
 		return this.ttestPvals;
 	}
+	
+	public List<Double> ftestPV() {
+		return this.ftestPvals;
+	}
+
+	public List<Double> ftestRatios() {
+		return this.ftestRatiovals;
+	}
+
 
 }
