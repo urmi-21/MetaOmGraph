@@ -84,10 +84,11 @@ public class ImportListDialog
             }
             result = new TreeSet<Integer>();
             StringTokenizer st = new StringTokenizer(textArea.getText(), "\n");
+            int totalMatches=0;
             while (st.hasMoreTokens()) {
                 String thisToken = st.nextToken().trim().toLowerCase();
                 boolean done = false;
-                for (int x = 0; x < myProject.getRowNames().length && !done; x++) {
+                /*for (int x = 0; x < myProject.getRowNames().length && !done; x++) {
                     for (int y = 0; y < myProject.getRowName(x).length && !done; y++) {
                         String[] splitName = (myProject.getRowName(x)[y] + "").split(";");
                         for (String thisName : splitName) {
@@ -97,9 +98,19 @@ public class ImportListDialog
                             }
                         }
                     }
+                }*/
+                
+                String[] allRownames=myProject.getAllDefaultRowNames();
+                for (int x = 0; x < allRownames.length && !done; x++) {
+                	String thisName=allRownames[x];
+                	if (thisName.equalsIgnoreCase(thisToken)) {
+                        result.add(new Integer(x));
+                        done = true;
+                        totalMatches++;
+                    }
                 }
             }
-
+            
 
             if (result.size() <= 0) {
                 JOptionPane.showMessageDialog(
@@ -107,6 +118,8 @@ public class ImportListDialog
                         "None of the values you entered correspond to any row names.",
                         "No matches found", 0);
             } else {
+            	JOptionPane.showMessageDialog(
+                        MetaOmGraph.getMainWindow(),totalMatches+" values matched", totalMatches+" matches found", 0);
                 dispose();
             }
             return;
