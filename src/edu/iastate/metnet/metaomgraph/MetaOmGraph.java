@@ -901,7 +901,7 @@ public class MetaOmGraph implements ActionListener {
 				KeyStroke.getKeyStroke(KeyEvent.VK_P, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 		projectMenu.add(projectPropertiesItem);
 		projectMenu.addSeparator();
-		excludeSamplesItem = new JMenuItem("Manage DataColumns");
+		excludeSamplesItem = new JMenuItem("Manage Samples");
 		excludeSamplesItem.setActionCommand(EXCLUDE_SAMPLES_COMMAND);
 		excludeSamplesItem.addActionListener(myself);
 		excludeSamplesItem.setMnemonic(KeyEvent.VK_S);
