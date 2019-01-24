@@ -176,7 +176,7 @@ public class logFCResultsFrame extends JInternalFrame {
 				
 				updateTable();
 				
-				JOptionPane.showMessageDialog(null, "Done");
+				//JOptionPane.showMessageDialog(null, "Done");
 				
 			}
 		});
@@ -483,6 +483,8 @@ public class logFCResultsFrame extends JInternalFrame {
 
 
 		DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
+		tablemodel.setRowCount(0);
+		tablemodel.setColumnCount(0);
 		// add data
 		tablemodel.addColumn("Name");
 		tablemodel.addColumn("Mean(log(Grp1))");
