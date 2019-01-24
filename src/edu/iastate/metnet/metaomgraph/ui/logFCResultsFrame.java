@@ -112,7 +112,8 @@ public class logFCResultsFrame extends JInternalFrame {
 		JPanel panel_1 = new JPanel();
 		getContentPane().add(panel_1, BorderLayout.SOUTH);
 
-		initTable();
+		initTableModel();
+		updateTable();
 		getContentPane().add(new JScrollPane(table), BorderLayout.CENTER);
 
 		JMenuBar menuBar = new JMenuBar();
@@ -162,8 +163,8 @@ public class logFCResultsFrame extends JInternalFrame {
 				double pvalThresh=0;
 				try {
 					pvalThresh = Double.parseDouble((String) JOptionPane.showInputDialog(null,
-							"Please Enter number of bins", "Input number of bins", JOptionPane.QUESTION_MESSAGE,
-							null, null, String.valueOf(MetaOmGraph.getNumBins())));
+							"Please Enter a value", "Input p-value", JOptionPane.QUESTION_MESSAGE,
+							null, null, String.valueOf(pvThresh)));
 					
 				} catch (NumberFormatException nfe) {
 					JOptionPane.showMessageDialog(null, "Invalid number entered. Please try again.", "Error",
@@ -172,7 +173,11 @@ public class logFCResultsFrame extends JInternalFrame {
 				}
 				
 				pvThresh=pvalThresh;
-				initTable();
+				
+				updateTable();
+				
+				JOptionPane.showMessageDialog(null, "Done");
+				
 			}
 		});
 		mnEdit.add(mntmFilter);
@@ -393,9 +398,8 @@ public class logFCResultsFrame extends JInternalFrame {
 		setClosable(true);
 
 	}
-
-	private void initTable() {
-
+	
+	private void initTableModel() {
 		table = new JTable() {
 			public boolean getScrollableTracksViewportWidth() {
 				return getPreferredSize().width < getParent().getWidth();
@@ -473,6 +477,11 @@ public class logFCResultsFrame extends JInternalFrame {
 			    }
 		};
 		table.setModel(model);
+	}
+
+	private void updateTable() {
+
+
 		DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
 		// add data
 		tablemodel.addColumn("Name");
