@@ -57,6 +57,8 @@ public class logFCResultsFrame extends JInternalFrame {
 	private List<Double> utestPvals;
 	
 	private MetaOmProject myProject;
+	
+	double pvThresh=0.05;
 
 	/**
 	 * Default Properties
@@ -82,6 +84,10 @@ public class logFCResultsFrame extends JInternalFrame {
 	/**
 	 * Create the frame.
 	 */
+	public logFCResultsFrame() {
+		this(null,null,null,null,null,null,null,null);
+	}
+	
 	public logFCResultsFrame(List<String> featureNames, List<Double> mean1, List<Double> mean2,	MetaOmProject myProject) {
 		this(featureNames,mean1,mean2,null,null,null,null,myProject);
 	}
@@ -149,6 +155,27 @@ public class logFCResultsFrame extends JInternalFrame {
 			}
 		});
 		mnEdit.add(mntmExportSelectedTo);
+		
+		JMenuItem mntmFilter = new JMenuItem("Filter");
+		mntmFilter.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				double pvalThresh=0;
+				try {
+					pvalThresh = Double.parseDouble((String) JOptionPane.showInputDialog(null,
+							"Please Enter number of bins", "Input number of bins", JOptionPane.QUESTION_MESSAGE,
+							null, null, String.valueOf(MetaOmGraph.getNumBins())));
+					
+				} catch (NumberFormatException nfe) {
+					JOptionPane.showMessageDialog(null, "Invalid number entered. Please try again.", "Error",
+							JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				
+				pvThresh=pvalThresh;
+				initTable();
+			}
+		});
+		mnEdit.add(mntmFilter);
 
 		JMenu mnPlot = new JMenu("Plot");
 		menuBar.add(mnPlot);
@@ -387,17 +414,6 @@ public class logFCResultsFrame extends JInternalFrame {
 						c.setBackground(BCKGRNDCOLOR2);
 					}
 
-					// for (int j = 0; j < table.getColumnCount(); j++) {
-					/*
-					 * for (Integer j : toHighlight.keySet()) {
-					 * 
-					 * String type = (String) getModel().getValueAt(modelRow, j); if
-					 * (highlightThisRow(j, type)) { c.setBackground(HIGHLIGHTCOLOR); if
-					 * (!highlightedRows.contains(modelRow)) { highlightedRows.add(modelRow); } }
-					 * else { if (row % 2 == 0) { c.setBackground(BCKGRNDCOLOR1); } else {
-					 * c.setBackground(BCKGRNDCOLOR2); } } }
-					 */
-
 				} else {
 					c.setBackground(SELECTIONBCKGRND);
 				}
@@ -478,10 +494,14 @@ public class logFCResultsFrame extends JInternalFrame {
 			temp.add(mean2.get(i));
 			temp.add(mean1.get(i) - mean2.get(i));
 			if(ttestPvals!=null) {
+				if(utestPvals.get(i)>=pvThresh) {
+					continue;
+				}
 				temp.add(ftestRatiovals.get(i));;
 				temp.add(ftestPvals.get(i));;
 				temp.add(ttestPvals.get(i));;	
 				temp.add(utestPvals.get(i));;
+				
 			}
 			// add ith row in table
 			tablemodel.addRow(temp);
