@@ -95,6 +95,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	private JButton saveMainTableButton;
 	private MenuButton plotButton;
 	private JMenuItem plotListItem;
+
 	private JMenuItem plotRowsItem;
 	// urmi
 	private JMenuItem plotPairRowsItem;
@@ -104,6 +105,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	private JMenuItem plotBoxRowItem;
 	private JMenuItem plotBoxColItem;
 	private JMenuItem plotHistogramItem;
+	private JMenuItem plotCorrHistItem;
 	// urmi
 	private JMenuItem plotHeatMapItem;
 	private JMenuItem runOtherScript;
@@ -271,6 +273,12 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 		plotPopupMenu.add(plotFilterItem);
 		plotPopupMenu.add(plotListItem);
+
+		plotCorrHistItem = new JMenuItem("Correlation Histogram");
+		plotCorrHistItem.setActionCommand("corrHist");
+		plotCorrHistItem.addActionListener(this);
+		plotPopupMenu.addSeparator();
+		plotPopupMenu.add(plotCorrHistItem);
 
 		plotButton.setMenu(plotPopupMenu);
 		plotButton.addFocusListener(new FocusAdapter() {
@@ -679,9 +687,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		for (int x = 0; x < oldWidths.length; x++)
 			oldWidths[x] = listDisplay.getColumnModel().getColumn(x).getPreferredWidth();
 		try {
-		mainModel = new NoneditableTableModel(myProject.getGeneListRowNames(geneLists.getSelectedValue().toString()),
-				myProject.getInfoColumnNames());
-		}catch(NullPointerException npe) {
+			mainModel = new NoneditableTableModel(
+					myProject.getGeneListRowNames(geneLists.getSelectedValue().toString()),
+					myProject.getInfoColumnNames());
+		} catch (NullPointerException npe) {
 			return;
 		}
 		filterModel = new FilterableTableModel(mainModel);
@@ -927,14 +936,15 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					"Invalid number of rows selected", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		
-		//get data for box plot as hasmap
-		HashMap<Integer,double[]> plotData=new HashMap<>();
+
+		// get data for box plot as hasmap
+		HashMap<Integer, double[]> plotData = new HashMap<>();
 		for (int i = 0; i < selected.length; i++) {
-			double[] dataY=null;
+			double[] dataY = null;
 			try {
-				//dataY = myProject.getIncludedData(selected[i]);
-				//send all data; excluded data will be excluded in the boxplot class; this helps in splitting data by categories by reusing cluster function
+				// dataY = myProject.getIncludedData(selected[i]);
+				// send all data; excluded data will be excluded in the boxplot class; this
+				// helps in splitting data by categories by reusing cluster function
 				dataY = myProject.getAllData(selected[i]);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -969,7 +979,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 		return;
 	}
-	
+
 	public void graphPairs() {
 		int[] selected = getSelectedRowsInList();
 		if (selected.length < 2) {
@@ -1233,8 +1243,15 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				deleteSelectedList();
 			return;
 		}
+
 		if (GRAPH_LIST_COMMAND.equals(e.getActionCommand())) {
 			graphSelectedList();
+			return;
+		}
+
+		if ("corrHist".equals(e.getActionCommand())) {
+			JOptionPane.showMessageDialog(null, "CORRHIST");
+			plotCorrHist(selectCorrColumn());
 			return;
 		}
 		if (GRAPH_SELECTED_COMMAND.equals(e.getActionCommand())) {
@@ -1381,17 +1398,18 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 
 		if ("make boxplot".equals(e.getActionCommand())) {
-			
-			
-			/*JPanel boxPlot = BoxPlotter.getFeatureBoxPlot(myProject, getSelectedRowsInList());
-			String title = "Box Plot";
-			MetaOmGraph.addInternalFrame(boxPlot, title);*/
+
+			/*
+			 * JPanel boxPlot = BoxPlotter.getFeatureBoxPlot(myProject,
+			 * getSelectedRowsInList()); String title = "Box Plot";
+			 * MetaOmGraph.addInternalFrame(boxPlot, title);
+			 */
 			makeBoxPlot();
 			return;
 		}
-		
+
 		if ("col boxplot".equals(e.getActionCommand())) {
-			//MetaOmGraph.addInternalFrame(BoxPlotter.getColumnBoxPlot(myProject),"colBP");
+			// MetaOmGraph.addInternalFrame(BoxPlotter.getColumnBoxPlot(myProject),"colBP");
 			return;
 		}
 		if ("create histogram".equals(e.getActionCommand())) {
@@ -1399,9 +1417,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				public void run() {
 					try {// get data for selected rows
 						int[] selected = getSelectedRowsInList();
-						//number of bins
-						int nBins=myProject.getIncludedDataColumnCount()/10;
-						HistogramChart f = new HistogramChart(selected, nBins,myProject,1,null);
+						// number of bins
+						int nBins = myProject.getIncludedDataColumnCount() / 10;
+						HistogramChart f = new HistogramChart(selected, nBins, myProject, 1, null);
 						MetaOmGraph.getDesktop().add(f);
 						f.setDefaultCloseOperation(2);
 						f.setClosable(true);
@@ -2458,9 +2476,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						return;
 					}
 
-					
-					
-
 					///////////////////////// shuffle within group////////////////////////
 					TreeMap<String, List<Integer>> groupsMap = myProject.getMetadataHybrid().getDefaultRepsMap();
 					// this array contains colindex of the datacolumns used
@@ -2475,8 +2490,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						List<Double> mutualInfoList = new ArrayList<>();
 						// get entopies
 
-						
-
 						public Object construct() {
 							try {
 								// for each data row do
@@ -2485,7 +2498,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 								shuffList.add(targetwtMat);
 								List<int[]> shuffInd = groupDataIndexbyRepColumn(groupsMap, exclude,
 										sourceDataColNumbers, _N);
-								//add to shuffList
+								// add to shuffList
 								for (int j = 0; j < shuffInd.size(); j++) {
 									double[][] tempMat = new double[targetwtMat.length][targetwtMat[0].length];
 									int[] newInd = shuffInd.get(j);
@@ -2513,7 +2526,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 									e1.printStackTrace();
 								}
 								double targetH = shuffEntropies.get(0);
-								
 
 								do {
 									progress.setProgress(j);
@@ -3113,10 +3125,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	public JTable getTable() {
 		return listDisplay;
 	}
-	
+
 	public StripedTable getStripedTable() {
 		return listDisplay;
 	}
+
 	public void selectRows(Collection<Integer> rows) {
 		for (Iterator localIterator = rows.iterator(); localIterator.hasNext();) {
 			int i = ((Integer) localIterator.next()).intValue();
@@ -3357,7 +3370,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	public MetadataTableDisplayPanel getMetadataTableDisplay() {
 		return this.mdtablepanel;
 	}
-	
+
 	public MetadataTreeDisplayPanel getMetadataTreeDisplay() {
 		return this.extInfoPanel2;
 	}
@@ -3536,6 +3549,87 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 
 		return res;
+	}
+
+	/**
+	 * Choose a correlation column and return that value
+	 * 
+	 * @return
+	 */
+	public String selectCorrColumn() {
+		ArrayList<Integer> colList = myProject.getCorrelationColumns();
+		if ((colList == null) || (colList.size() == 0)) {
+			return null;
+		}
+
+		String[] items = new String[colList.size()];
+		for (int i = 0; i < items.length; i++) {
+			items[i] = myProject.getInfoColumnNames()[colList.get(i).intValue()];
+			if (items[i].length() > 50) {
+				items[i] = items[i].substring(0, 50) + "...";
+			}
+			if (items[i].equals("")) {
+				items[i] = "<unnamed correlation>";
+			}
+		}
+
+		String col_val = (String) JOptionPane.showInputDialog(null, "Choose the column:\n", "Please choose",
+				JOptionPane.PLAIN_MESSAGE, null, items, items[0]);
+
+		return col_val;
+
+	}
+
+	/**
+	 * Plot histogram of correlation values
+	 */
+	public void plotCorrHist(String col_val) {
+
+		List<Double> corrVals = new ArrayList<>();
+		// add all values under the col_val column
+		// listDisplay.getValueAt(arg0, arg1)
+		for (int r = 0; r < listDisplay.getRowCount(); r++) {
+			CorrelationValue thisVal = (CorrelationValue) listDisplay.getModel().getValueAt(r,
+					listDisplay.getColumn(col_val).getModelIndex());
+
+			if (thisVal != null) {
+				corrVals.add(thisVal.doubleValue());
+			}
+
+		}
+
+		
+
+		// create histogram
+
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {// get data for selected rows
+					int nBins = corrVals.size() / 100;
+					if(nBins<100) {
+						nBins=100;
+					}
+					double[] data = corrVals.stream().mapToDouble(d -> d).toArray();
+					HistogramChart f = new HistogramChart(null, nBins, null, 2, data);
+					MetaOmGraph.getDesktop().add(f);
+					f.setDefaultCloseOperation(2);
+					f.setClosable(true);
+					f.setResizable(true);
+					f.pack();
+					f.setSize(1000, 700);
+					f.setVisible(true);
+					f.toFront();
+
+				} catch (Exception e) {
+					JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
+							JOptionPane.ERROR_MESSAGE);
+
+					e.printStackTrace();
+					return;
+				}
+			}
+		});
+
 	}
 
 }
