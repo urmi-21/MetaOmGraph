@@ -678,8 +678,12 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		int[] oldWidths = new int[listDisplay.getColumnCount()];
 		for (int x = 0; x < oldWidths.length; x++)
 			oldWidths[x] = listDisplay.getColumnModel().getColumn(x).getPreferredWidth();
+		try {
 		mainModel = new NoneditableTableModel(myProject.getGeneListRowNames(geneLists.getSelectedValue().toString()),
 				myProject.getInfoColumnNames());
+		}catch(NullPointerException npe) {
+			return;
+		}
 		filterModel = new FilterableTableModel(mainModel);
 		sorter = new TableSorter(filterModel);
 		listDisplay = new StripedTable(sorter);
