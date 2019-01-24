@@ -1955,9 +1955,12 @@ public class MetaOmGraph implements ActionListener {
 
 			@Override
 			public Object construct() {
-				if (activeProject.saveProject(destination))
-					mainWindow.setTitle("MetaOmGraph - " + destination.getName() + " ("
-							+ getActiveProject().getDataColumnCount() + " samples)");
+				if (activeProject.saveProject(destination)) {
+					/*mainWindow.setTitle("MetaOmGraph - " + destination.getName() + " ("
+							+ getActiveProject().getDataColumnCount() + " samples)");*/
+					fixTitle();
+					
+				}
 				addRecentProject(activeProjectFile);
 				return null;
 			}
