@@ -1935,35 +1935,39 @@ public class MetaOmProject {
 			return null;
 		int[] res = new int[names.size()];
 		int k = 0;
-		for(String s:names) {
-			res[k++] = getRowIndexbyName(s,matchCase);
-		}
-		/*for (int i = 0; i < rowNames.length; i++) {
-			String thisName = rowNames[i][defaultColumn].toString();
-			if (names.contains(thisName)) {
-				res[k++] = i;
-			}
-		}*/
 
+		if (matchCase) {
+			for (int i = 0; i < rowNames.length; i++) {
+				String thisName = rowNames[i][defaultColumn].toString();
+				if (names.contains(thisName)) {
+					res[k++] = i;
+				}
+			}
+		} else {
+
+			for (String s : names) {
+				res[k++] = getRowIndexbyName(s, true);
+			}
+		}
 		return res;
 	}
-	
+
 	public int getRowIndexbyName(String name, boolean matchCase) {
 		if (name == null)
 			return -1;
-		
+
 		for (int i = 0; i < rowNames.length; i++) {
 			String thisName = rowNames[i][defaultColumn].toString();
-			if(!matchCase) {
-				thisName=thisName.toLowerCase();
-				name=thisName.toLowerCase();
+			if (!matchCase) {
+				thisName = thisName.toLowerCase();
+				name = name.toLowerCase();
 			}
 			if (name.equals(thisName)) {
 				return i;
 			}
 		}
 		return -1;
-		
+
 	}
 
 	/**
@@ -2698,14 +2702,16 @@ public class MetaOmProject {
 		}
 		return result;
 	}
-	
+
 	/**
-	 * return data after removing excluded columns given as a parameter. This excluded parameter may be different than MetaOmAnalyzer.getexclude()
+	 * return data after removing excluded columns given as a parameter. This
+	 * excluded parameter may be different than MetaOmAnalyzer.getexclude()
+	 * 
 	 * @param row
 	 * @return
 	 * @throws IOException
 	 */
-	public double[] getIncludedData(int row,boolean[] localExclude) throws IOException {
+	public double[] getIncludedData(int row, boolean[] localExclude) throws IOException {
 		double[] data = getAllData(row);
 		boolean[] exclude = localExclude;
 		if (exclude == null) {
