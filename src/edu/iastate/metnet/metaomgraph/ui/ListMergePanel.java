@@ -8,6 +8,7 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,6 +33,8 @@ public class ListMergePanel extends JPanel {
 	public ListMergePanel(MetaOmProject project) {
 		myProject = project;
 		String[] lists = myProject.getGeneListNames();
+		//sort
+		Arrays.sort(lists);
 		listBoxes = new JCheckBox[lists.length];
 		JPanel boxPanel = new JPanel();
 		boxPanel.setLayout(new BoxLayout(boxPanel, 1));
@@ -60,23 +63,7 @@ public class ListMergePanel extends JPanel {
 		return result.toArray(new Integer[0]);
 	}
 
-	/*public Integer[] getMergedList() {
-		TreeSet<Integer> result = new TreeSet();
-		Integer[] selected = getSelectedLists();
-		Integer[] arrayOfInteger1;
-
-		int j = (arrayOfInteger1 = selected).length;
-		for (int i = 0; i < j; i++) {
-			int listNum = arrayOfInteger1[i].intValue();
-			String listName = myProject.getGeneListNames()[listNum];
-			int[] addUs = myProject.getGeneListRowNumbers(listName);
-			for (int addMe : addUs) {
-				result.add(Integer.valueOf(addMe));
-			}
-		}
-
-		return result.toArray(new Integer[0]);
-	}*/
+	
 
 	public Integer[] getMergedList(boolean intersect) {
 		List<Integer> result = new ArrayList<>();

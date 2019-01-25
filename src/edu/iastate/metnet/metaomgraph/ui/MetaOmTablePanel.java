@@ -1250,7 +1250,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 
 		if ("corrHist".equals(e.getActionCommand())) {
-			JOptionPane.showMessageDialog(null, "CORRHIST");
+			
 			plotCorrHist(selectCorrColumn());
 			return;
 		}
