@@ -144,7 +144,7 @@ public class CreateListFrame
 
 
             int[] importUs = ImportListDialog.doImport(myProject);
-            JOptionPane.showMessageDialog(null, "iu"+Arrays.toString(importUs));
+            //JOptionPane.showMessageDialog(null, "iu"+Arrays.toString(importUs));
             if ((importUs == null) || (importUs.length <= 0)) {
                 return;
             }

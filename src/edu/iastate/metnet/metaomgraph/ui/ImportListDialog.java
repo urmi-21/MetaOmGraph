@@ -87,33 +87,15 @@ public class ImportListDialog
             int totalMatches=0;
             while (st.hasMoreTokens()) {
                 String thisToken = st.nextToken().trim().toLowerCase();
-                boolean done = false;
-                /*for (int x = 0; x < myProject.getRowNames().length && !done; x++) {
-                    for (int y = 0; y < myProject.getRowName(x).length && !done; y++) {
-                        String[] splitName = (myProject.getRowName(x)[y] + "").split(";");
-                        for (String thisName : splitName) {
-                            if (thisName.equalsIgnoreCase(thisToken)) {
-                                result.add(new Integer(x));
-                                done = true;
-                            }
-                        }
-                    }
-                }*/
+               
                int thisInd= myProject.getRowIndexbyName(thisToken,false);
                if(thisInd>=0) {
+            	  // JOptionPane.showMessageDialog(null, "thisInd:"+thisInd);
             	   result.add(new Integer(thisInd));
             	   totalMatches++;
                }
                
-             /* String[] allRownames=myProject.getAllDefaultRowNames();
-                for (int x = 0; x < allRownames.length && !done; x++) {
-                	String thisName=allRownames[x];
-                	if (thisName.equalsIgnoreCase(thisToken)) {
-                        result.add(new Integer(x));
-                        done = true;
-                        totalMatches++;
-                    }
-                }*/
+           
             }
             
 
@@ -125,6 +107,7 @@ public class ImportListDialog
             } else {
             	JOptionPane.showMessageDialog(
                         MetaOmGraph.getMainWindow(),totalMatches+" values matched", totalMatches+" matches found", JOptionPane.INFORMATION_MESSAGE);
+            	//JOptionPane.showMessageDialog(null, "res:"+result.toString());
                 dispose();
             }
             return;
