@@ -376,6 +376,7 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 		Metadata.MetadataQuery[] resultArray = new Metadata.MetadataQuery[result.size()];
 		for (int i = 0; i < result.size(); i++)
 			resultArray[i] = result.get(i);
+		
 		return new QuerySet(resultArray, all);
 	}
 
@@ -390,7 +391,8 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 		} else {
 			fewerButton.setEnabled(false);
 		}
-		if (matchAll) {
+		
+		if (data.matchAll) {
 			allButton.setSelected(true);
 		} else {
 			anyButton.setSelected(true);
