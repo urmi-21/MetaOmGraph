@@ -99,8 +99,15 @@ public class ImportListDialog
                         }
                     }
                 }*/
-                
-                String[] allRownames=myProject.getAllDefaultRowNames();
+               int thisInd= myProject.getRowIndexbyName(thisToken,false);
+               if(thisInd>=0) {
+            	   result.add(new Integer(thisInd));
+            	   totalMatches++;
+               }else {
+            	   JOptionPane.showMessageDialog(null, "Not found:"+thisToken);
+               }
+               
+             /* String[] allRownames=myProject.getAllDefaultRowNames();
                 for (int x = 0; x < allRownames.length && !done; x++) {
                 	String thisName=allRownames[x];
                 	if (thisName.equalsIgnoreCase(thisToken)) {
@@ -108,7 +115,7 @@ public class ImportListDialog
                         done = true;
                         totalMatches++;
                     }
-                }
+                }*/
             }
             
 

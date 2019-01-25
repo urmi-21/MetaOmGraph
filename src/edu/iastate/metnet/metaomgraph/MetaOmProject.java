@@ -1930,19 +1930,40 @@ public class MetaOmProject {
 	 * @param names
 	 * @return
 	 */
-	public int[] getRowIndexbyName(List<String> names) {
+	public int[] getRowIndexbyName(List<String> names, boolean matchCase) {
 		if (names == null)
 			return null;
 		int[] res = new int[names.size()];
 		int k = 0;
-		for (int i = 0; i < rowNames.length; i++) {
+		for(String s:names) {
+			res[k++] = getRowIndexbyName(s,matchCase);
+		}
+		/*for (int i = 0; i < rowNames.length; i++) {
 			String thisName = rowNames[i][defaultColumn].toString();
 			if (names.contains(thisName)) {
 				res[k++] = i;
 			}
-		}
+		}*/
 
 		return res;
+	}
+	
+	public int getRowIndexbyName(String name, boolean matchCase) {
+		if (name == null)
+			return -1;
+		
+		for (int i = 0; i < rowNames.length; i++) {
+			String thisName = rowNames[i][defaultColumn].toString();
+			if(!matchCase) {
+				thisName=thisName.toLowerCase();
+				name=thisName.toLowerCase();
+			}
+			if (name.equals(thisName)) {
+				return i;
+			}
+		}
+		return -1;
+		
 	}
 
 	/**
