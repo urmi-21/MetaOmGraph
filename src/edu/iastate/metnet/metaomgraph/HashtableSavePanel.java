@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -58,6 +60,15 @@ public class HashtableSavePanel
         savedList = new JList(listModel);
         savedList.setSelectionMode(0);
         savedList.addListSelectionListener(this);
+        //urmi
+        savedList.addMouseListener(new MouseAdapter() {
+        	@Override
+        	public void mouseClicked(MouseEvent me) {
+        		if(me.getClickCount()==2) {
+        			loadData();
+        		}
+        	}
+		});
         JToolBar listToolBar = new JToolBar();
         listToolBar.setFloatable(false);
         IconTheme theme = MetaOmGraph.getIconTheme();
