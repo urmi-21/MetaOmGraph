@@ -103,8 +103,6 @@ public class ImportListDialog
                if(thisInd>=0) {
             	   result.add(new Integer(thisInd));
             	   totalMatches++;
-               }else {
-            	   JOptionPane.showMessageDialog(null, "Not found:"+thisToken);
                }
                
              /* String[] allRownames=myProject.getAllDefaultRowNames();
@@ -126,7 +124,7 @@ public class ImportListDialog
                         "No matches found", 0);
             } else {
             	JOptionPane.showMessageDialog(
-                        MetaOmGraph.getMainWindow(),totalMatches+" values matched", totalMatches+" matches found", 0);
+                        MetaOmGraph.getMainWindow(),totalMatches+" values matched", totalMatches+" matches found", JOptionPane.INFORMATION_MESSAGE);
                 dispose();
             }
             return;
