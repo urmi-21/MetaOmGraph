@@ -122,5 +122,5 @@ create a common class to handle plot functions from different tables
 add data size to plot legends
 improve import list
 list intersection and union
-when saving query, also save match all or match any flag
+$when saving query, also save match all or match any flag
 delete metadata not working

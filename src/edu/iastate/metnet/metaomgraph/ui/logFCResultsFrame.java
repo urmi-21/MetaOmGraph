@@ -536,7 +536,7 @@ public class logFCResultsFrame extends JInternalFrame {
 		for (int i : rowIndices) {
 			names.add(table.getValueAt(i, table.getColumn("Name").getModelIndex()).toString());
 		}
-		rowIndices = myProject.getRowIndexbyName(names);
+		rowIndices = myProject.getRowIndexbyName(names,true);
 
 		return rowIndices;
 	}
