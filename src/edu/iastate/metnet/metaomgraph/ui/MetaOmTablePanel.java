@@ -421,7 +421,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		corrMenu.add(poolcorrMenu);
 
 		corrMenu.addSeparator();
-		// corrMenu.add(spearmanItem);
+		corrMenu.add(diffCorrelation);
 		corrMenu.add(pairwisePearsonItem);
 		corrMenu.add(pairwiseSpearmanItem);
 		analyzePopupMenu.add(corrMenu);
@@ -2951,10 +2951,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			return;
 		}
 		
-		
-		if (("DiffCorrelation".equals(e.getActionCommand()))) {
-			JOptionPane.showMessageDialog(null, "diff corr");
-		}
+	
 
 		if (("mutualInformationPairs".equals(e.getActionCommand()))) {
 			// JOptionPane.showMessageDialog(null, "PairwiseMI");
@@ -3062,6 +3059,153 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			}
 
 		}
+		
+		
+		if (("DiffCorrelation".equals(e.getActionCommand()))) {
+			JOptionPane.showMessageDialog(null, "diff corr");
+			if (MetaOmGraph.getActiveProject().getMetadataHybrid() == null) {
+				JOptionPane.showMessageDialog(this, "No metadata found.");
+				return;
+			}
+			//show panel to select column to split data set
+			Map<String, Collection<Integer>> splitIndex=createSplitIndex();
+			if(splitIndex==null) {
+				JOptionPane.showMessageDialog(this, "Null Return");
+				return;
+			}
+			
+			//calculate r and p values using each group
+			//create 4 lists r1,pv1,r2,pv2
+		}
+	}
+	
+	
+	private Map<String, Collection<Integer>> createSplitIndex(){
+		Map<String, Collection<Integer>> splitIndex;
+		// show metadata categories
+		String[] fields = MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataHeaders();
+		String[] fields2 = new String[fields.length + 2];
+		for (int i = 0; i < fields.length; i++) {
+			fields2[i] = fields[i];
+		}
+		fields2[fields2.length - 2] = "By Query";
+		fields2[fields2.length - 1] = "More...";
+
+		String col_val = (String) JOptionPane.showInputDialog(null, "Choose the column:\n", "Please choose",
+				JOptionPane.PLAIN_MESSAGE, null, fields2, fields2[0]);
+		if (col_val == null) {
+			return null;
+		}
+
+		List<String> selectedVals = new ArrayList<>();
+		if (col_val.equals("More...")) {
+			// display jpanel with check box
+			JCheckBox[] cBoxes = new JCheckBox[fields.length];
+			JPanel cbPanel = new JPanel();
+			cbPanel.setLayout(new GridLayout(0, 3));
+			for (int i = 0; i < fields.length; i++) {
+				cBoxes[i] = new JCheckBox(fields[i]);
+				cbPanel.add(cBoxes[i]);
+			}
+			int res = JOptionPane.showConfirmDialog(null, cbPanel, "Select categories",
+					JOptionPane.OK_CANCEL_OPTION);
+			if (res == JOptionPane.OK_OPTION) {
+				for (int i = 0; i < fields.length; i++) {
+					if (cBoxes[i].isSelected()) {
+						selectedVals.add(fields[i]);
+					}
+				}
+				
+			} else {
+				return null;
+			}
+			splitIndex = myProject.getMetadataHybrid().cluster(selectedVals);
+
+		} else if (col_val.equals("By Query")) {
+			
+			// display query panel
+			final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(myProject, false);
+			final MetadataQuery[] queries;
+			queries = tsp.showSearchDialog();
+			if (tsp.getQueryCount() <= 0) {
+				System.out.println("Search dialog cancelled");
+				// User didn't enter any queries
+				return null;
+			}
+			// final int[] result = new int[myProject.getDataColumnCount()];
+			Collection<Integer> result = new ArrayList<>();
+			List<Collection<Integer>> resList = new ArrayList<>();
+			final boolean nohits;
+			new AnimatedSwingWorker("Searching...", true) {
+				@Override
+				public Object construct() {
+					ArrayList<Integer> toAdd = new ArrayList<Integer>(result.size());
+					for (int i = 0; i < myProject.getDataColumnCount(); i++) {
+						toAdd.add(i);
+					}
+					Integer[] hits = myProject.getMetadataHybrid().search(queries, tsp.matchAll());
+					// remove excluded cols from list
+					// urmi
+					boolean[] excluded = MetaOmAnalyzer.getExclude();
+					if (excluded != null) {
+						List<Integer> temp = new ArrayList<>();
+						for (Integer i : hits) {
+							if (!excluded[i]) {
+								temp.add(i);
+							}
+						}
+						hits = new Integer[temp.size()];
+						hits = temp.toArray(hits);
+					}
+
+					int index;
+					for (index = 0; index < hits.length; index++) {
+						result.add(hits[index]);
+						toAdd.remove(hits[index]);
+					}
+					/*
+					 * for (int i = 0; i < toAdd.size(); i++) { other.add(toAdd.get(i)); }
+					 */
+					resList.add(result);
+					resList.add(toAdd);
+					return null;
+				}
+			}.start();
+
+			// create a split index with "hits" as one category and all others as second
+			// category
+			if (resList.get(0).size() < 1) {
+				JOptionPane.showMessageDialog(null, "No hits found", "No hits", JOptionPane.INFORMATION_MESSAGE);
+				return null;
+			}
+			splitIndex = createSplitIndex(resList, Arrays.asList("Hits", "Other"));
+		} else {
+			// split data set by values of col_val
+			selectedVals.add(col_val);
+			splitIndex = myProject.getMetadataHybrid().cluster(selectedVals);
+		}
+
+		
+		return splitIndex;
+	
+	}
+	
+	/**
+	 * create a map of name to indices
+	 * 
+	 * @param collList
+	 * @param names
+	 * @return
+	 */
+	private Map<String, Collection<Integer>> createSplitIndex(List<Collection<Integer>> collList, List<String> names) {
+		Map<String, Collection<Integer>> res = new TreeMap();
+		for (int i = 0; i < collList.size(); i++) {
+			if (collList.get(i).size() > 0) {
+				res.put(names.get(i), collList.get(i));
+			}
+
+		}
+		return res;
 	}
 
 	private double[] getTvector(int k, int binsM) {
