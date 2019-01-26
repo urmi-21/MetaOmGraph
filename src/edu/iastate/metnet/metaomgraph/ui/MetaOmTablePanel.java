@@ -134,6 +134,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	private JMenuItem weightedEuclideanItem;
 	private JMenuItem weightedManhattanItem;
 	private JMenuItem saveCorrelationItem;
+	//urmi
+	private JMenuItem diffCorrelation;
 	private JMenuItem pairwisePearsonItem;
 	private JMenuItem pairwiseSpearmanItem;
 	private JMenu removeCorrelationMenu;
@@ -389,6 +391,12 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		saveCorrelationItem = new JMenuItem("Keep Previous Correlation");
 		saveCorrelationItem.setActionCommand("save correlation");
 		saveCorrelationItem.addActionListener(this);
+		
+		//urmi
+		diffCorrelation = new JMenuItem("Differential correlation");
+		diffCorrelation.setActionCommand("DiffCorrelation");
+		diffCorrelation.addActionListener(this);
+		
 		pairwisePearsonItem = new JMenuItem("Pearson Correlation matrix");
 		pairwisePearsonItem.setActionCommand("pairwise pearson");
 		pairwisePearsonItem.addActionListener(this);
@@ -2941,6 +2949,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			}
 
 			return;
+		}
+		
+		
+		if (("DiffCorrelation".equals(e.getActionCommand()))) {
+			JOptionPane.showMessageDialog(null, "diff corr");
 		}
 
 		if (("mutualInformationPairs".equals(e.getActionCommand()))) {
