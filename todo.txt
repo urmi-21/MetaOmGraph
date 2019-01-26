@@ -125,5 +125,6 @@ list intersection and union
 $when saving query, also save match all or match any flag
 delete metadata not working
 test list intersection
+move splitindex to project class
 
 
