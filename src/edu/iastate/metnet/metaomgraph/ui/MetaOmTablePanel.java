@@ -3113,8 +3113,13 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			List<Double> corrVals2 = getCorrData(col2);
 			
 			//correct feature names
-			List<String> featureNames=Arrays.asList(myProject.getAllDefaultRowNames());
-			Collections.sort(featureNames);
+			//List<String> featureNames=Arrays.asList(myProject.getAllDefaultRowNames());
+			//Collections.sort(featureNames);
+			List<String> featureNames=new ArrayList<>();
+			
+			for(int i=0;i<listDisplay.getRowCount();i++) {
+				featureNames.add((String) listDisplay.getValueAt(i,listDisplay.convertColumnIndexToView(myProject.getDefaultColumn()) ));
+			}
 			
 			
 			DiffCorrResultsTable frame= new DiffCorrResultsTable(featureNames,n1,n2, corrVals1, corrVals2);
