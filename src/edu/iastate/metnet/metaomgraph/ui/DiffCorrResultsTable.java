@@ -94,8 +94,10 @@ public class DiffCorrResultsTable extends JInternalFrame {
 	public DiffCorrResultsTable(List<String> featureNames,List<Double> corrVals1, List<Double> corrVals2, List<Double> zVals1,
 			List<Double> zVals2, List<Double> diff, List<Double> zScores, List<Double> pVals) {*/
 	
-	public DiffCorrResultsTable(List<String> featureNames,List<Double> corrVals1,List<Double> corrVals2) {
+	public DiffCorrResultsTable(List<String> featureNames,int n1,int n2,List<Double> corrVals1,List<Double> corrVals2) {
 		this.featureNames=featureNames;
+		this.n1=n1;
+		this.n2=n2;
 		this.corrVals1=corrVals1;
 		this.corrVals2=corrVals2;
 		zVals1=converttoZ(corrVals1);
