@@ -35,6 +35,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.apache.commons.math3.analysis.function.Atanh;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.biomage.Array.Array;
 import org.jdom.Element;
@@ -1899,7 +1900,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					// target, name, 1);
 					final int[] entries = myProject.getGeneListRowNumbers(geneLists.getSelectedValue().toString());
 					double[] sourceData = myProject.getIncludedData(entries[target]);
-					double[] sourceDataAll = myProject.getAllData(entries[target]);
+					
 
 					int _N = MetaOmGraph.getNumPermutations();
 					int _T = MetaOmGraph.getNumThreads();
@@ -1945,8 +1946,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						public Object construct() {
 							try {
 								// for each data row do
-								List<int[]> shuffInd = groupDataIndexbyRepColumn(groupsMap, exclude,
-										sourceDataColNumbers, _N);
+								List<int[]> shuffInd = groupDataIndexbyRepColumn(groupsMap, exclude,sourceDataColNumbers, _N);
 								for (int j = 0; j < shuffInd.size(); j++) {
 									double[] tempArr = new double[sourceData.length];
 									int[] newInd = shuffInd.get(j);
@@ -3748,9 +3748,13 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		for (int r = 0; r < listDisplay.getRowCount(); r++) {
 			CorrelationValue thisVal = (CorrelationValue) listDisplay.getModel().getValueAt(r,
 					listDisplay.getColumn(col_val).getModelIndex());
-
+			Atanh atanh = new Atanh();
 			if (thisVal != null) {
-				corrVals.add(thisVal.doubleValue());
+				double toadd=atanh.value(thisVal.doubleValue());
+				if(!Double.isNaN(toadd) && !Double.isInfinite(toadd)) {
+					corrVals.add(toadd);	
+				}
+				
 			}
 
 		}
