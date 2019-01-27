@@ -27,7 +27,12 @@ import org.apache.commons.math3.analysis.function.Atanh;
 import org.apache.commons.math3.distribution.NormalDistribution;
 
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
+import edu.iastate.metnet.metaomgraph.utils.Utils;
 import net.iharder.dnd.TransferableObject.Fetcher;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class DiffCorrResultsTable extends JInternalFrame {
 	private JTable table;
@@ -73,6 +78,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 	 * Create the frame.
 	 */
 	public DiffCorrResultsTable() {
+		this(null,0,0,null,null);
 
 	}
 
@@ -128,6 +134,17 @@ public class DiffCorrResultsTable extends JInternalFrame {
 
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
+		
+		JMenu mnFile = new JMenu("File");
+		menuBar.add(mnFile);
+		
+		JMenuItem mntmExportToFile = new JMenuItem("Export to file");
+		mntmExportToFile.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				Utils.saveJTabletofile(table);
+			}
+		});
+		mnFile.add(mntmExportToFile);
 
 		// frame properties
 		this.setClosable(true);
