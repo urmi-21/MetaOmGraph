@@ -481,7 +481,6 @@ public class logFCResultsFrame extends JInternalFrame {
 
 	private void updateTable() {
 
-
 		DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
 		tablemodel.setRowCount(0);
 		tablemodel.setColumnCount(0);

@@ -3087,7 +3087,13 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			// get data for both cols
 			List<Double> corrVals1 = getCorrData(col1);
 			List<Double> corrVals2 = getCorrData(col2);
-			
+			List<String> featureNames=Arrays.asList(myProject.getAllDefaultRowNames());
+			DiffCorrResultsTable frame= new DiffCorrResultsTable(featureNames, corrVals1, corrVals2);
+			frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2,
+					MetaOmGraph.getMainWindow().getHeight() / 2);
+			frame.setTitle("Fold change results");
+			MetaOmGraph.getDesktop().add(frame);
+			frame.setVisible(true);
 			
 			
 
