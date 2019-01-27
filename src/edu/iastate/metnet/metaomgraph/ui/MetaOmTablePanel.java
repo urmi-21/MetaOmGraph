@@ -3083,12 +3083,34 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 			// select two corr columns and do z test
 			String col1 = selectCorrColumn();
+			int n1=0;
+			try {
+				n1 = Integer.parseInt((String) JOptionPane.showInputDialog(null,
+						"Please Enter a value", "Input N1", JOptionPane.QUESTION_MESSAGE,
+						null, null, String.valueOf(n1)));
+				
+			} catch (NumberFormatException nfe) {
+				JOptionPane.showMessageDialog(null, "Invalid integer entered. Please try again.", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			int n2=0;
+			try {
+				n2 = Integer.parseInt((String) JOptionPane.showInputDialog(null,
+						"Please Enter a value", "Input N2", JOptionPane.QUESTION_MESSAGE,
+						null, null, String.valueOf(n1)));
+				
+			} catch (NumberFormatException nfe) {
+				JOptionPane.showMessageDialog(null, "Invalid integer entered. Please try again.", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				return;
+			}
 			String col2 = selectCorrColumn();
 			// get data for both cols
 			List<Double> corrVals1 = getCorrData(col1);
 			List<Double> corrVals2 = getCorrData(col2);
 			List<String> featureNames=Arrays.asList(myProject.getAllDefaultRowNames());
-			DiffCorrResultsTable frame= new DiffCorrResultsTable(featureNames, corrVals1, corrVals2);
+			DiffCorrResultsTable frame= new DiffCorrResultsTable(featureNames,n1,n2, corrVals1, corrVals2);
 			frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2,
 					MetaOmGraph.getMainWindow().getHeight() / 2);
 			frame.setTitle("Fold change results");
