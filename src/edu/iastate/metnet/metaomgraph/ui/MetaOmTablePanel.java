@@ -3066,7 +3066,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 
 		if (("DiffCorrelation".equals(e.getActionCommand()))) {
-			JOptionPane.showMessageDialog(null, "diff corr");
+			/*JOptionPane.showMessageDialog(null, "diff corr");
 			if (MetaOmGraph.getActiveProject().getMetadataHybrid() == null) {
 				JOptionPane.showMessageDialog(this, "No metadata found.");
 				return;
@@ -3076,7 +3076,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			if (splitIndex == null) {
 				JOptionPane.showMessageDialog(this, "Null Return");
 				return;
-			}
+			}*/
 
 			// calculate r and p values using each group
 			// create 4 lists r1,pv1,r2,pv2
@@ -3094,22 +3094,29 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						JOptionPane.ERROR_MESSAGE);
 				return;
 			}
+			
+			String col2 = selectCorrColumn();
 			int n2=0;
 			try {
 				n2 = Integer.parseInt((String) JOptionPane.showInputDialog(null,
 						"Please Enter a value", "Input N2", JOptionPane.QUESTION_MESSAGE,
-						null, null, String.valueOf(n1)));
+						null, null, String.valueOf(n2)));
 				
 			} catch (NumberFormatException nfe) {
 				JOptionPane.showMessageDialog(null, "Invalid integer entered. Please try again.", "Error",
 						JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-			String col2 = selectCorrColumn();
+			
 			// get data for both cols
 			List<Double> corrVals1 = getCorrData(col1);
 			List<Double> corrVals2 = getCorrData(col2);
+			
+			//correct feature names
 			List<String> featureNames=Arrays.asList(myProject.getAllDefaultRowNames());
+			Collections.sort(featureNames);
+			
+			
 			DiffCorrResultsTable frame= new DiffCorrResultsTable(featureNames,n1,n2, corrVals1, corrVals2);
 			frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2,
 					MetaOmGraph.getMainWindow().getHeight() / 2);
@@ -3826,8 +3833,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			if (thisVal != null) {
 				corrVals.add(thisVal.doubleValue());
 			}
-
-			return corrVals;
 		}
 		
 		return corrVals;
