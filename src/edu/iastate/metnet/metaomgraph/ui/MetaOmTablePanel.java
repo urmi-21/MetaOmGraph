@@ -135,7 +135,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	private JMenuItem weightedEuclideanItem;
 	private JMenuItem weightedManhattanItem;
 	private JMenuItem saveCorrelationItem;
-	//urmi
+	// urmi
 	private JMenuItem diffCorrelation;
 	private JMenuItem pairwisePearsonItem;
 	private JMenuItem pairwiseSpearmanItem;
@@ -392,12 +392,12 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		saveCorrelationItem = new JMenuItem("Keep Previous Correlation");
 		saveCorrelationItem.setActionCommand("save correlation");
 		saveCorrelationItem.addActionListener(this);
-		
-		//urmi
+
+		// urmi
 		diffCorrelation = new JMenuItem("Differential correlation");
 		diffCorrelation.setActionCommand("DiffCorrelation");
 		diffCorrelation.addActionListener(this);
-		
+
 		pairwisePearsonItem = new JMenuItem("Pearson Correlation matrix");
 		pairwisePearsonItem.setActionCommand("pairwise pearson");
 		pairwisePearsonItem.addActionListener(this);
@@ -1259,7 +1259,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 
 		if ("corrHist".equals(e.getActionCommand())) {
-			
+
 			plotCorrHist(selectCorrColumn());
 			return;
 		}
@@ -1564,6 +1564,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		if ("viewmetaform".equals(e.getActionCommand())) {
 			// JOptionPane.showMessageDialog(null, "showmwta...");
 			EventQueue.invokeLater(new Runnable() {
+
 				public void run() {
 					try {
 
@@ -1601,6 +1602,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			return;
 		}
 		if ("advancefilter".equals(e.getActionCommand())) {
+
 			// show advance filter options
 			final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(
 					MetaOmGraph.getActiveProject(), true);
@@ -1709,8 +1711,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			 * return; }
 			 */
 			if (myProject.hasLastCorrelation()) {
+
 				keepLastCorrelation();
 			}
+
 			String methodName = "";
 			if ("pearson correlation".equals(e.getActionCommand())) {
 				methodName = "pearson correlation";
@@ -1900,7 +1904,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					// target, name, 1);
 					final int[] entries = myProject.getGeneListRowNumbers(geneLists.getSelectedValue().toString());
 					double[] sourceData = myProject.getIncludedData(entries[target]);
-					
 
 					int _N = MetaOmGraph.getNumPermutations();
 					int _T = MetaOmGraph.getNumThreads();
@@ -1946,7 +1949,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						public Object construct() {
 							try {
 								// for each data row do
-								List<int[]> shuffInd = groupDataIndexbyRepColumn(groupsMap, exclude,sourceDataColNumbers, _N);
+								List<int[]> shuffInd = groupDataIndexbyRepColumn(groupsMap, exclude,
+										sourceDataColNumbers, _N);
 								for (int j = 0; j < shuffInd.size(); j++) {
 									double[] tempArr = new double[sourceData.length];
 									int[] newInd = shuffInd.get(j);
@@ -2308,9 +2312,12 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					// create a list of shuffled targetwtMat
 					// int _N = 100;
 					List<double[][]> shuffList = new ArrayList<>();
-					shuffList.add(targetwtMat); // shuffle _N time to create a list of shuffledlists
+					shuffList.add(targetwtMat); // shuffle _N time to create a list of
+												// shuffledlists
 					List<Integer> indices = IntStream.range(0, targetwtMat[0].length).boxed()
-							.collect(Collectors.toList());// indices of columns 0..num_Cols
+							.collect(Collectors.toList());// indices of
+															// columns
+															// 0..num_Cols
 					for (int i = 0; i < _N; i++) {
 						// create _N shuffled mat and add to list
 						java.util.Collections.shuffle(indices);
@@ -2950,8 +2957,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 			return;
 		}
-		
-	
 
 		if (("mutualInformationPairs".equals(e.getActionCommand()))) {
 			// JOptionPane.showMessageDialog(null, "PairwiseMI");
@@ -3059,30 +3064,37 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			}
 
 		}
-		
-		
+
 		if (("DiffCorrelation".equals(e.getActionCommand()))) {
 			JOptionPane.showMessageDialog(null, "diff corr");
 			if (MetaOmGraph.getActiveProject().getMetadataHybrid() == null) {
 				JOptionPane.showMessageDialog(this, "No metadata found.");
 				return;
 			}
-			//show panel to select column to split data set
-			Map<String, Collection<Integer>> splitIndex=createSplitIndex();
-			if(splitIndex==null) {
+			// show panel to select column to split data set
+			Map<String, Collection<Integer>> splitIndex = createSplitIndex();
+			if (splitIndex == null) {
 				JOptionPane.showMessageDialog(this, "Null Return");
 				return;
 			}
+
+			// calculate r and p values using each group
+			// create 4 lists r1,pv1,r2,pv2
+
+			// select two corr columns and do z test
+			String col1 = selectCorrColumn();
+			String col2 = selectCorrColumn();
+			// get data for both cols
+			List<Double> corrVals1 = getCorrData(col1);
+			List<Double> corrVals2 = getCorrData(col2);
 			
-			//calculate r and p values using each group
-			//create 4 lists r1,pv1,r2,pv2
 			
-			//select two corr columns and do z test
+			
+
 		}
 	}
-	
-	
-	private Map<String, Collection<Integer>> createSplitIndex(){
+
+	private Map<String, Collection<Integer>> createSplitIndex() {
 		Map<String, Collection<Integer>> splitIndex;
 		// show metadata categories
 		String[] fields = MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataHeaders();
@@ -3109,22 +3121,21 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				cBoxes[i] = new JCheckBox(fields[i]);
 				cbPanel.add(cBoxes[i]);
 			}
-			int res = JOptionPane.showConfirmDialog(null, cbPanel, "Select categories",
-					JOptionPane.OK_CANCEL_OPTION);
+			int res = JOptionPane.showConfirmDialog(null, cbPanel, "Select categories", JOptionPane.OK_CANCEL_OPTION);
 			if (res == JOptionPane.OK_OPTION) {
 				for (int i = 0; i < fields.length; i++) {
 					if (cBoxes[i].isSelected()) {
 						selectedVals.add(fields[i]);
 					}
 				}
-				
+
 			} else {
 				return null;
 			}
 			splitIndex = myProject.getMetadataHybrid().cluster(selectedVals);
 
 		} else if (col_val.equals("By Query")) {
-			
+
 			// display query panel
 			final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(myProject, false);
 			final MetadataQuery[] queries;
@@ -3187,11 +3198,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			splitIndex = myProject.getMetadataHybrid().cluster(selectedVals);
 		}
 
-		
 		return splitIndex;
-	
+
 	}
-	
+
 	/**
 	 * create a map of name to indices
 	 * 
@@ -3744,34 +3754,16 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	 */
 	public void plotCorrHist(String col_val) {
 
-		List<Double> corrVals = new ArrayList<>();
-		// add all values under the col_val column
-		// listDisplay.getValueAt(arg0, arg1)
-		for (int r = 0; r < listDisplay.getRowCount(); r++) {
-			CorrelationValue thisVal = (CorrelationValue) listDisplay.getModel().getValueAt(r,
-					listDisplay.getColumn(col_val).getModelIndex());
-			Atanh atanh = new Atanh();
-			if (thisVal != null) {
-				/*double toadd=atanh.value(thisVal.doubleValue());
-				if(!Double.isNaN(toadd) && !Double.isInfinite(toadd)) {
-					corrVals.add(toadd);	
-				}*/
-				corrVals.add(thisVal.doubleValue());
-				
-			}
-
-		}
-
-		
-
+		List<Double> corrVals = getCorrData(col_val);
+	
 		// create histogram
 
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {// get data for selected rows
 					int nBins = corrVals.size() / 100;
-					if(nBins<100) {
-						nBins=100;
+					if (nBins < 100) {
+						nBins = 100;
 					}
 					double[] data = corrVals.stream().mapToDouble(d -> d).toArray();
 					HistogramChart f = new HistogramChart(null, nBins, null, 2, data);
@@ -3795,5 +3787,23 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		});
 
 	}
+	
+	private List<Double> getCorrData(String colName) {
+
+		List<Double> corrVals = new ArrayList<>();
+		// add all values under the colName column
+		for (int r = 0; r < listDisplay.getRowCount(); r++) {
+			CorrelationValue thisVal = (CorrelationValue) listDisplay.getModel().getValueAt(r,
+					listDisplay.getColumn(colName).getModelIndex());
+			if (thisVal != null) {
+				corrVals.add(thisVal.doubleValue());
+			}
+
+			return corrVals;
+		}
+		
+		return corrVals;
+	}
+
 
 }
