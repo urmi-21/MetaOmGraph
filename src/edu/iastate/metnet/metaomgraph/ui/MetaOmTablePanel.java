@@ -3076,6 +3076,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			
 			//calculate r and p values using each group
 			//create 4 lists r1,pv1,r2,pv2
+			
+			//select two corr columns and do z test
 		}
 	}
 	
@@ -3750,10 +3752,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					listDisplay.getColumn(col_val).getModelIndex());
 			Atanh atanh = new Atanh();
 			if (thisVal != null) {
-				double toadd=atanh.value(thisVal.doubleValue());
+				/*double toadd=atanh.value(thisVal.doubleValue());
 				if(!Double.isNaN(toadd) && !Double.isInfinite(toadd)) {
 					corrVals.add(toadd);	
-				}
+				}*/
+				corrVals.add(thisVal.doubleValue());
 				
 			}
 
