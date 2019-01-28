@@ -179,6 +179,8 @@ public class MetadataHybrid {
 	}
 
 	public TreeMap<String, List<Integer>> getDefaultRepsMap() {
+		//build defaultrepsMap in case samples were changed
+		setDefaultRepsMap(buildRepsMap(getDefaultRepCol()));
 		return this.defaultrepsMap;
 	}
 
