@@ -1337,8 +1337,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			String[] sampleNames = null;
 			String[] groupNames = null;
 			
-			//build defaultrepsMap in case samples were changed
-			myProject.getMetadataHybrid().buildRepsMap(myProject.getMetadataHybrid().getDefaultRepCol());
+			
 			TreeMap<String, List<Integer>> repsMapDefault = myProject.getMetadataHybrid().getDefaultRepsMap();
 			for (int thisRow : selected) {
 				ReplicateGroups result = new ReplicateGroups(repsMapDefault, thisRow);
