@@ -125,10 +125,12 @@ public class ComputePval {
 		 //JOptionPane.showMessageDialog(null, "all C:"+Arrays.toString(permC));
 		for (int t = 0; t < permC.length; t++) {
 			double tempVal = permC[t];
-			if (tempVal < 0)
+			if (tempVal < 0) {
 				tempVal = tempVal * -1;
-			if (obsC < 0)
+			}
+			if (obsC < 0) {
 				obsC = obsC * -1;
+			}
 			if (tempVal >= obsC) {
 				count++;
 			}

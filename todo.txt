@@ -126,5 +126,6 @@ $when saving query, also save match all or match any flag
 delete metadata not working
 test list intersection
 move splitindex to project class
+update default rep columns as data is filtered
 
 
