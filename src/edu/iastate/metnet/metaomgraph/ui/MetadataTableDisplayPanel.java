@@ -169,6 +169,12 @@ public class MetadataTableDisplayPanel extends JPanel {
 									if (databyCols == null) {
 										return;
 									}
+									
+									if(databyCols.size()<2) {
+										JOptionPane.showMessageDialog(null, "Please select at least two rows", "Invalid selection",
+												JOptionPane.ERROR_MESSAGE);
+										return ;
+									}
 									// compute similarity here
 									ComputeRunsSimilarity ob = new ComputeRunsSimilarity(1, databyCols);
 									HashMap<String, Double> res = ob.doComputation();
@@ -222,6 +228,11 @@ public class MetadataTableDisplayPanel extends JPanel {
 									HashMap<Integer, double[]> databyCols = getDataForSelectedDataCols();
 									if (databyCols == null) {
 										return;
+									}
+									if(databyCols.size()<2) {
+										JOptionPane.showMessageDialog(null, "Please select at least two rows", "Invalid selection",
+												JOptionPane.ERROR_MESSAGE);
+										return ;
 									}
 									// compute correlation here 2 for correlation
 									ComputeRunsSimilarity ob = new ComputeRunsSimilarity(2, databyCols);
@@ -1630,7 +1641,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 	private String[] getSelectDataColsName() {
 		int[] selectedInd = table.getSelectedRows();
 		if (selectedInd == null || selectedInd.length < 1) {
-			JOptionPane.showMessageDialog(null, "Please select at least one row from table", "Invalid selection",
+			JOptionPane.showMessageDialog(null, "Nothing selected", "Invalid selection",
 					JOptionPane.ERROR_MESSAGE);
 			return null;
 		}
