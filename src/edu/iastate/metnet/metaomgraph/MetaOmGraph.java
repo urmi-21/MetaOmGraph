@@ -735,7 +735,10 @@ public class MetaOmGraph implements ActionListener {
 				e.printStackTrace();
 			}
 		}
-
+		
+		//init default themes
+		initThemes();
+		setCurrentTheme("light");
 		mainWindow = new JFrame("MetaOmGraph");
 		ExceptionHandler.getInstance(mainWindow).setUseBuffer(useBuffer);
 		// ExceptionHandler.getInstance(mainWindow).setUseBuffer(false);
