@@ -162,6 +162,12 @@ public class MetadataTableDisplayPanel extends JPanel {
 							public void run() {
 								// get data for all selceted cols
 								try {
+
+									if (table.getSelectedRows().length < 2) {
+										JOptionPane.showMessageDialog(null, "Please select at least two rows",
+												"Invalid selection", JOptionPane.ERROR_MESSAGE);
+										return;
+									}
 									/**
 									 * get all the row data for each col map colnum to data array
 									 */
@@ -169,12 +175,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 									if (databyCols == null) {
 										return;
 									}
-									
-									if(databyCols.size()<2) {
-										JOptionPane.showMessageDialog(null, "Please select at least two rows", "Invalid selection",
-												JOptionPane.ERROR_MESSAGE);
-										return ;
-									}
+
 									// compute similarity here
 									ComputeRunsSimilarity ob = new ComputeRunsSimilarity(1, databyCols);
 									HashMap<String, Double> res = ob.doComputation();
@@ -225,15 +226,16 @@ public class MetadataTableDisplayPanel extends JPanel {
 									/**
 									 * get all the row data for each col map colnum to data array
 									 */
+									if (table.getSelectedRows().length < 2) {
+										JOptionPane.showMessageDialog(null, "Please select at least two rows",
+												"Invalid selection", JOptionPane.ERROR_MESSAGE);
+										return;
+									}
 									HashMap<Integer, double[]> databyCols = getDataForSelectedDataCols();
 									if (databyCols == null) {
 										return;
 									}
-									if(databyCols.size()<2) {
-										JOptionPane.showMessageDialog(null, "Please select at least two rows", "Invalid selection",
-												JOptionPane.ERROR_MESSAGE);
-										return ;
-									}
+
 									// compute correlation here 2 for correlation
 									ComputeRunsSimilarity ob = new ComputeRunsSimilarity(2, databyCols);
 									HashMap<String, Double> res = ob.doComputation();
@@ -326,7 +328,8 @@ public class MetadataTableDisplayPanel extends JPanel {
 									}
 									// create box plot of selected data
 
-									//MetaOmGraph.addInternalFrame(BoxPlotter.getSampleBoxPlot(databyCols),"Box Plot");
+									// MetaOmGraph.addInternalFrame(BoxPlotter.getSampleBoxPlot(databyCols),"Box
+									// Plot");
 									EventQueue.invokeLater(new Runnable() {
 										public void run() {
 											try {// get data for selected rows
@@ -800,36 +803,34 @@ public class MetadataTableDisplayPanel extends JPanel {
 			}
 
 			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
-				//urmi enclose in try catch
+				// urmi enclose in try catch
 				try {
-				Component c = super.prepareRenderer(renderer, row, column);
-				if (!isRowSelected(row)) {
-					c.setBackground(getBackground());
-					int modelRow = convertRowIndexToModel(row);
+					Component c = super.prepareRenderer(renderer, row, column);
+					if (!isRowSelected(row)) {
+						c.setBackground(getBackground());
+						int modelRow = convertRowIndexToModel(row);
 
-					if (highlightedRows != null && highlightedRows.contains(modelRow)) {
-						c.setBackground(HIGHLIGHTCOLOR);
-					} else {
-						if (row % 2 == 0) {
-							c.setBackground(BCKGRNDCOLOR1);
+						if (highlightedRows != null && highlightedRows.contains(modelRow)) {
+							c.setBackground(HIGHLIGHTCOLOR);
 						} else {
-							c.setBackground(BCKGRNDCOLOR2);
+							if (row % 2 == 0) {
+								c.setBackground(BCKGRNDCOLOR1);
+							} else {
+								c.setBackground(BCKGRNDCOLOR2);
+							}
 						}
-					}
-					
 
-				} else {
-					c.setBackground(SELECTIONBCKGRND);
-				}
-			
-				return c;
-				}catch(Exception ex) {
-					
+					} else {
+						c.setBackground(SELECTIONBCKGRND);
+					}
+
+					return c;
+				} catch (Exception ex) {
+
 				}
 
 				return null;
-				
-				
+
 			}
 
 		};
@@ -851,7 +852,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 					System.out.println(row + " " + col);
 					String url = (String) table.getModel().getValueAt(row, col);
 					System.out.println(url + " was clicked");
-					
+
 					// open url
 					URI ns = null;
 					try {
@@ -1641,8 +1642,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 	private String[] getSelectDataColsName() {
 		int[] selectedInd = table.getSelectedRows();
 		if (selectedInd == null || selectedInd.length < 1) {
-			JOptionPane.showMessageDialog(null, "Nothing selected", "Invalid selection",
-					JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Nothing selected", "Invalid selection", JOptionPane.ERROR_MESSAGE);
 			return null;
 		}
 		String[] selectedNames = new String[selectedInd.length];
