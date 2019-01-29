@@ -29,6 +29,7 @@ import org.h2.command.dml.Set;
 
 import edu.iastate.metnet.metaomgraph.GraphFileFilter;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
+import edu.iastate.metnet.metaomgraph.chart.HistogramChart;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 import java.awt.event.ActionListener;
@@ -111,6 +112,53 @@ public class SimilarityDisplayFrame extends JInternalFrame {
 			}
 		});
 		mnView.add(mntmAsLiist);
+		
+		JMenu mnPlot = new JMenu("Plot");
+		menuBar.add(mnPlot);
+		
+		JMenuItem mntmHistogram = new JMenuItem("Histogram");
+		mntmHistogram.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+
+
+				// plot histogram of current pvalues in table
+				double[] data = new double[table.getRowCount()];
+				for (int r = 0; r < table.getRowCount(); r++) {
+
+					data[r] = (double) table.getModel().getValueAt(r, table.getColumn(metricName).getModelIndex());
+				}
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						try {// get data for selected rows
+							int nBins = data.length/100;
+							if(nBins<10) {
+								nBins=10;
+							}
+							HistogramChart f = new HistogramChart(null, nBins, null, 2, data);
+							MetaOmGraph.getDesktop().add(f);
+							f.setDefaultCloseOperation(2);
+							f.setClosable(true);
+							f.setResizable(true);
+							f.pack();
+							f.setSize(1000, 700);
+							f.setVisible(true);
+							f.toFront();
+
+						} catch (Exception e) {
+							JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
+									JOptionPane.ERROR_MESSAGE);
+
+							e.printStackTrace();
+							return;
+						}
+					}
+				});
+				return;
+
+			
+			}
+		});
+		mnPlot.add(mntmHistogram);
 
 		JMenu mnEdit = new JMenu("Edit");
 		menuBar.add(mnEdit);
