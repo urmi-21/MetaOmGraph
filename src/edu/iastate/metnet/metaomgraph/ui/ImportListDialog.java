@@ -84,6 +84,7 @@ public class ImportListDialog
             }
             result = new TreeSet<Integer>();
             StringTokenizer st = new StringTokenizer(textArea.getText(), "\n");
+            
             int totalMatches=0;
             while (st.hasMoreTokens()) {
                 String thisToken = st.nextToken().trim().toLowerCase();
@@ -93,6 +94,8 @@ public class ImportListDialog
             	  // JOptionPane.showMessageDialog(null, "thisInd:"+thisInd);
             	   result.add(new Integer(thisInd));
             	   totalMatches++;
+               }else {
+            	   JOptionPane.showMessageDialog(null, "notMatched:"+thisToken+ " res:"+thisInd);
                }
                
            
