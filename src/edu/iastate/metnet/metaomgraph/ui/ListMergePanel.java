@@ -99,7 +99,6 @@ public class ListMergePanel extends JPanel {
 		}
 		
 		//find intersection of all lists in allRows
-		
 		result=Utils.getListIntersection(allRows);
 		return result.toArray(new Integer[0]);
 	}

@@ -6,12 +6,17 @@ import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
+
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
@@ -84,7 +89,7 @@ public class ImportListDialog
             }
             result = new TreeSet<Integer>();
             StringTokenizer st = new StringTokenizer(textArea.getText(), "\n");
-            
+            List<String> notFound=new ArrayList<>();
             int totalMatches=0;
             while (st.hasMoreTokens()) {
                 String thisToken = st.nextToken().trim().toLowerCase();
@@ -95,11 +100,13 @@ public class ImportListDialog
             	   result.add(new Integer(thisInd));
             	   totalMatches++;
                }else {
-            	   JOptionPane.showMessageDialog(null, "notMatched:"+thisToken+ " res:"+thisInd);
+            	   notFound.add(thisToken);
                }
                
            
             }
+            
+            
             
 
             if (result.size() <= 0) {
@@ -110,7 +117,24 @@ public class ImportListDialog
             } else {
             	JOptionPane.showMessageDialog(
                         MetaOmGraph.getMainWindow(),totalMatches+" values matched", totalMatches+" matches found", JOptionPane.INFORMATION_MESSAGE);
-            	//JOptionPane.showMessageDialog(null, "res:"+result.toString());
+            	
+            	if(notFound.size()>0) {
+            		JPanel listPanel=new JPanel();
+            
+            		DefaultListModel listmod = new DefaultListModel();
+            		for(String s:notFound) {
+            			listmod.addElement(s);
+            		}
+            		JList list= new JList<>(listmod);
+            		
+            		listPanel.add(list);
+            		
+            		JOptionPane.showConfirmDialog(null, listPanel, "Following ids were not matched",
+    						JOptionPane.OK_OPTION);
+            		
+            	}
+            	
+            	
                 dispose();
             }
             return;
