@@ -19,7 +19,9 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.ListSelectionModel;
 
 
 public class ImportListDialog
@@ -126,11 +128,10 @@ public class ImportListDialog
             			listmod.addElement(s);
             		}
             		JList list= new JList<>(listmod);
+            		list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+            		listPanel.add(new JScrollPane(list));
             		
-            		listPanel.add(list);
-            		
-            		JOptionPane.showConfirmDialog(null, listPanel, "Following ids were not matched",
-    						JOptionPane.OK_OPTION);
+            		JOptionPane.showConfirmDialog(null, listPanel, "Following ids were not matched",JOptionPane.PLAIN_MESSAGE);
             		
             	}
             	
