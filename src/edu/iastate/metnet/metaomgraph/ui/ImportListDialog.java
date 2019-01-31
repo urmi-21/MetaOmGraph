@@ -3,6 +3,7 @@ package edu.iastate.metnet.metaomgraph.ui;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 
+import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -122,14 +123,14 @@ public class ImportListDialog
             	
             	if(notFound.size()>0) {
             		JPanel listPanel=new JPanel();
-            
+            		listPanel.setLayout(new BorderLayout());
             		DefaultListModel listmod = new DefaultListModel();
             		for(String s:notFound) {
             			listmod.addElement(s);
             		}
             		JList list= new JList<>(listmod);
             		list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-            		listPanel.add(new JScrollPane(list));
+            		listPanel.add(new JScrollPane(list),BorderLayout.CENTER);
             		
             		JOptionPane.showConfirmDialog(null, listPanel, "Following ids were not matched",JOptionPane.PLAIN_MESSAGE);
             		
