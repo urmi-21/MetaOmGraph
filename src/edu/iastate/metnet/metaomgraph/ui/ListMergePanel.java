@@ -74,7 +74,11 @@ public class ListMergePanel extends JPanel {
 		int j = (arrayOfInteger1 = selected).length;
 		for (int i = 0; i < j; i++) {
 			int listNum = arrayOfInteger1[i].intValue();
-			String listName = myProject.getGeneListNames()[listNum];
+			
+			//String listName = myProject.getGeneListNames()[listNum];
+			//fix correct name
+			String listName=listBoxes[listNum].getText();
+			JOptionPane.showMessageDialog(null, "new Name:"+listName);
 			int[] addUs = myProject.getGeneListRowNumbers(listName);
 			if (!intersect) {
 				for (int addMe : addUs) {
@@ -95,6 +99,7 @@ public class ListMergePanel extends JPanel {
 		}
 		
 		//find intersection of all lists in allRows
+		JOptionPane.showMessageDialog(null, allRows.toString());
 		result=Utils.getListIntersection(allRows);
 		return result.toArray(new Integer[0]);
 	}
