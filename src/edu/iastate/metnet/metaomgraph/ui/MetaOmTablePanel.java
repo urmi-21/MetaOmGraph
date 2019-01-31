@@ -528,7 +528,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		String[] listNames = myProject.getGeneListNames();
 		Arrays.sort(listNames, new ListNameComparator());
 		geneLists = new JList(listNames);
-		geneLists.setSelectionMode(SelectionMode.MULTIPLE);
+		geneLists.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		geneLists.setSelectedIndex(0);
 		geneLists.addListSelectionListener(this);
 		//urmi
