@@ -19,6 +19,7 @@ import edu.stanford.ejalbert.BrowserLauncher;
 import edu.stanford.ejalbert.BrowserLauncherRunner;
 import edu.stanford.ejalbert.exceptionhandler.BrowserLauncherDefaultErrorHandler;
 import edu.stanford.ejalbert.exceptionhandler.BrowserLauncherErrorHandler;
+import javafx.scene.control.SelectionMode;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -527,7 +528,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		String[] listNames = myProject.getGeneListNames();
 		Arrays.sort(listNames, new ListNameComparator());
 		geneLists = new JList(listNames);
-		geneLists.setSelectionMode(0);
+		geneLists.setSelectionMode(SelectionMode.MULTIPLE);
 		geneLists.setSelectedIndex(0);
 		geneLists.addListSelectionListener(this);
 		//urmi
@@ -1067,7 +1068,12 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	}
 
 	public void deleteSelectedList() {
-		myProject.deleteGeneList(geneLists.getSelectedValue().toString());
+		List sel=geneLists.getSelectedValuesList();
+		
+		for(Object s:sel) {
+			myProject.deleteGeneList(s.toString());
+		}
+		//myProject.deleteGeneList(geneLists.getSelectedValue().toString());
 	}
 
 	public String getSelectedGeneName() {
@@ -1262,7 +1268,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 		if ("delete list".equals(e.getActionCommand())) {
 			int result = JOptionPane.showConfirmDialog(MetaOmGraph.getMainWindow(),
-					"Are you sure you want to delete the list '" + geneLists.getSelectedValue().toString() + "'?",
+					"Are you sure you want to delete the selected lists '" + geneLists.getSelectedValue().toString() + "'?",
 					"Confirm", 0, 3);
 			if (result == 0)
 				deleteSelectedList();
