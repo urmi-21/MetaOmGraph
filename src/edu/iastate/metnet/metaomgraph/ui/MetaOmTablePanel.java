@@ -538,7 +538,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	            ListModel m = l.getModel();
 	            int index = l.locationToIndex(e.getPoint());
 	            if( index>-1 ) {
-	                l.setToolTipText(m.getElementAt(index).toString());
+	            	//create tooltip
+	            	String thisListName=m.getElementAt(index).toString();
+	            	int numElements=myProject.getGeneListRowNumbers(thisListName).length;
+	                l.setToolTipText(thisListName+":"+numElements+" Elements");
 	            }
 	        }
 	    });
