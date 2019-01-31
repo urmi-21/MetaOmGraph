@@ -1711,7 +1711,7 @@ public class MetaOmProject {
 				if (result != null)
 					result = result.trim();
 				if (getGeneListRowNumbers(result) != null) {
-					JOptionPane.showInternalMessageDialog(MetaOmGraph.getMainWindow(),
+					JOptionPane.showInternalMessageDialog(null,
 							"A list with that name already exists.  Please enter a different name.",
 							"Duplicate list name", 0);
 					result = "";
