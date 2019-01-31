@@ -78,7 +78,7 @@ public class ListMergePanel extends JPanel {
 			//String listName = myProject.getGeneListNames()[listNum];
 			//fix correct name
 			String listName=listBoxes[listNum].getText();
-			JOptionPane.showMessageDialog(null, "new Name:"+listName);
+			//JOptionPane.showMessageDialog(null, "new Name:"+listName);
 			int[] addUs = myProject.getGeneListRowNumbers(listName);
 			if (!intersect) {
 				for (int addMe : addUs) {
