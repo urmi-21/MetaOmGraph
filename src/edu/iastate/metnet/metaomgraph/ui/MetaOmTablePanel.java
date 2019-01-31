@@ -531,22 +531,22 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		geneLists.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		geneLists.setSelectedIndex(0);
 		geneLists.addListSelectionListener(this);
-		//urmi
+		// urmi
 		geneLists.addMouseMotionListener(new MouseMotionAdapter() {
-	        @Override
-	        public void mouseMoved(MouseEvent e) {
-	            JList l = (JList)e.getSource();
-	            ListModel m = l.getModel();
-	            int index = l.locationToIndex(e.getPoint());
-	            if( index>-1 ) {
-	            	//create tooltip
-	            	String thisListName=m.getElementAt(index).toString();
-	            	int numElements=myProject.getGeneListRowNumbers(thisListName).length;
-	                l.setToolTipText(thisListName+":"+numElements+" Elements");
-	            }
-	        }
-	    });
-		
+			@Override
+			public void mouseMoved(MouseEvent e) {
+				JList l = (JList) e.getSource();
+				ListModel m = l.getModel();
+				int index = l.locationToIndex(e.getPoint());
+				if (index > -1) {
+					// create tooltip
+					String thisListName = m.getElementAt(index).toString();
+					int numElements = myProject.getGeneListRowNumbers(thisListName).length;
+					l.setToolTipText(thisListName + ":" + numElements + " Elements");
+				}
+			}
+		});
+
 		listDeleteButton.setEnabled(false);
 		listEditButton.setEnabled(false);
 		listRenameButton.setEnabled(false);
@@ -646,6 +646,21 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		geneLists = new JList(listNames);
 		geneLists.addListSelectionListener(this);
 		geneLists.setSelectionMode(0);
+		// urmi
+		geneLists.addMouseMotionListener(new MouseMotionAdapter() {
+			@Override
+			public void mouseMoved(MouseEvent e) {
+				JList l = (JList) e.getSource();
+				ListModel m = l.getModel();
+				int index = l.locationToIndex(e.getPoint());
+				if (index > -1) {
+					// create tooltip
+					String thisListName = m.getElementAt(index).toString();
+					int numElements = myProject.getGeneListRowNumbers(thisListName).length;
+					l.setToolTipText(thisListName + ":" + numElements + " Elements");
+				}
+			}
+		});
 		if ("delete list".equals(event.getSource())) {
 			geneLists.setSelectedIndex(0);
 		} else {
@@ -1068,12 +1083,12 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	}
 
 	public void deleteSelectedList() {
-		List sel=geneLists.getSelectedValuesList();
-		
-		for(Object s:sel) {
+		List sel = geneLists.getSelectedValuesList();
+
+		for (Object s : sel) {
 			myProject.deleteGeneList(s.toString());
 		}
-		//myProject.deleteGeneList(geneLists.getSelectedValue().toString());
+		// myProject.deleteGeneList(geneLists.getSelectedValue().toString());
 	}
 
 	public String getSelectedGeneName() {
@@ -1268,7 +1283,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 		if ("delete list".equals(e.getActionCommand())) {
 			int result = JOptionPane.showConfirmDialog(MetaOmGraph.getMainWindow(),
-					"Are you sure you want to delete the selected lists '" + geneLists.getSelectedValue().toString() + "'?",
+					"Are you sure you want to delete the selected lists '" + geneLists.getSelectedValue().toString()
+							+ "'?",
 					"Confirm", 0, 3);
 			if (result == 0)
 				deleteSelectedList();
@@ -1358,8 +1374,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			ArrayList<int[]> repCounts = new ArrayList();
 			String[] sampleNames = null;
 			String[] groupNames = null;
-			
-			
+
 			TreeMap<String, List<Integer>> repsMapDefault = myProject.getMetadataHybrid().getDefaultRepsMap();
 			for (int thisRow : selected) {
 				ReplicateGroups result = new ReplicateGroups(repsMapDefault, thisRow);
@@ -3090,70 +3105,62 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 
 		if (("DiffCorrelation".equals(e.getActionCommand()))) {
-			/*JOptionPane.showMessageDialog(null, "diff corr");
-			if (MetaOmGraph.getActiveProject().getMetadataHybrid() == null) {
-				JOptionPane.showMessageDialog(this, "No metadata found.");
-				return;
-			}
-			// show panel to select column to split data set
-			Map<String, Collection<Integer>> splitIndex = createSplitIndex();
-			if (splitIndex == null) {
-				JOptionPane.showMessageDialog(this, "Null Return");
-				return;
-			}*/
+			/*
+			 * JOptionPane.showMessageDialog(null, "diff corr"); if
+			 * (MetaOmGraph.getActiveProject().getMetadataHybrid() == null) {
+			 * JOptionPane.showMessageDialog(this, "No metadata found."); return; } // show
+			 * panel to select column to split data set Map<String, Collection<Integer>>
+			 * splitIndex = createSplitIndex(); if (splitIndex == null) {
+			 * JOptionPane.showMessageDialog(this, "Null Return"); return; }
+			 */
 
 			// calculate r and p values using each group
 			// create 4 lists r1,pv1,r2,pv2
 
 			// select two corr columns and do z test
 			String col1 = selectCorrColumn();
-			int n1=0;
+			int n1 = 0;
 			try {
-				n1 = Integer.parseInt((String) JOptionPane.showInputDialog(null,
-						"Please Enter a value", "Input N1", JOptionPane.QUESTION_MESSAGE,
-						null, null, String.valueOf(n1)));
-				
+				n1 = Integer.parseInt((String) JOptionPane.showInputDialog(null, "Please Enter a value", "Input N1",
+						JOptionPane.QUESTION_MESSAGE, null, null, String.valueOf(n1)));
+
 			} catch (NumberFormatException nfe) {
 				JOptionPane.showMessageDialog(null, "Invalid integer entered. Please try again.", "Error",
 						JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-			
+
 			String col2 = selectCorrColumn();
-			int n2=0;
+			int n2 = 0;
 			try {
-				n2 = Integer.parseInt((String) JOptionPane.showInputDialog(null,
-						"Please Enter a value", "Input N2", JOptionPane.QUESTION_MESSAGE,
-						null, null, String.valueOf(n2)));
-				
+				n2 = Integer.parseInt((String) JOptionPane.showInputDialog(null, "Please Enter a value", "Input N2",
+						JOptionPane.QUESTION_MESSAGE, null, null, String.valueOf(n2)));
+
 			} catch (NumberFormatException nfe) {
 				JOptionPane.showMessageDialog(null, "Invalid integer entered. Please try again.", "Error",
 						JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-			
+
 			// get data for both cols
 			List<Double> corrVals1 = getCorrData(col1);
 			List<Double> corrVals2 = getCorrData(col2);
-			
-			//correct feature names
-			//List<String> featureNames=Arrays.asList(myProject.getAllDefaultRowNames());
-			//Collections.sort(featureNames);
-			List<String> featureNames=new ArrayList<>();
-			
-			for(int i=0;i<listDisplay.getRowCount();i++) {
-				featureNames.add((String) listDisplay.getValueAt(i,listDisplay.convertColumnIndexToView(myProject.getDefaultColumn()) ));
+
+			// correct feature names
+			// List<String> featureNames=Arrays.asList(myProject.getAllDefaultRowNames());
+			// Collections.sort(featureNames);
+			List<String> featureNames = new ArrayList<>();
+
+			for (int i = 0; i < listDisplay.getRowCount(); i++) {
+				featureNames.add((String) listDisplay.getValueAt(i,
+						listDisplay.convertColumnIndexToView(myProject.getDefaultColumn())));
 			}
-			
-			
-			DiffCorrResultsTable frame= new DiffCorrResultsTable(featureNames,n1,n2, corrVals1, corrVals2);
-			frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2,
-					MetaOmGraph.getMainWindow().getHeight() / 2);
+
+			DiffCorrResultsTable frame = new DiffCorrResultsTable(featureNames, n1, n2, corrVals1, corrVals2);
+			frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
 			frame.setTitle("Fold change results");
 			MetaOmGraph.getDesktop().add(frame);
 			frame.setVisible(true);
-			
-			
 
 		}
 	}
@@ -3819,7 +3826,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	public void plotCorrHist(String col_val) {
 
 		List<Double> corrVals = getCorrData(col_val);
-	
+
 		// create histogram
 
 		EventQueue.invokeLater(new Runnable() {
@@ -3851,7 +3858,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		});
 
 	}
-	
+
 	private List<Double> getCorrData(String colName) {
 
 		List<Double> corrVals = new ArrayList<>();
@@ -3863,9 +3870,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				corrVals.add(thisVal.doubleValue());
 			}
 		}
-		
+
 		return corrVals;
 	}
-
 
 }
