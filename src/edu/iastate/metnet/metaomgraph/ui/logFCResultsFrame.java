@@ -58,7 +58,7 @@ public class logFCResultsFrame extends JInternalFrame {
 	
 	private MetaOmProject myProject;
 	
-	double pvThresh=0.05;
+	double pvThresh=0.01;
 
 	/**
 	 * Default Properties
@@ -162,11 +162,15 @@ public class logFCResultsFrame extends JInternalFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				double pvalThresh=0;
 				try {
-					pvalThresh = Double.parseDouble((String) JOptionPane.showInputDialog(null,
+					String input=(String) JOptionPane.showInputDialog(null,
 							"Please Enter a value", "Input p-value", JOptionPane.QUESTION_MESSAGE,
-							null, null, String.valueOf(pvThresh)));
+							null, null, String.valueOf(pvThresh));
+					if(input==null) {
+						return;
+					}
+					pvalThresh = Double.parseDouble(input);
 					
-				} catch (NumberFormatException nfe) {
+				} catch (NumberFormatException  nfe) {
 					JOptionPane.showMessageDialog(null, "Invalid number entered. Please try again.", "Error",
 							JOptionPane.ERROR_MESSAGE);
 					return;
