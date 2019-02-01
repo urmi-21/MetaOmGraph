@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
@@ -45,9 +46,11 @@ import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
 import javax.swing.text.DefaultFormatterFactory;
 
 import org.jcolorbrewer.ColorBrewer;
@@ -725,6 +728,10 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				return;
 			}
 		}
+		
+		if (event.getTrigger().getClickCount() == 3) {
+			reOrderGroups();
+		}
 
 	}
 
@@ -797,6 +804,21 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		}
 
 		return null;
+	}
+	
+	private void reOrderGroups() {
+		JPanel listPanel=new JPanel();
+		listPanel.setLayout(new BorderLayout());
+		DefaultListModel listmod = new DefaultListModel();
+		
+		for(String s:splitIndex.keySet()) {
+			listmod.addElement(s);
+		}
+		JList list= new JList<>(listmod);
+		list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		listPanel.add(new JScrollPane(list),BorderLayout.CENTER);
+		
+		JOptionPane.showConfirmDialog(null, listPanel, "Reorder using Drag-and-Drop",JOptionPane.PLAIN_MESSAGE);
 	}
 
 	///////////////////////// BoxPlot Renderer
