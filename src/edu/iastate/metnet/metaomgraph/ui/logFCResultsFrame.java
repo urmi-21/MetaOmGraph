@@ -58,7 +58,7 @@ public class logFCResultsFrame extends JInternalFrame {
 	
 	private MetaOmProject myProject;
 	
-	double pvThresh=0.01;
+	double pvThresh=1;
 
 	/**
 	 * Default Properties
