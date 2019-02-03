@@ -8,12 +8,14 @@ import edu.iastate.metnet.metaomgraph.Metadata;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.SortableData;
 import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
+import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel.MyAlphanumericComparator;
 
 import java.awt.*;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -79,7 +81,30 @@ public class DataSorter {
 			names[i] = xaxisNames[i].toLowerCase();
 			names[i] += "<" + i;
 		}
-		Arrays.sort(names);
+		// Arrays.sort(names);
+		// Arrays.sort(names, new MyAlphanumericComparator());
+		JOptionPane.showMessageDialog(null, Arrays.toString(names));
+		Arrays.sort(names, new Comparator<String>() {
+			@Override
+			public int compare(String o1, String o2) {
+				String s1 = o1.toString();
+				String s2 = o2.toString();
+				final Double num1 = getDouble(s1);
+				final Double num2 = getDouble(s2);
+				if (num1 != null && num2 != null) {
+					return num1.compareTo(num2);
+				}
+				return s1.compareTo(s2);
+			}
+
+			private Double getDouble(String number) {
+				try {
+					return Double.parseDouble(number);
+				} catch (NumberFormatException e) {
+					return null;
+				}
+			}
+		});
 		// names will now be sorted alphabetically. Now we just need to populate
 		// result with the original indices of the column names, which appear
 		// after the last '<' character in each name.
@@ -99,7 +124,7 @@ public class DataSorter {
 	 * @return
 	 */
 	public int[] defaultOrder() {
-		//create a new object
+		// create a new object
 		int[] so = new int[myChartPanel.getSortOrder().length];
 		for (int i = 0; i < so.length; i++) {
 			so[i] = i;
@@ -130,7 +155,8 @@ public class DataSorter {
 
 	// to change
 	public int[] sortByMetadata() {
-		final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(myChartPanel.getProject(),false);
+		final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(myChartPanel.getProject(),
+				false);
 		final MetadataQuery[] queries;
 		queries = tsp.showSearchDialog();
 		if (tsp.getQueryCount() <= 0) {
@@ -208,69 +234,48 @@ public class DataSorter {
 	 * @author urmi changed to new metadata class
 	 * 
 	 */
-	/*public int[] clusterByMetadata(String field) {
-		// Map<String, Collection<Integer>> clusters =
-		// myChartPanel.getProject().getMetadata().cluster(field, 0);
-		Map<String, Collection<Integer>> clusters = myChartPanel.getProject().getMetadataHybrid().cluster(field);
-		if (clusters.size() == 0) {
-			JOptionPane.showMessageDialog(null, "Cluster size 0.Error in search...DataSorter:140");
-			return null;
-		}
-		// JOptionPane.showMessageDialog(null, "Cluster size "+clusters.size());
-		Set<String> groups = clusters.keySet();
-		int[] result = new int[myChartPanel.getProject().getDataColumnCount()];
-		if (result.length == 0) {
-			JOptionPane.showMessageDialog(null, "Error in search...");
-			return null;
-		}
-		rangeMarkers = new Vector<RangeMarker>();
-		int index = 0;
+	/*
+	 * public int[] clusterByMetadata(String field) { // Map<String,
+	 * Collection<Integer>> clusters = //
+	 * myChartPanel.getProject().getMetadata().cluster(field, 0); Map<String,
+	 * Collection<Integer>> clusters =
+	 * myChartPanel.getProject().getMetadataHybrid().cluster(field); if
+	 * (clusters.size() == 0) { JOptionPane.showMessageDialog(null,
+	 * "Cluster size 0.Error in search...DataSorter:140"); return null; } //
+	 * JOptionPane.showMessageDialog(null, "Cluster size "+clusters.size());
+	 * Set<String> groups = clusters.keySet(); int[] result = new
+	 * int[myChartPanel.getProject().getDataColumnCount()]; if (result.length == 0)
+	 * { JOptionPane.showMessageDialog(null, "Error in search..."); return null; }
+	 * rangeMarkers = new Vector<RangeMarker>(); int index = 0;
+	 * 
+	 * ArrayList<Integer> toAdd = new ArrayList<Integer>(); for (int i = 0; i <
+	 * result.length; i++) { toAdd.add(i); }
+	 * 
+	 * for (String groupName : groups) { if ("".equals(groupName)) continue;
+	 * 
+	 * Collection<Integer> members = clusters.get(groupName); //
+	 * JOptionPane.showMessageDialog(null, "gname:" + groupName); //
+	 * JOptionPane.showMessageDialog(null, "membr:" + members.toString());
+	 * 
+	 * boolean[] excluded = MetaOmAnalyzer.getExclude(); if (excluded != null) {
+	 * java.util.List<Integer> temp = new ArrayList<>(); // remove excluded members
+	 * for (int m : members) { if (excluded[m]) { //
+	 * JOptionPane.showMessageDialog(null, "Excluding:" + m); temp.add(m); } }
+	 * members.removeAll(temp); } // JOptionPane.showMessageDialog(null, "membrnow:"
+	 * + members.toString()); if (members.size() > 0) { rangeMarkers.add(new
+	 * RangeMarker(index, index + members.size() - 1, groupName,
+	 * RangeMarker.VERTICAL)); } for (int col : members) { // todo // change known
+	 * cols to include only those cols which are in datafile result[index++] = col;
+	 * toAdd.remove((Object) col); } }
+	 * 
+	 * for (int col : toAdd) result[index++] = col;
+	 * 
+	 * return result; }
+	 */
 
-		ArrayList<Integer> toAdd = new ArrayList<Integer>();
-		for (int i = 0; i < result.length; i++) {
-			toAdd.add(i);
-		}
-
-		for (String groupName : groups) {
-			if ("".equals(groupName))
-				continue;
-
-			Collection<Integer> members = clusters.get(groupName);
-			// JOptionPane.showMessageDialog(null, "gname:" + groupName);
-			// JOptionPane.showMessageDialog(null, "membr:" + members.toString());
-			
-			boolean[] excluded = MetaOmAnalyzer.getExclude();
-			if (excluded != null) {
-				java.util.List<Integer> temp = new ArrayList<>();
-				// remove excluded members
-				for (int m : members) {
-					if (excluded[m]) {
-						// JOptionPane.showMessageDialog(null, "Excluding:" + m);
-						temp.add(m);
-					}
-				}
-				members.removeAll(temp);
-			}
-			// JOptionPane.showMessageDialog(null, "membrnow:" + members.toString());
-			if (members.size() > 0) {
-				rangeMarkers.add(new RangeMarker(index, index + members.size() - 1, groupName, RangeMarker.VERTICAL));
-			}
-			for (int col : members) {
-				// todo
-				// change known cols to include only those cols which are in datafile
-				result[index++] = col;
-				toAdd.remove((Object) col);
-			}
-		}
-
-		for (int col : toAdd)
-			result[index++] = col;
-
-		return result;
-	}*/
-	
 	/**
 	 * cluster by metadata
+	 * 
 	 * @author urmi changed to new metadata class
 	 * @param field
 	 * @return
@@ -338,8 +343,6 @@ public class DataSorter {
 
 		return result;
 	}
-	
-	
 
 	public Vector<RangeMarker> getRangeMarkers() {
 		return rangeMarkers;
