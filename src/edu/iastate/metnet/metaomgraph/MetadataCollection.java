@@ -154,6 +154,7 @@ public class MetadataCollection {
 				// thisLine=thisLine.replaceAll("*","");
 				thisLine = thisLine.replaceAll("&", "*and*");
 				thisLine = thisLine.replaceAll("'", "");
+				thisLine = thisLine.replaceAll("\"","");
 				// thisLine = thisLine.replaceAll("\\*", "(star)");
 
 				if (nCount == 0) {
