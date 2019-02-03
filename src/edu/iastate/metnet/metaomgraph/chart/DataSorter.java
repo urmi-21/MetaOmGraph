@@ -12,6 +12,7 @@ import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel.MyAlphanumericComparat
 
 import java.awt.*;
 import java.io.PrintStream;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -21,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JOptionPane;
 
@@ -81,30 +84,44 @@ public class DataSorter {
 			names[i] = xaxisNames[i].toLowerCase();
 			names[i] += "<" + i;
 		}
-		// Arrays.sort(names);
+		JOptionPane.showMessageDialog(null, "BEF " +Arrays.toString(names));
+		//Arrays.sort(names);
 		// Arrays.sort(names, new MyAlphanumericComparator());
-		JOptionPane.showMessageDialog(null, Arrays.toString(names));
+		
+		//https://codereview.stackexchange.com/questions/37192/number-aware-string-sorting-with-comparator
 		Arrays.sort(names, new Comparator<String>() {
-			@Override
-			public int compare(String o1, String o2) {
-				String s1 = o1.toString();
-				String s2 = o2.toString();
-				final Double num1 = getDouble(s1);
-				final Double num2 = getDouble(s2);
-				if (num1 != null && num2 != null) {
-					return num1.compareTo(num2);
-				}
-				return s1.compareTo(s2);
-			}
-
-			private Double getDouble(String number) {
-				try {
-					return Double.parseDouble(number);
-				} catch (NumberFormatException e) {
-					return null;
-				}
-			}
+		    private final Pattern PATTERN = Pattern.compile("(\\D*)(\\d*)");
+		    @Override
+		    public int compare(String c1, String c2) {
+		        Matcher matcher1 = PATTERN.matcher(c1);
+		        Matcher matcher2 = PATTERN.matcher(c2);
+		        // The only way find() could fail is at the end of a string
+		        while (matcher1.find() && matcher2.find()) {
+		            //string comparison
+		            int nonDigitCompare = matcher1.group(1).compareTo(matcher2.group(1));
+		            if (0 != nonDigitCompare) {
+		                return nonDigitCompare;
+		            }
+		            // number comparison
+		            if (matcher1.group(2).isEmpty()) {
+		                return matcher2.group(2).isEmpty() ? 0 : -1;
+		            } else if (matcher2.group(2).isEmpty()) {
+		                return +1;
+		            }
+		            BigInteger number1 = new BigInteger(matcher1.group(2));
+		            BigInteger number2 = new BigInteger(matcher2.group(2));
+		            int numberCompare = number1.compareTo(number2);
+		            if (0 != numberCompare) {
+		                return numberCompare;
+		            }
+		        }
+		        // Handle if one string is a prefix of the other.
+		        return matcher1.hitEnd() && matcher2.hitEnd() ? 0 :
+		            matcher1.hitEnd()                ? -1 : +1;
+		    }
 		});
+		
+		JOptionPane.showMessageDialog(null, Arrays.toString(names));
 		// names will now be sorted alphabetically. Now we just need to populate
 		// result with the original indices of the column names, which appear
 		// after the last '<' character in each name.
