@@ -84,10 +84,9 @@ public class DataSorter {
 			names[i] = xaxisNames[i].toLowerCase();
 			names[i] += "<" + i;
 		}
-		JOptionPane.showMessageDialog(null, "BEF " +Arrays.toString(names));
-		//Arrays.sort(names);
-		// Arrays.sort(names, new MyAlphanumericComparator());
 		
+		//Arrays.sort(names);
+				
 		//https://codereview.stackexchange.com/questions/37192/number-aware-string-sorting-with-comparator
 		Arrays.sort(names, new Comparator<String>() {
 		    private final Pattern PATTERN = Pattern.compile("(\\D*)(\\d*)");
@@ -121,7 +120,7 @@ public class DataSorter {
 		    }
 		});
 		
-		JOptionPane.showMessageDialog(null, Arrays.toString(names));
+		
 		// names will now be sorted alphabetically. Now we just need to populate
 		// result with the original indices of the column names, which appear
 		// after the last '<' character in each name.
