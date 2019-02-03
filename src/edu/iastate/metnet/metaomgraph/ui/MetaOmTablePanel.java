@@ -3464,18 +3464,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				return num1.compareTo(num2);
 			}
 			return s1.compareTo(s2);
-			/*
-			 * if(num1==null && num2==null) { return 0; } if(num1==null ) { return 1; }
-			 * if(num2==null ) { return -1; }
-			 */
-
-			/*
-			 * try { return Integer.parseInt(o1.toString())-Integer.parseInt(o2.toString());
-			 * }catch(NumberFormatException nfe) { //JOptionPane.showMessageDialog(null,
-			 * "This column seems to contain non-number values", "", messageType); return 0;
-			 * }
-			 */
-
 		}
 
 		private Double getDouble(String number) {
