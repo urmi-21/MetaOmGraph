@@ -88,6 +88,7 @@ public class DataSorter {
 		//Arrays.sort(names);
 				
 		//https://codereview.stackexchange.com/questions/37192/number-aware-string-sorting-with-comparator
+		//fix
 		Arrays.sort(names, new Comparator<String>() {
 		    private final Pattern PATTERN = Pattern.compile("(\\D*)(\\d*)");
 		    @Override
