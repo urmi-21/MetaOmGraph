@@ -461,7 +461,8 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 									}
 								}
 							}
-							dataset.add(list, key, rowNames[n++]);
+							String thisKeyName=key+"(n="+String.valueOf(list.size())+")";
+							dataset.add(list, thisKeyName, rowNames[n++]);
 
 						}
 					}
