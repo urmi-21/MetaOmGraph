@@ -528,6 +528,7 @@ public class ParseTableTree {
 			// add outermost node i.e. level 1
 			String expName = tabData.get(i).get(expColname).toString();
 			Element thisElement = null;
+			try {
 			if (addedXML.containsKey(expName)) {
 				thisElement = addedXML.get(expName);
 			} else {
@@ -535,6 +536,10 @@ public class ParseTableTree {
 				thisElement.setAttribute("name", expName);
 				addedXML.put(expName, thisElement);
 				thisElement = addedXML.get(expName);
+			}
+			}catch (org.jdom.IllegalNameException ine){
+				JOptionPane.showMessageDialog(null, "The column header "+ expColname +" contain illegal charecter for XML elements", "Invalid column name", JOptionPane.ERROR_MESSAGE);
+				
 			}
 			
 			//JOptionPane.showMessageDialog(null, "P2..");
