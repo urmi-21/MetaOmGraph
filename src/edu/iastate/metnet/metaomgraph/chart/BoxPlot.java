@@ -446,6 +446,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 					
 					List<String> splitIndkeys=getSplitIndKeys();
 					for (String key : splitIndkeys) {
+						String thisKeyName="";
 						seriesNames.add(key);
 						Collection<Integer> thisInd = splitIndex.get(key);
 						int n = 0;
@@ -461,10 +462,11 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 									}
 								}
 							}
-							String thisKeyName=key+"(n="+String.valueOf(list.size())+")";
+							thisKeyName=key+"(n="+String.valueOf(list.size())+")";
 							dataset.add(list, thisKeyName, rowNames[n++]);
 
 						}
+						seriesNames.add(thisKeyName);
 					}
 				}
 
@@ -728,7 +730,8 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				// JOptionPane.showMessageDialog(null, "indexcol:"+seriesKey.toString());
 				// int index = myChart.getXYPlot().getDataset().indexOf(seriesKey);
 				// int index=seriesNames.indexOf(seriesKey.toString())+1;
-				// JOptionPane.showMessageDialog(null, "SR:"+seriesNames.toString());
+				JOptionPane.showMessageDialog(null, "SR:"+seriesNames.toString());
+				
 				int index = seriesNames.indexOf(seriesKey.toString());
 				// JOptionPane.showMessageDialog(null, "SR:"+seriesNames.toString()+"ind
 				// of:"+index);
