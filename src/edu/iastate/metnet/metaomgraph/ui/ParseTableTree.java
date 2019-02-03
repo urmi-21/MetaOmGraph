@@ -735,7 +735,14 @@ public class ParseTableTree {
 
 					} else {
 						//JOptionPane.showMessageDialog(null, "ELSEadding:"+s + ":::" + child);
-						Element newChild = new Element(s);
+						Element newChild=null;
+						try {
+						newChild = new Element(s);
+						}
+						catch (org.jdom.IllegalNameException ine){
+							JOptionPane.showMessageDialog(null, "The column header "+ expColname +" contain illegal charecter for XML elements", "Invalid column name", JOptionPane.ERROR_MESSAGE);
+							
+						}
 						//String thisName="";
 						if (nodeChildren.get(s).size() == 0) {
 							newChild.addContent(child);
