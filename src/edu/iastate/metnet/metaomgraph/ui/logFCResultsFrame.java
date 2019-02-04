@@ -8,6 +8,7 @@ import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,7 +59,7 @@ public class logFCResultsFrame extends JInternalFrame {
 	
 	private MetaOmProject myProject;
 	
-	double pvThresh=1;
+	double pvThresh=2;
 
 	/**
 	 * Default Properties
@@ -486,9 +487,11 @@ public class logFCResultsFrame extends JInternalFrame {
 	private void updateTable() {
 
 		DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
+		
 		tablemodel.setRowCount(0);
 		tablemodel.setColumnCount(0);
 		// add data
+		DecimalFormat formatter = new DecimalFormat( "#.0000" );
 		tablemodel.addColumn("Name");
 		tablemodel.addColumn("Mean(log(Grp1))");
 		tablemodel.addColumn("Mean(log(Grp2))");
@@ -504,17 +507,17 @@ public class logFCResultsFrame extends JInternalFrame {
 			// create a temp string storing all col values for a row
 			Vector temp = new Vector<>();
 			temp.add(featureNames.get(i));
-			temp.add(mean1.get(i));
-			temp.add(mean2.get(i));
-			temp.add(mean1.get(i) - mean2.get(i));
+			temp.add(formatter.format(mean1.get(i)));
+			temp.add(formatter.format(mean2.get(i)));
+			temp.add(formatter.format(mean1.get(i) - mean2.get(i)));
 			if(ttestPvals!=null) {
 				if(utestPvals.get(i)>=pvThresh) {
 					continue;
 				}
-				temp.add(ftestRatiovals.get(i));;
-				temp.add(ftestPvals.get(i));;
-				temp.add(ttestPvals.get(i));;	
-				temp.add(utestPvals.get(i));;
+				temp.add(formatter.format(ftestRatiovals.get(i)));
+				temp.add(formatter.format(ftestPvals.get(i)));
+				temp.add(formatter.format(ttestPvals.get(i)));	
+				temp.add(formatter.format(utestPvals.get(i)));
 				
 			}
 			// add ith row in table
