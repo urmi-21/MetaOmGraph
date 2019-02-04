@@ -28,6 +28,7 @@ import javax.swing.JMenu;
 import javax.swing.JTable;
 import javax.swing.SortOrder;
 import javax.swing.RowSorter.SortKey;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
@@ -56,10 +57,10 @@ public class logFCResultsFrame extends JInternalFrame {
 	private List<Double> ftestPvals;
 	private List<Double> ftestRatiovals;
 	private List<Double> utestPvals;
-	
+
 	private MetaOmProject myProject;
-	
-	double pvThresh=2;
+
+	double pvThresh = 2;
 
 	/**
 	 * Default Properties
@@ -77,7 +78,7 @@ public class logFCResultsFrame extends JInternalFrame {
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				
+
 			}
 		});
 	}
@@ -86,22 +87,24 @@ public class logFCResultsFrame extends JInternalFrame {
 	 * Create the frame.
 	 */
 	public logFCResultsFrame() {
-		this(null,null,null,null,null,null,null,null);
+		this(null, null, null, null, null, null, null, null);
 	}
-	
-	public logFCResultsFrame(List<String> featureNames, List<Double> mean1, List<Double> mean2,	MetaOmProject myProject) {
-		this(featureNames,mean1,mean2,null,null,null,null,myProject);
-	}
-	public logFCResultsFrame(List<String> featureNames, List<Double> mean1, List<Double> mean2,List<Double> pv,List<Double> ftestratio,List<Double> ftestpv,List<Double> utestpv,
+
+	public logFCResultsFrame(List<String> featureNames, List<Double> mean1, List<Double> mean2,
 			MetaOmProject myProject) {
+		this(featureNames, mean1, mean2, null, null, null, null, myProject);
+	}
+
+	public logFCResultsFrame(List<String> featureNames, List<Double> mean1, List<Double> mean2, List<Double> pv,
+			List<Double> ftestratio, List<Double> ftestpv, List<Double> utestpv, MetaOmProject myProject) {
 		this.featureNames = featureNames;
 		this.mean1 = mean1;
 		this.mean2 = mean2;
 		this.myProject = myProject;
-		ttestPvals=pv;
-		ftestRatiovals=ftestratio;
-		ftestPvals=ftestpv;
-		utestPvals=utestpv;
+		ttestPvals = pv;
+		ftestRatiovals = ftestratio;
+		ftestPvals = ftestpv;
+		utestPvals = utestpv;
 		setBounds(100, 100, 450, 300);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -145,44 +148,45 @@ public class logFCResultsFrame extends JInternalFrame {
 					return;
 				}
 				String listName = JOptionPane.showInputDialog(logFCResultsFrame.this, "Enter a name for new list");
-				if(listName==null||listName.length()<1) {
-					 JOptionPane.showMessageDialog(logFCResultsFrame.this, "Invalid name", "Failed", JOptionPane.ERROR_MESSAGE);
-					 return;
+				if (listName == null || listName.length() < 1) {
+					JOptionPane.showMessageDialog(logFCResultsFrame.this, "Invalid name", "Failed",
+							JOptionPane.ERROR_MESSAGE);
+					return;
 				}
 
-				 if (myProject.addGeneList(listName, rowIndices, true)) {
-		             JOptionPane.showMessageDialog(logFCResultsFrame.this, "List"+ listName +" added", "List added", JOptionPane.INFORMATION_MESSAGE);  
-		            }
-		            return;
+				if (myProject.addGeneList(listName, rowIndices, true)) {
+					JOptionPane.showMessageDialog(logFCResultsFrame.this, "List" + listName + " added", "List added",
+							JOptionPane.INFORMATION_MESSAGE);
+				}
+				return;
 			}
 		});
 		mnEdit.add(mntmExportSelectedTo);
-		
+
 		JMenuItem mntmFilter = new JMenuItem("Filter");
 		mntmFilter.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				double pvalThresh=0;
+				double pvalThresh = 0;
 				try {
-					String input=(String) JOptionPane.showInputDialog(null,
-							"Please Enter a value", "Input p-value", JOptionPane.QUESTION_MESSAGE,
-							null, null, String.valueOf(pvThresh));
-					if(input==null) {
+					String input = (String) JOptionPane.showInputDialog(null, "Please Enter a value", "Input p-value",
+							JOptionPane.QUESTION_MESSAGE, null, null, String.valueOf(pvThresh));
+					if (input == null) {
 						return;
 					}
 					pvalThresh = Double.parseDouble(input);
-					
-				} catch (NumberFormatException  nfe) {
+
+				} catch (NumberFormatException nfe) {
 					JOptionPane.showMessageDialog(null, "Invalid number entered. Please try again.", "Error",
 							JOptionPane.ERROR_MESSAGE);
 					return;
 				}
-				
-				pvThresh=pvalThresh;
-				
+
+				pvThresh = pvalThresh;
+
 				updateTable();
-				
-				//JOptionPane.showMessageDialog(null, "Done");
-				
+
+				// JOptionPane.showMessageDialog(null, "Done");
+
 			}
 		});
 		mnEdit.add(mntmFilter);
@@ -316,7 +320,6 @@ public class logFCResultsFrame extends JInternalFrame {
 		JMenuItem mntmHistogram = new JMenuItem("Histogram");
 		mntmHistogram.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
 
 				EventQueue.invokeLater(new Runnable() {
 					public void run() {
@@ -327,9 +330,9 @@ public class logFCResultsFrame extends JInternalFrame {
 										JOptionPane.ERROR_MESSAGE);
 								return;
 							}
-							//number of bins
-							int nBins=myProject.getIncludedDataColumnCount()/10;
-							HistogramChart f = new HistogramChart(selected, nBins,myProject,1,null);
+							// number of bins
+							int nBins = myProject.getIncludedDataColumnCount() / 10;
+							HistogramChart f = new HistogramChart(selected, nBins, myProject, 1, null);
 							MetaOmGraph.getDesktop().add(f);
 							f.setDefaultCloseOperation(2);
 							f.setClosable(true);
@@ -349,7 +352,7 @@ public class logFCResultsFrame extends JInternalFrame {
 					}
 				});
 				return;
-			
+
 			}
 		});
 		mnSelected.add(mntmHistogram);
@@ -403,7 +406,7 @@ public class logFCResultsFrame extends JInternalFrame {
 		setClosable(true);
 
 	}
-	
+
 	private void initTableModel() {
 		table = new JTable() {
 			public boolean getScrollableTracksViewportWidth() {
@@ -474,12 +477,12 @@ public class logFCResultsFrame extends JInternalFrame {
 					return Double.class;
 				}
 			}
-			
-			 @Override
-			    public boolean isCellEditable(int row, int column) {
-			       //all cells false
-			       return false;
-			    }
+
+			@Override
+			public boolean isCellEditable(int row, int column) {
+				// all cells false
+				return false;
+			}
 		};
 		table.setModel(model);
 	}
@@ -487,16 +490,16 @@ public class logFCResultsFrame extends JInternalFrame {
 	private void updateTable() {
 
 		DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
-		
+
 		tablemodel.setRowCount(0);
 		tablemodel.setColumnCount(0);
 		// add data
-		DecimalFormat formatter = new DecimalFormat( "#.0000" );
+		DecimalFormat formatter = new DecimalFormat("#.0000");
 		tablemodel.addColumn("Name");
 		tablemodel.addColumn("Mean(log(Grp1))");
 		tablemodel.addColumn("Mean(log(Grp2))");
 		tablemodel.addColumn("logFC");
-		if(ttestPvals!=null) {
+		if (ttestPvals != null) {
 			tablemodel.addColumn("F statistic");
 			tablemodel.addColumn("F test pval");
 			tablemodel.addColumn("T test pval");
@@ -507,18 +510,18 @@ public class logFCResultsFrame extends JInternalFrame {
 			// create a temp string storing all col values for a row
 			Vector temp = new Vector<>();
 			temp.add(featureNames.get(i));
-			temp.add(formatter.format(mean1.get(i)));
-			temp.add(formatter.format(mean2.get(i)));
-			temp.add(formatter.format(mean1.get(i) - mean2.get(i)));
-			if(ttestPvals!=null) {
-				if(utestPvals.get(i)>=pvThresh) {
+			temp.add(mean1.get(i));
+			temp.add(mean2.get(i));
+			temp.add(mean1.get(i) - mean2.get(i));
+			if (ttestPvals != null) {
+				if (utestPvals.get(i) >= pvThresh) {
 					continue;
 				}
-				temp.add(formatter.format(ftestRatiovals.get(i)));
-				temp.add(formatter.format(ftestPvals.get(i)));
-				temp.add(formatter.format(ttestPvals.get(i)));	
-				temp.add(formatter.format(utestPvals.get(i)));
-				
+				temp.add(ftestRatiovals.get(i));
+				temp.add(ftestPvals.get(i));
+				temp.add(ttestPvals.get(i));
+				temp.add(utestPvals.get(i));
+
 			}
 			// add ith row in table
 			tablemodel.addRow(temp);
@@ -530,6 +533,10 @@ public class logFCResultsFrame extends JInternalFrame {
 		table.setPreferredScrollableViewportSize(table.getPreferredSize());
 		table.setFillsViewportHeight(true);
 		table.getTableHeader().setFont(new Font("Garamond", Font.BOLD, 14));
+		// set decimal formatter to all cols except first
+		for (int i = 1; i < table.getColumnCount(); i++) {
+			table.getColumnModel().getColumn(i).setCellRenderer(new DecimalFormatRenderer());
+		}
 
 	}
 
@@ -542,9 +549,26 @@ public class logFCResultsFrame extends JInternalFrame {
 		for (int i : rowIndices) {
 			names.add(table.getValueAt(i, table.getColumn("Name").getModelIndex()).toString());
 		}
-		rowIndices = myProject.getRowIndexbyName(names,true);
+		rowIndices = myProject.getRowIndexbyName(names, true);
 
 		return rowIndices;
+	}
+
+	//class to format decimal
+	public static class DecimalFormatRenderer extends DefaultTableCellRenderer {
+		private static final DecimalFormat formatter = new DecimalFormat("#.0000");
+
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+				int row, int column) {
+
+			// First format the cell value as required
+
+			value = formatter.format((Number) value);
+
+			// And pass it on to parent class
+
+			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+		}
 	}
 
 }
