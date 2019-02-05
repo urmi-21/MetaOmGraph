@@ -116,7 +116,6 @@ plot selected series/features in box plot
 venn diagrams fo correlated genes?
 Have chart its own excluded data values; Add refresh options to chart sync with current workspace; Allow to filter in current chart only. 
 Allow to hide show series; arrange histogram. make more interactive
-
 does cluster function exclude columns ???
 create a common class to handle plot functions from different tables
 add data size to plot legends
@@ -128,4 +127,4 @@ test list intersection
 move splitindex to project class
 update default rep columns as data is filtered
 Handle memory efficiently for analyzing runs (cosine sim, etc)
-check metadata column names before building tree (handle illegal name exception)
+$check metadata column names before building tree (handle illegal name exception)
