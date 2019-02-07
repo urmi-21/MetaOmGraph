@@ -155,7 +155,8 @@ public class MetaOmAnalyzer {
 		final int[] entries = project.getGeneListRowNumbers(geneList);
 		final Number[] result = new Number[project.getRowCount()];
 		// final Number[] result;
-		String message = project.getRowName(row)[project.getDefaultColumn()] + "";
+		String message = project.getRowName(entries[row])[project.getDefaultColumn()] + "";
+		
 		if (method == 1) {
 			message = message + " - Pearson Correlation";
 		} else if (method == 2) {
