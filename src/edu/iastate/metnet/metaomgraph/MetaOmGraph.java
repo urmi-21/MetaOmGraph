@@ -10,6 +10,7 @@ import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.SplashScreen;
 import java.awt.Toolkit;
@@ -75,6 +76,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.ColorUIResource;
 
 import org.biomage.examples.GetToDataExample;
+import org.jdom.JDOMException;
 
 import com.apple.eawt.Application;
 import com.l2fprod.common.swing.JTipOfTheDay;
@@ -552,7 +554,7 @@ public class MetaOmGraph implements ActionListener {
 	private static JMenu diffExpMenu;
 	private static JMenuItem logChange;
 	private static JMenuItem tTest;
-	
+
 	public static final String REPORT_COMMAND = "report";
 
 	/** Items on the Project menu */
@@ -735,8 +737,8 @@ public class MetaOmGraph implements ActionListener {
 				e.printStackTrace();
 			}
 		}
-		
-		//init default themes
+
+		// init default themes
 		initThemes();
 		setCurrentTheme("light");
 		mainWindow = new JFrame("MetaOmGraph");
@@ -1959,10 +1961,12 @@ public class MetaOmGraph implements ActionListener {
 			@Override
 			public Object construct() {
 				if (activeProject.saveProject(destination)) {
-					/*mainWindow.setTitle("MetaOmGraph - " + destination.getName() + " ("
-							+ getActiveProject().getDataColumnCount() + " samples)");*/
+					/*
+					 * mainWindow.setTitle("MetaOmGraph - " + destination.getName() + " (" +
+					 * getActiveProject().getDataColumnCount() + " samples)");
+					 */
 					fixTitle();
-					
+
 				}
 				addRecentProject(activeProjectFile);
 				return null;
@@ -3023,22 +3027,22 @@ public class MetaOmGraph implements ActionListener {
 			if (res == JOptionPane.OK_OPTION) {
 				String selectedList = panel.getselectedGeneList();
 				String grpID = panel.getselectedGrpID();
-				boolean tTestFlag=panel.getTTest();
-				calculateLogFC ob = new calculateLogFC(selectedList, grpID, getActiveProject(),tTestFlag);
+				boolean tTestFlag = panel.getTTest();
+				calculateLogFC ob = new calculateLogFC(selectedList, grpID, getActiveProject(), tTestFlag);
 
 				if (!ob.createGroup()) {
 					return;
 				} else {
-					
 
 					ob.doCalc();
 					// display result
-					logFCResultsFrame frame=null;
-					if(tTestFlag) {
-					frame = new logFCResultsFrame(ob.getFeatureNames(), ob.getMean1(), ob.getMean2(),ob.ttestPV(),ob.ftestRatios(),ob.ftestPV(),ob.utestPV(),getActiveProject());
-					}
-					else {
-						frame = new logFCResultsFrame(ob.getFeatureNames(), ob.getMean1(), ob.getMean2(),getActiveProject());	
+					logFCResultsFrame frame = null;
+					if (tTestFlag) {
+						frame = new logFCResultsFrame(ob.getFeatureNames(), ob.getMean1(), ob.getMean2(), ob.ttestPV(),
+								ob.ftestRatios(), ob.ftestPV(), ob.utestPV(), getActiveProject());
+					} else {
+						frame = new logFCResultsFrame(ob.getFeatureNames(), ob.getMean1(), ob.getMean2(),
+								getActiveProject());
 					}
 					frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2,
 							MetaOmGraph.getMainWindow().getHeight() / 2);
@@ -3562,10 +3566,24 @@ public class MetaOmGraph implements ActionListener {
 		if (!ob.isLatestMOG()) {
 
 			Object[] options = { "Yes, take me to the download.", "Nope." };
-			int response = JOptionPane.showOptionDialog(null,
-					"A newer version of MOG is available for download. We highly recommend using the latest version.",
-					"New version available!", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
-					options, options[0]);
+			int response=-1;
+			try {
+				response = JOptionPane.showOptionDialog(null,
+						"A newer version of MOG is available for download. We highly recommend using the latest version.\nYour version: "
+								+ getVersion() + "\nLatest version: "+ob.getLatestVersionOnline(),
+
+						"New version available!", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+						options, options[0]);
+			} catch (HeadlessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (JDOMException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			if (response == 0) {
 				// open metnet download
 				try {
