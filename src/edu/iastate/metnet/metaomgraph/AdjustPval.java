@@ -27,6 +27,9 @@ public class AdjustPval {
 		int m = pvals.length;
 		for (int i = 0; i < res.length; i++) {
 			res[i] = pvals[i] * m;
+			if(res[i]>1) {
+				res[i]=1;
+			}
 		}
 
 		return res;
@@ -41,12 +44,7 @@ public class AdjustPval {
 	public double[] getBHAdj(double[] pvals) {
 		int m = pvals.length;
 		double[] res = new double[m];
-		/*
-		 * int [] origInd=new int[m]; for(int i=0;i<origInd.length;i++) { origInd[i]=i;
-		 * }
-		 */
-
-		// sort pvals and origInd together
+		//get sorted order of pvals
 		Integer[] idx = new Integer[m];
 		for (int i = 0; i < idx.length; i++)
 			idx[i] = i;
@@ -61,7 +59,7 @@ public class AdjustPval {
 		for (int i = 0; i < idx.length; i++) {
 			pvSorted[i] = pvals[idx[i]];
 		}
-		System.out.println("SA: " + Arrays.toString(pvSorted));
+		
 
 		// start correction
 		for (int i = m - 1; i >= 0; i--) {
@@ -70,10 +68,14 @@ public class AdjustPval {
 			} else {
 				double thisPV = pvSorted[i];
 				int rank = i + 1;
-
 				double v1 = res[i + 1];
 				double v2 = thisPV * (m / (double) rank);
-				res[i] = Math.min(v1, v2);
+				if(v1<v2) {
+					res[i]=v1;
+				}else {
+					res[i]=v2;	
+				}
+				 
 			}
 		}
 		
@@ -82,14 +84,13 @@ public class AdjustPval {
 		for (int i = 0; i < idx.length; i++) {
 			resSorted[idx[i]] = res[i];
 		}
-
 		return resSorted;
 	}
 
 	public static void main(String[] args) {
+		//test
 		AdjustPval ob = new AdjustPval();
-		double[] pv = { 1, 0, 0.1, 0.3, 0.005,0.1,0.03,0.12,0.34 };
-
+		double[] pv = { 1, 0, 0.1, 0.3, 0.005,0.025 };
 		System.out.println("Orig: " + Arrays.toString((pv)));
 		System.out.println("res: " + Arrays.toString(ob.getBHAdj(pv)));
 		System.out.println("res: " + Arrays.toString(ob.getBonferroniAdj(pv)));
