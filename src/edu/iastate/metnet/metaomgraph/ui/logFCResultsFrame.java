@@ -33,6 +33,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
 
+import edu.iastate.metnet.metaomgraph.AdjustPval;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.chart.BoxPlot;
@@ -57,7 +58,7 @@ public class logFCResultsFrame extends JInternalFrame {
 	private List<Double> ftestPvals;
 	private List<Double> ftestRatiovals;
 	private List<Double> utestPvals;
-
+	private List<Double> adjutestPvals;
 	private MetaOmProject myProject;
 
 	double pvThresh = 2;
@@ -105,6 +106,15 @@ public class logFCResultsFrame extends JInternalFrame {
 		ftestRatiovals = ftestratio;
 		ftestPvals = ftestpv;
 		utestPvals = utestpv;
+		//find adjusted pvalues;default method BH
+		if (utestPvals != null) {
+			adjutestPvals = new ArrayList<>();
+			AdjustPval ob = new AdjustPval();
+			double[] adjPV = ob.getBHAdj(utestPvals.stream().mapToDouble(d -> d).toArray());
+			for (double d : adjPV) {
+				adjutestPvals.add(d);
+			}
+		}
 		setBounds(100, 100, 450, 300);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -504,6 +514,7 @@ public class logFCResultsFrame extends JInternalFrame {
 			tablemodel.addColumn("F test pval");
 			tablemodel.addColumn("T test pval");
 			tablemodel.addColumn("U test pval");
+			tablemodel.addColumn("Adj pval");
 		}
 		// for each row add each coloumn
 		for (int i = 0; i < featureNames.size(); i++) {
@@ -521,6 +532,7 @@ public class logFCResultsFrame extends JInternalFrame {
 				temp.add(ftestPvals.get(i));
 				temp.add(ttestPvals.get(i));
 				temp.add(utestPvals.get(i));
+				temp.add(adjutestPvals.get(i));
 
 			}
 			// add ith row in table
@@ -554,7 +566,7 @@ public class logFCResultsFrame extends JInternalFrame {
 		return rowIndices;
 	}
 
-	//class to format decimal
+	// class to format decimal
 	public static class DecimalFormatRenderer extends DefaultTableCellRenderer {
 		private static final DecimalFormat formatter = new DecimalFormat("#.0000");
 
