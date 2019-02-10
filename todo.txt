@@ -130,3 +130,4 @@ Handle memory efficiently for analyzing runs (cosine sim, etc)
 $check metadata column names before building tree (handle illegal name exception)
 add bar chart
 chart fonts and size
+option to edit metadata
