@@ -1648,6 +1648,7 @@ public class MetaOmProject {
 		return rowNames[entry];
 	}
 
+	
 	public Object[] getRowName(int entry) {
 		if (infoColumns == 0) {
 			String[] result = new String[1];
@@ -1657,6 +1658,10 @@ public class MetaOmProject {
 		return rowNames[entry];
 	}
 
+	/**
+	 * Returns the indices of correlation columns
+	 * @return
+	 */
 	public ArrayList<Integer> getCorrelationColumns() {
 		ArrayList<Integer> result = new ArrayList();
 		for (int col = 0; col < rowNames[0].length; col++) {
@@ -1675,6 +1680,10 @@ public class MetaOmProject {
 		return result;
 	}
 
+	/**
+	 * get source file
+	 * @return
+	 */
 	public File getSourceFile() {
 		return source;
 	}
