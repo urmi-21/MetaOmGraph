@@ -26,6 +26,7 @@ import org.apache.commons.math3.analysis.function.Atan;
 import org.apache.commons.math3.analysis.function.Atanh;
 import org.apache.commons.math3.distribution.NormalDistribution;
 
+import edu.iastate.metnet.metaomgraph.AdjustPval;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import net.iharder.dnd.TransferableObject.Fetcher;
@@ -44,6 +45,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 	private List<Double> diff;
 	private List<Double> zScores;
 	private List<Double> pVals;
+	private List<Double> adjpVals;
 
 	private int n1;
 	private int n2;
@@ -111,6 +113,15 @@ public class DiffCorrResultsTable extends JInternalFrame {
 		diff = getDiff(zVals1, zVals2);
 		zScores = getZscores(diff);
 		pVals = getPVals(zScores);
+		
+		if(pVals!=null) {
+			adjpVals = new ArrayList<>();
+			AdjustPval ob = new AdjustPval();
+			double[] adjPV = ob.getBHAdj(pVals.stream().mapToDouble(d -> d).toArray());
+			for (double d : adjPV) {
+				adjpVals.add(d);
+			}
+		}
 
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(new BorderLayout(0, 0));
@@ -251,6 +262,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 		tablemodel.addColumn("z1-z2");
 		tablemodel.addColumn("zScore");
 		tablemodel.addColumn("pVal");
+		tablemodel.addColumn("Adj pVal");
 
 		// for each row add each coloumn
 		for (int i = 0; i < featureNames.size(); i++) {
@@ -264,6 +276,8 @@ public class DiffCorrResultsTable extends JInternalFrame {
 			temp.add(diff.get(i));
 			temp.add(zScores.get(i));
 			temp.add(pVals.get(i));
+			temp.add(adjpVals.get(i));
+			
 
 			// add ith row in table
 			tablemodel.addRow(temp);
