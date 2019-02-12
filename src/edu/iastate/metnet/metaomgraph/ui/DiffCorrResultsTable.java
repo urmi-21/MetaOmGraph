@@ -28,6 +28,7 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 
 import edu.iastate.metnet.metaomgraph.AdjustPval;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
+import edu.iastate.metnet.metaomgraph.DecimalFormatRenderer;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import net.iharder.dnd.TransferableObject.Fetcher;
 import javax.swing.JMenu;
@@ -80,7 +81,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 	 * Create the frame.
 	 */
 	public DiffCorrResultsTable() {
-		this(null,0,0,null,null);
+		this(null, 0, 0, null, null);
 
 	}
 
@@ -113,8 +114,8 @@ public class DiffCorrResultsTable extends JInternalFrame {
 		diff = getDiff(zVals1, zVals2);
 		zScores = getZscores(diff);
 		pVals = getPVals(zScores);
-		
-		if(pVals!=null) {
+
+		if (pVals != null) {
 			adjpVals = new ArrayList<>();
 			AdjustPval ob = new AdjustPval();
 			double[] adjPV = ob.getBHAdj(pVals.stream().mapToDouble(d -> d).toArray());
@@ -145,10 +146,10 @@ public class DiffCorrResultsTable extends JInternalFrame {
 
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
-		
+
 		JMenu mnFile = new JMenu("File");
 		menuBar.add(mnFile);
-		
+
 		JMenuItem mntmExportToFile = new JMenuItem("Export to file");
 		mntmExportToFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -277,7 +278,6 @@ public class DiffCorrResultsTable extends JInternalFrame {
 			temp.add(zScores.get(i));
 			temp.add(pVals.get(i));
 			temp.add(adjpVals.get(i));
-			
 
 			// add ith row in table
 			tablemodel.addRow(temp);
@@ -289,6 +289,11 @@ public class DiffCorrResultsTable extends JInternalFrame {
 		table.setPreferredScrollableViewportSize(table.getPreferredSize());
 		table.setFillsViewportHeight(true);
 		table.getTableHeader().setFont(new Font("Garamond", Font.BOLD, 14));
+
+		// set decimal formatter to all cols except first
+		for (int i = 1; i < table.getColumnCount(); i++) {
+			table.getColumnModel().getColumn(i).setCellRenderer(new edu.iastate.metnet.metaomgraph.DecimalFormatRenderer());
+		}
 
 	}
 
@@ -303,7 +308,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 		Atanh atan = new Atanh();
 		for (double d : rVals) {
 			res.add(atan.value(d));
-			//JOptionPane.showMessageDialog(null, "val:"+d+" atan:"+atan.value(d));
+			// JOptionPane.showMessageDialog(null, "val:"+d+" atan:"+atan.value(d));
 		}
 		return res;
 	}
@@ -321,7 +326,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 		for (int i = 0; i < diff.size(); i++) {
 			double thisZ = diff.get(i);
 			double denom = Math.sqrt((1 / ((double) n1 - 3)) + (1 / ((double) n2 - 3)));
-			//JOptionPane.showMessageDialog(null, "denom:" + denom);
+			// JOptionPane.showMessageDialog(null, "denom:" + denom);
 			thisZ = thisZ / denom;
 			res.add(thisZ);
 		}
@@ -337,7 +342,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 			if (thisZ > 0) {
 				thisZ = thisZ * -1;
 			}
-			res.add(nob.cumulativeProbability(thisZ)*2);
+			res.add(nob.cumulativeProbability(thisZ) * 2);
 		}
 		return res;
 	}
