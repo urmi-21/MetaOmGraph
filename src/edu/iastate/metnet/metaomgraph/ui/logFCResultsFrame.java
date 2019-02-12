@@ -34,6 +34,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
 
 import edu.iastate.metnet.metaomgraph.AdjustPval;
+import edu.iastate.metnet.metaomgraph.DecimalFormatRenderer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.chart.BoxPlot;
@@ -504,7 +505,7 @@ public class logFCResultsFrame extends JInternalFrame {
 		tablemodel.setRowCount(0);
 		tablemodel.setColumnCount(0);
 		// add data
-		DecimalFormat formatter = new DecimalFormat("#.0000");
+		
 		tablemodel.addColumn("Name");
 		tablemodel.addColumn("Mean(log(Grp1))");
 		tablemodel.addColumn("Mean(log(Grp2))");
@@ -566,21 +567,6 @@ public class logFCResultsFrame extends JInternalFrame {
 		return rowIndices;
 	}
 
-	// class to format decimal
-	public static class DecimalFormatRenderer extends DefaultTableCellRenderer {
-		private static final DecimalFormat formatter = new DecimalFormat("#.0000");
-
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
-				int row, int column) {
-
-			// First format the cell value as required
-
-			value = formatter.format((Number) value);
-
-			// And pass it on to parent class
-
-			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-		}
-	}
+	
 
 }
