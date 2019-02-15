@@ -30,6 +30,7 @@ import javax.swing.table.DefaultTableModel;
 
 import edu.iastate.metnet.metaomgraph.CorrelationMeta;
 import edu.iastate.metnet.metaomgraph.CorrelationMetaCollection;
+import edu.iastate.metnet.metaomgraph.DecimalFormatRenderer;
 import edu.iastate.metnet.metaomgraph.IconTheme;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
@@ -466,6 +467,9 @@ public class CorrelationMetaTable extends JInternalFrame {
 
 	}
 
+	/**
+	 * load combobox
+	 */
 	private void loadJCombobox() {
 		if (metaCorrRes != null) {
 			// populate jcombobox
@@ -486,6 +490,14 @@ public class CorrelationMetaTable extends JInternalFrame {
 		loadDatainTable(s, -9999, 9999, -9999, 9999);
 	}
 
+	/**
+	 * Load data in table
+	 * @param s name of correlation
+	 * @param minr minimum r val
+	 * @param maxr maximum r val
+	 * @param minp minimum p val
+	 * @param maxp maximum p val
+	 */
 	private void loadDatainTable(String s, double minr, double maxr, double minp, double maxp) {
 		CorrelationMetaCollection cmcObj = metaCorrRes.get(s);
 		// check values of table depending on cmcObj and populate the table
@@ -607,22 +619,7 @@ public class CorrelationMetaTable extends JInternalFrame {
 		return alpha;
 	}
 
-	/**
-	 * Class to handle decimal format
-	 * 
-	 * @author urmi
-	 *
-	 */
-	static class DecimalFormatRenderer extends DefaultTableCellRenderer {
-		private static final DecimalFormat formatter = new DecimalFormat("#.0000");
-
-		public Component getTableCellRendererComponent(JTable table, Object val, boolean isSelected, boolean hasFocus,
-				int row, int column) {
-			// format the cell value
-			val = formatter.format((Number) val);
-			return super.getTableCellRendererComponent(table, val, isSelected, hasFocus, row, column);
-		}
-	}
+	
 	
 	private int[] getSelectedRowIndices() {
 		// get correct indices wrt the list
