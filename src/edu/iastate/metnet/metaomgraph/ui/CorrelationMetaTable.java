@@ -620,7 +620,10 @@ public class CorrelationMetaTable extends JInternalFrame {
 	}
 
 	
-	
+	/**
+	 * return indices of selected rows in table
+	 * @return
+	 */
 	private int[] getSelectedRowIndices() {
 		// get correct indices wrt the list
 		int[] rowIndices = table.getSelectedRows();
