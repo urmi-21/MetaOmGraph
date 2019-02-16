@@ -253,7 +253,7 @@ public class TableSorter extends AbstractTableModel {
 		}
 
 		//urmi add viewIndex<0
-		if (this.getViewToModel() == null || viewIndex<0) {
+		if (this.getViewToModel() == null ) {
 			//System.out.println("viewtomodel is null");
 		} else {
 			if (viewIndex >= this.getViewToModel().length) {
@@ -263,6 +263,11 @@ public class TableSorter extends AbstractTableModel {
 			if (this.getViewToModel()[viewIndex] == null) {
 				System.out.println("viewToModel[viewIndex] is null");
 			}
+		}
+		
+		//urmi avoid array out of bounds exception
+		if(viewIndex < 0) {
+			viewIndex =0;
 		}
 
 		return this.getViewToModel()[viewIndex].modelIndex;
