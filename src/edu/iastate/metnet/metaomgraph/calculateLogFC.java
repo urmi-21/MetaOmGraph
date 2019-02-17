@@ -128,7 +128,7 @@ public class calculateLogFC {
 	}
 
 	public void doCalc() {
-
+		
 		int[] selected = myProject.getGeneListRowNumbers(this.selectedList);
 		double[] fcVals = new double[selected.length];
 		featureNames = new ArrayList<>();
@@ -241,7 +241,7 @@ public class calculateLogFC {
 
 			public void finished() {
 				if ((!progress.isCanceled()) && (!errored)) {
-
+					
 				}
 				progress.dispose();
 			}
@@ -249,6 +249,7 @@ public class calculateLogFC {
 		analyzeWorker.start();
 		progress.setVisible(true);
 
+		//return exitStatus;
 	}
 
 	public List<String> getFeatureNames() {
