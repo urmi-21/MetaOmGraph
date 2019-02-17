@@ -133,3 +133,4 @@ chart fonts and size
 option to edit metadata
 add p val corection to diff corr
 list merge handle case sensitive names e.g. C15ORF37
+fix cancelling logfc
