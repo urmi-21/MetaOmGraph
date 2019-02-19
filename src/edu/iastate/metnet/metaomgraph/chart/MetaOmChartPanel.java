@@ -2024,6 +2024,11 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 		}
 	}
 
+	/**
+	 * Set a color to series
+	 * @param series series index
+	 * @param newColor Color value
+	 */
 	public void changeSeriesColor(int series, Color newColor) {
 		if (newColor != null) {
 			myRenderer.setSeriesPaint(series, newColor);
@@ -2031,6 +2036,10 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 	}
 
 	// urmi
+	/**
+	 * Function to set color from palette
+	 * @param colors
+	 */
 	void setPalette(Color[] colors) {
 		if (colors == null) {
 			return;
