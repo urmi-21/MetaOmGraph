@@ -1003,7 +1003,6 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 		ChartColorScheme colorScheme = props.getColorScheme();
 		
 		if (colorScheme != null) {
-			JOptionPane.showMessageDialog(null, "wd:"+colorScheme.getSelectionWidth());
 			for (int i = 0; i < selected.length; i++) {
 				myRenderer.setSeriesPaint(i, colorScheme.getSeriesPaint(i));
 				
