@@ -1057,7 +1057,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 				}
 
-				// add sorter
+				// add sorter 
 				TableRowSorter sorter = new TableRowSorter(tablemodel) {
 					@Override
 					public void toggleSortOrder(int column) {
