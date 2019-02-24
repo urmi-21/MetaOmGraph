@@ -133,7 +133,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 		topbtnPnl2.add(lblGroupName_1);
 		topbtnPnl2.add(txtGroup2);
 		panel_3.add(topbtnPnl2, BorderLayout.NORTH);
-
+ 
 		// add table2
 		jscp2 = new JScrollPane();
 		tableGrp2 = initTableModel();
