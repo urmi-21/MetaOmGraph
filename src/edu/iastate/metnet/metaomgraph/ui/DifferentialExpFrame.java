@@ -39,8 +39,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 
 	private JScrollPane jscp2;
 	private JTable tableGrp2;
-	
-	
+
 	/**
 	 * Default Properties
 	 */
@@ -104,29 +103,28 @@ public class DifferentialExpFrame extends JInternalFrame {
 		panel_2.setLayout(new BorderLayout(0, 0));
 
 		JSplitPane splitPane = new JSplitPane();
-		splitPane.setDividerLocation(0.75D);
 		panel_2.add(splitPane, BorderLayout.CENTER);
+		splitPane.setResizeWeight(0.5);
 
 		JPanel panel_3 = new JPanel();
 		splitPane.setRightComponent(panel_3);
 		panel_3.setLayout(new BorderLayout(0, 0));
 
-		txtGroup2 = new JTextField();		
+		txtGroup2 = new JTextField();
 		txtGroup2.setText("Group2");
 		txtGroup2.setColumns(10);
 		JPanel topbtnPnl2 = new JPanel(new FlowLayout());
-		JButton sendLeft=new JButton("<<");
+		JButton sendLeft = new JButton("<<");
 		topbtnPnl2.add(sendLeft);
-		
+
 		JLabel lblGroupName_1 = new JLabel("Group name:");
 		topbtnPnl2.add(lblGroupName_1);
-		topbtnPnl2.add(txtGroup2);		
+		topbtnPnl2.add(txtGroup2);
 		panel_3.add(topbtnPnl2, BorderLayout.NORTH);
-		
+
 		// add table2
 		jscp2 = new JScrollPane();
-		tableGrp2=new JTable();
-		//initTableModel(tableGrp2);
+		tableGrp2 = initTableModel();
 		updateTableData(tableGrp2);
 		jscp2.setViewportView(tableGrp2);
 		panel_3.add(jscp2, BorderLayout.CENTER);
@@ -144,30 +142,25 @@ public class DifferentialExpFrame extends JInternalFrame {
 		splitPane.setLeftComponent(panel_4);
 		panel_4.setLayout(new BorderLayout(0, 0));
 
-		txtGroup1 = new JTextField();		
+		txtGroup1 = new JTextField();
 		txtGroup1.setText("Group1");
 		txtGroup1.setColumns(10);
 		JPanel topbtnPnl1 = new JPanel(new FlowLayout());
-		JButton sendRight=new JButton(">>");
-		
+		JButton sendRight = new JButton(">>");
+
 		JLabel lblGroupName = new JLabel("Group name:");
 		topbtnPnl1.add(lblGroupName);
 		topbtnPnl1.add(txtGroup1);
 		topbtnPnl1.add(sendRight);
-				
+
 		panel_4.add(topbtnPnl1, BorderLayout.NORTH);
 
 		// add table1
 		jscp1 = new JScrollPane();
-		panel_4.add(jscp1, BorderLayout.CENTER);
-		tableGrp1 = new JTable();
-		tableGrp1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		tableGrp1.setModel(new DefaultTableModel(
-				new Object[][] { { "dsads", "asd", null, null }, { null, null, null, null },
-						{ null, "asd", "asd", null }, { null, null, null, null }, },
-				new String[] { "New column", "New column", "New column", "New column" }));
-
+		tableGrp1 = initTableModel();
+		updateTableData(tableGrp1);
 		jscp1.setViewportView(tableGrp1);
+		panel_4.add(jscp1, BorderLayout.CENTER);
 
 		JButton btnAdd1 = new JButton("Add");
 		JPanel btnPnl1 = new JPanel(new FlowLayout());
@@ -177,17 +170,24 @@ public class DifferentialExpFrame extends JInternalFrame {
 		JButton btnSearch1 = new JButton("Search");
 		btnPnl1.add(btnSearch1);
 		panel_4.add(btnPnl1, BorderLayout.SOUTH);
-		
-		
+
+		// frame properties
+		this.setClosable(true);
+		// pack();
+		putClientProperty("JInternalFrame.frameType", "normal");
+		setResizable(true);
+		setMaximizable(true);
+		setIconifiable(true);
+		setClosable(true);
 
 	}
-	
-	
-	private void initTableModel( JTable table) {
-		 table = new JTable() {
+
+	private JTable initTableModel() {
+		JTable table = new JTable() {
 			public boolean getScrollableTracksViewportWidth() {
 				return getPreferredSize().width < getParent().getWidth();
 			}
+
 			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
 				Component c = super.prepareRenderer(renderer, row, column);
 
@@ -213,6 +213,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 		table.getTableHeader().setReorderingAllowed(false);
 		DefaultTableModel model = new DefaultTableModel() {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public Class<?> getColumnClass(int column) {
 				switch (column) {
@@ -222,48 +223,50 @@ public class DifferentialExpFrame extends JInternalFrame {
 					return String.class;
 				}
 			}
+
 			@Override
 			public boolean isCellEditable(int row, int column) {
 				// all cells false
 				return false;
 			}
 		};
-		table.setModel(new DefaultTableModel(
-			new Object[][] {
-			},
-			new String[] {
-				"New column"
-			}
-		));
-		//set properties
+		table.setModel(new DefaultTableModel(new Object[][] {}, new String[] { "New column" }));
+		// set properties
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setAutoCreateRowSorter(true);
 		table.setPreferredScrollableViewportSize(table.getPreferredSize());
 		table.setFillsViewportHeight(true);
 		table.getTableHeader().setFont(new Font("Garamond", Font.BOLD, 14));
-		//return table;
+		return table;
 	}
-	
+
 	private void updateTableData(JTable table) {
 		DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
 		tablemodel.setRowCount(0);
 		tablemodel.setColumnCount(0);
 		// add data
-		
+
 		tablemodel.addColumn("Name");
 		tablemodel.addColumn("Mean(log(Grp1))");
 		tablemodel.addColumn("Mean(log(Grp2))");
 		tablemodel.addColumn("logFC");
-		
+
 		Vector temp = new Vector<>();
 		temp.add("das");
 		temp.add("dahgs");
 		temp.add("dadass");
 		temp.add("dahjgs");
-		
+
 		tablemodel.addRow(temp);
-		
-		
+
+		temp = new Vector<>();
+		temp.add("das2");
+		temp.add("dah2gs");
+		temp.add("dad2ass");
+		temp.add("dah2jgs");
+
+		tablemodel.addRow(temp);
+
 	}
-	
+
 }
