@@ -3026,7 +3026,6 @@ public class MetaOmGraph implements ActionListener {
 			
 			DifferentialExpFrame lframe = new DifferentialExpFrame();
 			lframe.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
-			lframe.pack();
 			MetaOmGraph.getDesktop().add(lframe);
 			lframe.setVisible(true);
 			
