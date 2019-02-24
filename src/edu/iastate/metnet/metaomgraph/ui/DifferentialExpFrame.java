@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
@@ -32,6 +33,8 @@ import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetadataHybrid;
 
 import javax.swing.ScrollPaneConstants;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class DifferentialExpFrame extends JInternalFrame {
 	
@@ -127,6 +130,11 @@ public class DifferentialExpFrame extends JInternalFrame {
 		txtGroup2.setColumns(10);
 		JPanel topbtnPnl2 = new JPanel(new FlowLayout());
 		JButton sendLeft = new JButton("<<");
+		sendLeft.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				moveSelectedtoLeft();
+			}
+		});
 		topbtnPnl2.add(sendLeft);
 
 		JLabel lblGroupName_1 = new JLabel("Group name:");
@@ -137,8 +145,8 @@ public class DifferentialExpFrame extends JInternalFrame {
 		// add table2
 		jscp2 = new JScrollPane();
 		tableGrp2 = initTableModel();
-		updateTableData(tableGrp2,mdob.getMetadataCollection().getAllDataCols());
-		jscp2.setViewportView(tableGrp2);
+		updateTableData(tableGrp2,null);
+		//jscp2.setViewportView(tableGrp2);
 		panel_3.add(jscp2, BorderLayout.CENTER);
 
 		JButton btnAdd2 = new JButton("Add");
@@ -159,6 +167,11 @@ public class DifferentialExpFrame extends JInternalFrame {
 		txtGroup1.setColumns(10);
 		JPanel topbtnPnl1 = new JPanel(new FlowLayout());
 		JButton sendRight = new JButton(">>");
+		sendRight.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				moveSelectedtoRight();
+			}
+		});
 
 		JLabel lblGroupName = new JLabel("Group name:");
 		topbtnPnl1.add(lblGroupName);
@@ -170,7 +183,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 		// add table1
 		jscp1 = new JScrollPane();
 		tableGrp1 = initTableModel();
-		updateTableData(tableGrp1,null);
+		updateTableData(tableGrp1,mdob.getMetadataCollection().getAllDataCols());
 		jscp1.setViewportView(tableGrp1);
 		panel_4.add(jscp1, BorderLayout.CENTER);
 
@@ -275,6 +288,29 @@ public class DifferentialExpFrame extends JInternalFrame {
 		 comboBox=new JComboBox(MetaOmGraph.getActiveProject().getGeneListNames());
 		 String []methods=new String[]{"M-W U Test","t Test","Welch Test","Paired t Test"};
 		 comboBox_1=new JComboBox(methods);
+	}
+	
+	/**
+	 * move selected rows from table 1 to table 2
+	 */
+	private void moveSelectedtoRight() {
+		List<String> selected1=getSelectedRows(tableGrp1);
+	}
+	
+	private void moveSelectedtoLeft() {
+		List<String> selected2=getSelectedRows(tableGrp2);
+		
+	}
+	
+	private List<String> getSelectedRows(JTable table){
+		int selected[]=table.getSelectedRows();
+		List<String> res=new ArrayList<>();
+		for (int i = 0; i < selected.length; i++) {
+			String thisRow = (String) table.getValueAt(selected[i], 0);
+			res.add(thisRow);
+		}
+		JOptionPane.showMessageDialog(null, "sel:"+res);
+		return res;
 	}
 
 }
