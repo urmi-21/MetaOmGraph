@@ -92,6 +92,7 @@ import edu.iastate.metnet.metaomgraph.ui.AboutFrame;
 import edu.iastate.metnet.metaomgraph.ui.AboutFrame4;
 import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
 import edu.iastate.metnet.metaomgraph.ui.ClickableLabel;
+import edu.iastate.metnet.metaomgraph.ui.DifferentialExpFrame;
 import edu.iastate.metnet.metaomgraph.ui.DisplayMetadataEditor;
 import edu.iastate.metnet.metaomgraph.ui.ListMergePanel;
 import edu.iastate.metnet.metaomgraph.ui.MenuButton;
@@ -3022,6 +3023,13 @@ public class MetaOmGraph implements ActionListener {
 				JOptionPane.showMessageDialog(null, "No metadata read", "No metadata", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
+			
+			DifferentialExpFrame lframe = new DifferentialExpFrame();
+			lframe.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
+			lframe.pack();
+			MetaOmGraph.getDesktop().add(lframe);
+			lframe.setVisible(true);
+			
 			logFCPanel panel = new logFCPanel();
 			int res = JOptionPane.showConfirmDialog(null, panel, "Select categories", JOptionPane.OK_CANCEL_OPTION);
 			if (res == JOptionPane.OK_OPTION) {

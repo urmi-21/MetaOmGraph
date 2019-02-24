@@ -2,9 +2,17 @@ package edu.iastate.metnet.metaomgraph.ui;
 
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.Vector;
 
 import javax.swing.JInternalFrame;
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JLabel;
@@ -16,6 +24,10 @@ import javax.swing.JButton;
 import javax.swing.AbstractListModel;
 import javax.swing.JComboBox;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+
+import edu.iastate.metnet.metaomgraph.MetaOmGraph;
+
 import javax.swing.ScrollPaneConstants;
 
 public class DifferentialExpFrame extends JInternalFrame {
@@ -27,6 +39,17 @@ public class DifferentialExpFrame extends JInternalFrame {
 
 	private JScrollPane jscp2;
 	private JTable tableGrp2;
+	
+	
+	/**
+	 * Default Properties
+	 */
+
+	private Color SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
+	private Color BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
+	private Color BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
+	private Color HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
+	private Color HYPERLINKCOLOR = MetaOmGraph.getTableHyperlinkColor();
 
 	/**
 	 * Launch the application.
@@ -102,15 +125,11 @@ public class DifferentialExpFrame extends JInternalFrame {
 		
 		// add table2
 		jscp2 = new JScrollPane();
-		panel_3.add(jscp2, BorderLayout.CENTER);
-		tableGrp2 = new JTable();
-		tableGrp2.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		tableGrp2.setModel(new DefaultTableModel(
-				new Object[][] { { "dsads", "asd", null, null }, { null, null, null, null },
-						{ null, "asd", "asd", null }, { null, null, null, null }, },
-				new String[] { "New column", "New column", "New column", "New column" }));
-
+		tableGrp2=new JTable();
+		//initTableModel(tableGrp2);
+		updateTableData(tableGrp2);
 		jscp2.setViewportView(tableGrp2);
+		panel_3.add(jscp2, BorderLayout.CENTER);
 
 		JButton btnAdd2 = new JButton("Add");
 		JPanel btnPnl2 = new JPanel(new FlowLayout());
@@ -157,9 +176,94 @@ public class DifferentialExpFrame extends JInternalFrame {
 		btnPnl1.add(btnRem1);
 		JButton btnSearch1 = new JButton("Search");
 		btnPnl1.add(btnSearch1);
-
 		panel_4.add(btnPnl1, BorderLayout.SOUTH);
+		
+		
 
 	}
+	
+	
+	private void initTableModel( JTable table) {
+		 table = new JTable() {
+			public boolean getScrollableTracksViewportWidth() {
+				return getPreferredSize().width < getParent().getWidth();
+			}
+			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+				Component c = super.prepareRenderer(renderer, row, column);
 
+				if (!isRowSelected(row)) {
+					c.setBackground(getBackground());
+					int modelRow = convertRowIndexToModel(row);
+
+					if (row % 2 == 0) {
+						c.setBackground(BCKGRNDCOLOR1);
+					} else {
+						c.setBackground(BCKGRNDCOLOR2);
+					}
+
+				} else {
+					c.setBackground(SELECTIONBCKGRND);
+				}
+
+				return c;
+			}
+
+		};
+		// disable colum drag
+		table.getTableHeader().setReorderingAllowed(false);
+		DefaultTableModel model = new DefaultTableModel() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public Class<?> getColumnClass(int column) {
+				switch (column) {
+				case 0:
+					return String.class;
+				default:
+					return String.class;
+				}
+			}
+			@Override
+			public boolean isCellEditable(int row, int column) {
+				// all cells false
+				return false;
+			}
+		};
+		table.setModel(new DefaultTableModel(
+			new Object[][] {
+			},
+			new String[] {
+				"New column"
+			}
+		));
+		//set properties
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		table.setAutoCreateRowSorter(true);
+		table.setPreferredScrollableViewportSize(table.getPreferredSize());
+		table.setFillsViewportHeight(true);
+		table.getTableHeader().setFont(new Font("Garamond", Font.BOLD, 14));
+		//return table;
+	}
+	
+	private void updateTableData(JTable table) {
+		DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
+		tablemodel.setRowCount(0);
+		tablemodel.setColumnCount(0);
+		// add data
+		
+		tablemodel.addColumn("Name");
+		tablemodel.addColumn("Mean(log(Grp1))");
+		tablemodel.addColumn("Mean(log(Grp2))");
+		tablemodel.addColumn("logFC");
+		
+		Vector temp = new Vector<>();
+		temp.add("das");
+		temp.add("dahgs");
+		temp.add("dadass");
+		temp.add("dahjgs");
+		
+		tablemodel.addRow(temp);
+		
+		
+	}
+	
 }
