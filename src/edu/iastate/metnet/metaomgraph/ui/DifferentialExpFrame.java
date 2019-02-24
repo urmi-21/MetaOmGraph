@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.JInternalFrame;
@@ -20,6 +21,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JButton;
 import javax.swing.AbstractListModel;
 import javax.swing.JComboBox;
@@ -27,10 +29,15 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
+import edu.iastate.metnet.metaomgraph.MetadataHybrid;
 
 import javax.swing.ScrollPaneConstants;
 
 public class DifferentialExpFrame extends JInternalFrame {
+	
+	private JComboBox comboBox;
+	private JComboBox comboBox_1;
+	
 	private JTextField txtGroup1;
 	private JTextField txtGroup2;
 
@@ -39,6 +46,8 @@ public class DifferentialExpFrame extends JInternalFrame {
 
 	private JScrollPane jscp2;
 	private JTable tableGrp2;
+	
+	private MetadataHybrid mdob;
 
 	/**
 	 * Default Properties
@@ -74,23 +83,26 @@ public class DifferentialExpFrame extends JInternalFrame {
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		setTitle("Differential expression analysis");
 
+		//init objects
+		mdob=MetaOmGraph.getActiveProject().getMetadataHybrid();
+		if(mdob==null) {
+			JOptionPane.showMessageDialog(null, "Error. No metadata found", "Error", JOptionPane.ERROR_MESSAGE);
+			dispose();
+		}
+		
+		initComboBoxes();
+		
 		JPanel panel = new JPanel();
 		getContentPane().add(panel, BorderLayout.NORTH);
-
 		JLabel lblTop = new JLabel("Select feature list");
 		panel.add(lblTop);
-
-		JComboBox comboBox = new JComboBox();
 		panel.add(comboBox);
-
 		JLabel label = new JLabel("                             ");
 		panel.add(label);
-
 		JLabel lblSelectMethod = new JLabel("Select method");
 		panel.add(lblSelectMethod);
-
-		JComboBox comboBox_1 = new JComboBox();
 		panel.add(comboBox_1);
+		
 
 		JPanel panel_1 = new JPanel();
 		getContentPane().add(panel_1, BorderLayout.SOUTH);
@@ -125,7 +137,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 		// add table2
 		jscp2 = new JScrollPane();
 		tableGrp2 = initTableModel();
-		updateTableData(tableGrp2);
+		updateTableData(tableGrp2,mdob.getMetadataCollection().getAllDataCols());
 		jscp2.setViewportView(tableGrp2);
 		panel_3.add(jscp2, BorderLayout.CENTER);
 
@@ -158,7 +170,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 		// add table1
 		jscp1 = new JScrollPane();
 		tableGrp1 = initTableModel();
-		updateTableData(tableGrp1);
+		updateTableData(tableGrp1,null);
 		jscp1.setViewportView(tableGrp1);
 		panel_4.add(jscp1, BorderLayout.CENTER);
 
@@ -240,33 +252,29 @@ public class DifferentialExpFrame extends JInternalFrame {
 		return table;
 	}
 
-	private void updateTableData(JTable table) {
+	private void updateTableData(JTable table,List<String> rows) {
+		if(rows==null || rows.size() <1 ) {
+			return;
+		}
 		DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
 		tablemodel.setRowCount(0);
 		tablemodel.setColumnCount(0);
 		// add data
-
-		tablemodel.addColumn("Name");
-		tablemodel.addColumn("Mean(log(Grp1))");
-		tablemodel.addColumn("Mean(log(Grp2))");
-		tablemodel.addColumn("logFC");
-
-		Vector temp = new Vector<>();
-		temp.add("das");
-		temp.add("dahgs");
-		temp.add("dadass");
-		temp.add("dahjgs");
-
-		tablemodel.addRow(temp);
-
-		temp = new Vector<>();
-		temp.add("das2");
-		temp.add("dah2gs");
-		temp.add("dad2ass");
-		temp.add("dah2jgs");
-
-		tablemodel.addRow(temp);
-
+		String dcName=mdob.getDataColName();
+		tablemodel.addColumn(dcName);
+		Vector temp=null;
+		for(String s:rows) {
+			temp = new Vector<>();
+			temp.add(s);
+			tablemodel.addRow(temp);
+		}
+		
+	}
+	
+	private void initComboBoxes() {
+		 comboBox=new JComboBox(MetaOmGraph.getActiveProject().getGeneListNames());
+		 String []methods=new String[]{"M-W U Test","t Test","Welch Test","Paired t Test"};
+		 comboBox_1=new JComboBox(methods);
 	}
 
 }
