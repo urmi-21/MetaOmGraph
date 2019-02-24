@@ -145,7 +145,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 		// add table2
 		jscp2 = new JScrollPane();
 		tableGrp2 = initTableModel();
-		updateTableData(tableGrp2,null);
+		updateTableData(tableGrp2,mdob.getMetadataCollection().getAllDataCols());
 		//jscp2.setViewportView(tableGrp2);
 		panel_3.add(jscp2, BorderLayout.CENTER);
 
@@ -188,6 +188,11 @@ public class DifferentialExpFrame extends JInternalFrame {
 		panel_4.add(jscp1, BorderLayout.CENTER);
 
 		JButton btnAdd1 = new JButton("Add");
+		btnAdd1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//add to this list
+			}
+		});
 		JPanel btnPnl1 = new JPanel(new FlowLayout());
 		btnPnl1.add(btnAdd1);
 		JButton btnRem1 = new JButton("Remove");
