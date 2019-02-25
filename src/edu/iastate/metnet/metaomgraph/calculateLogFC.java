@@ -37,6 +37,10 @@ public class calculateLogFC {
 	private List<Double> ftestPvals;
 	private List<Double> ftestRatiovals;
 	private List<Double> utestPvals;
+	
+	//group indices
+	Collection<Integer> grp1Ind ;
+	Collection<Integer> grp2Ind ;
 
 	public calculateLogFC(String selectedList, String grpID, MetaOmProject myProject, boolean tflag) {
 		this.selectedList = selectedList;
@@ -44,6 +48,7 @@ public class calculateLogFC {
 		this.myProject = myProject;
 		excluded = MetaOmAnalyzer.getExclude();
 		dotTest = tflag;
+		
 
 	}
 	
@@ -70,7 +75,22 @@ public class calculateLogFC {
 			JOptionPane.showMessageDialog(null, "Invalid method selected", "Invalid method", JOptionPane.ERROR_MESSAGE);
 		}
 		
+		//create collection of indices
+		grp1Ind=getIndices(grpI);
+		grp2Ind=getIndices(grpII);
+		
 
+	}
+	
+	private Collection<Integer> getIndices(List<String> listDC){
+		 Collection<Integer> res=  new ArrayList<>();
+		 String [] dataColumnheaders=myProject.getDataColumnHeaders();
+		 for(int i=0;i<dataColumnheaders.length;i++) {
+			 if(listDC.contains(dataColumnheaders[i])) {
+				 res.add(i);
+			 }
+		 }
+		 return res;
 	}
 
 
@@ -151,6 +171,8 @@ public class calculateLogFC {
 			}
 		}
 
+		grp1Ind=(Collection<Integer>) splitIndex.values().toArray()[0];
+		grp2Ind=(Collection<Integer>) splitIndex.values().toArray()[1];
 		return true;
 
 	}
@@ -168,8 +190,9 @@ public class calculateLogFC {
 			ftestRatiovals = new ArrayList<>();
 			utestPvals = new ArrayList<>();
 		}
-		Collection<Integer> g1Ind = (Collection<Integer>) splitIndex.values().toArray()[0];
-		Collection<Integer> g2Ind = (Collection<Integer>) splitIndex.values().toArray()[1];
+		Collection<Integer> g1Ind = grp1Ind;
+		Collection<Integer> g2Ind = grp2Ind;
+		
 		double log2b10 = Math.log(2.0D);
 		TTest tob = new TTest();
 		Variance vob = new Variance();
