@@ -28,6 +28,7 @@ public class calculateLogFC {
 	private Map<String, Collection<Integer>> splitIndex;
 	private boolean[] excluded;
 	private boolean dotTest;
+	private int testMethod;
 
 	private List<String> featureNames;
 	private List<Double> mean1;
@@ -45,6 +46,33 @@ public class calculateLogFC {
 		dotTest = tflag;
 
 	}
+	
+	/**
+	 * Class to compute logFC
+	 * @param selectedList Selected list of features to use
+	 * @param grpI	List of sample names (data columns) in first group
+	 * @param grpII	List of sample names (data columns) in second group
+	 * @param myProject	active project
+	 * @param method	method to use for calculation
+	 * 1: M-W U test
+	 * 2: t test (equal variance)
+	 * 3: Welch t test (unequal variance)
+	 * 4: Paired t-test
+	 * 
+	 * 
+	 */
+	public calculateLogFC(String selectedList, List<String> grpI, List<String> grpII , MetaOmProject myProject, int method) {
+		this.selectedList = selectedList;
+		this.myProject = myProject;
+		excluded = MetaOmAnalyzer.getExclude();
+		this.testMethod=method;
+		if(testMethod<1 || testMethod>4) {
+			JOptionPane.showMessageDialog(null, "Invalid method selected", "Invalid method", JOptionPane.ERROR_MESSAGE);
+		}
+		
+
+	}
+
 
 	// return true if grpID splits into two groups
 	public boolean createGroup() {
