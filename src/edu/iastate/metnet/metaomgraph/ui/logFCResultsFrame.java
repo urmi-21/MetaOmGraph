@@ -62,6 +62,9 @@ public class logFCResultsFrame extends JInternalFrame {
 	private List<Double> testadjutestPvals;
 	private List<Double> ftestadjutestPvals;
 	private MetaOmProject myProject;
+	String name1;
+	String name2;
+	String methodName;
 
 	double pvThresh = 2;
 
@@ -90,21 +93,24 @@ public class logFCResultsFrame extends JInternalFrame {
 	 * Create the frame.
 	 */
 	public logFCResultsFrame() {
-		this(null, null, null, null, null, null, null);
+		this(null, null,null, null, null, null,null,null, null, null);
 	}
 
 	public logFCResultsFrame(List<String> featureNames, List<Double> mean1, List<Double> mean2,
 			MetaOmProject myProject) {
-		this(featureNames, mean1, mean2, null, null, null, myProject);
+		this(featureNames, mean1, mean2, null, null,null,null,null, null, myProject);
 	}
 
 	public logFCResultsFrame(CalculateLogFC ob, MetaOmProject myProject) {
-		this(ob.getFeatureNames(), ob.getMean1(), ob.getMean2(), ob.ttestPV(), ob.ftestRatios(), ob.ftestPV(),
+		this(ob.getFeatureNames(), ob.getMean1(), ob.getMean2(),ob.getGrp1Name(),ob.getGrp2Name(),ob.getMethodName(), ob.ttestPV(), ob.ftestRatios(), ob.ftestPV(),
 				myProject);
 	}
 
-	public logFCResultsFrame(List<String> featureNames, List<Double> mean1, List<Double> mean2, List<Double> pv,
+	public logFCResultsFrame(List<String> featureNames, List<Double> mean1, List<Double> mean2, String name1,String name2,String methodName, List<Double> pv,
 			List<Double> ftestratio, List<Double> ftestpv, MetaOmProject myProject) {
+		this.name1=name1;
+		this.name2=name2;
+		this.methodName=methodName;
 		this.featureNames = featureNames;
 		this.mean1 = mean1;
 		this.mean2 = mean2;
@@ -521,8 +527,8 @@ public class logFCResultsFrame extends JInternalFrame {
 		// add data
 
 		tablemodel.addColumn("Name");
-		tablemodel.addColumn("Mean(log(Grp1))");
-		tablemodel.addColumn("Mean(log(Grp2))");
+		tablemodel.addColumn("Mean(log("+name1+"))");
+		tablemodel.addColumn("Mean(log("+name2+"))");
 		tablemodel.addColumn("logFC");
 		if (testPvals != null) {
 			if (ftestRatiovals != null && ftestRatiovals.size() > 0) {

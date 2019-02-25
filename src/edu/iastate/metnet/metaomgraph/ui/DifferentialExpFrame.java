@@ -159,7 +159,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 				String selectedFeatureList = comboBox.getSelectedItem().toString();
 				String selectedMethod = comboBox_1.getSelectedItem().toString();
 				// if paired test is selected lists must be equal size
-				if (selectedMethod.equals("Paired t Test")) {
+				if (selectedMethod.equals("Paired t-test") || selectedMethod.equals("Wilcoxon Signed Rank Test")) {
 					if (grp1.size() != grp2.size()) {
 						JOptionPane.showMessageDialog(null,
 								"The two groups must be equal to perform paired test. Please check the lists.",
