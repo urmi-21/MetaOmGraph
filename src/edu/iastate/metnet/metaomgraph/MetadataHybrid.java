@@ -418,7 +418,7 @@ public class MetadataHybrid {
 	 * @return
 	 */
 	public Integer[] search(MetadataQuery[] queries, boolean matchAll) {
-		Set<Integer> cols = knownCols.keySet();
+		//Set<Integer> cols = knownCols.keySet();
 		ArrayList<Integer> result = new ArrayList();
 		Integer[] toReturn;
 		List<String> colVals = new ArrayList<>();
@@ -436,7 +436,6 @@ public class MetadataHybrid {
 			isExact[i] = queries[i].isExact();
 			matchCase[i] = queries[i].isCaseSensitive();
 			// JOptionPane.showMessageDialog(null, "search f:" + fields[i]);
-
 		}
 		colVals.addAll(searchByValue(allfields, toSearch, this.dataColumn, isExact, matchAll, matchCase));
 		// find all keys with value in colVals
