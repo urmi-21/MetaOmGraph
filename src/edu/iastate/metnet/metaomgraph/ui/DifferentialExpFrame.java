@@ -7,7 +7,12 @@ import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.Vector;
 
 import javax.swing.JInternalFrame;
@@ -29,18 +34,25 @@ import javax.swing.JComboBox;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
+import org.apache.commons.collections.CollectionUtils;
+
+import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
+import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
+import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.MetadataHybrid;
+import edu.iastate.metnet.metaomgraph.utils.Utils;
+import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 
 import javax.swing.ScrollPaneConstants;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 public class DifferentialExpFrame extends JInternalFrame {
-	
+
 	private JComboBox comboBox;
 	private JComboBox comboBox_1;
-	
+
 	private JTextField txtGroup1;
 	private JTextField txtGroup2;
 
@@ -49,8 +61,11 @@ public class DifferentialExpFrame extends JInternalFrame {
 
 	private JScrollPane jscp2;
 	private JTable tableGrp2;
-	
+
 	private MetadataHybrid mdob;
+	private MetaOmProject myProject;
+
+	private boolean[] excludedCopy;
 
 	/**
 	 * Default Properties
@@ -86,15 +101,23 @@ public class DifferentialExpFrame extends JInternalFrame {
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		setTitle("Differential expression analysis");
 
-		//init objects
-		mdob=MetaOmGraph.getActiveProject().getMetadataHybrid();
-		if(mdob==null) {
+		// init objects
+		myProject = MetaOmGraph.getActiveProject();
+		mdob = myProject.getMetadataHybrid();
+		if (mdob == null) {
 			JOptionPane.showMessageDialog(null, "Error. No metadata found", "Error", JOptionPane.ERROR_MESSAGE);
 			dispose();
 		}
-		
+
+		// get excluded
+		boolean[] excluded = MetaOmAnalyzer.getExclude();
+		if (excluded != null) {
+			excludedCopy = new boolean[excluded.length];
+			System.arraycopy(excluded, 0, excludedCopy, 0, excluded.length);
+		}
+
 		initComboBoxes();
-		
+
 		JPanel panel = new JPanel();
 		getContentPane().add(panel, BorderLayout.NORTH);
 		JLabel lblTop = new JLabel("Select feature list");
@@ -105,7 +128,6 @@ public class DifferentialExpFrame extends JInternalFrame {
 		JLabel lblSelectMethod = new JLabel("Select method");
 		panel.add(lblSelectMethod);
 		panel.add(comboBox_1);
-		
 
 		JPanel panel_1 = new JPanel();
 		getContentPane().add(panel_1, BorderLayout.SOUTH);
@@ -141,20 +163,37 @@ public class DifferentialExpFrame extends JInternalFrame {
 		topbtnPnl2.add(lblGroupName_1);
 		topbtnPnl2.add(txtGroup2);
 		panel_3.add(topbtnPnl2, BorderLayout.NORTH);
- 
+
 		// add table2
 		jscp2 = new JScrollPane();
 		tableGrp2 = initTableModel();
-		updateTableData(tableGrp2,mdob.getMetadataCollection().getAllDataCols());
-		//jscp2.setViewportView(tableGrp2);
+		updateTableData(tableGrp2, mdob.getMetadataCollection().getAllDataCols());
+		// jscp2.setViewportView(tableGrp2);
 		panel_3.add(jscp2, BorderLayout.CENTER);
 
 		JButton btnAdd2 = new JButton("Add");
+		btnAdd2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				List<String> queryRes = showSearchMetadataPanel();
+				JOptionPane.showConfirmDialog(null, "match:" + queryRes.toString());
+				addRows(tableGrp2, queryRes);
+			}
+		});
 		JPanel btnPnl2 = new JPanel(new FlowLayout());
 		btnPnl2.add(btnAdd2);
 		JButton btnRem2 = new JButton("Remove");
+		btnRem2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				removeSelectedRows(tableGrp2);
+			}
+		});
 		btnPnl2.add(btnRem2);
 		JButton btnSearch2 = new JButton("Search");
+		btnSearch2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+			}
+		});
 		btnPnl2.add(btnSearch2);
 		panel_3.add(btnPnl2, BorderLayout.SOUTH);
 
@@ -183,21 +222,41 @@ public class DifferentialExpFrame extends JInternalFrame {
 		// add table1
 		jscp1 = new JScrollPane();
 		tableGrp1 = initTableModel();
-		updateTableData(tableGrp1,mdob.getMetadataCollection().getAllDataCols());
+		updateTableData(tableGrp1, mdob.getMetadataCollection().getAllDataCols());
 		jscp1.setViewportView(tableGrp1);
 		panel_4.add(jscp1, BorderLayout.CENTER);
 
 		JButton btnAdd1 = new JButton("Add");
 		btnAdd1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//add to this list
+				List<String> queryRes = showSearchMetadataPanel();
+				JOptionPane.showConfirmDialog(null, "match:" + queryRes.toString());
+				addRows(tableGrp1, queryRes);
 			}
 		});
 		JPanel btnPnl1 = new JPanel(new FlowLayout());
 		btnPnl1.add(btnAdd1);
 		JButton btnRem1 = new JButton("Remove");
+		btnRem1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				removeSelectedRows(tableGrp1);
+				
+			}
+		});
 		btnPnl1.add(btnRem1);
 		JButton btnSearch1 = new JButton("Search");
+		btnSearch1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// search in list by metadatata
+				List<String> queryRes = showSearchMetadataPanel();
+				// get intersection
+				List<String> allRows=getAllRows(tableGrp1);
+				List<String> res= (List<String>) CollectionUtils.intersection(queryRes, allRows);
+				//set selected and bring to top
+				
+				
+			}
+		});
 		btnPnl1.add(btnSearch1);
 		panel_4.add(btnPnl1, BorderLayout.SOUTH);
 
@@ -270,81 +329,182 @@ public class DifferentialExpFrame extends JInternalFrame {
 		return table;
 	}
 
-	private void updateTableData(JTable table,List<String> rows) {
-		if(rows==null || rows.size() <1 ) {
+	private void updateTableData(JTable table, List<String> rows) {
+		if (rows == null) {
 			return;
 		}
+
+		// convert list to set remove duplicates
+		Set<String> tempSet = new TreeSet<String>(rows);
+		rows = new ArrayList<>();
+		rows.addAll(tempSet);
+
 		DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
 		tablemodel.setRowCount(0);
 		tablemodel.setColumnCount(0);
 		// add data
-		String dcName=mdob.getDataColName();
+		String dcName = mdob.getDataColName();
 		tablemodel.addColumn(dcName);
-		Vector temp=null;
-		for(String s:rows) {
+		Vector temp = null;
+		for (String s : rows) {
 			temp = new Vector<>();
 			temp.add(s);
 			tablemodel.addRow(temp);
 		}
-		
+
 	}
-	
+
 	private void initComboBoxes() {
-		 comboBox=new JComboBox(MetaOmGraph.getActiveProject().getGeneListNames());
-		 String []methods=new String[]{"M-W U Test","t Test","Welch Test","Paired t Test"};
-		 comboBox_1=new JComboBox(methods);
+		comboBox = new JComboBox(MetaOmGraph.getActiveProject().getGeneListNames());
+		String[] methods = new String[] { "M-W U Test", "t Test", "Welch Test", "Paired t Test" };
+		comboBox_1 = new JComboBox(methods);
 	}
-	
+
 	/**
 	 * move selected rows from table 1 to table 2
 	 */
 	private void moveSelectedtoRight() {
-		List<String> selected1=getSelectedRows(tableGrp1);
+		List<String> selected1 = getSelectedRows(tableGrp1);
+		addRows(tableGrp2, selected1);
+		removeSelectedRows(tableGrp1);
 	}
-	
+
 	private void moveSelectedtoLeft() {
-		List<String> selected2=getSelectedRows(tableGrp2);
-		
+		List<String> selected2 = getSelectedRows(tableGrp2);
+		addRows(tableGrp1, selected2);
+		removeSelectedRows(tableGrp2);
+
 	}
-	
-	
+
 	/**
 	 * get selected rows from a table
+	 * 
 	 * @param table
 	 * @return
 	 */
-	private List<String> getSelectedRows(JTable table){
-		return getSelectedRows(table,false);
+	private List<String> getSelectedRows(JTable table) {
+		return getSelectedRows(table, false);
 	}
-	private List<String> getSelectedRows(JTable table,boolean invert){
-		int selected[]=table.getSelectedRows();
-		List<String> res=new ArrayList<>();
+
+	private List<String> getSelectedRows(JTable table, boolean invert) {
+		int selected[] = table.getSelectedRows();
+		List<String> res = new ArrayList<>();
 		for (int i = 0; i < selected.length; i++) {
-			String thisRow="";
+			String thisRow = "";
 			thisRow = (String) table.getValueAt(selected[i], 0);
 			res.add(thisRow);
 		}
-		JOptionPane.showMessageDialog(null, "sel:"+res);
-		
-		if(invert) {
-			List<String> temp=new ArrayList<>();
+		JOptionPane.showMessageDialog(null, "sel:" + res);
+
+		if (invert) {
+			List<String> temp = new ArrayList<>();
 			for (int i = 0; i < table.getRowCount(); i++) {
-				String thisRow="";
-				thisRow = (String) table.getValueAt(selected[i], 0);
-				if(!res.contains(thisRow)) {
+				String thisRow = "";
+				thisRow = (String) table.getValueAt(i, 0);
+				if (!res.contains(thisRow)) {
 					temp.add(thisRow);
 				}
 			}
-			res=temp;
+			res = temp;
 		}
-		
+
 		return res;
 	}
-	
+
 	private void removeSelectedRows(JTable table) {
-		List<String> toKeep=getSelectedRows(table,true);
+		List<String> toKeep = getSelectedRows(table, true);
+		JOptionPane.showMessageDialog(null, "tokeep:" + toKeep.toString());
 		updateTableData(table, toKeep);
+
+	}
+
+	private void addRows(JTable table, List<String> toAdd) {
+		toAdd.addAll(getAllRows(table));
+		JOptionPane.showMessageDialog(null, "toAdd:" + toAdd.toString());
+		updateTableData(table, toAdd);
+	}
+
+	private List<String> getAllRows(JTable table) {
+		// get existing rows
+		List<String> temp = new ArrayList<>();
+		for (int i = 0; i < table.getRowCount(); i++) {
+			String thisRow = "";
+			thisRow = (String) table.getValueAt(i, 0);
+			temp.add(thisRow);
+		}
+		return temp;
+	}
+	
+	private void setSelectedRows(JTable table,List<String> res) {
+		// get existing rows
+		List<String> temp = new ArrayList<>();
+		for (int i = 0; i < table.getRowCount(); i++) {
+			String thisRow = "";
+			thisRow = (String) table.getValueAt(i, 0);
+			temp.add(thisRow);
+		}
 		
+	}
+	
+
+	private List<String> showSearchMetadataPanel() {
+		// search datacolumns by metadata and add results
+		// display query panel
+		final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(myProject, false);
+		final MetadataQuery[] queries;
+		queries = tsp.showSearchDialog();
+		if (tsp.getQueryCount() <= 0) {
+			System.out.println("Search dialog cancelled");
+			// User didn't enter any queries
+			return null;
+		}
+		// final int[] result = new int[myProject.getDataColumnCount()];
+		Collection<Integer> result = new ArrayList<>();
+		new AnimatedSwingWorker("Searching...", true) {
+			@Override
+			public Object construct() {
+				ArrayList<Integer> toAdd = new ArrayList<Integer>(result.size());
+				for (int i = 0; i < myProject.getDataColumnCount(); i++) {
+					toAdd.add(i);
+				}
+				Integer[] hits = myProject.getMetadataHybrid().search(queries, tsp.matchAll());
+				// remove excluded cols from list
+				// urmi
+				boolean[] excluded = excludedCopy;
+				if (excluded != null) {
+					List<Integer> temp = new ArrayList<>();
+					for (Integer i : hits) {
+						if (!excluded[i]) {
+							temp.add(i);
+						}
+					}
+					hits = new Integer[temp.size()];
+					hits = temp.toArray(hits);
+				}
+				int index;
+				for (index = 0; index < hits.length; index++) {
+					result.add(hits[index]);
+					toAdd.remove(hits[index]);
+				}
+
+				return null;
+			}
+		}.start();
+
+		// create a split index with "hits" as one category and all others as second
+		// category
+		if (result.size() < 1) {
+			JOptionPane.showMessageDialog(null, "No hits found", "No hits", JOptionPane.INFORMATION_MESSAGE);
+			return null;
+		} else {
+			List<String> hitsColumns = new ArrayList<>();
+			// get datacolumn names
+			for (int i : result) {
+				hitsColumns.add(myProject.getDataColumnHeader(i));
+			}
+			return hitsColumns;
+		}
+
 	}
 
 }
