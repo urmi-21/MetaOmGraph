@@ -191,7 +191,13 @@ public class DifferentialExpFrame extends JInternalFrame {
 		JButton btnSearch2 = new JButton("Search");
 		btnSearch2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+				// search in list by metadatata
+				List<String> queryRes = showSearchMetadataPanel();
+				// get intersection
+				List<String> allRows=getAllRows(tableGrp2);
+				List<String> res= (List<String>) CollectionUtils.intersection(queryRes, allRows);
+				//set selected and bring to top
+				setSelectedRows(res, tableGrp2);
 			}
 		});
 		btnPnl2.add(btnSearch2);
@@ -253,7 +259,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 				List<String> allRows=getAllRows(tableGrp1);
 				List<String> res= (List<String>) CollectionUtils.intersection(queryRes, allRows);
 				//set selected and bring to top
-				
+				setSelectedRows(res, tableGrp1);
 				
 			}
 		});
@@ -435,17 +441,41 @@ public class DifferentialExpFrame extends JInternalFrame {
 		return temp;
 	}
 	
-	private void setSelectedRows(JTable table,List<String> res) {
-		// get existing rows
-		List<String> temp = new ArrayList<>();
-		for (int i = 0; i < table.getRowCount(); i++) {
-			String thisRow = "";
-			thisRow = (String) table.getValueAt(i, 0);
-			temp.add(thisRow);
+	/**
+	 * @author urmi
+	 * bring the matched items to top and set them as selected
+	 * @param res
+	 * @param tab
+	 */
+	private void setSelectedRows(List<String> res, JTable tab) {
+		DefaultTableModel model = (DefaultTableModel) tab.getModel();
+		List<String> newVals = new ArrayList<>();
+		// bring matched values at top
+		String temp;
+		int total_matches = 0;
+		for (int c = 0; c < model.getRowCount(); c++) {
+			temp = model.getValueAt(c, 0).toString();
+			if (res.contains(temp)) {
+				newVals.add("\t:::" + temp);
+				total_matches++;
+			} else {
+				newVals.add("~:::" + temp);
+			}
 		}
-		
+		java.util.Collections.sort(newVals);
+		// JOptionPane.showMessageDialog(null, newVals.toString());
+		model.setRowCount(0);
+
+		for (int i = 0; i < newVals.size(); i++) {
+			Vector<String> v = new Vector<>();
+			v.add(newVals.get(i).split(":::")[1]);
+			model.addRow(v);
+
+		}
+		if (total_matches > 0) {
+			tab.setRowSelectionInterval(0, total_matches - 1);
+		}
 	}
-	
 
 	private List<String> showSearchMetadataPanel() {
 		// search datacolumns by metadata and add results
