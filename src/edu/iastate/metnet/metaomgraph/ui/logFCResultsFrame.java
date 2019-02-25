@@ -43,6 +43,7 @@ import edu.iastate.metnet.metaomgraph.chart.BoxPlot;
 import edu.iastate.metnet.metaomgraph.chart.HistogramChart;
 import edu.iastate.metnet.metaomgraph.chart.MetaOmChartPanel;
 import edu.iastate.metnet.metaomgraph.chart.ScatterPlotChart;
+import edu.iastate.metnet.metaomgraph.chart.VolcanoPlot;
 import edu.iastate.metnet.metaomgraph.ui.MetadataTableDisplayPanel.AlphanumericComparator;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
@@ -447,6 +448,16 @@ public class logFCResultsFrame extends JInternalFrame {
 			}
 		});
 		mnPlot.add(mntmFcHistogram);
+		
+		JMenuItem mntmVolcanoPlot = new JMenuItem("Volcano plot");
+		mntmVolcanoPlot.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				makeVolcano();
+				
+			}
+		});
+		mnPlot.add(mntmVolcanoPlot);
 
 		// frame properties
 		this.setClosable(true);
@@ -456,6 +467,30 @@ public class logFCResultsFrame extends JInternalFrame {
 		setMaximizable(true);
 		setIconifiable(true);
 		setClosable(true);
+
+	}
+	
+	private void makeVolcano() {
+		//create data for volcano plot object
+		List<String> featureNames=new ArrayList<>();
+		List<Double> fc=new ArrayList<>();
+		List<Double> pv=new ArrayList<>();
+		for(int i=0;i<table.getRowCount();i++) {
+			featureNames.add( (String) table.getModel().getValueAt(i, table.getColumn("Name").getModelIndex()));
+			fc.add( (Double) table.getModel().getValueAt(i, table.getColumn("logFC").getModelIndex()));
+			pv.add( (Double) table.getModel().getValueAt(i, table.getColumn(methodName + " pval").getModelIndex()));
+		}
+		
+		//make plot
+		VolcanoPlot f = new VolcanoPlot(featureNames, fc, pv);
+		MetaOmGraph.getDesktop().add(f);
+		f.setDefaultCloseOperation(2);
+		f.setClosable(true);
+		f.setResizable(true);
+		f.pack();
+		f.setSize(1000, 700);
+		f.setVisible(true);
+		f.toFront();
 
 	}
 
