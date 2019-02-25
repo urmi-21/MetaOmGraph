@@ -41,6 +41,7 @@ import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.MetadataHybrid;
+import edu.iastate.metnet.metaomgraph.calculateLogFC;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 
@@ -138,17 +139,17 @@ public class DifferentialExpFrame extends JInternalFrame {
 				//check if two lists (sets) are disjoint
 				List<String> grp1=getAllRows(tableGrp1);
 				if(grp1==null||grp1.size()<1) {
-					JOptionPane.showMessageDialog(null, "Please check the lists. First list is empty", "Empty list", JOptionPane.ERROR);
+					JOptionPane.showMessageDialog(null, "Please check the lists. First list is empty", "Empty list", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 				List<String> grp2=getAllRows(tableGrp2);
 				if(grp2==null||grp2.size()<1) {
-					JOptionPane.showMessageDialog(null, "Please check the lists. Second list is empty", "Empty list", JOptionPane.ERROR);
+					JOptionPane.showMessageDialog(null, "Please check the lists. Second list is empty", "Empty list", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 				List<String> intrsection=(List<String>) CollectionUtils.intersection(grp1, grp2);
-				if(intrsection==null||intrsection.size()<1) {
-					JOptionPane.showMessageDialog(null, "The two groups must be disjoint. Please check the lists.", "Please check the lists", JOptionPane.ERROR);
+				if(intrsection.size()>0) {
+					JOptionPane.showMessageDialog(null, "The two groups must be disjoint. Please check the lists", "Please check the lists", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 				
@@ -157,7 +158,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 				//if paired test is selected lists must be equal size
 				if(selectedMethod.equals("Paired t Test")) {
 					if(grp1.size()!=grp2.size()) {
-						JOptionPane.showMessageDialog(null, "The two groups must be equal to perform paired test. Please check the lists.", "Unequal lists", JOptionPane.ERROR);
+						JOptionPane.showMessageDialog(null, "The two groups must be equal to perform paired test. Please check the lists.", "Unequal lists", JOptionPane.ERROR_MESSAGE);
 						return;
 					}
 				}
@@ -167,7 +168,9 @@ public class DifferentialExpFrame extends JInternalFrame {
 					JOptionPane.showMessageDialog(null, "Smaller group size will have lower statistical power. Group size > 30 is recommended", "Unequal lists", JOptionPane.WARNING_MESSAGE);
 				}
 				
-				//all checks completed
+				//all checks completed, compute logFC				
+				calculateLogFC ob = new calculateLogFC(selectedFeatureList, "", myProject, false);
+				
 				
 			}
 		});
@@ -207,7 +210,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 		tableGrp2 = initTableModel();
 		//updateTableData(tableGrp2, mdob.getMetadataCollection().getAllDataCols());
 		updateTableData(tableGrp2,null);
-		//jscp2.setViewportView(tableGrp2);
+		jscp2.setViewportView(tableGrp2);
 		panel_3.add(jscp2, BorderLayout.CENTER);
 
 		JButton btnAdd2 = new JButton("Add");
@@ -369,14 +372,12 @@ public class DifferentialExpFrame extends JInternalFrame {
 					return String.class;
 				}
 			}
-
 			@Override
 			public boolean isCellEditable(int row, int column) {
-				// all cells false
 				return false;
 			}
 		};
-		table.setModel(new DefaultTableModel(new Object[][] {}, new String[] { "New column" }));
+		table.setModel(model);
 		// set properties
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setAutoCreateRowSorter(true);
@@ -450,7 +451,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 			thisRow = (String) table.getValueAt(selected[i], 0);
 			res.add(thisRow);
 		}
-		JOptionPane.showMessageDialog(null, "sel:" + res);
+		//JOptionPane.showMessageDialog(null, "sel:" + res);
 
 		if (invert) {
 			List<String> temp = new ArrayList<>();
@@ -469,14 +470,14 @@ public class DifferentialExpFrame extends JInternalFrame {
 
 	private void removeSelectedRows(JTable table) {
 		List<String> toKeep = getSelectedRows(table, true);
-		JOptionPane.showMessageDialog(null, "tokeep:" + toKeep.toString());
+		//JOptionPane.showMessageDialog(null, "tokeep:" + toKeep.toString());
 		updateTableData(table, toKeep);
 
 	}
 
 	private void addRows(JTable table, List<String> toAdd) {
 		toAdd.addAll(getAllRows(table));
-		JOptionPane.showMessageDialog(null, "toAdd:" + toAdd.toString());
+		//JOptionPane.showMessageDialog(null, "toAdd:" + toAdd.toString());
 		updateTableData(table, toAdd);
 	}
 
@@ -515,7 +516,6 @@ public class DifferentialExpFrame extends JInternalFrame {
 		java.util.Collections.sort(newVals);
 		// JOptionPane.showMessageDialog(null, newVals.toString());
 		model.setRowCount(0);
-
 		for (int i = 0; i < newVals.size(); i++) {
 			Vector<String> v = new Vector<>();
 			v.add(newVals.get(i).split(":::")[1]);
