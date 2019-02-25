@@ -3045,8 +3045,7 @@ public class MetaOmGraph implements ActionListener {
 					// display result
 					logFCResultsFrame frame = null;
 					if (tTestFlag) {
-						frame = new logFCResultsFrame(ob.getFeatureNames(), ob.getMean1(), ob.getMean2(), ob.ttestPV(),
-								ob.ftestRatios(), ob.ftestPV(), ob.utestPV(), getActiveProject());
+						frame = new logFCResultsFrame(ob, getActiveProject());
 					} else {
 						frame = new logFCResultsFrame(ob.getFeatureNames(), ob.getMean1(), ob.getMean2(),
 								getActiveProject());

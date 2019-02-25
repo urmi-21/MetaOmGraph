@@ -34,6 +34,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
 
 import edu.iastate.metnet.metaomgraph.AdjustPval;
+import edu.iastate.metnet.metaomgraph.CalculateLogFC;
 import edu.iastate.metnet.metaomgraph.DecimalFormatRenderer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
@@ -55,11 +56,11 @@ public class logFCResultsFrame extends JInternalFrame {
 	private List<String> featureNames;
 	private List<Double> mean1;
 	private List<Double> mean2;
-	private List<Double> ttestPvals;
+	private List<Double> testPvals;
 	private List<Double> ftestPvals;
 	private List<Double> ftestRatiovals;
-	private List<Double> utestPvals;
-	private List<Double> adjutestPvals;
+	private List<Double> testadjutestPvals;
+	private List<Double> ftestadjutestPvals;
 	private MetaOmProject myProject;
 
 	double pvThresh = 2;
@@ -89,33 +90,46 @@ public class logFCResultsFrame extends JInternalFrame {
 	 * Create the frame.
 	 */
 	public logFCResultsFrame() {
-		this(null, null, null, null, null, null, null, null);
+		this(null, null, null, null, null, null, null);
 	}
 
 	public logFCResultsFrame(List<String> featureNames, List<Double> mean1, List<Double> mean2,
 			MetaOmProject myProject) {
-		this(featureNames, mean1, mean2, null, null, null, null, myProject);
+		this(featureNames, mean1, mean2, null, null, null, myProject);
+	}
+
+	public logFCResultsFrame(CalculateLogFC ob, MetaOmProject myProject) {
+		this(ob.getFeatureNames(), ob.getMean1(), ob.getMean2(), ob.ttestPV(), ob.ftestRatios(), ob.ftestPV(),
+				myProject);
 	}
 
 	public logFCResultsFrame(List<String> featureNames, List<Double> mean1, List<Double> mean2, List<Double> pv,
-			List<Double> ftestratio, List<Double> ftestpv, List<Double> utestpv, MetaOmProject myProject) {
+			List<Double> ftestratio, List<Double> ftestpv, MetaOmProject myProject) {
 		this.featureNames = featureNames;
 		this.mean1 = mean1;
 		this.mean2 = mean2;
 		this.myProject = myProject;
-		ttestPvals = pv;
+		testPvals = pv;
 		ftestRatiovals = ftestratio;
 		ftestPvals = ftestpv;
-		utestPvals = utestpv;
-		//find adjusted pvalues;default method BH
-		if (utestPvals != null) {
-			adjutestPvals = new ArrayList<>();
+		// find adjusted pvalues;default method BH
+		if (testPvals != null) {
+			testadjutestPvals = new ArrayList<>();
 			AdjustPval ob = new AdjustPval();
-			double[] adjPV = ob.getBHAdj(utestPvals.stream().mapToDouble(d -> d).toArray());
+			double[] adjPV = ob.getBHAdj(testPvals.stream().mapToDouble(d -> d).toArray());
 			for (double d : adjPV) {
-				adjutestPvals.add(d);
+				testadjutestPvals.add(d);
 			}
 		}
+		if (ftestPvals != null) {
+			ftestadjutestPvals = new ArrayList<>();
+			AdjustPval ob = new AdjustPval();
+			double[] adjPV = ob.getBHAdj(ftestPvals.stream().mapToDouble(d -> d).toArray());
+			for (double d : adjPV) {
+				ftestadjutestPvals.add(d);
+			}
+		}
+
 		setBounds(100, 100, 450, 300);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -505,16 +519,18 @@ public class logFCResultsFrame extends JInternalFrame {
 		tablemodel.setRowCount(0);
 		tablemodel.setColumnCount(0);
 		// add data
-		
+
 		tablemodel.addColumn("Name");
 		tablemodel.addColumn("Mean(log(Grp1))");
 		tablemodel.addColumn("Mean(log(Grp2))");
 		tablemodel.addColumn("logFC");
-		if (ttestPvals != null) {
-			tablemodel.addColumn("F statistic");
-			tablemodel.addColumn("F test pval");
+		if (testPvals != null) {
+			if (ftestRatiovals != null && ftestRatiovals.size() > 0) {
+				tablemodel.addColumn("F statistic");
+				tablemodel.addColumn("F test pval");
+				tablemodel.addColumn("Adj F test pval");
+			}
 			tablemodel.addColumn("T test pval");
-			tablemodel.addColumn("U test pval");
 			tablemodel.addColumn("Adj pval");
 		}
 		// for each row add each coloumn
@@ -525,20 +541,20 @@ public class logFCResultsFrame extends JInternalFrame {
 			temp.add(mean1.get(i));
 			temp.add(mean2.get(i));
 			temp.add(mean1.get(i) - mean2.get(i));
-			if (ttestPvals != null) {
-				if (utestPvals.get(i) >= pvThresh) {
+			if (testPvals != null) {
+				if (testPvals.get(i) >= pvThresh) {
 					continue;
 				}
-				temp.add(ftestRatiovals.get(i));
-				temp.add(ftestPvals.get(i));
-				temp.add(ttestPvals.get(i));
-				temp.add(utestPvals.get(i));
-				temp.add(adjutestPvals.get(i));
-
+				if (ftestRatiovals != null && ftestRatiovals.size() > 0) {
+					temp.add(ftestRatiovals.get(i));
+					temp.add(ftestPvals.get(i));
+					temp.add(ftestadjutestPvals.get(i));
+				}
+				temp.add(testPvals.get(i));
+				temp.add(testadjutestPvals.get(i));
 			}
 			// add ith row in table
 			tablemodel.addRow(temp);
-
 		}
 
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -566,7 +582,5 @@ public class logFCResultsFrame extends JInternalFrame {
 
 		return rowIndices;
 	}
-
-	
 
 }
