@@ -59,8 +59,6 @@ public class AdjustPval {
 		for (int i = 0; i < idx.length; i++) {
 			pvSorted[i] = pvals[idx[i]];
 		}
-		
-
 		// start correction
 		for (int i = m - 1; i >= 0; i--) {
 			if (i == m - 1) {
@@ -85,6 +83,17 @@ public class AdjustPval {
 			resSorted[idx[i]] = res[i];
 		}
 		return resSorted;
+	}
+	
+	
+	/**
+	 * apply Benjamini and Yekutieli method for p value correction
+	 * @param pvals
+	 * @return
+	 */
+	public double[] getBYAdj(double[] pvals) {
+		
+		return null;
 	}
 
 	public static void main(String[] args) {
