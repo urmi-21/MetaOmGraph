@@ -167,8 +167,9 @@ public class DifferentialExpFrame extends JInternalFrame {
 		// add table2
 		jscp2 = new JScrollPane();
 		tableGrp2 = initTableModel();
-		updateTableData(tableGrp2, mdob.getMetadataCollection().getAllDataCols());
-		// jscp2.setViewportView(tableGrp2);
+		//updateTableData(tableGrp2, mdob.getMetadataCollection().getAllDataCols());
+		updateTableData(tableGrp2,null);
+		jscp2.setViewportView(tableGrp2);
 		panel_3.add(jscp2, BorderLayout.CENTER);
 
 		JButton btnAdd2 = new JButton("Add");
@@ -193,6 +194,9 @@ public class DifferentialExpFrame extends JInternalFrame {
 			public void actionPerformed(ActionEvent e) {
 				// search in list by metadatata
 				List<String> queryRes = showSearchMetadataPanel();
+				if(queryRes==null || queryRes.size()<1) {
+					return;
+				}
 				// get intersection
 				List<String> allRows=getAllRows(tableGrp2);
 				List<String> res= (List<String>) CollectionUtils.intersection(queryRes, allRows);
@@ -228,7 +232,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 		// add table1
 		jscp1 = new JScrollPane();
 		tableGrp1 = initTableModel();
-		updateTableData(tableGrp1, mdob.getMetadataCollection().getAllDataCols());
+		updateTableData(tableGrp1, null);
 		jscp1.setViewportView(tableGrp1);
 		panel_4.add(jscp1, BorderLayout.CENTER);
 
@@ -255,6 +259,9 @@ public class DifferentialExpFrame extends JInternalFrame {
 			public void actionPerformed(ActionEvent e) {
 				// search in list by metadatata
 				List<String> queryRes = showSearchMetadataPanel();
+				if(queryRes==null || queryRes.size()<1) {
+					return;
+				}
 				// get intersection
 				List<String> allRows=getAllRows(tableGrp1);
 				List<String> res= (List<String>) CollectionUtils.intersection(queryRes, allRows);
@@ -336,6 +343,13 @@ public class DifferentialExpFrame extends JInternalFrame {
 	}
 
 	private void updateTableData(JTable table, List<String> rows) {
+		DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
+		tablemodel.setRowCount(0);
+		tablemodel.setColumnCount(0);
+		// add data
+		String dcName = mdob.getDataColName();
+		tablemodel.addColumn(dcName);
+		
 		if (rows == null) {
 			return;
 		}
@@ -345,12 +359,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 		rows = new ArrayList<>();
 		rows.addAll(tempSet);
 
-		DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
-		tablemodel.setRowCount(0);
-		tablemodel.setColumnCount(0);
-		// add data
-		String dcName = mdob.getDataColName();
-		tablemodel.addColumn(dcName);
+		
 		Vector temp = null;
 		for (String s : rows) {
 			temp = new Vector<>();
