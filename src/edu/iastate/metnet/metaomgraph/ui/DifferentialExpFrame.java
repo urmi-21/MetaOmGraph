@@ -183,8 +183,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 				ob.doCalc();
 				// display result
 				logFCResultsFrame frame = null;
-				frame = new logFCResultsFrame(ob.getFeatureNames(), ob.getMean1(), ob.getMean2(), ob.ttestPV(),
-						ob.ftestRatios(), ob.ftestPV(), ob.utestPV(), myProject);
+				frame = new logFCResultsFrame(ob, myProject);
 				frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
 				frame.setTitle("Fold change results");
 				MetaOmGraph.getDesktop().add(frame);
