@@ -23,6 +23,7 @@ import java.awt.Cursor;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JTable;
@@ -65,6 +66,7 @@ public class logFCResultsFrame extends JInternalFrame {
 	String name1;
 	String name2;
 	String methodName;
+	String pvAdjMethod;
 
 	double pvThresh = 2;
 
@@ -93,24 +95,25 @@ public class logFCResultsFrame extends JInternalFrame {
 	 * Create the frame.
 	 */
 	public logFCResultsFrame() {
-		this(null, null,null, null, null, null,null,null, null, null);
+		this(null, null, null, null, null, null, null, null, null, null);
 	}
 
 	public logFCResultsFrame(List<String> featureNames, List<Double> mean1, List<Double> mean2,
 			MetaOmProject myProject) {
-		this(featureNames, mean1, mean2, null, null,null,null,null, null, myProject);
+		this(featureNames, mean1, mean2, null, null, null, null, null, null, myProject);
 	}
 
 	public logFCResultsFrame(CalculateLogFC ob, MetaOmProject myProject) {
-		this(ob.getFeatureNames(), ob.getMean1(), ob.getMean2(),ob.getGrp1Name(),ob.getGrp2Name(),ob.getMethodName(), ob.ttestPV(), ob.ftestRatios(), ob.ftestPV(),
-				myProject);
+		this(ob.getFeatureNames(), ob.getMean1(), ob.getMean2(), ob.getGrp1Name(), ob.getGrp2Name(), ob.getMethodName(),
+				ob.ttestPV(), ob.ftestRatios(), ob.ftestPV(), myProject);
 	}
 
-	public logFCResultsFrame(List<String> featureNames, List<Double> mean1, List<Double> mean2, String name1,String name2,String methodName, List<Double> pv,
-			List<Double> ftestratio, List<Double> ftestpv, MetaOmProject myProject) {
-		this.name1=name1;
-		this.name2=name2;
-		this.methodName=methodName;
+	public logFCResultsFrame(List<String> featureNames, List<Double> mean1, List<Double> mean2, String name1,
+			String name2, String methodName, List<Double> pv, List<Double> ftestratio, List<Double> ftestpv,
+			MetaOmProject myProject) {
+		this.name1 = name1;
+		this.name2 = name2;
+		this.methodName = methodName;
 		this.featureNames = featureNames;
 		this.mean1 = mean1;
 		this.mean2 = mean2;
@@ -118,22 +121,12 @@ public class logFCResultsFrame extends JInternalFrame {
 		testPvals = pv;
 		ftestRatiovals = ftestratio;
 		ftestPvals = ftestpv;
-		// find adjusted pvalues;default method BH
+		// compute adjusted pv
 		if (testPvals != null) {
-			testadjutestPvals = new ArrayList<>();
-			AdjustPval ob = new AdjustPval();
-			double[] adjPV = ob.getBHAdj(testPvals.stream().mapToDouble(d -> d).toArray());
-			for (double d : adjPV) {
-				testadjutestPvals.add(d);
-			}
+			testadjutestPvals = computeAdjPV(testPvals);
 		}
 		if (ftestPvals != null) {
-			ftestadjutestPvals = new ArrayList<>();
-			AdjustPval ob = new AdjustPval();
-			double[] adjPV = ob.getBHAdj(ftestPvals.stream().mapToDouble(d -> d).toArray());
-			for (double d : adjPV) {
-				ftestadjutestPvals.add(d);
-			}
+			ftestadjutestPvals = computeAdjPV(ftestPvals);
 		}
 
 		setBounds(100, 100, 450, 300);
@@ -221,8 +214,35 @@ public class logFCResultsFrame extends JInternalFrame {
 			}
 		});
 		mnEdit.add(mntmFilter);
-		
+
 		JMenuItem mntmPvalueCorrection = new JMenuItem("P-value correction");
+		mntmPvalueCorrection.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				//choose adjustment method
+				JPanel cboxPanel=new JPanel();
+				String[] adjMethods=new String[] {"Benjamini–Hochberg", "Bonferroni"};
+				JComboBox pvadjCBox=new JComboBox<>(adjMethods);
+				cboxPanel.add(pvadjCBox);
+				int opt = JOptionPane.showConfirmDialog(null, cboxPanel, "Select categories", JOptionPane.OK_CANCEL_OPTION);
+				if (opt == JOptionPane.OK_OPTION) {
+					pvAdjMethod=pvadjCBox.getSelectedItem().toString();
+				}else {
+					return;
+				}
+			
+				//correct p values
+				if (testPvals != null) {
+					testadjutestPvals = computeAdjPV(testPvals);
+				}
+				if (ftestPvals != null) {
+					ftestadjutestPvals = computeAdjPV(ftestPvals);
+				}
+				
+				//update in table
+				updateTable();
+			}
+		});
 		mnEdit.add(mntmPvalueCorrection);
 
 		JMenu mnPlot = new JMenu("Plot");
@@ -234,7 +254,6 @@ public class logFCResultsFrame extends JInternalFrame {
 		JMenuItem mntmLineChart = new JMenuItem("Line Chart");
 		mntmLineChart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
 				// get selected rowindex
 				int[] rowIndices = getSelectedRowIndices();
 				if (rowIndices == null || rowIndices.length == 0) {
@@ -245,7 +264,6 @@ public class logFCResultsFrame extends JInternalFrame {
 				new MetaOmChartPanel(rowIndices, myProject.getDefaultXAxis(), myProject.getDefaultYAxis(),
 						myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject)
 								.createInternalFrame();
-
 			}
 		});
 		mnSelected.add(mntmLineChart);
@@ -530,8 +548,8 @@ public class logFCResultsFrame extends JInternalFrame {
 		// add data
 
 		tablemodel.addColumn("Name");
-		tablemodel.addColumn("Mean(log("+name1+"))");
-		tablemodel.addColumn("Mean(log("+name2+"))");
+		tablemodel.addColumn("Mean(log(" + name1 + "))");
+		tablemodel.addColumn("Mean(log(" + name2 + "))");
 		tablemodel.addColumn("logFC");
 		if (testPvals != null) {
 			if (ftestRatiovals != null && ftestRatiovals.size() > 0) {
@@ -539,7 +557,7 @@ public class logFCResultsFrame extends JInternalFrame {
 				tablemodel.addColumn("F test pval");
 				tablemodel.addColumn("Adj F test pval");
 			}
-			tablemodel.addColumn(methodName+" pval");
+			tablemodel.addColumn(methodName + " pval");
 			tablemodel.addColumn("Adj pval");
 		}
 		// for each row add each coloumn
@@ -590,6 +608,31 @@ public class logFCResultsFrame extends JInternalFrame {
 		rowIndices = myProject.getRowIndexbyName(names, true);
 
 		return rowIndices;
+	}
+
+	private List<Double> computeAdjPV(List<Double> pv) {
+		if (pv == null) {
+			return null;
+		}
+		List<Double> res=null;
+		double[] adjPV = null;
+		// find adjusted pvalues;default method BH
+		AdjustPval ob = new AdjustPval();
+
+		if (pvAdjMethod == null || pvAdjMethod.length() < 1 || pvAdjMethod == "Benjamini–Hochberg") {
+			adjPV = ob.getBHAdj(pv.stream().mapToDouble(d -> d).toArray());
+		} else if (pvAdjMethod == "Bonferroni") {
+			adjPV = ob.getBonferroniAdj(pv.stream().mapToDouble(d -> d).toArray());
+		}
+
+		if (adjPV != null) {
+			res = new ArrayList<>();
+			for (double d : adjPV) {
+				res.add(d);
+			}
+		}
+		return res;
+
 	}
 
 }

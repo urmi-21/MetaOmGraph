@@ -532,26 +532,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 
 	}
 
-	private XYDataset createDataset2() throws IOException {
-		XYSeriesCollection dataset = new XYSeriesCollection();
-		double[] dataX = myProject.getIncludedData(selected[pivotIndex]);
-		xAxisname = myProject.getRowName(selected[pivotIndex])[myProject.getDefaultColumn()].toString();
-		String yAxisname = "";
-		for (int i = 0; i < selected.length; i++) {
-			if (i == pivotIndex) {
-				continue;
-			}
-			double[] dataY = myProject.getIncludedData(selected[i]);
-			yAxisname = myProject.getRowName(selected[i])[myProject.getDefaultColumn()].toString();
-			XYSeries series1 = new XYSeries(xAxisname + " vs. " + yAxisname);
-			for (int j = 0; j < dataX.length; j++) {
-				series1.add(dataX[j], dataY[j]);
-			}
-			dataset.addSeries(series1);
-		}
-
-		return dataset;
-	}
+	
 
 	private XYDataset createDataset() throws IOException {
 
