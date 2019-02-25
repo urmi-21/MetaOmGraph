@@ -214,7 +214,10 @@ public class DifferentialExpFrame extends JInternalFrame {
 		btnAdd2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				List<String> queryRes = showSearchMetadataPanel();
-				JOptionPane.showConfirmDialog(null, "match:" + queryRes.toString());
+				if(queryRes==null || queryRes.size()<1) {
+					return;
+				}
+				//JOptionPane.showConfirmDialog(null, "match:" + queryRes.toString());
 				addRows(tableGrp2, queryRes);
 			}
 		});
@@ -278,7 +281,10 @@ public class DifferentialExpFrame extends JInternalFrame {
 		btnAdd1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				List<String> queryRes = showSearchMetadataPanel();
-				JOptionPane.showConfirmDialog(null, "match:" + queryRes.toString());
+				if(queryRes==null || queryRes.size()<1) {
+					return;
+				}
+				//JOptionPane.showConfirmDialog(null, "match:" + queryRes.toString());
 				addRows(tableGrp1, queryRes);
 			}
 		});
