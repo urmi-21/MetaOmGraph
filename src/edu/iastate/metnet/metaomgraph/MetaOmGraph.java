@@ -3029,7 +3029,7 @@ public class MetaOmGraph implements ActionListener {
 			MetaOmGraph.getDesktop().add(lframe);
 			lframe.setVisible(true);
 
-			logFCPanel panel = new logFCPanel();
+			/*logFCPanel panel = new logFCPanel();
 			int res = JOptionPane.showConfirmDialog(null, panel, "Select categories", JOptionPane.OK_CANCEL_OPTION);
 			if (res == JOptionPane.OK_OPTION) {
 				String selectedList = panel.getselectedGeneList();
@@ -3055,7 +3055,7 @@ public class MetaOmGraph implements ActionListener {
 
 			} else {
 				return;
-			}
+			}*/
 
 			return;
 		}

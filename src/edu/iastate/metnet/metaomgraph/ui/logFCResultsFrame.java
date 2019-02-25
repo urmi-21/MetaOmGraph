@@ -194,7 +194,7 @@ public class logFCResultsFrame extends JInternalFrame {
 		});
 		mnEdit.add(mntmExportSelectedTo);
 
-		JMenuItem mntmFilter = new JMenuItem("Filter");
+		JMenuItem mntmFilter = new JMenuItem("P-value filter");
 		mntmFilter.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				double pvalThresh = 0;
@@ -221,6 +221,9 @@ public class logFCResultsFrame extends JInternalFrame {
 			}
 		});
 		mnEdit.add(mntmFilter);
+		
+		JMenuItem mntmPvalueCorrection = new JMenuItem("P-value correction");
+		mnEdit.add(mntmPvalueCorrection);
 
 		JMenu mnPlot = new JMenu("Plot");
 		menuBar.add(mnPlot);
