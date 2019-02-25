@@ -54,6 +54,9 @@ public class DifferentialExpFrame extends JInternalFrame {
 	private JComboBox comboBox;
 	private JComboBox comboBox_1;
 
+	JLabel lblN2;
+	JLabel lblN1;
+
 	private JTextField txtGroup1;
 	private JTextField txtGroup2;
 
@@ -176,11 +179,14 @@ public class DifferentialExpFrame extends JInternalFrame {
 				}
 
 				// all checks completed, compute logFC
-				CalculateLogFC ob = new CalculateLogFC(selectedFeatureList, grp1, grp2, myProject,
-						comboBox_1.getSelectedIndex());
+				CalculateLogFC ob = new CalculateLogFC(selectedFeatureList, grp1, grp2, txtGroup1.getText(),
+						txtGroup2.getText(), myProject, comboBox_1.getSelectedIndex());
 
 				// display result
 				ob.doCalc();
+				if (!ob.getcalcStatus()) {
+					return;
+				}
 				// display result
 				logFCResultsFrame frame = null;
 				frame = new logFCResultsFrame(ob, myProject);
@@ -221,6 +227,9 @@ public class DifferentialExpFrame extends JInternalFrame {
 		topbtnPnl2.add(lblGroupName_1);
 		topbtnPnl2.add(txtGroup2);
 		panel_3.add(topbtnPnl2, BorderLayout.NORTH);
+
+		lblN2 = new JLabel("n=0");
+		topbtnPnl2.add(lblN2);
 
 		// add table2
 		jscp2 = new JScrollPane();
@@ -283,6 +292,9 @@ public class DifferentialExpFrame extends JInternalFrame {
 			}
 		});
 
+		lblN1 = new JLabel("n=0");
+		topbtnPnl1.add(lblN1);
+
 		JLabel lblGroupName = new JLabel("Group name:");
 		topbtnPnl1.add(lblGroupName);
 		topbtnPnl1.add(txtGroup1);
@@ -306,6 +318,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 				}
 				// JOptionPane.showConfirmDialog(null, "match:" + queryRes.toString());
 				addRows(tableGrp1, queryRes);
+				
 			}
 		});
 		JPanel btnPnl1 = new JPanel(new FlowLayout());
@@ -431,7 +444,8 @@ public class DifferentialExpFrame extends JInternalFrame {
 
 	private void initComboBoxes() {
 		comboBox = new JComboBox(MetaOmGraph.getActiveProject().getGeneListNames());
-		String[] methods = new String[] { "M-W U test", "Student's t-test", "Welch's t-test", "Paired t-test","Wilcoxon Signed Rank Test"};
+		String[] methods = new String[] { "M-W U test", "Student's t-test", "Welch's t-test", "Paired t-test",
+				"Wilcoxon Signed Rank Test" };
 		comboBox_1 = new JComboBox(methods);
 	}
 
@@ -442,12 +456,14 @@ public class DifferentialExpFrame extends JInternalFrame {
 		List<String> selected1 = getSelectedRows(tableGrp1);
 		addRows(tableGrp2, selected1);
 		removeSelectedRows(tableGrp1);
+		updateLabelN();
 	}
 
 	private void moveSelectedtoLeft() {
 		List<String> selected2 = getSelectedRows(tableGrp2);
 		addRows(tableGrp1, selected2);
 		removeSelectedRows(tableGrp2);
+		updateLabelN();
 
 	}
 
@@ -490,6 +506,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 		List<String> toKeep = getSelectedRows(table, true);
 		// JOptionPane.showMessageDialog(null, "tokeep:" + toKeep.toString());
 		updateTableData(table, toKeep);
+		updateLabelN();
 
 	}
 
@@ -497,6 +514,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 		toAdd.addAll(getAllRows(table));
 		// JOptionPane.showMessageDialog(null, "toAdd:" + toAdd.toString());
 		updateTableData(table, toAdd);
+		updateLabelN();
 	}
 
 	private List<String> getAllRows(JTable table) {
@@ -508,6 +526,15 @@ public class DifferentialExpFrame extends JInternalFrame {
 			temp.add(thisRow);
 		}
 		return temp;
+	}
+
+	private void updateLabelN() {
+
+		int n1 = getAllRows(tableGrp1).size();
+		lblN1.setText("n=" + String.valueOf(n1));
+		int n2 = getAllRows(tableGrp2).size();
+		lblN2.setText("n=" + String.valueOf(n2));
+
 	}
 
 	/**

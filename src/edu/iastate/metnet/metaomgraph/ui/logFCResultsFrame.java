@@ -536,7 +536,7 @@ public class logFCResultsFrame extends JInternalFrame {
 				tablemodel.addColumn("F test pval");
 				tablemodel.addColumn("Adj F test pval");
 			}
-			tablemodel.addColumn("T test pval");
+			tablemodel.addColumn(methodName+" pval");
 			tablemodel.addColumn("Adj pval");
 		}
 		// for each row add each coloumn
