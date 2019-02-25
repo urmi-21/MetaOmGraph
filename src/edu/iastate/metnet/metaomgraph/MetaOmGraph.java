@@ -3035,7 +3035,7 @@ public class MetaOmGraph implements ActionListener {
 				String selectedList = panel.getselectedGeneList();
 				String grpID = panel.getselectedGrpID();
 				boolean tTestFlag = panel.getTTest();
-				calculateLogFC ob = new calculateLogFC(selectedList, grpID, getActiveProject(), tTestFlag);
+				CalculateLogFC ob = new CalculateLogFC(selectedList, grpID, getActiveProject(), tTestFlag);
 
 				if (!ob.createGroup()) {
 					return;

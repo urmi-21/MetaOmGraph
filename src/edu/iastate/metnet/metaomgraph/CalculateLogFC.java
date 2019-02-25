@@ -20,7 +20,7 @@ import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
 import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
 
-public class calculateLogFC {
+public class CalculateLogFC {
 
 	private String selectedList;
 	private String grpID;
@@ -42,7 +42,7 @@ public class calculateLogFC {
 	Collection<Integer> grp1Ind ;
 	Collection<Integer> grp2Ind ;
 
-	public calculateLogFC(String selectedList, String grpID, MetaOmProject myProject, boolean tflag) {
+	public CalculateLogFC(String selectedList, String grpID, MetaOmProject myProject, boolean tflag) {
 		this.selectedList = selectedList;
 		this.grpID = grpID;
 		this.myProject = myProject;
@@ -66,7 +66,7 @@ public class calculateLogFC {
 	 * 
 	 * 
 	 */
-	public calculateLogFC(String selectedList, List<String> grpI, List<String> grpII , MetaOmProject myProject, int method) {
+	public CalculateLogFC(String selectedList, List<String> grpI, List<String> grpII , MetaOmProject myProject, int method) {
 		this.selectedList = selectedList;
 		this.myProject = myProject;
 		excluded = MetaOmAnalyzer.getExclude();

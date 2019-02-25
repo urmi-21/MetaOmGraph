@@ -41,7 +41,7 @@ import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.MetadataHybrid;
-import edu.iastate.metnet.metaomgraph.calculateLogFC;
+import edu.iastate.metnet.metaomgraph.CalculateLogFC;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 
@@ -169,7 +169,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 				}
 				
 				//all checks completed, compute logFC				
-				calculateLogFC ob = new calculateLogFC(selectedFeatureList, "", myProject, false);
+				CalculateLogFC ob = new CalculateLogFC(selectedFeatureList, "", myProject, false);
 				
 				
 			}
