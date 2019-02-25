@@ -3023,12 +3023,12 @@ public class MetaOmGraph implements ActionListener {
 				JOptionPane.showMessageDialog(null, "No metadata read", "No metadata", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-			
+
 			DifferentialExpFrame lframe = new DifferentialExpFrame();
 			lframe.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
 			MetaOmGraph.getDesktop().add(lframe);
 			lframe.setVisible(true);
-			
+
 			logFCPanel panel = new logFCPanel();
 			int res = JOptionPane.showConfirmDialog(null, panel, "Select categories", JOptionPane.OK_CANCEL_OPTION);
 			if (res == JOptionPane.OK_OPTION) {
@@ -3044,12 +3044,7 @@ public class MetaOmGraph implements ActionListener {
 					ob.doCalc();
 					// display result
 					logFCResultsFrame frame = null;
-					if (tTestFlag) {
-						frame = new logFCResultsFrame(ob, getActiveProject());
-					} else {
-						frame = new logFCResultsFrame(ob.getFeatureNames(), ob.getMean1(), ob.getMean2(),
-								getActiveProject());
-					}
+					frame = new logFCResultsFrame(ob, getActiveProject());
 					frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2,
 							MetaOmGraph.getMainWindow().getHeight() / 2);
 					frame.setTitle("Fold change results");
@@ -3572,11 +3567,11 @@ public class MetaOmGraph implements ActionListener {
 		if (!ob.isLatestMOG()) {
 
 			Object[] options = { "Yes, take me to the download.", "Nope." };
-			int response=-1;
+			int response = -1;
 			try {
 				response = JOptionPane.showOptionDialog(null,
 						"A newer version of MOG is available for download. We highly recommend using the latest version.\nYour version: "
-								+ getVersion() + "\nLatest version: "+ob.getLatestVersionOnline(),
+								+ getVersion() + "\nLatest version: " + ob.getLatestVersionOnline(),
 
 						"New version available!", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
 						options, options[0]);

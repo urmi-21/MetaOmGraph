@@ -37,6 +37,8 @@ public class CalculateLogFC {
 	private List<Double> ftestPvals;
 	private List<Double> ftestRatiovals;
 	private List<Double> utestPvals;
+	
+	private boolean calcStatus;
 
 	// group indices
 	Collection<Integer> grp1Ind;
@@ -179,9 +181,6 @@ public class CalculateLogFC {
 
 		grp1Ind = (Collection<Integer>) splitIndex.values().toArray()[0];
 		grp2Ind = (Collection<Integer>) splitIndex.values().toArray()[1];
-
-		JOptionPane.showMessageDialog(null, "g1ind:" + grp1Ind.toString());
-		JOptionPane.showMessageDialog(null, "g2ind:" + grp2Ind.toString());
 		return true;
 
 	}
@@ -317,8 +316,13 @@ public class CalculateLogFC {
 						ttestPvals.add(tob.pairedTTest(s1, s2));
 					} else if (testMethod == 4) {
 						// perform wilcoxonSignedRankTest
-						// NOTE: exact p vals only work for n <30
+						// NOTE: exact p vals only work for n <=30
+						//set exact pv is n <= 10 otherwise its slow
+						if(s1.length<=10) {
 						ttestPvals.add(wsrtob.wilcoxonSignedRankTest(s1, s2, true));
+						}else {
+							ttestPvals.add(wsrtob.wilcoxonSignedRankTest(s1, s2, false));	
+						}
 					}
 
 				}
@@ -326,8 +330,11 @@ public class CalculateLogFC {
 			}
 
 			public void finished() {
+				if(progress.isCanceled()) {
+					calcStatus=false;
+				}
 				if ((!progress.isCanceled()) && (!errored)) {
-
+					calcStatus=true;
 				}
 				progress.dispose();
 			}
@@ -335,7 +342,15 @@ public class CalculateLogFC {
 		analyzeWorker.start();
 		progress.setVisible(true);
 
-		// return exitStatus;
+		
+	}
+	
+	/**
+	 * return status if calculation was completed
+	 * @return
+	 */
+	public boolean getcalcStatus() {
+		return this.calcStatus;
 	}
 
 	public List<String> getFeatureNames() {
