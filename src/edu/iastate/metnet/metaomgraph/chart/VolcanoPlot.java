@@ -137,8 +137,7 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		JPanel panel = new JPanel();
 		panel.setLayout(new FlowLayout());
 		getContentPane().add(panel, BorderLayout.NORTH);
-		JButton btnNewButton = new JButton("New button");
-		// panel.add(btnNewButton);
+		
 
 		JPanel panel_1 = new JPanel();
 		getContentPane().add(panel_1, BorderLayout.SOUTH);
@@ -228,7 +227,6 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		myChart = ChartFactory.createScatterPlot("", "log2 fold change", "-log10 p-value", dataset);
 
 		// Changes background color
-		Shape shape = ShapeUtilities.createRegularCross(2, 1);
 		XYPlot plot = (XYPlot) myChart.getPlot();
 		plot.setBackgroundPaint(plotbg);
 		myChart.setBackgroundPaint(chartbg);
@@ -237,7 +235,7 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		myRenderer = plot.getRenderer();
 
 		// use palette if available
-		if (colorArray != null) {
+		/*if (colorArray != null) {
 			plot.setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(colorArray,
 					DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
@@ -253,31 +251,14 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 					DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE));
-		}
+		}*/
 		// Create Panel
 		// use full constructor otherwise tooltips dont work
 		ChartPanel chartPanel = new ChartPanel(myChart, 800, 600, 2, 2, 10000, 10000, true, true, true, true, true,
 				true) {
 			private Dimension oldSize = new Dimension(100, 100);
 
-			@Override
-			public void paintComponent(Graphics g) {
-				if (!oldSize.equals(getSize())) {
-					oldSize = getSize();
-					if (myChart.getBackgroundPaint() instanceof GradientPaint) {
-						GradientPaint gp = (GradientPaint) myChart.getBackgroundPaint();
-						myChart.setBackgroundPaint(Color.WHITE);
-					}
-				}
-
-				super.paintComponent(g);
-				// Custom drawing
-				Graphics2D g2d = (Graphics2D) g.create();
-				Color bg = (Color) myChart.getPlot().getBackgroundPaint();
-				g2d.setColor(new Color(Color.WHITE.getRGB() - bg.getRGB()));
-				g2d.dispose();
-			}
-
+			
 			public void actionPerformed(ActionEvent e) {
 				if (e.getActionCommand().equals(ChartPanel.SAVE_COMMAND)) {
 					File destination = null;
@@ -431,8 +412,10 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		for(int i=0;i<foldChange.size();i++) {
 			double thisFC=foldChange.get(i);
 			double thisPV=-1*Math.log10(pVals.get(i));
+			JOptionPane.showMessageDialog(null, "x:"+thisFC+" y:"+thisPV);
 			series1.add(thisFC, thisPV);
 		}
+		dataset.addSeries(series1);
 		
 		return dataset;
 	}
