@@ -133,6 +133,29 @@ public class DifferentialExpFrame extends JInternalFrame {
 		getContentPane().add(panel_1, BorderLayout.SOUTH);
 
 		JButton btnOk = new JButton("Ok");
+		btnOk.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//check if two lists (sets) are disjoint
+				List<String> grp1=getAllRows(tableGrp1);
+				if(grp1==null||grp1.size()<1) {
+					JOptionPane.showMessageDialog(null, "Please check the lists. First list is empty", "Empty list", JOptionPane.ERROR);
+					return;
+				}
+				List<String> grp2=getAllRows(tableGrp2);
+				if(grp2==null||grp2.size()<1) {
+					JOptionPane.showMessageDialog(null, "Please check the lists. Second list is empty", "Empty list", JOptionPane.ERROR);
+					return;
+				}
+				List<String> intrsection=(List<String>) CollectionUtils.intersection(grp1, grp2);
+				if(intrsection==null||intrsection.size()<1) {
+					JOptionPane.showMessageDialog(null, "The two groups must be disjoint. Please check the lists.", "Please check the lists", JOptionPane.ERROR);
+					return;
+				}
+				
+				//all checks completed
+				
+			}
+		});
 		panel_1.add(btnOk);
 
 		JPanel panel_2 = new JPanel();
@@ -169,7 +192,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 		tableGrp2 = initTableModel();
 		//updateTableData(tableGrp2, mdob.getMetadataCollection().getAllDataCols());
 		updateTableData(tableGrp2,null);
-		jscp2.setViewportView(tableGrp2);
+		//jscp2.setViewportView(tableGrp2);
 		panel_3.add(jscp2, BorderLayout.CENTER);
 
 		JButton btnAdd2 = new JButton("Add");
@@ -358,15 +381,12 @@ public class DifferentialExpFrame extends JInternalFrame {
 		Set<String> tempSet = new TreeSet<String>(rows);
 		rows = new ArrayList<>();
 		rows.addAll(tempSet);
-
-		
 		Vector temp = null;
 		for (String s : rows) {
 			temp = new Vector<>();
 			temp.add(s);
 			tablemodel.addRow(temp);
 		}
-
 	}
 
 	private void initComboBoxes() {
