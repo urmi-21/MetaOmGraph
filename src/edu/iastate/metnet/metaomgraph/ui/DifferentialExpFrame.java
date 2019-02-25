@@ -307,6 +307,15 @@ public class DifferentialExpFrame extends JInternalFrame {
 		
 	}
 	
+	
+	/**
+	 * get selected rows from a table
+	 * @param table
+	 * @return
+	 */
+	private List<String> getSelectedRows(JTable table){
+		return getSelectedRows(table,false);
+	}
 	private List<String> getSelectedRows(JTable table,boolean invert){
 		int selected[]=table.getSelectedRows();
 		List<String> res=new ArrayList<>();
@@ -316,11 +325,25 @@ public class DifferentialExpFrame extends JInternalFrame {
 			res.add(thisRow);
 		}
 		JOptionPane.showMessageDialog(null, "sel:"+res);
+		
+		if(invert) {
+			List<String> temp=new ArrayList<>();
+			for (int i = 0; i < table.getRowCount(); i++) {
+				String thisRow="";
+				thisRow = (String) table.getValueAt(selected[i], 0);
+				if(!res.contains(thisRow)) {
+					temp.add(thisRow);
+				}
+			}
+			res=temp;
+		}
+		
 		return res;
 	}
 	
 	private void removeSelectedRows(JTable table) {
-		List<String> toRem=getSelectedRows(table);
+		List<String> toKeep=getSelectedRows(table,true);
+		updateTableData(table, toKeep);
 		
 	}
 
