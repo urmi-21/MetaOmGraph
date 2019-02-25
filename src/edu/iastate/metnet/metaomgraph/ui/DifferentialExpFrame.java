@@ -136,42 +136,60 @@ public class DifferentialExpFrame extends JInternalFrame {
 		JButton btnOk = new JButton("Ok");
 		btnOk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//check if two lists (sets) are disjoint
-				List<String> grp1=getAllRows(tableGrp1);
-				if(grp1==null||grp1.size()<1) {
-					JOptionPane.showMessageDialog(null, "Please check the lists. First list is empty", "Empty list", JOptionPane.ERROR_MESSAGE);
+				// check if two lists (sets) are disjoint
+				List<String> grp1 = getAllRows(tableGrp1);
+				if (grp1 == null || grp1.size() < 1) {
+					JOptionPane.showMessageDialog(null, "Please check the lists. First list is empty", "Empty list",
+							JOptionPane.ERROR_MESSAGE);
 					return;
 				}
-				List<String> grp2=getAllRows(tableGrp2);
-				if(grp2==null||grp2.size()<1) {
-					JOptionPane.showMessageDialog(null, "Please check the lists. Second list is empty", "Empty list", JOptionPane.ERROR_MESSAGE);
+				List<String> grp2 = getAllRows(tableGrp2);
+				if (grp2 == null || grp2.size() < 1) {
+					JOptionPane.showMessageDialog(null, "Please check the lists. Second list is empty", "Empty list",
+							JOptionPane.ERROR_MESSAGE);
 					return;
 				}
-				List<String> intrsection=(List<String>) CollectionUtils.intersection(grp1, grp2);
-				if(intrsection.size()>0) {
-					JOptionPane.showMessageDialog(null, "The two groups must be disjoint. Please check the lists", "Please check the lists", JOptionPane.ERROR_MESSAGE);
+				List<String> intrsection = (List<String>) CollectionUtils.intersection(grp1, grp2);
+				if (intrsection.size() > 0) {
+					JOptionPane.showMessageDialog(null, "The two groups must be disjoint. Please check the lists",
+							"Please check the lists", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
-				
-				String selectedFeatureList=comboBox.getSelectedItem().toString();
-				String selectedMethod=comboBox_1.getSelectedItem().toString();
-				//if paired test is selected lists must be equal size
-				if(selectedMethod.equals("Paired t Test")) {
-					if(grp1.size()!=grp2.size()) {
-						JOptionPane.showMessageDialog(null, "The two groups must be equal to perform paired test. Please check the lists.", "Unequal lists", JOptionPane.ERROR_MESSAGE);
+
+				String selectedFeatureList = comboBox.getSelectedItem().toString();
+				String selectedMethod = comboBox_1.getSelectedItem().toString();
+				// if paired test is selected lists must be equal size
+				if (selectedMethod.equals("Paired t Test")) {
+					if (grp1.size() != grp2.size()) {
+						JOptionPane.showMessageDialog(null,
+								"The two groups must be equal to perform paired test. Please check the lists.",
+								"Unequal lists", JOptionPane.ERROR_MESSAGE);
 						return;
 					}
 				}
-				
-				//warning message is size is less than 30
-				if(grp1.size()<30 || grp2.size()<30) {
-					JOptionPane.showMessageDialog(null, "Smaller group size will have lower statistical power. Group size > 30 is recommended", "Unequal lists", JOptionPane.WARNING_MESSAGE);
+
+				// warning message is size is less than 30
+				if (grp1.size() < 30 || grp2.size() < 30) {
+					JOptionPane.showMessageDialog(null,
+							"Smaller group size will have lower statistical power. Group size > 30 is recommended",
+							"Unequal lists", JOptionPane.WARNING_MESSAGE);
 				}
-				
-				//all checks completed, compute logFC				
-				CalculateLogFC ob = new CalculateLogFC(selectedFeatureList, "", myProject, false);
-				
-				
+
+				// all checks completed, compute logFC
+				CalculateLogFC ob = new CalculateLogFC(selectedFeatureList, grp1, grp2, myProject,
+						comboBox_1.getSelectedIndex());
+
+				// display result
+				ob.doCalc();
+				// display result
+				logFCResultsFrame frame = null;
+				frame = new logFCResultsFrame(ob.getFeatureNames(), ob.getMean1(), ob.getMean2(), ob.ttestPV(),
+						ob.ftestRatios(), ob.ftestPV(), ob.utestPV(), myProject);
+				frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
+				frame.setTitle("Fold change results");
+				MetaOmGraph.getDesktop().add(frame);
+				frame.setVisible(true);
+
 			}
 		});
 		panel_1.add(btnOk);
@@ -208,8 +226,8 @@ public class DifferentialExpFrame extends JInternalFrame {
 		// add table2
 		jscp2 = new JScrollPane();
 		tableGrp2 = initTableModel();
-		//updateTableData(tableGrp2, mdob.getMetadataCollection().getAllDataCols());
-		updateTableData(tableGrp2,null);
+		// updateTableData(tableGrp2, mdob.getMetadataCollection().getAllDataCols());
+		updateTableData(tableGrp2, null);
 		jscp2.setViewportView(tableGrp2);
 		panel_3.add(jscp2, BorderLayout.CENTER);
 
@@ -217,10 +235,10 @@ public class DifferentialExpFrame extends JInternalFrame {
 		btnAdd2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				List<String> queryRes = showSearchMetadataPanel();
-				if(queryRes==null || queryRes.size()<1) {
+				if (queryRes == null || queryRes.size() < 1) {
 					return;
 				}
-				//JOptionPane.showConfirmDialog(null, "match:" + queryRes.toString());
+				// JOptionPane.showConfirmDialog(null, "match:" + queryRes.toString());
 				addRows(tableGrp2, queryRes);
 			}
 		});
@@ -238,13 +256,13 @@ public class DifferentialExpFrame extends JInternalFrame {
 			public void actionPerformed(ActionEvent e) {
 				// search in list by metadatata
 				List<String> queryRes = showSearchMetadataPanel();
-				if(queryRes==null || queryRes.size()<1) {
+				if (queryRes == null || queryRes.size() < 1) {
 					return;
 				}
 				// get intersection
-				List<String> allRows=getAllRows(tableGrp2);
-				List<String> res= (List<String>) CollectionUtils.intersection(queryRes, allRows);
-				//set selected and bring to top
+				List<String> allRows = getAllRows(tableGrp2);
+				List<String> res = (List<String>) CollectionUtils.intersection(queryRes, allRows);
+				// set selected and bring to top
 				setSelectedRows(res, tableGrp2);
 			}
 		});
@@ -284,10 +302,10 @@ public class DifferentialExpFrame extends JInternalFrame {
 		btnAdd1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				List<String> queryRes = showSearchMetadataPanel();
-				if(queryRes==null || queryRes.size()<1) {
+				if (queryRes == null || queryRes.size() < 1) {
 					return;
 				}
-				//JOptionPane.showConfirmDialog(null, "match:" + queryRes.toString());
+				// JOptionPane.showConfirmDialog(null, "match:" + queryRes.toString());
 				addRows(tableGrp1, queryRes);
 			}
 		});
@@ -297,7 +315,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 		btnRem1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				removeSelectedRows(tableGrp1);
-				
+
 			}
 		});
 		btnPnl1.add(btnRem1);
@@ -306,15 +324,15 @@ public class DifferentialExpFrame extends JInternalFrame {
 			public void actionPerformed(ActionEvent e) {
 				// search in list by metadatata
 				List<String> queryRes = showSearchMetadataPanel();
-				if(queryRes==null || queryRes.size()<1) {
+				if (queryRes == null || queryRes.size() < 1) {
 					return;
 				}
 				// get intersection
-				List<String> allRows=getAllRows(tableGrp1);
-				List<String> res= (List<String>) CollectionUtils.intersection(queryRes, allRows);
-				//set selected and bring to top
+				List<String> allRows = getAllRows(tableGrp1);
+				List<String> res = (List<String>) CollectionUtils.intersection(queryRes, allRows);
+				// set selected and bring to top
 				setSelectedRows(res, tableGrp1);
-				
+
 			}
 		});
 		btnPnl1.add(btnSearch1);
@@ -372,6 +390,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 					return String.class;
 				}
 			}
+
 			@Override
 			public boolean isCellEditable(int row, int column) {
 				return false;
@@ -394,7 +413,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 		// add data
 		String dcName = mdob.getDataColName();
 		tablemodel.addColumn(dcName);
-		
+
 		if (rows == null) {
 			return;
 		}
@@ -451,7 +470,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 			thisRow = (String) table.getValueAt(selected[i], 0);
 			res.add(thisRow);
 		}
-		//JOptionPane.showMessageDialog(null, "sel:" + res);
+		// JOptionPane.showMessageDialog(null, "sel:" + res);
 
 		if (invert) {
 			List<String> temp = new ArrayList<>();
@@ -470,14 +489,14 @@ public class DifferentialExpFrame extends JInternalFrame {
 
 	private void removeSelectedRows(JTable table) {
 		List<String> toKeep = getSelectedRows(table, true);
-		//JOptionPane.showMessageDialog(null, "tokeep:" + toKeep.toString());
+		// JOptionPane.showMessageDialog(null, "tokeep:" + toKeep.toString());
 		updateTableData(table, toKeep);
 
 	}
 
 	private void addRows(JTable table, List<String> toAdd) {
 		toAdd.addAll(getAllRows(table));
-		//JOptionPane.showMessageDialog(null, "toAdd:" + toAdd.toString());
+		// JOptionPane.showMessageDialog(null, "toAdd:" + toAdd.toString());
 		updateTableData(table, toAdd);
 	}
 
@@ -491,10 +510,9 @@ public class DifferentialExpFrame extends JInternalFrame {
 		}
 		return temp;
 	}
-	
+
 	/**
-	 * @author urmi
-	 * bring the matched items to top and set them as selected
+	 * @author urmi bring the matched items to top and set them as selected
 	 * @param res
 	 * @param tab
 	 */
