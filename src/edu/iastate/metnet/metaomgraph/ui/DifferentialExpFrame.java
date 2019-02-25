@@ -152,6 +152,21 @@ public class DifferentialExpFrame extends JInternalFrame {
 					return;
 				}
 				
+				String selectedFeatureList=comboBox.getSelectedItem().toString();
+				String selectedMethod=comboBox_1.getSelectedItem().toString();
+				//if paired test is selected lists must be equal size
+				if(selectedMethod.equals("Paired t Test")) {
+					if(grp1.size()!=grp2.size()) {
+						JOptionPane.showMessageDialog(null, "The two groups must be equal to perform paired test. Please check the lists.", "Unequal lists", JOptionPane.ERROR);
+						return;
+					}
+				}
+				
+				//warning message is size is less than 30
+				if(grp1.size()<30 || grp2.size()<30) {
+					JOptionPane.showMessageDialog(null, "Smaller group size will have lower statistical power. Group size > 30 is recommended", "Unequal lists", JOptionPane.WARNING_MESSAGE);
+				}
+				
 				//all checks completed
 				
 			}
