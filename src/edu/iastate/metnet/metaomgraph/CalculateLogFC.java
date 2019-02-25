@@ -41,7 +41,8 @@ public class CalculateLogFC {
 	// group indices
 	Collection<Integer> grp1Ind;
 	Collection<Integer> grp2Ind;
-
+	String grp1Name;
+	String grp2Name;
 	public CalculateLogFC(String selectedList, String grpID, MetaOmProject myProject, boolean tflag) {
 		this.selectedList = selectedList;
 		this.grpID = grpID;
@@ -68,7 +69,7 @@ public class CalculateLogFC {
 	 * 
 	 * 
 	 */
-	public CalculateLogFC(String selectedList, List<String> grpI, List<String> grpII, MetaOmProject myProject,
+	public CalculateLogFC(String selectedList, List<String> grpI, List<String> grpII,String name1,String name2, MetaOmProject myProject,
 			int method) {
 		this.selectedList = selectedList;
 		this.myProject = myProject;
@@ -81,8 +82,10 @@ public class CalculateLogFC {
 		// create collection of indices
 		grp1Ind = getIndices(grpI);
 		grp2Ind = getIndices(grpII);
-		JOptionPane.showMessageDialog(null, "g1:" + grpI.toString() + " g1ind:" + grp1Ind.toString());
-		JOptionPane.showMessageDialog(null, "g2:" + grpII.toString() + " g2ind:" + grp2Ind.toString());
+		this.grp1Name=name1;
+		this.grp2Name=name2;
+		//JOptionPane.showMessageDialog(null, "g1:" + grpI.toString() + " g1ind:" + grp1Ind.toString());
+		//JOptionPane.showMessageDialog(null, "g2:" + grpII.toString() + " g2ind:" + grp2Ind.toString());
 
 	}
 
@@ -362,5 +365,17 @@ public class CalculateLogFC {
 	public List<Double> utestPV() {
 		return this.utestPvals;
 	}
+	
+	public String getMethodName() {
+		String[] methods = new String[] { "M-W U test", "Student's t-test", "Welch's t-test", "Paired t-test","Wilcoxon Signed Rank Test"};
+		return methods[testMethod];
+	}
+	
+	public String getGrp1Name() {
+		return grp1Name;
+	}
 
+	public String getGrp2Name() {
+		return grp2Name;
+	}
 }
