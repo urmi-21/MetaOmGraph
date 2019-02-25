@@ -59,10 +59,10 @@ public class CalculateLogFC {
 	 * @param grpII	List of sample names (data columns) in second group
 	 * @param myProject	active project
 	 * @param method	method to use for calculation
-	 * 1: M-W U test
-	 * 2: t test (equal variance)
-	 * 3: Welch t test (unequal variance)
-	 * 4: Paired t-test
+	 * 0: M-W U test
+	 * 1: t test (equal variance)
+	 * 2: Welch t test (unequal variance)
+	 * 3: Paired t-test
 	 * 
 	 * 
 	 */
@@ -71,13 +71,14 @@ public class CalculateLogFC {
 		this.myProject = myProject;
 		excluded = MetaOmAnalyzer.getExclude();
 		this.testMethod=method;
-		if(testMethod<1 || testMethod>4) {
+		if(testMethod<0 || testMethod>3) {
 			JOptionPane.showMessageDialog(null, "Invalid method selected", "Invalid method", JOptionPane.ERROR_MESSAGE);
 		}
 		
 		//create collection of indices
 		grp1Ind=getIndices(grpI);
 		grp2Ind=getIndices(grpII);
+		dotTest = true;
 		
 
 	}
