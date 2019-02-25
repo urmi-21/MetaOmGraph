@@ -15,6 +15,7 @@ import org.apache.commons.math3.distribution.FDistribution;
 import org.apache.commons.math3.stat.descriptive.moment.Variance;
 import org.apache.commons.math3.stat.inference.MannWhitneyUTest;
 import org.apache.commons.math3.stat.inference.TTest;
+import org.apache.commons.math3.stat.inference.WilcoxonSignedRankTest;
 
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
@@ -27,7 +28,6 @@ public class CalculateLogFC {
 	private MetaOmProject myProject;
 	private Map<String, Collection<Integer>> splitIndex;
 	private boolean[] excluded;
-	private boolean dotTest;
 	private int testMethod;
 
 	private List<String> featureNames;
@@ -37,63 +37,65 @@ public class CalculateLogFC {
 	private List<Double> ftestPvals;
 	private List<Double> ftestRatiovals;
 	private List<Double> utestPvals;
-	
-	//group indices
-	Collection<Integer> grp1Ind ;
-	Collection<Integer> grp2Ind ;
+
+	// group indices
+	Collection<Integer> grp1Ind;
+	Collection<Integer> grp2Ind;
 
 	public CalculateLogFC(String selectedList, String grpID, MetaOmProject myProject, boolean tflag) {
 		this.selectedList = selectedList;
 		this.grpID = grpID;
 		this.myProject = myProject;
 		excluded = MetaOmAnalyzer.getExclude();
-		dotTest = tflag;
-		
+		this.testMethod = 0;
 
 	}
-	
+
 	/**
 	 * Class to compute logFC
-	 * @param selectedList Selected list of features to use
-	 * @param grpI	List of sample names (data columns) in first group
-	 * @param grpII	List of sample names (data columns) in second group
-	 * @param myProject	active project
-	 * @param method	method to use for calculation
-	 * 0: M-W U test
-	 * 1: t test (equal variance)
-	 * 2: Welch t test (unequal variance)
-	 * 3: Paired t-test
+	 * 
+	 * @param selectedList
+	 *            Selected list of features to use
+	 * @param grpI
+	 *            List of sample names (data columns) in first group
+	 * @param grpII
+	 *            List of sample names (data columns) in second group
+	 * @param myProject
+	 *            active project
+	 * @param method
+	 *            method to use for calculation 0: M-W U test 1: t test (equal
+	 *            variance) 2: Welch t test (unequal variance) 3: Paired t-test
 	 * 
 	 * 
 	 */
-	public CalculateLogFC(String selectedList, List<String> grpI, List<String> grpII , MetaOmProject myProject, int method) {
+	public CalculateLogFC(String selectedList, List<String> grpI, List<String> grpII, MetaOmProject myProject,
+			int method) {
 		this.selectedList = selectedList;
 		this.myProject = myProject;
 		excluded = MetaOmAnalyzer.getExclude();
-		this.testMethod=method;
-		if(testMethod<0 || testMethod>3) {
+		this.testMethod = method;
+		if (testMethod < 0 || testMethod > 4) {
 			JOptionPane.showMessageDialog(null, "Invalid method selected", "Invalid method", JOptionPane.ERROR_MESSAGE);
 		}
-		
-		//create collection of indices
-		grp1Ind=getIndices(grpI);
-		grp2Ind=getIndices(grpII);
-		dotTest = true;
-		
+
+		// create collection of indices
+		grp1Ind = getIndices(grpI);
+		grp2Ind = getIndices(grpII);
+		JOptionPane.showMessageDialog(null, "g1:" + grpI.toString() + " g1ind:" + grp1Ind.toString());
+		JOptionPane.showMessageDialog(null, "g2:" + grpII.toString() + " g2ind:" + grp2Ind.toString());
 
 	}
-	
-	private Collection<Integer> getIndices(List<String> listDC){
-		 Collection<Integer> res=  new ArrayList<>();
-		 String [] dataColumnheaders=myProject.getDataColumnHeaders();
-		 for(int i=0;i<dataColumnheaders.length;i++) {
-			 if(listDC.contains(dataColumnheaders[i])) {
-				 res.add(i);
-			 }
-		 }
-		 return res;
-	}
 
+	private Collection<Integer> getIndices(List<String> listDC) {
+		Collection<Integer> res = new ArrayList<>();
+		String[] dataColumnheaders = myProject.getDataColumnHeaders();
+		for (int i = 0; i < dataColumnheaders.length; i++) {
+			if (listDC.contains(dataColumnheaders[i])) {
+				res.add(i);
+			}
+		}
+		return res;
+	}
 
 	// return true if grpID splits into two groups
 	public boolean createGroup() {
@@ -172,33 +174,38 @@ public class CalculateLogFC {
 			}
 		}
 
-		grp1Ind=(Collection<Integer>) splitIndex.values().toArray()[0];
-		grp2Ind=(Collection<Integer>) splitIndex.values().toArray()[1];
+		grp1Ind = (Collection<Integer>) splitIndex.values().toArray()[0];
+		grp2Ind = (Collection<Integer>) splitIndex.values().toArray()[1];
+
+		JOptionPane.showMessageDialog(null, "g1ind:" + grp1Ind.toString());
+		JOptionPane.showMessageDialog(null, "g2ind:" + grp2Ind.toString());
 		return true;
 
 	}
 
 	public void doCalc() {
-		
+		// indices of selected feature list
 		int[] selected = myProject.getGeneListRowNumbers(this.selectedList);
+		// array to store fc values
 		double[] fcVals = new double[selected.length];
 		featureNames = new ArrayList<>();
 		mean1 = new ArrayList<>();
 		mean2 = new ArrayList<>();
-		if (dotTest) {
-			ttestPvals = new ArrayList<>();
-			ftestPvals = new ArrayList<>();
-			ftestRatiovals = new ArrayList<>();
-			utestPvals = new ArrayList<>();
-		}
+
+		ttestPvals = new ArrayList<>();
+		ftestPvals = new ArrayList<>();
+		ftestRatiovals = new ArrayList<>();
+		// utestPvals = new ArrayList<>();
+
 		Collection<Integer> g1Ind = grp1Ind;
 		Collection<Integer> g2Ind = grp2Ind;
-		
+
 		double log2b10 = Math.log(2.0D);
+		// apache objects too conduct statistical tests
 		TTest tob = new TTest();
 		Variance vob = new Variance();
-		
 		MannWhitneyUTest uob = new MannWhitneyUTest();
+		WilcoxonSignedRankTest wsrtob = new WilcoxonSignedRankTest();
 
 		// tob.
 
@@ -213,7 +220,9 @@ public class CalculateLogFC {
 					progress.setProgress(r);
 					double[] thisData = null;
 					try {
+						// get untransformed data to calculate logFC
 						thisData = myProject.getAllData(selected[r], true);
+						// JOptionPane.showMessageDialog(null, "this Data:"+Arrays.toString(thisData));
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -227,7 +236,7 @@ public class CalculateLogFC {
 						if (g1Ind.contains(k)) {
 							m1 += (Math.log(thisData[k] + 1) / log2b10);
 
-						} else {
+						} else if (g2Ind.contains(k)) {
 							m2 += (Math.log(thisData[k] + 1) / log2b10);
 						}
 					}
@@ -236,37 +245,47 @@ public class CalculateLogFC {
 					m1 = m1 / g1Ind.size();
 					m2 = m2 / g2Ind.size();
 					fc = m1 - m2;
-					// JOptionPane.showMessageDialog(null, "mean1:" + m1 + " s:" + g1Ind.size());
-					// JOptionPane.showMessageDialog(null, "mean2:" + m2 + " s:" + g2Ind.size());
 					fcVals[r] = fc;
-
 					featureNames.add(myProject.getDefaultRowNames(selected[r]));
+					// add means for the rth feature
 					mean1.add(m1);
 					mean2.add(m2);
 
-					if (dotTest) {
-						try {
-							thisData = myProject.getAllData(selected[r]);
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+					// perform selected tests
+					// step 1 create two arrays containing data from two groups for rth feature
+					try {
+						// get transformed data if any applied
+						thisData = myProject.getAllData(selected[r]);
+						// JOptionPane.showMessageDialog(null, "this Data2:"+Arrays.toString(thisData));
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 
-						double[] s1 = new double[g1Ind.size()];
-						double[] s2 = new double[g2Ind.size()];
-						int s1ind = 0, s2ind = 0;
-						for (int k = 0; k < thisData.length; k++) {
-							if (excluded != null && excluded[k]) {
-								continue;
-							}
-							if (g1Ind.contains(k)) {
-								s1[s1ind++] = thisData[k];
-
-							} else {
-								s2[s2ind++] = thisData[k];
-							}
+					// s1 and s2 stores data for two groups
+					double[] s1 = new double[g1Ind.size()];
+					double[] s2 = new double[g2Ind.size()];
+					int s1ind = 0, s2ind = 0;
+					for (int k = 0; k < thisData.length; k++) {
+						if (excluded != null && excluded[k]) {
+							continue;
 						}
-						// do ftest
+						if (g1Ind.contains(k)) {
+							s1[s1ind++] = thisData[k];
+
+						} else if (g2Ind.contains(k)) {
+							s2[s2ind++] = thisData[k];
+						}
+					}
+
+					// store p vals of all tests in ttestPvals
+					// additionly store pvals of f test in ftestPvals
+					if (testMethod == 0) {
+						// perform MannWhitney U test
+						ttestPvals.add(uob.mannWhitneyUTest(s1, s2));
+					} else if (testMethod == 1 || testMethod == 2) {
+						// perform t test with F test
+						// do f test
 						double vs1 = vob.evaluate(s1);
 						double vs2 = vob.evaluate(s2);
 						FDistribution fob = null;
@@ -278,13 +297,25 @@ public class CalculateLogFC {
 							fRatio = vs2 / vs1;
 							fob = new FDistribution(g2Ind.size() - 1, g1Ind.size() - 1);
 						}
-						
+
 						ftestPvals.add(1 - fob.cumulativeProbability(fRatio));
 						ftestRatiovals.add(fRatio);
-						ttestPvals.add(tob.tTest(s1, s2));
-						//mannwhitney test
-						utestPvals.add(uob.mannWhitneyUTest(s1, s2));
-						
+
+						if (testMethod == 1) {
+							// do t test
+							ttestPvals.add(tob.homoscedasticTTest(s1, s2));
+						} else if (testMethod == 2) {
+							// do welch test
+							ttestPvals.add(tob.tTest(s1, s2));
+						}
+
+					} else if (testMethod == 3) {
+						// perform paired t
+						ttestPvals.add(tob.pairedTTest(s1, s2));
+					} else if (testMethod == 4) {
+						// perform wilcoxonSignedRankTest
+						// NOTE: exact p vals only work for n <30
+						ttestPvals.add(wsrtob.wilcoxonSignedRankTest(s1, s2, true));
 					}
 
 				}
@@ -293,7 +324,7 @@ public class CalculateLogFC {
 
 			public void finished() {
 				if ((!progress.isCanceled()) && (!errored)) {
-					
+
 				}
 				progress.dispose();
 			}
@@ -301,7 +332,7 @@ public class CalculateLogFC {
 		analyzeWorker.start();
 		progress.setVisible(true);
 
-		//return exitStatus;
+		// return exitStatus;
 	}
 
 	public List<String> getFeatureNames() {
@@ -327,7 +358,7 @@ public class CalculateLogFC {
 	public List<Double> ftestRatios() {
 		return this.ftestRatiovals;
 	}
-	
+
 	public List<Double> utestPV() {
 		return this.utestPvals;
 	}
