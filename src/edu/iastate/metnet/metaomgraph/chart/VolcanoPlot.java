@@ -395,7 +395,8 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 
 				String thisFeature = getFeaturename(thisXind);
 
-				return "tooooool:" + String.valueOf(chartX) + "," + String.valueOf(chartY) + thisFeature;
+				//return "tooooool:" + String.valueOf(chartX) + "," + String.valueOf(chartY) + thisFeature;
+				return createTooltipTable(thisFeature,chartX,chartY);
 			}
 
 			// urmi display tooltip away from point
@@ -485,8 +486,8 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		return featureNames.get(indexInPlot);
 	}
 
-	private String createToolTip(String featureName, double x, double y) {
-		DecimalFormat df = new DecimalFormat("####0.00");
+	private String createTooltipTable(String featureName, double x, double y) {
+		DecimalFormat df = new DecimalFormat("####0.0000");
 		String bgColor = "#" + Integer.toHexString(MetaOmGraph.getTableColor1().getRGB()).substring(2);
 		;
 		String bgColorAlt = "#" + Integer.toHexString(MetaOmGraph.getTableColor2().getRGB()).substring(2);
@@ -504,9 +505,15 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 
 		text += "</tr>";
 		
+		text += "<tr bgcolor=" + rowColors[1] + ">";
+		text += "<td><font size=-2>" + Utils.wrapText("Name", 100, "<br>") + "</font></td>";
+		text += "<td><font size=-2>" + Utils.wrapText(featureName, 100, "<br>")
+				+ "</font></td>";
+
+		text += "</tr>";
 		return text;
-		
-		//get gene metadata in String [][] format
+
+		// get gene metadata in String [][] format
 
 	}
 
