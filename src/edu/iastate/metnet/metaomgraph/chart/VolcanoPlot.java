@@ -509,8 +509,7 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		// get gene metadata in String [][] format
 		String[] infoCols=myProject.getInfoColumnNames();
 		Object[] featureRow=myProject.getRowName(myProject.getRowIndexbyName(featureName, true));
-		//JOptionPane.showMessageDialog(null, "ic:"+Arrays.toString(infoCols));
-		//JOptionPane.showMessageDialog(null, "ic:"+Arrays.toString(featureRow));
+		
 		
 		String[][] tableData = new String[infoCols.length][2];
 		for(int i=0;i<infoCols.length;i++) {
