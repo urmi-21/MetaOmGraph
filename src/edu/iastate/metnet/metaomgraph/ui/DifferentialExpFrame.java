@@ -229,6 +229,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 		panel_3.add(topbtnPnl2, BorderLayout.NORTH);
 
 		lblN2 = new JLabel("n=0");
+		lblN2.setFont(new Font("Tahoma", Font.BOLD, 13));
 		topbtnPnl2.add(lblN2);
 
 		// add table2
@@ -293,6 +294,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 		});
 
 		lblN1 = new JLabel("n=0");
+		lblN1.setFont(new Font("Tahoma", Font.BOLD, 13));
 		topbtnPnl1.add(lblN1);
 
 		JLabel lblGroupName = new JLabel("Group name:");
