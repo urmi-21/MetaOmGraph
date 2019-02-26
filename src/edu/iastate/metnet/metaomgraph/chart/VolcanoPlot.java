@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -395,8 +396,9 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 
 				String thisFeature = getFeaturename(thisXind);
 
-				//return "tooooool:" + String.valueOf(chartX) + "," + String.valueOf(chartY) + thisFeature;
-				return createTooltipTable(thisFeature,chartX,chartY);
+				// return "tooooool:" + String.valueOf(chartX) + "," + String.valueOf(chartY) +
+				// thisFeature;
+				return createTooltipTable(thisFeature, chartX, chartY);
 			}
 
 			// urmi display tooltip away from point
@@ -504,16 +506,55 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 				+ "</font></td>";
 
 		text += "</tr>";
-		
-		text += "<tr bgcolor=" + rowColors[1] + ">";
-		text += "<td><font size=-2>" + Utils.wrapText("Name", 100, "<br>") + "</font></td>";
-		text += "<td><font size=-2>" + Utils.wrapText(featureName, 100, "<br>")
-				+ "</font></td>";
-
-		text += "</tr>";
-		return text;
-
 		// get gene metadata in String [][] format
+		String[] infoCols=myProject.getInfoColumnNames();
+		Object[] featureRow=myProject.getRowName(myProject.getRowIndexbyName(featureName, true));
+		//JOptionPane.showMessageDialog(null, "ic:"+Arrays.toString(infoCols));
+		//JOptionPane.showMessageDialog(null, "ic:"+Arrays.toString(featureRow));
+		
+		String[][] tableData = new String[infoCols.length][2];
+		for(int i=0;i<infoCols.length;i++) {
+			tableData[i][0]=infoCols[i];
+			tableData[i][1]=String.valueOf(featureRow[i]);
+		}
+		
+		int maxrowsinMD = 40;
+		int maxStringLen = 500;
+
+		int colorIndex = 0;
+		for (int i = 0; i < tableData.length; i++) {
+			if (i == maxrowsinMD) {
+				text += "<tr bgcolor=" + rowColors[colorIndex] + ">";
+				text += "<td><font size=-2>" + "..." + "</font></td>";
+				text += "<td><font size=-2>" + "..." + "</font></td>";
+				text += "</tr>";
+				break;
+			}
+			String thisAtt = tableData[i][0];
+			String thisData = tableData[i][1];
+			if (thisData.length() > maxStringLen) {
+				thisData = thisData.substring(0, maxStringLen) + "...";
+			}
+
+			text += "<tr bgcolor=" + rowColors[colorIndex] + ">";
+			text += "<td><font size=-2>" + Utils.wrapText(thisAtt.trim(), 100, "<br>") + "</font></td>";
+			text += "<td><font size=-2>" + Utils.wrapText(thisData.trim(), 100, "<br>") + "</font></td>";
+
+			text += "</tr>";
+			colorIndex = (colorIndex + 1) % rowColors.length;
+
+		}
+
+		if (tableData.length == 0 || tableData == null) {
+			text += "<tr bgcolor=" + rowColors[colorIndex] + ">";
+			text += "<td><font size=-2>" + "There is no metadata" + "<br>" + "</font></td>";
+			text += "<td><font size=-2>" + "" + "<br>" + "</font></td>";
+			text += "</tr>";
+		}
+
+		text += "</table> </div> </body></html>";
+
+		return text;
 
 	}
 

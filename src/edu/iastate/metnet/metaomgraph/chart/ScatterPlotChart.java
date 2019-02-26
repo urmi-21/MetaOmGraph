@@ -644,7 +644,6 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 
 		}
 
-		// added by mhhur
 		if (tableData.length == 0 || tableData == null) {
 			text += "<tr bgcolor=" + rowColors[colorIndex] + ">";
 			text += "<td><font size=-2>" + "There is no metadata" + "<br>" + "</font></td>";
