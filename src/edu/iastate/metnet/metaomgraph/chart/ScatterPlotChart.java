@@ -493,7 +493,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 					return null;
 				}
 
-				return createTooltip(correctColIndex, chartX, chartY);
+				return createTooltipTable(correctColIndex, chartX, chartY);
 
 			}
 
@@ -593,8 +593,8 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		return dataset;
 	}
 
-	private String createTooltip(int colIndex, double x, double y) {
-		DecimalFormat df = new DecimalFormat("####0.00");
+	private String createTooltipTable(int colIndex, double x, double y) {
+		DecimalFormat df = new DecimalFormat("####0.0000");
 		String bgColor = "#" + Integer.toHexString(MetaOmGraph.getTableColor1().getRGB()).substring(2);
 		;
 		String bgColorAlt = "#" + Integer.toHexString(MetaOmGraph.getTableColor2().getRGB()).substring(2);
