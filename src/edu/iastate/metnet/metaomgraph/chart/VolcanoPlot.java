@@ -19,12 +19,16 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -79,7 +83,6 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		});
 	}
 
-	
 	private MetaOmProject myProject;
 	private String xAxisname;
 	private ChartPanel chartPanel;
@@ -117,6 +120,7 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 	List<String> featureNames;
 	List<Double> foldChange;
 	List<Double> pVals;
+
 	/**
 	 * Create the frame.
 	 */
@@ -127,9 +131,13 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 	}
 
 	public VolcanoPlot(List<String> featureNames, List<Double> fc, List<Double> pv) {
-		this.featureNames=featureNames;
-		this.foldChange=fc;
-		this.pVals=pv;
+		this.featureNames = featureNames;
+		this.foldChange = fc;
+		this.pVals = pv;
+		// format the data; order data by foldchange values so order in lists and chart
+		// is maintained
+		formatInput();
+
 		myProject = MetaOmGraph.getActiveProject();
 		chartPanel = null;
 		setBounds(100, 100, 450, 300);
@@ -137,7 +145,6 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		JPanel panel = new JPanel();
 		panel.setLayout(new FlowLayout());
 		getContentPane().add(panel, BorderLayout.NORTH);
-		
 
 		JPanel panel_1 = new JPanel();
 		getContentPane().add(panel_1, BorderLayout.SOUTH);
@@ -235,30 +242,30 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		myRenderer = plot.getRenderer();
 
 		// use palette if available
-		/*if (colorArray != null) {
-			plot.setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(colorArray,
-					DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
-					DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
-					DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
-					DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
-					DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE));
-		} else {
-			Paint[] defaultPaint = DefaultDrawingSupplier.DEFAULT_PAINT_SEQUENCE;
-			Color[] defaultColor = Utils.paintArraytoColor(defaultPaint);
-			plot.setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(Utils.filterColors(defaultColor),
-					DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
-					DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
-					DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
-					DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
-					DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE));
-		}*/
+		/*
+		 * if (colorArray != null) { plot.setDrawingSupplier((DrawingSupplier) new
+		 * DefaultDrawingSupplier(colorArray,
+		 * DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
+		 * DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
+		 * DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
+		 * DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
+		 * DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE)); } else { Paint[]
+		 * defaultPaint = DefaultDrawingSupplier.DEFAULT_PAINT_SEQUENCE; Color[]
+		 * defaultColor = Utils.paintArraytoColor(defaultPaint);
+		 * plot.setDrawingSupplier((DrawingSupplier) new
+		 * DefaultDrawingSupplier(Utils.filterColors(defaultColor),
+		 * DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
+		 * DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
+		 * DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
+		 * DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
+		 * DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE)); }
+		 */
 		// Create Panel
 		// use full constructor otherwise tooltips dont work
 		ChartPanel chartPanel = new ChartPanel(myChart, 800, 600, 2, 2, 10000, 10000, true, true, true, true, true,
 				true) {
 			private Dimension oldSize = new Dimension(100, 100);
 
-			
 			public void actionPerformed(ActionEvent e) {
 				if (e.getActionCommand().equals(ChartPanel.SAVE_COMMAND)) {
 					File destination = null;
@@ -367,7 +374,28 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 
 			@Override
 			public String getToolTipText(MouseEvent event) {
-				return "tooooool";
+				XYPlot plot = (XYPlot) myChart.getPlot(); // your plot
+				// double chartX = plot.getDomainAxis().java2DToValue(p.getX(), plotArea,
+				// plot.getDomainAxisEdge());
+				// double chartY = plot.getRangeAxis().java2DToValue(p.getY(), plotArea,
+				// plot.getRangeAxisEdge());
+				ChartEntity entity = getChartRenderingInfo().getEntityCollection().getEntity(event.getPoint().getX(),
+						event.getPoint().getY());
+				// JOptionPane.showMessageDialog(null, entity);
+				if (!(entity instanceof XYItemEntity)) {
+					// JOptionPane.showMessageDialog(null, "null");
+					return null;
+				}
+				XYItemEntity item = (XYItemEntity) entity;
+				int thisXind = item.getItem();
+				// get x and y points
+				XYDataset thisDS = item.getDataset();
+				double chartX = thisDS.getXValue(item.getSeriesIndex(), thisXind);
+				double chartY = thisDS.getYValue(item.getSeriesIndex(), thisXind);
+
+				String thisFeature = getFeaturename(thisXind);
+
+				return "tooooool:" + String.valueOf(chartX) + "," + String.valueOf(chartY) + thisFeature;
 			}
 
 			// urmi display tooltip away from point
@@ -401,23 +429,85 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 
 		chartPanel.addChartMouseListener(this);
 
-
 		return chartPanel;
 	}
-	
+
 	private XYDataset createVolcanoDataset() throws IOException {
-		
+
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		XYSeries series1 = new XYSeries(xAxisname + " vs. ");
-		for(int i=0;i<foldChange.size();i++) {
-			double thisFC=foldChange.get(i);
-			double thisPV=-1*Math.log10(pVals.get(i));
-			JOptionPane.showMessageDialog(null, "x:"+thisFC+" y:"+thisPV);
+		for (int i = 0; i < foldChange.size(); i++) {
+			double thisFC = foldChange.get(i);
+			double thisPV = -1 * Math.log10(pVals.get(i));
 			series1.add(thisFC, thisPV);
 		}
 		dataset.addSeries(series1);
-		
+
 		return dataset;
+	}
+
+	private void formatInput() {
+		// order featureName, pv by logfc values
+		List<Integer> indList = new ArrayList<>();
+		/*
+		 * for (int i = 0; i < featureNames.size(); i++) { indList.add(i); }
+		 */
+
+		// sort logfc and indList together
+		TreeMap<Double, Integer> indMap = new TreeMap<>();
+		for (int i = 0; i < foldChange.size(); i++) {
+			indMap.put(foldChange.get(i), i);
+		}
+
+		// get sorted order of index
+		List<String> tempNames = new ArrayList<>();
+		List<Double> tempfc = new ArrayList<>();
+		List<Double> temppv = new ArrayList<>();
+		Iterator itr = indMap.entrySet().iterator();
+		while (itr.hasNext()) {
+			Map.Entry pairs = (Map.Entry) itr.next();
+			Integer thisInd = (Integer) pairs.getValue();
+			indList.add(thisInd);
+			tempNames.add(featureNames.get(thisInd));
+			tempfc.add(foldChange.get(thisInd));
+			temppv.add(pVals.get(thisInd));
+			itr.remove();
+		}
+		featureNames = tempNames;
+		foldChange = tempfc;
+		pVals = temppv;
+
+	}
+
+	private String getFeaturename(int indexInPlot) {
+		String res = "";
+		// since data is ordered by x-axis just return the ith value
+		return featureNames.get(indexInPlot);
+	}
+
+	private String createToolTip(String featureName, double x, double y) {
+		DecimalFormat df = new DecimalFormat("####0.00");
+		String bgColor = "#" + Integer.toHexString(MetaOmGraph.getTableColor1().getRGB()).substring(2);
+		;
+		String bgColorAlt = "#" + Integer.toHexString(MetaOmGraph.getTableColor2().getRGB()).substring(2);
+		String[] rowColors = { bgColor, bgColorAlt };
+		String text = "<html><head> " + "<style>" + ".scrollit {\n" + "    overflow:scroll;\n" + "    height:100px;\n"
+				+ "}" + "</style></head><body>"
+
+				+ "<div class=\"scrollit\"> <table bgcolor=\"#FFFFFF\" width=\"400\">" + " <tr>\n"
+				+ "            <th>Attribute</th>\n" + "            <th >Value</th>\n" + "        </tr>";
+
+		text += "<tr bgcolor=" + rowColors[1] + ">";
+		text += "<td><font size=-2>" + Utils.wrapText("Point", 100, "<br>") + "</font></td>";
+		text += "<td><font size=-2>" + Utils.wrapText("(" + df.format(x) + "," + df.format(y) + ")", 100, "<br>")
+				+ "</font></td>";
+
+		text += "</tr>";
+		
+		return text;
+		
+		//get gene metadata in String [][] format
+
 	}
 
 	@Override
