@@ -459,13 +459,6 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 	}
 
 	private void formatInput() {
-		
-		/*split data into three categories
-		 * 1: significantly upregulated
-		 * 2: significantly dwnregulated
-		 * 3: unregulated
-		 */
-		
 		// order featureName, pv by logfc values
 		List<Integer> indList = new ArrayList<>();
 		/*
@@ -495,7 +488,38 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		featureNames = tempNames;
 		foldChange = tempfc;
 		pVals = temppv;
-
+		
+		
+	}
+	
+	private void splitData() {
+		
+		/*split data into three categories after performing ordering using formatInput()
+		 * 1: significantly upregulated
+		 * 2: significantly dwnregulated
+		 * 3: unregulated
+		 */
+		upRegData=new VolcanoDataSet(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+		dwnRegData=new VolcanoDataSet(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+		unRegData=new VolcanoDataSet(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+		
+		for(int i=0; i<foldChange.size();i++) {
+			double thisFC=foldChange.get(i);
+			double thisPV=pVals.get(i);
+			String thisName=featureNames.get(i);
+			
+			if(thisFC>=foldChangeCutOffUp && thisPV < significanceCutOff) {
+				//add to upregulated series
+				upRegData.addDataPoint(thisName, thisFC, thisPV);
+			}else if(thisFC<=foldChangeCutOffDwn && thisPV < significanceCutOff) {
+				//add to dwnregulated series
+				dwnRegData.addDataPoint(thisName, thisFC, thisPV);
+			}else {
+				//add to unregulated series
+				unRegData.addDataPoint(thisName, thisFC, thisPV);
+			}
+			
+		}
 	}
 
 	private String getFeaturename(int indexInPlot) {
@@ -602,6 +626,14 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 			this.pVals=pVals;
 			
 		}
+		
+		public void addDataPoint(String name, double fc, double pv) {
+			featureNames.add(name);
+			foldChange.add(fc);
+			pVals.add(pv);
+		}
+		
+		
 		
 	}
 
