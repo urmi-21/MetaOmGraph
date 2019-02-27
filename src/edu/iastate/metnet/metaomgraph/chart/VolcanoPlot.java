@@ -121,15 +121,13 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 	List<String> featureNames;
 	List<Double> foldChange;
 	List<Double> pVals;
-	
-	
-	private double significanceCutOff=0.01;
-	private double foldChangeCutOffUp=1;
-	private double foldChangeCutOffDwn=-1;
+
+	private double significanceCutOff = 0.01;
+	private double foldChangeCutOffUp = 1;
+	private double foldChangeCutOffDwn = -1;
 	private VolcanoDataSet upRegData;
 	private VolcanoDataSet dwnRegData;
 	private VolcanoDataSet unRegData;
-	
 
 	/**
 	 * Create the frame.
@@ -444,7 +442,7 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		return chartPanel;
 	}
 
-	private XYDataset createVolcanoDataset() throws IOException {
+	private XYDataset createVolcanoDataset2() throws IOException {
 
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		XYSeries series1 = new XYSeries(xAxisname + " vs. ");
@@ -456,6 +454,42 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		dataset.addSeries(series1);
 
 		return dataset;
+	}
+
+	private XYDataset createVolcanoDataset() throws IOException {
+
+		// create 3 series for up down and unregulated points
+
+		XYSeriesCollection dataset = new XYSeriesCollection();
+		// add upreg
+		// List<String> thisName=upRegData.getNames();
+		List<Double> thisFC = upRegData.getFC();
+		List<Double> thisPV = upRegData.getPV();
+		XYSeries seriesUp = createSeries(thisFC, thisPV, "Upregulated");
+		dataset.addSeries(seriesUp);
+		// add dwnReg
+		thisFC = dwnRegData.getFC();
+		thisPV = dwnRegData.getPV();
+		XYSeries seriesDwn = createSeries(thisFC, thisPV, "Downregulated");
+		dataset.addSeries(seriesDwn);
+		// add unReg
+		thisFC = unRegData.getFC();
+		thisPV = unRegData.getPV();
+		XYSeries seriesUn = createSeries(thisFC, thisPV, "Unregulated");
+		dataset.addSeries(seriesUn);
+
+		return dataset;
+	}
+
+	private XYSeries createSeries(List<Double> thisFC, List<Double> thisPV, String serName) {
+		XYSeries series = new XYSeries(serName);
+		for (int i = 0; i < thisFC.size(); i++) {
+			double fc = thisFC.get(i);
+			double pv = -1 * Math.log10(thisPV.get(i));
+			series.add(fc, pv);
+		}
+
+		return series;
 	}
 
 	private void formatInput() {
@@ -488,37 +522,36 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		featureNames = tempNames;
 		foldChange = tempfc;
 		pVals = temppv;
-		
-		
+
 	}
-	
+
 	private void splitData() {
-		
-		/*split data into three categories after performing ordering using formatInput()
-		 * 1: significantly upregulated
-		 * 2: significantly dwnregulated
-		 * 3: unregulated
+
+		/*
+		 * split data into three categories after performing ordering using
+		 * formatInput() 1: significantly upregulated 2: significantly dwnregulated 3:
+		 * unregulated
 		 */
-		upRegData=new VolcanoDataSet(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-		dwnRegData=new VolcanoDataSet(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-		unRegData=new VolcanoDataSet(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-		
-		for(int i=0; i<foldChange.size();i++) {
-			double thisFC=foldChange.get(i);
-			double thisPV=pVals.get(i);
-			String thisName=featureNames.get(i);
-			
-			if(thisFC>=foldChangeCutOffUp && thisPV < significanceCutOff) {
-				//add to upregulated series
+		upRegData = new VolcanoDataSet(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+		dwnRegData = new VolcanoDataSet(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+		unRegData = new VolcanoDataSet(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+
+		for (int i = 0; i < foldChange.size(); i++) {
+			double thisFC = foldChange.get(i);
+			double thisPV = pVals.get(i);
+			String thisName = featureNames.get(i);
+
+			if (thisFC >= foldChangeCutOffUp && thisPV < significanceCutOff) {
+				// add to upregulated series
 				upRegData.addDataPoint(thisName, thisFC, thisPV);
-			}else if(thisFC<=foldChangeCutOffDwn && thisPV < significanceCutOff) {
-				//add to dwnregulated series
+			} else if (thisFC <= foldChangeCutOffDwn && thisPV < significanceCutOff) {
+				// add to dwnregulated series
 				dwnRegData.addDataPoint(thisName, thisFC, thisPV);
-			}else {
-				//add to unregulated series
+			} else {
+				// add to unregulated series
 				unRegData.addDataPoint(thisName, thisFC, thisPV);
 			}
-			
+
 		}
 	}
 
@@ -547,16 +580,15 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 
 		text += "</tr>";
 		// get gene metadata in String [][] format
-		String[] infoCols=myProject.getInfoColumnNames();
-		Object[] featureRow=myProject.getRowName(myProject.getRowIndexbyName(featureName, true));
-		
-		
+		String[] infoCols = myProject.getInfoColumnNames();
+		Object[] featureRow = myProject.getRowName(myProject.getRowIndexbyName(featureName, true));
+
 		String[][] tableData = new String[infoCols.length][2];
-		for(int i=0;i<infoCols.length;i++) {
-			tableData[i][0]=infoCols[i];
-			tableData[i][1]=String.valueOf(featureRow[i]);
+		for (int i = 0; i < infoCols.length; i++) {
+			tableData[i][0] = infoCols[i];
+			tableData[i][1] = String.valueOf(featureRow[i]);
 		}
-		
+
 		int maxrowsinMD = 40;
 		int maxStringLen = 500;
 
@@ -614,27 +646,37 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		// TODO Auto-generated method stub
 
 	}
-	
-	class VolcanoDataSet{
-		List<String> featureNames;
-		List<Double> foldChange;
-		List<Double> pVals;
-		
-		public VolcanoDataSet(List<String> featureNames,List<Double> foldChange,List<Double> pVals) {
-			this.featureNames=featureNames;
-			this.foldChange=foldChange;
-			this.pVals=pVals;
-			
+
+	class VolcanoDataSet {
+		private List<String> featureNames;
+		private List<Double> foldChange;
+		private List<Double> pVals;
+
+		public VolcanoDataSet(List<String> featureNames, List<Double> foldChange, List<Double> pVals) {
+			this.featureNames = featureNames;
+			this.foldChange = foldChange;
+			this.pVals = pVals;
+
 		}
-		
+
 		public void addDataPoint(String name, double fc, double pv) {
 			featureNames.add(name);
 			foldChange.add(fc);
 			pVals.add(pv);
 		}
-		
-		
-		
+
+		public List<String> getNames() {
+			return this.featureNames;
+		}
+
+		public List<Double> getFC() {
+			return this.foldChange;
+		}
+
+		public List<Double> getPV() {
+			return this.pVals;
+		}
+
 	}
 
 }
