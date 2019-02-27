@@ -121,6 +121,11 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 	List<String> featureNames;
 	List<Double> foldChange;
 	List<Double> pVals;
+	
+	private double significanceCutOff=0.01;
+	private double foldChangeCutOffUp=1;
+	private double foldChangeCutOffDwn=1;
+	
 
 	/**
 	 * Create the frame.
@@ -450,6 +455,13 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 	}
 
 	private void formatInput() {
+		
+		/*split data into three categories
+		 * 1: significantly upregulated
+		 * 2: significantly dwnregulated
+		 * 3: unregulated
+		 */
+		
 		// order featureName, pv by logfc values
 		List<Integer> indList = new ArrayList<>();
 		/*
