@@ -693,11 +693,6 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 				// get color array
 				colorArray = cb.getColorPalette(numColors);
 				setPalette(Utils.filterColors(colorArray));
-			} else {
-				// reset was pressed and the OK. show default colors
-				colorArray = null;
-				updateChart();
-
 			}
 
 			return;

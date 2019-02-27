@@ -711,9 +711,9 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 				colorArray = cb.getColorPalette(numColors);
 				setPalette(Utils.filterColors(colorArray));
 			} else {
-				// reset was pressed and the OK. show default colors
-				colorArray = null;
-				updateChart();
+				// show default colors
+				//colorArray = null;
+				//updateChart();
 
 			}
 
