@@ -45,6 +45,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.text.DefaultFormatterFactory;
 
 import org.jcolorbrewer.ColorBrewer;
@@ -219,7 +220,7 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		defaultZoom.addActionListener(this);
 
 		splitDataset = new JButton(theme.getSort());
-		splitDataset.setToolTipText("Split by categories");
+		splitDataset.setToolTipText("Select cutoffs");
 		splitDataset.setActionCommand("splitDataset");
 		splitDataset.addActionListener(this);
 
@@ -703,6 +704,42 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		}
 
 		if ("splitDataset".equals(e.getActionCommand())) {
+			
+			//display panel to choose cutoff
+			JPanel optPanel=new JPanel(new GridLayout(3, 2));
+			JLabel labUpreg=new JLabel("Upregulated cutoff");
+			JLabel labDwnreg=new JLabel("Downregulated cutoff");
+			JLabel labpv=new JLabel("P-value cutoff");
+			JTextField upCutoff=new JTextField(String.valueOf(foldChangeCutOffUp));
+			JTextField dwnCutoff=new JTextField(String.valueOf(foldChangeCutOffDwn));
+			JTextField pvCutoff=new JTextField(String.valueOf(significanceCutOff));
+			
+			optPanel.add(labUpreg);
+			optPanel.add(upCutoff);
+			optPanel.add(labDwnreg);
+			optPanel.add(dwnCutoff);
+			optPanel.add(labpv);
+			optPanel.add(pvCutoff);
+			int res = JOptionPane.showConfirmDialog(null, optPanel, "Input values", JOptionPane.OK_CANCEL_OPTION);
+			if (res == JOptionPane.OK_OPTION) {
+				//validate input
+				try {
+					
+					double upCutOffVal=Double.parseDouble(upCutoff.getText().trim());
+					double dwnCutOffVal=Double.parseDouble(dwnCutoff.getText().trim());
+					double pvCutOffVal=Double.parseDouble(pvCutoff.getText().trim());
+					
+					foldChangeCutOffUp=upCutOffVal;
+					foldChangeCutOffDwn=dwnCutOffVal;
+					significanceCutOff=pvCutOffVal;
+					
+				}catch(NumberFormatException nfe) {
+					JOptionPane.showMessageDialog(null, "Invalid values. Please check input","Invalid input",JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+					
+			}		
+			
 			return;
 		}
 
