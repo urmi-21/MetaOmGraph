@@ -10,6 +10,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Shape;
@@ -17,6 +18,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -34,6 +36,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JColorChooser;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JInternalFrame;
@@ -43,12 +47,16 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.text.DefaultFormatterFactory;
 
+import org.jcolorbrewer.ColorBrewer;
+import org.jcolorbrewer.ui.ColorPaletteChooserDialog;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.entity.ChartEntity;
+import org.jfree.chart.entity.LegendItemEntity;
 import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.plot.DefaultDrawingSupplier;
 import org.jfree.chart.plot.DrawingSupplier;
@@ -59,11 +67,14 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.util.ShapeUtilities;
 
+import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.ComponentToImage;
 import edu.iastate.metnet.metaomgraph.GraphFileFilter;
 import edu.iastate.metnet.metaomgraph.IconTheme;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
+import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
+import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, ActionListener {
@@ -145,6 +156,7 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		// format the data; order data by foldchange values so order in lists and chart
 		// is maintained
 		formatInput();
+		splitData();
 
 		myProject = MetaOmGraph.getActiveProject();
 		chartPanel = null;
@@ -442,7 +454,7 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		return chartPanel;
 	}
 
-	private XYDataset createVolcanoDataset2() throws IOException {
+	private XYDataset createVolcanoDatasetOld() throws IOException {
 
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		XYSeries series1 = new XYSeries(xAxisname + " vs. ");
@@ -485,7 +497,7 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		XYSeries series = new XYSeries(serName);
 		for (int i = 0; i < thisFC.size(); i++) {
 			double fc = thisFC.get(i);
-			double pv = -1 * Math.log10(thisPV.get(i));
+			double pv = -1 * Math.log10(thisPV.get(i)+1e-300);
 			series.add(fc, pv);
 		}
 
@@ -630,20 +642,176 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent arg0) {
+	public void actionPerformed(ActionEvent e) {
+
 		// TODO Auto-generated method stub
+
+		if (ZOOM_IN_COMMAND.equals(e.getActionCommand())) {
+			Point2D center = getCenterPoint();
+			chartPanel.zoomInBoth(center.getX(), center.getY());
+			return;
+		}
+		if (ZOOM_OUT_COMMAND.equals(e.getActionCommand())) {
+			Point2D center = getCenterPoint();
+			chartPanel.zoomOutBoth(center.getX(), center.getY());
+			return;
+		}
+		if (ZOOM_DEFAULT_COMMAND.equals(e.getActionCommand())) {
+			chartPanel.restoreAutoBounds();
+			return;
+		}
+
+		if ("chooseX".equals(e.getActionCommand())) {
+			return;
+		}
+
+		if ("changePalette".equals(e.getActionCommand())) {
+			ColorPaletteChooserDialog dialog = new ColorPaletteChooserDialog();
+			ColorBrewer cb = null;
+			dialog.setModal(true);
+			dialog.show();
+			if (dialog.wasOKPressed()) {
+				cb = dialog.getColorPalette();
+			}
+
+			if (cb != null) {
+				int numColors = myChart.getXYPlot().getSeriesCount();
+				numColors = Math.min(numColors, 10);
+				// get color array
+				colorArray = cb.getColorPalette(numColors);
+				setPalette(Utils.filterColors(colorArray));
+			} else {
+				// reset was pressed and the OK. show default colors
+				colorArray = null;
+				updateChart();
+
+			}
+
+			return;
+		}
+
+		if ("splitDataset".equals(e.getActionCommand())) {
+			return;
+		}
+
+	
 
 	}
 
 	@Override
 	public void chartMouseClicked(ChartMouseEvent event) {
-		// TODO Auto-generated method stub
+		// JOptionPane.showMessageDialog(null, "CLICKED");
+		// If the user has double-clicked the legend or a point on the chart,
+		// change the color of the double-clicked series.
+		if (event.getTrigger().getClickCount() == 2) {
+			if (event.getEntity() instanceof LegendItemEntity) {
+				Comparable seriesKey = ((LegendItemEntity) event.getEntity()).getSeriesKey();
+				int index = myChart.getXYPlot().getDataset().indexOf(seriesKey);
+				// JOptionPane.showMessageDialog(null, "CLICKED");
+				changeSeriesColor(index);
+				return;
+			} else if (event.getEntity() instanceof XYItemEntity) {
+				changeSeriesColor(((XYItemEntity) event.getEntity()).getSeriesIndex());
+				// JOptionPane.showMessageDialog(null, "CLICKED2");
+				return;
+			}
+		}
 
 	}
 
 	@Override
-	public void chartMouseMoved(ChartMouseEvent event) {
+	public void chartMouseMoved(ChartMouseEvent arg0) {
 		// TODO Auto-generated method stub
+		// JOptionPane.showMessageDialog(null, "CLICKED2");
+
+	}
+	
+	private Point2D getCenterPoint() {
+		JFreeChart myChart = this.myChart;
+		ValueAxis domain = myChart.getXYPlot().getDomainAxis();
+		ValueAxis range = myChart.getXYPlot().getRangeAxis();
+
+		double minx = domain.getLowerBound();
+		final double maxx = domain.getUpperBound();
+		final double miny = range.getLowerBound();
+		final double maxy = range.getUpperBound();
+		Point2D result = new Point2D() {
+			public double getX() {
+				return (maxx - maxy) / 2.0D;
+			}
+
+			public double getY() {
+				return (maxy - miny) / 2;
+			}
+
+			public void setLocation(double x, double y) {
+			}
+		};
+		return result;
+	}
+
+	/**
+	 * Changes the colour of the Selected series
+	 * 
+	 * @param series
+	 *            Selected series
+	 */
+	public void changeSeriesColor(int series) {
+		Color oldColor = (Color) myRenderer.getSeriesPaint(series);
+		Color newColor = JColorChooser.showDialog(MetaOmGraph.getMainWindow(),
+				myChart.getXYPlot().getDataset().getSeriesKey(series) + " color", oldColor);
+		if (newColor != null) {
+			myRenderer.setSeriesPaint(series, newColor);
+		}
+	}
+
+	public void changeSeriesColor(int series, Color newColor) {
+		if (newColor != null) {
+			myRenderer.setSeriesPaint(series, newColor);
+		}
+	}
+	
+	/**
+	 * call this after changing chart values
+	 */
+	private void updateChart() {
+		// remove previous action listeners
+		properties.removeActionListener(chartPanel);
+		print.removeActionListener(chartPanel);
+		save.removeActionListener(chartPanel);
+		this.chartPanel = null;
+		try {
+			this.chartPanel = makeVolcanoPlot();
+			scrollPane.setViewportView(chartPanel);
+			properties.addActionListener(chartPanel);
+			print.addActionListener(chartPanel);
+			save.addActionListener(chartPanel);
+
+			this.repaint();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			JOptionPane.showMessageDialog(null, "ERRRRR");
+		}
+
+		return;
+	}
+	
+	private void setPalette(Color[] colors) {
+		if (colors == null) {
+			return;
+		}
+		// JOptionPane.showMessageDialog(null, "cols:"+Arrays.toString(colors));
+		XYPlot plot = (XYPlot) myChart.getPlot();
+
+		int seriesCount = plot.getSeriesCount();
+		for (int i = 0; i < seriesCount; i++) {
+			// call change series color
+			changeSeriesColor(i, colors[i % colors.length]);
+
+		}
+
+		// updateChart();
 
 	}
 
