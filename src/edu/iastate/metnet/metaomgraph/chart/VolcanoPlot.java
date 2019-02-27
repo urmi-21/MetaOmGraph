@@ -122,9 +122,13 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 	List<Double> foldChange;
 	List<Double> pVals;
 	
+	
 	private double significanceCutOff=0.01;
 	private double foldChangeCutOffUp=1;
-	private double foldChangeCutOffDwn=1;
+	private double foldChangeCutOffDwn=-1;
+	private VolcanoDataSet upRegData;
+	private VolcanoDataSet dwnRegData;
+	private VolcanoDataSet unRegData;
 	
 
 	/**
@@ -585,6 +589,20 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 	public void chartMouseMoved(ChartMouseEvent event) {
 		// TODO Auto-generated method stub
 
+	}
+	
+	class VolcanoDataSet{
+		List<String> featureNames;
+		List<Double> foldChange;
+		List<Double> pVals;
+		
+		public VolcanoDataSet(List<String> featureNames,List<Double> foldChange,List<Double> pVals) {
+			this.featureNames=featureNames;
+			this.foldChange=foldChange;
+			this.pVals=pVals;
+			
+		}
+		
 	}
 
 }
