@@ -157,6 +157,12 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		// is maintained
 		formatInput();
 		splitData();
+		
+		//initialize color array
+		colorArray=new Color[] {new  Color(228, 26, 28, 180),new  Color(55, 126, 184, 180), new  Color(153, 153, 153, 121)};
+		
+		
+		
 
 		myProject = MetaOmGraph.getActiveProject();
 		chartPanel = null;
@@ -262,24 +268,25 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		myRenderer = plot.getRenderer();
 
 		// use palette if available
-		/*
-		 * if (colorArray != null) { plot.setDrawingSupplier((DrawingSupplier) new
-		 * DefaultDrawingSupplier(colorArray,
-		 * DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
-		 * DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
-		 * DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
-		 * DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
-		 * DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE)); } else { Paint[]
-		 * defaultPaint = DefaultDrawingSupplier.DEFAULT_PAINT_SEQUENCE; Color[]
-		 * defaultColor = Utils.paintArraytoColor(defaultPaint);
-		 * plot.setDrawingSupplier((DrawingSupplier) new
-		 * DefaultDrawingSupplier(Utils.filterColors(defaultColor),
-		 * DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
-		 * DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
-		 * DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
-		 * DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
-		 * DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE)); }
-		 */
+
+		if (colorArray != null) {
+			plot.setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(colorArray,
+					DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
+					DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
+					DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
+					DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
+					DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE));
+		} else {
+			Paint[] defaultPaint = DefaultDrawingSupplier.DEFAULT_PAINT_SEQUENCE;
+			Color[] defaultColor = Utils.paintArraytoColor(defaultPaint);
+			plot.setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(Utils.filterColors(defaultColor),
+					DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
+					DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
+					DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
+					DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
+					DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE));
+		}
+
 		// Create Panel
 		// use full constructor otherwise tooltips dont work
 		ChartPanel chartPanel = new ChartPanel(myChart, 800, 600, 2, 2, 10000, 10000, true, true, true, true, true,
@@ -412,11 +419,8 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 				XYDataset thisDS = item.getDataset();
 				double chartX = thisDS.getXValue(item.getSeriesIndex(), thisXind);
 				double chartY = thisDS.getYValue(item.getSeriesIndex(), thisXind);
-
-				String thisFeature = getFeaturename(thisXind);
-
-				// return "tooooool:" + String.valueOf(chartX) + "," + String.valueOf(chartY) +
-				// thisFeature;
+				// JOptionPane.showMessageDialog(null, "TS:"+item.getSeriesIndex());
+				String thisFeature = getFeaturename(thisXind, item.getSeriesIndex());
 				return createTooltipTable(thisFeature, chartX, chartY);
 			}
 
@@ -497,7 +501,7 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		XYSeries series = new XYSeries(serName);
 		for (int i = 0; i < thisFC.size(); i++) {
 			double fc = thisFC.get(i);
-			double pv = -1 * Math.log10(thisPV.get(i)+1e-300);
+			double pv = -1 * Math.log10(thisPV.get(i) + 1e-300);
 			series.add(fc, pv);
 		}
 
@@ -567,10 +571,18 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		}
 	}
 
-	private String getFeaturename(int indexInPlot) {
+	private String getFeaturename(int indexInPlot, int series) {
+		// series 0 Upreg, 1 Dwnreg, 2 Unreg
 		String res = "";
 		// since data is ordered by x-axis just return the ith value
-		return featureNames.get(indexInPlot);
+		if (series == 0) {
+			return upRegData.getNames().get(indexInPlot);
+		} else if (series == 1) {
+			return dwnRegData.getNames().get(indexInPlot);
+		} else {
+			return unRegData.getNames().get(indexInPlot);
+		}
+
 	}
 
 	private String createTooltipTable(String featureName, double x, double y) {
@@ -694,8 +706,6 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 			return;
 		}
 
-	
-
 	}
 
 	@Override
@@ -725,7 +735,7 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		// JOptionPane.showMessageDialog(null, "CLICKED2");
 
 	}
-	
+
 	private Point2D getCenterPoint() {
 		JFreeChart myChart = this.myChart;
 		ValueAxis domain = myChart.getXYPlot().getDomainAxis();
@@ -770,7 +780,7 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 			myRenderer.setSeriesPaint(series, newColor);
 		}
 	}
-	
+
 	/**
 	 * call this after changing chart values
 	 */
@@ -796,7 +806,7 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 
 		return;
 	}
-	
+
 	private void setPalette(Color[] colors) {
 		if (colors == null) {
 			return;
