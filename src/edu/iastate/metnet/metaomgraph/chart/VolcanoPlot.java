@@ -733,12 +733,15 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 					foldChangeCutOffDwn=dwnCutOffVal;
 					significanceCutOff=pvCutOffVal;
 					
+					updateChart();
+					
 				}catch(NumberFormatException nfe) {
 					JOptionPane.showMessageDialog(null, "Invalid values. Please check input","Invalid input",JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 					
 			}		
+			
 			
 			return;
 		}
@@ -828,6 +831,7 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		save.removeActionListener(chartPanel);
 		this.chartPanel = null;
 		try {
+			splitData();
 			this.chartPanel = makeVolcanoPlot();
 			scrollPane.setViewportView(chartPanel);
 			properties.addActionListener(chartPanel);
