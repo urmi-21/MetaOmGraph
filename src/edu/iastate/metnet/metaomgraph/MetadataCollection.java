@@ -898,7 +898,12 @@ public class MetadataCollection {
 		dataColValue = "^" + dataColValue + "$";
 		Filter filter = Filters.regex(getDatacol(), dataColValue);
 		List<Document> output = mogCollection.find(filter).toList();
+		if(output.size()>0) {
 		return output.get(0);
+		}
+		else {
+			return null;
+		}
 	}
 
 	/**
