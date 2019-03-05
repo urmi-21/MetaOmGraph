@@ -2968,6 +2968,12 @@ public class MetaOmGraph implements ActionListener {
 		
 		if (GENECARDS_COMMAND.equals(e.getActionCommand())) {
 			//open genecards
+			try {
+				getActiveTable().launchGeneCards();
+			} catch (URISyntaxException | IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
 		if (ENSEMBL_COMMAND.equals(e.getActionCommand()) || ENSEMBL_PLANTSCOMMAND.equals(e.getActionCommand())) {
 			try {
