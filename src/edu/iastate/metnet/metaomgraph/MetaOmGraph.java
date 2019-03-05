@@ -546,6 +546,7 @@ public class MetaOmGraph implements ActionListener {
 	private static JMenuItem thaleMineItem;
 	private static JMenuItem jBrowseItem;
 	public static final String ATGENESEARCH_COMMAND = "atgenesearch";
+	public static final String GENECARDS_COMMAND = "genecardssearch";
 	public static final String ENSEMBL_COMMAND = "ensemblsearch";
 	public static final String ENSEMBL_PLANTSCOMMAND = "ensemblplantsearch";
 	public static final String REFSEQ_COMMAND = "refseqsearch";
@@ -1126,35 +1127,35 @@ public class MetaOmGraph implements ActionListener {
 		// urmi add tools in menu
 		toolsMenu = new JMenu("Tools");
 		// adddd to tools menu
-		geneCardsItem = new JMenuItem("Ensembl");
-		geneCardsItem.setActionCommand(ENSEMBL_COMMAND);
+		geneCardsItem = new JMenuItem("GeneCards");
+		geneCardsItem.setActionCommand(GENECARDS_COMMAND);
 		geneCardsItem.addActionListener(myself);
-		geneCardsItem.setToolTipText("Connect to Ensembl for information on selected genes");
+		geneCardsItem.setToolTipText("Visit GeneCards for information on selected genes");
 
 		
 		ensemblItem = new JMenuItem("Ensembl");
 		ensemblItem.setActionCommand(ENSEMBL_COMMAND);
 		ensemblItem.addActionListener(myself);
-		ensemblItem.setToolTipText("Connect to Ensembl for information on selected genes");
+		ensemblItem.setToolTipText("Visit Ensembl for information on selected genes");
 
 		ensemblPItem = new JMenuItem("EnsemblPlants");
 		ensemblPItem.setActionCommand(ENSEMBL_PLANTSCOMMAND);
 		ensemblPItem.addActionListener(myself);
-		ensemblPItem.setToolTipText("Connect to EnsemblPlants for information on selected genes");
+		ensemblPItem.setToolTipText("Visit EnsemblPlants for information on selected genes");
 
 		refseqItem = new JMenuItem("RefSeq");
 		refseqItem.setActionCommand(REFSEQ_COMMAND);
 		refseqItem.addActionListener(myself);
-		refseqItem.setToolTipText("Connect to RefSeq for information on selected genes");
+		refseqItem.setToolTipText("Visit RefSeq for information on selected genes");
 
 		atgsItem = new JMenuItem("AtGeneSearch");
 		atgsItem.setActionCommand(ATGENESEARCH_COMMAND);
 		atgsItem.addActionListener(myself);
-		atgsItem.setToolTipText("Connect to AtGeneSearch for information on selected genes");
+		atgsItem.setToolTipText("Visit AtGeneSearch for information on selected genes");
 		tairItem = new JMenuItem("TAIR");
 		tairItem.setActionCommand(TAIR_COMMAND);
 		tairItem.addActionListener(myself);
-		tairItem.setToolTipText("Connect to TAIR for information on the first selected gene");
+		tairItem.setToolTipText("Visit for information on the first selected gene");
 
 		thaleMineItem = new JMenuItem("Araport-ThaleMine");
 		thaleMineItem.setActionCommand(ARAPORT_THALEMINE_COMMAND);
@@ -1164,10 +1165,11 @@ public class MetaOmGraph implements ActionListener {
 		jBrowseItem = new JMenuItem("Araport-JBrowse");
 		jBrowseItem.setActionCommand(ARAPORT_JBROWSE_COMMAND);
 		jBrowseItem.addActionListener(myself);
-		jBrowseItem.setToolTipText("Connect to Araport-JBrowse for information on the first selected gene");
+		jBrowseItem.setToolTipText("Visit Araport-JBrowse for information on the first selected gene");
 
 		infoButtonMenu = new JMenu("External web applications");
-		infoButtonMenu.setToolTipText("Connect to an external website for more info on the selected genes");
+		infoButtonMenu.setToolTipText("Visit an external website for more info on the selected genes");
+		infoButtonMenu.add(geneCardsItem);
 		infoButtonMenu.add(ensemblItem);
 		infoButtonMenu.add(ensemblPItem);
 		infoButtonMenu.add(refseqItem);
@@ -2963,7 +2965,10 @@ public class MetaOmGraph implements ActionListener {
 			ListMergePanel.showMergeDialog(getActiveProject());
 			return;
 		}
-
+		
+		if (GENECARDS_COMMAND.equals(e.getActionCommand())) {
+			//open genecards
+		}
 		if (ENSEMBL_COMMAND.equals(e.getActionCommand()) || ENSEMBL_PLANTSCOMMAND.equals(e.getActionCommand())) {
 			try {
 				if (ENSEMBL_PLANTSCOMMAND.equals(e.getActionCommand())) {
