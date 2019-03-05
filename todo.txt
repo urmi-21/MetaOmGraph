@@ -136,7 +136,7 @@ list merge handle case sensitive names e.g. C15ORF37
 fix cancelling logfc
 kruskalWalis test
 sort boxplots by mean median..
-add gene cards to external search
+$add gene cards to external search
 add pval correction methods
 color volcanoplot
 remove special chars from data columns	
