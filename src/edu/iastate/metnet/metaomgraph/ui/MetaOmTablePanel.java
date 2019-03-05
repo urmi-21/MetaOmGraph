@@ -827,6 +827,34 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 
 	}
+	
+	public void launchGeneCards() throws URISyntaxException, IOException {
+		int[] selected = listDisplay.getSelectedRows();
+		if (selected.length >= 10) {
+			int dialogButton = JOptionPane.YES_NO_OPTION;
+			int dialogResult = JOptionPane.showConfirmDialog(null,
+					"This will open " + selected.length + " web pages. Do you want to continue?", "Continue?",
+					dialogButton);
+			if (dialogResult == JOptionPane.NO_OPTION) {
+				return;
+			}
+		}
+		URI ns = null;
+		for (int i = 0; i < selected.length; i++) {
+			String selectedID = listDisplay.getValueAt(selected[i], myProject.getDefaultColumn()) + "";
+			if (selectedID.contains(".")) {
+				// JOptionPane.showMessageDialog(null, "thisID:"+selectedID);
+				selectedID = selectedID.split("\\.")[0];
+			}
+			// JOptionPane.showMessageDialog(null, "thisID:"+selectedID);
+			// check if this id is transcript or gene
+			ns = new URI(
+					"https://www.genecards.org/Search/Keyword?queryString=" + selectedID );
+			java.awt.Desktop.getDesktop().browse(ns);
+
+		}
+
+	}
 
 	public void launchAtGeneSearch() {
 
