@@ -537,6 +537,7 @@ public class MetaOmGraph implements ActionListener {
 	// tools menu urmi
 	private static JMenu toolsMenu;
 	private static JMenu infoButtonMenu;
+	private static JMenuItem geneCardsItem;
 	private static JMenuItem ensemblItem;
 	private static JMenuItem ensemblPItem;
 	private static JMenuItem refseqItem;
@@ -1125,7 +1126,12 @@ public class MetaOmGraph implements ActionListener {
 		// urmi add tools in menu
 		toolsMenu = new JMenu("Tools");
 		// adddd to tools menu
+		geneCardsItem = new JMenuItem("Ensembl");
+		geneCardsItem.setActionCommand(ENSEMBL_COMMAND);
+		geneCardsItem.addActionListener(myself);
+		geneCardsItem.setToolTipText("Connect to Ensembl for information on selected genes");
 
+		
 		ensemblItem = new JMenuItem("Ensembl");
 		ensemblItem.setActionCommand(ENSEMBL_COMMAND);
 		ensemblItem.addActionListener(myself);
@@ -3029,33 +3035,7 @@ public class MetaOmGraph implements ActionListener {
 			MetaOmGraph.getDesktop().add(lframe);
 			lframe.setVisible(true);
 
-			/*logFCPanel panel = new logFCPanel();
-			int res = JOptionPane.showConfirmDialog(null, panel, "Select categories", JOptionPane.OK_CANCEL_OPTION);
-			if (res == JOptionPane.OK_OPTION) {
-				String selectedList = panel.getselectedGeneList();
-				String grpID = panel.getselectedGrpID();
-				boolean tTestFlag = panel.getTTest();
-				CalculateLogFC ob = new CalculateLogFC(selectedList, grpID, getActiveProject(), tTestFlag);
-
-				if (!ob.createGroup()) {
-					return;
-				} else {
-
-					ob.doCalc();
-					// display result
-					logFCResultsFrame frame = null;
-					frame = new logFCResultsFrame(ob, getActiveProject());
-					frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2,
-							MetaOmGraph.getMainWindow().getHeight() / 2);
-					frame.setTitle("Fold change results");
-					MetaOmGraph.getDesktop().add(frame);
-					frame.setVisible(true);
-
-				}
-
-			} else {
-				return;
-			}*/
+			
 
 			return;
 		}
