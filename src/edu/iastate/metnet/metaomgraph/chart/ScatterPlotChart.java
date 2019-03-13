@@ -23,6 +23,7 @@ import java.awt.event.MouseEvent;
 import java.awt.font.FontRenderContext;
 import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyVetoException;
@@ -280,17 +281,16 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		myChart = ChartFactory.createScatterPlot("", rowNames[pivotIndex], "", dataset);
 
 		// Changes background color
-		
 		XYPlot plot = (XYPlot) myChart.getPlot();
 		plot.setBackgroundPaint(plotbg);
 		myChart.setBackgroundPaint(chartbg);
 		// plot.setpaint
 		// XYItemRenderer renderer = plot.getRenderer();
 		myRenderer = plot.getRenderer();
-		double size = 120.0;
-	    double delta = size / 2.0;
-	    Shape shape1 = new Rectangle2D.Double(-delta, -delta, size, size);
-		myRenderer.setDefaultShape(shape1);
+		//double size = 120.0;
+	    //double delta = size / 2.0;
+	    //Shape shape1 = new Rectangle2D.Double(-delta, -delta, size, size);
+		//myRenderer.setsha DefaultShape(shape1);
 
 		// use palette if available
 		if (colorArray != null) {
@@ -446,7 +446,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 					return null;
 				}
 
-				XYPlot plot = (XYPlot) myChart.getPlot(); // your plot
+				//XYPlot plot = (XYPlot) myChart.getPlot(); // your plot
 				// double chartX = plot.getDomainAxis().java2DToValue(p.getX(), plotArea,
 				// plot.getDomainAxisEdge());
 				// double chartY = plot.getRangeAxis().java2DToValue(p.getY(), plotArea,
@@ -527,6 +527,8 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 				}
 				return new Point(x + xMargin, newy);
 			}
+			
+			
 
 		};
 
@@ -964,6 +966,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 				myChart.getXYPlot().getDataset().getSeriesKey(series) + " color", oldColor);
 		if (newColor != null) {
 			myRenderer.setSeriesPaint(series, newColor);
+			
 		}
 	}
 
