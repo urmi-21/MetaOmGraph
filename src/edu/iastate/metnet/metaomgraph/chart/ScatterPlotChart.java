@@ -280,13 +280,17 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		myChart = ChartFactory.createScatterPlot("", rowNames[pivotIndex], "", dataset);
 
 		// Changes background color
-		Shape shape = ShapeUtilities.createRegularCross(2, 1);
+		
 		XYPlot plot = (XYPlot) myChart.getPlot();
 		plot.setBackgroundPaint(plotbg);
 		myChart.setBackgroundPaint(chartbg);
 		// plot.setpaint
 		// XYItemRenderer renderer = plot.getRenderer();
 		myRenderer = plot.getRenderer();
+		double size = 120.0;
+	    double delta = size / 2.0;
+	    Shape shape1 = new Rectangle2D.Double(-delta, -delta, size, size);
+		myRenderer.setDefaultShape(shape1);
 
 		// use palette if available
 		if (colorArray != null) {
@@ -747,6 +751,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 
 			if (col_val.equals("Reset")) {
 				splitCol = null;
+				splitIndex=null;
 				try {
 					createDataset();
 				} catch (IOException e1) {
