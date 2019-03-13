@@ -112,11 +112,11 @@ add separate correlation pane?
 DTP bring to top
 combine metadata terms to group expression e.g. tumor+tissue will give liver,normal; liver,tumor; stomach,normal;stomach,tumor etc.
 add threshold to all pairwise computation
-plot selected series/features in box plot
+$plot selected series/features in box plot
 venn diagrams fo correlated genes?
 Have chart its own excluded data values; Add refresh options to chart sync with current workspace; Allow to filter in current chart only. 
 Allow to hide show series; arrange histogram. make more interactive
-does cluster function exclude columns ???
+$does cluster function exclude columns ???
 create a common class to handle plot functions from different tables
 add data size to plot legends
 $improve import list
