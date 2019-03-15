@@ -140,3 +140,4 @@ $add gene cards to external search
 add pval correction methods
 $color volcanoplot
 remove special chars from data columns	
+add spearman corr for samps
