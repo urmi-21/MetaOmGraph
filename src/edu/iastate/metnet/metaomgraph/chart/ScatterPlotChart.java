@@ -1001,5 +1001,11 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 
 		return;
 	}
+	
+	private Shape[] getShapeSequence() {
+		
+		
+		return null;
+	}
 
 }
