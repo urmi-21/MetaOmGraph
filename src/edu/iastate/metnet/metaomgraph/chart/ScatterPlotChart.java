@@ -54,6 +54,8 @@ import java.awt.Color;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -105,6 +107,8 @@ import edu.iastate.metnet.metaomgraph.ui.StripedTable;
 import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
 
 public class ScatterPlotChart extends JInternalFrame implements ChartMouseListener, ActionListener {
 
@@ -118,8 +122,8 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 	private ChartPanel chartPanel;
 	private JFreeChart myChart;
 	private XYDataset dataset;
-	
-	private double pointSize=6.0;
+
+	private double pointSize = 7.0;
 	// private XYLineAndShapeRenderer myRenderer;
 	private XYItemRenderer myRenderer;
 	JScrollPane scrollPane;
@@ -152,6 +156,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 	String splitCol;
 	Map<String, Collection<Integer>> splitIndex;
 	HashMap<String, String> seriesNameToKeyMap;
+	private JSpinner spinner;
 
 	/**
 	 * Launch the application.
@@ -259,6 +264,23 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		panel.add(splitDataset);
 		panel.add(changePalette);
 
+		spinner = new JSpinner();
+		spinner.setToolTipText("Changes plot point size");
+		spinner.setModel(new SpinnerNumberModel(pointSize, 4.0, 20.0, 1.0));
+		//set uneditable
+		((JSpinner.DefaultEditor) spinner.getEditor()).getTextField().setEditable(false);
+		panel.add(spinner);
+		// add change listener
+		ChangeListener listener = new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				pointSize=(double) spinner.getValue();
+				updateChart();
+			}
+		};
+
+		spinner.addChangeListener(listener);
+		/////////////////
+
 		// frame properties
 		this.setClosable(true);
 		// pack();
@@ -301,7 +323,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 					DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
-					DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,getShapesSequence(pointSize) 
+					DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE, getShapesSequence(pointSize)
 
 			));
 			// DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE
@@ -313,7 +335,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 					DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
-					DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE, getShapesSequence(pointSize) ));
+					DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE, getShapesSequence(pointSize)));
 		}
 		// Create Panel
 		// use full constructor otherwise tooltips dont work
@@ -1003,8 +1025,6 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		return;
 	}
 
-	
-	
 	private int[] intArray(double a, double b, double c) {
 		return new int[] { (int) a, (int) b, (int) c };
 	}
@@ -1014,7 +1034,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 	}
 
 	// return a shape sequence for a give size
-	//modified function from DefaultDrawingSupplier
+	// modified function from DefaultDrawingSupplier
 	public Shape[] getShapesSequence(double size) {
 		Shape[] result = new Shape[10];
 		double delta = size / 2.0;
