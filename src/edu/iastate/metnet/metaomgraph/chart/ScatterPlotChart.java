@@ -13,6 +13,7 @@ import java.awt.GridLayout;
 import java.awt.HeadlessException;
 import java.awt.Paint;
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.awt.Dimension;
 import java.awt.Shape;
@@ -117,6 +118,8 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 	private ChartPanel chartPanel;
 	private JFreeChart myChart;
 	private XYDataset dataset;
+	
+	private double pointSize=6.0;
 	// private XYLineAndShapeRenderer myRenderer;
 	private XYItemRenderer myRenderer;
 	JScrollPane scrollPane;
@@ -287,10 +290,10 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		// plot.setpaint
 		// XYItemRenderer renderer = plot.getRenderer();
 		myRenderer = plot.getRenderer();
-		//double size = 120.0;
-	    //double delta = size / 2.0;
-	    //Shape shape1 = new Rectangle2D.Double(-delta, -delta, size, size);
-		//myRenderer.setsha DefaultShape(shape1);
+		// double size = 120.0;
+		// double delta = size / 2.0;
+		// Shape shape1 = new Rectangle2D.Double(-delta, -delta, size, size);
+		// myRenderer.setsha DefaultShape(shape1);
 
 		// use palette if available
 		if (colorArray != null) {
@@ -298,8 +301,11 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 					DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
-					DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
-					DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE));
+					DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,getShapesSequence(pointSize) 
+
+			));
+			// DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE
+
 		} else {
 			Paint[] defaultPaint = DefaultDrawingSupplier.DEFAULT_PAINT_SEQUENCE;
 			Color[] defaultColor = Utils.paintArraytoColor(defaultPaint);
@@ -307,8 +313,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 					DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
-					DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
-					DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE));
+					DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE, getShapesSequence(pointSize) ));
 		}
 		// Create Panel
 		// use full constructor otherwise tooltips dont work
@@ -446,7 +451,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 					return null;
 				}
 
-				//XYPlot plot = (XYPlot) myChart.getPlot(); // your plot
+				// XYPlot plot = (XYPlot) myChart.getPlot(); // your plot
 				// double chartX = plot.getDomainAxis().java2DToValue(p.getX(), plotArea,
 				// plot.getDomainAxisEdge());
 				// double chartY = plot.getRangeAxis().java2DToValue(p.getY(), plotArea,
@@ -527,8 +532,6 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 				}
 				return new Point(x + xMargin, newy);
 			}
-			
-			
 
 		};
 
@@ -537,8 +540,6 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		return chartPanel;
 
 	}
-
-	
 
 	private XYDataset createDataset() throws IOException {
 
@@ -718,8 +719,8 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 				setPalette(Utils.filterColors(colorArray));
 			} else {
 				// show default colors
-				//colorArray = null;
-				//updateChart();
+				// colorArray = null;
+				// updateChart();
 
 			}
 
@@ -753,7 +754,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 
 			if (col_val.equals("Reset")) {
 				splitCol = null;
-				splitIndex=null;
+				splitIndex = null;
 				try {
 					createDataset();
 				} catch (IOException e1) {
@@ -966,7 +967,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 				myChart.getXYPlot().getDataset().getSeriesKey(series) + " color", oldColor);
 		if (newColor != null) {
 			myRenderer.setSeriesPaint(series, newColor);
-			
+
 		}
 	}
 
@@ -1001,11 +1002,66 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 
 		return;
 	}
+
 	
-	private Shape[] getShapeSequence() {
-		
-		
-		return null;
+	
+	private int[] intArray(double a, double b, double c) {
+		return new int[] { (int) a, (int) b, (int) c };
+	}
+
+	private static int[] intArray(double a, double b, double c, double d) {
+		return new int[] { (int) a, (int) b, (int) c, (int) d };
+	}
+
+	// return a shape sequence for a give size
+	//modified function from DefaultDrawingSupplier
+	public Shape[] getShapesSequence(double size) {
+		Shape[] result = new Shape[10];
+		double delta = size / 2.0;
+		int[] xpoints = null;
+		int[] ypoints = null;
+
+		// square
+		result[0] = new Rectangle2D.Double(-delta, -delta, size, size);
+		// circle
+		result[1] = new Ellipse2D.Double(-delta, -delta, size, size);
+
+		// up-pointing triangle
+		xpoints = intArray(0.0, delta, -delta);
+		ypoints = intArray(-delta, delta, delta);
+		result[2] = new Polygon(xpoints, ypoints, 3);
+
+		// diamond
+		xpoints = intArray(0.0, delta, 0.0, -delta);
+		ypoints = intArray(-delta, 0.0, delta, 0.0);
+		result[3] = new Polygon(xpoints, ypoints, 4);
+
+		// horizontal rectangle
+		result[4] = new Rectangle2D.Double(-delta, -delta / 2, size, size / 2);
+
+		// down-pointing triangle
+		xpoints = intArray(-delta, +delta, 0.0);
+		ypoints = intArray(-delta, -delta, delta);
+		result[5] = new Polygon(xpoints, ypoints, 3);
+
+		// horizontal ellipse
+		result[6] = new Ellipse2D.Double(-delta, -delta / 2, size, size / 2);
+
+		// right-pointing triangle
+		xpoints = intArray(-delta, delta, -delta);
+		ypoints = intArray(-delta, 0.0, delta);
+		result[7] = new Polygon(xpoints, ypoints, 3);
+
+		// vertical rectangle
+		result[8] = new Rectangle2D.Double(-delta / 2, -delta, size / 2, size);
+
+		// left-pointing triangle
+		xpoints = intArray(-delta, delta, delta);
+		ypoints = intArray(0.0, -delta, +delta);
+		result[9] = new Polygon(xpoints, ypoints, 3);
+
+		return result;
+
 	}
 
 }
