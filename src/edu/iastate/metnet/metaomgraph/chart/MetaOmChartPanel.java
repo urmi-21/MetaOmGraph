@@ -698,6 +698,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 
 					String[][] tableData = getProject().getMetadataHybrid()
 							.getNodeMetadata(sortOrder[plottedColumns[(int) itemX]]);
+					
 					int maxrowsinMD = 40;
 					int maxStringLen = 500;
 					String text = "<html><head> " + "<style>" + ".scrollit {\n" + "    overflow:scroll;\n"
