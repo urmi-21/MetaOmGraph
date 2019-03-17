@@ -141,3 +141,8 @@ add pval correction methods
 $color volcanoplot
 remove special chars from data columns	
 add spearman corr for samps
+order of groups in line chart, hist etc.
+
+
+
+
