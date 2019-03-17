@@ -260,6 +260,9 @@ public class MetadataHybrid {
 		String[][] md = null;
 		String thisDC = dataColName;
 		Document thisRow = mogCollection.getDataColumnRow(thisDC);
+		if(thisRow==null) {
+			return null;
+		}
 		// JOptionPane.showMessageDialog(null, thisRow.toString());
 		// convert to 2d array
 		Set<String> entries = thisRow.keySet();
