@@ -27,7 +27,7 @@ import javax.swing.table.TableRowSorter;
 
 import apple.awt.CButton;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
-import edu.iastate.metnet.metaomgraph.ui.MetadataTableDisplayPanel.AlphanumericComparator;
+
 
 import javax.swing.JScrollPane;
 import javax.swing.JTable;

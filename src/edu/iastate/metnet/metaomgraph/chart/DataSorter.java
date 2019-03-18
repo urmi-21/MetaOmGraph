@@ -8,7 +8,7 @@ import edu.iastate.metnet.metaomgraph.Metadata;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.SortableData;
 import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
-import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel.MyAlphanumericComparator;
+
 
 import java.awt.*;
 import java.io.PrintStream;
