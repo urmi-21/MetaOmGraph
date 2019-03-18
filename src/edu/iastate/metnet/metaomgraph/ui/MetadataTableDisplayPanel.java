@@ -39,6 +39,7 @@ import javax.swing.table.TableRowSorter;
 
 import org.dizitart.no2.Document;
 
+import edu.iastate.metnet.metaomgraph.AlphanumericComparator;
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.ComputeRunsSimilarity;
 import edu.iastate.metnet.metaomgraph.CorrelationValue;
@@ -1491,7 +1492,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 		}
 	}
 
-	public class AlphanumericComparator implements Comparator {
+/*	public class AlphanumericComparator implements Comparator {
 		public AlphanumericComparator() {
 		}
 
@@ -1514,7 +1515,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 				return null;
 			}
 		}
-	}
+	}*/
 
 	/**
 	 * Search a datacol in table and select it. used to switch from tree.

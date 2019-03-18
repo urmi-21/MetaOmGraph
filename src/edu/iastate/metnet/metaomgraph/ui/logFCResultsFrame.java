@@ -44,7 +44,6 @@ import edu.iastate.metnet.metaomgraph.chart.HistogramChart;
 import edu.iastate.metnet.metaomgraph.chart.MetaOmChartPanel;
 import edu.iastate.metnet.metaomgraph.chart.ScatterPlotChart;
 import edu.iastate.metnet.metaomgraph.chart.VolcanoPlot;
-import edu.iastate.metnet.metaomgraph.ui.MetadataTableDisplayPanel.AlphanumericComparator;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 import javax.swing.JMenuItem;

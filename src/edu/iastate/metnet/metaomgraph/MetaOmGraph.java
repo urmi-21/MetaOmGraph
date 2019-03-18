@@ -1132,7 +1132,6 @@ public class MetaOmGraph implements ActionListener {
 		geneCardsItem.addActionListener(myself);
 		geneCardsItem.setToolTipText("Visit GeneCards for information on selected genes");
 
-		
 		ensemblItem = new JMenuItem("Ensembl");
 		ensemblItem.setActionCommand(ENSEMBL_COMMAND);
 		ensemblItem.addActionListener(myself);
@@ -2204,13 +2203,16 @@ public class MetaOmGraph implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		// Close the active project
 		if (CLOSE_PROJECT_COMMAND.equals(e.getActionCommand())) {
-			closeProject();
-			try {
-				showWelcomeDialog();
-			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+			if (closeProject()) {
+				try {
+					showWelcomeDialog();
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
+			
+			return;
 		}
 
 		// Open a previously saved project
@@ -2965,9 +2967,9 @@ public class MetaOmGraph implements ActionListener {
 			ListMergePanel.showMergeDialog(getActiveProject());
 			return;
 		}
-		
+
 		if (GENECARDS_COMMAND.equals(e.getActionCommand())) {
-			//open genecards
+			// open genecards
 			try {
 				getActiveTable().launchGeneCards();
 			} catch (URISyntaxException | IOException e1) {
@@ -3045,8 +3047,6 @@ public class MetaOmGraph implements ActionListener {
 			lframe.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
 			MetaOmGraph.getDesktop().add(lframe);
 			lframe.setVisible(true);
-
-			
 
 			return;
 		}
