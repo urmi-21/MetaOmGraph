@@ -3432,7 +3432,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		filterModel.applyFilter(value);
 	}
 
-	private class MyComparator implements Comparator {
+	/*private class MyComparator implements Comparator {
 		private MyComparator() {
 		}
 
@@ -3463,7 +3463,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 			return (o1 + "").compareTo(o2 + "");
 		}
-	}
+	}*/
 
 	private class FilterFieldListener implements DocumentListener, ActionListener {
 		Timer t;
