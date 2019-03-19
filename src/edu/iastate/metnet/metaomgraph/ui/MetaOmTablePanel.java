@@ -560,25 +560,17 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				myProject.getInfoColumnNames());
 		filterModel = new FilterableTableModel(mainModel);
 		sorter = new TableSorter(filterModel);
-		MyComparator comparator = new MyComparator();
+		
+		/*MyComparator comparator = new MyComparator();
 		sorter.setColumnComparator(String.class, comparator);
 		sorter.setColumnComparator(CorrelationValue.class, comparator);
 		sorter.setColumnComparator(double.class, new AlphanumericComparator());
 		sorter.setColumnComparator(null, comparator);
+		*/
+		
 		listDisplay = new StripedTable(sorter);
 		sorter.setTableHeader(listDisplay.getTableHeader());
 
-		// fix col width
-		/*
-		 * TableColumnModel columnModel = listDisplay.getColumnModel(); for (int column
-		 * = 0; column < listDisplay.getColumnCount(); column++) { int width = 15; //
-		 * Min width for (int row = 0; row < listDisplay.getRowCount(); row++) {
-		 * TableCellRenderer renderer = listDisplay.getCellRenderer(row, column);
-		 * Component comp = listDisplay.prepareRenderer(renderer, row, column); width =
-		 * Math.max(comp.getPreferredSize().width +1 , width); } if(width > 300)
-		 * width=300; columnModel.getColumn(column).setPreferredWidth(width); }
-		 * listDisplay.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		 */
 
 		geneListDisplayPane = new JScrollPane(listDisplay);
 		JPanel searchPanel = new JPanel(new BorderLayout());
@@ -738,11 +730,13 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		listDisplay = new StripedTable(sorter);
 		listDisplay.setAutoResizeMode(0);
 		sorter.setTableHeader(listDisplay.getTableHeader());
-		sorter.setColumnComparator(String.class, new MyComparator());
+		
+		/*sorter.setColumnComparator(String.class, new MyComparator());
 		// urmi add comparator for double when state changed
 		sorter.setColumnComparator(CorrelationValue.class, new MyComparator());
 		sorter.setColumnComparator(double.class, new AlphanumericComparator());
 		sorter.setColumnComparator(null, new MyComparator());
+		*/
 
 		sorter.setSortingStatus(myProject.getDefaultColumn(), 1);
 		geneListDisplayPane.setViewportView(listDisplay);
@@ -826,7 +820,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 
 	}
-	
+
 	public void launchGeneCards() throws URISyntaxException, IOException {
 		int[] selected = listDisplay.getSelectedRows();
 		if (selected.length >= 10) {
@@ -847,8 +841,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			}
 			// JOptionPane.showMessageDialog(null, "thisID:"+selectedID);
 			// check if this id is transcript or gene
-			ns = new URI(
-					"https://www.genecards.org/Search/Keyword?queryString=" + selectedID );
+			ns = new URI("https://www.genecards.org/Search/Keyword?queryString=" + selectedID);
 			java.awt.Desktop.getDesktop().browse(ns);
 
 		}
@@ -3472,8 +3465,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 	}
 
-	
-	
 	private class FilterFieldListener implements DocumentListener, ActionListener {
 		Timer t;
 
