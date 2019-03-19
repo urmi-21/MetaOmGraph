@@ -748,7 +748,7 @@ public class MetaOmGraph implements ActionListener {
 		 
 		ExceptionHandler.getInstance(mainWindow).setUseBuffer(useBuffer);
 		//set setUseBuffer(false) to print to console
-		ExceptionHandler.getInstance(mainWindow).setUseBuffer(false);
+		//ExceptionHandler.getInstance(mainWindow).setUseBuffer(false);
 		Thread.setDefaultUncaughtExceptionHandler(ExceptionHandler.getInstance(mainWindow));
 		desktop = new JDesktopPane();
 		desktop.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
