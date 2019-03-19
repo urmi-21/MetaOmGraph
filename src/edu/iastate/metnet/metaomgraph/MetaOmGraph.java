@@ -893,7 +893,8 @@ public class MetaOmGraph implements ActionListener {
 		openMDColTypes.addActionListener(myself);
 
 		projectMenu.add(openMetadataStructureItem);
-		projectMenu.add(openInfoColTypes);
+		//removed temporarily: urmi
+		//projectMenu.add(openInfoColTypes);
 
 		projectMenu.addSeparator();
 		// metadataViewerItem = new JMenuItem("View metadata");
