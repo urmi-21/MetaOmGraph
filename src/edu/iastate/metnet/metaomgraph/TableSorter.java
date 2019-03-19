@@ -45,14 +45,14 @@ public class TableSorter extends AbstractTableModel {
 	};
 	public static final Comparator LEXICAL_COMPARATOR = new Comparator() {
 		public int compare(Object o1, Object o2) {
-			//JOptionPane.showMessageDialog(null, "here");
+			// JOptionPane.showMessageDialog(null, "here");
 			return o1.toString().compareTo(o2.toString());
 		}
 	};
-	
+
 	public static final Comparator DOUBLE_COMPARATOR = new Comparator() {
 		public int compare(Object o1, Object o2) {
-			double diff=(double)o1-(double)o2;
+			double diff = (double) o1 - (double) o2;
 			return (int) diff;
 		}
 	};
@@ -193,13 +193,11 @@ public class TableSorter extends AbstractTableModel {
 	protected Comparator getComparator(int column) {
 		Class columnType = this.tableModel.getColumnClass(column);
 		Comparator comparator = (Comparator) this.columnComparators.get(columnType);
-		
+
 		if (comparator != null) {
-			
 			return comparator;
-		}
-		else {
-			
+		} else {
+
 			return Comparable.class.isAssignableFrom(columnType) ? COMPARABLE_COMAPRATOR : LEXICAL_COMPARATOR;
 		}
 	}
@@ -227,17 +225,8 @@ public class TableSorter extends AbstractTableModel {
 		for (int row = 0; row < tableModelRowCount; ++row) {
 			this.viewToModel[row] = new TableSorter.Row(row);
 		}
-
-		if (this.viewToModel == null) {
-			System.out.println("wtf1");
-		}
-
 		if (this.isSorting()) {
 			Arrays.sort(this.viewToModel);
-		}
-
-		if (this.viewToModel == null) {
-			System.out.println("wtf2");
 		}
 
 		this.rebuilding = false;
@@ -252,9 +241,9 @@ public class TableSorter extends AbstractTableModel {
 			}
 		}
 
-		//urmi add viewIndex<0
-		if (this.getViewToModel() == null ) {
-			//System.out.println("viewtomodel is null");
+		// urmi add viewIndex<0
+		if (this.getViewToModel() == null) {
+			// System.out.println("viewtomodel is null");
 		} else {
 			if (viewIndex >= this.getViewToModel().length) {
 				return viewIndex;
@@ -264,10 +253,10 @@ public class TableSorter extends AbstractTableModel {
 				System.out.println("viewToModel[viewIndex] is null");
 			}
 		}
-		
-		//urmi avoid array out of bounds exception
-		if(viewIndex < 0) {
-			viewIndex =0;
+
+		// urmi avoid array out of bounds exception
+		if (viewIndex < 0) {
+			viewIndex = 0;
 		}
 
 		return this.getViewToModel()[viewIndex].modelIndex;
@@ -317,14 +306,13 @@ public class TableSorter extends AbstractTableModel {
 	public Class getColumnClass(int column) {
 		Class result = null;
 		// check if all values are number
-		String thisHeader=getColumnName(column);
-		result=MetaOmGraph.getActiveProject().getInfoColType(thisHeader);
-		if(result!=null) {
-			//JOptionPane.showMessageDialog(null, " sortr hdr:"+thisHeader+"v:"+result.toString());
+		String thisHeader = getColumnName(column);
+		result = MetaOmGraph.getActiveProject().getInfoColType(thisHeader);
+		if (result != null) {
 			return result;
-			
+
 		}
-		//JOptionPane.showMessageDialog(null, "return null sorter");
+		// JOptionPane.showMessageDialog(null, "return null sorter");
 		return this.tableModel.getColumnClass(column);
 	}
 
@@ -431,7 +419,12 @@ public class TableSorter extends AbstractTableModel {
 	private class Row implements Comparable {
 		private int modelIndex;
 
+		/*
+		 * public int compareTo(Object o) { return 0; }
+		 */
+
 		public int compareTo(Object o) {
+			
 			int row1 = this.modelIndex;
 			int row2 = ((TableSorter.Row) o).modelIndex;
 			for (Iterator it = sortingColumns.iterator(); it.hasNext();) {
@@ -441,18 +434,31 @@ public class TableSorter extends AbstractTableModel {
 				Object o2 = tableModel.getValueAt(row2, column);
 
 				int comparison = 0;
-				// System.out.println("Comparing "+o1+" to "+o2);
-				if (o1 == null && o2 == null)
+				if (o1 == null && o2 == null) {
 					comparison = 0;
-				else if (o1 == null)
+				}
+				else if (o1 == null) {
 					comparison = 1;
-				else if (o2 == null)
+
+				} else if (o2 == null) {
 					comparison = -1;
-				else
+				} else {
+					// JOptionPane.show(null, "comprtr:"+getComparator(column));
 					comparison = getComparator(column).compare(o1, o2);
-				
-				if (comparison != 0)
-					return directive.direction != -1 ? comparison : -comparison;
+					//comparison = new AlphanumericComparator().compare(o1, o2);
+					
+				}
+
+				if (comparison != 0) {
+					comparison = directive.direction != -1 ? comparison : -comparison;
+				}
+
+				if (comparison > 1 || comparison < -1) {
+					// JOptionPane.showMessageDialog(null, "err:"+comparison+" obs: "+o1+" to "+o2);
+					System.out.println("err:" + comparison + " obs: " + o1 + " to " + o2);
+				}
+
+				return comparison;
 			}
 			return 0;
 		}

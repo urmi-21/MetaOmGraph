@@ -745,8 +745,10 @@ public class MetaOmGraph implements ActionListener {
 		initThemes();
 		setCurrentTheme("light");
 		mainWindow = new JFrame("MetaOmGraph");
+		 
 		ExceptionHandler.getInstance(mainWindow).setUseBuffer(useBuffer);
-		// ExceptionHandler.getInstance(mainWindow).setUseBuffer(false);
+		//set setUseBuffer(false) to print to console
+		ExceptionHandler.getInstance(mainWindow).setUseBuffer(false);
 		Thread.setDefaultUncaughtExceptionHandler(ExceptionHandler.getInstance(mainWindow));
 		desktop = new JDesktopPane();
 		desktop.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
@@ -3550,6 +3552,7 @@ public class MetaOmGraph implements ActionListener {
 	}
 
 	/**
+	 * @author urmi
 	 * Function to check MOG updates from metnet
 	 * 
 	 */
