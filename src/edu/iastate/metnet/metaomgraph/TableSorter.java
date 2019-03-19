@@ -190,14 +190,32 @@ public class TableSorter extends AbstractTableModel {
 
 	}
 
+	/*
+	 * Return comparator for a given column
+	 */
 	protected Comparator getComparator(int column) {
+		Class columnType = this.tableModel.getColumnClass(column);
+
+		Comparator comparator = (Comparator) this.columnComparators.get(columnType);
+		//System.out.println("this col" + column + " class:" + columnType + "  comp:" + comparator);
+		if (comparator != null) {
+			return comparator;
+		} else {
+			// for string return alphanumeric comparator by default
+			if (columnType == String.class) {
+				return new AlphanumericComparator();
+			}
+			return Comparable.class.isAssignableFrom(columnType) ? COMPARABLE_COMAPRATOR : LEXICAL_COMPARATOR;
+		}
+	}
+
+	protected Comparator getComparatorOld(int column) {
 		Class columnType = this.tableModel.getColumnClass(column);
 		Comparator comparator = (Comparator) this.columnComparators.get(columnType);
 
 		if (comparator != null) {
 			return comparator;
 		} else {
-
 			return Comparable.class.isAssignableFrom(columnType) ? COMPARABLE_COMAPRATOR : LEXICAL_COMPARATOR;
 		}
 	}
@@ -424,7 +442,7 @@ public class TableSorter extends AbstractTableModel {
 		 */
 
 		public int compareTo(Object o) {
-			
+
 			int row1 = this.modelIndex;
 			int row2 = ((TableSorter.Row) o).modelIndex;
 			for (Iterator it = sortingColumns.iterator(); it.hasNext();) {
@@ -436,26 +454,19 @@ public class TableSorter extends AbstractTableModel {
 				int comparison = 0;
 				if (o1 == null && o2 == null) {
 					comparison = 0;
-				}
-				else if (o1 == null) {
+				} else if (o1 == null) {
 					comparison = 1;
 
 				} else if (o2 == null) {
 					comparison = -1;
+				} else if (o1 instanceof CorrelationValue && o2 instanceof CorrelationValue) {
+					comparison = ((CorrelationValue) o1).compareTo(o2);
 				} else {
-					// JOptionPane.show(null, "comprtr:"+getComparator(column));
 					comparison = getComparator(column).compare(o1, o2);
-					//comparison = new AlphanumericComparator().compare(o1, o2);
-					
 				}
 
 				if (comparison != 0) {
 					comparison = directive.direction != -1 ? comparison : -comparison;
-				}
-
-				if (comparison > 1 || comparison < -1) {
-					// JOptionPane.showMessageDialog(null, "err:"+comparison+" obs: "+o1+" to "+o2);
-					//System.out.println("err:" + comparison + " obs: " + o1 + " to " + o2);
 				}
 
 				return comparison;
