@@ -193,16 +193,22 @@ public class TableSorter extends AbstractTableModel {
 	/*
 	 * Return comparator for a given column
 	 */
+	//treat all columns as strings
 	protected Comparator getComparator(int column) {
+		return new AlphanumericComparator();
+	}
+	
+	protected Comparator getComparatorOld2(int column) {
 		Class columnType = this.tableModel.getColumnClass(column);
 
 		Comparator comparator = (Comparator) this.columnComparators.get(columnType);
-		//System.out.println("this col" + column + " class:" + columnType + "  comp:" + comparator);
+		System.out.println("this col" + column + " class:" + columnType + "  comp:" + comparator);
 		if (comparator != null) {
 			return comparator;
 		} else {
 			// for string return alphanumeric comparator by default
 			if (columnType == String.class) {
+				System.out.println("ret AN");
 				return new AlphanumericComparator();
 			}
 			return Comparable.class.isAssignableFrom(columnType) ? COMPARABLE_COMAPRATOR : LEXICAL_COMPARATOR;
