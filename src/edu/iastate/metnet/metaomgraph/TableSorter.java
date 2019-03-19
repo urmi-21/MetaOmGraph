@@ -455,7 +455,7 @@ public class TableSorter extends AbstractTableModel {
 
 				if (comparison > 1 || comparison < -1) {
 					// JOptionPane.showMessageDialog(null, "err:"+comparison+" obs: "+o1+" to "+o2);
-					System.out.println("err:" + comparison + " obs: " + o1 + " to " + o2);
+					//System.out.println("err:" + comparison + " obs: " + o1 + " to " + o2);
 				}
 
 				return comparison;
