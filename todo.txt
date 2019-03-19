@@ -145,5 +145,6 @@ order of groups in line chart, hist etc.
 dashed vs solid error bar
 bug in alphanumeric sort main table
 revise edit info column function;keep or remove
+fix alphanumeric comparator for case sensitive values
 
 
