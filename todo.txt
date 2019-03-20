@@ -146,5 +146,5 @@ dashed vs solid error bar
 bug in alphanumeric sort main table
 revise edit info column function;keep or remove
 fix alphanumeric comparator for case sensitive values
-
+deal with illegal chars
 
