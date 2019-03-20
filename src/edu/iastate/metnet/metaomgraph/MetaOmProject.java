@@ -1942,23 +1942,31 @@ public class MetaOmProject {
 	public int[] getRowIndexbyName(List<String> names, boolean matchCase) {
 		if (names == null)
 			return null;
-		int[] res = new int[names.size()];
-		int k = 0;
+		
+		//use list in case of duplicates in names list
+		List<Integer> res=new ArrayList<>();
+		
 
 		if (matchCase) {
 			for (int i = 0; i < rowNames.length; i++) {
 				String thisName = rowNames[i][defaultColumn].toString();
 				if (names.contains(thisName)) {
-					res[k++] = i;
+					res.add(i);
+					
 				}
 			}
 		} else {
-
 			for (String s : names) {
-				res[k++] = getRowIndexbyName(s, true);
+				res.add(getRowIndexbyName(s, true));
 			}
 		}
-		return res;
+		
+		int [] temp=new int[res.size()];
+		int k=0;
+		for(int i:res) {
+			temp[k++]=i;
+		}
+		return temp ;
 	}
 
 	public int getRowIndexbyName(String name, boolean matchCase) {
