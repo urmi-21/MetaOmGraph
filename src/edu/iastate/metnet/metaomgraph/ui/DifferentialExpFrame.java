@@ -235,8 +235,8 @@ public class DifferentialExpFrame extends JInternalFrame {
 		// add table2
 		jscp2 = new JScrollPane();
 		tableGrp2 = initTableModel();
-		// updateTableData(tableGrp2, mdob.getMetadataCollection().getAllDataCols());
-		updateTableData(tableGrp2, null);
+		updateTableData(tableGrp2, mdob.getMetadataCollection().getAllDataCols());
+		//updateTableData(tableGrp2, null);
 		jscp2.setViewportView(tableGrp2);
 		panel_3.add(jscp2, BorderLayout.CENTER);
 

@@ -103,15 +103,15 @@ public class ParseTableTree {
 		buildTree(root, XMLroot);
 		long stopTime = System.currentTimeMillis();
 		long elapsedTime = stopTime - startTime;
-		
 
 		XMLOutputter outter = new XMLOutputter();
 		outter.setFormat(Format.getPrettyFormat());
 		org.jdom.Document res = new org.jdom.Document();
 		res.setRootElement(XMLroot);
-		String resDoc = outter.outputString(res);
+		// String resDoc = outter.outputString(res);
 		// System.out.println(resDoc);
-		System.out.println("**********************After names..**************************");
+		// System.out.println("**********************After
+		// names..**************************");
 		// changeElementNames(XMLroot);
 		// res.setRootElement(XMLroot);
 		// resDoc = outter.outputString(res);
@@ -459,10 +459,10 @@ public class ParseTableTree {
 	 * @return
 	 */
 	private Element buildTree(TreeNode root, Element XMLroot) {
-		//JOptionPane.showMessageDialog(null, "Start..");
+		// JOptionPane.showMessageDialog(null, "Start..");
 		// get the data
 		List<Document> tabData = obj.getAllData();
-		if(tabData.size()==0) {
+		if (tabData.size() == 0) {
 			return null;
 		}
 		HashMap<Integer, List<String>> nodeLevels = getNodesbyLevel(root);
@@ -472,7 +472,7 @@ public class ParseTableTree {
 		// store children of all nodes
 		HashMap<String, List<String>> nodeChildren = getNodeChildren(root);
 
-		//List<Element> dataColNodes = new ArrayList<>();
+		// List<Element> dataColNodes = new ArrayList<>();
 
 		// a list to quickly search if anew node be added or not
 		List<String[]> uniqPaths = new ArrayList<>();
@@ -490,16 +490,16 @@ public class ParseTableTree {
 		// expName is the outermost attribute
 		// there is only one outer most node
 		String expColname = nodeLevels.get(1).get(0);
-		//to build default reps col
+		// to build default reps col
 		defaultrepscol = nodeLevels.get(1).get(0);
-		//JOptionPane.showMessageDialog(null, "P1..Tabsize:" +  tabData.size());
-		
+		// JOptionPane.showMessageDialog(null, "P1..Tabsize:" + tabData.size());
+
 		// for all rows in data
 		for (int i = 0; i < tabData.size(); i++) {
 			// add outermost node i.e. level 1
 			String expName = tabData.get(i).get(expColname).toString();
 			Element thisElement = null;
-			
+
 			if (addedXML.containsKey(expName)) {
 				thisElement = addedXML.get(expName);
 			} else {
@@ -507,10 +507,17 @@ public class ParseTableTree {
 				thisElement.setAttribute("name", expName);
 				addedXML.put(expName, thisElement);
 				thisElement = addedXML.get(expName);
+				// if this element is data column add to colIndextoNode
+				if (expColname.equals(dataColName)) {
+					// dataColNodes.add(newChild);
+					// add to colIndextoNode
+					int thisIndex = colHeaders.indexOf(expName);
+					colIndextoNode.put(Integer.valueOf(thisIndex), thisElement);
+				}
 			}
-			
-			//JOptionPane.showMessageDialog(null, "P2..");
-			
+
+			// JOptionPane.showMessageDialog(null, "P2..");
+
 			// add level 2 elements directly to expName
 			List<String> nodesCurrlevel = nodeLevels.get(2);
 			for (String s : nodesCurrlevel) {
@@ -529,11 +536,11 @@ public class ParseTableTree {
 						}
 						thisElement.addContent(newChild);
 						if (s.equals(dataColName)) {
-							//dataColNodes.add(newChild);
-							//add to colIndextoNode
+							// dataColNodes.add(newChild);
+							// add to colIndextoNode
 							int thisIndex = colHeaders.indexOf(child);
 							colIndextoNode.put(Integer.valueOf(thisIndex), newChild);
-						
+
 						}
 						plist.add(expColname + ":::" + expName);
 						childParentXML.put(s + ":::" + child, plist);
@@ -548,23 +555,21 @@ public class ParseTableTree {
 					}
 					thisElement.addContent(newChild);
 					if (s.equals(dataColName)) {
-						//dataColNodes.add(newChild);
-						//add to colIndextoNode
+						// dataColNodes.add(newChild);
+						// add to colIndextoNode
 						int thisIndex = colHeaders.indexOf(child);
 						colIndextoNode.put(Integer.valueOf(thisIndex), newChild);
-					
-						
+
 					}
 					List<String> plist = new ArrayList<>();
 					plist.add(expColname + ":::" + expName);
 					childParentXML.put(s + ":::" + child, plist);
 				}
 
-				
 			}
-			
-			//JOptionPane.showMessageDialog(null, "P3..");
-			
+
+			// JOptionPane.showMessageDialog(null, "P3..");
+
 			// add nodes in other levels
 			// for levels in the tree structure
 			for (int j = 3; j <= maxLevel; j++) {
@@ -572,7 +577,7 @@ public class ParseTableTree {
 				// build thisElemet into tree
 				// for all Jtree nodes in current level
 				for (String s : nodesCurrlevel) {
-					//JOptionPane.showMessageDialog(null, "Curr level:"+s);
+					// JOptionPane.showMessageDialog(null, "Curr level:"+s);
 					// value to add
 					String child = tabData.get(i).get(s).toString();
 
@@ -614,7 +619,7 @@ public class ParseTableTree {
 						List<String> plist = childParentXML.get(s + ":::" + child);
 						// if node is already present donot add
 						if (!plist.contains(toAdd.getName() + ":::" + toAdd.getAttributeValue("name"))) {
-							//JOptionPane.showMessageDialog(null, "adding:"+s + ":::" + child);
+							// JOptionPane.showMessageDialog(null, "adding:"+s + ":::" + child);
 							Element newChild = new Element(s);
 							if (nodeChildren.get(s).size() == 0) {
 								newChild.addContent(child);
@@ -623,16 +628,16 @@ public class ParseTableTree {
 							}
 							toAdd.addContent(newChild);
 							if (s.equals(dataColName)) {
-								//dataColNodes.add(newChild);
-								//add to colIndextoNode
+								// dataColNodes.add(newChild);
+								// add to colIndextoNode
 								int thisIndex = colHeaders.indexOf(child);
 								colIndextoNode.put(Integer.valueOf(thisIndex), newChild);
-							
+
 							}
 							plist.add(toAdd.getName() + ":::" + toAdd.getAttributeValue("name"));
 							childParentXML.put(s + ":::" + child, plist);
 						} else {
-							//JOptionPane.showMessageDialog(null, "ELSEadding:"+s + ":::" + child);
+							// JOptionPane.showMessageDialog(null, "ELSEadding:"+s + ":::" + child);
 							// check if parent also match if not then add the node
 							List<String> fullPath = new ArrayList<>();
 							fullPath.add(0, expColname);
@@ -652,8 +657,8 @@ public class ParseTableTree {
 
 							if (uniqPaths.contains(pathVals)) {
 								uniquePath = false;
-								//JOptionPane.showMessageDialog(null, "UP" + uniqPaths.toString());
-								//JOptionPane.showMessageDialog(null, "Found here");
+								// JOptionPane.showMessageDialog(null, "UP" + uniqPaths.toString());
+								// JOptionPane.showMessageDialog(null, "Found here");
 							} else {
 								String[] tempVals = new String[fullPath.size()];
 								for (int m = 0; m < i; m++) {
@@ -690,10 +695,10 @@ public class ParseTableTree {
 								}
 								toAdd.addContent(newChild);
 								if (s.equals(dataColName)) {
-									//dataColNodes.add(newChild);
+									// dataColNodes.add(newChild);
 									int thisIndex = colHeaders.indexOf(child);
 									colIndextoNode.put(Integer.valueOf(thisIndex), newChild);
-								
+
 								}
 								plist.add(toAdd.getName() + ":::" + toAdd.getAttributeValue("name"));
 								childParentXML.put(s + ":::" + child, plist);
@@ -701,26 +706,26 @@ public class ParseTableTree {
 						}
 
 					} else {
-						//JOptionPane.showMessageDialog(null, "ELSEadding:"+s + ":::" + child);
-						Element newChild=null;
-						
+						// JOptionPane.showMessageDialog(null, "ELSEadding:"+s + ":::" + child);
+						Element newChild = null;
+
 						newChild = new Element(s);
-						
-						//String thisName="";
+
+						// String thisName="";
 						if (nodeChildren.get(s).size() == 0) {
 							newChild.addContent(child);
 						} else {
 							newChild.setAttribute("name", child);
 						}
 						toAdd.addContent(newChild);
-						
+
 						if (s.equals(dataColName)) {
-							//dataColNodes.add(newChild);
+							// dataColNodes.add(newChild);
 							int thisIndex = colHeaders.indexOf(child);
 							colIndextoNode.put(Integer.valueOf(thisIndex), newChild);
-												
+
 						}
-						
+
 						List<String> plist = new ArrayList<>();
 						plist.add(toAdd.getName() + ":::" + toAdd.getAttributeValue("name"));
 						childParentXML.put(s + ":::" + child, plist);
@@ -728,8 +733,8 @@ public class ParseTableTree {
 
 				}
 			}
-			
-			//JOptionPane.showMessageDialog(null, "P4..");
+
+			// JOptionPane.showMessageDialog(null, "P4..");
 		}
 
 		// add all nodes in Jtree to imported headers
