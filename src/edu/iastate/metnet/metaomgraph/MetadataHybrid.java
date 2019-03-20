@@ -444,8 +444,8 @@ public class MetadataHybrid {
 				
 		colVals.addAll(searchByValue(allfields, toSearch, this.dataColumn, isExact, matchAll, matchCase));
 		
-		JOptionPane.showMessageDialog(null, "colvals:" + colVals.toString());
-		JOptionPane.showMessageDialog(null, "knownCols:" + knownCols.toString());
+		//JOptionPane.showMessageDialog(null, "colvals:" + colVals.toString());
+		//JOptionPane.showMessageDialog(null, "knownCols:" + knownCols.toString());
 		
 		// find all keys with value in colVals
 		for (Entry<Integer, Element> entry : knownCols.entrySet()) {
@@ -458,8 +458,6 @@ public class MetadataHybrid {
 			} else {
 				thisName = value.getContent(0).getValue().toString();
 			}
-			
-			JOptionPane.showMessageDialog(null, "key:"+key+" val:"+value+" thiname:"+thisName);
 
 			if (colVals.contains(thisName) && key >= 0) {
 				if (!result.contains(key)) {
