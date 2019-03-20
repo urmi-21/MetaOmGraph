@@ -421,7 +421,7 @@ public class MetadataHybrid {
 	 * @return
 	 */
 	public Integer[] search(MetadataQuery[] queries, boolean matchAll) {
-		//Set<Integer> cols = knownCols.keySet();
+		
 		ArrayList<Integer> result = new ArrayList();
 		Integer[] toReturn;
 		List<String> colVals = new ArrayList<>();
@@ -440,7 +440,13 @@ public class MetadataHybrid {
 			matchCase[i] = queries[i].isCaseSensitive();
 			// JOptionPane.showMessageDialog(null, "search f:" + fields[i]);
 		}
+		
+				
 		colVals.addAll(searchByValue(allfields, toSearch, this.dataColumn, isExact, matchAll, matchCase));
+		
+		JOptionPane.showMessageDialog(null, "colvals:" + colVals.toString());
+		JOptionPane.showMessageDialog(null, "knownCols:" + knownCols.toString());
+		
 		// find all keys with value in colVals
 		for (Entry<Integer, Element> entry : knownCols.entrySet()) {
 			Integer key = entry.getKey();
@@ -452,6 +458,8 @@ public class MetadataHybrid {
 			} else {
 				thisName = value.getContent(0).getValue().toString();
 			}
+			
+			JOptionPane.showMessageDialog(null, "key:"+key+" val:"+value+" thiname:"+thisName);
 
 			if (colVals.contains(thisName) && key >= 0) {
 				if (!result.contains(key)) {
@@ -495,17 +503,15 @@ public class MetadataHybrid {
 		// search using Metadatacollection object and return indices of matching data
 		// columns from knownCols
 		// do for all queries
-
 		for (int i = 0; i < queries.length; i++) {
 			allfields[i] = queries[i].getField();
 			toSearch[i] = queries[i].getTerm();
 			isExact[i] = queries[i].isExact();
 			matchCase[i] = queries[i].isCaseSensitive();
-			// JOptionPane.showMessageDialog(null, "search f:" + fields[i]);
-
 		}
+			
 		colVals.addAll(searchByValue(allfields, toSearch, this.dataColumn, isExact, matchAll, matchCase));
-
+		
 		return colVals;
 	}
 

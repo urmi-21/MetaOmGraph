@@ -580,7 +580,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 		final MetadataQuery[] queries;
 		queries = tsp.showSearchDialog();
 		if (tsp.getQueryCount() <= 0) {
-			System.out.println("Search dialog cancelled");
+			//System.out.println("Search dialog cancelled");
 			// User didn't enter any queries
 			return null;
 		}
@@ -589,11 +589,12 @@ public class DifferentialExpFrame extends JInternalFrame {
 		new AnimatedSwingWorker("Searching...", true) {
 			@Override
 			public Object construct() {
-				ArrayList<Integer> toAdd = new ArrayList<Integer>(result.size());
+				ArrayList<Integer> toAdd = new ArrayList<Integer>();
 				for (int i = 0; i < myProject.getDataColumnCount(); i++) {
 					toAdd.add(i);
 				}
 				Integer[] hits = myProject.getMetadataHybrid().search(queries, tsp.matchAll());
+				
 				// remove excluded cols from list
 				// urmi
 				boolean[] excluded = excludedCopy;
@@ -617,7 +618,6 @@ public class DifferentialExpFrame extends JInternalFrame {
 			}
 		}.start();
 
-		// create a split index with "hits" as one category and all others as second
 		// category
 		if (result.size() < 1) {
 			JOptionPane.showMessageDialog(null, "No hits found", "No hits", JOptionPane.INFORMATION_MESSAGE);

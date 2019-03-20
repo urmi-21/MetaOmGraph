@@ -103,36 +103,7 @@ public class ParseTableTree {
 		buildTree(root, XMLroot);
 		long stopTime = System.currentTimeMillis();
 		long elapsedTime = stopTime - startTime;
-		// JOptionPane.showMessageDialog(null, "Time taken(s):" + elapsedTime/1000);
-		/////////////////////////
-		/*
-		 * JOptionPane.showMessageDialog(null, "adding nodes..."); long startTime1 =
-		 * System.currentTimeMillis(); addNodes(root, XMLroot); long stopTime1 =
-		 * System.currentTimeMillis(); long elapsedTime1 = stopTime1 - startTime1;
-		 * XMLOutputter outter = new XMLOutputter();
-		 * outter.setFormat(Format.getPrettyFormat()); org.jdom.Document res = new
-		 * org.jdom.Document(); // res.setRootElement(XMLroot); String resDoc = null; //
-		 * System.out.println(resDoc); System.out.
-		 * println("**********************After validataion..**************************"
-		 * ); // validate tree with respect to the data and build a treemap to map col
-		 * index // to XML nodes colIndextoNode = new TreeMap<Integer, Element>();
-		 * res.setRootElement(XMLroot); resDoc = outter.outputString(res);
-		 */
-		/*
-		 * try (PrintWriter out = new PrintWriter(
-		 * "D:\\MOGdata\\mog_testdata\\jing\\JL_yeast_MOG\\shortfilename_before.txt")) {
-		 * out.println(resDoc); } catch (FileNotFoundException e) { // TODO
-		 * Auto-generated catch block e.printStackTrace(); }
-		 */
-		/*
-		 * JOptionPane.showMessageDialog(null, "validating nodes..."); long startTime2 =
-		 * System.currentTimeMillis(); validateXML(XMLroot); long stopTime2 =
-		 * System.currentTimeMillis(); long elapsedTime2 = stopTime2 - startTime2; long
-		 * totalel = elapsedTime2 + elapsedTime1; JOptionPane.showMessageDialog(null,
-		 * "Time elapsed old method:" + totalel + " addNode:" + elapsedTime1 +
-		 * " validate:" + elapsedTime2 + " New m" + elapsedTime);
-		 * JOptionPane.showMessageDialog(null, "Finished validating nodes...");
-		 */
+		
 
 		XMLOutputter outter = new XMLOutputter();
 		outter.setFormat(Format.getPrettyFormat());
