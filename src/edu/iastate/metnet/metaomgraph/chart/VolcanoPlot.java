@@ -176,10 +176,10 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		JPanel panel_1 = new JPanel();
 		getContentPane().add(panel_1, BorderLayout.SOUTH);
 
-		btnNewButton_1 = new JButton("Change X axis");
+		/*btnNewButton_1 = new JButton("Change X axis");
 		btnNewButton_1.setActionCommand("chooseX");
 		btnNewButton_1.addActionListener(this);
-		panel_1.add(btnNewButton_1);
+		panel_1.add(btnNewButton_1);*/
 
 		scrollPane = new JScrollPane();
 		getContentPane().add(scrollPane, BorderLayout.CENTER);
