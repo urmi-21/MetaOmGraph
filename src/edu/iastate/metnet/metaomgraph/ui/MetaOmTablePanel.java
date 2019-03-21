@@ -620,7 +620,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		listPanel.add(dataToolbar, "First");
 		listPanel.add(listSplitPane, "Center");
 		tabby = new JTabbedPane();
-		tabby.addTab("Gene Metadata", listPanel);
+		tabby.addTab("Feature Metadata", listPanel);
 		if (myProject.getMetadataHybrid() != null)
 			addExtInfoTab();
 		add(tabby, "Center");
