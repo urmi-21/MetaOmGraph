@@ -1013,7 +1013,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 		
 		//temporary set series width
 		/*for (int i = 0; i < selected.length; i++) {
-			myRenderer.setSeriesStroke(i, new BasicStroke(3)); 
+			myRenderer.setSeriesStroke(i, new BasicStroke(5)); 
 		}*/
 		
 		myRenderer.setUseOutlinePaint(false);

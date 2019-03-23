@@ -179,6 +179,10 @@ public class DifferentialExpFrame extends JInternalFrame {
 				}
 
 				// all checks completed, compute logFC
+
+				// measure time
+				//long startTime = System.nanoTime();
+				
 				CalculateLogFC ob = new CalculateLogFC(selectedFeatureList, grp1, grp2, txtGroup1.getText(),
 						txtGroup2.getText(), myProject, comboBox_1.getSelectedIndex());
 
@@ -194,6 +198,12 @@ public class DifferentialExpFrame extends JInternalFrame {
 				frame.setTitle("Fold change results");
 				MetaOmGraph.getDesktop().add(frame);
 				frame.setVisible(true);
+
+				//long endTime = System.nanoTime();
+				// get difference of two nanoTime values
+				//float timeElapsed = endTime - startTime;
+				//timeElapsed =  (timeElapsed / (float) 1000000000.00);
+				//JOptionPane.showMessageDialog(null, "Time taken:" + timeElapsed);
 
 			}
 		});
@@ -235,7 +245,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 		// add table2
 		jscp2 = new JScrollPane();
 		tableGrp2 = initTableModel();
-		//updateTableData(tableGrp2, mdob.getMetadataCollection().getAllDataCols());
+		// updateTableData(tableGrp2, mdob.getMetadataCollection().getAllDataCols());
 		updateTableData(tableGrp2, null);
 		jscp2.setViewportView(tableGrp2);
 		panel_3.add(jscp2, BorderLayout.CENTER);
@@ -320,7 +330,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 				}
 				// JOptionPane.showConfirmDialog(null, "match:" + queryRes.toString());
 				addRows(tableGrp1, queryRes);
-				
+
 			}
 		});
 		JPanel btnPnl1 = new JPanel(new FlowLayout());
@@ -580,7 +590,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 		final MetadataQuery[] queries;
 		queries = tsp.showSearchDialog();
 		if (tsp.getQueryCount() <= 0) {
-			//System.out.println("Search dialog cancelled");
+			// System.out.println("Search dialog cancelled");
 			// User didn't enter any queries
 			return null;
 		}
@@ -594,7 +604,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 					toAdd.add(i);
 				}
 				Integer[] hits = myProject.getMetadataHybrid().search(queries, tsp.matchAll());
-				
+
 				// remove excluded cols from list
 				// urmi
 				boolean[] excluded = excludedCopy;
