@@ -650,6 +650,11 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 						// get all metadata for this Gname
 						String[][] tableData = getProject().getMetadataHybrid()
 								.getNodeMetadata(getProject().getMetadataHybrid().getParentNodeForCol(thisSampIndex));
+						//if nothing is returned. this should not happen.
+						if(tableData==null) {
+							return "Error. Metadata not found!!";
+						}
+						
 						String text = "<html><table bgcolor=\"#FFFFFF\">" + " <tr>\n"
 								+ "            <th>Attribute</th>\n" + "            <th>Value</th>\n" + "        </tr>";
 
@@ -699,6 +704,11 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 					String[][] tableData = getProject().getMetadataHybrid()
 							.getNodeMetadata(sortOrder[plottedColumns[(int) itemX]]);
 					
+					//if nothing is returned. this should not happen.
+					if(tableData==null) {
+						return "Error. Metadata not found!!";
+					}
+					
 					int maxrowsinMD = 40;
 					int maxStringLen = 500;
 					String text = "<html><head> " + "<style>" + ".scrollit {\n" + "    overflow:scroll;\n"
@@ -734,7 +744,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 
 					}
 
-					// added by mhhur
+					
 					if (tableData.length == 0 || tableData == null) {
 						text += "<tr bgcolor=" + rowColors[colorIndex] + ">";
 						text += "<td><font size=-2>" + "There is no metadata on " + getFormatter().format(itemX)
