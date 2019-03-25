@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -55,15 +56,24 @@ public class StripedTable extends JTable {
 		String text=null;
 		java.awt.Point p = e.getPoint();
 		int rowIndex = rowAtPoint(p) ;
-		String rowName=getValueAt(rowIndex, MetaOmGraph.getActiveProject().getDefaultColumn()).toString();
+		//MetaOmGraph.getActiveProject().getdefau
+		//getcolu
+		int defaultCol=convertColumnIndexToView(MetaOmGraph.getActiveProject().getDefaultColumn());
+		defaultCol=(MetaOmGraph.getActiveProject().getDefaultColumn());
+		String rowName=getValueAt(rowIndex, defaultCol).toString();
+		
 		//get correct row index based on rowName if the table has been sorted
 		String[] allRownames=MetaOmGraph.getActiveProject().getAllDefaultRowNames();
+		JOptionPane.showMessageDialog(null, "All def row names"+ Arrays.toString(allRownames));
 		for(int k=0;k<allRownames.length;k++) {
 			if(rowName.equals(allRownames[k])) {
+				JOptionPane.showMessageDialog(null, "match"+ rowName+":"+allRownames[k]);
 				rowIndex=k;
 				break;
 			}
 		}
+		
+		JOptionPane.showMessageDialog(null, "this rowname:"+rowName+"  thisrow ind:"+rowIndex);
 		
 		int colIndex = columnAtPoint(p);
 		String colName = getColumnName(colIndex);
