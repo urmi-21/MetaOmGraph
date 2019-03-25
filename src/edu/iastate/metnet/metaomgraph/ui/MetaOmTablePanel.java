@@ -3802,6 +3802,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	 * Plot histogram of correlation values
 	 */
 	public void plotCorrHist(String col_val) {
+		
+		if(col_val==null||col_val.length()<1) {
+			JOptionPane.showMessageDialog(null, "No columns containing correlation values found.", "No correlation data.", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
 
 		List<Double> corrVals = getCorrData(col_val);
 
