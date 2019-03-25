@@ -806,11 +806,12 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 			myChartPanel.addChartMouseListener(this);
 			// Add options to the popup menu
 			JMenu manageMenu = new JMenu("Manage");
-			JMenuItem manageAnnotationsItem = new JMenuItem("Annotatons...");
+			JMenuItem manageAnnotationsItem = new JMenuItem("Annotations...");
 			manageAnnotationsItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
+					
 					myAnnotator.manageAnnotations();
-					// s
+					
 				}
 
 			});
@@ -839,11 +840,13 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 			});
 			manageMenu.add(manageAnnotationsItem);
 			manageMenu.add(manageColumnsItem);
+			
 			// urmi add manage range markers
 			JMenuItem manageMarkersItem = new JMenuItem("Markers...");
 			manageAnnotationsItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					myAnnotator.manageAnnotations();
+					
+					//myAnnotator.manageAnnotations();
 
 				}
 

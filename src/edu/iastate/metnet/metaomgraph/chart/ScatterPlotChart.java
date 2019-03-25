@@ -646,6 +646,12 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		}
 
 		String[][] tableData = myProject.getMetadataHybrid().getMetadataForCol(colIndex);
+		
+		//if nothing is returned. this should not happen.
+		if(tableData==null) {
+			return "Error. Metadata not found!!";
+		}
+		
 		int maxrowsinMD = 40;
 		int maxStringLen = 500;
 

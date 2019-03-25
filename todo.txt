@@ -148,4 +148,5 @@ revise edit info column function;keep or remove
 fix alphanumeric comparator for case sensitive values
 deal with illegal chars
 create a filter based on gene expression
-save de res
+save diff exp res
+test groupDataIndexbyRepColumn()
