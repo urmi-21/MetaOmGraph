@@ -1946,7 +1946,6 @@ public class MetaOmProject {
 		//use list in case of duplicates in names list
 		List<Integer> res=new ArrayList<>();
 		
-
 		if (matchCase) {
 			for (int i = 0; i < rowNames.length; i++) {
 				String thisName = rowNames[i][defaultColumn].toString();
@@ -1972,17 +1971,21 @@ public class MetaOmProject {
 	public int getRowIndexbyName(String name, boolean matchCase) {
 		if (name == null)
 			return -1;
-
-		for (int i = 0; i < rowNames.length; i++) {
-			String thisName = rowNames[i][defaultColumn].toString();
+		
+		String [] allRownames=getAllDefaultRowNames();
+		
+		for(int k=0;k<allRownames.length;k++) {
+			String thisName = allRownames[k];
+			
 			if (!matchCase) {
 				thisName = thisName.toLowerCase();
 				name = name.toLowerCase();
 			}
-			if (name.equals(thisName)) {
-				return i;
+			if(name.equals(thisName)) {
+				return k;
 			}
 		}
+		
 		return -1;
 
 	}

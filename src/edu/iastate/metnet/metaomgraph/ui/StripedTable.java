@@ -32,13 +32,13 @@ import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 public class StripedTable extends JTable {
-	//public static final ColorUIResource alternateRowColor = new ColorUIResource(216, 236, 213);
+	// public static final ColorUIResource alternateRowColor = new
+	// ColorUIResource(216, 236, 213);
 	private Color SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
 	private Color BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
 	private Color BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
 	private Color HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
-	private Color HYPERLINKCOLOR =MetaOmGraph.getTableHyperlinkColor();
-	
+	private Color HYPERLINKCOLOR = MetaOmGraph.getTableHyperlinkColor();
 
 	public StripedTable() {
 	}
@@ -52,59 +52,67 @@ public class StripedTable extends JTable {
 	// urmi show p value as tool tip
 	@Override
 	public String getToolTipText(MouseEvent e) {
-		
-		String text=null;
+
+		String text = null;
 		java.awt.Point p = e.getPoint();
-		int rowIndex = rowAtPoint(p) ;
-		//MetaOmGraph.getActiveProject().getdefau
-		//getcolu
-		int defaultCol=convertColumnIndexToView(MetaOmGraph.getActiveProject().getDefaultColumn());
-		defaultCol=(MetaOmGraph.getActiveProject().getDefaultColumn());
-		String rowName=getValueAt(rowIndex, defaultCol).toString();
-		
-		//get correct row index based on rowName if the table has been sorted
-		String[] allRownames=MetaOmGraph.getActiveProject().getAllDefaultRowNames();
-		JOptionPane.showMessageDialog(null, "All def row names"+ Arrays.toString(allRownames));
-		for(int k=0;k<allRownames.length;k++) {
-			if(rowName.equals(allRownames[k])) {
-				JOptionPane.showMessageDialog(null, "match"+ rowName+":"+allRownames[k]);
-				rowIndex=k;
-				break;
-			}
+		int rowIndex = rowAtPoint(p);
+		int defaultCol = convertColumnIndexToView(MetaOmGraph.getActiveProject().getDefaultColumn());
+		String rowName ="";
+		JOptionPane.showMessageDialog(null, "get val at:" + rowIndex + "  col:" + defaultCol);
+
+		// return if column or row doesn't exist
+		if (rowIndex < 0 || defaultCol < 0) {
+			return null;
 		}
-		
-		JOptionPane.showMessageDialog(null, "this rowname:"+rowName+"  thisrow ind:"+rowIndex);
-		
+		try {
+			rowName = getValueAt(rowIndex, defaultCol).toString();
+		} catch (ArrayIndexOutOfBoundsException ae) {
+			return null;
+		}
+
+		// get correct row index based on rowName if the table has been sorted
+		// String[] allRownames=MetaOmGraph.getActiveProject().getAllDefaultRowNames();
+		// JOptionPane.showMessageDialog(null, "All def row names"+
+		// Arrays.toString(allRownames));
+
+		/*
+		 * for(int k=0;k<allRownames.length;k++) { if(rowName.equals(allRownames[k])) {
+		 * JOptionPane.showMessageDialog(null, "11match "+rowName+":"+allRownames[k]);
+		 * rowIndex=k; break; } }
+		 */
+
+		rowIndex = MetaOmGraph.getActiveProject().getRowIndexbyName(rowName, true);
+		// JOptionPane.showMessageDialog(null, "this rowname:"+rowName+" thisrow
+		// ind:"+rowIndex);
+
 		int colIndex = columnAtPoint(p);
 		String colName = getColumnName(colIndex);
 		// show p value for correlation columns
 		// get name for current column
-		HashMap<String, CorrelationMetaCollection> corrs=MetaOmGraph.getActiveProject().getMetaCorrRes();
-		
-		if ( corrs== null) {
+		HashMap<String, CorrelationMetaCollection> corrs = MetaOmGraph.getActiveProject().getMetaCorrRes();
+
+		if (corrs == null) {
 			return null;
 		}
 		if (corrs.containsKey(colName)) {
 			try {
-				CorrelationMetaCollection thisCorrColl=corrs.get(colName);
-				List<CorrelationMeta> corrList=thisCorrColl.getCorrList();
-				String thisPval=corrList.get(rowIndex).getpValString();
-				
-				text = "<html><table bgcolor=\"#FFFFFF\">" + " <tr>\n"
-						+ "            <th>Attribute</th>\n" + "            <th>Value</th>\n" + "        </tr>";
+				CorrelationMetaCollection thisCorrColl = corrs.get(colName);
+				List<CorrelationMeta> corrList = thisCorrColl.getCorrList();
+				String thisPval = corrList.get(rowIndex).getpValString();
+
+				text = "<html><table bgcolor=\"#FFFFFF\">" + " <tr>\n" + "            <th>Attribute</th>\n"
+						+ "            <th>Value</th>\n" + "        </tr>";
 				text += "<tr>";
-				text += "<td><font size=-2>" +"P value" 
-						+ "</font></td>";
-				text += "<td><font size=-2>" +  thisPval
-						+ "</font></td>";
-				
+				text += "<td><font size=-2>" + "P value" + "</font></td>";
+				text += "<td><font size=-2>" + thisPval + "</font></td>";
+
 				text += "</tr>";
-				
-				//end table
+
+				// end table
 				text += "</table> </div> </body></html>";
-				
-				//get p value at pth row
-				
+
+				// get p value at pth row
+
 			} catch (RuntimeException e1) {
 				// catch null pointer exception if mouse is over an empty line
 			}
@@ -128,8 +136,8 @@ public class StripedTable extends JTable {
 			c.setBackground(colorForRow(row));
 			c.setForeground(UIManager.getColor("Table.foreground"));
 		} else {
-			//c.setBackground(UIManager.getColor("Table.selectionBackground"));
-			//c.setForeground(UIManager.getColor("Table.selectionForeground"));
+			// c.setBackground(UIManager.getColor("Table.selectionBackground"));
+			// c.setForeground(UIManager.getColor("Table.selectionForeground"));
 			c.setBackground(SELECTIONBCKGRND);
 		}
 		return c;
@@ -237,15 +245,15 @@ public class StripedTable extends JTable {
 			return this;
 		}
 	}
-	
+
 	public void updateColors() {
 		SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
 		BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
 		BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
 		HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
-		HYPERLINKCOLOR =MetaOmGraph.getTableHyperlinkColor();
+		HYPERLINKCOLOR = MetaOmGraph.getTableHyperlinkColor();
 		repaint();
-		
+
 	}
 
 }
