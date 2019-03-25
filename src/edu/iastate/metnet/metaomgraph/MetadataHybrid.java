@@ -261,6 +261,7 @@ public class MetadataHybrid {
 		String thisDC = dataColName;
 		Document thisRow = mogCollection.getDataColumnRow(thisDC);
 		if(thisRow==null) {
+			JOptionPane.showMessageDialog(null, "found null");
 			return null;
 		}
 		// JOptionPane.showMessageDialog(null, thisRow.toString());
@@ -289,6 +290,7 @@ public class MetadataHybrid {
 		}
 		MetaOmProject myProj = MetaOmGraph.getActiveProject();
 		String thisDC = myProj.getDataColumnHeader(nodeNum);
+		JOptionPane.showMessageDialog(null, "finding md for "+thisDC);
 		return getNodeMetadata(thisDC);
 	}
 
