@@ -72,7 +72,6 @@ public class ChartAnnotator implements ChartMouseListener, ChartProgressListener
 		initAnnotationTable();
 		clearButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				Toolkit.getDefaultToolkit().beep();
 				int result = JOptionPane.showConfirmDialog(null,	"Are you sure you want to remove ALL annotations from this chart?", "Confirm", 0, 2);
 				if (result == 0) {
 					myChartPanel.getChart().getXYPlot().clearAnnotations();
