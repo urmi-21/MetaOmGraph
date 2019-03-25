@@ -58,7 +58,7 @@ public class StripedTable extends JTable {
 		int rowIndex = rowAtPoint(p);
 		int defaultCol = convertColumnIndexToView(MetaOmGraph.getActiveProject().getDefaultColumn());
 		String rowName ="";
-		JOptionPane.showMessageDialog(null, "get val at:" + rowIndex + "  col:" + defaultCol);
+		//JOptionPane.showMessageDialog(null, "get val at:" + rowIndex + "  col:" + defaultCol);
 
 		// return if column or row doesn't exist
 		if (rowIndex < 0 || defaultCol < 0) {
