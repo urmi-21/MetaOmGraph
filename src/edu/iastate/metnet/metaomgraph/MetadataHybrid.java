@@ -290,7 +290,7 @@ public class MetadataHybrid {
 		}
 		MetaOmProject myProj = MetaOmGraph.getActiveProject();
 		String thisDC = myProj.getDataColumnHeader(nodeNum);
-		JOptionPane.showMessageDialog(null, "finding md for "+thisDC);
+		//JOptionPane.showMessageDialog(null, "finding md for "+thisDC);
 		return getNodeMetadata(thisDC);
 	}
 

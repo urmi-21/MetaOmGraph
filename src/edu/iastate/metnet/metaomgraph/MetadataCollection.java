@@ -1,5 +1,6 @@
 package edu.iastate.metnet.metaomgraph;
 
+import edu.iastate.metnet.metaomgraph.utils.Utils;
 import edu.iastate.metnet.arrayexpress.NewAEDataDownloader;
 import edu.iastate.metnet.metaomgraph.ui.MetadataEditor;
 import edu.iastate.metnet.metaomgraph.utils.qdxml.SimpleXMLElement;
@@ -895,6 +896,7 @@ public class MetadataCollection {
 	}
 
 	public Document getDataColumnRow(String dataColValue) {
+		dataColValue= Utils.processStringforRegex(dataColValue);
 		dataColValue = "^" + dataColValue + "$";
 		Filter filter = Filters.regex(getDatacol(), dataColValue);
 		List<Document> output = mogCollection.find(filter).toList();

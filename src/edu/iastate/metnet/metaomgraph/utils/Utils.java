@@ -1263,4 +1263,26 @@ public class Utils {
 
 		return res;
 	}
+	
+	
+	/**
+	 * @author urmi This function take a string and converts into regex compatible
+	 *         format by escaping special charecters
+	 * 
+	 */
+	public static String processStringforRegex(String s) {
+		// special chars: [\^$.|?*+(){}
+		String[] special = { "\\", "+", "[", "^", "$", ".", "|", "?", "*", "(", ")", "{", "}", "-" };
+		String res = s;
+		try {
+
+			for (String c : special) {
+				res = res.replaceAll("\\" + c, "\\\\" + c);
+			}
+		} catch (IllegalArgumentException iae) {
+			JOptionPane.showMessageDialog(null, "s:" + s);
+		}
+
+		return res;
+	}
 }
