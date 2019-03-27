@@ -1002,10 +1002,8 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 			}
 		}
 		
-		//temporary set series width
-		/*for (int i = 0; i < selected.length; i++) {
-			myRenderer.setSeriesStroke(i, new BasicStroke(5)); 
-		}*/
+		//urmi set series width
+		updateLineWidths();
 		
 		myRenderer.setUseOutlinePaint(false);
 		myRenderer.setUseFillPaint(true);
@@ -1194,9 +1192,9 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 			myChart.getXYPlot().getDomainAxis().setUpperBound(visibleColumns);
 			myChart.getXYPlot().setRenderer(myRenderer);
 
-			if (selectedSeries >= 0)
+			/*if (selectedSeries >= 0)
 				myRenderer.setSeriesStroke(selectedSeries, new BasicStroke(lineWidth)); 
-			
+			*/
 			myChart.setBorderVisible(true); // by mhhur
 			
 
@@ -2134,6 +2132,22 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 	
 	public int getLineWidth() {
 		return lineWidth;
+	}
+	
+	public int getHighlightedLineWidth() {
+		return lineWidth+2;
+	}
+	
+	public void setLineWidth(int width) {
+		lineWidth=width;
+		updateLineWidths();
+	}
+	
+	private void updateLineWidths() {
+		//selected contains all the series in the graph
+		for (int i = 0; i < selected.length; i++) {
+			myRenderer.setSeriesStroke(i, new BasicStroke(lineWidth)); 
+		}
 	}
 
 	/**
