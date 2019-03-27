@@ -55,8 +55,10 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSlider;
+import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.JToolBar.Separator;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
@@ -156,6 +158,7 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 	private JButton changeAxislabelBtn = new JButton("Change X-Axis labels");
 	Color[] colorArray = null;
 	private JButton changePalette;
+	private JSpinner lWidthSpinner;
 
 	public ChartToolBar(MetaOmChartPanel aChartPanel) {
 		chartProps = aChartPanel.getChartProperties();
@@ -370,6 +373,23 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 		changePalette.setContentAreaFilled(false);
 		changePalette.setBorderPainted(true);
 		add(changePalette);
+		
+		//to change line width
+		lWidthSpinner = new JSpinner();
+		lWidthSpinner.setToolTipText("Changes plot point size");
+		lWidthSpinner.setModel(new SpinnerNumberModel(myChartPanel.getLineWidth(), 1, 20, 1));
+		//set uneditable
+		((JSpinner.DefaultEditor) lWidthSpinner.getEditor()).getTextField().setEditable(false);
+		add(lWidthSpinner);
+		// add change listener
+		ChangeListener listener = new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				myChartPanel.setLineWidth((int) lWidthSpinner.getValue());
+				
+			}
+		};
+
+		lWidthSpinner.addChangeListener(listener);
 	}
 
 	public void setExtendedInfoEnabled(boolean enabled) {

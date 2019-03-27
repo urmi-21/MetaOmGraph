@@ -232,6 +232,7 @@ public class ChartAnnotator implements ChartMouseListener, ChartProgressListener
 		myChartPanel.getInfoPanel().refresh();
 	}
 
+	//highlight series
 	private void darkenNewSeries(int darkenMe) {
 		ChartColorScheme colorScheme = myChartPanel.getChartProperties().getColorScheme();
 		int selectedSeries = myChartPanel.getSelectedSeries();
@@ -242,7 +243,7 @@ public class ChartAnnotator implements ChartMouseListener, ChartProgressListener
 				renderer.setSeriesPaint(selectedSeries, colorScheme.getSeriesPaint(selectedSeries));
 			}
 		}
-		renderer.setSeriesStroke(darkenMe, new BasicStroke(myChartPanel.getLineWidth()+1));
+		renderer.setSeriesStroke(darkenMe, new BasicStroke(myChartPanel.getHighlightedLineWidth()));
 		if (colorScheme.getSelectionPaint(darkenMe) != null) {
 			renderer.setSeriesPaint(darkenMe, colorScheme.getSelectionPaint(darkenMe));
 		}
