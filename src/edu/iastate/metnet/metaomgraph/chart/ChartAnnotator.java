@@ -165,7 +165,7 @@ public class ChartAnnotator implements ChartMouseListener, ChartProgressListener
 				ChartColorScheme colorScheme = myChartPanel.getChartProperties().getColorScheme();
 				if (myChartPanel.getSelectedSeries() >= 0) {
 					myChartPanel.getRenderer().setSeriesStroke(myChartPanel.getSelectedSeries(),
-							new BasicStroke(colorScheme.getDefaultWidth()));
+							new BasicStroke(myChartPanel.getLineWidth()));
 					myChartPanel.getRenderer().setSeriesPaint(myChartPanel.getSelectedSeries(),
 							colorScheme.getSeriesPaint(myChartPanel.getSelectedSeries()));
 				}
@@ -237,12 +237,12 @@ public class ChartAnnotator implements ChartMouseListener, ChartProgressListener
 		int selectedSeries = myChartPanel.getSelectedSeries();
 		XYLineAndShapeRenderer renderer = myChartPanel.getRenderer();
 		if (selectedSeries >= 0) {
-			renderer.setSeriesStroke(selectedSeries, new BasicStroke(colorScheme.getDefaultWidth()));
+			renderer.setSeriesStroke(selectedSeries, new BasicStroke(myChartPanel.getLineWidth()));
 			if (colorScheme.getSelectionPaint(selectedSeries) != null) {
 				renderer.setSeriesPaint(selectedSeries, colorScheme.getSeriesPaint(selectedSeries));
 			}
 		}
-		renderer.setSeriesStroke(darkenMe, new BasicStroke(colorScheme.getSelectionWidth()));
+		renderer.setSeriesStroke(darkenMe, new BasicStroke(myChartPanel.getLineWidth()+1));
 		if (colorScheme.getSelectionPaint(darkenMe) != null) {
 			renderer.setSeriesPaint(darkenMe, colorScheme.getSelectionPaint(darkenMe));
 		}

@@ -203,6 +203,8 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 	// chart colors
 	private Color chartbg = MetaOmGraph.getChartBackgroundColor();
 	private Color plotbg = MetaOmGraph.getPlotBackgroundColor();
+	
+	private int lineWidth=MetaOmGraph.getDefaultLineWidth();
 
 	// private TreeMap<String, List<Integer>> repsMapUsed;
 
@@ -271,29 +273,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 			if (result != JOptionPane.YES_OPTION)
 				return;
 		}
-		// set the xaxis label to datacolumn urmi
-		/*
-		 * change default axis in metaomproject if
-		 * (MetaOmGraph.getActiveProject().getMetadataHybrid() != null) {
-		 * this.xaxisColumn =
-		 * MetaOmGraph.getActiveProject().getMetadataHybrid().getDataColName(); }else {
-		 * this.xaxisColumn = "Data column"; }
-		 */
-
-		// this.sampleNames=new String[sampleNames.length];
-		/*
-		 * if (repFlag) { for (int y = 0; y < sampleNames.length; y++) {
-		 * JOptionPane.showMessageDialog(null, sampleNames[y]); } }
-		 */
-		// if(this.sampleNames==null) {
-		// JOptionPane.showMessageDialog(null,"NULLL" );
-		// }
-		// for(int y=0;y<this.sampleNames.length;y++) {
-		// JOptionPane.showMessageDialog(null,this.sampleNames[y] );
-		// }
-		// this.sampleNames[y]="7888";
-		// }
-
+		
 		props = new ChartProperties();
 		normalizeMode = "none";
 		if (MetaOmGraph.getInstance() != null) {
@@ -1019,8 +999,6 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 		if (colorScheme != null) {
 			for (int i = 0; i < selected.length; i++) {
 				myRenderer.setSeriesPaint(i, colorScheme.getSeriesPaint(i));
-				
-				 
 			}
 		}
 		
@@ -1073,18 +1051,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 				if (stddev == null) {
 
 					XYSeries mySeries = new XYSeries(seriesName, false, false);
-					// if (normalizeMode.equals("ln"))
-					// for (int x = 0; x < thisData.length; x++)
-					// thisData[x] = Math.log(thisData[x]);
-					// else if (normalizeMode.equals("log10"))
-					// for (int x = 0; x < thisData.length; x++)
-					// thisData[x] = (Math.log(thisData[x]) / Math.log(10));
-
-					/*
-					 * if (normalizeMode.equals("log2")) for (int x = 0; x < thisData.length; x++)
-					 * if ((thisData[x] != 0) && (thisData[x] != Double.NaN)) thisData[x] =
-					 * (Math.log(thisData[x]) / Math.log(2));
-					 */
+					
 					int chartX = 0;
 					plottedColumns = new int[visibleColumns];
 					boolean[] exclude = MetaOmAnalyzer.getExclude();
@@ -1223,25 +1190,15 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 			((NumberAxis) (myChart.getXYPlot().getDomainAxis())).setNumberFormatOverride(myFormatter);
 			myChart.getXYPlot().getDomainAxis().setVerticalTickLabels(true);
 			// urmi
-			// myChart.getXYPlot().getDomainAxis().setLabel("xxtz"); //only changes x axis
-			// title
-			// myChart.getXYPlot().setDomainAxis(null);
-
-			// rangeMin = Math.floor(minValue);
-			// rangeMax = Math.ceil(maxValue);
-			// myChart.getXYPlot().getRangeAxis().setLowerBound(rangeMin);
-			// myChart.getXYPlot().getRangeAxis().setUpperBound(rangeMax);
-			// myChartPanel.restoreAutoBounds();
-
-			// myChart.setBackgroundPaint(new GradientPaint(0, getHeight(), color1,
-			// getWidth(), 0, color2)); // by mhhur
 			myChart.getXYPlot().getDomainAxis().setLowerBound(-1);
 			myChart.getXYPlot().getDomainAxis().setUpperBound(visibleColumns);
 			myChart.getXYPlot().setRenderer(myRenderer);
 
 			if (selectedSeries >= 0)
-				myRenderer.setSeriesStroke(selectedSeries, new BasicStroke(2)); // by mhhur
+				myRenderer.setSeriesStroke(selectedSeries, new BasicStroke(lineWidth)); 
+			
 			myChart.setBorderVisible(true); // by mhhur
+			
 
 			if (myChartPanel != null)
 				myChartPanel.setChart(myChart);
@@ -1252,21 +1209,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 			myChart.addChangeListener(hscroll); // mhhur
 			// myChart.addChangeListener(vscroll);
 			myChart.addChangeListener(this);
-			/*
-			 * XYPlot plot = myChart.getXYPlot(); plot.setDomainCrosshairLockedOnData(true);
-			 * plot.setRangeCrosshairLockedOnData(true); if (myAnnotator != null)
-			 * myChart.addProgressListener(myAnnotator); // if (infoPopup == null) { //
-			 * infoPopup = new InfoPopupManager(this); // infoPopup.setEnabled(false); // }
-			 * // if (props.getColorScheme() == null) { // Paint[] defaultColors = new
-			 * Paint[selected.length]; // for (int i = 0; i < defaultColors.length; i++) {
-			 * // defaultColors[i] = myRenderer.getSeriesPaint(i); // } //
-			 * props.setColorScheme(new DefaultColorScheme(defaultColors)); // } //
-			 * myChart.addProgressListener(infoPopup); ValueAxis domainAxis =
-			 * plot.getDomainAxis(); domainAxis.setLowerBound(0);
-			 * domainAxis.setUpperBound(visibleColumns); if (hscroll != null) {
-			 * hscroll.setMax(visibleColumns); }
-			 * 
-			 */
+			
 			if (myChartPanel != null) {
 				myChartPanel.restoreAutoBounds();
 			}
@@ -2187,6 +2130,10 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 			props.setColorScheme(new DefaultColorScheme(defaultColors));
 		}
 		return props;
+	}
+	
+	public int getLineWidth() {
+		return lineWidth;
 	}
 
 	/**

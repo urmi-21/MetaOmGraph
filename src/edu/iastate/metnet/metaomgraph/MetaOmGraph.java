@@ -412,6 +412,13 @@ public class MetaOmGraph implements ActionListener {
 		_T = X;
 	}
 
+	// for line chart
+	private static int lineWidth = 3;
+
+	public static int getDefaultLineWidth() {
+		return lineWidth;
+	}
+
 	/////////////////////
 	private static final String VERSION = "1.7.6";
 	private static final String DATE = "March 25, 2019";
@@ -745,10 +752,10 @@ public class MetaOmGraph implements ActionListener {
 		initThemes();
 		setCurrentTheme("light");
 		mainWindow = new JFrame("MetaOmGraph");
-		 
+
 		ExceptionHandler.getInstance(mainWindow).setUseBuffer(useBuffer);
-		//set setUseBuffer(false) to print to console
-		//ExceptionHandler.getInstance(mainWindow).setUseBuffer(false);
+		// set setUseBuffer(false) to print to console
+		// ExceptionHandler.getInstance(mainWindow).setUseBuffer(false);
 		Thread.setDefaultUncaughtExceptionHandler(ExceptionHandler.getInstance(mainWindow));
 		desktop = new JDesktopPane();
 		desktop.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
@@ -893,8 +900,8 @@ public class MetaOmGraph implements ActionListener {
 		openMDColTypes.addActionListener(myself);
 
 		projectMenu.add(openMetadataStructureItem);
-		//removed temporarily: urmi
-		//projectMenu.add(openInfoColTypes);
+		// removed temporarily: urmi
+		// projectMenu.add(openInfoColTypes);
 
 		projectMenu.addSeparator();
 		// metadataViewerItem = new JMenuItem("View metadata");
@@ -2214,7 +2221,7 @@ public class MetaOmGraph implements ActionListener {
 					e1.printStackTrace();
 				}
 			}
-			
+
 			return;
 		}
 
@@ -3553,8 +3560,7 @@ public class MetaOmGraph implements ActionListener {
 	}
 
 	/**
-	 * @author urmi
-	 * Function to check MOG updates from metnet
+	 * @author urmi Function to check MOG updates from metnet
 	 * 
 	 */
 	public static void checkUpdates(boolean showCurrentMessage) {
