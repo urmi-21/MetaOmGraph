@@ -49,6 +49,7 @@ import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import javax.swing.ScrollPaneConstants;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.JCheckBox;
 
 public class DifferentialExpFrame extends JInternalFrame {
 
@@ -71,6 +72,8 @@ public class DifferentialExpFrame extends JInternalFrame {
 	private MetaOmProject myProject;
 
 	private boolean[] excludedCopy;
+
+	private JCheckBox chckbxSaveResultsWith;
 
 	/**
 	 * Default Properties
@@ -125,6 +128,11 @@ public class DifferentialExpFrame extends JInternalFrame {
 
 		JPanel panel = new JPanel();
 		getContentPane().add(panel, BorderLayout.NORTH);
+
+		chckbxSaveResultsWith = new JCheckBox("Save results with MOG");
+		chckbxSaveResultsWith.setSelected(true);
+
+		panel.add(chckbxSaveResultsWith);
 		JLabel lblTop = new JLabel("Select feature list");
 		panel.add(lblTop);
 		panel.add(comboBox);
@@ -195,14 +203,21 @@ public class DifferentialExpFrame extends JInternalFrame {
 
 				// create DifferentialExpResults object to store results in MOG
 				DifferentialExpResults diffExpObj = new DifferentialExpResults(comboBox_1.getSelectedIndex(),
-						txtGroup1.getText(), txtGroup2.getText(), Integer.parseInt(lblN1.getText()),
-						Integer.parseInt(lblN2.getText()), selectedFeatureList,
-						MetaOmGraph.getInstance().getTransform(), ob.getFeatureNames(), ob.getMean1(), ob.getMean2(),
-						ob.ftestRatios(), ob.ftestPV(), ob.ttestPV());
+						txtGroup1.getText(), txtGroup2.getText(), getAllRows(tableGrp1).size(),
+						getAllRows(tableGrp2).size(), selectedFeatureList, MetaOmGraph.getInstance().getTransform(),
+						ob.getFeatureNames(), ob.getMean1(), ob.getMean2(), ob.ftestRatios(), ob.ftestPV(),
+						ob.testPV());
 
-				// display result
+				// save object
+				if (chckbxSaveResultsWith.isSelected()) {
+					String id = JOptionPane.showInputDialog(MetaOmGraph.getMainWindow(),
+							"Please enter a name for this analysis:", "Save differential expression results.", 2);
+					myProject.addDiffExpRes(id, diffExpObj);
+				}
+
+				// display result using diffExpObj
 				logFCResultsFrame frame = null;
-				frame = new logFCResultsFrame(ob, myProject);
+				frame = new logFCResultsFrame(diffExpObj, myProject);
 				frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
 				frame.setTitle("Fold change results");
 				MetaOmGraph.getDesktop().add(frame);
@@ -256,7 +271,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 		tableGrp2 = initTableModel();
 		// updateTableData(tableGrp2, mdob.getMetadataCollection().getAllDataCols());
 		updateTableData(tableGrp2, null);
-		// jscp2.setViewportView(tableGrp2);
+		jscp2.setViewportView(tableGrp2);
 		panel_3.add(jscp2, BorderLayout.CENTER);
 
 		JButton btnAdd2 = new JButton("Add");

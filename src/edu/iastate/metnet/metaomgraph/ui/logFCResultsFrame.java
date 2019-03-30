@@ -37,6 +37,7 @@ import javax.swing.table.TableRowSorter;
 import edu.iastate.metnet.metaomgraph.AdjustPval;
 import edu.iastate.metnet.metaomgraph.CalculateLogFC;
 import edu.iastate.metnet.metaomgraph.DecimalFormatRenderer;
+import edu.iastate.metnet.metaomgraph.DifferentialExpResults;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.chart.BoxPlot;
@@ -103,9 +104,9 @@ public class logFCResultsFrame extends JInternalFrame {
 		this(featureNames, mean1, mean2, null, null, null, null, null, null, myProject);
 	}
 
-	public logFCResultsFrame(CalculateLogFC ob, MetaOmProject myProject) {
-		this(ob.getFeatureNames(), ob.getMean1(), ob.getMean2(), ob.getGrp1Name(), ob.getGrp2Name(), ob.getMethodName(),
-				ob.ttestPV(), ob.ftestRatios(), ob.ftestPV(), myProject);
+	public logFCResultsFrame(DifferentialExpResults ob, MetaOmProject myProject) {
+		this(ob.getRowNames(), ob.getMeanGrp1(), ob.getMeanGrp2(), ob.getGrp1Name(), ob.getGrp2Name(), ob.getmethodName(),
+				ob.getPVal(), ob.getfStat(), ob.getFPVal(), myProject);
 	}
 
 	public logFCResultsFrame(List<String> featureNames, List<Double> mean1, List<Double> mean2, String name1,

@@ -33,10 +33,10 @@ public class CalculateLogFC {
 	private List<String> featureNames;
 	private List<Double> mean1;
 	private List<Double> mean2;
-	private List<Double> ttestPvals;
+	private List<Double> testPvals;
 	private List<Double> ftestPvals;
 	private List<Double> ftestRatiovals;
-	private List<Double> utestPvals;
+	
 	
 	private boolean calcStatus;
 
@@ -194,7 +194,7 @@ public class CalculateLogFC {
 		mean1 = new ArrayList<>();
 		mean2 = new ArrayList<>();
 
-		ttestPvals = new ArrayList<>();
+		testPvals = new ArrayList<>();
 		ftestPvals = new ArrayList<>();
 		ftestRatiovals = new ArrayList<>();
 		// utestPvals = new ArrayList<>();
@@ -284,7 +284,7 @@ public class CalculateLogFC {
 					// additionly store pvals of f test in ftestPvals
 					if (testMethod == 0) {
 						// perform MannWhitney U test
-						ttestPvals.add(uob.mannWhitneyUTest(s1, s2));
+						testPvals.add(uob.mannWhitneyUTest(s1, s2));
 					} else if (testMethod == 1 || testMethod == 2) {
 						// perform t test with F test
 						// do f test
@@ -305,23 +305,23 @@ public class CalculateLogFC {
 
 						if (testMethod == 1) {
 							// do t test
-							ttestPvals.add(tob.homoscedasticTTest(s1, s2));
+							testPvals.add(tob.homoscedasticTTest(s1, s2));
 						} else if (testMethod == 2) {
 							// do welch test
-							ttestPvals.add(tob.tTest(s1, s2));
+							testPvals.add(tob.tTest(s1, s2));
 						}
 
 					} else if (testMethod == 3) {
 						// perform paired t
-						ttestPvals.add(tob.pairedTTest(s1, s2));
+						testPvals.add(tob.pairedTTest(s1, s2));
 					} else if (testMethod == 4) {
 						// perform wilcoxonSignedRankTest
 						// NOTE: exact p vals only work for n <=30
 						//set exact pv is n <= 10 otherwise its slow
 						if(s1.length<=10) {
-						ttestPvals.add(wsrtob.wilcoxonSignedRankTest(s1, s2, true));
+						testPvals.add(wsrtob.wilcoxonSignedRankTest(s1, s2, true));
 						}else {
-							ttestPvals.add(wsrtob.wilcoxonSignedRankTest(s1, s2, false));	
+							testPvals.add(wsrtob.wilcoxonSignedRankTest(s1, s2, false));	
 						}
 					}
 
@@ -365,8 +365,8 @@ public class CalculateLogFC {
 		return this.mean2;
 	}
 
-	public List<Double> ttestPV() {
-		return this.ttestPvals;
+	public List<Double> testPV() {
+		return this.testPvals;
 	}
 
 	public List<Double> ftestPV() {
@@ -377,9 +377,7 @@ public class CalculateLogFC {
 		return this.ftestRatiovals;
 	}
 
-	public List<Double> utestPV() {
-		return this.utestPvals;
-	}
+	
 	
 	public String getMethodName() {
 		String[] methods = new String[] { "M-W U test", "Student's t-test", "Welch's t-test", "Paired t-test","Wilcoxon Signed Rank Test"};
