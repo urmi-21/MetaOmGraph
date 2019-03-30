@@ -166,6 +166,9 @@ public class MetaOmProject {
 
 	// save meta analysis corr values as mapping of name to correlation
 	private HashMap<String, CorrelationMetaCollection> metaCorrs;
+	
+	// save differential exp analysis results
+	private HashMap<String, DifferentialExpResults> diffExpRes;
 
 	// info column type used to sort data
 	private HashMap<String, Class> infoColTypes = null;
@@ -3345,6 +3348,34 @@ public class MetaOmProject {
 	public RepAveragedData getRepAveragedData(int row) throws IOException {
 		return new RepAveragedData(this, row);
 	}
+	
+	
+	/**
+	 * @author urmi add diff exp result to list to save with project
+	 */
+	public void addDiffExpRes(String id, DifferentialExpResults val) {
+		if (diffExpRes == null) {
+			diffExpRes = new HashMap<>();
+		}
+		diffExpRes.put(id, val);
+	}
+	
+	/**
+	 * @author urmi check if a diff exp result is saved with entered name
+	 * @param name
+	 * @return
+	 */
+	public boolean diffExpNameExists(String name) {
+		boolean res = false;
+		if (diffExpRes == null) {
+			return res;
+		}
+		if (diffExpRes.get(name) != null) {
+			res = true;
+		}
+		return res;
+	}
+	
 
 	/**
 	 * @author urmi add metacorr list to save later
