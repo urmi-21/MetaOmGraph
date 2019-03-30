@@ -1,6 +1,8 @@
 package edu.iastate.metnet.metaomgraph;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 /**
  * Class to store results of a differential expression analysis
@@ -12,7 +14,7 @@ import java.util.List;
 public class DifferentialExpResults {
 
 	// method used for the analysis
-	// 1 MW U test; 2 t test; 3 Weltch t test; 4 Paired t test; 5 Wilcoxon signed
+	// 0 MW U test; 1 t test; 2 Weltch t test; 3 Paired t test; 4 Wilcoxon signed
 	// rank test
 	private int method;
 	private String grp1;
@@ -31,7 +33,7 @@ public class DifferentialExpResults {
 
 	public DifferentialExpResults(int method, String grp1, String grp2, int grp1Size, int grp2Size, String geneListName,
 			String dataTransform, List<String> rowNames, List<Double> meanGrp1, List<Double> meanGrp2,
-			List<Double> logFC, List<Double> fStat, List<Double> fPval, List<Double> pval) {
+			List<Double> fStat, List<Double> fPval, List<Double> pval) {
 
 		this.method = method;
 		this.grp1 = grp1;
@@ -43,29 +45,38 @@ public class DifferentialExpResults {
 		this.rowNames = rowNames;
 		this.meanGrp1 = meanGrp1;
 		this.meanGrp2 = meanGrp2;
-		this.logFC = logFC;
+		this.logFC = calculatelogFC();
 		this.fStat = fStat;
 		this.fPval = fPval;
 		this.pval = pval;
 
 	}
 
+	//calculate log FC
+	private List<Double> calculatelogFC() {
+		List<Double> res = new ArrayList<>();
+		for (int i = 0; i < meanGrp1.size(); i++) {
+			res.add(meanGrp1.get(i) - meanGrp2.get(i));
+		}
+		return res;
+	}
+
 	// methods to retrieve data
 	public String getmethodName() {
-		// 1 MW U test; 2 t test; 3 Weltch t test; 4 Paired t test; 5 Wilcoxon signed
-		if (method == 1) {
+		// 0 MW U test; 1 t test; 2 Weltch t test; 3 Paired t test; 4 Wilcoxon signed
+		if (method == 0) {
 			return "M-W U test";
 		}
-		if (method == 2) {
+		if (method == 1) {
 			return "Student's t test";
 		}
-		if (method == 3) {
+		if (method == 2) {
 			return "Weltch's t test";
 		}
-		if (method == 4) {
+		if (method == 3) {
 			return "Paired t test";
 		}
-		if (method == 5) {
+		if (method == 4) {
 			return "Wilcoxon signed-rank test";
 		}
 

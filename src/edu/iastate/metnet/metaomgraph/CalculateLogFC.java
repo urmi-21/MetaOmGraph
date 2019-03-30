@@ -67,7 +67,7 @@ public class CalculateLogFC {
 	 *            active project
 	 * @param method
 	 *            method to use for calculation 0: M-W U test 1: t test (equal
-	 *            variance) 2: Welch t test (unequal variance) 3: Paired t-test
+	 *            variance) 2: Welch t test (unequal variance) 3: Paired t-test 4: wilcoxon
 	 * 
 	 * 
 	 */
