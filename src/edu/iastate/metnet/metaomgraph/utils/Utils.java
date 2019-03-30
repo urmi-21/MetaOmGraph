@@ -1231,8 +1231,8 @@ public class Utils {
 	 * @param listList A list containing lists
 	 * @return
 	 */
-	public static List<Integer> getListIntersection(java.util.List<java.util.List<Integer>> listList) {
-		java.util.List<Integer> res = new ArrayList<>();
+	public static <T> List<T> getListIntersection(java.util.List<java.util.List<T>> listList) {
+		java.util.List<T> res = new ArrayList<>();
 
 		// find smallest list
 		int smIndex = -1;
@@ -1243,11 +1243,11 @@ public class Utils {
 				smIndex = i;
 			}
 		}
-		java.util.List<Integer> smList = listList.get(smIndex);
+		java.util.List<T> smList = listList.get(smIndex);
 		listList.remove(smIndex);
 		//JOptionPane.showMessageDialog(null, "smlist:"+smList.toString());
 		for (int j = 0; j < smList.size(); j++) {
-			int thisItem=smList.get(j);
+			T thisItem=smList.get(j);
 			boolean breakflag=false;
 			for (int i = 0; i < listList.size(); i++) {
 				if (!listList.get(i).contains(thisItem)) {
