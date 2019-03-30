@@ -211,7 +211,16 @@ public class DifferentialExpFrame extends JInternalFrame {
 				// save object
 				if (chckbxSaveResultsWith.isSelected()) {
 					String id = JOptionPane.showInputDialog(MetaOmGraph.getMainWindow(),
-							"Please enter a name for this analysis:", "Save differential expression results.", 2);
+							"Please enter a name for this analysis:", "Save differential expression results", 2);
+					id=id.trim();
+					if(myProject.diffExpNameExists(id)) {
+						while (myProject.diffExpNameExists(id)) {
+							id = (String) JOptionPane.showInputDialog(MetaOmGraph.getDesktop(),
+									"A previous analysis exists with the same name. Please enter a different name for this analysis",
+									"Save differential expression results", 2);
+						}
+					}
+					
 					myProject.addDiffExpRes(id, diffExpObj);
 				}
 

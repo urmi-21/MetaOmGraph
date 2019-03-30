@@ -563,6 +563,8 @@ public class MetaOmGraph implements ActionListener {
 	private static JMenuItem findSamples;
 	private static JMenu diffExpMenu;
 	private static JMenuItem logChange;
+	private static JMenuItem loadDiffExpResults;
+
 	private static JMenuItem tTest;
 
 	public static final String REPORT_COMMAND = "report";
@@ -1200,9 +1202,15 @@ public class MetaOmGraph implements ActionListener {
 		logChange = new JMenuItem("log FC");
 		logChange.setActionCommand("logChange");
 		logChange.addActionListener(myself);
-		logChange.setToolTipText("Find log FC of genes over two groups");
+		logChange.setToolTipText("Find log fold-change of genes over two groups");
+
+		loadDiffExpResults = new JMenuItem("Load saved results");
+		loadDiffExpResults.setActionCommand("loadDiffExp");
+		loadDiffExpResults.addActionListener(myself);
+		loadDiffExpResults.setToolTipText("Load saved differential expression results");
 
 		diffExpMenu.add(logChange);
+		diffExpMenu.add(loadDiffExpResults);
 
 		toolsMenu.add(diffExpMenu);
 		///////////// end tool menu//////////////////
@@ -2046,7 +2054,7 @@ public class MetaOmGraph implements ActionListener {
 		 */
 		public void finished() {
 			if (activeProject == null) {
-				JOptionPane.showMessageDialog(null, "Failed to open the project.","Error",JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, "Failed to open the project.", "Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 			if (activeProject.isInitialized()) {
@@ -3061,6 +3069,35 @@ public class MetaOmGraph implements ActionListener {
 			lframe.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
 			MetaOmGraph.getDesktop().add(lframe);
 			lframe.setVisible(true);
+
+			return;
+		}
+
+		if ("loadDiffExp".equals(e.getActionCommand())) {
+
+			String[] listOfDE = getActiveProject().getSavedDiffExpResNames();
+			if (listOfDE == null) {
+				JOptionPane.showMessageDialog(null, "No saved results found", "No results",
+						JOptionPane.INFORMATION_MESSAGE);
+				return;
+			}
+			JOptionPane.showMessageDialog(null, "saved" + Arrays.toString(listOfDE));
+
+			// choose one from the available results
+			String chosenVal = (String) JOptionPane.showInputDialog(null, "Choose the DE analysis", "Please choose",
+					JOptionPane.PLAIN_MESSAGE, null, listOfDE, listOfDE[0]);
+			if (chosenVal == null) {
+				return;
+			}
+
+			// display chosen value
+			DifferentialExpResults diffExpObj = getActiveProject().getDiffExpResObj(chosenVal);
+			logFCResultsFrame frame = null;
+			frame = new logFCResultsFrame(diffExpObj, getActiveProject());
+			frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
+			frame.setTitle("Fold change results");
+			MetaOmGraph.getDesktop().add(frame);
+			frame.setVisible(true);
 
 			return;
 		}
