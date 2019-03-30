@@ -1240,6 +1240,7 @@ public class Utils {
 		int smIndex = -1;
 		int smSize = 999999999;
 		for (int i = 0; i < listList.size(); i++) {
+			
 			if (listList.get(i).size() < smSize) {
 				smSize = listList.size();
 				smIndex = i;
