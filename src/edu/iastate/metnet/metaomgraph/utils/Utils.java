@@ -28,6 +28,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1231,8 +1232,9 @@ public class Utils {
 	 * @param listList A list containing lists
 	 * @return
 	 */
-	public static <T> List<T> getListIntersection(java.util.List<java.util.List<T>> listList) {
+	public static <T> List<T> getListIntersection(java.util.List<java.util.List<T>> origLists) {
 		java.util.List<T> res = new ArrayList<>();
+		java.util.List<java.util.List<T>> listList= new ArrayList<>(origLists);
 
 		// find smallest list
 		int smIndex = -1;
@@ -1261,6 +1263,25 @@ public class Utils {
 			}
 		}
 
+		return res;
+	}
+	
+	/**
+	 * get intersection of lists with in a list
+	 * @param listList A list containing lists
+	 * @return
+	 */
+	public static <T> List<T> getListUnion(java.util.List<java.util.List<T>> origLists) {
+		java.util.List<T> res = new ArrayList<>();
+		java.util.List<java.util.List<T>> listList= new ArrayList<>(origLists);
+
+		java.util.Set<T> resSet = new HashSet<>();
+		
+		for(java.util.List l: listList) {
+			resSet.addAll(l);
+		}
+
+		res.addAll(resSet);
 		return res;
 	}
 	
