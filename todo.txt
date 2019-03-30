@@ -1,5 +1,6 @@
 $add data transformation other than log
 $add external web apps to chart bottom panel
+$add gene cards to external search
 $add match case for all queries in TreeSearchQueryConstructionPanel
 $add null metadata to missing metadata columns while reading metadata file
 $add relatedness to menu
@@ -7,17 +8,26 @@ $Adding null values to metadata
 $after reading data file add widow to select types of infocolumns
 $change default rep to outermost/Let user choose a rep column and based on that get reps. This assumes reps in different samples. 
 $Change MI matrix
+$check for auto updates
 $check joint entropy
+$check metadata column names before building tree (handle illegal name exception)
 $check MI code
+$color volcanoplot
 $compute p-val for spearman using fisher from wiki https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient
 $delete unused columns in MD
 $deleting/removing/shifting columns change hyperlink columns
+$does cluster function exclude columns ???
+$double stars in project title
+$filter last search problems with jtable
 $fix open project locate file //works on windows
+$fix scatterplot metadata
 $handle defaultRpath flag
 $Handle missing data
 $Horizontal scroll import metadata
 $improve clicking on chart point/Push annotations far from mouse to allow click
+$improve import list
 $improve searching speed
+$list intersection and union
 $list search or and and not working
 $locate tsv files
 $mac npd to front
@@ -30,6 +40,7 @@ $metadata view functionality
 $MI z values
 $move external application option to menu
 $move search results together
+$plot selected series/features in box plot
 $remove blank row from metadata
 $Remove correlation columns from main table
 $save a list of extra rows in metadata and remove them when project is reopened
@@ -41,10 +52,14 @@ $shift annotation to left of points are on right of chart
 $Show p val on mouse hover
 $Sort by x axis labels
 $spearman corr p value
+$spearman correlation slow
+$test list intersection
 $transform data from chart right click menu
+$when saving query, also save match all or match any flag
 ?add "and" option to quick filter
 ?Add advance filter in main table for genemetadata
 ?Add splash screen/using j exe
+?allow changing info cols in project
 ?avoid light colors
 ?improve pval skip smaller associations
 ?include gephi graph toolkit
@@ -55,99 +70,83 @@ $transform data from chart right click menu
 ?save prog params with mog params not with project
 ?use Lucene for reading files
 ?use of ND4J
+add actions to help buttons
+add bar chart
 add chart annotator for replicate plot
+add data size to plot legends
+add grouping var name in corr detail
+add java color e.g. https://github.com/rcsb/colorbrewer ?
 add mean lines to plot
+add p val corection to diff corr
+add project info to display project files etc
+add pval correction methods
 add scroll in annotation table
+add separate correlation pane?
+add spearman corr for samps
+add threshold to all pairwise computation
+add utility function to filter out colors that match background of plot
 add xml read support for metadata
-?allow changing info cols in project
+Allow to add rows in data as function of selected rows e.g. select genes and add avg of those in each sample or all sample as a new row, or select one gene and its avg over all the sample
+Allow to hide show series; arrange histogram. make more interactive
+allow user to add a short description to correlation column which will be displayed on mouse hover; save the descriptions with project; by default add current data selection, list information in the description;this makes easier to recognize computations
 Allows Spliting Sample attributes in MOG e.g. (a1:v1||a2:v2||a3:v3) should add three attribute a1, a2, a3 with values v1, v2, v3
-$check for auto updates
+atleast two rows should be selected for scatter plot 
+bug in alphanumeric sort main table
+build reps column is slow again
+change def rep col set to current selected col, only call func if changed
+chart fonts and size
 check shuff in group when repsmap is data column
+combine metadata terms to group expression e.g. tumor+tissue will give liver,normal; liver,tumor; stomach,normal;stomach,tumor etc.
+convert to internal frames
+create a common class to handle plot functions from different tables
+create a filter based on gene expression
+dashed vs solid error bar
+deal with illegal chars
+delete metadata not working
+DTP bring to top
+execute other R script ask for out file name 
+filter corrleation details table by r and pval
+fix alphanumeric comparator for case sensitive values
+fix cancelling logfc
 fix email send without pass
+fix shuff in group/order is different
+Handle memory efficiently for analyzing runs (cosine sim, etc)
+Have chart its own excluded data values; Add refresh options to chart sync with current workspace; Allow to filter in current chart only. 
+How error is plotted in avg chart??
+improve sample series plot
+in pearson corr no pval, if data is missing it skips the cols with missing data. Change this to return 0 if a column is missing for a row.
+initialize trivial metadata table is none is given
+Invert selection in Dual table panel while editing or creating list//add actions
+kruskalWalis test
+list merge handle case sensitive names e.g. C15ORF37
+make color themes
+MI,spearman,PC, test all
+mog correlation detail table; remove "load table" function for now
+move splitindex to project class
+option to edit metadata
+order of groups in line chart, hist etc.
+p values histogram
 plot as series xaxis label
+pvalue doesn't show in list
+remove genes from plot once a plot is drawn
+remove special chars from data columns	
+reset rows update title
+revise edit info column function;keep or remove
+save correlation matrix as robject
+save diff exp res
+set plot background in properties
+show header name on hover
+show list size on hover 
+show num of cd used in rep plot metadata
+sort boxplots by mean median..
 Sort in chart while grouped by metadata
+test groupDataIndexbyRepColumn()
 Test tree building algorithm thoroughly
 try plotly
-MI,spearman,PC, test all
-$double stars in project title
-in pearson corr no pval, if data is missing it skips the cols with missing data. Change this to return 0 if a column is missing for a row.
-pvalue doesn't show in list
-fix shuff in group/order is different
-add grouping var name in corr detail
-convert to internal frames
-show header name on hover
-wrap text in metadta tree/table
-reset rows update title
-show num of cd used in rep plot metadata
-change def rep col set to current selected col, only call func if changed
-build reps column is slow again
-remove genes from plot once a plot is drawn
-add project info to display project files etc
-save correlation matrix as robject
-atleast two rows should be selected for scatter plot 
-update tips
-set plot background in properties
-$filter last search problems with jtable
-$spearman correlation slow
-$fix scatterplot metadata
-add actions to help buttons
-mog correlation detail table; remove "load table" function for now
-filter corrleation details table by r and pval
-user function for transformation;add option to clip -ve values to 0
 update boxplot/add more options to boxplot interactions/split box plots type by metadata/color by different types categories// add tooltip
-improve sample series plot
-make color themes
-execute other R script ask for out file name 
-initialize trivial metadata table is none is given
-show list size on hover 
-Invert selection in Dual table panel while editing or creating list//add actions
-allow user to add a short description to correlation column which will be displayed on mouse hover; save the descriptions with project; by default add current data selection, list information in the description;this makes easier to recognize computations
-Allow to add rows in data as function of selected rows e.g. select genes and add avg of those in each sample or all sample as a new row, or select one gene and its avg over all the sample
-How error is plotted in avg chart??
-use "feature" instead of genes/rows
-add java color e.g. https://github.com/rcsb/colorbrewer ?
-add utility function to filter out colors that match background of plot
-p values histogram
-add separate correlation pane?
-DTP bring to top
-combine metadata terms to group expression e.g. tumor+tissue will give liver,normal; liver,tumor; stomach,normal;stomach,tumor etc.
-add threshold to all pairwise computation
-$plot selected series/features in box plot
-venn diagrams fo correlated genes?
-Have chart its own excluded data values; Add refresh options to chart sync with current workspace; Allow to filter in current chart only. 
-Allow to hide show series; arrange histogram. make more interactive
-$does cluster function exclude columns ???
-create a common class to handle plot functions from different tables
-add data size to plot legends
-$improve import list
-$list intersection and union
-$when saving query, also save match all or match any flag
-delete metadata not working
-$test list intersection
-move splitindex to project class
 update default rep columns as data is filtered
-Handle memory efficiently for analyzing runs (cosine sim, etc)
-$check metadata column names before building tree (handle illegal name exception)
-add bar chart
-chart fonts and size
-option to edit metadata
-add p val corection to diff corr
-list merge handle case sensitive names e.g. C15ORF37
-fix cancelling logfc
-kruskalWalis test
-sort boxplots by mean median..
-$add gene cards to external search
-add pval correction methods
-$color volcanoplot
-remove special chars from data columns	
-add spearman corr for samps
-order of groups in line chart, hist etc.
-dashed vs solid error bar
-bug in alphanumeric sort main table
-revise edit info column function;keep or remove
-fix alphanumeric comparator for case sensitive values
-deal with illegal chars
-create a filter based on gene expression
-save diff exp res
-test groupDataIndexbyRepColumn()
-
+update tips
+use "feature" instead of genes/rows
+user function for transformation;add option to clip -ve values to 0
+venn diagrams fo correlated genes?
+wrap text in metadta tree/table
