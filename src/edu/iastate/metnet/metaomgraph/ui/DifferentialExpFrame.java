@@ -42,6 +42,7 @@ import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.MetadataHybrid;
 import edu.iastate.metnet.metaomgraph.CalculateLogFC;
+import edu.iastate.metnet.metaomgraph.DifferentialExpResults;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 
@@ -181,8 +182,8 @@ public class DifferentialExpFrame extends JInternalFrame {
 				// all checks completed, compute logFC
 
 				// measure time
-				//long startTime = System.nanoTime();
-				
+				// long startTime = System.nanoTime();
+
 				CalculateLogFC ob = new CalculateLogFC(selectedFeatureList, grp1, grp2, txtGroup1.getText(),
 						txtGroup2.getText(), myProject, comboBox_1.getSelectedIndex());
 
@@ -191,6 +192,14 @@ public class DifferentialExpFrame extends JInternalFrame {
 				if (!ob.getcalcStatus()) {
 					return;
 				}
+
+				// create DifferentialExpResults object to store results in MOG
+				DifferentialExpResults diffExpObj = new DifferentialExpResults(comboBox_1.getSelectedIndex(),
+						txtGroup1.getText(), txtGroup2.getText(), Integer.parseInt(lblN1.getText()),
+						Integer.parseInt(lblN2.getText()), selectedFeatureList,
+						MetaOmGraph.getInstance().getTransform(), ob.getFeatureNames(), ob.getMean1(), ob.getMean2(),
+						ob.ftestRatios(), ob.ftestPV(), ob.ttestPV());
+
 				// display result
 				logFCResultsFrame frame = null;
 				frame = new logFCResultsFrame(ob, myProject);
@@ -199,11 +208,11 @@ public class DifferentialExpFrame extends JInternalFrame {
 				MetaOmGraph.getDesktop().add(frame);
 				frame.setVisible(true);
 
-				//long endTime = System.nanoTime();
+				// long endTime = System.nanoTime();
 				// get difference of two nanoTime values
-				//float timeElapsed = endTime - startTime;
-				//timeElapsed =  (timeElapsed / (float) 1000000000.00);
-				//JOptionPane.showMessageDialog(null, "Time taken:" + timeElapsed);
+				// float timeElapsed = endTime - startTime;
+				// timeElapsed = (timeElapsed / (float) 1000000000.00);
+				// JOptionPane.showMessageDialog(null, "Time taken:" + timeElapsed);
 
 			}
 		});
@@ -247,7 +256,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 		tableGrp2 = initTableModel();
 		// updateTableData(tableGrp2, mdob.getMetadataCollection().getAllDataCols());
 		updateTableData(tableGrp2, null);
-		jscp2.setViewportView(tableGrp2);
+		// jscp2.setViewportView(tableGrp2);
 		panel_3.add(jscp2, BorderLayout.CENTER);
 
 		JButton btnAdd2 = new JButton("Add");
