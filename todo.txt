@@ -57,17 +57,14 @@ $test list intersection
 $transform data from chart right click menu
 $when saving query, also save match all or match any flag
 ?add "and" option to quick filter
-?Add advance filter in main table for genemetadata
 ?Add splash screen/using j exe
-?allow changing info cols in project
-?avoid light colors
+?allow changing/selecting info cols while in project. 
 ?improve pval skip smaller associations
 ?include gephi graph toolkit
 ?load gene metadata
 ?Make table more readable
 ?Make windows part of project windows
 ?MCL clustering
-?save prog params with mog params not with project
 ?use Lucene for reading files
 ?use of ND4J
 add actions to help buttons
@@ -123,7 +120,7 @@ make color themes
 MI,spearman,PC, test all
 mog correlation detail table; remove "load table" function for now
 move splitindex to project class
-option to edit metadata
+?option to edit metadata
 order of groups in line chart, hist etc.
 p values histogram
 plot as series xaxis label
