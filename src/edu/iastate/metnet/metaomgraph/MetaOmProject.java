@@ -1021,7 +1021,7 @@ public class MetaOmProject {
 						if (mdFile.exists()) {
 							newcollection = new MetadataCollection(fpath, delim, datacol);
 						} else {
-							JOptionPane.showMessageDialog(null, "Please locate the metadata file. Click OK.");
+							JOptionPane.showMessageDialog(null, "Please locate the metadata file. Click OK. "+mdFile.getName());
 							JFileChooser fChooser = new JFileChooser(
 									edu.iastate.metnet.metaomgraph.utils.Utils.getLastDir());
 							int rVal = fChooser.showOpenDialog(MetaOmGraph.getMainWindow());
@@ -1275,21 +1275,24 @@ public class MetaOmProject {
 
 		if (allsWell && projectFileFound) {
 			try {
-				// JOptionPane.showMessageDialog(null, "removedcols:"+removedMDCols.toString());
+				//JOptionPane.showMessageDialog(null, "removedcols:"+removedMDCols.toString());
 				newcollection.removeUnusedCols(removedMDCols);
 				newcollection.removeDataPermanently(new HashSet<>(excluded));
 				newcollection.addNullData(missing);
+				//JOptionPane.showMessageDialog(null, "parse tree");
 				ParseTableTree ob = new ParseTableTree(newcollection, tree, newcollection.getDatacol(),
 						this.getDataColumnHeaders());
+				//JOptionPane.showMessageDialog(null, "to table tree");
 				org.jdom.Document res = ob.tableToTree();
 				// save and read repscolname
 				// add
-				// JOptionPane.showMessageDialog(null, "Creating MDH");
+				//JOptionPane.showMessageDialog(null, "Creating MDH");
 				loadMetadataHybrid(newcollection, res.getRootElement(), ob.getTreeMap(), newcollection.getDatacol(),
 						ob.getMetadataHeaders(), tree, ob.getDefaultRepMap(), ob.getDefaultRepCol(), missing, excluded,
 						removedMDCols);
 
 			} catch (NullPointerException | IOException e) {
+				//JOptionPane.showMessageDialog(null, "error:");
 				e.printStackTrace();
 				return false;
 			}

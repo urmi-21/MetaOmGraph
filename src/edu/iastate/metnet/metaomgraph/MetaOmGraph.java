@@ -2045,6 +2045,10 @@ public class MetaOmGraph implements ActionListener {
 		 * projectOpened(). Otherwise, it removes all traces of the attempted operation.
 		 */
 		public void finished() {
+			if (activeProject == null) {
+				JOptionPane.showMessageDialog(null, "Failed to open the project.","Error",JOptionPane.ERROR_MESSAGE);
+				return;
+			}
 			if (activeProject.isInitialized()) {
 				// mainWindow.setTitle("MetaOmGraph - " + source.getName() + " (" +
 				// getActiveProject().getDataColumnCount()+ " samples)");

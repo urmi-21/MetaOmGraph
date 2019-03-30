@@ -580,6 +580,7 @@ public class MetadataHybrid {
 		// merge results with special case results
 		if (matchAll) {
 			// do intersection of all results
+			JOptionPane.showMessageDialog(null, "spRES:"+specialCaseRes.toString()+" res:"+res.toString());
 			Set resSet=new HashSet<>();
 			Set spSet=new HashSet<>();
 			resSet.addAll(res);
