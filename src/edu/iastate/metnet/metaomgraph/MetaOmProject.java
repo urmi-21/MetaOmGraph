@@ -166,7 +166,7 @@ public class MetaOmProject {
 
 	// save meta analysis corr values as mapping of name to correlation
 	private HashMap<String, CorrelationMetaCollection> metaCorrs;
-	
+
 	// save differential exp analysis results
 	private HashMap<String, DifferentialExpResults> diffExpRes;
 
@@ -1024,7 +1024,8 @@ public class MetaOmProject {
 						if (mdFile.exists()) {
 							newcollection = new MetadataCollection(fpath, delim, datacol);
 						} else {
-							JOptionPane.showMessageDialog(null, "Please locate the metadata file. Click OK. "+mdFile.getName());
+							JOptionPane.showMessageDialog(null,
+									"Please locate the metadata file. Click OK. " + mdFile.getName());
 							JFileChooser fChooser = new JFileChooser(
 									edu.iastate.metnet.metaomgraph.utils.Utils.getLastDir());
 							int rVal = fChooser.showOpenDialog(MetaOmGraph.getMainWindow());
@@ -1278,24 +1279,24 @@ public class MetaOmProject {
 
 		if (allsWell && projectFileFound) {
 			try {
-				//JOptionPane.showMessageDialog(null, "removedcols:"+removedMDCols.toString());
+				// JOptionPane.showMessageDialog(null, "removedcols:"+removedMDCols.toString());
 				newcollection.removeUnusedCols(removedMDCols);
 				newcollection.removeDataPermanently(new HashSet<>(excluded));
 				newcollection.addNullData(missing);
-				//JOptionPane.showMessageDialog(null, "parse tree");
+				// JOptionPane.showMessageDialog(null, "parse tree");
 				ParseTableTree ob = new ParseTableTree(newcollection, tree, newcollection.getDatacol(),
 						this.getDataColumnHeaders());
-				//JOptionPane.showMessageDialog(null, "to table tree");
+				// JOptionPane.showMessageDialog(null, "to table tree");
 				org.jdom.Document res = ob.tableToTree();
 				// save and read repscolname
 				// add
-				//JOptionPane.showMessageDialog(null, "Creating MDH");
+				// JOptionPane.showMessageDialog(null, "Creating MDH");
 				loadMetadataHybrid(newcollection, res.getRootElement(), ob.getTreeMap(), newcollection.getDatacol(),
 						ob.getMetadataHeaders(), tree, ob.getDefaultRepMap(), ob.getDefaultRepCol(), missing, excluded,
 						removedMDCols);
 
 			} catch (NullPointerException | IOException e) {
-				//JOptionPane.showMessageDialog(null, "error:");
+				// JOptionPane.showMessageDialog(null, "error:");
 				e.printStackTrace();
 				return false;
 			}
@@ -1654,7 +1655,6 @@ public class MetaOmProject {
 		return rowNames[entry];
 	}
 
-	
 	public Object[] getRowName(int entry) {
 		if (infoColumns == 0) {
 			String[] result = new String[1];
@@ -1666,6 +1666,7 @@ public class MetaOmProject {
 
 	/**
 	 * Returns the indices of correlation columns
+	 * 
 	 * @return
 	 */
 	public ArrayList<Integer> getCorrelationColumns() {
@@ -1688,6 +1689,7 @@ public class MetaOmProject {
 
 	/**
 	 * get source file
+	 * 
 	 * @return
 	 */
 	public File getSourceFile() {
@@ -1948,16 +1950,16 @@ public class MetaOmProject {
 	public int[] getRowIndexbyName(List<String> names, boolean matchCase) {
 		if (names == null)
 			return null;
-		
-		//use list in case of duplicates in names list
-		List<Integer> res=new ArrayList<>();
-		
+
+		// use list in case of duplicates in names list
+		List<Integer> res = new ArrayList<>();
+
 		if (matchCase) {
 			for (int i = 0; i < rowNames.length; i++) {
 				String thisName = rowNames[i][defaultColumn].toString();
 				if (names.contains(thisName)) {
 					res.add(i);
-					
+
 				}
 			}
 		} else {
@@ -1965,33 +1967,33 @@ public class MetaOmProject {
 				res.add(getRowIndexbyName(s, true));
 			}
 		}
-		
-		int [] temp=new int[res.size()];
-		int k=0;
-		for(int i:res) {
-			temp[k++]=i;
+
+		int[] temp = new int[res.size()];
+		int k = 0;
+		for (int i : res) {
+			temp[k++] = i;
 		}
-		return temp ;
+		return temp;
 	}
 
 	public int getRowIndexbyName(String name, boolean matchCase) {
 		if (name == null)
 			return -1;
-		
-		String [] allRownames=getAllDefaultRowNames();
-		
-		for(int k=0;k<allRownames.length;k++) {
+
+		String[] allRownames = getAllDefaultRowNames();
+
+		for (int k = 0; k < allRownames.length; k++) {
 			String thisName = allRownames[k];
-			
+
 			if (!matchCase) {
 				thisName = thisName.toLowerCase();
 				name = name.toLowerCase();
 			}
-			if(name.equals(thisName)) {
+			if (name.equals(thisName)) {
 				return k;
 			}
 		}
-		
+
 		return -1;
 
 	}
@@ -3348,8 +3350,7 @@ public class MetaOmProject {
 	public RepAveragedData getRepAveragedData(int row) throws IOException {
 		return new RepAveragedData(this, row);
 	}
-	
-	
+
 	/**
 	 * @author urmi add diff exp result to list to save with project
 	 */
@@ -3359,7 +3360,7 @@ public class MetaOmProject {
 		}
 		diffExpRes.put(id, val);
 	}
-	
+
 	/**
 	 * @author urmi check if a diff exp result is saved with entered name
 	 * @param name
@@ -3375,7 +3376,27 @@ public class MetaOmProject {
 		}
 		return res;
 	}
-	
+
+	public String[] getSavedDiffExpResNames() {
+		if (diffExpRes == null) {
+			return null;
+		}
+
+		Set thisSet = diffExpRes.keySet();
+		String[] res = new String[thisSet.size()];
+		int k = 0;
+		for (Object s : thisSet) {
+			res[k++] = (String) s;
+		}
+		return res;
+	}
+
+	public DifferentialExpResults getDiffExpResObj(String key) {
+		if (diffExpRes == null) {
+			return null;
+		}
+		return diffExpRes.get(key);
+	}
 
 	/**
 	 * @author urmi add metacorr list to save later

@@ -1822,7 +1822,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			if (myProject.correlatioNameExists(name)) {
 				while (myProject.correlatioNameExists(name)) {
 					name = (String) JOptionPane.showInputDialog(MetaOmGraph.getDesktop(),
-							"A previous analysis exists with same name. Please enter a different name for the correlation",
+							"A previous analysis exists with the same name. Please enter a different name for the correlation",
 							"Store Correlation", 3, null, null, targetName + " " + methodName);
 				}
 			}
