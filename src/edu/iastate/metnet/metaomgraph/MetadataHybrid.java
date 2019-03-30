@@ -580,26 +580,29 @@ public class MetadataHybrid {
 		// merge results with special case results
 		if (matchAll) {
 			// do intersection of all results
-			Utils.getListIntersection(specialCaseRes);
-			JOptionPane.showMessageDialog(null, "spRES:"+specialCaseRes.toString()+" res:"+res.toString()+" intr:"+Utils.getListIntersection(specialCaseRes));
-			Set resSet=new HashSet<>();
-			Set spSet=new HashSet<>();
-			resSet.addAll(res);
-			spSet=new HashSet<>();
-			spSet.addAll(specialCaseRes);
-			resSet.retainAll(spSet);
-			
-			res=new ArrayList<>(resSet);
-			
-		} else {
-			for (int i = 0; i < specialCaseRes.size(); i++) {
-				for (String s : specialCaseRes.get(i)) {
+			// Utils.getListIntersection(specialCaseRes);
+			// JOptionPane.showMessageDialog(null, "spRES:" + specialCaseRes.toString() +
+			// "res:" + res.toString()+ " intr:" +
+			// Utils.getListIntersection(specialCaseRes));
 
-					if (!res.contains(s)) {
-						res.add(s);
-					}
-				}
+			// if there were other queries get the intersection
+			if (farray.length > 0) {
+				specialCaseRes.add(res);
 			}
+			res = Utils.getListIntersection(specialCaseRes);
+
+			// JOptionPane.showMessageDialog(null, "res:" + res);
+
+		} else {
+
+			specialCaseRes.add(res);
+			res = Utils.getListUnion(specialCaseRes);
+			/*
+			 * for (int i = 0; i < specialCaseRes.size(); i++) { for (String s :
+			 * specialCaseRes.get(i)) {
+			 * 
+			 * if (!res.contains(s)) { res.add(s); } } }
+			 */
 		}
 
 		return res;
