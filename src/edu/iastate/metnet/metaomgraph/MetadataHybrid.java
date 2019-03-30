@@ -29,6 +29,7 @@ import org.jdom.output.XMLOutputter;
 
 import edu.iastate.metnet.metaomgraph.MetaOmProject.RepAveragedData;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
+import edu.iastate.metnet.metaomgraph.utils.Utils;
 import edu.iastate.metnet.metaomgraph.utils.qdxml.SimpleXMLElement;
 
 /*
@@ -179,7 +180,7 @@ public class MetadataHybrid {
 	}
 
 	public TreeMap<String, List<Integer>> getDefaultRepsMap() {
-		//build defaultrepsMap in case samples were changed
+		// build defaultrepsMap in case samples were changed
 		setDefaultRepsMap(buildRepsMap(getDefaultRepCol()));
 		return this.defaultrepsMap;
 	}
@@ -260,7 +261,7 @@ public class MetadataHybrid {
 		String[][] md = null;
 		String thisDC = dataColName;
 		Document thisRow = mogCollection.getDataColumnRow(thisDC);
-		if(thisRow==null) {
+		if (thisRow == null) {
 			JOptionPane.showMessageDialog(null, "found null");
 			return null;
 		}
@@ -290,7 +291,7 @@ public class MetadataHybrid {
 		}
 		MetaOmProject myProj = MetaOmGraph.getActiveProject();
 		String thisDC = myProj.getDataColumnHeader(nodeNum);
-		//JOptionPane.showMessageDialog(null, "finding md for "+thisDC);
+		// JOptionPane.showMessageDialog(null, "finding md for "+thisDC);
 		return getNodeMetadata(thisDC);
 	}
 
@@ -423,7 +424,7 @@ public class MetadataHybrid {
 	 * @return
 	 */
 	public Integer[] search(MetadataQuery[] queries, boolean matchAll) {
-		
+
 		ArrayList<Integer> result = new ArrayList();
 		Integer[] toReturn;
 		List<String> colVals = new ArrayList<>();
@@ -442,13 +443,12 @@ public class MetadataHybrid {
 			matchCase[i] = queries[i].isCaseSensitive();
 			// JOptionPane.showMessageDialog(null, "search f:" + fields[i]);
 		}
-		
-				
+
 		colVals.addAll(searchByValue(allfields, toSearch, this.dataColumn, isExact, matchAll, matchCase));
-		
-		//JOptionPane.showMessageDialog(null, "colvals:" + colVals.toString());
-		//JOptionPane.showMessageDialog(null, "knownCols:" + knownCols.toString());
-		
+
+		// JOptionPane.showMessageDialog(null, "colvals:" + colVals.toString());
+		// JOptionPane.showMessageDialog(null, "knownCols:" + knownCols.toString());
+
 		// find all keys with value in colVals
 		for (Entry<Integer, Element> entry : knownCols.entrySet()) {
 			Integer key = entry.getKey();
@@ -509,9 +509,9 @@ public class MetadataHybrid {
 			isExact[i] = queries[i].isExact();
 			matchCase[i] = queries[i].isCaseSensitive();
 		}
-			
+
 		colVals.addAll(searchByValue(allfields, toSearch, this.dataColumn, isExact, matchAll, matchCase));
-		
+
 		return colVals;
 	}
 
@@ -545,7 +545,6 @@ public class MetadataHybrid {
 			if (field[i] == "All Fields") {
 
 				// List<String> res2 = new ArrayList<>();
-
 				specialCaseRes.add(searchByValue(toSearch[i], toReturn, exact[i], true, matchCase[i]));
 
 			} else if (field[i] == "Any Field") {
@@ -578,12 +577,25 @@ public class MetadataHybrid {
 
 		res = this.mogCollection.getDatabyAttributes(comboFilter, toReturn, true);
 
-		// merge all lists together
-		for (int i = 0; i < specialCaseRes.size(); i++) {
-			for (String s : specialCaseRes.get(i)) {
+		// merge results with special case results
+		if (matchAll) {
+			// do intersection of all results
+			Set resSet=new HashSet<>();
+			Set spSet=new HashSet<>();
+			resSet.addAll(res);
+			spSet=new HashSet<>();
+			spSet.addAll(specialCaseRes);
+			resSet.retainAll(spSet);
+			
+			res=new ArrayList<>(resSet);
+			
+		} else {
+			for (int i = 0; i < specialCaseRes.size(); i++) {
+				for (String s : specialCaseRes.get(i)) {
 
-				if (!res.contains(s)) {
-					res.add(s);
+					if (!res.contains(s)) {
+						res.add(s);
+					}
 				}
 			}
 		}
