@@ -413,7 +413,7 @@ public class MetaOmGraph implements ActionListener {
 	}
 
 	// for line chart
-	private static int lineWidth = 2;
+	private static int lineWidth = 1;
 
 	public static int getDefaultLineWidth() {
 		return lineWidth;
