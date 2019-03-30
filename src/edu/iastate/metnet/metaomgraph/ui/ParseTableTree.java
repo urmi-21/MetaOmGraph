@@ -97,10 +97,14 @@ public class ParseTableTree {
 		TreeNode root = (TreeNode) tree.getModel().getRoot();
 		Element XMLroot = new Element("Experiments");
 		colIndextoNode = new TreeMap<Integer, Element>();
-
 		/////////////////
 		long startTime = System.currentTimeMillis();
+		try {
 		buildTree(root, XMLroot);
+		}
+		catch(Exception ex) {
+			JOptionPane.showMessageDialog(null,"Error building tree from table","Error",JOptionPane.ERROR_MESSAGE);
+		}
 		long stopTime = System.currentTimeMillis();
 		long elapsedTime = stopTime - startTime;
 
