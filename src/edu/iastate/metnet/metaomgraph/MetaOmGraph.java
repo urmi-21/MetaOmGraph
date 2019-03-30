@@ -3081,7 +3081,7 @@ public class MetaOmGraph implements ActionListener {
 						JOptionPane.INFORMATION_MESSAGE);
 				return;
 			}
-			JOptionPane.showMessageDialog(null, "saved" + Arrays.toString(listOfDE));
+			//JOptionPane.showMessageDialog(null, "saved" + Arrays.toString(listOfDE));
 
 			// choose one from the available results
 			String chosenVal = (String) JOptionPane.showInputDialog(null, "Choose the DE analysis", "Please choose",
