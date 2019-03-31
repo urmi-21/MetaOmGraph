@@ -1,0 +1,21 @@
+MOG 1.7.x Release date: 4/5/2019 
+Save differenential expression analysis results with MOG project.
+Adjust line width in line charts.
+Fixed search function bug which gave wrong results with multiple queries contains "All field" and "Any field".
+Added more exception handling while reading projects.
+
+MOG 1.7.6 Release date: 3/25/2019
+Fixed bug which crashed MOG when there were special characters in info columns.
+Changed get tooltip function for scatter and line charts to handle null metadata exception and prevent crashing.
+Changed get tooltip function for StripedTable class to handle tables with no metadata.
+Changed table to treemap function to allow datacolumns at any level of the tree. Before the level had to be 3 or more (Root is level 1).
+Added AlphanumericComparator class to sort all columns in main and metadata table.
+Removed "set info cols type" option.
+Added option to resize scatter plot points
+
+MOG 1.7.5 Release date: 3/15/2019
+Fixed various bugs and added more exception handling.
+Added support to search Genecards database.
+Added volcano plots.
+Added interface for differential expression analysis.
+Updated existing documentation (not complete).
