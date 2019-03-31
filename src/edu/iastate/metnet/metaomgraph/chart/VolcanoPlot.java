@@ -133,6 +133,8 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 	List<String> featureNames;
 	List<Double> foldChange;
 	List<Double> pVals;
+	private String grp1;
+	private String grp2;
 
 	private double significanceCutOff = 0.01;
 	private double foldChangeCutOffUp = 1;
@@ -146,14 +148,16 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 	 */
 	public VolcanoPlot() {
 
-		this(null, null, null);
+		this(null, null, null,"","");
 
 	}
 
-	public VolcanoPlot(List<String> featureNames, List<Double> fc, List<Double> pv) {
+	public VolcanoPlot(List<String> featureNames, List<Double> fc, List<Double> pv, String g1,String g2) {
 		this.featureNames = featureNames;
 		this.foldChange = fc;
 		this.pVals = pv;
+		this.grp1=g1;
+		this.grp2=g2;
 		// format the data; order data by foldchange values so order in lists and chart
 		// is maintained
 		formatInput();
@@ -482,12 +486,12 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		// List<String> thisName=upRegData.getNames();
 		List<Double> thisFC = upRegData.getFC();
 		List<Double> thisPV = upRegData.getPV();
-		XYSeries seriesUp = createSeries(thisFC, thisPV, "Upregulated");
+		XYSeries seriesUp = createSeries(thisFC, thisPV, "Upregulated("+grp1+")");
 		dataset.addSeries(seriesUp);
 		// add dwnReg
 		thisFC = dwnRegData.getFC();
 		thisPV = dwnRegData.getPV();
-		XYSeries seriesDwn = createSeries(thisFC, thisPV, "Downregulated");
+		XYSeries seriesDwn = createSeries(thisFC, thisPV, "Downregulated("+grp1+")");
 		dataset.addSeries(seriesDwn);
 		// add unReg
 		thisFC = unRegData.getFC();
