@@ -1095,6 +1095,7 @@ public class MetaOmProject {
 					removedMDColsFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				} else if ((thisEntry.getName().equals("diffexpresults.xml")) && (!diffExpResfound)) {
+					JOptionPane.showMessageDialog(null, "reading DE");
 					inputReader = new BufferedReader(new InputStreamReader(instream));
 					sb = new StringBuilder();
 					inline = "";
@@ -1106,7 +1107,7 @@ public class MetaOmProject {
 					Element xmlRoot = doc.getRootElement();
 					// read program parameters
 					List<Element> clist = xmlRoot.getChildren();
-					removedMDCols = new ArrayList<>();
+					JOptionPane.showMessageDialog(null, "clist:"+clist.size() +" "+ clist.toString());
 					// crate DifferentialExpResults objs
 					for (int i = 0; i < clist.size(); i++) {
 						Element thisNode = clist.get(i);
@@ -1119,32 +1120,36 @@ public class MetaOmProject {
 						int g1size = Integer.parseInt(thisNode.getAttributeValue("Group1Size"));
 						int g2size = Integer.parseInt(thisNode.getAttributeValue("Group2Size"));
 
+						JOptionPane.showMessageDialog(null,
+								"id:" + id + "g1n:" + g1name + "g2n:" + g2name + "fl:" + flistname + "dt:"
+										+ datatransform + "mtd:" + method + "g1s:" + g1size + "g2s:" + g2size);
 						// get rownames
 						List<Element> rowList = thisNode.getChild("rownames").getChildren();
 						List<String> rowNames = new ArrayList<>();
 						for (Element c : rowList) {
-							rowNames.add(c.getContent().get(0).toString());
-
+							rowNames.add(c.getContent(0).getValue());
 						}
+
+						JOptionPane.showMessageDialog(null, "rowNames" + rowNames.toString());
 
 						// get meangrp1
 						List<Element> grp1 = thisNode.getChild("grp1").getChildren();
 						List<Double> meangrp1 = new ArrayList<>();
 						for (Element c : grp1) {
-							meangrp1.add(Double.parseDouble(c.getContent().get(0).toString()));
+							meangrp1.add(Double.parseDouble(c.getContent(0).getValue()));
 						}
 						// get meangrp2
 						List<Element> grp2 = thisNode.getChild("grp2").getChildren();
 						List<Double> meangrp2 = new ArrayList<>();
 						for (Element c : grp2) {
-							meangrp2.add(Double.parseDouble(c.getContent().get(0).toString()));
+							meangrp2.add(Double.parseDouble(c.getContent(0).getValue()));
 						}
 
 						// get logfc
 						List<Element> logfc = thisNode.getChild("logfc").getChildren();
 						List<Double> logFC = new ArrayList<>();
 						for (Element c : logfc) {
-							logFC.add(Double.parseDouble(c.getContent().get(0).toString()));
+							logFC.add(Double.parseDouble(c.getContent(0).getValue()));
 						}
 
 						// get fstat; only present for t test
@@ -1154,34 +1159,33 @@ public class MetaOmProject {
 						if (fstat != null) {
 							fStat = new ArrayList<>();
 							for (Element c : fstat) {
-								fStat.add(Double.parseDouble(c.getContent().get(0).toString()));
+								fStat.add(Double.parseDouble(c.getContent(0).getValue()));
 							}
 							// add fpval
 							List<Element> fpval = thisNode.getChild("fpval").getChildren();
 							fPval = new ArrayList<>();
 							for (Element c : fstat) {
-								fPval.add(Double.parseDouble(c.getContent().get(0).toString()));
+								fPval.add(Double.parseDouble(c.getContent(0).getValue()));
 							}
 
 						}
-						
+
 						// get pval
 						List<Element> pval = thisNode.getChild("pval").getChildren();
 						List<Double> pVal = new ArrayList<>();
 						for (Element c : pval) {
-							pVal.add(Double.parseDouble(c.getContent().get(0).toString()));
+							pVal.add(Double.parseDouble(c.getContent(0).getValue()));
 						}
 
 						DifferentialExpResults thisOb = new DifferentialExpResults(id, method, g1name, g2name, g1size,
-								g2size, flistname, datatransform, rowNames, meangrp1, meangrp2, fStat, fPval,
-								pVal);
-						
-						//add this ob to saved DE
+								g2size, flistname, datatransform, rowNames, meangrp1, meangrp2, fStat, fPval, pVal);
+
+						// add this ob to saved DE
 						addDiffExpRes(id, thisOb);
 
 					}
 
-					removedMDColsFound = true;
+					diffExpResfound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				}
 
