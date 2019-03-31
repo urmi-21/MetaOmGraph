@@ -506,8 +506,6 @@ public class MetaOmProject {
 		setRowNames(rowNames, newInfoCols);
 	}
 
-	
-
 	/**
 	 * @author urmi new save project
 	 * @param destination
@@ -700,8 +698,8 @@ public class MetaOmProject {
 				Document params = new Document();
 				params.setRootElement(getParamsasXML());
 				output.output(params, myZipOut);
-				
-				//write diff exp results
+
+				// write diff exp results
 				myZipOut.putNextEntry(new ZipEntry("diffexpresults.xml"));
 				Document diffexpXML = new Document();
 				diffexpXML.setRootElement(getDEResAsXML());
@@ -784,6 +782,7 @@ public class MetaOmProject {
 		boolean excludedFound = false;
 		boolean missingFound = false;
 		boolean removedMDColsFound = false;
+		boolean diffExpResfound = false;
 		BufferedReader inputReader;
 		StringBuilder sb;
 		String inline;
@@ -1090,6 +1089,95 @@ public class MetaOmProject {
 						Element thisElement = clist.get(i);
 						String thisElementName = thisElement.getName();
 						removedMDCols.add(thisElementName);
+
+					}
+
+					removedMDColsFound = true;
+					instream = new ZipInputStream(new FileInputStream(projectFile));
+				} else if ((thisEntry.getName().equals("diffexpresults.xml")) && (!diffExpResfound)) {
+					inputReader = new BufferedReader(new InputStreamReader(instream));
+					sb = new StringBuilder();
+					inline = "";
+					while ((inline = inputReader.readLine()) != null) {
+						sb.append(inline);
+					}
+					builder = new SAXBuilder();
+					Document doc = (Document) builder.build(new ByteArrayInputStream(sb.toString().getBytes()));
+					Element xmlRoot = doc.getRootElement();
+					// read program parameters
+					List<Element> clist = xmlRoot.getChildren();
+					removedMDCols = new ArrayList<>();
+					// crate DifferentialExpResults objs
+					for (int i = 0; i < clist.size(); i++) {
+						Element thisNode = clist.get(i);
+						String id = thisNode.getName();
+						String g1name = thisNode.getAttributeValue("Group1");
+						String g2name = thisNode.getAttributeValue("Group2");
+						String flistname = thisNode.getAttributeValue("FeatureList");
+						String datatransform = thisNode.getAttributeValue("DataTransform");
+						int method = Integer.parseInt(thisNode.getAttributeValue("method"));
+						int g1size = Integer.parseInt(thisNode.getAttributeValue("Group1Size"));
+						int g2size = Integer.parseInt(thisNode.getAttributeValue("Group2Size"));
+
+						// get rownames
+						List<Element> rowList = thisNode.getChild("rownames").getChildren();
+						List<String> rowNames = new ArrayList<>();
+						for (Element c : rowList) {
+							rowNames.add(c.getContent().get(0).toString());
+
+						}
+
+						// get meangrp1
+						List<Element> grp1 = thisNode.getChild("grp1").getChildren();
+						List<Double> meangrp1 = new ArrayList<>();
+						for (Element c : grp1) {
+							meangrp1.add(Double.parseDouble(c.getContent().get(0).toString()));
+						}
+						// get meangrp2
+						List<Element> grp2 = thisNode.getChild("grp2").getChildren();
+						List<Double> meangrp2 = new ArrayList<>();
+						for (Element c : grp2) {
+							meangrp2.add(Double.parseDouble(c.getContent().get(0).toString()));
+						}
+
+						// get logfc
+						List<Element> logfc = thisNode.getChild("logfc").getChildren();
+						List<Double> logFC = new ArrayList<>();
+						for (Element c : logfc) {
+							logFC.add(Double.parseDouble(c.getContent().get(0).toString()));
+						}
+
+						// get fstat; only present for t test
+						List<Double> fStat = null;
+						List<Double> fPval = null;
+						List<Element> fstat = thisNode.getChild("fstat").getChildren();
+						if (fstat != null) {
+							fStat = new ArrayList<>();
+							for (Element c : fstat) {
+								fStat.add(Double.parseDouble(c.getContent().get(0).toString()));
+							}
+							// add fpval
+							List<Element> fpval = thisNode.getChild("fpval").getChildren();
+							fPval = new ArrayList<>();
+							for (Element c : fstat) {
+								fPval.add(Double.parseDouble(c.getContent().get(0).toString()));
+							}
+
+						}
+						
+						// get pval
+						List<Element> pval = thisNode.getChild("pval").getChildren();
+						List<Double> pVal = new ArrayList<>();
+						for (Element c : pval) {
+							pVal.add(Double.parseDouble(c.getContent().get(0).toString()));
+						}
+
+						DifferentialExpResults thisOb = new DifferentialExpResults(id, method, g1name, g2name, g1size,
+								g2size, flistname, datatransform, rowNames, meangrp1, meangrp2, fStat, fPval,
+								pVal);
+						
+						//add this ob to saved DE
+						addDiffExpRes(id, thisOb);
 
 					}
 
@@ -3368,28 +3456,29 @@ public class MetaOmProject {
 
 		return thisNode;
 	}
-	
-	
+
 	/**
 	 * get saved differential expression results as XML
+	 * 
 	 * @return
 	 */
 	public Element getDEResAsXML() {
 		Element root = new Element("ROOT");
 		root.setAttribute("name", "Root");
-		if(diffExpRes!=null) {
-			String[] savedDE=getSavedDiffExpResNames();
-			for(String id: savedDE) {
-				DifferentialExpResults thisOB=getDiffExpResObj(id);
+		if (diffExpRes != null) {
+			String[] savedDE = getSavedDiffExpResNames();
+			for (String id : savedDE) {
+				DifferentialExpResults thisOB = getDiffExpResObj(id);
 				root.addContent(thisOB.getAsXMLNode());
 			}
 		}
-		
+
 		return root;
 	}
 
 	/**
 	 * return MOG parameters as XML
+	 * 
 	 * @return
 	 */
 	public Element getParamsasXML() {
@@ -3404,7 +3493,6 @@ public class MetaOmProject {
 		threads.setAttribute("value", String.valueOf(MetaOmGraph.getNumThreads()));
 		root.addContent(threads);
 
-		
 		// info about hyperlinked columns
 		Element hyperlinks = new Element("hyperlinksCols");
 
