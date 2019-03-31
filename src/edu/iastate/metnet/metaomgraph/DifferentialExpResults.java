@@ -27,7 +27,7 @@ public class DifferentialExpResults {
 	private String grp2;
 	private int grp1Size;
 	private int grp2Size;
-	private String geneListName;
+	private String featureListName;
 	private String dataTransform;
 	private List<String> rowNames;
 	private List<Double> meanGrp1;
@@ -39,7 +39,7 @@ public class DifferentialExpResults {
 	private String id;
 
 	public DifferentialExpResults(String id, int method, String grp1, String grp2, int grp1Size, int grp2Size,
-			String geneListName, String dataTransform, List<String> rowNames, List<Double> meanGrp1,
+			String featureListName, String dataTransform, List<String> rowNames, List<Double> meanGrp1,
 			List<Double> meanGrp2, List<Double> fStat, List<Double> fPval, List<Double> pval) {
 		this.id = id;
 		this.method = method;
@@ -47,7 +47,7 @@ public class DifferentialExpResults {
 		this.grp2 = grp2;
 		this.grp1Size = grp1Size;
 		this.grp2Size = grp2Size;
-		this.geneListName = geneListName;
+		this.featureListName = featureListName;
 		this.dataTransform = dataTransform;
 		this.rowNames = rowNames;
 		this.meanGrp1 = meanGrp1;
@@ -103,7 +103,7 @@ public class DifferentialExpResults {
 	}
 
 	public String getGeneListName() {
-		return geneListName;
+		return featureListName;
 	}
 
 	public String geDataTransform() {
@@ -148,7 +148,19 @@ public class DifferentialExpResults {
 
 	// return this object in XML format
 	public Element getAsXMLNode() {
+		
 		Element res = new Element(id);
+		
+		//add attributes
+		res.setAttribute("method", String.valueOf(method));
+		res.setAttribute("Group1", grp1);
+		res.setAttribute("Group2", grp2);
+		res.setAttribute("Group1Size", String.valueOf(grp1Size));
+		res.setAttribute("Group2Size", String.valueOf(grp2Size));
+		res.setAttribute("FeatureList", featureListName);
+		res.setAttribute("DataTransform", dataTransform);
+		
+		
 		// add rownames
 		Element rowName = new Element("rownames");
 		for (int i = 0; i < rowNames.size(); i++) {
