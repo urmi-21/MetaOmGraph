@@ -1095,7 +1095,7 @@ public class MetaOmProject {
 					removedMDColsFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				} else if ((thisEntry.getName().equals("diffexpresults.xml")) && (!diffExpResfound)) {
-					JOptionPane.showMessageDialog(null, "reading DE");
+					//JOptionPane.showMessageDialog(null, "reading DE");
 					inputReader = new BufferedReader(new InputStreamReader(instream));
 					sb = new StringBuilder();
 					inline = "";
@@ -1107,9 +1107,10 @@ public class MetaOmProject {
 					Element xmlRoot = doc.getRootElement();
 					// read program parameters
 					List<Element> clist = xmlRoot.getChildren();
-					JOptionPane.showMessageDialog(null, "clist:"+clist.size() +" "+ clist.toString());
+					//JOptionPane.showMessageDialog(null, "clist:"+clist.size() +" "+ clist.toString());
 					// crate DifferentialExpResults objs
 					for (int i = 0; i < clist.size(); i++) {
+						
 						Element thisNode = clist.get(i);
 						String id = thisNode.getName();
 						String g1name = thisNode.getAttributeValue("Group1");
@@ -1120,17 +1121,12 @@ public class MetaOmProject {
 						int g1size = Integer.parseInt(thisNode.getAttributeValue("Group1Size"));
 						int g2size = Integer.parseInt(thisNode.getAttributeValue("Group2Size"));
 
-						JOptionPane.showMessageDialog(null,
-								"id:" + id + "g1n:" + g1name + "g2n:" + g2name + "fl:" + flistname + "dt:"
-										+ datatransform + "mtd:" + method + "g1s:" + g1size + "g2s:" + g2size);
 						// get rownames
 						List<Element> rowList = thisNode.getChild("rownames").getChildren();
 						List<String> rowNames = new ArrayList<>();
 						for (Element c : rowList) {
 							rowNames.add(c.getContent(0).getValue());
 						}
-
-						JOptionPane.showMessageDialog(null, "rowNames" + rowNames.toString());
 
 						// get meangrp1
 						List<Element> grp1 = thisNode.getChild("grp1").getChildren();
