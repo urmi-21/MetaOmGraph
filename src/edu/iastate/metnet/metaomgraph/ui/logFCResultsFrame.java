@@ -482,7 +482,7 @@ public class logFCResultsFrame extends JInternalFrame {
 		}
 		
 		//make plot
-		VolcanoPlot f = new VolcanoPlot(featureNames, fc, pv);
+		VolcanoPlot f = new VolcanoPlot(featureNames, fc, pv,name1,name2);
 		MetaOmGraph.getDesktop().add(f);
 		f.setDefaultCloseOperation(2);
 		f.setClosable(true);
