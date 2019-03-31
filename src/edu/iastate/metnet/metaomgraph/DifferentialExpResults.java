@@ -149,23 +149,80 @@ public class DifferentialExpResults {
 	// return this object in XML format
 	public Element getAsXMLNode() {
 		Element res = new Element(id);
-		//add rownames
-		Element rowName=new Element("rownames");
-		for(int i=0;i<rowNames.size();i++) {
-			Element thisVal=new Element("value");
+		// add rownames
+		Element rowName = new Element("rownames");
+		for (int i = 0; i < rowNames.size(); i++) {
+			Element thisVal = new Element("value");
 			thisVal.addContent(rowNames.get(i));
 			rowName.addContent(thisVal);
 		}
 
+		// add meangrp1
+		Element grp1 = new Element("grp1");
+		for (int i = 0; i < meanGrp1.size(); i++) {
+			Element thisVal = new Element("value");
+			thisVal.addContent(String.valueOf(meanGrp1.get(i)));
+			grp1.addContent(thisVal);
+		}
+
+		// add meangrp2
+		Element grp2 = new Element("grp2");
+		for (int i = 0; i < meanGrp2.size(); i++) {
+			Element thisVal = new Element("value");
+			thisVal.addContent(String.valueOf(meanGrp2.get(i)));
+			grp2.addContent(thisVal);
+		}
+
+		// add logfc
+		Element logfc = new Element("logfc");
+		for (int i = 0; i < logFC.size(); i++) {
+			Element thisVal = new Element("value");
+			thisVal.addContent(String.valueOf(logFC.get(i)));
+			logfc.addContent(thisVal);
+		}
+
+		// add fstat
+		Element fstat = new Element("fstat");
+		if (fstat != null) {
+			for (int i = 0; i < fStat.size(); i++) {
+				Element thisVal = new Element("value");
+				thisVal.addContent(String.valueOf(fStat.get(i)));
+				fstat.addContent(thisVal);
+			}
+		}
+
+		// add fPval
+		Element fpval = new Element("fpval");
+		if (fPval != null) {
+			for (int i = 0; i < fPval.size(); i++) {
+				Element thisVal = new Element("value");
+				thisVal.addContent(String.valueOf(fPval.get(i)));
+				fpval.addContent(thisVal);
+			}
+		}
+
+		// add fPval
+		Element pVal = new Element("pval");
+		for (int i = 0; i < pval.size(); i++) {
+			Element thisVal = new Element("value");
+			thisVal.addContent(String.valueOf(pval.get(i)));
+			pVal.addContent(thisVal);
+		}
+
 		res.addContent(rowName);
-		
-		//print
-		XMLOutputter outter = new XMLOutputter();
-		outter.setFormat(Format.getPrettyFormat());
-		String resDoc = outter.outputString(res);
-		JOptionPane.showMessageDialog(null, resDoc);
-		
-				
+		res.addContent(grp1);
+		res.addContent(grp2);
+		res.addContent(logfc);
+		res.addContent(fstat);
+		res.addContent(fpval);
+		res.addContent(pVal);
+
+		// print
+		/*
+		 * XMLOutputter outter = new XMLOutputter();
+		 * outter.setFormat(Format.getPrettyFormat()); String resDoc =
+		 * outter.outputString(res); JOptionPane.showMessageDialog(null, resDoc);
+		 */
 		return res;
 	}
 }
