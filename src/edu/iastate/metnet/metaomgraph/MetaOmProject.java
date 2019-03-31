@@ -859,6 +859,12 @@ public class MetaOmProject {
 				Document params = new Document();
 				params.setRootElement(getParamsasXML());
 				output.output(params, myZipOut);
+				
+				//write diff exp results
+				myZipOut.putNextEntry(new ZipEntry("diffexpresults.xml"));
+				Document diffexpXML = new Document();
+				params.setRootElement(getDEResAsXML());
+				output.output(params, myZipOut);
 
 			}
 			myZipOut.closeEntry();
@@ -3521,7 +3527,30 @@ public class MetaOmProject {
 
 		return thisNode;
 	}
+	
+	
+	/**
+	 * get saved differential expression results as XML
+	 * @return
+	 */
+	public Element getDEResAsXML() {
+		Element root = new Element("ROOT");
+		root.setAttribute("name", "Root");
+		if(diffExpRes!=null) {
+			String[] savedDE=getSavedDiffExpResNames();
+			for(String id: savedDE) {
+				DifferentialExpResults thisOB=getDiffExpResObj(id);
+				root.addContent(thisOB.getAsXMLNode());
+			}
+		}
+		
+		return root;
+	}
 
+	/**
+	 * return MOG parameters as XML
+	 * @return
+	 */
 	public Element getParamsasXML() {
 		Element root = new Element("ROOT");
 		root.setAttribute("name", "Root");
@@ -3534,18 +3563,7 @@ public class MetaOmProject {
 		threads.setAttribute("value", String.valueOf(MetaOmGraph.getNumThreads()));
 		root.addContent(threads);
 
-		// rpath is save as global param for MOG
-		/*
-		 * Element rpath = new Element("rpath"); rpath.setAttribute("value",
-		 * String.valueOf(MetaOmGraph.getRPath())); rpath.setAttribute("default",
-		 * String.valueOf(MetaOmGraph.defaultRpath)); root.addContent(rpath);
-		 * 
-		 * Element pathtorfiles = new Element("pathtorfiles");
-		 * pathtorfiles.setAttribute("value",
-		 * String.valueOf(MetaOmGraph.getpathtoRscrips()));
-		 * root.addContent(pathtorfiles);
-		 */
-
+		
 		// info about hyperlinked columns
 		Element hyperlinks = new Element("hyperlinksCols");
 
