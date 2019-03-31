@@ -213,7 +213,7 @@ public class DifferentialExpResults {
 			}
 		}
 
-		// add fPval
+		// add Pval
 		Element pVal = new Element("pval");
 		for (int i = 0; i < pval.size(); i++) {
 			Element thisVal = new Element("value");
