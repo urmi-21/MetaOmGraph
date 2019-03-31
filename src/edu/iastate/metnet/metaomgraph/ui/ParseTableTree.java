@@ -120,12 +120,7 @@ public class ParseTableTree {
 		// res.setRootElement(XMLroot);
 		// resDoc = outter.outputString(res);
 		// System.out.println(resDoc);
-		/*
-		 * try (PrintWriter out = new
-		 * PrintWriter("D:\\MOGdata\\mog_testdata\\jing\\JL_yeast_MOG\\newfilename.txt")
-		 * ) { out.println(resDoc); } catch (FileNotFoundException e) {
-		 * e.printStackTrace(); }
-		 */
+		
 		return res;
 
 	}
