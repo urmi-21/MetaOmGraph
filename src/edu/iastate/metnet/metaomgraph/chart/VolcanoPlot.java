@@ -491,7 +491,7 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		// add dwnReg
 		thisFC = dwnRegData.getFC();
 		thisPV = dwnRegData.getPV();
-		XYSeries seriesDwn = createSeries(thisFC, thisPV, "Downregulated("+grp1+")");
+		XYSeries seriesDwn = createSeries(thisFC, thisPV, "Upregulated("+grp2+")");
 		dataset.addSeries(seriesDwn);
 		// add unReg
 		thisFC = unRegData.getFC();
