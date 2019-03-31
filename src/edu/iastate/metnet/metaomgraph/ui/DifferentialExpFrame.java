@@ -201,28 +201,33 @@ public class DifferentialExpFrame extends JInternalFrame {
 					return;
 				}
 
-				// create DifferentialExpResults object to store results in MOG
-				DifferentialExpResults diffExpObj = new DifferentialExpResults(comboBox_1.getSelectedIndex(),
-						txtGroup1.getText(), txtGroup2.getText(), getAllRows(tableGrp1).size(),
-						getAllRows(tableGrp2).size(), selectedFeatureList, MetaOmGraph.getInstance().getTransform(),
-						ob.getFeatureNames(), ob.getMean1(), ob.getMean2(), ob.ftestRatios(), ob.ftestPV(),
-						ob.testPV());
-
 				// save object
+				String id = "";
 				if (chckbxSaveResultsWith.isSelected()) {
-					String id = JOptionPane.showInputDialog(MetaOmGraph.getMainWindow(),
+					id = JOptionPane.showInputDialog(MetaOmGraph.getMainWindow(),
 							"Please enter a name for this analysis:", "Save differential expression results", 2);
-					id=id.trim();
-					if(myProject.diffExpNameExists(id)) {
+					id = id.trim();
+					if (myProject.diffExpNameExists(id)) {
 						while (myProject.diffExpNameExists(id)) {
 							id = (String) JOptionPane.showInputDialog(MetaOmGraph.getDesktop(),
 									"A previous analysis exists with the same name. Please enter a different name for this analysis",
 									"Save differential expression results", 2);
 						}
 					}
-					
+				}
+				
+				// create DifferentialExpResults object to store results in MOG
+				DifferentialExpResults diffExpObj = new DifferentialExpResults(id,comboBox_1.getSelectedIndex(),
+						txtGroup1.getText(), txtGroup2.getText(), getAllRows(tableGrp1).size(),
+						getAllRows(tableGrp2).size(), selectedFeatureList, MetaOmGraph.getInstance().getTransform(),
+						ob.getFeatureNames(), ob.getMean1(), ob.getMean2(), ob.ftestRatios(), ob.ftestPV(),
+						ob.testPV());
+				
+				if(chckbxSaveResultsWith.isSelected()) {
 					myProject.addDiffExpRes(id, diffExpObj);
 				}
+				
+				diffExpObj.getAsXMLNode();
 
 				// display result using diffExpObj
 				logFCResultsFrame frame = null;

@@ -4,6 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+import javax.swing.JOptionPane;
+
+import org.jdom.Element;
+import org.jdom.output.Format;
+import org.jdom.output.XMLOutputter;
+
 /**
  * Class to store results of a differential expression analysis
  * 
@@ -30,11 +36,12 @@ public class DifferentialExpResults {
 	private List<Double> fStat;
 	private List<Double> fPval;
 	private List<Double> pval;
+	private String id;
 
-	public DifferentialExpResults(int method, String grp1, String grp2, int grp1Size, int grp2Size, String geneListName,
-			String dataTransform, List<String> rowNames, List<Double> meanGrp1, List<Double> meanGrp2,
-			List<Double> fStat, List<Double> fPval, List<Double> pval) {
-
+	public DifferentialExpResults(String id, int method, String grp1, String grp2, int grp1Size, int grp2Size,
+			String geneListName, String dataTransform, List<String> rowNames, List<Double> meanGrp1,
+			List<Double> meanGrp2, List<Double> fStat, List<Double> fPval, List<Double> pval) {
+		this.id = id;
 		this.method = method;
 		this.grp1 = grp1;
 		this.grp2 = grp2;
@@ -52,7 +59,7 @@ public class DifferentialExpResults {
 
 	}
 
-	//calculate log FC
+	// calculate log FC
 	private List<Double> calculatelogFC() {
 		List<Double> res = new ArrayList<>();
 		for (int i = 0; i < meanGrp1.size(); i++) {
@@ -62,6 +69,10 @@ public class DifferentialExpResults {
 	}
 
 	// methods to retrieve data
+	public String getID() {
+		return this.id;
+	}
+
 	public String getmethodName() {
 		// 0 MW U test; 1 t test; 2 Weltch t test; 3 Paired t test; 4 Wilcoxon signed
 		if (method == 0) {
@@ -135,4 +146,26 @@ public class DifferentialExpResults {
 		return pval;
 	}
 
+	// return this object in XML format
+	public Element getAsXMLNode() {
+		Element res = new Element(id);
+		//add rownames
+		Element rowName=new Element("rownames");
+		for(int i=0;i<rowNames.size();i++) {
+			Element thisVal=new Element("value");
+			thisVal.addContent(rowNames.get(i));
+			rowName.addContent(thisVal);
+		}
+
+		res.addContent(rowName);
+		
+		//print
+		XMLOutputter outter = new XMLOutputter();
+		outter.setFormat(Format.getPrettyFormat());
+		String resDoc = outter.outputString(res);
+		JOptionPane.showMessageDialog(null, resDoc);
+		
+				
+		return res;
+	}
 }
