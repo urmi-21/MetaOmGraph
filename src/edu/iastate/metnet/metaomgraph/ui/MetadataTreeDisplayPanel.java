@@ -31,6 +31,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.UIManager;
 import javax.swing.event.TreeSelectionEvent;
@@ -45,6 +46,8 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.text.DefaultCaret;
+
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
@@ -113,12 +116,12 @@ public class MetadataTreeDisplayPanel extends JPanel {
 	private List<DefaultMutableTreeNode> toHighlightNodes;
 
 	private HashMap<DefaultMutableTreeNode, String> jtreeMetadata;
-	
+
 	private Color SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
 	private Color BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
 	private Color BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
 	private Color HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
-	private Color HYPERLINKCOLOR =MetaOmGraph.getTableHyperlinkColor();
+	private Color HYPERLINKCOLOR = MetaOmGraph.getTableHyperlinkColor();
 
 	/**
 	 * Create the panel.
@@ -139,6 +142,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 		this.dataColname = mdhobj.getDataColName();
 		// initialize table
 		table = new JTable();
+		
 		table.setAutoCreateRowSorter(true);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setPreferredScrollableViewportSize(table.getPreferredSize());
@@ -156,14 +160,16 @@ public class MetadataTreeDisplayPanel extends JPanel {
 			}
 		};
 		table.setModel(model);
+		//table.getColumnModel().getColumn(0).setCellRenderer(new WordWrapCellRenderer());
+		//table.getColumnModel().getColumn(1).setCellRenderer(new WordWrapCellRenderer());
 		// set alternate colors to table
 		table.setDefaultRenderer(Object.class, new TableCellRenderer() {
-			private DefaultTableCellRenderer DEFAULT_RENDERER = new DefaultTableCellRenderer();
-
+			//private DefaultTableCellRenderer DEFAULT_RENDERER = new DefaultTableCellRenderer();
+			private WordWrapCellRenderer my_RENDERER= new WordWrapCellRenderer();
 			@Override
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
 					boolean hasFocus, int row, int column) {
-				Component c = DEFAULT_RENDERER.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
+				Component c = my_RENDERER.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
 						column);
 				if (row % 2 == 0) {
 
@@ -188,8 +194,9 @@ public class MetadataTreeDisplayPanel extends JPanel {
 			}
 
 		});
-		table.getColumnModel().getColumn(0).setPreferredWidth(150);
-		table.getColumnModel().getColumn(1).setPreferredWidth(800);
+		// table.getColumnModel().getColumn(0).setPreferredWidth(150);
+		// table.getColumnModel().getColumn(1).setPreferredWidth(800);
+		
 		// table.setForeground(Color.white);
 
 		// this.XMLroot = XMLroot;
@@ -399,37 +406,28 @@ public class MetadataTreeDisplayPanel extends JPanel {
 	 * @param node
 	 * @param model
 	 */
-	private void buildTableData(Element node, DefaultTableModel model) {
-		Vector<String> aVector = new Vector<String>();
-		int childrenSize = node.getChildren().size();
-		// add this node data
-		if (childrenSize > 0) {
-			aVector.addElement(node.getName().toString());
-			aVector.addElement(node.getAttributeValue("name"));
-			model.addRow(aVector);
-			for (int j = 0; j < childrenSize; j++) {
-				buildTableData((Element) node.getChildren().get(j), model);
-			}
-
-		} else {
-			JOptionPane.showMessageDialog(null, "thisName:" + node.getName().toString());
-			aVector.addElement(node.getName().toString());
-			// if content has no value it returns null. Do if to handle cols with missing
-			// values
-			if (node.getContent(0) == null) {
-				JOptionPane.showMessageDialog(null, "Error with content Nodename:" + node.getName().toString());
-			}
-			if (node.getContent(0).getValue().toString() != null) {
-				aVector.addElement(node.getContent(0).getValue().toString());
-			} else {
-				aVector.addElement("");
-			}
-			model.addRow(aVector);
-		}
-
-		return;
-
-	}
+	/*
+	 * private void buildsTableData(Element node, DefaultTableModel model) {
+	 * Vector<String> aVector = new Vector<String>(); int childrenSize =
+	 * node.getChildren().size(); // add this node data if (childrenSize > 0) {
+	 * aVector.addElement(node.getName().toString());
+	 * aVector.addElement(node.getAttributeValue("name")); model.addRow(aVector);
+	 * for (int j = 0; j < childrenSize; j++) { buildsTableData((Element)
+	 * node.getChildren().get(j), model); }
+	 * 
+	 * } else { JOptionPane.showMessageDialog(null, "thisName:" +
+	 * node.getName().toString()); aVector.addElement(node.getName().toString()); //
+	 * if content has no value it returns null. Do if to handle cols with missing //
+	 * values if (node.getContent(0) == null) { JOptionPane.showMessageDialog(null,
+	 * "Error with content Nodename:" + node.getName().toString()); } if
+	 * (node.getContent(0).getValue().toString() != null) {
+	 * aVector.addElement(node.getContent(0).getValue().toString()); } else {
+	 * aVector.addElement(""); } model.addRow(aVector); }
+	 * 
+	 * return;
+	 * 
+	 * }
+	 */
 
 	private void buildTableData(DefaultMutableTreeNode selectedNode, DefaultTableModel model) {
 		Vector<String> aVector = new Vector<String>();
@@ -446,6 +444,8 @@ public class MetadataTreeDisplayPanel extends JPanel {
 		String[] thisRow = thisMD.split(":::");
 		aVector.addElement(thisRow[0]);
 		aVector.addElement(thisRow[1]);
+		//aVector.addElement("<html><br>"+thisRow[1]+"<br>asasd</html>");
+		//JOptionPane.showMessageDialog(null, "<html><br>"+thisRow[1]+"<br>asasd</html>");
 		model.addRow(aVector);
 		for (int i = 0; i < selectedNode.getChildCount(); i++) {
 			DefaultMutableTreeNode thisNode = (DefaultMutableTreeNode) selectedNode.getChildAt(i);
@@ -455,45 +455,30 @@ public class MetadataTreeDisplayPanel extends JPanel {
 	}
 
 	// TODO: Duplicate values at same level cause incorrect result.
-	private Element getXMLnodeFromPath(List<String> strPath, Element sroot) {
-		// System.out.println("Start Search");
-		JOptionPane.showMessageDialog(null, "path:" + strPath);
-		Element result;
-		// remove the root from the list
-		strPath.remove(0);
-		// get to the node iterating over the tree. Assuming no duplicate values at any
-		// level in tree
-		Element currnode = sroot;
-		for (int i = 0; i < strPath.size(); i++) {
-			// System.out.println(strPath.get(i));
-			for (int j = 0; j < currnode.getChildren().size(); j++) {
-				Element thisc = (Element) currnode.getChildren().get(j);
-				// System.out.println(thisc.getAttributeValue("name"));
-				String attName = thisc.getAttributeValue("name");
-				if (!(attName == null)) {
-					if (attName.equals(strPath.get(i))) {
-						// System.out.println("Matched at" + thisc.getAttributeValue("name"));
-						currnode = thisc;
-						break;
-					}
-				}
-				// for leaf node: leaf nodes has no attribute name only has content of size 1
-				// with their value
-				else {
-					JOptionPane.showMessageDialog(null, "ELSE:" + thisc.getContent(0).getValue().toString());
-					if (thisc.getContent(0).getValue().toString().equals(strPath.get(i))) {
-						System.out.println("Matched at" + thisc.getContent(0).getValue().toString());
-						currnode = thisc;
-						break;
-					}
-				}
-
-			}
-		}
-
-		result = currnode;
-		return result;
-	}
+	/*
+	 * private Element getXMLnodeFromPath(List<String> strPath, Element sroot) { //
+	 * System.out.println("Start Search"); JOptionPane.showMessageDialog(null,
+	 * "path:" + strPath); Element result; // remove the root from the list
+	 * strPath.remove(0); // get to the node iterating over the tree. Assuming no
+	 * duplicate values at any // level in tree Element currnode = sroot; for (int i
+	 * = 0; i < strPath.size(); i++) { // System.out.println(strPath.get(i)); for
+	 * (int j = 0; j < currnode.getChildren().size(); j++) { Element thisc =
+	 * (Element) currnode.getChildren().get(j); //
+	 * System.out.println(thisc.getAttributeValue("name")); String attName =
+	 * thisc.getAttributeValue("name"); if (!(attName == null)) { if
+	 * (attName.equals(strPath.get(i))) { // System.out.println("Matched at" +
+	 * thisc.getAttributeValue("name")); currnode = thisc; break; } } // for leaf
+	 * node: leaf nodes has no attribute name only has content of size 1 // with
+	 * their value else { JOptionPane.showMessageDialog(null, "ELSE:" +
+	 * thisc.getContent(0).getValue().toString()); if
+	 * (thisc.getContent(0).getValue().toString().equals(strPath.get(i))) {
+	 * System.out.println("Matched at" + thisc.getContent(0).getValue().toString());
+	 * currnode = thisc; break; } }
+	 * 
+	 * } }
+	 * 
+	 * result = currnode; return result; }
+	 */
 
 	private void initDisplay(Element XMLroot) {
 
@@ -869,14 +854,37 @@ public class MetadataTreeDisplayPanel extends JPanel {
 		}
 
 	}
-	
+
 	public void updateColors() {
 		SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
 		BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
 		BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
 		HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
-		HYPERLINKCOLOR =MetaOmGraph.getTableHyperlinkColor();
+		HYPERLINKCOLOR = MetaOmGraph.getTableHyperlinkColor();
 		table.repaint();
+	}
+
+	class WordWrapCellRenderer extends JTextArea implements TableCellRenderer {
+		private static final long serialVersionUID = 1L;
+		WordWrapCellRenderer() {
+			setLineWrap(true);
+			setWrapStyleWord(true);
+			DefaultCaret caret = (DefaultCaret) getCaret();
+		    caret.setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
+		}
+
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+				int row, int column) {
+			setText(value.toString());
+			setSize(table.getColumnModel().getColumn(column).getWidth(), getPreferredSize().height);
+			if (table.getRowHeight(row) != getPreferredSize().height) {
+				//JOptionPane.showMessageDialog(null, "set H");
+				table.setRowHeight(row, getPreferredSize().height);
+			}else {
+				//JOptionPane.showMessageDialog(null, "no set H");
+			}
+			return this;
+		}
 	}
 
 }
