@@ -875,13 +875,16 @@ public class MetadataTreeDisplayPanel extends JPanel {
 
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
 				int row, int column) {
+			setSelectionColor(Color.WHITE);
 			setText(value.toString());
 			setSize(table.getColumnModel().getColumn(column).getWidth(), getPreferredSize().height);
+			setFont(new Font("Arial Unicode MS", 0, 12));
 			if (table.getRowHeight(row) != getPreferredSize().height) {
-				//JOptionPane.showMessageDialog(null, "set H");
 				table.setRowHeight(row, getPreferredSize().height);
-			}else {
-				//JOptionPane.showMessageDialog(null, "no set H");
+			}
+			
+			if(isSelected) {
+				
 			}
 			return this;
 		}
