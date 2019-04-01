@@ -160,8 +160,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 			}
 		};
 		table.setModel(model);
-		//table.getColumnModel().getColumn(0).setCellRenderer(new WordWrapCellRenderer());
-		//table.getColumnModel().getColumn(1).setCellRenderer(new WordWrapCellRenderer());
+		
 		// set alternate colors to table
 		table.setDefaultRenderer(Object.class, new TableCellRenderer() {
 			//private DefaultTableCellRenderer DEFAULT_RENDERER = new DefaultTableCellRenderer();
@@ -868,6 +867,11 @@ public class MetadataTreeDisplayPanel extends JPanel {
 		table.repaint();
 	}
 
+	/**
+	 * TableCellRenderer to wrap text in jtable rows
+	 * @author mrbai
+	 *
+	 */
 	class WordWrapCellRenderer extends JTextArea implements TableCellRenderer {
 		private static final long serialVersionUID = 1L;
 		WordWrapCellRenderer() {

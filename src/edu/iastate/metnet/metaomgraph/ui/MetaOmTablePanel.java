@@ -1832,8 +1832,14 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 			try {
 				if ("pearson correlation".equals(e.getActionCommand())) {
+					// measure time
+					//long startTime = System.nanoTime();
 					MetaOmAnalyzer.doAnalysis(myProject, geneLists.getSelectedValue().toString(), target, name, 1);
-
+					//long endTime = System.nanoTime();
+					// get difference of two nanoTime values
+					//float timeElapsed = endTime - startTime;
+					//timeElapsed = (timeElapsed / (float) 1000000000.00);
+					//JOptionPane.showMessageDialog(null, "Time taken:" + timeElapsed);
 				} else if ("pearson correlationP".equals(e.getActionCommand())) {
 					// Meta-analysis model
 					// store all the meta corr results in a list of objects
