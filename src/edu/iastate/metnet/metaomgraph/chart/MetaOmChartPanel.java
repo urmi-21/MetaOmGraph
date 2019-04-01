@@ -670,6 +670,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 							colorIndex = (colorIndex + 1) % rowColors.length;
 							// JOptionPane.showMessageDialog(null," message"); //urmi
 						}
+						text+="</html>";
 						return text.toString();
 					}
 					/*

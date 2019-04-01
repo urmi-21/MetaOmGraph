@@ -147,3 +147,4 @@ use "feature" instead of genes/rows
 user function for transformation;add option to clip -ve values to 0
 venn diagrams fo correlated genes?
 wrap text in metadta tree/table
+add filter to DE res table
