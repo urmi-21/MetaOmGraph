@@ -175,18 +175,22 @@ public class MetadataTreeDisplayPanel extends JPanel {
 
 					if (isSelected) {
 						c.setBackground(SELECTIONBCKGRND);
+						c.setForeground(Color.WHITE);
 					}
 					if (!isSelected) {
 						c.setBackground(BCKGRNDCOLOR1);
+						c.setForeground(Color.black);
 					}
 
 				} else {
 
 					if (isSelected) {
 						c.setBackground(SELECTIONBCKGRND);
+						c.setForeground(Color.WHITE);
 					}
 					if (!isSelected) {
 						c.setBackground(BCKGRNDCOLOR2);
+						c.setForeground(Color.black);
 					}
 				}
 
@@ -875,17 +879,14 @@ public class MetadataTreeDisplayPanel extends JPanel {
 
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
 				int row, int column) {
-			setSelectionColor(Color.WHITE);
+			
 			setText(value.toString());
 			setSize(table.getColumnModel().getColumn(column).getWidth(), getPreferredSize().height);
-			setFont(new Font("Arial Unicode MS", 0, 12));
+			setFont(new Font("Tahoma", 0, 11));
 			if (table.getRowHeight(row) != getPreferredSize().height) {
 				table.setRowHeight(row, getPreferredSize().height);
 			}
-			
-			if(isSelected) {
-				
-			}
+						
 			return this;
 		}
 	}
