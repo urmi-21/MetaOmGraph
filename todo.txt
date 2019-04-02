@@ -138,13 +138,14 @@ show num of cd used in rep plot metadata
 sort boxplots by mean median..
 Sort in chart while grouped by metadata
 test groupDataIndexbyRepColumn()
-Test tree building algorithm thoroughly
+Test tree building algorithm 
 try plotly
 update boxplot/add more options to boxplot interactions/split box plots type by metadata/color by different types categories// add tooltip
-update default rep columns as data is filtered
+$update default rep columns as data is filtered
 update tips
 use "feature" instead of genes/rows
-user function for transformation;add option to clip -ve values to 0
+user function for transformation;add option to clip -ve values to 0; make a transformation pipeline defined by user which can allow many functions in a defined order on the data
 venn diagrams fo correlated genes?
-wrap text in metadta tree/table
+$wrap text in metadta tree/table
 add filter to DE res table
+boxplot options e.g. outliers, mean
