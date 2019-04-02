@@ -148,4 +148,4 @@ user function for transformation;add option to clip -ve values to 0; make a tran
 venn diagrams fo correlated genes?
 $wrap text in metadta tree/table
 add filter to DE res table
-boxplot options e.g. outliers, mean
+boxplot options e.g. outliers, mean, tooltip

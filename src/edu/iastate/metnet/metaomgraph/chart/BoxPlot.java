@@ -919,6 +919,8 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				Stroke s = getItemStroke(row, column);
 				g2.setStroke(s);
 
+				//aRadius controls the size of mean and triangles
+				//triangle indicates the presence of far out values.
 				double aRadius = 0; // average radius
 
 				org.jfree.chart.ui.RectangleEdge location = plot.getRangeAxisEdge();
@@ -963,12 +965,12 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				g2.setPaint(getArtifactPaint());
 
 				// draw mean
-				// if (isMeanVisible()) {
+				//if (isMeanVisible()) {
 				if (true) {
 					Number yMean = bawDataset.getMeanValue(row, column);
 					if (yMean != null) {
 						yyAverage = rangeAxis.valueToJava2D(yMean.doubleValue(), dataArea, location);
-						aRadius = state.getBarWidth() / 4;
+						aRadius = state.getBarWidth() / 10;
 						// here we check that the average marker will in fact be
 						// visible before drawing it...
 						if ((yyAverage > (dataArea.getMinY() - aRadius))
@@ -1006,7 +1008,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				// double oRadius = 0 == null ? state.getBarWidth() / 3 : outlierRadius; //
 				// outlier radius
 				// display no outliers
-				double oRadius = 10;
+				double oRadius = 5;
 				List outliers = new ArrayList();
 				OutlierListCollection outlierListCollection = new OutlierListCollection();
 
