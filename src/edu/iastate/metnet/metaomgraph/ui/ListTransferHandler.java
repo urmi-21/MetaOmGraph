@@ -19,7 +19,7 @@ public class ListTransferHandler extends TransferHandler {
 			DataFlavor.javaJVMLocalObjectMimeType, "Array of DefaultMutableTreeNode");
 
 	/**
-	 * We only support importing strings.
+	 * only support importing strings.
 	 */
 	public boolean canImport(TransferHandler.TransferSupport info) {
 		// Check for String flavor
@@ -39,12 +39,8 @@ public class ListTransferHandler extends TransferHandler {
 	// change this function work with multiple selection
 	protected Transferable createTransferable(JComponent c) {
 		JList list = (JList) c;
-
 		indices = list.getSelectedIndices();
-		Object[] values = list.getSelectedValues();
-
-		
-
+		Object[] values = list.getSelectedValuesList().toArray();
 		StringBuffer buff = new StringBuffer();
 
 		for (int i = 0; i < values.length; i++) {
@@ -117,15 +113,7 @@ public class ListTransferHandler extends TransferHandler {
 		}
 
 		// Extract transfer data.
-		/*
-		 * DefaultMutableTreeNode[] nodes = null; try { Transferable t =
-		 * support.getTransferable(); nodes =
-		 * (DefaultMutableTreeNode[])t.getTransferData(nodesFlavor); }
-		 * catch(UnsupportedFlavorException ufe) {
-		 * System.out.println("UnsupportedFlavor: " + ufe.getMessage()); }
-		 * catch(java.io.IOException ioe) { System.out.println("I/O error: " +
-		 * ioe.getMessage()); }
-		 */
+		
 
 		// Wherever there is a newline in the incoming data,
 		// break it into a separate item in the list.
