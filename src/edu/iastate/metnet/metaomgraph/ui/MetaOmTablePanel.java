@@ -560,17 +560,17 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				myProject.getInfoColumnNames());
 		filterModel = new FilterableTableModel(mainModel);
 		sorter = new TableSorter(filterModel);
-		
-		/*MyComparator comparator = new MyComparator();
-		sorter.setColumnComparator(String.class, comparator);
-		sorter.setColumnComparator(CorrelationValue.class, comparator);
-		sorter.setColumnComparator(double.class, new AlphanumericComparator());
-		sorter.setColumnComparator(null, comparator);
-		*/
-		
+
+		/*
+		 * MyComparator comparator = new MyComparator();
+		 * sorter.setColumnComparator(String.class, comparator);
+		 * sorter.setColumnComparator(CorrelationValue.class, comparator);
+		 * sorter.setColumnComparator(double.class, new AlphanumericComparator());
+		 * sorter.setColumnComparator(null, comparator);
+		 */
+
 		listDisplay = new StripedTable(sorter);
 		sorter.setTableHeader(listDisplay.getTableHeader());
-
 
 		geneListDisplayPane = new JScrollPane(listDisplay);
 		JPanel searchPanel = new JPanel(new BorderLayout());
@@ -730,13 +730,14 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		listDisplay = new StripedTable(sorter);
 		listDisplay.setAutoResizeMode(0);
 		sorter.setTableHeader(listDisplay.getTableHeader());
-		
-		/*sorter.setColumnComparator(String.class, new MyComparator());
-		// urmi add comparator for double when state changed
-		sorter.setColumnComparator(CorrelationValue.class, new MyComparator());
-		sorter.setColumnComparator(double.class, new AlphanumericComparator());
-		sorter.setColumnComparator(null, new MyComparator());
-		*/
+
+		/*
+		 * sorter.setColumnComparator(String.class, new MyComparator()); // urmi add
+		 * comparator for double when state changed
+		 * sorter.setColumnComparator(CorrelationValue.class, new MyComparator());
+		 * sorter.setColumnComparator(double.class, new AlphanumericComparator());
+		 * sorter.setColumnComparator(null, new MyComparator());
+		 */
 
 		sorter.setSortingStatus(myProject.getDefaultColumn(), 1);
 		geneListDisplayPane.setViewportView(listDisplay);
@@ -1833,12 +1834,12 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			try {
 				if ("pearson correlation".equals(e.getActionCommand())) {
 					// measure time
-					//long startTime = System.nanoTime();
+					// long startTime = System.nanoTime();
 					MetaOmAnalyzer.doAnalysis(myProject, geneLists.getSelectedValue().toString(), target, name, 1);
-					//long endTime = System.nanoTime();
+					// long endTime = System.nanoTime();
 					// get difference of two nanoTime values
-					//float timeElapsed = endTime - startTime;
-					//timeElapsed = (timeElapsed / (float) 1000000000.00);
+					// float timeElapsed = endTime - startTime;
+					// timeElapsed = (timeElapsed / (float) 1000000000.00);
 					//JOptionPane.showMessageDialog(null, "Time taken:" + timeElapsed);
 				} else if ("pearson correlationP".equals(e.getActionCommand())) {
 					// Meta-analysis model
@@ -3006,7 +3007,15 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 			if ("pairwise pearson".equals(e.getActionCommand())) {
 				try {
+					// measure time
+					// long startTime = System.nanoTime();
+
 					MetaOmAnalyzer.pairwise(myProject, geneLists.getSelectedValue().toString(), nameCol, 1);
+					// long endTime = System.nanoTime();
+					// get difference of two nanoTime values
+					// float timeElapsed = endTime - startTime;
+					// timeElapsed = (timeElapsed / (float) 1000000000.00);
+					// JOptionPane.showMessageDialog(null, "Time taken:" + timeElapsed);
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -3438,38 +3447,23 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		filterModel.applyFilter(value);
 	}
 
-	/*private class MyComparator implements Comparator {
-		private MyComparator() {
-		}
-
-		public int compare(Object o1, Object o2) {
-			if ((o1 == null) && (o2 == null))
-				return 0;
-			if (o1 == null)
-				return 1;
-			if (o2 == null)
-				return -1;
-			if (("".equals(o1)) && ("".equals(o2)))
-				return 0;
-			if ("".equals(o1))
-				return 1;
-			if ("".equals(o2))
-				return -1;
-			if (((o1 instanceof CorrelationValue)) && ((o2 instanceof CorrelationValue))) {
-				int result = ((CorrelationValue) o1).compareTo(o2);
-				return result;
-			}
-			if (((o1 instanceof String)) && ((o2 instanceof String))) {
-				return ((String) o1).toLowerCase().compareTo(((String) o2).toLowerCase());
-			}
-
-			if (((o1 instanceof Double)) && ((o2 instanceof Double))) {
-				return ((Double) o1).compareTo((Double) o2);
-			}
-
-			return (o1 + "").compareTo(o2 + "");
-		}
-	}*/
+	/*
+	 * private class MyComparator implements Comparator { private MyComparator() { }
+	 * 
+	 * public int compare(Object o1, Object o2) { if ((o1 == null) && (o2 == null))
+	 * return 0; if (o1 == null) return 1; if (o2 == null) return -1; if
+	 * (("".equals(o1)) && ("".equals(o2))) return 0; if ("".equals(o1)) return 1;
+	 * if ("".equals(o2)) return -1; if (((o1 instanceof CorrelationValue)) && ((o2
+	 * instanceof CorrelationValue))) { int result = ((CorrelationValue)
+	 * o1).compareTo(o2); return result; } if (((o1 instanceof String)) && ((o2
+	 * instanceof String))) { return ((String) o1).toLowerCase().compareTo(((String)
+	 * o2).toLowerCase()); }
+	 * 
+	 * if (((o1 instanceof Double)) && ((o2 instanceof Double))) { return ((Double)
+	 * o1).compareTo((Double) o2); }
+	 * 
+	 * return (o1 + "").compareTo(o2 + ""); } }
+	 */
 
 	private class FilterFieldListener implements DocumentListener, ActionListener {
 		Timer t;
@@ -3808,9 +3802,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	 * Plot histogram of correlation values
 	 */
 	public void plotCorrHist(String col_val) {
-		
-		if(col_val==null||col_val.length()<1) {
-			JOptionPane.showMessageDialog(null, "No columns containing correlation values found.", "No correlation data.", JOptionPane.ERROR_MESSAGE);
+
+		if (col_val == null || col_val.length() < 1) {
+			JOptionPane.showMessageDialog(null, "No columns containing correlation values found.",
+					"No correlation data.", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 
