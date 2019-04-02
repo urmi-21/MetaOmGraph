@@ -32,6 +32,7 @@ public class TangoIconTheme implements IconTheme {
     private ImageIcon report;
     private ImageIcon metadata;
     private ImageIcon palette;
+    private ImageIcon opts;
     
     private String dir = "/resource/tango/16x16/";
 
@@ -68,7 +69,9 @@ public class TangoIconTheme implements IconTheme {
     private String propertiesPath = dir + "actions/document-properties.png";
     
     private String palettePath = dir + "palette16x16.png";
-
+    
+    private String optsPath = dir + "categories/applications-system.png";
+    
     private String saveAsPath = dir + "actions/document-save-as.png";
 
     private String shapesPath = "/resource/silkicon/silkshapes.png";
@@ -111,12 +114,20 @@ public class TangoIconTheme implements IconTheme {
         		JOptionPane.showMessageDialog(null, "Error in palettePath");
         	}
         }
-       
         return palette;
-    	
-    	
     }
     
+  //urmi
+    public ImageIcon getOpts() {
+        if (opts == null) {
+        	try {
+        		opts = new ImageIcon(getClass().getResource(optsPath));
+        	}catch(Exception e) {
+        		JOptionPane.showMessageDialog(null, "Error in palettePath");
+        	}
+        }
+        return opts;
+    }
     
 
     public ImageIcon getSaveAs() {

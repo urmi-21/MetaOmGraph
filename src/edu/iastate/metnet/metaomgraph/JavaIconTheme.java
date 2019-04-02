@@ -298,4 +298,10 @@ public class JavaIconTheme implements IconTheme {
 		}
 		return palette;
 	}
+
+	@Override
+	public ImageIcon getOpts() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

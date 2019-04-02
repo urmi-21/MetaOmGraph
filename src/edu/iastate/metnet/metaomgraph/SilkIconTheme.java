@@ -299,4 +299,10 @@ public class SilkIconTheme implements IconTheme {
         // TODO Auto-generated method stub
         return null;
     }
+
+	@Override
+	public ImageIcon getOpts() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
