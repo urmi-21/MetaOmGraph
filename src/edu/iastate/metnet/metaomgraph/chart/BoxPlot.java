@@ -142,6 +142,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	 * TODO: Add option in boxplot
 	 * show/hide/choose color for mean,median, outliers, far outliers
 	 * add tool tips for outliers
+	 * sort by mean or median values
 	 */
 
 	// bottom toolbar
