@@ -58,4 +58,6 @@ public interface IconTheme {
     ImageIcon getMetadata();
     
     ImageIcon getPalette();
+    
+    ImageIcon getOpts();
 }

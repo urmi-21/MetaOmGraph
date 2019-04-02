@@ -136,6 +136,13 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	private JButton defaultZoom;
 	private JButton changePalette;
 	private JButton splitDataset;
+	private JButton boxPlotOptions;
+	
+	/*
+	 * TODO: Add option in boxplot
+	 * show/hide/choose color for mean,median, outliers, far outliers
+	 * add tool tips for outliers
+	 */
 
 	// bottom toolbar
 	private JButton btnNewButton_1;
@@ -256,6 +263,15 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 			splitDataset.setActionCommand("splitDataset");
 			splitDataset.addActionListener(this);
 		}
+		
+		
+		boxPlotOptions = new JButton(theme.getOpts());
+		boxPlotOptions.setToolTipText("Options");
+		boxPlotOptions.setActionCommand("options");
+		boxPlotOptions.addActionListener(this);
+		boxPlotOptions.setOpaque(false);
+		boxPlotOptions.setContentAreaFilled(false);
+		boxPlotOptions.setBorderPainted(true);
 
 		panel.add(properties);
 		panel.add(save);
@@ -267,6 +283,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 			panel.add(splitDataset);
 		}
 		panel.add(changePalette);
+		panel.add(boxPlotOptions);
 
 		// frame properties
 		this.setClosable(true);
