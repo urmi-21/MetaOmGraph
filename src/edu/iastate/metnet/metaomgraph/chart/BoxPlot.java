@@ -142,16 +142,19 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	 * TODO: Add option in boxplot show/hide/choose color for mean,median, outliers,
 	 * far outliers add tool tips for outliers sort by mean or median values
 	 */
-	//default options
-	private boolean showMean=false;
-	private boolean showOutliers=false;
-	private boolean showFarOutliers=false;
-	private boolean showMedian=true;
-	//colors
-	Color medianColor=Color.black;
-	Color meanColor=Color.black;
-	Color outlierColor=Color.pink;
-	Color faroutlierColor=Color.green;
+	// default options
+	private boolean showMean = false;
+	private boolean showOutliers = false;
+	private boolean showFarOutliers = false;
+	private boolean showMedian = true;
+	// colors
+	Color medianColor = Color.black;
+	Color meanColor = Color.black;
+	Color outlierColor = Color.pink;
+	Color faroutlierColor = Color.green;
+
+	private int outlierSize = 5;
+	private int faroutlierSize = 5;
 
 	// bottom toolbar
 	private JButton btnNewButton_1;
@@ -306,20 +309,24 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	}
 
 	public ChartPanel makeBoxPlot(DefaultBoxAndWhiskerCategoryDataset dataset) throws IOException {
-		return makeBoxPlot(dataset, showMean,showMedian,showOutliers,showFarOutliers,meanColor,medianColor,outlierColor,faroutlierColor);
+		return makeBoxPlot(dataset, showMean, showMedian, showOutliers, showFarOutliers, meanColor, medianColor,
+				outlierColor, faroutlierColor, outlierSize, faroutlierSize);
 	}
 
-	public ChartPanel makeBoxPlot(DefaultBoxAndWhiskerCategoryDataset dataset, boolean showMean, boolean showMedian,boolean showOutliers,boolean showFaroutliers, Color meanColor, Color medianColor,Color outlierColor,Color farourlierColor) throws IOException {
+	public ChartPanel makeBoxPlot(DefaultBoxAndWhiskerCategoryDataset dataset, boolean showMean, boolean showMedian,
+			boolean showOutliers, boolean showFaroutliers, Color meanColor, Color medianColor, Color outlierColor,
+			Color farourlierColor, int outSize, int faroutSize) throws IOException {
 
 		JFreeChart myChart = ChartFactory.createBoxAndWhiskerChart("BoxPlot", "Sample", "Value", dataset, true);
 
 		// urmi add chat options
-		myRenderer = getBoxAndWhiskerRenderer(5,meanColor,medianColor,outlierColor,farourlierColor);
+		myRenderer = getBoxAndWhiskerRenderer(meanColor, medianColor, outlierColor, farourlierColor, showOutliers,
+				showFaroutliers, outSize, faroutSize);
 		myRenderer.setDefaultToolTipGenerator(new BoxAndWhiskerToolTipGenerator());
 		myRenderer.setFillBox(true);
 		myRenderer.setMeanVisible(showMean);
 		myRenderer.setMedianVisible(showMedian);
-		
+
 		myChart.getCategoryPlot().getDomainAxis()
 				.setCategoryLabelPositions(CategoryLabelPositions.createUpRotationLabelPositions(1.5707963267948966D));
 		myChart.getCategoryPlot().setRenderer(myRenderer);
@@ -557,6 +564,21 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 
 		if ("options".equals(e.getActionCommand())) {
 			JOptionPane.showMessageDialog(null, "mean on");
+
+			// display option dialog
+			BoxPlotOpts optPanel = new BoxPlotOpts();
+			/*dialog.setModal(true);
+			dialog.pack();
+			dialog.setVisible(true);*/
+						
+			int res = JOptionPane.showConfirmDialog(null, optPanel, "Enter values", JOptionPane.OK_CANCEL_OPTION);
+			if (res == JOptionPane.OK_OPTION) {
+				//get data from optPanel's public methods
+				JOptionPane.showMessageDialog(null, "OK");
+			} else {
+				return;
+			}
+			
 
 		}
 		if ("splitDataset".equals(e.getActionCommand())) {
@@ -913,7 +935,8 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 
 	///////////////////////// BoxPlot Renderer
 	///////////////////////// functions*//////////////////////////////////////////////
-	public static BoxAndWhiskerRenderer getBoxAndWhiskerRenderer(int rad,Color meanColor,Color medianColor,Color outColor,Color faroutColor) {
+	public static BoxAndWhiskerRenderer getBoxAndWhiskerRenderer(Color meanColor, Color medianColor, Color outColor,
+			Color faroutColor, boolean showOutliers, boolean showFaroutliers, int outSize, int faroutSize) {
 		BoxAndWhiskerRenderer renderer = new BoxAndWhiskerRenderer() {
 			@Override
 			public void drawVerticalItem(Graphics2D g2, CategoryItemRendererState state, Rectangle2D dataArea,
@@ -1000,8 +1023,8 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				g2.setPaint(getArtifactPaint());
 
 				// draw mean
-				 if (isMeanVisible()) {
-				//if (true) {
+				if (isMeanVisible()) {
+					// if (true) {
 					Number yMean = bawDataset.getMeanValue(row, column);
 					if (yMean != null) {
 						yyAverage = rangeAxis.valueToJava2D(yMean.doubleValue(), dataArea, location);
@@ -1043,7 +1066,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				// double oRadius = 0 == null ? state.getBarWidth() / 3 : outlierRadius; //
 				// outlier radius
 				// display no outliers
-				double oRadius = 5;
+				double oRadius = outSize;
 				List outliers = new ArrayList();
 				OutlierListCollection outlierListCollection = new OutlierListCollection();
 
@@ -1052,9 +1075,9 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				// OutlierListCollection
 				List yOutliers = bawDataset.getOutliers(row, column);
 				if (yOutliers != null) {
-					
+
 					g2.setColor(outColor);
-					
+
 					for (int i = 0; i < yOutliers.size(); i++) {
 						double outlier = ((Number) yOutliers.get(i)).doubleValue();
 						Number minOutlier = bawDataset.getMinOutlier(row, column);
