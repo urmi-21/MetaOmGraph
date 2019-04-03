@@ -563,7 +563,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		}
 
 		if ("options".equals(e.getActionCommand())) {
-			
+
 			// display option dialog
 			BoxPlotOpts optPanel = new BoxPlotOpts(showMean, showMedian, showOutliers, showFarOutliers, meanColor,
 					medianColor, outlierColor, faroutlierColor, outlierSize, faroutlierSize);
@@ -1087,8 +1087,6 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				List yOutliers = bawDataset.getOutliers(row, column);
 				if (yOutliers != null) {
 
-					g2.setColor(outColor);
-
 					for (int i = 0; i < yOutliers.size(); i++) {
 						double outlier = ((Number) yOutliers.get(i)).doubleValue();
 						Number minOutlier = bawDataset.getMinOutlier(row, column);
@@ -1117,6 +1115,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 					}
 
 					if (showOutliers) {
+						g2.setColor(outColor);
 						for (Iterator iterator = outlierListCollection.iterator(); iterator.hasNext();) {
 							OutlierList list = (OutlierList) iterator.next();
 							Outlier outlier = list.getAveragedOutlier();
@@ -1133,11 +1132,13 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 
 					// draw farout indicators
 					if (outlierListCollection.isHighFarOut() && showFaroutliers) {
+						g2.setColor(faroutColor);
 						aRadius = (state.getBarWidth() / 20) * faroutSize;
 						drawHighFarOut(aRadius / 2.0, g2, xx + state.getBarWidth() / 2.0, maxAxisValue);
 					}
 
 					if (outlierListCollection.isLowFarOut() && showFaroutliers) {
+						g2.setColor(faroutColor);
 						aRadius = (state.getBarWidth() / 20) * faroutSize;
 						drawLowFarOut(aRadius / 2.0, g2, xx + state.getBarWidth() / 2.0, minAxisValue);
 					}
