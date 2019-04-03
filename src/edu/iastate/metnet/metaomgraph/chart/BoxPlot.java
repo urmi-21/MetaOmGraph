@@ -149,7 +149,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	private boolean showMedian = true;
 	// colors
 	Color medianColor = Color.black;
-	Color meanColor = Color.black;
+	Color meanColor = Color.red;
 	Color outlierColor = Color.pink;
 	Color faroutlierColor = Color.green;
 
@@ -566,7 +566,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 			JOptionPane.showMessageDialog(null, "mean on");
 
 			// display option dialog
-			BoxPlotOpts optPanel = new BoxPlotOpts();
+			BoxPlotOpts optPanel = new BoxPlotOpts(showMean,showMedian,showOutliers,showFarOutliers,meanColor,medianColor,outlierColor,faroutlierColor,outlierSize,faroutlierSize);
 			/*dialog.setModal(true);
 			dialog.pack();
 			dialog.setVisible(true);*/
@@ -574,7 +574,25 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 			int res = JOptionPane.showConfirmDialog(null, optPanel, "Enter values", JOptionPane.OK_CANCEL_OPTION);
 			if (res == JOptionPane.OK_OPTION) {
 				//get data from optPanel's public methods
-				JOptionPane.showMessageDialog(null, "OK");
+				//JOptionPane.showMessageDialog(null, "OK");
+				showMean=optPanel.getShowMean();
+				showMedian=optPanel.getShowMedian();
+				showOutliers=optPanel.getShowOutliers();
+				showFarOutliers=optPanel.getShowFarOutliers();
+				meanColor=optPanel.getMeanColor();
+				medianColor=optPanel.getMedianColor();
+				outlierColor=optPanel.getOutColor();
+				faroutlierColor=optPanel.getFarOutColor();
+				outlierSize=optPanel.getOutlierSize();
+				faroutlierSize=optPanel.getFarOutlierSize();
+				//update the chart
+				/*try {
+					chartPanel=makeBoxPlot(createDataset());
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}*/
+				updateChart();
 			} else {
 				return;
 			}
