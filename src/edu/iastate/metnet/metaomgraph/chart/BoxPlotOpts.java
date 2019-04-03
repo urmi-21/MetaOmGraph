@@ -40,9 +40,9 @@ public class BoxPlotOpts extends JPanel {
 	 */
 	public static void main(String[] args) {
 		try {
-			BoxPlotOpts dialog = new BoxPlotOpts();
+			//BoxPlotOpts dialog = new BoxPlotOpts();
 			//dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-			dialog.setVisible(true);
+			//dialog.setVisible(true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -51,7 +51,7 @@ public class BoxPlotOpts extends JPanel {
 	/**
 	 * Create the dialog.
 	 */
-	public BoxPlotOpts() {
+	public BoxPlotOpts(boolean showMean,boolean showMedian,boolean showOutliers,boolean showFarOutliers,Color mColor,Color medColor,Color outlierColor,Color faroutlierColor,int outlierSize,int faroutlierSize) {
 		setBounds(100, 100, 450, 300);
 		setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -64,6 +64,9 @@ public class BoxPlotOpts extends JPanel {
 		contentPanel.setLayout(gbl_contentPanel);
 		{
 			chckbxNewCheckBox = new JCheckBox("Show median");
+			if(showMedian) {
+				chckbxNewCheckBox.setSelected(true);
+			}
 			GridBagConstraints gbc_chckbxNewCheckBox = new GridBagConstraints();
 			gbc_chckbxNewCheckBox.anchor = GridBagConstraints.WEST;
 			gbc_chckbxNewCheckBox.insets = new Insets(0, 0, 5, 5);
@@ -72,7 +75,7 @@ public class BoxPlotOpts extends JPanel {
 			contentPanel.add(chckbxNewCheckBox, gbc_chckbxNewCheckBox);
 		}
 		{
-			medianColor=new ColorChooseButton(Color.black, ""); 
+			medianColor=new ColorChooseButton(medColor, ""); 
 			GridBagConstraints gbc_medianColor = new GridBagConstraints();
 			gbc_medianColor.anchor = GridBagConstraints.WEST;
 			gbc_medianColor.insets = new Insets(0, 0, 5, 0);
@@ -82,6 +85,9 @@ public class BoxPlotOpts extends JPanel {
 		}
 		{
 			chckbxShowMean = new JCheckBox("Show mean");
+			if(showMean) {
+				chckbxShowMean.setSelected(true);
+			}
 			GridBagConstraints gbc_chckbxShowMean = new GridBagConstraints();
 			gbc_chckbxShowMean.anchor = GridBagConstraints.WEST;
 			gbc_chckbxShowMean.insets = new Insets(0, 0, 5, 5);
@@ -90,7 +96,7 @@ public class BoxPlotOpts extends JPanel {
 			contentPanel.add(chckbxShowMean, gbc_chckbxShowMean);
 		}
 		{
-			meanColor=new ColorChooseButton(Color.red, ""); 
+			meanColor=new ColorChooseButton(mColor, ""); 
 			GridBagConstraints gbc_meanColor = new GridBagConstraints();
 			gbc_meanColor.anchor = GridBagConstraints.WEST;
 			gbc_meanColor.insets = new Insets(0, 0, 5, 0);
@@ -100,6 +106,9 @@ public class BoxPlotOpts extends JPanel {
 		}
 		{
 			chckbxShowOutliers = new JCheckBox("Show outliers");
+			if(showOutliers) {
+				chckbxShowOutliers.setSelected(true);
+			}
 			GridBagConstraints gbc_chckbxShowOutliers = new GridBagConstraints();
 			gbc_chckbxShowOutliers.anchor = GridBagConstraints.WEST;
 			gbc_chckbxShowOutliers.insets = new Insets(0, 0, 5, 5);
@@ -110,7 +119,7 @@ public class BoxPlotOpts extends JPanel {
 		{
 			outSizespinner = new JSpinner();
 			outSizespinner.setModel(new SpinnerNumberModel(0, 0, 10, 1));
-			
+			outSizespinner.setValue(outlierSize);
 			GridBagConstraints gbc_outSizespinner = new GridBagConstraints();
 			gbc_outSizespinner.insets = new Insets(0, 0, 5, 5);
 			gbc_outSizespinner.gridx = 2;
@@ -118,7 +127,7 @@ public class BoxPlotOpts extends JPanel {
 			contentPanel.add(outSizespinner, gbc_outSizespinner);
 		}
 		{
-			outColor=new ColorChooseButton(Color.pink, ""); 
+			outColor=new ColorChooseButton(outlierColor, ""); 
 			GridBagConstraints gbc_outColor = new GridBagConstraints();
 			gbc_outColor.anchor = GridBagConstraints.WEST;
 			gbc_outColor.insets = new Insets(0, 0, 5, 0);
@@ -128,6 +137,10 @@ public class BoxPlotOpts extends JPanel {
 		}
 		{
 			chckbxShowFarOutliers = new JCheckBox("Show far outliers");
+			if(showFarOutliers) {
+				chckbxShowFarOutliers.setSelected(true);;
+			}
+			
 			GridBagConstraints gbc_chckbxShowFarOutliers = new GridBagConstraints();
 			gbc_chckbxShowFarOutliers.anchor = GridBagConstraints.WEST;
 			gbc_chckbxShowFarOutliers.insets = new Insets(0, 0, 0, 5);
@@ -138,6 +151,7 @@ public class BoxPlotOpts extends JPanel {
 		{
 			faroutSizespinner = new JSpinner();
 			faroutSizespinner.setModel(new SpinnerNumberModel(0, 0, 10, 1));
+			faroutSizespinner.setValue(faroutlierSize);
 			GridBagConstraints gbc_faroutSizespinner = new GridBagConstraints();
 			gbc_faroutSizespinner.insets = new Insets(0, 0, 0, 5);
 			gbc_faroutSizespinner.gridx = 2;
@@ -145,29 +159,65 @@ public class BoxPlotOpts extends JPanel {
 			contentPanel.add(faroutSizespinner, gbc_faroutSizespinner);
 		}
 		{
-			faroutColor=new ColorChooseButton(Color.green, ""); 
+			faroutColor=new ColorChooseButton(faroutlierColor, ""); 
 			GridBagConstraints gbc_faroutColorColor = new GridBagConstraints();
 			gbc_faroutColorColor.anchor = GridBagConstraints.WEST;
 			gbc_faroutColorColor.gridx = 3;
 			gbc_faroutColorColor.gridy = 3;
 			contentPanel.add(faroutColor, gbc_faroutColorColor);
 		}
-		/*{
-			JPanel buttonPane = new JPanel();
-			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
-			add(buttonPane, BorderLayout.SOUTH);
-			{
-				JButton okButton = new JButton("OK");
-				okButton.setActionCommand("OK");
-				buttonPane.add(okButton);
-				setDefaultButton(okButton);
-			}
-			{
-				JButton cancelButton = new JButton("Cancel");
-				cancelButton.setActionCommand("Cancel");
-				buttonPane.add(cancelButton);
-			}
-		}*/
+	}
+	
+	public boolean getShowMean() {
+		if(chckbxShowMean.isSelected()) {
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean getShowMedian() {
+		if(chckbxNewCheckBox.isSelected()) {
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean getShowOutliers() {
+		if(chckbxShowOutliers.isSelected()) {
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean getShowFarOutliers() {
+		if(chckbxShowFarOutliers.isSelected()) {
+			return true;
+		}
+		return false;
+	}
+	
+	public Color getMeanColor() {
+		return meanColor.getColor();
+	}
+	
+	public Color getMedianColor() {
+		return medianColor.getColor();
+	}
+	
+	public Color getOutColor() {
+		return outColor.getColor();
+	}
+	
+	public Color getFarOutColor() {
+		return faroutColor.getColor();
+	}
+	
+	public int getOutlierSize() {
+		return Integer.parseInt(outSizespinner.getValue().toString());
+	}
+	
+	public int getFarOutlierSize() {
+		return Integer.parseInt(faroutSizespinner.getValue().toString());
 	}
 
 }
