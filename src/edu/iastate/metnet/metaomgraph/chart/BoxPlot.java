@@ -586,12 +586,6 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				outlierSize=optPanel.getOutlierSize();
 				faroutlierSize=optPanel.getFarOutlierSize();
 				//update the chart
-				/*try {
-					chartPanel=makeBoxPlot(createDataset());
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}*/
 				updateChart();
 			} else {
 				return;
