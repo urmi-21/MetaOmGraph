@@ -260,11 +260,11 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		zoomOut.addActionListener(this);
 		defaultZoom.setActionCommand("defaultZoom");
 		defaultZoom.addActionListener(this);
+
 		changePalette = new JButton(theme.getPalette());
 		changePalette.setToolTipText("Color Palette");
 		changePalette.setActionCommand("changePalette");
 		changePalette.addActionListener(this);
-
 		changePalette.setOpaque(false);
 		changePalette.setContentAreaFilled(false);
 		changePalette.setBorderPainted(true);
@@ -280,9 +280,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		boxPlotOptions.setToolTipText("Options");
 		boxPlotOptions.setActionCommand("options");
 		boxPlotOptions.addActionListener(this);
-		boxPlotOptions.setOpaque(false);
-		boxPlotOptions.setContentAreaFilled(false);
-		boxPlotOptions.setBorderPainted(true);
+		
 
 		panel.add(properties);
 		panel.add(save);
@@ -293,8 +291,9 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		if (plotType == 0) {
 			panel.add(splitDataset);
 		}
-		panel.add(changePalette);
 		panel.add(boxPlotOptions);
+		panel.add(changePalette);
+		
 
 		// frame properties
 		this.setClosable(true);
