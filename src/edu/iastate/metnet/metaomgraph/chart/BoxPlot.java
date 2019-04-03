@@ -153,8 +153,8 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	Color outlierColor = Color.pink;
 	Color faroutlierColor = Color.green;
 
-	private int outlierSize = 5;
-	private int faroutlierSize = 5;
+	private int outlierSize = 4;
+	private int faroutlierSize = 3;
 
 	// bottom toolbar
 	private JButton btnNewButton_1;
@@ -563,34 +563,33 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		}
 
 		if ("options".equals(e.getActionCommand())) {
-			JOptionPane.showMessageDialog(null, "mean on");
-
+			
 			// display option dialog
-			BoxPlotOpts optPanel = new BoxPlotOpts(showMean,showMedian,showOutliers,showFarOutliers,meanColor,medianColor,outlierColor,faroutlierColor,outlierSize,faroutlierSize);
-			/*dialog.setModal(true);
-			dialog.pack();
-			dialog.setVisible(true);*/
-						
+			BoxPlotOpts optPanel = new BoxPlotOpts(showMean, showMedian, showOutliers, showFarOutliers, meanColor,
+					medianColor, outlierColor, faroutlierColor, outlierSize, faroutlierSize);
+			/*
+			 * dialog.setModal(true); dialog.pack(); dialog.setVisible(true);
+			 */
+
 			int res = JOptionPane.showConfirmDialog(null, optPanel, "Enter values", JOptionPane.OK_CANCEL_OPTION);
 			if (res == JOptionPane.OK_OPTION) {
-				//get data from optPanel's public methods
-				//JOptionPane.showMessageDialog(null, "OK");
-				showMean=optPanel.getShowMean();
-				showMedian=optPanel.getShowMedian();
-				showOutliers=optPanel.getShowOutliers();
-				showFarOutliers=optPanel.getShowFarOutliers();
-				meanColor=optPanel.getMeanColor();
-				medianColor=optPanel.getMedianColor();
-				outlierColor=optPanel.getOutColor();
-				faroutlierColor=optPanel.getFarOutColor();
-				outlierSize=optPanel.getOutlierSize();
-				faroutlierSize=optPanel.getFarOutlierSize();
-				//update the chart
+				// get data from optPanel's public methods
+				// JOptionPane.showMessageDialog(null, "OK");
+				showMean = optPanel.getShowMean();
+				showMedian = optPanel.getShowMedian();
+				showOutliers = optPanel.getShowOutliers();
+				showFarOutliers = optPanel.getShowFarOutliers();
+				meanColor = optPanel.getMeanColor();
+				medianColor = optPanel.getMedianColor();
+				outlierColor = optPanel.getOutColor();
+				faroutlierColor = optPanel.getFarOutColor();
+				outlierSize = optPanel.getOutlierSize();
+				faroutlierSize = optPanel.getFarOutlierSize();
+				// update the chart
 				updateChart();
 			} else {
 				return;
 			}
-			
 
 		}
 		if ("splitDataset".equals(e.getActionCommand())) {
@@ -990,11 +989,11 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				g2.setStroke(s);
 
 				// aRadius controls the size of mean and triangles
-				// triangle indicates the presence of far out values.
+				// urmi triangle indicates the presence of far out values.
 				double aRadius = 0; // average radius
 
 				org.jfree.chart.ui.RectangleEdge location = plot.getRangeAxisEdge();
-
+				// plot box plots
 				Number yQ1 = bawDataset.getQ1Value(row, column);
 				Number yQ3 = bawDataset.getQ3Value(row, column);
 				Number yMax = bawDataset.getMaxRegularValue(row, column);
@@ -1034,7 +1033,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 
 				g2.setPaint(getArtifactPaint());
 
-				// draw mean
+				// draw mean line
 				if (isMeanVisible()) {
 					// if (true) {
 					Number yMean = bawDataset.getMeanValue(row, column);
@@ -1051,9 +1050,9 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 							 * aRadius, aRadius * 2, aRadius * 2); g2.fill(avgEllipse); g2.draw(avgEllipse);
 							 */
 
-							double yyMedian = rangeAxis.valueToJava2D(yMean.doubleValue(), dataArea, location);
+							double yyMean = rangeAxis.valueToJava2D(yMean.doubleValue(), dataArea, location);
 							g2.setColor(meanColor);
-							g2.draw(new Line2D.Double(xx, yyMedian, xx + state.getBarWidth(), yyMedian));
+							g2.draw(new Line2D.Double(xx, yyMean, xx + state.getBarWidth(), yyMean));
 						}
 					}
 				}
@@ -1117,25 +1116,29 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 						outlierListCollection.add(outlier);
 					}
 
-					for (Iterator iterator = outlierListCollection.iterator(); iterator.hasNext();) {
-						OutlierList list = (OutlierList) iterator.next();
-						Outlier outlier = list.getAveragedOutlier();
-						java.awt.geom.Point2D point = outlier.getPoint();
+					if (showOutliers) {
+						for (Iterator iterator = outlierListCollection.iterator(); iterator.hasNext();) {
+							OutlierList list = (OutlierList) iterator.next();
+							Outlier outlier = list.getAveragedOutlier();
+							java.awt.geom.Point2D point = outlier.getPoint();
 
-						if (list.isMultiple()) {
-							drawMultipleEllipse(point, state.getBarWidth(), oRadius, g2);
-						} else {
-							drawEllipse(point, oRadius, g2);
+							if (list.isMultiple()) {
+								drawMultipleEllipse(point, state.getBarWidth(), oRadius, g2);
+							} else {
+								drawEllipse(point, oRadius, g2);
 
+							}
 						}
 					}
 
 					// draw farout indicators
-					if (outlierListCollection.isHighFarOut()) {
+					if (outlierListCollection.isHighFarOut() && showFaroutliers) {
+						aRadius = (state.getBarWidth() / 20) * faroutSize;
 						drawHighFarOut(aRadius / 2.0, g2, xx + state.getBarWidth() / 2.0, maxAxisValue);
 					}
 
-					if (outlierListCollection.isLowFarOut()) {
+					if (outlierListCollection.isLowFarOut() && showFaroutliers) {
+						aRadius = (state.getBarWidth() / 20) * faroutSize;
 						drawLowFarOut(aRadius / 2.0, g2, xx + state.getBarWidth() / 2.0, minAxisValue);
 					}
 				}
