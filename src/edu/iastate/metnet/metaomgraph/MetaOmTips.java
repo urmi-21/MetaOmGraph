@@ -41,6 +41,7 @@ public class MetaOmTips implements TipModel, HyperlinkListener {
                 "When using the Save Plot as Image feature, you can specify the size of the saved image.  The plot will then grow or shrink to fit the given size.  This often results in a higher-quality picture than leaving the default size, then growing or shrinking the image with an image-manipulation tool.");
         addTip("Properties", "Plot defaults (axis titles, background gradient), as well as row and column names, can be edited by selecting Project->Properties.");
         addTip("Saving Metadata sorts", "To quickly re-order any plot to the result of a metadata sort, save the result as a custom sort.  Run the metadata sort, then select the custom sort option, then click the Save button.");
+        addTip("Sample tip", "Suggestion");
     }
 
     public TipModel.Tip getTipAt(int index) {
