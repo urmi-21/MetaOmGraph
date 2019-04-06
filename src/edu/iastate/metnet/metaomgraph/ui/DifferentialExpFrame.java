@@ -236,7 +236,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 					myProject.addDiffExpRes(id, diffExpObj);
 				}
 				
-				diffExpObj.getAsXMLNode();
+				
 
 				// display result using diffExpObj
 				logFCResultsFrame frame = null;
