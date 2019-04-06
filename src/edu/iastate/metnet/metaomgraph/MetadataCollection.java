@@ -155,7 +155,7 @@ public class MetadataCollection {
 				// thisLine=thisLine.replaceAll("*","");
 				thisLine = thisLine.replaceAll("&", "*and*");
 				thisLine = thisLine.replaceAll("'", "");
-				thisLine = thisLine.replaceAll("\"","");
+				//thisLine = thisLine.replaceAll("\"",""); // remove quotes
 				// thisLine = thisLine.replaceAll("\\*", "(star)");
 
 				if (nCount == 0) {
@@ -196,6 +196,7 @@ public class MetadataCollection {
 								"Metadata validation failed at line:" + (nCount + 1)
 										+ ". MOG will skip this. Please check file delimiters at this line.",
 								"Error", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(null, thisLine);
 						totalFails++;
 						nCount++;
 						continue;
