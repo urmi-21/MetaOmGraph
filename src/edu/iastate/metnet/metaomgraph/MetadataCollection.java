@@ -155,6 +155,7 @@ public class MetadataCollection {
 				// thisLine=thisLine.replaceAll("*","");
 				thisLine = thisLine.replaceAll("&", "*and*");
 				thisLine = thisLine.replaceAll("'", "");
+				//don't remove quotes. This works if data has delimiter inside quotes like col1, "col2 adsad,dsadd", col3. This is common situation in csv data from excel
 				//thisLine = thisLine.replaceAll("\"",""); // remove quotes
 				// thisLine = thisLine.replaceAll("\\*", "(star)");
 
