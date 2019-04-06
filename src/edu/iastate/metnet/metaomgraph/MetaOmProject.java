@@ -210,6 +210,8 @@ public class MetaOmProject {
 		streamMode = false;
 		allowImport = true;
 		initialized = openProject(projectFile);
+		//urmi if project has just been opened set change to false
+		setChanged(false);
 
 	}
 
@@ -2414,6 +2416,7 @@ public class MetaOmProject {
 					defaultrepscol, missingDC, extraDC, removedCols);
 		}
 		this.defaultXAxis = dataCol;
+		//JOptionPane.showMessageDialog(null, "in loadMetadataHybrid");
 		setChanged(true);
 		return true;
 	}
@@ -2433,6 +2436,7 @@ public class MetaOmProject {
 			metadata = new Metadata(source, this);
 		}
 		setChanged(true);
+		//JOptionPane.showMessageDialog(null, "in loadMetadata");
 		return true;
 	}
 
@@ -3202,6 +3206,7 @@ public class MetaOmProject {
 	}
 
 	public void setChanged(boolean changed) {
+		
 		this.changed = changed;
 		if (MetaOmGraph.getMainWindow() == null) {
 			return;
@@ -3209,6 +3214,7 @@ public class MetaOmProject {
 		String title = MetaOmGraph.getMainWindow().getTitle();
 		boolean titleChanged = false;
 		if (changed) {
+			//JOptionPane.showMessageDialog(null, "called");
 			if (!title.startsWith("* ")) {
 				title = "* " + title;
 				titleChanged = true;
