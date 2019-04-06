@@ -1095,7 +1095,7 @@ public class MetaOmProject {
 					removedMDColsFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				} else if ((thisEntry.getName().equals("diffexpresults.xml")) && (!diffExpResfound)) {
-					//JOptionPane.showMessageDialog(null, "reading DE");
+					// JOptionPane.showMessageDialog(null, "reading DE");
 					inputReader = new BufferedReader(new InputStreamReader(instream));
 					sb = new StringBuilder();
 					inline = "";
@@ -1107,10 +1107,11 @@ public class MetaOmProject {
 					Element xmlRoot = doc.getRootElement();
 					// read program parameters
 					List<Element> clist = xmlRoot.getChildren();
-					//JOptionPane.showMessageDialog(null, "clist:"+clist.size() +" "+ clist.toString());
+					// JOptionPane.showMessageDialog(null, "clist:"+clist.size() +" "+
+					// clist.toString());
 					// crate DifferentialExpResults objs
 					for (int i = 0; i < clist.size(); i++) {
-						
+
 						Element thisNode = clist.get(i);
 						String id = thisNode.getName();
 						String g1name = thisNode.getAttributeValue("Group1");
@@ -3294,6 +3295,8 @@ public class MetaOmProject {
 			diffExpRes = new HashMap<>();
 		}
 		diffExpRes.put(id, val);
+		// project changed
+		setChanged(true);
 	}
 
 	/**
@@ -3341,7 +3344,8 @@ public class MetaOmProject {
 			metaCorrs = new HashMap<>();
 		}
 		metaCorrs.put(id, val);
-
+		// project changed
+		setChanged(true);
 	}
 
 	/**
