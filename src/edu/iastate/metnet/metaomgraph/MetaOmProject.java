@@ -2610,7 +2610,7 @@ public class MetaOmProject {
 			return data[memoryMap.get(Integer.valueOf(row)).intValue()];
 		}
 		if (dataIn == null) {
-			JOptionPane.showMessageDialog(null, "datain isNULL");
+			//JOptionPane.showMessageDialog(null, "datain isNULL");
 			dataIn = new RandomAccessFile(getSourceFile().getAbsolutePath(), "r", 20000);
 		}
 		double[] thisData = new double[getDataColumnCount()];
@@ -2620,6 +2620,7 @@ public class MetaOmProject {
 			try {
 				thisData[x] = Double.parseDouble(tmp);
 			} catch (NumberFormatException | NullPointerException nfe) {
+				//JOptionPane.showMessageDialog(null, "tmp:"+tmp+" delm:"+delimiter+" ig:"+ignoreConsecutiveDelimiters);
 				// replace NAN value by blank value provided by user
 				if (getBlankValue() == null) {
 					thisData[x] = Double.NaN;
@@ -2645,9 +2646,9 @@ public class MetaOmProject {
 	/**
 	 * @author urmi
 	 */
-	public void setdataInNull() {
+	/*public void setdataInNull() {
 		this.dataIn=null;		
-	}
+	}*/
 
 	public double[] getUnloggedData(int row) throws IOException {
 		if (!streamMode) {

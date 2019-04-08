@@ -199,8 +199,6 @@ public class DifferentialExpFrame extends JInternalFrame {
 				ob.doCalc();
 				if (!ob.getcalcStatus()) {
 					ob=null;
-					//dispose();
-					myProject.setdataInNull();
 					return;
 				}
 
