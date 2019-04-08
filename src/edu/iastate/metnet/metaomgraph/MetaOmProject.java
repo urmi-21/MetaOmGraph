@@ -2483,7 +2483,7 @@ public class MetaOmProject {
 			result = getDataFromFile(row);
 			// JOptionPane.showMessageDialog(null, "From file...");
 		} else {
-			// JOptionPane.showMessageDialog(null, "From mem...");
+			//JOptionPane.showMessageDialog(null, "From mem...");
 			result = getDataFromMemory(row);
 		}
 
@@ -2605,11 +2605,14 @@ public class MetaOmProject {
 		if (row > getRowCount())
 			throw new IllegalArgumentException("Row " + row + " does not exist!");
 		if ((memoryMap != null) && (memoryMap.containsKey(Integer.valueOf(row)))) {
+			//JOptionPane.showMessageDialog(null, "Reading row " + row + " from memory");
 			System.out.println("Reading row " + row + " from memory");
 			return data[memoryMap.get(Integer.valueOf(row)).intValue()];
 		}
-		if (dataIn == null)
+		if (dataIn == null) {
+			JOptionPane.showMessageDialog(null, "datain isNULL");
 			dataIn = new RandomAccessFile(getSourceFile().getAbsolutePath(), "r", 20000);
+		}
 		double[] thisData = new double[getDataColumnCount()];
 		dataIn.seek(getFileIndex(row));
 		for (int x = 0; x < thisData.length; x++) {
@@ -2638,12 +2641,18 @@ public class MetaOmProject {
 		}
 		return thisData;
 	}
+	
+	/**
+	 * @author urmi
+	 */
+	public void setdataInNull() {
+		this.dataIn=null;		
+	}
 
 	public double[] getUnloggedData(int row) throws IOException {
 		if (!streamMode) {
 			return getDataFromFile(row);
 		}
-
 		return getDataFromMemory(row);
 	}
 
