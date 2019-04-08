@@ -1,5 +1,6 @@
 package edu.iastate.metnet.metaomgraph;
 
+import java.awt.EventQueue;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,8 +18,11 @@ import org.apache.commons.math3.stat.inference.MannWhitneyUTest;
 import org.apache.commons.math3.stat.inference.TTest;
 import org.apache.commons.math3.stat.inference.WilcoxonSignedRankTest;
 
+import com.sun.xml.internal.ws.api.Cancelable;
+
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
+import edu.iastate.metnet.metaomgraph.ui.DifferentialExpFrame;
 import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
 
 public class CalculateLogFC {
@@ -38,6 +42,7 @@ public class CalculateLogFC {
 	private List<Double> ftestRatiovals;
 
 	private boolean calcStatus;
+	SwingWorker analyzeWorker;
 
 	// group indices
 	Collection<Integer> grp1Ind;
@@ -216,10 +221,9 @@ public class CalculateLogFC {
 
 		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(),
 				"Calculating...", "", 0L, selected.length, true);
-		SwingWorker analyzeWorker = new SwingWorker() {
+		analyzeWorker = new SwingWorker() {
 			boolean errored = false;
 			public Object construct() {
-
 				for (int r = 0; r < selected.length; r++) {
 					progress.setProgress(r);
 					double[] thisData = null;
@@ -340,20 +344,35 @@ public class CalculateLogFC {
 			}
 
 			public void finished() {
-				/*if (progress.isCanceled()) {
-					JOptionPane.showMessageDialog(null, "click cancelled");
+				if (progress.isCanceled()) {
+					//JOptionPane.showMessageDialog(null, "click cancelled");
 					calcStatus = false;
 					errored = true;
 					progress.dispose();
-				}*/
+					
+				}
 				if ((!progress.isCanceled()) && (!errored)) {
 					calcStatus = true;
 				}
 				progress.dispose();
 			}
 		};
+		
 		analyzeWorker.start();
 		progress.setVisible(true);
+		/*EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					analyzeWorker.start();
+					progress.setVisible(true);
+				} catch (Exception e) {
+					analyzeWorker.interrupt();
+					progress.dispose();
+					e.printStackTrace();
+				}
+			}
+		});*/
+		
 
 	}
 
@@ -363,6 +382,10 @@ public class CalculateLogFC {
 	 * @return
 	 */
 	public boolean getcalcStatus() {
+		if(this.calcStatus==false) {
+			//JOptionPane.showMessageDialog(null, "interupt T");
+			analyzeWorker.interrupt();
+		}
 		return this.calcStatus;
 	}
 
