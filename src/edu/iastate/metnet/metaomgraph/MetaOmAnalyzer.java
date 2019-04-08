@@ -194,7 +194,6 @@ public class MetaOmAnalyzer {
 					int i = 0;
 					do {
 						progress.setProgress(i);
-
 						// double[] data = project.getAllData(entries[i]);
 						double[] data = project.getIncludedData(entries[i]);
 						// JOptionPane.showMessageDialog(null, "data:"+Arrays.toString(data));

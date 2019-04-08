@@ -36,8 +36,7 @@ public class CalculateLogFC {
 	private List<Double> testPvals;
 	private List<Double> ftestPvals;
 	private List<Double> ftestRatiovals;
-	
-	
+
 	private boolean calcStatus;
 
 	// group indices
@@ -45,6 +44,7 @@ public class CalculateLogFC {
 	Collection<Integer> grp2Ind;
 	String grp1Name;
 	String grp2Name;
+
 	public CalculateLogFC(String selectedList, String grpID, MetaOmProject myProject, boolean tflag) {
 		this.selectedList = selectedList;
 		this.grpID = grpID;
@@ -67,12 +67,13 @@ public class CalculateLogFC {
 	 *            active project
 	 * @param method
 	 *            method to use for calculation 0: M-W U test 1: t test (equal
-	 *            variance) 2: Welch t test (unequal variance) 3: Paired t-test 4: wilcoxon
+	 *            variance) 2: Welch t test (unequal variance) 3: Paired t-test 4:
+	 *            wilcoxon
 	 * 
 	 * 
 	 */
-	public CalculateLogFC(String selectedList, List<String> grpI, List<String> grpII,String name1,String name2, MetaOmProject myProject,
-			int method) {
+	public CalculateLogFC(String selectedList, List<String> grpI, List<String> grpII, String name1, String name2,
+			MetaOmProject myProject, int method) {
 		this.selectedList = selectedList;
 		this.myProject = myProject;
 		excluded = MetaOmAnalyzer.getExclude();
@@ -84,10 +85,12 @@ public class CalculateLogFC {
 		// create collection of indices
 		grp1Ind = getIndices(grpI);
 		grp2Ind = getIndices(grpII);
-		this.grp1Name=name1;
-		this.grp2Name=name2;
-		//JOptionPane.showMessageDialog(null, "g1:" + grpI.toString() + " g1ind:" + grp1Ind.toString());
-		//JOptionPane.showMessageDialog(null, "g2:" + grpII.toString() + " g2ind:" + grp2Ind.toString());
+		this.grp1Name = name1;
+		this.grp2Name = name2;
+		// JOptionPane.showMessageDialog(null, "g1:" + grpI.toString() + " g1ind:" +
+		// grp1Ind.toString());
+		// JOptionPane.showMessageDialog(null, "g2:" + grpII.toString() + " g2ind:" +
+		// grp2Ind.toString());
 
 	}
 
@@ -215,7 +218,6 @@ public class CalculateLogFC {
 				"Calculating...", "", 0L, selected.length, true);
 		SwingWorker analyzeWorker = new SwingWorker() {
 			boolean errored = false;
-
 			public Object construct() {
 
 				for (int r = 0; r < selected.length; r++) {
@@ -225,116 +227,127 @@ public class CalculateLogFC {
 						// get untransformed data to calculate logFC
 						thisData = myProject.getAllData(selected[r], true);
 						// JOptionPane.showMessageDialog(null, "this Data:"+Arrays.toString(thisData));
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					double m1 = 0, m2 = 0, fc = 0;
 
-					for (int k = 0; k < thisData.length; k++) {
-						if (excluded != null && excluded[k]) {
-							continue;
+						double m1 = 0, m2 = 0, fc = 0;
+
+						for (int k = 0; k < thisData.length; k++) {
+							if (excluded != null && excluded[k]) {
+								continue;
+							}
+							if (g1Ind.contains(k)) {
+								m1 += (Math.log(thisData[k] + 1) / log2b10);
+
+							} else if (g2Ind.contains(k)) {
+								m2 += (Math.log(thisData[k] + 1) / log2b10);
+							}
 						}
-						if (g1Ind.contains(k)) {
-							m1 += (Math.log(thisData[k] + 1) / log2b10);
 
-						} else if (g2Ind.contains(k)) {
-							m2 += (Math.log(thisData[k] + 1) / log2b10);
-						}
-					}
+						// JOptionPane.showMessageDialog(null, "s1:" + m1 + " s2:" + m2);
+						m1 = m1 / g1Ind.size();
+						m2 = m2 / g2Ind.size();
+						fc = m1 - m2;
+						fcVals[r] = fc;
+						featureNames.add(myProject.getDefaultRowNames(selected[r]));
+						// add means for the rth feature
+						mean1.add(m1);
+						mean2.add(m2);
 
-					// JOptionPane.showMessageDialog(null, "s1:" + m1 + " s2:" + m2);
-					m1 = m1 / g1Ind.size();
-					m2 = m2 / g2Ind.size();
-					fc = m1 - m2;
-					fcVals[r] = fc;
-					featureNames.add(myProject.getDefaultRowNames(selected[r]));
-					// add means for the rth feature
-					mean1.add(m1);
-					mean2.add(m2);
+						// perform selected tests
+						// step 1 create two arrays containing data from two groups for rth feature
 
-					// perform selected tests
-					// step 1 create two arrays containing data from two groups for rth feature
-					try {
 						// get transformed data if any applied
 						thisData = myProject.getAllData(selected[r]);
 						// JOptionPane.showMessageDialog(null, "this Data2:"+Arrays.toString(thisData));
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+
+						// s1 and s2 stores data for two groups
+						double[] s1 = new double[g1Ind.size()];
+						double[] s2 = new double[g2Ind.size()];
+						int s1ind = 0, s2ind = 0;
+						for (int k = 0; k < thisData.length; k++) {
+							if (excluded != null && excluded[k]) {
+								continue;
+							}
+							if (g1Ind.contains(k)) {
+								s1[s1ind++] = thisData[k];
+
+							} else if (g2Ind.contains(k)) {
+								s2[s2ind++] = thisData[k];
+							}
+						}
+
+						// store p vals of all tests in ttestPvals
+						// additionly store pvals of f test in ftestPvals
+						if (testMethod == 0) {
+							// perform MannWhitney U test
+							testPvals.add(uob.mannWhitneyUTest(s1, s2));
+						} else if (testMethod == 1 || testMethod == 2) {
+							// perform t test with F test
+							// do f test
+							double vs1 = vob.evaluate(s1);
+							double vs2 = vob.evaluate(s2);
+							FDistribution fob = null;
+							double fRatio = 0;
+							if (vs1 > vs2) {
+								fRatio = vs1 / vs2;
+								fob = new FDistribution(g1Ind.size() - 1, g2Ind.size() - 1);
+							} else {
+								fRatio = vs2 / vs1;
+								fob = new FDistribution(g2Ind.size() - 1, g1Ind.size() - 1);
+							}
+
+							ftestPvals.add(1 - fob.cumulativeProbability(fRatio));
+							ftestRatiovals.add(fRatio);
+
+							if (testMethod == 1) {
+								// do t test
+								testPvals.add(tob.homoscedasticTTest(s1, s2));
+							} else if (testMethod == 2) {
+								// do welch test
+								testPvals.add(tob.tTest(s1, s2));
+							}
+
+						} else if (testMethod == 3) {
+							// perform paired t
+							testPvals.add(tob.pairedTTest(s1, s2));
+						} else if (testMethod == 4) {
+							// perform wilcoxonSignedRankTest
+							// NOTE: exact p vals only work for n <=30
+							// set exact pv is n <= 10 otherwise its slow
+							if (s1.length <= 10) {
+								testPvals.add(wsrtob.wilcoxonSignedRankTest(s1, s2, true));
+							} else {
+								testPvals.add(wsrtob.wilcoxonSignedRankTest(s1, s2, false));
+							}
+						}
+
 					}
-
-					// s1 and s2 stores data for two groups
-					double[] s1 = new double[g1Ind.size()];
-					double[] s2 = new double[g2Ind.size()];
-					int s1ind = 0, s2ind = 0;
-					for (int k = 0; k < thisData.length; k++) {
-						if (excluded != null && excluded[k]) {
-							continue;
-						}
-						if (g1Ind.contains(k)) {
-							s1[s1ind++] = thisData[k];
-
-						} else if (g2Ind.contains(k)) {
-							s2[s2ind++] = thisData[k];
-						}
+					catch (IOException ioe) {
+						JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Error reading project data",
+								"IOException", 0);
+						ioe.printStackTrace();
+						progress.dispose();
+						errored = true;
+						calcStatus = false;
+						return null;
+					} catch (ArrayIndexOutOfBoundsException oob) {
+						progress.dispose();
+						errored = true;
+						calcStatus = false;
+						return null;
 					}
-
-					// store p vals of all tests in ttestPvals
-					// additionly store pvals of f test in ftestPvals
-					if (testMethod == 0) {
-						// perform MannWhitney U test
-						testPvals.add(uob.mannWhitneyUTest(s1, s2));
-					} else if (testMethod == 1 || testMethod == 2) {
-						// perform t test with F test
-						// do f test
-						double vs1 = vob.evaluate(s1);
-						double vs2 = vob.evaluate(s2);
-						FDistribution fob = null;
-						double fRatio = 0;
-						if (vs1 > vs2) {
-							fRatio = vs1 / vs2;
-							fob = new FDistribution(g1Ind.size() - 1, g2Ind.size() - 1);
-						} else {
-							fRatio = vs2 / vs1;
-							fob = new FDistribution(g2Ind.size() - 1, g1Ind.size() - 1);
-						}
-
-						ftestPvals.add(1 - fob.cumulativeProbability(fRatio));
-						ftestRatiovals.add(fRatio);
-
-						if (testMethod == 1) {
-							// do t test
-							testPvals.add(tob.homoscedasticTTest(s1, s2));
-						} else if (testMethod == 2) {
-							// do welch test
-							testPvals.add(tob.tTest(s1, s2));
-						}
-
-					} else if (testMethod == 3) {
-						// perform paired t
-						testPvals.add(tob.pairedTTest(s1, s2));
-					} else if (testMethod == 4) {
-						// perform wilcoxonSignedRankTest
-						// NOTE: exact p vals only work for n <=30
-						//set exact pv is n <= 10 otherwise its slow
-						if(s1.length<=10) {
-						testPvals.add(wsrtob.wilcoxonSignedRankTest(s1, s2, true));
-						}else {
-							testPvals.add(wsrtob.wilcoxonSignedRankTest(s1, s2, false));	
-						}
-					}
-
 				}
 				return null;
 			}
 
 			public void finished() {
-				if(progress.isCanceled()) {
-					calcStatus=false;
-				}
+				/*if (progress.isCanceled()) {
+					JOptionPane.showMessageDialog(null, "click cancelled");
+					calcStatus = false;
+					errored = true;
+					progress.dispose();
+				}*/
 				if ((!progress.isCanceled()) && (!errored)) {
-					calcStatus=true;
+					calcStatus = true;
 				}
 				progress.dispose();
 			}
@@ -342,11 +355,11 @@ public class CalculateLogFC {
 		analyzeWorker.start();
 		progress.setVisible(true);
 
-		
 	}
-	
+
 	/**
 	 * return status if calculation was completed
+	 * 
 	 * @return
 	 */
 	public boolean getcalcStatus() {
@@ -377,13 +390,12 @@ public class CalculateLogFC {
 		return this.ftestRatiovals;
 	}
 
-	
-	
 	public String getMethodName() {
-		String[] methods = new String[] { "M-W U test", "Student's t-test", "Welch's t-test", "Paired t-test","Wilcoxon Signed Rank Test"};
+		String[] methods = new String[] { "M-W U test", "Student's t-test", "Welch's t-test", "Paired t-test",
+				"Wilcoxon Signed Rank Test" };
 		return methods[testMethod];
 	}
-	
+
 	public String getGrp1Name() {
 		return grp1Name;
 	}
