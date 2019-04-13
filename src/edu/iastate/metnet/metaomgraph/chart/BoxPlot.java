@@ -318,7 +318,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 
 		JFreeChart myChart = ChartFactory.createBoxAndWhiskerChart("BoxPlot", "Sample", "Value", dataset, true);
 
-		// urmi add chat options
+		// urmi add chart options
 		myRenderer = getBoxAndWhiskerRenderer(meanColor, medianColor, outlierColor, farourlierColor, showOutliers,
 				showFaroutliers, outSize, faroutSize);
 		myRenderer.setDefaultToolTipGenerator(new BoxAndWhiskerToolTipGenerator());
