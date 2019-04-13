@@ -138,23 +138,8 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 	private JButton splitDataset;
 	private JButton boxPlotOptions;
 
-	/*
-	 * TODO: Add option in boxplot show/hide/choose color for mean,median, outliers,
-	 * far outliers add tool tips for outliers sort by mean or median values
-	 */
-	// default options
-	private boolean showMean = false;
-	private boolean showOutliers = false;
-	private boolean showFarOutliers = false;
-	private boolean showMedian = true;
-	// colors
-	Color medianColor = Color.black;
-	Color meanColor = Color.red;
-	Color outlierColor = Color.pink;
-	Color faroutlierColor = Color.green;
-
-	private int outlierSize = 4;
-	private int faroutlierSize = 3;
+	
+	
 
 	// bottom toolbar
 	private JButton btnNewButton_1;
@@ -229,7 +214,7 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		initdataset = createDataset();
 
 		try {
-			chartPanel = makeBoxPlot(initdataset);
+			chartPanel = makeBarChart(initdataset);
 		} catch (IOException e) {
 		}
 		scrollPane.setViewportView(chartPanel);
@@ -307,20 +292,19 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		this.setTitle(chartTitle);
 	}
 
-	public ChartPanel makeBoxPlot(DefaultBoxAndWhiskerCategoryDataset dataset) throws IOException {
-		return makeBoxPlot(dataset, showMean, showMedian, showOutliers, showFarOutliers, meanColor, medianColor,
-				outlierColor, faroutlierColor, outlierSize, faroutlierSize);
+	public ChartPanel makeBarChart(DefaultBoxAndWhiskerCategoryDataset dataset) throws IOException {
+		return null;
 	}
 
-	public ChartPanel makeBoxPlot(DefaultBoxAndWhiskerCategoryDataset dataset, boolean showMean, boolean showMedian,
+	public ChartPanel makeBarChart(DefaultBoxAndWhiskerCategoryDataset dataset, boolean showMean, boolean showMedian,
 			boolean showOutliers, boolean showFaroutliers, Color meanColor, Color medianColor, Color outlierColor,
 			Color farourlierColor, int outSize, int faroutSize) throws IOException {
 
-		JFreeChart myChart = ChartFactory.createBoxAndWhiskerChart("BoxPlot", "Sample", "Value", dataset, true);
+		//JFreeChart myChart = ChartFactory.createBoxAndWhiskerChart("BoxPlot", "Sample", "Value", dataset, true);
+		//JFreeChart myChart = ChartFactory.createBarChart("BoxPlot", "Sample", "Value", dataset, true);
 
-		// urmi add chat options
-		myRenderer = getBoxAndWhiskerRenderer(meanColor, medianColor, outlierColor, farourlierColor, showOutliers,
-				showFaroutliers, outSize, faroutSize);
+		// urmi add chart options
+		//myRenderer = getBoxAndWhiskerRenderer(meanColor, medianColor, outlierColor, farourlierColor, showOutliers, showFaroutliers, outSize, faroutSize);
 		myRenderer.setDefaultToolTipGenerator(new BoxAndWhiskerToolTipGenerator());
 		myRenderer.setFillBox(true);
 		myRenderer.setMeanVisible(showMean);
@@ -562,34 +546,7 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		}
 
 		if ("options".equals(e.getActionCommand())) {
-
-			// display option dialog
-			BoxPlotOpts optPanel = new BoxPlotOpts(showMean, showMedian, showOutliers, showFarOutliers, meanColor,
-					medianColor, outlierColor, faroutlierColor, outlierSize, faroutlierSize);
-			/*
-			 * dialog.setModal(true); dialog.pack(); dialog.setVisible(true);
-			 */
-
-			int res = JOptionPane.showConfirmDialog(null, optPanel, "Enter values", JOptionPane.OK_CANCEL_OPTION);
-			if (res == JOptionPane.OK_OPTION) {
-				// get data from optPanel's public methods
-				// JOptionPane.showMessageDialog(null, "OK");
-				showMean = optPanel.getShowMean();
-				showMedian = optPanel.getShowMedian();
-				showOutliers = optPanel.getShowOutliers();
-				showFarOutliers = optPanel.getShowFarOutliers();
-				meanColor = optPanel.getMeanColor();
-				medianColor = optPanel.getMedianColor();
-				outlierColor = optPanel.getOutColor();
-				faroutlierColor = optPanel.getFarOutColor();
-				outlierSize = optPanel.getOutlierSize();
-				faroutlierSize = optPanel.getFarOutlierSize();
-				// update the chart
-				updateChart();
-			} else {
-				return;
-			}
-
+			//TODO
 		}
 		if ("splitDataset".equals(e.getActionCommand())) {
 
@@ -860,7 +817,7 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		this.chartPanel = null;
 		try {
 			initdataset = createDataset();
-			this.chartPanel = makeBoxPlot(initdataset);
+			this.chartPanel = makeBarChart(initdataset);
 			scrollPane.setViewportView(chartPanel);
 			properties.addActionListener(chartPanel);
 			print.addActionListener(chartPanel);
@@ -943,295 +900,7 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 
 	}
 
-	///////////////////////// BoxPlot Renderer
-	///////////////////////// functions*//////////////////////////////////////////////
-	public static BoxAndWhiskerRenderer getBoxAndWhiskerRenderer(Color meanColor, Color medianColor, Color outColor,
-			Color faroutColor, boolean showOutliers, boolean showFaroutliers, int outSize, int faroutSize) {
-		BoxAndWhiskerRenderer renderer = new BoxAndWhiskerRenderer() {
-			@Override
-			public void drawVerticalItem(Graphics2D g2, CategoryItemRendererState state, Rectangle2D dataArea,
-					CategoryPlot plot, CategoryAxis domainAxis, ValueAxis rangeAxis, CategoryDataset dataset, int row,
-					int column) {
-
-				BoxAndWhiskerCategoryDataset bawDataset = (BoxAndWhiskerCategoryDataset) dataset;
-
-				double categoryEnd = domainAxis.getCategoryEnd(column, getColumnCount(), dataArea,
-						plot.getDomainAxisEdge());
-				double categoryStart = domainAxis.getCategoryStart(column, getColumnCount(), dataArea,
-						plot.getDomainAxisEdge());
-				double categoryWidth = categoryEnd - categoryStart;
-
-				double xx = categoryStart;
-				int seriesCount = getRowCount();
-				int categoryCount = getColumnCount();
-
-				if (seriesCount > 1) {
-					double seriesGap = dataArea.getWidth() * getItemMargin() / (categoryCount * (seriesCount - 1));
-					double usedWidth = (state.getBarWidth() * seriesCount) + (seriesGap * (seriesCount - 1));
-					// offset the start of the boxes if the total width used is smaller
-					// than the category width
-					double offset = (categoryWidth - usedWidth) / 2;
-					xx = xx + offset + (row * (state.getBarWidth() + seriesGap));
-				} else {
-					// offset the start of the box if the box width is smaller than the
-					// category width
-					double offset = (categoryWidth - state.getBarWidth()) / 2;
-					xx = xx + offset;
-				}
-
-				double yyAverage;
-				double yyOutlier;
-
-				Paint itemPaint = getItemPaint(row, column);
-				g2.setPaint(itemPaint);
-				Stroke s = getItemStroke(row, column);
-				g2.setStroke(s);
-
-				// aRadius controls the size of mean and triangles
-				// urmi triangle indicates the presence of far out values.
-				double aRadius = 0; // average radius
-
-				org.jfree.chart.ui.RectangleEdge location = plot.getRangeAxisEdge();
-				// plot box plots
-				Number yQ1 = bawDataset.getQ1Value(row, column);
-				Number yQ3 = bawDataset.getQ3Value(row, column);
-				Number yMax = bawDataset.getMaxRegularValue(row, column);
-				Number yMin = bawDataset.getMinRegularValue(row, column);
-				Shape box = null;
-				if (yQ1 != null && yQ3 != null && yMax != null && yMin != null) {
-
-					double yyQ1 = rangeAxis.valueToJava2D(yQ1.doubleValue(), dataArea, location);
-					double yyQ3 = rangeAxis.valueToJava2D(yQ3.doubleValue(), dataArea, location);
-					double yyMax = rangeAxis.valueToJava2D(yMax.doubleValue(), dataArea, location);
-					double yyMin = rangeAxis.valueToJava2D(yMin.doubleValue(), dataArea, location);
-					double xxmid = xx + state.getBarWidth() / 2.0;
-					double halfW = (state.getBarWidth() / 2.0) * getWhiskerWidth();
-
-					// draw the body...
-					box = new Rectangle2D.Double(xx, Math.min(yyQ1, yyQ3), state.getBarWidth(), Math.abs(yyQ1 - yyQ3));
-					if (getFillBox()) {
-						g2.fill(box);
-					}
-
-					Paint outlinePaint = getItemOutlinePaint(row, column);
-					if (getUseOutlinePaintForWhiskers()) {
-						g2.setPaint(outlinePaint);
-					}
-					// draw the upper shadow...
-					g2.draw(new Line2D.Double(xxmid, yyMax, xxmid, yyQ3));
-					g2.draw(new Line2D.Double(xxmid - halfW, yyMax, xxmid + halfW, yyMax));
-
-					// draw the lower shadow...
-					g2.draw(new Line2D.Double(xxmid, yyMin, xxmid, yyQ1));
-					g2.draw(new Line2D.Double(xxmid - halfW, yyMin, xxmid + halfW, yyMin));
-
-					g2.setStroke(getItemOutlineStroke(row, column));
-					g2.setPaint(outlinePaint);
-					g2.draw(box);
-				}
-
-				g2.setPaint(getArtifactPaint());
-
-				// draw mean line
-				if (isMeanVisible()) {
-					// if (true) {
-					Number yMean = bawDataset.getMeanValue(row, column);
-					if (yMean != null) {
-						yyAverage = rangeAxis.valueToJava2D(yMean.doubleValue(), dataArea, location);
-						aRadius = state.getBarWidth() / 10;
-						// here we check that the average marker will in fact be
-						// visible before drawing it...
-						if ((yyAverage > (dataArea.getMinY() - aRadius))
-								&& (yyAverage < (dataArea.getMaxY() + aRadius))) {
-							// urmi don't draw ellipse
-							/*
-							 * Ellipse2D.Double avgEllipse = new Ellipse2D.Double(xx + aRadius, yyAverage -
-							 * aRadius, aRadius * 2, aRadius * 2); g2.fill(avgEllipse); g2.draw(avgEllipse);
-							 */
-
-							double yyMean = rangeAxis.valueToJava2D(yMean.doubleValue(), dataArea, location);
-							g2.setColor(meanColor);
-							g2.draw(new Line2D.Double(xx, yyMean, xx + state.getBarWidth(), yyMean));
-						}
-					}
-				}
-
-				// draw median...
-				if (isMedianVisible()) {
-					Number yMedian = bawDataset.getMedianValue(row, column);
-					if (yMedian != null) {
-						double yyMedian = rangeAxis.valueToJava2D(yMedian.doubleValue(), dataArea, location);
-						g2.setColor(medianColor);
-						g2.draw(new Line2D.Double(xx, yyMedian, xx + state.getBarWidth(), yyMedian));
-					}
-				}
-
-				// draw yOutliers...
-				double maxAxisValue = rangeAxis.valueToJava2D(rangeAxis.getUpperBound(), dataArea, location) + aRadius;
-				double minAxisValue = rangeAxis.valueToJava2D(rangeAxis.getLowerBound(), dataArea, location) - aRadius;
-
-				g2.setPaint(itemPaint);
-
-				// draw outliers
-				// double oRadius = 0 == null ? state.getBarWidth() / 3 : outlierRadius; //
-				// outlier radius
-				// display no outliers
-				double oRadius = outSize;
-				List outliers = new ArrayList();
-				OutlierListCollection outlierListCollection = new OutlierListCollection();
-
-				// From outlier array sort out which are outliers and put these into a
-				// list If there are any farouts, set the flag on the
-				// OutlierListCollection
-				List yOutliers = bawDataset.getOutliers(row, column);
-				if (yOutliers != null) {
-
-					for (int i = 0; i < yOutliers.size(); i++) {
-						double outlier = ((Number) yOutliers.get(i)).doubleValue();
-						Number minOutlier = bawDataset.getMinOutlier(row, column);
-						Number maxOutlier = bawDataset.getMaxOutlier(row, column);
-						Number minRegular = bawDataset.getMinRegularValue(row, column);
-						Number maxRegular = bawDataset.getMaxRegularValue(row, column);
-						if (outlier > maxOutlier.doubleValue()) {
-							outlierListCollection.setHighFarOut(true);
-						} else if (outlier < minOutlier.doubleValue()) {
-							outlierListCollection.setLowFarOut(true);
-						} else if (outlier > maxRegular.doubleValue()) {
-							yyOutlier = rangeAxis.valueToJava2D(outlier, dataArea, location);
-							outliers.add(new Outlier(xx + state.getBarWidth() / 2.0, yyOutlier, oRadius));
-						} else if (outlier < minRegular.doubleValue()) {
-							yyOutlier = rangeAxis.valueToJava2D(outlier, dataArea, location);
-							outliers.add(new Outlier(xx + state.getBarWidth() / 2.0, yyOutlier, oRadius));
-						}
-						Collections.sort(outliers);
-					}
-
-					// Process outliers. Each outlier is either added to the
-					// appropriate outlier list or a new outlier list is made
-					for (Iterator iterator = outliers.iterator(); iterator.hasNext();) {
-						Outlier outlier = (Outlier) iterator.next();
-						outlierListCollection.add(outlier);
-					}
-
-					if (showOutliers) {
-						g2.setColor(outColor);
-						for (Iterator iterator = outlierListCollection.iterator(); iterator.hasNext();) {
-							OutlierList list = (OutlierList) iterator.next();
-							Outlier outlier = list.getAveragedOutlier();
-							java.awt.geom.Point2D point = outlier.getPoint();
-
-							if (list.isMultiple()) {
-								drawMultipleEllipse(point, state.getBarWidth(), oRadius, g2);
-							} else {
-								drawEllipse(point, oRadius, g2);
-
-							}
-						}
-					}
-
-					// draw farout indicators
-					if (outlierListCollection.isHighFarOut() && showFaroutliers) {
-						g2.setColor(faroutColor);
-						aRadius = (state.getBarWidth() / 20) * faroutSize;
-						drawHighFarOut(aRadius / 2.0, g2, xx + state.getBarWidth() / 2.0, maxAxisValue);
-					}
-
-					if (outlierListCollection.isLowFarOut() && showFaroutliers) {
-						g2.setColor(faroutColor);
-						aRadius = (state.getBarWidth() / 20) * faroutSize;
-						drawLowFarOut(aRadius / 2.0, g2, xx + state.getBarWidth() / 2.0, minAxisValue);
-					}
-				}
-				// collect entity and tool tip information...
-				if (state.getInfo() != null && box != null) {
-					EntityCollection entities = state.getEntityCollection();
-					if (entities != null) {
-						addItemEntity(entities, dataset, row, column, box);
-					}
-				}
-
-			}
-
-		};
-
-		return renderer;
-	}
-
-	/**
-	 * Draws two dots to represent the average value of more than one outlier.
-	 *
-	 * @param point
-	 *            the location
-	 * @param boxWidth
-	 *            the box width.
-	 * @param oRadius
-	 *            the radius.
-	 * @param g2
-	 *            the graphics device.
-	 */
-	private static void drawMultipleEllipse(Point2D point, double boxWidth, double oRadius, Graphics2D g2) {
-
-		Ellipse2D dot1 = new Ellipse2D.Double(point.getX() - (boxWidth / 2) + oRadius, point.getY(), oRadius, oRadius);
-		Ellipse2D dot2 = new Ellipse2D.Double(point.getX() + (boxWidth / 2), point.getY(), oRadius, oRadius);
-		g2.draw(dot1);
-		g2.draw(dot2);
-	}
-
-	/**
-	 * Draws a dot to represent an outlier.
-	 *
-	 * @param point
-	 *            the location.
-	 * @param oRadius
-	 *            the radius.
-	 * @param g2
-	 *            the graphics device.
-	 */
-	private static void drawEllipse(Point2D point, double oRadius, Graphics2D g2) {
-		Ellipse2D dot = new Ellipse2D.Double(point.getX() + oRadius / 2, point.getY(), oRadius, oRadius);
-		g2.draw(dot);
-	}
-
-	/**
-	 * Draws a triangle to indicate the presence of far-out values.
-	 *
-	 * @param aRadius
-	 *            the radius.
-	 * @param g2
-	 *            the graphics device.
-	 * @param xx
-	 *            the x coordinate.
-	 * @param m
-	 *            the y coordinate.
-	 */
-	private static void drawHighFarOut(double aRadius, Graphics2D g2, double xx, double m) {
-		double side = aRadius * 2;
-		g2.draw(new Line2D.Double(xx - side, m + side, xx + side, m + side));
-		g2.draw(new Line2D.Double(xx - side, m + side, xx, m));
-		g2.draw(new Line2D.Double(xx + side, m + side, xx, m));
-	}
-
-	/**
-	 * Draws a triangle to indicate the presence of far-out values.
-	 *
-	 * @param aRadius
-	 *            the radius.
-	 * @param g2
-	 *            the graphics device.
-	 * @param xx
-	 *            the x coordinate.
-	 * @param m
-	 *            the y coordinate.
-	 */
-	private static void drawLowFarOut(double aRadius, Graphics2D g2, double xx, double m) {
-		double side = aRadius * 2;
-		g2.draw(new Line2D.Double(xx - side, m - side, xx + side, m - side));
-		g2.draw(new Line2D.Double(xx - side, m - side, xx, m));
-		g2.draw(new Line2D.Double(xx + side, m - side, xx, m));
-	}
-
-}
-
+	
 /**
  * TransferHandler for list to drag categories in the list and rearrange the
  * boxplot
