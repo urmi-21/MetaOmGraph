@@ -288,7 +288,7 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		setMaximizable(true);
 		setIconifiable(true);
 		setClosable(true);
-		String chartTitle = "Box Plot:" + String.join(",", rowNames);
+		String chartTitle = "Bar Chart:" + String.join(",", rowNames);
 		this.setTitle(chartTitle);
 	}
 
@@ -438,68 +438,7 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 	}
 
 	private DefaultBoxAndWhiskerCategoryDataset createDataset() {
-		DefaultBoxAndWhiskerCategoryDataset dataset = new DefaultBoxAndWhiskerCategoryDataset();
-		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(), "Working",
-				"Generating BoxPlot", 0L, plotData.size(), true);
-		new Thread() {
-			public void run() {
-
-				seriesNames = new ArrayList<>();
-				if (splitIndex == null || splitCol == null || splitCol.length() < 1) {
-					// no split
-					int n = 0;
-					for (int rKey : plotData.keySet()) {
-						List<Double> list = new ArrayList();
-						double[] thisData = plotData.get(rKey);
-						for (int j = 0; j < thisData.length; j++) {
-							if (excludedCopy == null) {
-								list.add(thisData[j]);
-							} else {
-								if (!excludedCopy[j]) {
-									list.add(thisData[j]);
-								}
-							}
-						}
-						dataset.add(list, "All", rowNames[n++]);
-					}
-					seriesNames.add("All");
-				} else {
-
-					List<String> splitIndkeys = getSplitIndKeys();
-					for (String key : splitIndkeys) {
-						String thisKeyName = "";
-						// seriesNames.add(key);
-						Collection<Integer> thisInd = splitIndex.get(key);
-						int n = 0;
-						for (int rKey : plotData.keySet()) {
-							List list = new ArrayList();
-							double[] thisData = plotData.get(rKey);
-							for (int ind : thisInd) {
-								if (excludedCopy == null) {
-									list.add(thisData[ind]);
-								} else {
-									if (!excludedCopy[ind]) {
-										list.add(thisData[ind]);
-									}
-								}
-							}
-							thisKeyName = key + "(n=" + String.valueOf(list.size()) + ")";
-							dataset.add(list, thisKeyName, rowNames[n++]);
-
-						}
-						seriesNames.add(thisKeyName);
-					}
-				}
-
-				progress.dispose();
-			}
-		}.start();
-		progress.setVisible(true);
-		if (progress.isCanceled()) {
-			return null;
-		}
-
-		return dataset;
+		return null;
 	}
 
 	@Override
@@ -900,7 +839,7 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 
 	}
 
-	
+}
 /**
  * TransferHandler for list to drag categories in the list and rearrange the
  * boxplot
