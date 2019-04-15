@@ -433,7 +433,7 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 				// final int[] result = new int[myProject.getDataColumnCount()];
 				Collection<Integer> result = new ArrayList<>();
 				List<Collection<Integer>> resList = new ArrayList<>();
-				final boolean nohits;
+				
 				new AnimatedSwingWorker("Searching...", true) {
 					@Override
 					public Object construct() {
