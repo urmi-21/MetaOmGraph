@@ -89,6 +89,7 @@ import org.jfree.chart.renderer.category.BoxAndWhiskerRenderer;
 import org.jfree.chart.renderer.category.CategoryItemRendererState;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.category.CategoryDataset;
+import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.statistics.BoxAndWhiskerCategoryDataset;
 import org.jfree.data.statistics.BoxAndWhiskerItem;
 import org.jfree.data.statistics.DefaultBoxAndWhiskerCategoryDataset;
@@ -138,9 +139,6 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 	private JButton splitDataset;
 	private JButton boxPlotOptions;
 
-	
-	
-
 	// bottom toolbar
 	private JButton btnNewButton_1;
 
@@ -154,7 +152,7 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 
 	Color[] colorArray = null;
 
-	DefaultBoxAndWhiskerCategoryDataset initdataset;
+	CategoryDataset initdataset;
 	String splitCol;
 	List<String> seriesNames;
 	Map<String, Collection<Integer>> splitIndex;
@@ -173,22 +171,14 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 	/**
 	 * Create the frame.
 	 */
-	public BarChart(HashMap<Integer, double[]> plotData, int pType, MetaOmProject mp) {
+	public BarChart(MetaOmProject mp) {
 
 		this.plotData = plotData;
-		this.plotType = pType;
+		
 		myProject = mp;
-		if (plotType == 0) {
-			// make copy of excluded
-			boolean[] excluded = MetaOmAnalyzer.getExclude();
-			if (excluded != null) {
-				excludedCopy = new boolean[excluded.length];
-				System.arraycopy(excluded, 0, excludedCopy, 0, excluded.length);
-			}
-		}
+		
 		chartPanel = null;
-		// init rownames
-		rowNames = initRowNames(plotData.keySet(), pType);
+		
 		// JOptionPane.showMessageDialog(null, Arrays.toString(rowNames));
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(new BorderLayout(0, 0));
@@ -265,7 +255,6 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		boxPlotOptions.setToolTipText("Options");
 		boxPlotOptions.setActionCommand("options");
 		boxPlotOptions.addActionListener(this);
-		
 
 		panel.add(properties);
 		panel.add(save);
@@ -278,7 +267,6 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		}
 		panel.add(boxPlotOptions);
 		panel.add(changePalette);
-		
 
 		// frame properties
 		this.setClosable(true);
@@ -288,27 +276,23 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		setMaximizable(true);
 		setIconifiable(true);
 		setClosable(true);
-		String chartTitle = "Bar Chart:" + String.join(",", rowNames);
-		this.setTitle(chartTitle);
+		//String chartTitle = "Bar Chart:" + String.join(",", rowNames);
+		//this.setTitle(chartTitle);
 	}
 
-	public ChartPanel makeBarChart(DefaultBoxAndWhiskerCategoryDataset dataset) throws IOException {
-		return null;
-	}
+	public ChartPanel makeBarChart(CategoryDataset dataset) throws IOException {
 
-	public ChartPanel makeBarChart(DefaultBoxAndWhiskerCategoryDataset dataset, boolean showMean, boolean showMedian,
-			boolean showOutliers, boolean showFaroutliers, Color meanColor, Color medianColor, Color outlierColor,
-			Color farourlierColor, int outSize, int faroutSize) throws IOException {
-
-		//JFreeChart myChart = ChartFactory.createBoxAndWhiskerChart("BoxPlot", "Sample", "Value", dataset, true);
-		//JFreeChart myChart = ChartFactory.createBarChart("BoxPlot", "Sample", "Value", dataset, true);
+		// JFreeChart myChart = ChartFactory.createBoxAndWhiskerChart("BoxPlot",
+		// "Sample", "Value", dataset, true);
+		// JFreeChart myChart = ChartFactory.createBarChart("BoxPlot", "Sample",
+		// "Value", dataset, true);
 
 		// urmi add chart options
-		//myRenderer = getBoxAndWhiskerRenderer(meanColor, medianColor, outlierColor, farourlierColor, showOutliers, showFaroutliers, outSize, faroutSize);
+		// myRenderer = getBoxAndWhiskerRenderer(meanColor, medianColor, outlierColor,
+		// farourlierColor, showOutliers, showFaroutliers, outSize, faroutSize);
+
 		myRenderer.setDefaultToolTipGenerator(new BoxAndWhiskerToolTipGenerator());
 		myRenderer.setFillBox(true);
-		myRenderer.setMeanVisible(showMean);
-		myRenderer.setMedianVisible(showMedian);
 
 		myChart.getCategoryPlot().getDomainAxis()
 				.setCategoryLabelPositions(CategoryLabelPositions.createUpRotationLabelPositions(1.5707963267948966D));
@@ -316,119 +300,13 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		myChart.getCategoryPlot().setBackgroundPaint(MetaOmGraph.getPlotBackgroundColor());
 		myChart.setBackgroundPaint(MetaOmGraph.getChartBackgroundColor());
 
-		myChart.getCategoryPlot().getDomainAxis().setCategoryLabelPositions(
+		myChart.getCategoryPlot().getDomainAxis()
+				.setCategoryLabelPositions(CategoryLabelPositions.createUpRotationLabelPositions(1.5707963267948966D));
 
-				CategoryLabelPositions.createUpRotationLabelPositions(1.5707963267948966D));
-		ChartPanel chartPanel = new ChartPanel(myChart, Toolkit.getDefaultToolkit().getScreenSize().width,
+		MyChartPanel chartPanel = new MyChartPanel(myChart, Toolkit.getDefaultToolkit().getScreenSize().width,
 				Toolkit.getDefaultToolkit().getScreenSize().height, 0, 0,
 				Toolkit.getDefaultToolkit().getScreenSize().width, Toolkit.getDefaultToolkit().getScreenSize().height,
-				true, true, true, true, true, true) {
-			public void actionPerformed(ActionEvent e) {
-				if (e.getActionCommand().equals(ChartPanel.SAVE_COMMAND)) {
-					File destination = null;
-					JFileChooser chooseDialog = new JFileChooser(Utils.getLastDir());
-					chooseDialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
-					chooseDialog.setFileFilter(new GraphFileFilter(GraphFileFilter.PNG));
-					JPanel sizer = new JPanel();
-					JFormattedTextField widthField, heightField;
-					JFormattedTextField.AbstractFormatter af = new JFormattedTextField.AbstractFormatter() {
-
-						public Object stringToValue(String text) throws ParseException {
-							try {
-								return new Integer(text);
-							} catch (NumberFormatException nfe) {
-								return getFormattedTextField().getValue();
-							}
-						}
-
-						public String valueToString(Object value) throws ParseException {
-							if (value instanceof Integer) {
-								Integer intValue = (Integer) value;
-								if (intValue.intValue() < 1)
-									return "1";
-								else
-									return ((Integer) value).intValue() + "";
-							}
-							return null;
-						}
-
-					};
-					widthField = new JFormattedTextField(new DefaultFormatterFactory(af), new Integer(getWidth()));
-					heightField = new JFormattedTextField(new DefaultFormatterFactory(af), new Integer(getHeight()));
-					widthField.setColumns(4);
-					heightField.setColumns(4);
-					sizer.setLayout(new GridBagLayout());
-					GridBagConstraints c = new GridBagConstraints();
-					c.gridwidth = 3;
-					c.fill = GridBagConstraints.NONE;
-					sizer.add(new JLabel("Image size:"), c);
-					c.gridwidth = 1;
-					c.gridy = 1;
-					sizer.add(new JLabel("Width:"), c);
-					c.gridx = 1;
-					sizer.add(widthField, c);
-					c.gridx = 2;
-					sizer.add(new JLabel("pixels"), c);
-					c.gridx = 0;
-					c.gridy = 2;
-					sizer.add(new JLabel("Height:"), c);
-					c.gridx = 1;
-					sizer.add(heightField, c);
-					c.gridx = 2;
-					sizer.add(new JLabel("pixels"), c);
-					chooseDialog.setAccessory(sizer);
-					int returnVal = JFileChooser.APPROVE_OPTION;
-					/*
-					 * Continually show a file chooser until user selects a valid location, or
-					 * cancels.
-					 */
-					boolean ready = false;
-					while (!ready) {
-						while (((destination == null)) && (returnVal != JFileChooser.CANCEL_OPTION)) {
-							returnVal = chooseDialog.showSaveDialog(MetaOmGraph.getMainWindow());
-							destination = chooseDialog.getSelectedFile();
-						}
-						// Did user cancel? If so, don't do anything.
-						if (returnVal == JFileChooser.CANCEL_OPTION)
-							return;
-						// Check if file exists, prompt to overwrite if it
-						// does
-						String filename = destination.getAbsolutePath();
-						if (!filename.substring(filename.length() - 4).equals(".png")) {
-							filename += ".png";
-							destination = new File(filename);
-						}
-						if (destination.exists()) {
-							int overwrite = JOptionPane.showConfirmDialog(MetaOmGraph.getMainWindow(),
-									filename + " already exists.  Overwrite?", "Overwrite File",
-									JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
-							if ((overwrite == JOptionPane.CANCEL_OPTION) || (overwrite == JOptionPane.CLOSED_OPTION))
-								return;
-							else if (overwrite == JOptionPane.YES_OPTION)
-								ready = true;
-							else
-								destination = null; // No option
-						} else
-							ready = true;
-					}
-					final int oldDrawWidth = getMaximumDrawWidth();
-					final int oldDrawHeight = getMaximumDrawHeight();
-					final int newWidth = Integer.parseInt(widthField.getText());
-					final int newHeight = Integer.parseInt(heightField.getText());
-					final File trueDest = new File(destination.getAbsolutePath());
-					setMaximumDrawWidth(newWidth);
-					setMaximumDrawHeight(newHeight);
-					try {
-						ComponentToImage.saveAsPNG(this, trueDest, newWidth, newHeight);
-					} catch (IOException ioe) {
-						ioe.printStackTrace();
-					}
-					setMaximumDrawWidth(oldDrawWidth);
-					setMaximumDrawHeight(oldDrawHeight);
-				} else
-					super.actionPerformed(e);
-			}
-		};
+				true, true, true, true, true, true);
 		chartPanel.setPreferredSize(new Dimension(800, 600));
 		chartPanel.addChartMouseListener(this);
 		setDefaultPalette();
@@ -437,8 +315,24 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 
 	}
 
-	private DefaultBoxAndWhiskerCategoryDataset createDataset() {
-		return null;
+	private CategoryDataset createDataset() {
+		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+		// Population in 2005
+		dataset.addValue(10, "USA", "2005");
+		dataset.addValue(15, "India", "2005");
+		dataset.addValue(20, "China", "2005");
+
+		// Population in 2010
+		dataset.addValue(15, "USA", "2010");
+		dataset.addValue(20, "India", "2010");
+		dataset.addValue(25, "China", "2010");
+
+		// Population in 2015
+		dataset.addValue(20, "USA", "2015");
+		dataset.addValue(25, "India", "2015");
+		dataset.addValue(30, "China", "2015");
+
+		return dataset;
 	}
 
 	@Override
@@ -485,7 +379,7 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		}
 
 		if ("options".equals(e.getActionCommand())) {
-			//TODO
+			// TODO
 		}
 		if ("splitDataset".equals(e.getActionCommand())) {
 
