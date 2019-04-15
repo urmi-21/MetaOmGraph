@@ -286,7 +286,7 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		MyChartPanel chartPanel = new MyChartPanel(myChart, Toolkit.getDefaultToolkit().getScreenSize().width,
 				Toolkit.getDefaultToolkit().getScreenSize().height, 0, 0,
 				Toolkit.getDefaultToolkit().getScreenSize().width, Toolkit.getDefaultToolkit().getScreenSize().height,
-				true, true, true, true, true, true);
+				true, true, true, true, true, true,MyChartPanel.BARCHART);
 		chartPanel.setPreferredSize(new Dimension(800, 600));
 		chartPanel.addChartMouseListener(this);
 
