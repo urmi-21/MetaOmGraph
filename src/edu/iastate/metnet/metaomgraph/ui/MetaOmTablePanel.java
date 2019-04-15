@@ -4,6 +4,7 @@ import edu.iastate.metnet.metaomgraph.*;
 import edu.iastate.metnet.metaomgraph.SwingWorker;
 import edu.iastate.metnet.metaomgraph.MetaOmProject.RepAveragedData;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
+import edu.iastate.metnet.metaomgraph.chart.BarChart;
 import edu.iastate.metnet.metaomgraph.chart.BoxPlot;
 import edu.iastate.metnet.metaomgraph.chart.HistogramChart;
 import edu.iastate.metnet.metaomgraph.chart.MakeChartWithR;
@@ -1028,6 +1029,17 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					f.setSize(1000, 700);
 					f.setVisible(true);
 					f.toFront();
+					
+					//add barchart
+					BarChart f2 = new BarChart(myProject);
+					MetaOmGraph.getDesktop().add(f2);
+					f2.setDefaultCloseOperation(2);
+					f2.setClosable(true);
+					f2.setResizable(true);
+					f2.pack();
+					f2.setSize(1000, 700);
+					f2.setVisible(true);
+					f2.toFront();
 
 				} catch (Exception e) {
 					JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
