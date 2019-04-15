@@ -1,11 +1,16 @@
 package edu.iastate.metnet.metaomgraph.chart;
 
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 
 import javax.swing.JFileChooser;
@@ -17,6 +22,10 @@ import javax.swing.text.DefaultFormatterFactory;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.entity.ChartEntity;
+import org.jfree.chart.entity.XYItemEntity;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.xy.XYDataset;
 
 import edu.iastate.metnet.metaomgraph.ComponentToImage;
 import edu.iastate.metnet.metaomgraph.GraphFileFilter;
@@ -25,21 +34,27 @@ import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 public class MyChartPanel extends ChartPanel {
 
-	
-
-	
-	public MyChartPanel(JFreeChart chart, int width, int height, int minimumDrawWidth, int minimumDrawHeight,
-			int maximumDrawWidth, int maximumDrawHeight, boolean useBuffer, boolean properties, boolean save,
-			boolean print, boolean zoom, boolean tooltips) {
-		super(chart, width, height, minimumDrawWidth, minimumDrawHeight, maximumDrawWidth, maximumDrawHeight, useBuffer,
-				properties, save, print, zoom, tooltips);
-		// TODO Auto-generated constructor stub
-	}
-
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	// specify chart type
+	// 0 boxplot 1 barchart 2 hist 3scatterplot
+	public static int BOXPLOT = 0;
+	public static int BARCHART = 1;
+	public static int HISTOGRAM = 2;
+	public static int SCATTERPLOT = 3;
+	public static int VOLCANOPLOT = 4;
+	private static int chartType;
+
+	public MyChartPanel(JFreeChart chart, int width, int height, int minimumDrawWidth, int minimumDrawHeight,
+			int maximumDrawWidth, int maximumDrawHeight, boolean useBuffer, boolean properties, boolean save,
+			boolean print, boolean zoom, boolean tooltips, int ctype) {
+		super(chart, width, height, minimumDrawWidth, minimumDrawHeight, maximumDrawWidth, maximumDrawHeight, useBuffer,
+				properties, save, print, zoom, tooltips);
+		chartType = ctype;
+		// TODO Auto-generated constructor stub
+	}
 
 	public void actionPerformed(ActionEvent e) {
 
@@ -149,4 +164,39 @@ public class MyChartPanel extends ChartPanel {
 
 	}
 
+	//tooltop function for a given type of chart
+	@Override
+	public String getToolTipText(MouseEvent event) {
+		return "";
+	}
+
+	// urmi display tooltip away from point
+	@Override
+	public Point getToolTipLocation(MouseEvent event) {
+		Point thisPoint = event.getPoint();
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		// int maxWidth=(int) screenSize.getWidth();
+		int maxWidth = getWidth();
+		// define horizontal space between tooltip and point
+		int xMargin = 25;
+
+		int y = thisPoint.y;
+		int newy = 100;
+		/*
+		 * select appropriate y if(y-200<=0) { newy=10; }else { newy=y-200; }
+		 */
+		int x = thisPoint.x;
+		// JOptionPane.showMessageDialog(null, "mw:"+maxWidth+" x:"+x);
+		// if point is far right of scree show tool tip to the left
+		if (maxWidth - x <= 450) {
+			// JOptionPane.showMessageDialog(null, "mw:"+maxWidth+" x:"+x);
+			// return new Point(x-300, 5);
+			// table width is 400
+			return new Point(x - (400 + xMargin), newy);
+		}
+		return new Point(x + xMargin, newy);
+	}
+	
+	
+	
 }
