@@ -118,8 +118,8 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	int plotType;
 	String[] rowNames;
 	private MetaOmProject myProject;
-	private String xAxisname;
-	private ChartToolBar myToolbar;
+	//private String xAxisname;
+	//private ChartToolBar myToolbar;
 	private ChartPanel chartPanel;
 	private JFreeChart myChart;
 
@@ -316,7 +316,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 			boolean showOutliers, boolean showFaroutliers, Color meanColor, Color medianColor, Color outlierColor,
 			Color farourlierColor, int outSize, int faroutSize) throws IOException {
 
-		JFreeChart myChart = ChartFactory.createBoxAndWhiskerChart("BoxPlot", "Sample", "Value", dataset, true);
+		myChart = ChartFactory.createBoxAndWhiskerChart("BoxPlot", "Sample", "Value", dataset, true);
 
 		// urmi add chart options
 		myRenderer = getBoxAndWhiskerRenderer(meanColor, medianColor, outlierColor, farourlierColor, showOutliers,

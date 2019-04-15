@@ -81,6 +81,7 @@ import org.jfree.chart.labels.BoxAndWhiskerToolTipGenerator;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.DefaultDrawingSupplier;
 import org.jfree.chart.plot.DrawingSupplier;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.Outlier;
 import org.jfree.chart.renderer.OutlierList;
@@ -114,13 +115,13 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 
 	// hasmap mapping feature num to expression data or datacol to sample depending
 	// on the box plot
-	HashMap<Integer, double[]> plotData;
+	// HashMap<Integer, double[]> plotData;
 	// plot type 0 for feature 1 for sample
-	int plotType;
+	// int plotType;
 	String[] rowNames;
 	private MetaOmProject myProject;
-	private String xAxisname;
-	private ChartToolBar myToolbar;
+	// private String xAxisname;
+	// private ChartToolBar myToolbar;
 	private ChartPanel chartPanel;
 	private JFreeChart myChart;
 
@@ -173,12 +174,12 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 	 */
 	public BarChart(MetaOmProject mp) {
 
-		this.plotData = plotData;
-		
+		// this.plotData = plotData;
+
 		myProject = mp;
-		
+
 		chartPanel = null;
-		
+
 		// JOptionPane.showMessageDialog(null, Arrays.toString(rowNames));
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(new BorderLayout(0, 0));
@@ -244,13 +245,6 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		changePalette.setContentAreaFilled(false);
 		changePalette.setBorderPainted(true);
 
-		if (plotType == 0) {
-			splitDataset = new JButton(theme.getSort());
-			splitDataset.setToolTipText("Split by categories");
-			splitDataset.setActionCommand("splitDataset");
-			splitDataset.addActionListener(this);
-		}
-
 		boxPlotOptions = new JButton(theme.getOpts());
 		boxPlotOptions.setToolTipText("Options");
 		boxPlotOptions.setActionCommand("options");
@@ -262,9 +256,9 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		// panel.add(zoomIn);
 		// panel.add(zoomOut);
 		panel.add(defaultZoom);
-		if (plotType == 0) {
-			panel.add(splitDataset);
-		}
+		/*
+		 * if (plotType == 0) { panel.add(splitDataset); }
+		 */
 		panel.add(boxPlotOptions);
 		panel.add(changePalette);
 
@@ -276,32 +270,18 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		setMaximizable(true);
 		setIconifiable(true);
 		setClosable(true);
-		//String chartTitle = "Bar Chart:" + String.join(",", rowNames);
-		//this.setTitle(chartTitle);
+		// String chartTitle = "Bar Chart:" + String.join(",", rowNames);
+		// this.setTitle(chartTitle);
 	}
 
 	public ChartPanel makeBarChart(CategoryDataset dataset) throws IOException {
 
-		// JFreeChart myChart = ChartFactory.createBoxAndWhiskerChart("BoxPlot",
-		// "Sample", "Value", dataset, true);
-		// JFreeChart myChart = ChartFactory.createBarChart("BoxPlot", "Sample",
-		// "Value", dataset, true);
-
-		// urmi add chart options
-		// myRenderer = getBoxAndWhiskerRenderer(meanColor, medianColor, outlierColor,
-		// farourlierColor, showOutliers, showFaroutliers, outSize, faroutSize);
-
-		myRenderer.setDefaultToolTipGenerator(new BoxAndWhiskerToolTipGenerator());
-		myRenderer.setFillBox(true);
-
-		myChart.getCategoryPlot().getDomainAxis()
-				.setCategoryLabelPositions(CategoryLabelPositions.createUpRotationLabelPositions(1.5707963267948966D));
-		myChart.getCategoryPlot().setRenderer(myRenderer);
+		myChart = ChartFactory.createBarChart("Bar Chart Example ", // Chart Title
+				"Year", // Category axis
+				"Population in Million", // Value axis
+				dataset, PlotOrientation.VERTICAL, true, true, false);
 		myChart.getCategoryPlot().setBackgroundPaint(MetaOmGraph.getPlotBackgroundColor());
 		myChart.setBackgroundPaint(MetaOmGraph.getChartBackgroundColor());
-
-		myChart.getCategoryPlot().getDomainAxis()
-				.setCategoryLabelPositions(CategoryLabelPositions.createUpRotationLabelPositions(1.5707963267948966D));
 
 		MyChartPanel chartPanel = new MyChartPanel(myChart, Toolkit.getDefaultToolkit().getScreenSize().width,
 				Toolkit.getDefaultToolkit().getScreenSize().height, 0, 0,
@@ -309,7 +289,8 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 				true, true, true, true, true, true);
 		chartPanel.setPreferredSize(new Dimension(800, 600));
 		chartPanel.addChartMouseListener(this);
-		setDefaultPalette();
+
+		// setDefaultPalette();
 
 		return chartPanel;
 

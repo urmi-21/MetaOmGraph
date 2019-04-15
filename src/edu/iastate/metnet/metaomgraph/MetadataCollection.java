@@ -153,13 +153,17 @@ public class MetadataCollection {
 				thisLine = thisLine.replaceAll(">", "greaterthan");
 				thisLine = thisLine.replaceAll("\\\\", "bckslsh");
 				thisLine = thisLine.replaceAll("&", "*and*");
-				//don't remove quotes. This works if data has delimiter inside quotes like col1, "col2 adsad,dsadd", col3. This is common situation in csv data from excel
-				//thisLine = thisLine.replaceAll("\"",""); // remove quotes
-				thisLine = thisLine.replaceAll("'", "");
+				// don't remove quotes. This works if data has delimiter inside quotes like
+				// col1, "col2 adsad,dsadd", col3. This is common situation in csv data from
+				// excel
+				// thisLine = thisLine.replaceAll("\"",""); // remove quotes
+				// thisLine = thisLine.replaceAll("'", "");
 				// thisLine = thisLine.replaceAll("\\*", "(star)");
 
 				if (nCount == 0) {
-
+					// remove quotes from headers
+					thisLine = thisLine.replaceAll("\"", "");
+					thisLine = thisLine.replaceAll("'", "");
 					String[] temp = thisLine.split(regex);
 					// remove all blank spaces in headers otherwise MOG hangs
 					for (int l = 0; l < temp.length; l++) {
@@ -171,6 +175,7 @@ public class MetadataCollection {
 						temp[l] = temp[l].replaceAll("\\.", "_");
 						// remove * from headers
 						temp[l] = temp[l].replaceAll("\\*", "");
+
 					}
 					headers = temp;
 
@@ -812,10 +817,11 @@ public class MetadataCollection {
 	 * 
 	 * @return
 	 */
-	//by default filter results
+	// by default filter results
 	public List<Document> getAllData() {
 		return getAllData(true);
 	}
+
 	public List<Document> getAllData(boolean exclude) {
 		List<Document> output = null;
 		output = mogCollection.find().toList();
@@ -897,19 +903,16 @@ public class MetadataCollection {
 	}
 
 	public Document getDataColumnRow(String dataColValue) {
-		dataColValue= Utils.processStringforRegex(dataColValue);
+		dataColValue = Utils.processStringforRegex(dataColValue);
 		dataColValue = "^" + dataColValue + "$";
 		Filter filter = Filters.regex(getDatacol(), dataColValue);
 		List<Document> output = mogCollection.find(filter).toList();
-		if(output.size()>0) {
-		return output.get(0);
-		}
-		else {
+		if (output.size() > 0) {
+			return output.get(0);
+		} else {
 			return null;
 		}
 	}
-	
-	
 
 	/**
 	 * @param toSearch
