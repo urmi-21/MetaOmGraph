@@ -201,7 +201,7 @@ public class MetadataCollection {
 								"Metadata validation failed at line:" + (nCount + 1)
 										+ ". MOG will skip this. Please check file delimiters at this line.",
 								"Error", JOptionPane.ERROR_MESSAGE);
-						JOptionPane.showMessageDialog(null, thisLine);
+						//JOptionPane.showMessageDialog(null, thisLine);
 						totalFails++;
 						nCount++;
 						continue;

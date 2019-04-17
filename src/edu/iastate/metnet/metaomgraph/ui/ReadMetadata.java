@@ -112,7 +112,7 @@ public class ReadMetadata extends JFrame {
 		this.loadMetadata(dataObj, delim);
 		this.setIconImage(Toolkit.getDefaultToolkit()
 				.getImage(MetadataImportWizard.class.getResource("/resource/MetaOmicon16.png")));
-		this.setTitle("Read metadata file");
+		this.setTitle("Import Metadata");
 		this.toFront();
 	}
 

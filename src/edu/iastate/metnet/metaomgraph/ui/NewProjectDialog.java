@@ -1160,7 +1160,7 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 						}
 						allowBlanksBox.setSelected(blankFound);
 						statusLabel.setText(
-								"<html><font size=-2 color=\"#FF0000\">Delimiter and info column values automatically detected.</font></html>");
+								"<html><font size=-2 color=\"#FF0000\">Delimiter and feature metadata columns automatically detected.</font></html>");
 					} else {
 						Enumeration enumer = delimiterGroup.getElements();
 						infoColumnSpinner.setValue(new Integer(-1));
