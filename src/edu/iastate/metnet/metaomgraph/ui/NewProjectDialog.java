@@ -118,7 +118,7 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 
 		// Prompt for the number of info columns
 		JPanel infoColumnPanel = new JPanel();
-		JLabel infoColumnLabel = new JLabel("How many columns in this file contain the feature metadata?");
+		JLabel infoColumnLabel = new JLabel("How many columns in the data file contain the feature metadata?");
 		infoColumnLabel.setToolTipText(
 				"The data file can have additional columns containg feature metadata. \nChoose how many columns in the data file have the additional feature metadata.");
 		infoColumnSpinner = new JSpinner(
@@ -998,7 +998,7 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 					}
 					System.err.println("!dataIn.nextLine()");
 					statusLabel.setText(
-							"<html><font size=-2 color=\"#FF0000\">Unable to auto-detect delimiter/info columns.  Please enter values manually.</font></html>");
+							"<html><font size=-2 color=\"#FF0000\">Unable to auto-detect delimiter/feature metadata columns.  Please enter values manually.</font></html>");
 					return null;
 				}
 				String firstLine = dataIn.readLine();
@@ -1018,7 +1018,7 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 					else
 						System.err.println("secondLine==null");
 					statusLabel.setText(
-							"<html><font size=-2 color=\"#FF0000\">Unable to auto-detect delimiter/info columns.  Please enter values manually.</font></html>");
+							"<html><font size=-2 color=\"#FF0000\">Unable to auto-detect delimiter/feature metadata columns.  Please enter values manually.</font></html>");
 					return null;
 				} else if ((firstLine.equals("")) || (secondLine.equals(""))) {
 					Enumeration enumer = delimiterGroup.getElements();
@@ -1031,7 +1031,7 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 					else
 						System.err.println("secondLine.equals(\"\"))");
 					statusLabel.setText(
-							"<html><font size=-2 color=\"#FF0000\">Unable to auto-detect delimiter/info columns.  Please enter values manually.</font></html>");
+							"<html><font size=-2 color=\"#FF0000\">Unable to auto-detect delimiter/feature metadata columns.  Please enter values manually.</font></html>");
 					return null;
 				}
 				// dataIn.close();
@@ -1173,7 +1173,7 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 						System.err.println("semis: " + firstSemis + "/" + secondSemis);
 						System.err.println("spaces: " + firstSpaces + "/" + secondSpaces);
 						statusLabel.setText(
-								"<html><font size=-2 color=\"#FF0000\">Unable to auto-detect delimiter/info columns.  Please enter values manually.</font></html>");
+								"<html><font size=-2 color=\"#FF0000\">Unable to auto-detect delimiter/feature metadata columns.  Please enter values manually.</font></html>");
 					}
 					dataIn.close();
 				}
