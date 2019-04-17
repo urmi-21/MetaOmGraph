@@ -118,9 +118,9 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 
 		// Prompt for the number of info columns
 		JPanel infoColumnPanel = new JPanel();
-		JLabel infoColumnLabel = new JLabel("How many columns in this file contain non-graph-related information?");
+		JLabel infoColumnLabel = new JLabel("How many columns in this file contain the feature metadata?");
 		infoColumnLabel.setToolTipText(
-				"The data file can have additional columns containg information. \nChoose how many columns in the data file have the additional information. \nFirst n columns will be imported to MOG along with the last column which has the expression data.");
+				"The data file can have additional columns containg feature metadata. \nChoose how many columns in the data file have the additional feature metadata.");
 		infoColumnSpinner = new JSpinner(
 				new SpinnerNumberModel(new Integer(-1), new Integer(-1), null, new Integer(1)));
 		final JComponent origEditor = infoColumnSpinner.getEditor();

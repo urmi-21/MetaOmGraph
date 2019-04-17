@@ -233,7 +233,7 @@ public class ReadMetadata extends JFrame {
 							}
 
 							JOptionPane.showMessageDialog(getThisFrame(),
-									"Data column selected is: " + obj.getDatacol(), "Data column",
+									"Sample Id column selected is: " + obj.getDatacol(), "Sample Id column",
 									JOptionPane.INFORMATION_MESSAGE);
 							MetadataImportWizard frame = new MetadataImportWizard(obj, headers, getThisFrame().getSize(), getThisFrame().getLocationOnScreen(), getThisFrame(),
 									missingDC, extraDC, null, true, removedCols);
@@ -335,7 +335,7 @@ public class ReadMetadata extends JFrame {
 		btnPriview.setFont(new Font("Times New Roman", Font.PLAIN, 13));
 		panel_4.add(btnPriview);
 
-		JLabel lblChooseDataColumn = new JLabel("Choose Data Column");
+		JLabel lblChooseDataColumn = new JLabel("Choose Sample Id Column");
 		lblChooseDataColumn.setFont(new Font("Garamond", Font.PLAIN, 15));
 		lblChooseDataColumn.setForeground(Color.ORANGE);
 		topButtonPanel.add(lblChooseDataColumn);
@@ -383,7 +383,7 @@ public class ReadMetadata extends JFrame {
 		panel_7.add(textField_2);
 		textField_2.setColumns(5);
 
-		JLabel lblMissingValues = new JLabel("Extra Data Columns");
+		JLabel lblMissingValues = new JLabel("Extra Samples");
 		lblMissingValues.setForeground(Color.BLUE);
 		lblMissingValues.setFont(new Font("Garamond", Font.PLAIN, 17));
 		panel_7.add(lblMissingValues);
@@ -395,7 +395,7 @@ public class ReadMetadata extends JFrame {
 		panel_7.add(textField_3);
 		textField_3.setColumns(5);
 
-		JLabel lblMissingDataColumns = new JLabel("Missing Data Columns");
+		JLabel lblMissingDataColumns = new JLabel("Missing Samples");
 		lblMissingDataColumns.setForeground(Color.BLUE);
 		lblMissingDataColumns.setFont(new Font("Garamond", Font.PLAIN, 17));
 		panel_7.add(lblMissingDataColumns);
@@ -742,7 +742,7 @@ public class ReadMetadata extends JFrame {
 	public void removeExtraRowsfromMD() {
 		// delete rows in MD file
 		JOptionPane.showMessageDialog(null,
-				"Rows from metadata file which don't match data columns in datafile will be removed.");
+				"Rows from metadata file which don't match data columns/samples in datafile will be removed.");
 		String[] datacolheaders = MetaOmGraph.getActiveProject().getDataColumnHeaders();
 		List<String> datacolheadersList = Arrays.asList(datacolheaders);
 		List<String> mdcolheaders = obj.getDatabyAttributes(null, comboBox_1.getSelectedItem().toString(), true);
