@@ -418,8 +418,8 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 		mainButtonPanel.add(helpButton);
 		mainPanel = new JPanel();
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-		filePanel.setBorder(BorderFactory.createTitledBorder(etched, "Data Files"));
-		infoColumnPanel.setBorder(BorderFactory.createTitledBorder(etched, "Info Columns"));
+		filePanel.setBorder(BorderFactory.createTitledBorder(etched, "Input Files"));
+		infoColumnPanel.setBorder(BorderFactory.createTitledBorder(etched, "Feature Metadata Columns"));
 		delimiterPanel.setBorder(BorderFactory.createTitledBorder(etched, "Delimiter"));
 		mainPanel.add(filePanel);
 		mainPanel.add(infoColumnPanel);
