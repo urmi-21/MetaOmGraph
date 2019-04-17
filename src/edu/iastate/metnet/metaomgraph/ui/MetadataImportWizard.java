@@ -154,7 +154,7 @@ public class MetadataImportWizard extends JFrame {
 
 		setIconImage(Toolkit.getDefaultToolkit()
 				.getImage(MetadataImportWizard.class.getResource("/resource/MetaOmicon16.png")));
-		setTitle("Metadata import wizard");
+		setTitle("Metadata Table to Tree");
 		// setAlwaysOnTop(true);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 702, 482);
