@@ -2061,7 +2061,6 @@ public class MetaOmGraph implements ActionListener {
 				// mainWindow.setTitle("MetaOmGraph - " + source.getName() + " (" +
 				// getActiveProject().getDataColumnCount()+ " samples)");
 				// urmi
-				fixTitle();
 				activeProjectFile = source;
 				addRecentProject(activeProjectFile);
 				projectOpened();
@@ -2070,6 +2069,7 @@ public class MetaOmGraph implements ActionListener {
 				// init default reps
 				MetadataHybrid ob = activeProject.getMetadataHybrid();
 				ob.setDefaultRepsMap(ob.buildRepsMap(ob.getDefaultRepCol()));
+				fixTitle();
 
 			} else {
 				JOptionPane
