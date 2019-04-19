@@ -245,7 +245,7 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 		defaultSortItem = new JRadioButtonMenuItem("Default");
 		// nameSortItem = new JRadioButtonMenuItem("By " + xaxisLabel);
 		// urmi
-		nameSortItem = new JRadioButtonMenuItem("By Data Column");
+		nameSortItem = new JRadioButtonMenuItem("By Sample Name");
 		xaxisSortItem = new JRadioButtonMenuItem("By X-axis labels");
 		yvalueSortItem = new JRadioButtonMenuItem("By " + yaxisLabel);
 		extInfoSortItem = new JRadioButtonMenuItem("Group by Query");
