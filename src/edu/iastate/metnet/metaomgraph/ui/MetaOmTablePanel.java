@@ -267,10 +267,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 		JPopupMenu plotPopupMenu = new JPopupMenu();
 		selectedRowsMenu.add(plotRowsItem);
-		selectedRowsMenu.add(plotPairRowsItem);
 		plotRepsMenu.add(plotRepsItem);
 		plotRepsMenu.add(plotRepsChoose);
 		selectedRowsMenu.add(plotRepsMenu);
+		selectedRowsMenu.add(plotPairRowsItem);
 		selectedRowsMenu.add(plotBoxRowItem);
 		selectedRowsMenu.add(plotHistogramItem);
 		selectedRowsMenu.add(plotRMenu);
