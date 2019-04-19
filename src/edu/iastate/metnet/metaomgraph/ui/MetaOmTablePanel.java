@@ -1768,7 +1768,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				|| ("weighted euclidean distance".equals(e.getActionCommand()))
 				|| ("weighted manhattan distance".equals(e.getActionCommand()))) {
 			if (listDisplay.getSelectedRowCount() != 1) {
-				JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "You must select a row to analyze!", "Error",
+				JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Please select only one row to analyze!", "Error",
 						0);
 				return;
 			}
