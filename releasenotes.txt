@@ -1,3 +1,6 @@
+MOG 1.7.8 Release date: TBD
+
+
 MOG 1.7.7 Release date: 4/6/2019 
 Added option to show outliers in boxplots
 Save differenential expression analysis results with MOG project.
