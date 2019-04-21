@@ -488,7 +488,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 		JMenu mnByColumn = new JMenu("By column");
 		mnFilter.add(mnByColumn);
 
-		JMenuItem mntmSelectColumn = new JMenuItem("Select column");
+		JMenuItem mntmSelectColumn = new JMenuItem("Select columns");
 		mntmSelectColumn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				EventQueue.invokeLater(new Runnable() {
