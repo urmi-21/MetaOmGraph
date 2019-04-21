@@ -441,7 +441,7 @@ public class MetadataFilter extends JFrame {
 
 		scrollPane_1.setViewportView(table_1);
 		this.setSize(700, 700);
-		this.setTitle("Filter metadata");
+		this.setTitle("Advance Sample Filter");
 	}
 
 	private void initTables() {
