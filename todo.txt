@@ -150,4 +150,4 @@ $wrap text in metadta tree/table
 add filter to DE res table
 boxplot options e.g. outliers, mean, tooltip
 add options in all charts. show/hide legend
-select datacol
+Properties -> sample name, header names
