@@ -12,6 +12,7 @@ import java.util.Random;
 import javax.swing.JOptionPane;
 
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
+import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 
 
@@ -48,13 +49,14 @@ public class MakeChartWithR {
 		}
 		// JOptionPane.showMessageDialog(null, "this dir:" + directory);
 		String tempFilename = fname;
-		tempFilename += "_chartData.txt";
+		tempFilename += "_R_Data.txt";
 		// create dir if doesnt exist
 		File dirFile = new File(directory);
 		if (!dirFile.exists()) {
 			dirFile.mkdir();
 		}
 		final File file = new File(directory + System.getProperty("file.separator") + tempFilename);
+		
 		new AnimatedSwingWorker("Working...", true) {
 			@Override
 			public Object construct() {
@@ -78,6 +80,8 @@ public class MakeChartWithR {
 								fw.write(thisLine);
 							}
 							fw.close();
+							
+							
 							JOptionPane.showMessageDialog(null, "File saved:" + file.getAbsolutePath(), "File saved",
 									JOptionPane.INFORMATION_MESSAGE);
 						} catch (IOException e) {
@@ -200,11 +204,11 @@ public class MakeChartWithR {
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	public void runUserR(String rScriptpath, String datafilepath, String outFileName)
+	public void runUserR(String rScriptpath, String datafilepath, String metadatafilepath, String outFileDir)
 			throws IOException, InterruptedException {
+		//JOptionPane.showMessageDialog(null, "metadata: "+metadatafilepath);
 		// out dir shoud be second argument to user script
-		String outDir = MetaOmGraph.getActiveProject().getSourceFile().getParent()
-				+ System.getProperty("file.separator") + outFileName;
+		//String outDir = MetaOmGraph.getActiveProject().getSourceFile().getParent()+ System.getProperty("file.separator") + outFileDir;
 
 		if (rScriptpath == "" || rScriptpath == null) {
 			JOptionPane.showMessageDialog(null, "Invalid path to R script", "File not found",
@@ -219,7 +223,7 @@ public class MakeChartWithR {
 					public void run() {
 						Process pr = null;
 						try {
-							pr = Runtime.getRuntime().exec(new String[] { pathtoR, rScriptpath, datafilepath, outDir });
+							pr = Runtime.getRuntime().exec(new String[] { pathtoR, rScriptpath, datafilepath, metadatafilepath, outFileDir });
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();

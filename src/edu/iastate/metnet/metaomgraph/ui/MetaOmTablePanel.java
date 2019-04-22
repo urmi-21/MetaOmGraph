@@ -260,7 +260,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		// urmi
 		plotHeatMapItem.setActionCommand("create heatmap");
 		plotHeatMapItem.addActionListener(this);
-		plotRMenu.add(plotHeatMapItem);
+		//plotRMenu.add(plotHeatMapItem);
 
 		runOtherScript.setActionCommand("runuserR");
 		runOtherScript.addActionListener(this);
@@ -1629,7 +1629,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 			// execute rscript to make plot and save to chartFileName.png
 			try {
-				ob.runUserR(rFilepath, datafilePath, outFiledir);
+				ob.runUserR(rFilepath, datafilePath,myProject.getMetadataHybrid().getMetadataFilePath(), outFiledir);
 			} catch (InterruptedException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
