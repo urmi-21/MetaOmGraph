@@ -3213,8 +3213,20 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			frame.setVisible(true);
 
 		}
+		
+		
 		if (("NewDiffCorrelation".equals(e.getActionCommand()))) { 
-			JOptionPane.showMessageDialog(null, "diffcorr todo");
+			if (myProject.getMetadataHybrid() == null) {
+				JOptionPane.showMessageDialog(null, "No metadata read", "No metadata", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+
+			DifferentialCorrFrame lframe = new DifferentialCorrFrame();
+			lframe.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
+			MetaOmGraph.getDesktop().add(lframe);
+			lframe.setVisible(true);
+			return;
+			
 		}
 	}
 
