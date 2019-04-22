@@ -3221,7 +3221,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				return;
 			}
 
-			DifferentialCorrFrame lframe = new DifferentialCorrFrame();
+			
+			int selectedInd=getTrueSelectedRow();
+			String rowName=getSelectedGeneName();
+			DifferentialCorrFrame lframe = new DifferentialCorrFrame(rowName, selectedInd);
 			lframe.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
 			MetaOmGraph.getDesktop().add(lframe);
 			lframe.setVisible(true);
