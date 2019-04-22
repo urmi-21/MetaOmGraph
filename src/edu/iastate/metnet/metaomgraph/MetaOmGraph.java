@@ -1196,13 +1196,13 @@ public class MetaOmGraph implements ActionListener {
 		toolsMenu.add(findSamples);
 		mainMenuBar.add(toolsMenu);
 
-		diffExpMenu = new JMenu("Differential expression");
+		diffExpMenu = new JMenu("Differential expression analysis");
 		infoButtonMenu.setToolTipText("Find differentially expressed features");
 
-		logChange = new JMenuItem("log FC");
+		logChange = new JMenuItem("Perform DEA");
 		logChange.setActionCommand("logChange");
 		logChange.addActionListener(myself);
-		logChange.setToolTipText("Find log fold-change of genes over two groups");
+		logChange.setToolTipText("Find differentially expressed features over two groups");
 
 		loadDiffExpResults = new JMenuItem("Load saved results");
 		loadDiffExpResults.setActionCommand("loadDiffExp");
