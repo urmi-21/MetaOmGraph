@@ -866,6 +866,14 @@ public class MetadataHybrid {
 		res.setRootElement(root);
 		return res;
 	}
+	
+	/**
+	 * Get the metadata file path in the project
+	 * @return
+	 */
+	public String getMetadataFilePath() {
+		return this.mogCollection.getfilepath();
+	}
 
 	public void setDefaultRepsMap(TreeMap<String, List<Integer>> repsMap) {
 		this.defaultrepsMap = repsMap;
