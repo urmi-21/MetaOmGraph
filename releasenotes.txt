@@ -1,4 +1,5 @@
 MOG 1.7.8 Release date: TBD
+Added differential correlation interface
 
 
 MOG 1.7.7 Release date: 4/6/2019 
