@@ -139,6 +139,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	private JMenuItem saveCorrelationItem;
 	// urmi
 	private JMenuItem diffCorrelation;
+	private JMenuItem diffCorrelationWizard;
 	private JMenuItem pairwisePearsonItem;
 	private JMenuItem pairwiseSpearmanItem;
 	private JMenu removeCorrelationMenu;
@@ -312,6 +313,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		JMenu pcorrMenu = new JMenu("Pearson's");
 		JMenu scorrMenu = new JMenu("Spearman's");
 		JMenu poolcorrMenu = new JMenu("Weighted Pearson's");
+		JMenu diffcorrMenu = new JMenu("Differntial Correlation");
 		JMenu informationMenu = new JMenu("Mutual Information");
 		JMenu distMenu = new JMenu("Distance");
 
@@ -396,9 +398,18 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		saveCorrelationItem.addActionListener(this);
 
 		// urmi
-		diffCorrelation = new JMenuItem("Differential correlation");
+		
+		diffCorrelation = new JMenuItem("From Existing Columns");
 		diffCorrelation.setActionCommand("DiffCorrelation");
 		diffCorrelation.addActionListener(this);
+		
+		
+		diffCorrelationWizard = new JMenuItem("New  Differential Correlation");
+		diffCorrelationWizard.setActionCommand("NewDiffCorrelation");
+		diffCorrelationWizard.addActionListener(this);
+		
+		diffcorrMenu.add(diffCorrelationWizard);
+		diffcorrMenu.add(diffCorrelation);
 
 		pairwisePearsonItem = new JMenuItem("Pearson Correlation matrix");
 		pairwisePearsonItem.setActionCommand("pairwise pearson");
@@ -424,7 +435,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		corrMenu.add(poolcorrMenu);
 
 		corrMenu.addSeparator();
-		corrMenu.add(diffCorrelation);
+		corrMenu.add(diffcorrMenu);
 		corrMenu.add(pairwisePearsonItem);
 		corrMenu.add(pairwiseSpearmanItem);
 		analyzePopupMenu.add(corrMenu);
@@ -3152,15 +3163,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 
 		if (("DiffCorrelation".equals(e.getActionCommand()))) {
-			/*
-			 * JOptionPane.showMessageDialog(null, "diff corr"); if
-			 * (MetaOmGraph.getActiveProject().getMetadataHybrid() == null) {
-			 * JOptionPane.showMessageDialog(this, "No metadata found."); return; } // show
-			 * panel to select column to split data set Map<String, Collection<Integer>>
-			 * splitIndex = createSplitIndex(); if (splitIndex == null) {
-			 * JOptionPane.showMessageDialog(this, "Null Return"); return; }
-			 */
-
+			
 			// calculate r and p values using each group
 			// create 4 lists r1,pv1,r2,pv2
 
@@ -3209,6 +3212,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			MetaOmGraph.getDesktop().add(frame);
 			frame.setVisible(true);
 
+		}
+		if (("NewDiffCorrelation".equals(e.getActionCommand()))) { 
+			JOptionPane.showMessageDialog(null, "diffcorr todo");
 		}
 	}
 
