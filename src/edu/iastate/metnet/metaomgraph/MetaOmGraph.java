@@ -2501,6 +2501,7 @@ public class MetaOmGraph implements ActionListener {
 				showAboutFrame();
 			} else {
 				showNewAboutFrame();
+				
 			}
 			return;
 		}

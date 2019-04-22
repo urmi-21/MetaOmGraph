@@ -152,3 +152,4 @@ boxplot options e.g. outliers, mean, tooltip
 add options in all charts. show/hide legend
 Properties -> sample name, header names
 add new diffcorr pipeline frame
+take default label axis for all charts

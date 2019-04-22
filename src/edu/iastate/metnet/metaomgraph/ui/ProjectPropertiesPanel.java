@@ -221,8 +221,8 @@ public class ProjectPropertiesPanel extends JPanel {
 		c.gridy = 4;
 		add(paramLabel, c);
 		//removed rowNamesLabel and columnNamesLabel urmi
-		c.gridy = 5;
-		add(new JLabel("<html><span style='font-size:15px'>MOG</span></html>"), c);
+		//c.gridy = 5;
+		//add(new JLabel("<html><span style='font-size:15px'>MOG</span></html>"), c);
 		//c.gridy = 6;
 		//add(columnNamesLabel, c);
 		// urmi
@@ -245,8 +245,8 @@ public class ProjectPropertiesPanel extends JPanel {
 		c.gridy = 4;
 		add(paramManageButton, c);
 		//removed manage sample and cols
-		c.gridy = 5;
-		add(new JLabel("<html><span style='font-size:15px'>properties</span></html>"), c);
+		//c.gridy = 5;
+		//add(new JLabel("<html><span style='font-size:15px'>properties</span></html>"), c);
 		//add(rowManageButton, c);
 		//c.gridy = 6;
 		//add(columnManageButton, c);

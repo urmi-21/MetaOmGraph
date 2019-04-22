@@ -30,11 +30,9 @@ public class AboutFrame extends JInternalFrame {
 	 * last digit of version 1 alpha 2 beta 3 release candidate 4 final
 	 */
 	public static String getLabelText() {
-		return "<html><p align=\"center\"><b>MetaOmGraph"
-				 + System.getProperty("MOG.version")
-				//+ "<br>" + "This version was built on Aug 10th 2018"
-				 + "<br>" +System.getProperty("MOG.date")
-				+ "<br>" + "Wurtele Lab, GDCB, Iowa State University<br>"
+		return "<html><p align=\"center\"><b>MetaOmGraph" + System.getProperty("MOG.version")
+		// + "<br>" + "This version was built on Aug 10th 2018"
+				+ "<br>" + System.getProperty("MOG.date") + "<br>" + "Wurtele Lab, GDCB, Iowa State University<br>"
 				+ "Send questions, comments, bug reports, and feature requests to:<br>" + "usingh@iastate.edu<br><br>"
 				+ "For more information on the MetNet project, please visit<br>"
 				+ "http://metnetweb.gdcb.iastate.edu<br><br>"
@@ -119,11 +117,13 @@ public class AboutFrame extends JInternalFrame {
 				// Put JFrame close code here
 				if (event.getClickCount() >= 2) {
 					dispose();
-					try {
-						MetaOmGraph.showWelcomeDialog();
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					if (MetaOmGraph.getActiveProject() == null) {
+						try {
+							MetaOmGraph.showWelcomeDialog();
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 				}
 			}
