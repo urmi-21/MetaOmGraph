@@ -170,6 +170,7 @@ public class MetadataRemoveCols extends JFrame {
 					JOptionPane.ERROR_MESSAGE);
 			return;
 		}
+		setTitle("Metadata Column Filter");
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
 		contentPane.setBackground(Color.DARK_GRAY);
