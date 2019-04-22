@@ -37,6 +37,7 @@ import javax.swing.table.TableCellRenderer;
 import org.apache.commons.collections.CollectionUtils;
 
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
+import edu.iastate.metnet.metaomgraph.CalculateDiffCorr;
 import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
@@ -105,12 +106,13 @@ public class DifferentialCorrFrame extends JInternalFrame {
 	/**
 	 * Create the frame.
 	 */
-	public DifferentialCorrFrame() {
+	public DifferentialCorrFrame(String featureName,int featureInd) {
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		setTitle("Differential expression analysis");
 
 		// init objects
+		selectedFeature=new JLabel(featureName);
 		myProject = MetaOmGraph.getActiveProject();
 		mdob = myProject.getMetadataHybrid();
 		if (mdob == null) {
@@ -136,7 +138,7 @@ public class DifferentialCorrFrame extends JInternalFrame {
 		panel.add(chckbxSaveResultsWith);
 		JLabel lblTop = new JLabel("Selected feature:");
 		panel.add(lblTop);
-		panel.add(comboBox);
+		panel.add(selectedFeature);
 		JLabel label = new JLabel("                             ");
 		panel.add(label);
 		JLabel lblSelectMethod = new JLabel("Select method");
@@ -169,7 +171,7 @@ public class DifferentialCorrFrame extends JInternalFrame {
 					return;
 				}
 
-				String selectedFeatureList = comboBox.getSelectedItem().toString();
+				
 				String selectedMethod = comboBox_1.getSelectedItem().toString();
 				// if paired test is selected lists must be equal size
 				if (selectedMethod.equals("Paired t-test") || selectedMethod.equals("Wilcoxon Signed Rank Test")) {
@@ -193,8 +195,7 @@ public class DifferentialCorrFrame extends JInternalFrame {
 				// measure time
 				// long startTime = System.nanoTime();
 
-				CalculateLogFC ob = new CalculateLogFC(selectedFeatureList, grp1, grp2, txtGroup1.getText(),
-						txtGroup2.getText(), myProject, comboBox_1.getSelectedIndex());
+				CalculateDiffCorr ob = new CalculateDiffCorr(featureName,featureInd, grp1, grp2, txtGroup1.getText(),txtGroup2.getText(), myProject, comboBox_1.getSelectedIndex());
 
 				// display result
 				ob.doCalc();
@@ -504,10 +505,7 @@ public class DifferentialCorrFrame extends JInternalFrame {
 	}
 
 	private void initComboBoxes() {
-		comboBox = new JComboBox(MetaOmGraph.getActiveProject().getGeneListNames());
-		
-		String[] methods = new String[] { "M-W U test", "Student's t-test", "Welch's t-test", "Paired t-test",
-				"Wilcoxon Signed Rank Test" };
+		String[] methods = new String[] { "Fisher transformation"};
 		comboBox_1 = new JComboBox(methods);
 	}
 
