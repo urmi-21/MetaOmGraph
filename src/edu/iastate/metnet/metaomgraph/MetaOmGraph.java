@@ -2471,7 +2471,7 @@ public class MetaOmGraph implements ActionListener {
 			}
 
 			ProjectPropertiesPanel ppp = new ProjectPropertiesPanel(getActiveProject());
-			propertiesFrame = new JInternalFrame("Project Properties", true, true, true, true);
+			propertiesFrame = new JInternalFrame("Properties", true, true, true, true);
 			propertiesFrame.putClientProperty("JInternalFrame.frameType", "normal");
 			propertiesFrame.getContentPane().add(ppp, BorderLayout.CENTER);
 			propertiesFrame.setDefaultCloseOperation(JInternalFrame.DISPOSE_ON_CLOSE);

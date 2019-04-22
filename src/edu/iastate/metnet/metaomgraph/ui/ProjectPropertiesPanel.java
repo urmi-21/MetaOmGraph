@@ -219,16 +219,18 @@ public class ProjectPropertiesPanel extends JPanel {
 		add(titleLabel, c);
 		c.gridy = 3;
 		c.gridy = 4;
-		add(changeColors, c);
-		c.gridy = 5;
-		add(rowNamesLabel, c);
-		c.gridy = 6;
-		add(columnNamesLabel, c);
-		// urmi
-		c.gridy = 7;
-		add(rParams, c);
-		c.gridy = 8;
 		add(paramLabel, c);
+		//removed rowNamesLabel and columnNamesLabel urmi
+		c.gridy = 5;
+		add(new JLabel("<html><span style='font-size:15px'>MOG</span></html>"), c);
+		//c.gridy = 6;
+		//add(columnNamesLabel, c);
+		// urmi
+		c.gridy = 6;
+		add(rParams, c);
+		c.gridy = 7;
+		add(changeColors, c);
+		
 		c.gridx = 1;
 		c.gridy = 0;
 		c.fill = 2;
@@ -241,16 +243,18 @@ public class ProjectPropertiesPanel extends JPanel {
 		c.gridy = 3;
 		//add(color1Button, c);
 		c.gridy = 4;
-		add(manageColors, c);
-		c.gridy = 5;
-		add(rowManageButton, c);
-		c.gridy = 6;
-		add(columnManageButton, c);
-		// urmi
-		c.gridy = 7;
-		add(rPathManageButton, c);
-		c.gridy = 8;
 		add(paramManageButton, c);
+		//removed manage sample and cols
+		c.gridy = 5;
+		add(new JLabel("<html><span style='font-size:15px'>properties</span></html>"), c);
+		//add(rowManageButton, c);
+		//c.gridy = 6;
+		//add(columnManageButton, c);
+		// urmi
+		c.gridy = 6;
+		add(rPathManageButton, c);
+		c.gridy = 7;
+		add(manageColors, c);
 	}
 
 	public String getXAxisLabel() {
