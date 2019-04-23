@@ -44,6 +44,7 @@ import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.MetadataHybrid;
 import edu.iastate.metnet.metaomgraph.CalculateLogFC;
+import edu.iastate.metnet.metaomgraph.DifferentialCorrResults;
 import edu.iastate.metnet.metaomgraph.DifferentialExpResults;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
@@ -206,10 +207,10 @@ public class DifferentialCorrFrame extends JInternalFrame {
 					e1.printStackTrace();
 				}
 
-				// save object
-				//create object to save results
 				
-				/*String id = "";
+				
+				// save results in MOG
+				String id = "";
 				if (chckbxSaveResultsWith.isSelected()) {
 					id = JOptionPane.showInputDialog(MetaOmGraph.getMainWindow(),
 							"Please enter a name for this analysis:", "Save differential expression results", 2);
@@ -232,7 +233,9 @@ public class DifferentialCorrFrame extends JInternalFrame {
 					}
 				}
 				
-				// create DifferentialExpResults object to store results in MOG
+				/*
+				// create DifferentialCorrResults object to store diff corrresults in MOG
+				DifferentialCorrResults diffcorrresOB=new DifferentialCorrResults();
 				DifferentialExpResults diffExpObj = new DifferentialExpResults(id,comboBox_1.getSelectedIndex(),
 						txtGroup1.getText(), txtGroup2.getText(), getAllRows(tableGrp1).size(),
 						getAllRows(tableGrp2).size(), selectedFeatureList, MetaOmGraph.getInstance().getTransform(),
