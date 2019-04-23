@@ -12,9 +12,12 @@ public class DifferentialCorrResults {
 	private String grp1Name;
 	private String grp2Name;
 	private int method;
+	private List<String> featureNames;
+	private List<Double> corrGrp1;
+	private List<Double> corrGrp2;
 
 	public DifferentialCorrResults(String geneList, String featureName, int featureID, List<String> grp1,
-			List<String> grp2, String grp1Name, String grp2Name, int method) {
+			List<String> grp2, String grp1Name, String grp2Name, int method,List<String> featureNames,List<Double> corrGrp1,List<Double> corrGrp2) {
 		
 		this.geneList=geneList;
 		this.featureName=featureName;
@@ -24,6 +27,7 @@ public class DifferentialCorrResults {
 		this.grp1Name=grp1Name;
 		this.grp2Name=grp2Name;
 		this.method=method;
+		
 
 	}
 	
@@ -57,5 +61,25 @@ public class DifferentialCorrResults {
 	
 	public List<String> getGrp2Samples(){
 		return grp2;
+	}
+	
+	public List<Double> getCorrGrp1(){
+		return corrGrp1;
+	}
+	
+	public List<Double> getCorrGrp2(){
+		return corrGrp2;
+	}
+	
+	public List<String> getFeatureNames(){
+		return featureNames;
+	}
+	
+	public int getGrp1Size() {
+		return grp1.size();
+	}
+	
+	public int getGrp2Size() {
+		return grp2.size();
 	}
 }
