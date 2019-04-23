@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -106,7 +107,7 @@ public class DifferentialCorrFrame extends JInternalFrame {
 	/**
 	 * Create the frame.
 	 */
-	public DifferentialCorrFrame(String featureName,int featureInd) {
+	public DifferentialCorrFrame(String geneList, String featureName,int featureInd) {
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		setTitle("Differential expression analysis");
@@ -195,17 +196,18 @@ public class DifferentialCorrFrame extends JInternalFrame {
 				// measure time
 				// long startTime = System.nanoTime();
 
-				CalculateDiffCorr ob = new CalculateDiffCorr(featureName,featureInd, grp1, grp2, txtGroup1.getText(),txtGroup2.getText(), myProject, comboBox_1.getSelectedIndex());
+				CalculateDiffCorr ob = new CalculateDiffCorr(geneList, featureName,featureInd, grp1, grp2, txtGroup1.getText(),txtGroup2.getText(), myProject, comboBox_1.getSelectedIndex());
 
 				// display result
-				ob.doCalc();
-				if (!ob.getcalcStatus()) {
-					ob=null;
-					return;
+				try {
+					ob.doCalc();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
 
 				// save object
-				String id = "";
+				/*String id = "";
 				if (chckbxSaveResultsWith.isSelected()) {
 					id = JOptionPane.showInputDialog(MetaOmGraph.getMainWindow(),
 							"Please enter a name for this analysis:", "Save differential expression results", 2);
@@ -237,13 +239,12 @@ public class DifferentialCorrFrame extends JInternalFrame {
 				
 				if(chckbxSaveResultsWith.isSelected()) {
 					myProject.addDiffExpRes(id, diffExpObj);
-				}
+				}*/
 				
 				
 
-				// display result using diffExpObj
-				logFCResultsFrame frame = null;
-				frame = new logFCResultsFrame(diffExpObj, myProject);
+				// display result using DiffCorrResultsTable
+				DiffCorrResultsTable frame = new DiffCorrResultsTable(ob.getFeatureNames(),ob.getGrp1Size(), ob.getGrp2Size(), ob.getCorrGrp1(), ob.getCorrGrp2());
 				frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
 				frame.setTitle("Fold change results");
 				MetaOmGraph.getDesktop().add(frame);
