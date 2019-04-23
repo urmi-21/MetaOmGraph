@@ -3166,7 +3166,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			
 			// calculate r and p values using each group
 			// create 4 lists r1,pv1,r2,pv2
-
 			// select two corr columns and do z test
 			String col1 = selectCorrColumn();
 			int n1 = 0;

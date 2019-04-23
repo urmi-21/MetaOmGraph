@@ -7,11 +7,7 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import org.apache.commons.math3.distribution.FDistribution;
-import org.apache.commons.math3.stat.descriptive.moment.Variance;
-import org.apache.commons.math3.stat.inference.MannWhitneyUTest;
-import org.apache.commons.math3.stat.inference.TTest;
-import org.apache.commons.math3.stat.inference.WilcoxonSignedRankTest;
+
 
 import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
 
@@ -66,40 +62,46 @@ public class CalculateDiffCorr {
 		return res;
 	}
 
-	public void doCalc() {
+	public void doCalc() throws IOException {
 		// compute corrGrp1 and corrGrp2
 
 		Collection<Integer> g1Ind = grp1Ind;
 		Collection<Integer> g2Ind = grp2Ind;
-
+		
+		//get the target data
+		final int[] entries = myProject.getGeneListRowNumbers(geneList);
+		//apply transformations if specified
+		double[] targetData=myProject.getAllData(featureIndex, false);
+		//split targetData into two groups target1 and target2
+		double target1[] = new double[grp1Ind.size()];
+		double target2[] = new double[grp2Ind.size()];
+		int i1=0,i2=0;
+		for (int k = 0; k < targetData.length; k++) {
+			if (excluded != null && excluded[k]) {
+				continue;
+			}
+			if (g1Ind.contains(k)) {
+				target1[i1++]=targetData[k];
+			} else if (g2Ind.contains(k)) {
+				target1[i2++]=targetData[k];
+			}
+		}
+		
+		
+		// calculate two lists of correlation wrt to target1 and target2
 		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(),
-				"Calculating...", "", 0L, 1, true);
+				"Calculating...", "", 0L, entries.length, true);
 		SwingWorker analyzeWorker = new SwingWorker() {
+			
 			boolean errored = false;
-
 			public Object construct() {
 				int r = 0;
 				progress.setProgress(r);
 				double[] thisData = null;
 				try {
-					// get untransformed data to calculate logFC
-					thisData = myProject.getAllData(featureIndex, true);
 					
-					// JOptionPane.showMessageDialog(null, "this Data:"+Arrays.toString(thisData));
-
 					
-
-					/*for (int k = 0; k < thisData.length; k++) {
-						if (excluded != null && excluded[k]) {
-							continue;
-						}
-						if (g1Ind.contains(k)) {
-							m1 += (Math.log(thisData[k] + 1) / log2b10);
-
-						} else if (g2Ind.contains(k)) {
-							m2 += (Math.log(thisData[k] + 1) / log2b10);
-						}
-					}*/
+					
 
 				
 
