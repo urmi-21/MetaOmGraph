@@ -207,6 +207,8 @@ public class DifferentialCorrFrame extends JInternalFrame {
 				}
 
 				// save object
+				//create object to save results
+				
 				/*String id = "";
 				if (chckbxSaveResultsWith.isSelected()) {
 					id = JOptionPane.showInputDialog(MetaOmGraph.getMainWindow(),

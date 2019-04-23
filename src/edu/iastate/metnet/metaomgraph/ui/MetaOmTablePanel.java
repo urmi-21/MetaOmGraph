@@ -1778,7 +1778,13 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				|| ("manhattan distance".equals(e.getActionCommand()))
 				|| ("weighted euclidean distance".equals(e.getActionCommand()))
 				|| ("weighted manhattan distance".equals(e.getActionCommand()))) {
-			if (listDisplay.getSelectedRowCount() != 1) {
+			if (listDisplay.getSelectedRowCount() < 1) {
+				JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Please select a row to analyze!", "Error",
+						0);
+				return;
+			}
+			
+			if (listDisplay.getSelectedRowCount() > 1) {
 				JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Please select only one row to analyze!", "Error",
 						0);
 				return;
@@ -3217,6 +3223,17 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		if (("NewDiffCorrelation".equals(e.getActionCommand()))) { 
 			if (myProject.getMetadataHybrid() == null) {
 				JOptionPane.showMessageDialog(null, "No metadata read", "No metadata", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			if (listDisplay.getSelectedRowCount() < 1) {
+				JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Please select a row to analyze!", "Error",
+						0);
+				return;
+			}
+			
+			if (listDisplay.getSelectedRowCount() > 1) {
+				JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Please select only one row to analyze!", "Error",
+						0);
 				return;
 			}
 
