@@ -233,10 +233,10 @@ public class DifferentialCorrFrame extends JInternalFrame {
 					}
 				}
 				
-				/*
+				
 				// create DifferentialCorrResults object to store diff corrresults in MOG
 				DifferentialCorrResults diffcorrresOB=new DifferentialCorrResults();
-				DifferentialExpResults diffExpObj = new DifferentialExpResults(id,comboBox_1.getSelectedIndex(),
+				/*DifferentialExpResults diffExpObj = new DifferentialExpResults(id,comboBox_1.getSelectedIndex(),
 						txtGroup1.getText(), txtGroup2.getText(), getAllRows(tableGrp1).size(),
 						getAllRows(tableGrp2).size(), selectedFeatureList, MetaOmGraph.getInstance().getTransform(),
 						ob.getFeatureNames(), ob.getMean1(), ob.getMean2(), ob.ftestRatios(), ob.ftestPV(),
