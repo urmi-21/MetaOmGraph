@@ -140,6 +140,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	// urmi
 	private JMenuItem diffCorrelation;
 	private JMenuItem diffCorrelationWizard;
+	private JMenuItem loaddiffCorrResults;
+
 	private JMenuItem pairwisePearsonItem;
 	private JMenuItem pairwiseSpearmanItem;
 	private JMenu removeCorrelationMenu;
@@ -260,7 +262,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		// urmi
 		plotHeatMapItem.setActionCommand("create heatmap");
 		plotHeatMapItem.addActionListener(this);
-		//plotRMenu.add(plotHeatMapItem);
+		// plotRMenu.add(plotHeatMapItem);
 
 		runOtherScript.setActionCommand("runuserR");
 		runOtherScript.addActionListener(this);
@@ -398,18 +400,22 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		saveCorrelationItem.addActionListener(this);
 
 		// urmi
-		
+
 		diffCorrelation = new JMenuItem("From Existing Columns");
 		diffCorrelation.setActionCommand("DiffCorrelation");
 		diffCorrelation.addActionListener(this);
-		
-		
+
 		diffCorrelationWizard = new JMenuItem("New  Differential Correlation");
 		diffCorrelationWizard.setActionCommand("NewDiffCorrelation");
 		diffCorrelationWizard.addActionListener(this);
-		
+
+		loaddiffCorrResults = new JMenuItem("Load  Differential Correlation Results");
+		loaddiffCorrResults.setActionCommand("LoadDiffCorrelation");
+		loaddiffCorrResults.addActionListener(this);
+
 		diffcorrMenu.add(diffCorrelationWizard);
 		diffcorrMenu.add(diffCorrelation);
+		diffcorrMenu.add(loaddiffCorrResults);
 
 		pairwisePearsonItem = new JMenuItem("Pearson Correlation matrix");
 		pairwisePearsonItem.setActionCommand("pairwise pearson");
@@ -1040,8 +1046,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					f.setSize(1000, 700);
 					f.setVisible(true);
 					f.toFront();
-					
-					//add barchart
+
+					// add barchart
 					BarChart f2 = new BarChart(myProject);
 					MetaOmGraph.getDesktop().add(f2);
 					f2.setDefaultCloseOperation(2);
@@ -1629,7 +1635,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 			// execute rscript to make plot and save to chartFileName.png
 			try {
-				ob.runUserR(rFilepath, datafilePath,myProject.getMetadataHybrid().getMetadataFilePath(), outFiledir);
+				ob.runUserR(rFilepath, datafilePath, myProject.getMetadataHybrid().getMetadataFilePath(), outFiledir);
 			} catch (InterruptedException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -1783,10 +1789,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						0);
 				return;
 			}
-			
+
 			if (listDisplay.getSelectedRowCount() > 1) {
-				JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Please select only one row to analyze!", "Error",
-						0);
+				JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Please select only one row to analyze!",
+						"Error", 0);
 				return;
 			}
 
@@ -1869,7 +1875,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					// get difference of two nanoTime values
 					// float timeElapsed = endTime - startTime;
 					// timeElapsed = (timeElapsed / (float) 1000000000.00);
-					//JOptionPane.showMessageDialog(null, "Time taken:" + timeElapsed);
+					// JOptionPane.showMessageDialog(null, "Time taken:" + timeElapsed);
 				} else if ("pearson correlationP".equals(e.getActionCommand())) {
 					// Meta-analysis model
 					// store all the meta corr results in a list of objects
@@ -3169,7 +3175,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 
 		if (("DiffCorrelation".equals(e.getActionCommand()))) {
-			
+
 			// calculate r and p values using each group
 			// create 4 lists r1,pv1,r2,pv2
 			// select two corr columns and do z test
@@ -3218,9 +3224,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			frame.setVisible(true);
 
 		}
-		
-		
-		if (("NewDiffCorrelation".equals(e.getActionCommand()))) { 
+
+		if (("NewDiffCorrelation".equals(e.getActionCommand()))) {
 			if (myProject.getMetadataHybrid() == null) {
 				JOptionPane.showMessageDialog(null, "No metadata read", "No metadata", JOptionPane.ERROR_MESSAGE);
 				return;
@@ -3230,23 +3235,54 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						0);
 				return;
 			}
-			
+
 			if (listDisplay.getSelectedRowCount() > 1) {
-				JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Please select only one row to analyze!", "Error",
-						0);
+				JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Please select only one row to analyze!",
+						"Error", 0);
 				return;
 			}
 
-			
-			int selectedInd=getTrueSelectedRow();
-			String rowName=getSelectedGeneName();
-			DifferentialCorrFrame lframe = new DifferentialCorrFrame(geneLists.getSelectedValue().toString(), rowName, selectedInd);
+			int selectedInd = getTrueSelectedRow();
+			String rowName = getSelectedGeneName();
+			DifferentialCorrFrame lframe = new DifferentialCorrFrame(geneLists.getSelectedValue().toString(), rowName,
+					selectedInd);
 			lframe.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
 			MetaOmGraph.getDesktop().add(lframe);
 			lframe.setVisible(true);
 			return;
-			
+
 		}
+
+		if (("LoadDiffCorrelation".equals(e.getActionCommand()))) {
+			String[] listOfDC = myProject.getSavedDiffCorrResNames();
+			if (listOfDC == null) {
+				JOptionPane.showMessageDialog(null, "No saved results found", "No results",
+						JOptionPane.INFORMATION_MESSAGE);
+				return;
+			}
+			// JOptionPane.showMessageDialog(null, "saved" + Arrays.toString(listOfDE));
+
+			// choose one from the available results
+			String chosenVal = (String) JOptionPane.showInputDialog(null, "Choose the DE analysis", "Please choose",
+					JOptionPane.PLAIN_MESSAGE, null, listOfDC, listOfDC[0]);
+			if (chosenVal == null) {
+				return;
+			}
+
+			// display chosen value
+			DifferentialCorrResults diffcorrresOB = myProject.getDiffCorrResObj(chosenVal);
+			// display result using DiffCorrResultsTable
+			DiffCorrResultsTable frame = new DiffCorrResultsTable(diffcorrresOB.getFeatureNames(),
+					diffcorrresOB.getGrp1Size(), diffcorrresOB.getGrp2Size(), diffcorrresOB.getCorrGrp1(),
+					diffcorrresOB.getCorrGrp2());
+			frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
+			frame.setTitle("Fold change results");
+			MetaOmGraph.getDesktop().add(frame);
+			frame.setVisible(true);
+
+			return;
+		}
+
 	}
 
 	private Map<String, Collection<Integer>> createSplitIndex() {
