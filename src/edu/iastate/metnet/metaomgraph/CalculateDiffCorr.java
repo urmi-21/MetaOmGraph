@@ -32,6 +32,7 @@ public class CalculateDiffCorr {
 			String name1, String name2, MetaOmProject myProject, int m) {
 
 		this.geneList = genelist;
+		this.myProject = myProject;
 		featureName = string;
 		featureIndex = featureInd;
 		// create collection of indices
@@ -39,7 +40,7 @@ public class CalculateDiffCorr {
 		grp2Ind = getIndices(grp2);
 		g1name = name1;
 		g2name = name2;
-		this.myProject = myProject;
+		
 		method = m;
 		excluded = MetaOmAnalyzer.getExclude();
 	}
@@ -60,6 +61,7 @@ public class CalculateDiffCorr {
 		}
 		return res;
 	}
+	
 
 	public void doCalc() throws IOException {
 		// compute corrGrp1 and corrGrp2
@@ -75,7 +77,9 @@ public class CalculateDiffCorr {
 		// split targetData into two groups target1 and target2
 		double target1[] = new double[grp1Ind.size()];
 		double target2[] = new double[grp2Ind.size()];
-		int i1 = 0, i2 = 0;
+		
+		int i1,  i2;
+		i1=i2=0;
 		for (int k = 0; k < targetData.length; k++) {
 			if (excluded != null && excluded[k]) {
 				continue;
@@ -83,7 +87,7 @@ public class CalculateDiffCorr {
 			if (g1Ind.contains(k)) {
 				target1[i1++] = targetData[k];
 			} else if (g2Ind.contains(k)) {
-				target1[i2++] = targetData[k];
+				target2[i2++] = targetData[k];
 			}
 		}
 

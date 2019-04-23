@@ -102,6 +102,7 @@ public class CalculateLogFC {
 	private Collection<Integer> getIndices(List<String> listDC) {
 		Collection<Integer> res = new ArrayList<>();
 		String[] dataColumnheaders = myProject.getDataColumnHeaders();
+		//JOptionPane.showMessageDialog(null, "DH:"+Arrays.toString(dataColumnheaders));
 		for (int i = 0; i < dataColumnheaders.length; i++) {
 			if (listDC.contains(dataColumnheaders[i])) {
 				res.add(i);

@@ -369,7 +369,7 @@ public class DifferentialCorrFrame extends JInternalFrame {
 		jscp1 = new JScrollPane();
 		tableGrp1 = initTableModel();
 		updateTableData(tableGrp1, null);
-		//jscp1.setViewportView(tableGrp1);
+		jscp1.setViewportView(tableGrp1);
 		panel_4.add(jscp1, BorderLayout.CENTER);
 
 		JButton btnAdd1 = new JButton("Add");
