@@ -169,6 +169,8 @@ public class MetaOmProject {
 
 	// save differential exp analysis results
 	private HashMap<String, DifferentialExpResults> diffExpRes;
+	// save differential corr analysis results
+	private HashMap<String, DifferentialCorrResults> diffCorrRes;
 
 	// info column type used to sort data
 	private HashMap<String, Class> infoColTypes = null;
@@ -210,7 +212,7 @@ public class MetaOmProject {
 		streamMode = false;
 		allowImport = true;
 		initialized = openProject(projectFile);
-		//urmi if project has just been opened set change to false
+		// urmi if project has just been opened set change to false
 		setChanged(false);
 
 	}
@@ -707,6 +709,12 @@ public class MetaOmProject {
 				diffexpXML.setRootElement(getDEResAsXML());
 				output.output(diffexpXML, myZipOut);
 
+				// write diff corr results
+				myZipOut.putNextEntry(new ZipEntry("diffcorrresults.xml"));
+				Document diffCorrXML = new Document();
+				diffCorrXML.setRootElement(getDiffCorrResAsXML());
+				output.output(diffCorrXML, myZipOut);
+
 			}
 			myZipOut.closeEntry();
 			myZipOut.finish();
@@ -785,6 +793,7 @@ public class MetaOmProject {
 		boolean missingFound = false;
 		boolean removedMDColsFound = false;
 		boolean diffExpResfound = false;
+		boolean diffCorrResfound = false;
 		BufferedReader inputReader;
 		StringBuilder sb;
 		String inline;
@@ -1096,7 +1105,11 @@ public class MetaOmProject {
 
 					removedMDColsFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
-				} else if ((thisEntry.getName().equals("diffexpresults.xml")) && (!diffExpResfound)) {
+
+				}
+
+				// read diffexpresults
+				else if ((thisEntry.getName().equals("diffexpresults.xml")) && (!diffExpResfound)) {
 					// JOptionPane.showMessageDialog(null, "reading DE");
 					inputReader = new BufferedReader(new InputStreamReader(instream));
 					sb = new StringBuilder();
@@ -1185,6 +1198,80 @@ public class MetaOmProject {
 					}
 
 					diffExpResfound = true;
+					instream = new ZipInputStream(new FileInputStream(projectFile));
+				}
+
+				// read diffcorr results diffcorrresults.xml
+				else if ((thisEntry.getName().equals("diffcorrresults.xml")) && (!diffCorrResfound)) {
+					// JOptionPane.showMessageDialog(null, "reading DE");
+					inputReader = new BufferedReader(new InputStreamReader(instream));
+					sb = new StringBuilder();
+					inline = "";
+					while ((inline = inputReader.readLine()) != null) {
+						sb.append(inline);
+					}
+					builder = new SAXBuilder();
+					Document doc = (Document) builder.build(new ByteArrayInputStream(sb.toString().getBytes()));
+					Element xmlRoot = doc.getRootElement();
+					// read program parameters
+					List<Element> clist = xmlRoot.getChildren();
+					// JOptionPane.showMessageDialog(null, "clist:"+clist.size() +" "+
+					// clist.toString());
+					// crate DifferentialExpResults objs
+					for (int i = 0; i < clist.size(); i++) {
+						Element thisNode = clist.get(i);
+						String id = thisNode.getName();
+						String g1name = thisNode.getAttributeValue("Group1");
+						String g2name = thisNode.getAttributeValue("Group2");
+						String flistname = thisNode.getAttributeValue("FeatureList");
+						String datatransform = thisNode.getAttributeValue("DataTransform");
+						int method = Integer.parseInt(thisNode.getAttributeValue("method"));
+						String featureName = thisNode.getAttributeValue("FeatureName");
+						int featureInd = Integer.parseInt(thisNode.getAttributeValue("FeatureIndex"));
+
+						// get rownames
+						List<Element> rowList = thisNode.getChild("rownames").getChildren();
+						List<String> rowNames = new ArrayList<>();
+						for (Element c : rowList) {
+							rowNames.add(c.getContent(0).getValue());
+						}
+
+						// get grp1Samps
+						List<Element> grpSamps1 = thisNode.getChild("grp1Samples").getChildren();
+						List<String> namesgrp1 = new ArrayList<>();
+						for (Element c : grpSamps1) {
+							namesgrp1.add((c.getContent(0).getValue()));
+						}
+
+						// get grp2Samps
+						List<Element> grpSamps2 = thisNode.getChild("grp2Samples").getChildren();
+						List<String> namesgrp2 = new ArrayList<>();
+						for (Element c : grpSamps2) {
+							namesgrp2.add((c.getContent(0).getValue()));
+						}
+
+						// get corrgrp1
+						List<Element> grp1 = thisNode.getChild("grp1Corr").getChildren();
+						List<Double> corrgrp1 = new ArrayList<>();
+						for (Element c : grp1) {
+							corrgrp1.add(Double.parseDouble(c.getContent(0).getValue()));
+						}
+						// get corrgrp2
+						List<Element> grp2 = thisNode.getChild("grp2Corr").getChildren();
+						List<Double> corrgrp2 = new ArrayList<>();
+						for (Element c : grp2) {
+							corrgrp2.add(Double.parseDouble(c.getContent(0).getValue()));
+						}
+
+						DifferentialCorrResults thisOb = new DifferentialCorrResults(flistname, featureName, featureInd,
+								namesgrp1, namesgrp2, g1name, g2name, method, rowNames, corrgrp1, corrgrp2,
+								datatransform, id);
+						// add this ob to saved DE
+						addDiffCorrRes(id, thisOb);
+
+					}
+
+					diffCorrResfound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				}
 
@@ -2416,7 +2503,7 @@ public class MetaOmProject {
 					defaultrepscol, missingDC, extraDC, removedCols);
 		}
 		this.defaultXAxis = dataCol;
-		//JOptionPane.showMessageDialog(null, "in loadMetadataHybrid");
+		// JOptionPane.showMessageDialog(null, "in loadMetadataHybrid");
 		setChanged(true);
 		return true;
 	}
@@ -2436,7 +2523,7 @@ public class MetaOmProject {
 			metadata = new Metadata(source, this);
 		}
 		setChanged(true);
-		//JOptionPane.showMessageDialog(null, "in loadMetadata");
+		// JOptionPane.showMessageDialog(null, "in loadMetadata");
 		return true;
 	}
 
@@ -2483,7 +2570,7 @@ public class MetaOmProject {
 			result = getDataFromFile(row);
 			// JOptionPane.showMessageDialog(null, "From file...");
 		} else {
-			//JOptionPane.showMessageDialog(null, "From mem...");
+			// JOptionPane.showMessageDialog(null, "From mem...");
 			result = getDataFromMemory(row);
 		}
 
@@ -2605,12 +2692,12 @@ public class MetaOmProject {
 		if (row > getRowCount())
 			throw new IllegalArgumentException("Row " + row + " does not exist!");
 		if ((memoryMap != null) && (memoryMap.containsKey(Integer.valueOf(row)))) {
-			//JOptionPane.showMessageDialog(null, "Reading row " + row + " from memory");
+			// JOptionPane.showMessageDialog(null, "Reading row " + row + " from memory");
 			System.out.println("Reading row " + row + " from memory");
 			return data[memoryMap.get(Integer.valueOf(row)).intValue()];
 		}
 		if (dataIn == null) {
-			//JOptionPane.showMessageDialog(null, "datain isNULL");
+			// JOptionPane.showMessageDialog(null, "datain isNULL");
 			dataIn = new RandomAccessFile(getSourceFile().getAbsolutePath(), "r", 20000);
 		}
 		double[] thisData = new double[getDataColumnCount()];
@@ -2620,7 +2707,8 @@ public class MetaOmProject {
 			try {
 				thisData[x] = Double.parseDouble(tmp);
 			} catch (NumberFormatException | NullPointerException nfe) {
-				//JOptionPane.showMessageDialog(null, "tmp:"+tmp+" delm:"+delimiter+" ig:"+ignoreConsecutiveDelimiters);
+				// JOptionPane.showMessageDialog(null, "tmp:"+tmp+" delm:"+delimiter+"
+				// ig:"+ignoreConsecutiveDelimiters);
 				// replace NAN value by blank value provided by user
 				if (getBlankValue() == null) {
 					thisData[x] = Double.NaN;
@@ -2642,13 +2730,13 @@ public class MetaOmProject {
 		}
 		return thisData;
 	}
-	
+
 	/**
 	 * @author urmi
 	 */
-	/*public void setdataInNull() {
-		this.dataIn=null;		
-	}*/
+	/*
+	 * public void setdataInNull() { this.dataIn=null; }
+	 */
 
 	public double[] getUnloggedData(int row) throws IOException {
 		if (!streamMode) {
@@ -3216,7 +3304,7 @@ public class MetaOmProject {
 	}
 
 	public void setChanged(boolean changed) {
-		
+
 		this.changed = changed;
 		if (MetaOmGraph.getMainWindow() == null) {
 			return;
@@ -3224,7 +3312,7 @@ public class MetaOmProject {
 		String title = MetaOmGraph.getMainWindow().getTitle();
 		boolean titleChanged = false;
 		if (changed) {
-			//JOptionPane.showMessageDialog(null, "called");
+			// JOptionPane.showMessageDialog(null, "called");
 			if (!title.startsWith("* ")) {
 				title = "* " + title;
 				titleChanged = true;
@@ -3350,6 +3438,57 @@ public class MetaOmProject {
 			return null;
 		}
 		return diffExpRes.get(key);
+	}
+
+	//////////////////////
+
+	/**
+	 * @author urmi add diff corr result to list to save with project
+	 */
+	public void addDiffCorrRes(String id, DifferentialCorrResults val) {
+		if (diffCorrRes == null) {
+			diffCorrRes = new HashMap<>();
+		}
+		diffCorrRes.put(id, val);
+		// project changed
+		setChanged(true);
+	}
+
+	/**
+	 * @author urmi check if a diff exp result is saved with entered name
+	 * @param name
+	 * @return
+	 */
+	public boolean diffCorrNameExists(String name) {
+		boolean res = false;
+		if (diffCorrRes == null) {
+			return res;
+		}
+		if (diffCorrRes.get(name) != null) {
+			res = true;
+		}
+		return res;
+	}
+
+	public String[] getSavedDiffCorrResNames() {
+		if (diffCorrRes == null) {
+			return null;
+		}
+
+		Set thisSet = diffCorrRes.keySet();
+		String[] res = new String[thisSet.size()];
+		int k = 0;
+		for (Object s : thisSet) {
+			res[k++] = (String) s;
+		}
+		return res;
+	}
+
+	public DifferentialCorrResults getDiffCorrResObj(String key) {
+		if (diffCorrRes == null) {
+			return null;
+		}
+		return diffCorrRes.get(key);
 	}
 
 	/**
@@ -3489,6 +3628,25 @@ public class MetaOmProject {
 			String[] savedDE = getSavedDiffExpResNames();
 			for (String id : savedDE) {
 				DifferentialExpResults thisOB = getDiffExpResObj(id);
+				root.addContent(thisOB.getAsXMLNode());
+			}
+		}
+
+		return root;
+	}
+
+	/**
+	 * get saved differential expression results as XML
+	 * 
+	 * @return
+	 */
+	public Element getDiffCorrResAsXML() {
+		Element root = new Element("ROOT");
+		root.setAttribute("name", "Root");
+		if (diffCorrRes != null) {
+			String[] savedDC = getSavedDiffCorrResNames();
+			for (String id : savedDC) {
+				DifferentialCorrResults thisOB = getDiffCorrResObj(id);
 				root.addContent(thisOB.getAsXMLNode());
 			}
 		}

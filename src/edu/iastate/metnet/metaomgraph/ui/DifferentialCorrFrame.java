@@ -56,7 +56,7 @@ import javax.swing.JCheckBox;
 
 public class DifferentialCorrFrame extends JInternalFrame {
 
-	//private JComboBox comboBox;
+	// private JComboBox comboBox;
 	private JLabel selectedFeature;
 	private JComboBox comboBox_1;
 
@@ -108,13 +108,13 @@ public class DifferentialCorrFrame extends JInternalFrame {
 	/**
 	 * Create the frame.
 	 */
-	public DifferentialCorrFrame(String geneList, String featureName,int featureInd) {
+	public DifferentialCorrFrame(String geneList, String featureName, int featureInd) {
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		setTitle("Differential expression analysis");
 
 		// init objects
-		selectedFeature=new JLabel(featureName);
+		selectedFeature = new JLabel(featureName);
 		myProject = MetaOmGraph.getActiveProject();
 		mdob = myProject.getMetadataHybrid();
 		if (mdob == null) {
@@ -173,7 +173,6 @@ public class DifferentialCorrFrame extends JInternalFrame {
 					return;
 				}
 
-				
 				String selectedMethod = comboBox_1.getSelectedItem().toString();
 				// if paired test is selected lists must be equal size
 				if (selectedMethod.equals("Paired t-test") || selectedMethod.equals("Wilcoxon Signed Rank Test")) {
@@ -197,7 +196,8 @@ public class DifferentialCorrFrame extends JInternalFrame {
 				// measure time
 				// long startTime = System.nanoTime();
 
-				CalculateDiffCorr ob = new CalculateDiffCorr(geneList, featureName,featureInd, grp1, grp2, txtGroup1.getText(),txtGroup2.getText(), myProject, comboBox_1.getSelectedIndex());
+				CalculateDiffCorr ob = new CalculateDiffCorr(geneList, featureName, featureInd, grp1, grp2,
+						txtGroup1.getText(), txtGroup2.getText(), myProject, comboBox_1.getSelectedIndex());
 
 				// display result
 				try {
@@ -207,15 +207,13 @@ public class DifferentialCorrFrame extends JInternalFrame {
 					e1.printStackTrace();
 				}
 
-				
-				
 				// save results in MOG
 				String id = "";
 				if (chckbxSaveResultsWith.isSelected()) {
 					id = JOptionPane.showInputDialog(MetaOmGraph.getMainWindow(),
 							"Please enter a name for this analysis:", "Save differential expression results", 2);
-					if(id==null) {
-						//cancelled
+					if (id == null) {
+						// cancelled
 						return;
 					}
 					id = id.trim();
@@ -224,32 +222,31 @@ public class DifferentialCorrFrame extends JInternalFrame {
 							id = (String) JOptionPane.showInputDialog(MetaOmGraph.getDesktop(),
 									"A previous analysis exists with the same name. Please enter a different name for this analysis",
 									"Save differential expression results", 2);
-							if(id==null) {
-								//cancelled
+							if (id == null) {
+								// cancelled
 								return;
 							}
 							id = id.trim();
 						}
 					}
 				}
-				
-				
+
 				// create DifferentialCorrResults object to store diff corrresults in MOG
-				DifferentialCorrResults diffcorrresOB=new DifferentialCorrResults(geneList, featureName,featureInd, grp1, grp2, txtGroup1.getText(),txtGroup2.getText(), comboBox_1.getSelectedIndex(),ob.getFeatureNames(),ob.getCorrGrp1(),ob.getCorrGrp2());
-				/*DifferentialExpResults diffExpObj = new DifferentialExpResults(id,comboBox_1.getSelectedIndex(),
-						txtGroup1.getText(), txtGroup2.getText(), getAllRows(tableGrp1).size(),
-						getAllRows(tableGrp2).size(), selectedFeatureList, MetaOmGraph.getInstance().getTransform(),
-						ob.getFeatureNames(), ob.getMean1(), ob.getMean2(), ob.ftestRatios(), ob.ftestPV(),
-						ob.testPV());
+				DifferentialCorrResults diffcorrresOB = new DifferentialCorrResults(geneList, featureName, featureInd,
+						grp1, grp2, txtGroup1.getText(), txtGroup2.getText(), comboBox_1.getSelectedIndex(),
+						ob.getFeatureNames(), ob.getCorrGrp1(), ob.getCorrGrp2(),MetaOmGraph.getInstance().getTransform(),id);
 				
+				
+				//save to MOG
 				if(chckbxSaveResultsWith.isSelected()) {
-					myProject.addDiffExpRes(id, diffExpObj);
-				}*/
-				
+					myProject.addDiffCorrRes(id, diffcorrresOB);
+				}
 				
 
 				// display result using DiffCorrResultsTable
-				DiffCorrResultsTable frame = new DiffCorrResultsTable(diffcorrresOB.getFeatureNames(),diffcorrresOB.getGrp1Size(), diffcorrresOB.getGrp2Size(), diffcorrresOB.getCorrGrp1(), diffcorrresOB.getCorrGrp2());
+				DiffCorrResultsTable frame = new DiffCorrResultsTable(diffcorrresOB.getFeatureNames(),
+						diffcorrresOB.getGrp1Size(), diffcorrresOB.getGrp2Size(), diffcorrresOB.getCorrGrp1(),
+						diffcorrresOB.getCorrGrp2());
 				frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
 				frame.setTitle("Fold change results");
 				MetaOmGraph.getDesktop().add(frame);
@@ -511,7 +508,7 @@ public class DifferentialCorrFrame extends JInternalFrame {
 	}
 
 	private void initComboBoxes() {
-		String[] methods = new String[] { "Fisher transformation"};
+		String[] methods = new String[] { "Fisher transformation" };
 		comboBox_1 = new JComboBox(methods);
 	}
 
