@@ -310,8 +310,8 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		 * dataset.addValue(25, "India", "2015"); dataset.addValue(30, "China", "2015");
 		 */
 
-		for (int i = 0; i < 300; i++) {
-			for (int j = 0; j < 5; j++) {
+		for (int i = 0; i < 1; i++) {
+			for (int j = 0; j < 100; j++) {
 				dataset.addValue(Math.random() * 10, String.valueOf(j), String.valueOf(i));
 				//dataset.addValue(Math.random() * 10, String.valueOf(j), "2015");
 			}
