@@ -153,4 +153,4 @@ add options in all charts. show/hide legend
 Properties -> sample name, header names
 add new diffcorr pipeline frame
 take default label axis for all charts
-add filter by expression in main table
+add filter by expression in main table 
