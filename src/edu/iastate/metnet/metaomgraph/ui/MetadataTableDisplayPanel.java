@@ -275,9 +275,8 @@ public class MetadataTableDisplayPanel extends JPanel {
 		mntmSpearmanCorrelation.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 
-
 				/**
-				 * select 2 or more runs and display the pearson correlation between them
+				 * select 2 or more runs and display the spearman correlation between them
 				 */
 				new AnimatedSwingWorker("Working...", true) {
 					@Override
@@ -308,11 +307,11 @@ public class MetadataTableDisplayPanel extends JPanel {
 										public void run() {
 											try {
 												SimilarityDisplayFrame frameob = new SimilarityDisplayFrame(res,
-														"Pearson's correlation");
+														"Spearman correlation");
 
 												frameob.setSize(MetaOmGraph.getMainWindow().getWidth() / 2,
 														MetaOmGraph.getMainWindow().getHeight() / 2);
-												frameob.setTitle("Pearson's correlation for runs");
+												frameob.setTitle("Spearman correlation for runs");
 												MetaOmGraph.getDesktop().add(frameob);
 												frameob.setVisible(true);
 											} catch (Exception e) {

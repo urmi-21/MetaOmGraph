@@ -18,7 +18,7 @@ import javafx.util.Pair;
 public class ComputeRunsSimilarity {
 
 	/**
-	 * similarity type: 1 cosine distance 2 pearson correlation etc.
+	 * similarity type: 1 cosine distance 2 pearson correlation 3 spearman correlation.
 	 */
 
 	private int _P = 6;
