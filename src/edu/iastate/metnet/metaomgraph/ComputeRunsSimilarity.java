@@ -68,7 +68,7 @@ public class ComputeRunsSimilarity {
 				for (int j = i + 1; j < keys.length; j++) {
 					double[] vecA = databyCols.get(keys[i]);
 					double[] vecB = databyCols.get(keys[j]);
-					taskList.add(new ComputeCorr(vecA, vecB));
+					taskList.add(new ComputeCorr(vecA, vecB,1));
 					String nameA = MetaOmGraph.getActiveProject().getDataColumnHeader(keys[i]);
 					String nameB = MetaOmGraph.getActiveProject().getDataColumnHeader(keys[j]);
 					resNames.add(nameA + ":" + nameB);
@@ -87,7 +87,7 @@ public class ComputeRunsSimilarity {
 				for (int j = i + 1; j < keys.length; j++) {
 					double[] vecA = databyCols.get(keys[i]);
 					double[] vecB = databyCols.get(keys[j]);
-					taskList.add(new ComputeCorr(vecA, vecB));
+					taskList.add(new ComputeCorr(vecA, vecB,2));
 					String nameA = MetaOmGraph.getActiveProject().getDataColumnHeader(keys[i]);
 					String nameB = MetaOmGraph.getActiveProject().getDataColumnHeader(keys[j]);
 					resNames.add(nameA + ":" + nameB);

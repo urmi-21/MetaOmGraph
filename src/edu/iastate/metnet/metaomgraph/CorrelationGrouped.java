@@ -16,6 +16,7 @@ import org.apache.commons.math3.analysis.function.Tanh;
 import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
+import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 
 public class CorrelationGrouped {
 
@@ -109,7 +110,7 @@ public class CorrelationGrouped {
 		pooledzr = sumWZ / sumW;
 		pooledr = tanh.value(pooledzr);
 		stdErr = Math.sqrt(1.0 / sumW);
-		//System.out.println("SE:" + stdErr);
+		// System.out.println("SE:" + stdErr);
 		zStatistic = pooledzr / stdErr;
 		System.out.println("zStatistic:" + zStatistic);
 		NormalDistribution stdNorm = new NormalDistribution();
@@ -120,9 +121,10 @@ public class CorrelationGrouped {
 			pvalzr = 2 * (stdNorm.cumulativeProbability(zStatistic));
 		}
 
-		//System.out.println("pval:" + pvalzr);
+		// System.out.println("pval:" + pvalzr);
 
-		//System.out.println("c val 2 tail:" + stdNorm.inverseCumulativeProbability(alpha / 2.0));
+		// System.out.println("c val 2 tail:" +
+		// stdNorm.inverseCumulativeProbability(alpha / 2.0));
 		pooledrCIL = pooledzr + (stdNorm.inverseCumulativeProbability(alpha / 2.0) * stdErr);
 		pooledrCIH = pooledzr - (stdNorm.inverseCumulativeProbability(alpha / 2.0) * stdErr);
 		if (pooledrCIL > pooledrCIH) {
@@ -142,8 +144,8 @@ public class CorrelationGrouped {
 		if (Double.isNaN(pooledr)) {
 			pooledr = 0;
 		}
-		CorrelationMeta toReturn = new CorrelationMeta(pooledr, pvalzr, zStatistic, qStatistic,pooledzr,stdErr);
-		
+		CorrelationMeta toReturn = new CorrelationMeta(pooledr, pvalzr, zStatistic, qStatistic, pooledzr, stdErr);
+
 		return toReturn;
 
 	}
@@ -216,11 +218,11 @@ public class CorrelationGrouped {
 			sumWstarZr += z_r[i] * thisW;
 		}
 
-		//System.out.println("SumWstr:" + sumWstar);
+		// System.out.println("SumWstr:" + sumWstar);
 		pooledzr_rand = sumWstarZr / sumWstar;
 		pooledr = tanh.value(pooledzr_rand);
 		stdErr = Math.sqrt(1.0 / sumWstar);
-		//System.out.println("SE:" + stdErr);
+		// System.out.println("SE:" + stdErr);
 		zStatistic = pooledzr_rand / stdErr;
 		System.out.println("zStatistic:" + zStatistic);
 
@@ -230,33 +232,35 @@ public class CorrelationGrouped {
 			pvalzr = 2 * (stdNorm.cumulativeProbability(zStatistic));
 		}
 
-		//System.out.println("pval:" + pvalzr);
+		// System.out.println("pval:" + pvalzr);
 		if (Double.isNaN(pooledr)) {
 			pooledr = 0;
 		}
-		CorrelationMeta toReturn = new CorrelationMeta(pooledr, pvalQ, zStatistic, qStatistic,pooledzr_rand,stdErr);
+		CorrelationMeta toReturn = new CorrelationMeta(pooledr, pvalQ, zStatistic, qStatistic, pooledzr_rand, stdErr);
 
 		return toReturn;
 
 	}
 
 	public static void main(String[] args) {
-		/*Atanh atanh = new Atanh();
-		System.out.println("atanh(0.5):" + atanh.value(0.5));
-		System.out.println("atanh(0.1):" + atanh.value(0.1));
-		System.out.println("atanh(0.2):" + atanh.value(0.2));
-		System.out.println("atanh(-0.5):" + atanh.value(-0.5));
+		/*
+		 * Atanh atanh = new Atanh(); System.out.println("atanh(0.5):" +
+		 * atanh.value(0.5)); System.out.println("atanh(0.1):" + atanh.value(0.1));
+		 * System.out.println("atanh(0.2):" + atanh.value(0.2));
+		 * System.out.println("atanh(-0.5):" + atanh.value(-0.5));
 		 */
 		double[] corrvals = new double[] { 0.56, 0.43, 0.53, 0.51, 0.66, 0.46, 0.33, 0.38 };
 		int[] groupSizes = new int[] { 133, 149, 131, 120, 111, 152, 60, 122 };
 		corrvals = new double[] { 0.51, 0.48, 0.30, 0.21, 0.60, 0.46, 0.22, 0.25 };
 		groupSizes = new int[] { 131, 129, 155, 121, 111, 119, 112, 145 };
-		//corrvals = new double[] { 0.7026,0.494856,-0.655774568 };
-		//groupSizes = new int[] { 4,7,7 };
+		// corrvals = new double[] { 0.7026,0.494856,-0.655774568 };
+		// groupSizes = new int[] { 4,7,7 };
 
-		System.out.println("pooldr:" + getrvalueFEModel(corrvals, groupSizes).getrVal()+" pv:"+getrvalueFEModel(corrvals, groupSizes).getpVal());
+		System.out.println("pooldr:" + getrvalueFEModel(corrvals, groupSizes).getrVal() + " pv:"
+				+ getrvalueFEModel(corrvals, groupSizes).getpVal());
 		System.out.println("..........");
-		System.out.println("RAND pooldr:" + getrvalueRandModel(corrvals, groupSizes).getrVal()+" pv:"+getrvalueRandModel(corrvals, groupSizes).getpVal());
+		System.out.println("RAND pooldr:" + getrvalueRandModel(corrvals, groupSizes).getrVal() + " pv:"
+				+ getrvalueRandModel(corrvals, groupSizes).getpVal());
 
 	}
 
@@ -271,10 +275,16 @@ public class CorrelationGrouped {
 class ComputeCorr implements Callable<Double> {
 	double[] target;
 	double[] data;
+	int method; // 1 pearson 2 spearman
 
 	public ComputeCorr(double[] a, double[] b) {
+		this(a, b, 1);
+	}
+
+	public ComputeCorr(double[] a, double[] b, int method) {
 		this.target = a;
 		this.data = b;
+		this.method = method;
 	}
 
 	@Override
@@ -285,8 +295,14 @@ class ComputeCorr implements Callable<Double> {
 		if (target.length <= 1) {
 			return 0.0;
 		}
-		PearsonsCorrelation pc = new PearsonsCorrelation();
-		res = pc.correlation(target, data);
+		if (method == 1) {
+			PearsonsCorrelation pc = new PearsonsCorrelation();
+			res = pc.correlation(target, data);
+		} else if (method == 2) {
+			SpearmansCorrelation sc = new SpearmansCorrelation();
+			res = sc.correlation(target, data);
+		}
+
 		// JOptionPane.showMessageDialog(null, "thiscorr:"+res);
 		if (Double.isNaN(res)) {
 			return 0.0;
