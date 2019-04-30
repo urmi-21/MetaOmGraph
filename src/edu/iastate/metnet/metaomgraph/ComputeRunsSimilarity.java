@@ -79,6 +79,25 @@ public class ComputeRunsSimilarity {
 			pool = Executors.newFixedThreadPool(_P);
 			allRes = pool.invokeAll(taskList);
 		}
+		//do spearman correlation
+		else if (type == 3) {
+			List<ComputeCorr> taskList = new ArrayList<>();
+			// create all the tasks
+			for (int i = 0; i < keys.length - 1; i++) {
+				for (int j = i + 1; j < keys.length; j++) {
+					double[] vecA = databyCols.get(keys[i]);
+					double[] vecB = databyCols.get(keys[j]);
+					taskList.add(new ComputeCorr(vecA, vecB));
+					String nameA = MetaOmGraph.getActiveProject().getDataColumnHeader(keys[i]);
+					String nameB = MetaOmGraph.getActiveProject().getDataColumnHeader(keys[j]);
+					resNames.add(nameA + ":" + nameB);
+				}
+			}
+
+			// execute task
+			pool = Executors.newFixedThreadPool(_P);
+			allRes = pool.invokeAll(taskList);
+		}
 
 		// process results
 		HashMap<String, Double> resultsCombined = new HashMap<>();

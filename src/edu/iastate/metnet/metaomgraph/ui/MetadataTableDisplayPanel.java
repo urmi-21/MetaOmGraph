@@ -298,8 +298,8 @@ public class MetadataTableDisplayPanel extends JPanel {
 										return;
 									}
 
-									// compute correlation here 2 for correlation
-									ComputeRunsSimilarity ob = new ComputeRunsSimilarity(2, databyCols);
+									// compute correlation 3 for spearman correlation
+									ComputeRunsSimilarity ob = new ComputeRunsSimilarity(3, databyCols);
 									HashMap<String, Double> res = ob.doComputation();
 									// display res in JTable
 									// displaySimilarityTable(res, "Pearson's correlation");
