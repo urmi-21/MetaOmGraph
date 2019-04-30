@@ -270,6 +270,69 @@ public class MetadataTableDisplayPanel extends JPanel {
 			}
 		});
 		mnAnalyze.add(mntmPearsonCorrelation);
+		
+		JMenuItem mntmSpearmanCorrelation = new JMenuItem("Spearman Correlation");
+		mntmSpearmanCorrelation.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+
+
+				/**
+				 * select 2 or more runs and display the pearson correlation between them
+				 */
+				new AnimatedSwingWorker("Working...", true) {
+					@Override
+					public Object construct() {
+						EventQueue.invokeLater(new Runnable() {
+							public void run() {
+								// get data for all selceted cols
+								try {
+									/**
+									 * get all the row data for each col map colnum to data array
+									 */
+									if (table.getSelectedRows().length < 2) {
+										JOptionPane.showMessageDialog(null, "Please select at least two rows",
+												"Invalid selection", JOptionPane.ERROR_MESSAGE);
+										return;
+									}
+									HashMap<Integer, double[]> databyCols = getDataForSelectedDataCols();
+									if (databyCols == null) {
+										return;
+									}
+
+									// compute correlation here 2 for correlation
+									ComputeRunsSimilarity ob = new ComputeRunsSimilarity(2, databyCols);
+									HashMap<String, Double> res = ob.doComputation();
+									// display res in JTable
+									// displaySimilarityTable(res, "Pearson's correlation");
+									EventQueue.invokeLater(new Runnable() {
+										public void run() {
+											try {
+												SimilarityDisplayFrame frameob = new SimilarityDisplayFrame(res,
+														"Pearson's correlation");
+
+												frameob.setSize(MetaOmGraph.getMainWindow().getWidth() / 2,
+														MetaOmGraph.getMainWindow().getHeight() / 2);
+												frameob.setTitle("Pearson's correlation for runs");
+												MetaOmGraph.getDesktop().add(frameob);
+												frameob.setVisible(true);
+											} catch (Exception e) {
+												e.printStackTrace();
+											}
+										}
+									});
+								} catch (IOException | InterruptedException | ExecutionException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+							}
+						});
+						return null;
+					}
+				}.start();
+			
+			}
+		});
+		mnAnalyze.add(mntmSpearmanCorrelation);
 
 		JMenu mnView_1 = new JMenu("View");
 		menuBar.add(mnView_1);
