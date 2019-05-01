@@ -3963,12 +3963,15 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	 * @param colValue
 	 */
 	public void plotBarChart(String colValue) {
+		
+		//gert data for the selected columns
+		 List<String> chartData=getFeatureMetaData(colValue);
 		// add barchart
-		ArrayList<String> list = new ArrayList<String>();
-		list.add("Geeks");
-		list.add("for");
-		list.add("Geeks");
-		BarChart f2 = new BarChart(myProject, "samp", list, 1);
+		//ArrayList<String> list = new ArrayList<String>();
+		//list.add("Geeks");
+		//list.add("for");
+		//list.add("Geeks");
+		BarChart f2 = new BarChart(myProject, "samp", chartData, 1);
 		MetaOmGraph.getDesktop().add(f2);
 		f2.setDefaultCloseOperation(2);
 		f2.setClosable(true);
@@ -3978,7 +3981,34 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		f2.setVisible(true);
 		f2.toFront();
 	}
+	
+	
+	/**
+	 * get values in a given correlation column
+	 * @param colName
+	 * @return
+	 */
+	private List<String> getFeatureMetaData(String colName) {
 
+		List<String> metadataVals = new ArrayList<>();
+		// add all values under the colName column
+		for (int r = 0; r < listDisplay.getRowCount(); r++) {
+			String thisVal = (String) listDisplay.getModel().getValueAt(r,
+					listDisplay.getColumn(colName).getModelIndex());
+			if (thisVal != null) {
+				metadataVals.add(thisVal);
+			}
+		}
+
+		return metadataVals;
+	}
+	
+
+	/**
+	 * get values in a given correlation column
+	 * @param colName
+	 * @return
+	 */
 	private List<Double> getCorrData(String colName) {
 
 		List<Double> corrVals = new ArrayList<>();
