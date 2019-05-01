@@ -446,6 +446,56 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				} else
 					super.actionPerformed(e);
 			}
+			
+			@Override
+			public String getToolTipText(MouseEvent event) {
+
+				ChartEntity entity = getChartRenderingInfo().getEntityCollection().getEntity(event.getPoint().getX(),
+						event.getPoint().getY());
+				// JOptionPane.showMessageDialog(null, entity);
+				if (!(entity instanceof CategoryItemEntity)) {
+					// JOptionPane.showMessageDialog(null, "null");
+					return "null";
+					// return null;
+				}
+				CategoryItemEntity item = (CategoryItemEntity) entity;
+				String colKey = (String) item.getColumnKey();
+				String rowKey = (String) item.getRowKey();
+				String value = item.getToolTipText();
+
+				JOptionPane.showMessageDialog(null,"rk:" + rowKey + " ck:" + colKey + " " + item.getToolTipText() + " val:" + value);
+				// create tooltip
+				return createTooltipTable();
+			}
+
+			
+
+			// urmi display tooltip away from point
+			@Override
+			public Point getToolTipLocation(MouseEvent event) {
+				Point thisPoint = event.getPoint();
+				Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+				// int maxWidth=(int) screenSize.getWidth();
+				int maxWidth = getWidth();
+				// define horizontal space between tooltip and point
+				int xMargin = 25;
+
+				int y = thisPoint.y;
+				int newy = 100;
+				/*
+				 * select appropriate y if(y-200<=0) { newy=10; }else { newy=y-200; }
+				 */
+				int x = thisPoint.x;
+				// JOptionPane.showMessageDialog(null, "mw:"+maxWidth+" x:"+x);
+				// if point is far right of scree show tool tip to the left
+				if (maxWidth - x <= 450) {
+					// JOptionPane.showMessageDialog(null, "mw:"+maxWidth+" x:"+x);
+					// return new Point(x-300, 5);
+					// table width is 400
+					return new Point(x - (400 + xMargin), newy);
+				}
+				return new Point(x + xMargin, newy);
+			}
 		};
 		chartPanel.setPreferredSize(new Dimension(800, 600));
 		chartPanel.addChartMouseListener(this);
@@ -455,6 +505,12 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 
 	}
 
+	
+	private String createTooltipTable() {
+		// TODO Auto-generated method stub
+		return "tool";
+	}
+	
 	private DefaultBoxAndWhiskerCategoryDataset createDataset() {
 		DefaultBoxAndWhiskerCategoryDataset dataset = new DefaultBoxAndWhiskerCategoryDataset();
 		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(), "Working",
