@@ -83,6 +83,7 @@ import org.jfree.chart.entity.LegendItemEntity;
 import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.labels.BoxAndWhiskerToolTipGenerator;
 import org.jfree.chart.labels.CategoryToolTipGenerator;
+import org.jfree.chart.labels.StandardCategoryToolTipGenerator;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.DefaultDrawingSupplier;
 import org.jfree.chart.plot.DrawingSupplier;
@@ -326,18 +327,49 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		myRenderer = (BarRenderer) cplot.getRenderer();
 		// remove shadows from bar chart
 		myRenderer.setBarPainter(new StandardBarPainter());
-		myRenderer.setDefaultToolTipGenerator(new BoxAndWhiskerToolTipGenerator());
+		
+		
+		/*myRenderer.setDefaultToolTipGenerator(new StandardCategoryToolTipGenerator() {
+		    @Override
+		    public String generateToolTip(CategoryDataset dataset, int row, int column) {
+		        String s = super.generateToolTip(dataset, row, column);
+		        int b = s.indexOf('(', 1) + 1;
+		        int e = s.indexOf(')');
+		        return s;
+		    }
+		});*/
 
 		MyChartPanel chartPanel = new MyChartPanel(myChart, Toolkit.getDefaultToolkit().getScreenSize().width,
 				Toolkit.getDefaultToolkit().getScreenSize().height, 0, 0,
 				Toolkit.getDefaultToolkit().getScreenSize().width, Toolkit.getDefaultToolkit().getScreenSize().height,
 				true, true, true, true, true, true, MyChartPanel.BARCHART) {
+			private static final long serialVersionUID = 1L;
 
 			@Override
 			public String getToolTipText(MouseEvent event) {
 
+				ChartEntity entity = getChartRenderingInfo().getEntityCollection().getEntity(event.getPoint().getX(),
+						event.getPoint().getY());
+				// JOptionPane.showMessageDialog(null, entity);
+				if (!(entity instanceof CategoryItemEntity)) {
+					// JOptionPane.showMessageDialog(null, "null");
+					return "null";
+					//return null;
+				}
+				CategoryItemEntity item = (CategoryItemEntity) entity;
+				String ck=(String) item.getColumnKey();
+				String rk=(String) item.getRowKey();
+
+				
+				
+				
+				JOptionPane.showMessageDialog(null, "rk:"+rk+" ck:"+ck);
+				
 				return "tool";
 			}
+
+			
+					
 
 			// urmi display tooltip away from point
 			@Override
