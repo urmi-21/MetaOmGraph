@@ -145,7 +145,7 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 	private JFreeChart myChart;
 	private LegendTitle myLegend;
 	// private XYLineAndShapeRenderer myRenderer;
-	private BoxAndWhiskerRenderer myRenderer;
+	private BarRenderer myRenderer;
 	JScrollPane scrollPane;
 
 	// toolbar buttons
@@ -160,8 +160,8 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 	private JButton boxPlotOptions;
 	private JToggleButton toggleLegend;
 	private boolean legendFlag = true;
-	//if number of items in legend is more than this then turn legend off
-	private int maxLegend = 30; 
+	// if number of items in legend is more than this then turn legend off
+	private int maxLegend = 30;
 
 	// bottom toolbar
 	private JButton btnNewButton_1;
@@ -315,17 +315,16 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 				dataset, PlotOrientation.VERTICAL, true, true, false);
 		myChart.getCategoryPlot().setBackgroundPaint(MetaOmGraph.getPlotBackgroundColor());
 		myChart.setBackgroundPaint(MetaOmGraph.getChartBackgroundColor());
-		//save legend
+		// save legend
 		myLegend = myChart.getLegend();
-		//if legene flag is off remove legend
-		if(!legendFlag) {
+		// if legene flag is off remove legend
+		if (!legendFlag) {
 			myChart.removeLegend();
 		}
 		CategoryPlot cplot = (CategoryPlot) myChart.getPlot();
-		BarRenderer renderer = (BarRenderer) cplot.getRenderer();
-
+		 myRenderer = (BarRenderer) cplot.getRenderer();
 		// remove shadows from bar chart
-		renderer.setBarPainter(new StandardBarPainter());
+		 myRenderer.setBarPainter(new StandardBarPainter());
 
 		MyChartPanel chartPanel = new MyChartPanel(myChart, Toolkit.getDefaultToolkit().getScreenSize().width,
 				Toolkit.getDefaultToolkit().getScreenSize().height, 0, 0,
@@ -348,6 +347,7 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 	 */
 	private CategoryDataset createDataset(List<String> data) {
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+		seriesNames = new ArrayList<>();
 
 		// hashmap to store the frequency of element
 		Map<String, Integer> freqMap = new HashMap<String, Integer>();
@@ -359,15 +359,16 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		// order the hashmap by value
 		freqMap = freqMap.entrySet().stream().sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
-		
-		if(freqMap.size()> maxLegend) {
-			legendFlag=false;
-			//setLegendVisible(legendFlag);
+
+		if (freqMap.size() > maxLegend) {
+			legendFlag = false;
+			// setLegendVisible(legendFlag);
 		}
 
 		for (Map.Entry<String, Integer> val : freqMap.entrySet()) {
 
 			dataset.addValue(val.getValue(), val.getKey(), dataName);
+			seriesNames.add(val.getKey());
 		}
 
 		return dataset;
@@ -434,16 +435,15 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		if ("splitDataset".equals(e.getActionCommand())) {
 
 			// show feature or sample metadata columns based on the plotType
-			String[] fields=null;
-			if(plotType==1) {
-				//show feature metadata columns
-				fields=myProject.getInfoColumnNames();
-			}else if(plotType==2) {
-				//show sample metadata columns			
-				fields=myProject.getMetadataHybrid().getMetadataHeaders();
+			String[] fields = null;
+			if (plotType == 1) {
+				// show feature metadata columns
+				fields = myProject.getInfoColumnNames();
+			} else if (plotType == 2) {
+				// show sample metadata columns
+				fields = myProject.getMetadataHybrid().getMetadataHeaders();
 			}
-			
-			
+
 			fields = MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataHeaders();
 			String[] fields2 = new String[fields.length + 3];
 			fields2[0] = "Reset";
@@ -643,15 +643,9 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		if (event.getTrigger().getClickCount() == 2) {
 			if (event.getEntity() instanceof LegendItemEntity) {
 				Comparable seriesKey = ((LegendItemEntity) event.getEntity()).getSeriesKey();
-				// JOptionPane.showMessageDialog(null, "indexcol:"+seriesKey.toString());
-				// int index = myChart.getXYPlot().getDataset().indexOf(seriesKey);
-				// int index=seriesNames.indexOf(seriesKey.toString())+1;
-				// JOptionPane.showMessageDialog(null, "SR:"+seriesNames.toString()+"::
-				// "+seriesKey.toString());
-
+				
+				//seriesNames is a list containing names of each category
 				int index = seriesNames.indexOf(seriesKey.toString());
-				// JOptionPane.showMessageDialog(null, "SR:"+seriesNames.toString()+"ind
-				// of:"+index);
 				changeSeriesColor(index);
 
 				return;
@@ -683,7 +677,6 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 	 */
 	public void changeSeriesColor(int series) {
 		Color oldColor = (Color) myRenderer.getSeriesPaint(series);
-
 		Color newColor = JColorChooser.showDialog(MetaOmGraph.getMainWindow(), seriesNames.get(series) + " color",
 				oldColor);
 		if (newColor != null) {

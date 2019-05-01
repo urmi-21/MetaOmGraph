@@ -171,9 +171,11 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 
 	DefaultBoxAndWhiskerCategoryDataset initdataset;
 	String splitCol;
+	
+	//seriesNames keeps all the series in the dataset
 	List<String> seriesNames;
 	Map<String, Collection<Integer>> splitIndex;
-	// to keep an order for the dataset
+	// to define custom an order for the dataset; eventually this change will be reflected in seriesNames
 	List<String> orderedKeys;
 
 	private boolean[] excludedCopy;
@@ -801,8 +803,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				// "+seriesKey.toString());
 
 				int index = seriesNames.indexOf(seriesKey.toString());
-				// JOptionPane.showMessageDialog(null, "SR:"+seriesNames.toString()+"ind
-				// of:"+index);
+				//JOptionPane.showMessageDialog(null, "SR:"+seriesNames.toString()+"ind of:"+index);
 				changeSeriesColor(index);
 
 				return;
@@ -901,6 +902,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 			res.addAll(splitIndex.keySet());
 			return res;
 		} else {
+			//return keys in order
 			return orderedKeys;
 		}
 	}
@@ -930,9 +932,6 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 			Map<String, Collection<Integer>> temp = new HashMap<>();
 			orderedKeys = new ArrayList<>();
 			for (int i = 0; i < list.getModel().getSize(); i++) {
-				// JOptionPane.showMessageDialog(null,list.getModel().getElementAt(i));
-				// temp.put((String) list.getModel().getElementAt(i),
-				// splitIndex.get(list.getModel().getElementAt(i).toString()));
 				orderedKeys.add((String) list.getModel().getElementAt(i));
 			}
 
