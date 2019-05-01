@@ -39,11 +39,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import javax.swing.DefaultListModel;
 import javax.swing.DropMode;
@@ -357,6 +359,9 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
             Integer j = freqMap.get(i); 
             freqMap.put(i, (j == null) ? 1 : j + 1); 
         } 
+		
+		//order the map by value
+		freqMap = freqMap.entrySet().stream().sorted(Collections.reverseOrder(Map.Entry.comparingByValue())).collect( Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2,LinkedHashMap::new));
 		
 		for (Map.Entry<String, Integer> val : freqMap.entrySet()) { 
 			
