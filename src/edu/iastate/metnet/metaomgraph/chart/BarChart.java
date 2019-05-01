@@ -160,6 +160,8 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 	private JButton boxPlotOptions;
 	private JToggleButton toggleLegend;
 	private boolean legendFlag = true;
+	//if number of items in legend is more than this then turn legend off
+	private int maxLegend = 30; 
 
 	// bottom toolbar
 	private JButton btnNewButton_1;
@@ -313,8 +315,12 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 				dataset, PlotOrientation.VERTICAL, true, true, false);
 		myChart.getCategoryPlot().setBackgroundPaint(MetaOmGraph.getPlotBackgroundColor());
 		myChart.setBackgroundPaint(MetaOmGraph.getChartBackgroundColor());
+		//save legend
 		myLegend = myChart.getLegend();
-		setLegendVisible(legendFlag);
+		//if legene flag is off remove legend
+		if(!legendFlag) {
+			myChart.removeLegend();
+		}
 		CategoryPlot cplot = (CategoryPlot) myChart.getPlot();
 		BarRenderer renderer = (BarRenderer) cplot.getRenderer();
 
@@ -354,7 +360,7 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		freqMap = freqMap.entrySet().stream().sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
 		
-		if(freqMap.size()>20) {
+		if(freqMap.size()> maxLegend) {
 			legendFlag=false;
 			//setLegendVisible(legendFlag);
 		}
@@ -428,14 +434,17 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		if ("splitDataset".equals(e.getActionCommand())) {
 
 			// show feature or sample metadata columns based on the plotType
-			
+			String[] fields=null;
 			if(plotType==1) {
 				//show feature metadata columns
+				fields=myProject.getInfoColumnNames();
 			}else if(plotType==2) {
-				//show sample metadata columns				
+				//show sample metadata columns			
+				fields=myProject.getMetadataHybrid().getMetadataHeaders();
 			}
 			
-			String[] fields = MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataHeaders();
+			
+			fields = MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataHeaders();
 			String[] fields2 = new String[fields.length + 3];
 			fields2[0] = "Reset";
 			int selectedInd = 0;

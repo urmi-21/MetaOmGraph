@@ -50,6 +50,7 @@ import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
 import edu.iastate.metnet.metaomgraph.TableSorter;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
+import edu.iastate.metnet.metaomgraph.chart.BarChart;
 import edu.iastate.metnet.metaomgraph.chart.BoxPlot;
 import edu.iastate.metnet.metaomgraph.chart.MetaOmChartPanel;
 import edu.iastate.metnet.metaomgraph.chart.PlotRunsasSeries;
@@ -270,7 +271,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 			}
 		});
 		mnAnalyze.add(mntmPearsonCorrelation);
-		
+
 		JMenuItem mntmSpearmanCorrelation = new JMenuItem("Spearman Correlation");
 		mntmSpearmanCorrelation.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -328,7 +329,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 						return null;
 					}
 				}.start();
-			
+
 			}
 		});
 		mnAnalyze.add(mntmSpearmanCorrelation);
@@ -339,40 +340,26 @@ public class MetadataTableDisplayPanel extends JPanel {
 		JMenu mnPlot = new JMenu("Plot");
 		mnView_1.add(mnPlot);
 
-		JMenuItem mntmAsSeries = new JMenuItem("As series");
-		mntmAsSeries.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				new AnimatedSwingWorker("Working...", true) {
-					@Override
-					public Object construct() {
-						EventQueue.invokeLater(new Runnable() {
-							public void run() {
-								// get data for all selceted cols
-								try {
-									/**
-									 * get all the row data for each col map colnum to data array
-									 */
-									HashMap<Integer, double[]> databyCols = getDataForSelectedDataCols();
-									if (databyCols == null) {
-										return;
-									}
-									PlotRunsasSeries obj = new PlotRunsasSeries("runsPlot", databyCols, 2);
-									obj.createPlot();
-								} catch (IOException e1) {
-									// TODO Auto-generated catch block
-									e1.printStackTrace();
-								}
-							}
-						});
-						return null;
-					}
-				}.start();
+		JMenu mnSelectedRows = new JMenu("Selected Rows");
+		mnPlot.add(mnSelectedRows);
 
-			}
-		});
-		mnPlot.add(mntmAsSeries);
+		JMenuItem mntmAsSeries = new JMenuItem("Line Chart");
+		mnSelectedRows.add(mntmAsSeries);
 
 		JMenuItem mntmBoxPlot = new JMenuItem("Box plot");
+		mnSelectedRows.add(mntmBoxPlot);
+
+		JMenu mnColumns = new JMenu("Columns");
+		mnPlot.add(mnColumns);
+
+		JMenuItem mntmBarChart = new JMenuItem("Bar Chart");
+		mntmBarChart.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				plotBarChart(selectColumn());
+				return;
+			}
+		});
+		mnColumns.add(mntmBarChart);
 		mntmBoxPlot.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				new AnimatedSwingWorker("Working...", true) {
@@ -429,7 +416,36 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 			}
 		});
-		mnPlot.add(mntmBoxPlot);
+		mntmAsSeries.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				new AnimatedSwingWorker("Working...", true) {
+					@Override
+					public Object construct() {
+						EventQueue.invokeLater(new Runnable() {
+							public void run() {
+								// get data for all selceted cols
+								try {
+									/**
+									 * get all the row data for each col map colnum to data array
+									 */
+									HashMap<Integer, double[]> databyCols = getDataForSelectedDataCols();
+									if (databyCols == null) {
+										return;
+									}
+									PlotRunsasSeries obj = new PlotRunsasSeries("runsPlot", databyCols, 2);
+									obj.createPlot();
+								} catch (IOException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+							}
+						});
+						return null;
+					}
+				}.start();
+
+			}
+		});
 
 		JMenuItem mntmSwitchToTree_1 = new JMenuItem("Switch to tree");
 		mntmSwitchToTree_1.addActionListener(new ActionListener() {
@@ -1120,7 +1136,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 				}
 
-				// add sorter 
+				// add sorter
 				TableRowSorter sorter = new TableRowSorter(tablemodel) {
 					@Override
 					public void toggleSortOrder(int column) {
@@ -1554,30 +1570,21 @@ public class MetadataTableDisplayPanel extends JPanel {
 		}
 	}
 
-/*	public class AlphanumericComparator implements Comparator {
-		public AlphanumericComparator() {
-		}
-
-		public int compare(Object o1, Object o2) {
-			String s1 = o1.toString();
-			String s2 = o2.toString();
-			final Double num1 = getDouble(s1);
-			final Double num2 = getDouble(s2);
-			if (num1 != null && num2 != null) {
-				return num1.compareTo(num2);
-			}
-			return s1.compareTo(s2);
-
-		}
-
-		private Double getDouble(String number) {
-			try {
-				return Double.parseDouble(number);
-			} catch (NumberFormatException e) {
-				return null;
-			}
-		}
-	}*/
+	/*
+	 * public class AlphanumericComparator implements Comparator { public
+	 * AlphanumericComparator() { }
+	 * 
+	 * public int compare(Object o1, Object o2) { String s1 = o1.toString(); String
+	 * s2 = o2.toString(); final Double num1 = getDouble(s1); final Double num2 =
+	 * getDouble(s2); if (num1 != null && num2 != null) { return
+	 * num1.compareTo(num2); } return s1.compareTo(s2);
+	 * 
+	 * }
+	 * 
+	 * private Double getDouble(String number) { try { return
+	 * Double.parseDouble(number); } catch (NumberFormatException e) { return null;
+	 * } } }
+	 */
 
 	/**
 	 * Search a datacol in table and select it. used to switch from tree.
@@ -1724,5 +1731,58 @@ public class MetadataTableDisplayPanel extends JPanel {
 		toHighlight.put(0, null);
 		highlightedRows = null;
 		table.repaint();
+	}
+
+	public String selectColumn() {
+
+		String[] items = obj.getHeaders();
+		String col_val = (String) JOptionPane.showInputDialog(null, "Choose the column:\n", "Please choose",
+				JOptionPane.PLAIN_MESSAGE, null, items, items[0]);
+
+		return col_val;
+	}
+
+	/**
+	 * get data under a column in metadata display table
+	 * 
+	 * @param col
+	 * @return
+	 */
+	List<String> getSampleMetaData(String column) {
+		List<String> result = new ArrayList<>();
+		// add all values under the colName column
+		for (int r = 0; r < table.getRowCount(); r++) {
+			String thisVal = (String) table.getModel().getValueAt(r, table.getColumn(column).getModelIndex());
+			if (thisVal != null) {
+				result.add(thisVal);
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * Plot frequency barchart with selected columns
+	 * 
+	 * @param colValue
+	 */
+	public void plotBarChart(String colValue) {
+
+		// gert data for the selected columns
+		List<String> chartData = getSampleMetaData(colValue);
+		// add barchart
+		// ArrayList<String> list = new ArrayList<String>();
+		// list.add("Geeks");
+		// list.add("for");
+		// list.add("Geeks");
+		BarChart f2 = new BarChart(MetaOmGraph.getActiveProject(), colValue, chartData, 2);
+		MetaOmGraph.getDesktop().add(f2);
+		f2.setDefaultCloseOperation(2);
+		f2.setClosable(true);
+		f2.setResizable(true);
+		f2.pack();
+		f2.setSize(1000, 700);
+		f2.setVisible(true);
+		f2.toFront();
 	}
 }
