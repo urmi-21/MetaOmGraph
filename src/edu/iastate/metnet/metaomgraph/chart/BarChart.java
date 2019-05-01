@@ -28,6 +28,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.RectangularShape;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -86,9 +87,13 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.Outlier;
 import org.jfree.chart.renderer.OutlierList;
 import org.jfree.chart.renderer.OutlierListCollection;
+import org.jfree.chart.renderer.category.BarPainter;
+import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.category.BoxAndWhiskerRenderer;
 import org.jfree.chart.renderer.category.CategoryItemRendererState;
+import org.jfree.chart.renderer.category.StandardBarPainter;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.statistics.BoxAndWhiskerCategoryDataset;
@@ -283,6 +288,13 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		myChart.getCategoryPlot().setBackgroundPaint(MetaOmGraph.getPlotBackgroundColor());
 		myChart.setBackgroundPaint(MetaOmGraph.getChartBackgroundColor());
 
+		CategoryPlot cplot = (CategoryPlot) myChart.getPlot();
+		BarRenderer renderer = (BarRenderer) cplot.getRenderer();
+		
+		//remove shadows from bar chart
+		renderer.setBarPainter(new StandardBarPainter());
+		
+
 		MyChartPanel chartPanel = new MyChartPanel(myChart, Toolkit.getDefaultToolkit().getScreenSize().width,
 				Toolkit.getDefaultToolkit().getScreenSize().height, 0, 0,
 				Toolkit.getDefaultToolkit().getScreenSize().width, Toolkit.getDefaultToolkit().getScreenSize().height,
@@ -311,9 +323,9 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		 */
 
 		for (int i = 0; i < 1; i++) {
-			for (int j = 0; j < 100; j++) {
+			for (int j = 0; j < 50; j++) {
 				dataset.addValue(Math.random() * 10, String.valueOf(j), String.valueOf(i));
-				//dataset.addValue(Math.random() * 10, String.valueOf(j), "2015");
+				// dataset.addValue(Math.random() * 10, String.valueOf(j), "2015");
 			}
 		}
 
@@ -716,6 +728,14 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 
 		}
 
+	}
+
+	public static BarRenderer getBoxAndWhiskerRenderer() {
+
+		BarRenderer renderer = new BarRenderer() {
+		};
+
+		return renderer;
 	}
 
 }
