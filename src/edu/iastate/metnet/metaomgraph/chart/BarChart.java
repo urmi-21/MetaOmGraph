@@ -314,6 +314,7 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		myChart.getCategoryPlot().setBackgroundPaint(MetaOmGraph.getPlotBackgroundColor());
 		myChart.setBackgroundPaint(MetaOmGraph.getChartBackgroundColor());
 		myLegend = myChart.getLegend();
+		setLegendVisible(legendFlag);
 		CategoryPlot cplot = (CategoryPlot) myChart.getPlot();
 		BarRenderer renderer = (BarRenderer) cplot.getRenderer();
 
@@ -352,6 +353,11 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		// order the hashmap by value
 		freqMap = freqMap.entrySet().stream().sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
+		
+		if(freqMap.size()>20) {
+			legendFlag=false;
+			//setLegendVisible(legendFlag);
+		}
 
 		for (Map.Entry<String, Integer> val : freqMap.entrySet()) {
 
@@ -421,11 +427,14 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 
 		if ("splitDataset".equals(e.getActionCommand())) {
 
-			// show metadata categories
-			if (MetaOmGraph.getActiveProject().getMetadataHybrid() == null) {
-				JOptionPane.showMessageDialog(this, "No metadata found.");
-				return;
+			// show feature or sample metadata columns based on the plotType
+			
+			if(plotType==1) {
+				//show feature metadata columns
+			}else if(plotType==2) {
+				//show sample metadata columns				
 			}
+			
 			String[] fields = MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataHeaders();
 			String[] fields2 = new String[fields.length + 3];
 			fields2[0] = "Reset";
