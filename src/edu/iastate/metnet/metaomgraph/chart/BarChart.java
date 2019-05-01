@@ -359,10 +359,8 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 				String rowKey = (String) item.getRowKey();
 				String value = item.getToolTipText().split("=")[1];
 
-				JOptionPane.showMessageDialog(null,
-						"rk:" + rowKey + " ck:" + colKey + " " + item.getToolTipText() + " val:" + value);
+				//JOptionPane.showMessageDialog(null,"rk:" + rowKey + " ck:" + colKey + " " + item.getToolTipText() + " val:" + value);
 				// create tooltip
-				
 				return createTooltipTable(rowKey,colKey,value);
 			}
 
