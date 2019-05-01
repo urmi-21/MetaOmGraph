@@ -108,7 +108,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	private JMenuItem plotBoxRowItem;
 	private JMenuItem plotBoxColItem;
 	private JMenuItem plotHistogramItem;
+	
+	//urmi plot oclumns
+	private JMenu selectedColsMenu;
 	private JMenuItem plotCorrHistItem;
+	private JMenuItem plotBarChartItem;
 	// urmi
 	private JMenuItem plotHeatMapItem;
 	private JMenuItem runOtherScript;
@@ -282,11 +286,20 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		plotPopupMenu.add(plotFilterItem);
 		plotPopupMenu.add(plotListItem);
 
+		selectedColsMenu = new JMenu("Columns");
 		plotCorrHistItem = new JMenuItem("Correlation Histogram");
 		plotCorrHistItem.setActionCommand("corrHist");
 		plotCorrHistItem.addActionListener(this);
+		selectedColsMenu.add(plotCorrHistItem);
+		
+		plotBarChartItem= new JMenuItem("Bar Chart");
+		plotBarChartItem.setActionCommand("barchart");
+		plotBarChartItem.addActionListener(this);
+		selectedColsMenu.add(plotBarChartItem);
+		
 		plotPopupMenu.addSeparator();
-		plotPopupMenu.add(plotCorrHistItem);
+		plotPopupMenu.add(selectedColsMenu);
+		
 
 		plotButton.setMenu(plotPopupMenu);
 		plotButton.addFocusListener(new FocusAdapter() {
