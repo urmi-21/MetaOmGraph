@@ -455,15 +455,14 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				// JOptionPane.showMessageDialog(null, entity);
 				if (!(entity instanceof CategoryItemEntity)) {
 					// JOptionPane.showMessageDialog(null, "null");
-					return "null";
-					// return null;
+					return null;
 				}
 				CategoryItemEntity item = (CategoryItemEntity) entity;
 				String colKey = (String) item.getColumnKey();
 				String rowKey = (String) item.getRowKey();
 				String value = item.getToolTipText();
 
-				JOptionPane.showMessageDialog(null,"rk:" + rowKey + " ck:" + colKey + " " + item.getToolTipText() + " val:" + value);
+				//JOptionPane.showMessageDialog(null,"rk:" + rowKey + " ck:" + colKey + " " + item.getToolTipText() + " val:" + value);
 				// create tooltip
 				return createTooltipTable();
 			}

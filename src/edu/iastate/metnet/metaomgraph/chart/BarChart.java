@@ -315,6 +315,12 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 				"", // Category axis
 				"Count", // Value axis
 				dataset, PlotOrientation.VERTICAL, true, true, false);
+		
+		/*myChart = ChartFactory.createStackedBarChart("", // Chart Title
+				"", // Category axis
+				"Count", // Value axis
+				dataset, PlotOrientation.VERTICAL, true, true, false);*/
+		
 		myChart.getCategoryPlot().setBackgroundPaint(MetaOmGraph.getPlotBackgroundColor());
 		myChart.setBackgroundPaint(MetaOmGraph.getChartBackgroundColor());
 		// save legend
@@ -327,6 +333,7 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		myRenderer = (BarRenderer) cplot.getRenderer();
 		// remove shadows from bar chart
 		myRenderer.setBarPainter(new StandardBarPainter());
+		
 
 		/*
 		 * myRenderer.setDefaultToolTipGenerator(new StandardCategoryToolTipGenerator()
