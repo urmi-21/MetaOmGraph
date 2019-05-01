@@ -108,8 +108,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	private JMenuItem plotBoxRowItem;
 	private JMenuItem plotBoxColItem;
 	private JMenuItem plotHistogramItem;
-	
-	//urmi plot oclumns
+
+	// urmi plot oclumns
 	private JMenu selectedColsMenu;
 	private JMenuItem plotCorrHistItem;
 	private JMenuItem plotBarChartItem;
@@ -291,15 +291,14 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		plotCorrHistItem.setActionCommand("corrHist");
 		plotCorrHistItem.addActionListener(this);
 		selectedColsMenu.add(plotCorrHistItem);
-		
-		plotBarChartItem= new JMenuItem("Bar Chart");
+
+		plotBarChartItem = new JMenuItem("Bar Chart");
 		plotBarChartItem.setActionCommand("barchart");
 		plotBarChartItem.addActionListener(this);
 		selectedColsMenu.add(plotBarChartItem);
-		
+
 		plotPopupMenu.addSeparator();
 		plotPopupMenu.add(selectedColsMenu);
-		
 
 		plotButton.setMenu(plotPopupMenu);
 		plotButton.addFocusListener(new FocusAdapter() {
@@ -1060,21 +1059,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					f.setVisible(true);
 					f.toFront();
 
-					// add barchart
-					ArrayList<String> list = new ArrayList<String>(); 
-			        list.add("Geeks"); 
-			        list.add("for"); 
-			        list.add("Geeks"); 
-					BarChart f2 = new BarChart(myProject,"samp",list,1);
-					MetaOmGraph.getDesktop().add(f2);
-					f2.setDefaultCloseOperation(2);
-					f2.setClosable(true);
-					f2.setResizable(true);
-					f2.pack();
-					f2.setSize(1000, 700);
-					f2.setVisible(true);
-					f2.toFront();
-
 				} catch (Exception e) {
 					JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
 							JOptionPane.ERROR_MESSAGE);
@@ -1367,6 +1351,12 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 			plotCorrHist(selectCorrColumn());
 			return;
+		}
+
+		if ("barchart".equals(e.getActionCommand())) {
+			plotBarChart(selectFeatureColumn());
+			return;
+
 		}
 		if (GRAPH_SELECTED_COMMAND.equals(e.getActionCommand())) {
 			graphSelectedRows();
@@ -3871,7 +3861,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	}
 
 	/**
-	 * Choose a correlation column and return that value
+	 * Choose a correlation column and return that column
 	 * 
 	 * @return
 	 */
@@ -3889,6 +3879,29 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			}
 			if (items[i].equals("")) {
 				items[i] = "<unnamed correlation>";
+			}
+		}
+
+		String col_val = (String) JOptionPane.showInputDialog(null, "Choose the column:\n", "Please choose",
+				JOptionPane.PLAIN_MESSAGE, null, items, items[0]);
+
+		return col_val;
+
+	}
+
+	/**
+	 * Choose a feature column and return that column
+	 * 
+	 * @return
+	 */
+	public String selectFeatureColumn() {
+		String[] items = myProject.getInfoColumnNames();
+		for (int i = 0; i < items.length; i++) {
+			if (items[i].length() > 50) {
+				items[i] = items[i].substring(0, 50) + "...";
+			}
+			if (items[i].equals("")) {
+				items[i] = "<unnamed>";
 			}
 		}
 
@@ -3942,6 +3955,28 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			}
 		});
 
+	}
+
+	/**
+	 * Plot frequency barchart with selected columns
+	 * 
+	 * @param colValue
+	 */
+	public void plotBarChart(String colValue) {
+		// add barchart
+		ArrayList<String> list = new ArrayList<String>();
+		list.add("Geeks");
+		list.add("for");
+		list.add("Geeks");
+		BarChart f2 = new BarChart(myProject, "samp", list, 1);
+		MetaOmGraph.getDesktop().add(f2);
+		f2.setDefaultCloseOperation(2);
+		f2.setClosable(true);
+		f2.setResizable(true);
+		f2.pack();
+		f2.setSize(1000, 700);
+		f2.setVisible(true);
+		f2.toFront();
 	}
 
 	private List<Double> getCorrData(String colName) {
