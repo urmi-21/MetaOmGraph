@@ -82,6 +82,7 @@ import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.entity.LegendItemEntity;
 import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.labels.BoxAndWhiskerToolTipGenerator;
+import org.jfree.chart.labels.CategoryToolTipGenerator;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.DefaultDrawingSupplier;
 import org.jfree.chart.plot.DrawingSupplier;
@@ -322,14 +323,51 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 			myChart.removeLegend();
 		}
 		CategoryPlot cplot = (CategoryPlot) myChart.getPlot();
-		 myRenderer = (BarRenderer) cplot.getRenderer();
+		myRenderer = (BarRenderer) cplot.getRenderer();
 		// remove shadows from bar chart
-		 myRenderer.setBarPainter(new StandardBarPainter());
+		myRenderer.setBarPainter(new StandardBarPainter());
+		myRenderer.setDefaultToolTipGenerator(new BoxAndWhiskerToolTipGenerator());
 
 		MyChartPanel chartPanel = new MyChartPanel(myChart, Toolkit.getDefaultToolkit().getScreenSize().width,
 				Toolkit.getDefaultToolkit().getScreenSize().height, 0, 0,
 				Toolkit.getDefaultToolkit().getScreenSize().width, Toolkit.getDefaultToolkit().getScreenSize().height,
-				true, true, true, true, true, true, MyChartPanel.BARCHART);
+				true, true, true, true, true, true, MyChartPanel.BARCHART) {
+
+			@Override
+			public String getToolTipText(MouseEvent event) {
+
+				return "tool";
+			}
+
+			// urmi display tooltip away from point
+			@Override
+			public Point getToolTipLocation(MouseEvent event) {
+				Point thisPoint = event.getPoint();
+				Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+				// int maxWidth=(int) screenSize.getWidth();
+				int maxWidth = getWidth();
+				// define horizontal space between tooltip and point
+				int xMargin = 25;
+
+				int y = thisPoint.y;
+				int newy = 100;
+				/*
+				 * select appropriate y if(y-200<=0) { newy=10; }else { newy=y-200; }
+				 */
+				int x = thisPoint.x;
+				// JOptionPane.showMessageDialog(null, "mw:"+maxWidth+" x:"+x);
+				// if point is far right of scree show tool tip to the left
+				if (maxWidth - x <= 450) {
+					// JOptionPane.showMessageDialog(null, "mw:"+maxWidth+" x:"+x);
+					// return new Point(x-300, 5);
+					// table width is 400
+					return new Point(x - (400 + xMargin), newy);
+				}
+				return new Point(x + xMargin, newy);
+			}
+
+		};
+
 		chartPanel.setPreferredSize(new Dimension(800, 600));
 		chartPanel.addChartMouseListener(this);
 
@@ -643,8 +681,8 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		if (event.getTrigger().getClickCount() == 2) {
 			if (event.getEntity() instanceof LegendItemEntity) {
 				Comparable seriesKey = ((LegendItemEntity) event.getEntity()).getSeriesKey();
-				
-				//seriesNames is a list containing names of each category
+
+				// seriesNames is a list containing names of each category
 				int index = seriesNames.indexOf(seriesKey.toString());
 				changeSeriesColor(index);
 
@@ -670,7 +708,7 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 	}
 
 	/**
-	 * Changes the colour of the Selected series
+	 * Changes the color of the Selected series
 	 * 
 	 * @param series
 	 *            Selected series
