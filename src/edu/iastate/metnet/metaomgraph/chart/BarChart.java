@@ -116,15 +116,24 @@ import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
 import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
+
+/**
+ * Class to plot barcharts. THe data should be categorical e.g., columns of metadata table.
+ * @author mrbai
+ *
+ */
 public class BarChart extends JInternalFrame implements ChartMouseListener, ActionListener {
 
 	// hasmap mapping feature num to expression data or datacol to sample depending
 	// on the box plot
 	// HashMap<Integer, double[]> plotData;
 	// plot type 0 for feature 1 for sample
-	// int plotType;
-	String[] rowNames;
+	private int plotType; //1 for featuremetadata; 2 sample metadata
+	private String[] rowNames;
 	private MetaOmProject myProject;
+	private String dataName;
+	private List<String> dataList;
+	
 	// private String xAxisname;
 	// private ChartToolBar myToolbar;
 	private ChartPanel chartPanel;
@@ -165,7 +174,7 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 	// to keep an order for the dataset
 	List<String> orderedKeys;
 
-	private boolean[] excludedCopy;
+	
 
 	/**
 	 * Launch the application.
@@ -177,12 +186,14 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 	/**
 	 * Create the frame.
 	 */
-	public BarChart(MetaOmProject mp) {
+	public BarChart(MetaOmProject mp,String dataName, List<String> data, int type) {
 
 		// this.plotData = plotData;
 
 		myProject = mp;
-
+		this.plotType=type;
+		this.dataName=dataName;
+		this.dataList=data;		
 		chartPanel = null;
 
 		// JOptionPane.showMessageDialog(null, Arrays.toString(rowNames));
@@ -207,7 +218,7 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		getContentPane().add(scrollPane, BorderLayout.CENTER);
 
 		// create sample plot
-		initdataset = createDataset();
+		initdataset = createDataset(dataList);
 
 		try {
 			chartPanel = makeBarChart(initdataset);
@@ -308,7 +319,7 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 
 	}
 
-	private CategoryDataset createDataset() {
+	private CategoryDataset createDataset2() {
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 		// Population in 2005
 		/*
@@ -328,6 +339,30 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 				// dataset.addValue(Math.random() * 10, String.valueOf(j), "2015");
 			}
 		}
+
+		return dataset;
+	}
+	
+	/**
+	 * Function to prepare categorical data from a list. 
+	 * @param data
+	 * @return
+	 */
+	private CategoryDataset createDataset(List<String> data) {
+		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+		
+		// hashmap to store the frequency of element 
+        Map<String, Integer> freqMap = new HashMap<String, Integer>(); 
+		for (String i : data) { 
+            Integer j = freqMap.get(i); 
+            freqMap.put(i, (j == null) ? 1 : j + 1); 
+        } 
+		
+		for (Map.Entry<String, Integer> val : freqMap.entrySet()) { 
+			
+			dataset.addValue(val.getValue(), val.getKey(), dataName);
+		}
+		
 
 		return dataset;
 	}
@@ -459,19 +494,7 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 						}
 						Integer[] hits = myProject.getMetadataHybrid().search(queries, tsp.matchAll());
 						// remove excluded cols from list
-						// urmi
-						boolean[] excluded = excludedCopy;
-						if (excluded != null) {
-							List<Integer> temp = new ArrayList<>();
-							for (Integer i : hits) {
-								if (!excluded[i]) {
-									temp.add(i);
-								}
-							}
-							hits = new Integer[temp.size()];
-							hits = temp.toArray(hits);
-						}
-
+						
 						int index;
 						for (index = 0; index < hits.length; index++) {
 							result.add(hits[index]);
