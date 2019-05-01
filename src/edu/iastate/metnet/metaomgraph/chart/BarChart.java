@@ -327,17 +327,15 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		myRenderer = (BarRenderer) cplot.getRenderer();
 		// remove shadows from bar chart
 		myRenderer.setBarPainter(new StandardBarPainter());
-		
-		
-		/*myRenderer.setDefaultToolTipGenerator(new StandardCategoryToolTipGenerator() {
-		    @Override
-		    public String generateToolTip(CategoryDataset dataset, int row, int column) {
-		        String s = super.generateToolTip(dataset, row, column);
-		        int b = s.indexOf('(', 1) + 1;
-		        int e = s.indexOf(')');
-		        return s;
-		    }
-		});*/
+
+		/*
+		 * myRenderer.setDefaultToolTipGenerator(new StandardCategoryToolTipGenerator()
+		 * {
+		 * 
+		 * @Override public String generateToolTip(CategoryDataset dataset, int row, int
+		 * column) { String s = super.generateToolTip(dataset, row, column); int b =
+		 * s.indexOf('(', 1) + 1; int e = s.indexOf(')'); return s; } });
+		 */
 
 		MyChartPanel chartPanel = new MyChartPanel(myChart, Toolkit.getDefaultToolkit().getScreenSize().width,
 				Toolkit.getDefaultToolkit().getScreenSize().height, 0, 0,
@@ -354,22 +352,19 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 				if (!(entity instanceof CategoryItemEntity)) {
 					// JOptionPane.showMessageDialog(null, "null");
 					return "null";
-					//return null;
+					// return null;
 				}
 				CategoryItemEntity item = (CategoryItemEntity) entity;
-				String ck=(String) item.getColumnKey();
-				String rk=(String) item.getRowKey();
+				String colKey = (String) item.getColumnKey();
+				String rowKey = (String) item.getRowKey();
+				String value = item.getToolTipText().split("=")[1];
 
+				JOptionPane.showMessageDialog(null,
+						"rk:" + rowKey + " ck:" + colKey + " " + item.getToolTipText() + " val:" + value);
+				// create tooltip
 				
-				
-				
-				JOptionPane.showMessageDialog(null, "rk:"+rk+" ck:"+ck);
-				
-				return "tool";
+				return createTooltipTable(rowKey,colKey,value);
 			}
-
-			
-					
 
 			// urmi display tooltip away from point
 			@Override
@@ -442,6 +437,48 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		}
 
 		return dataset;
+	}
+
+	private String createTooltipTable(String row, String col, String val) {
+		DecimalFormat df = new DecimalFormat("####0.0000");
+		String bgColor = "#" + Integer.toHexString(MetaOmGraph.getTableColor1().getRGB()).substring(2);
+		;
+		String bgColorAlt = "#" + Integer.toHexString(MetaOmGraph.getTableColor2().getRGB()).substring(2);
+		String[] rowColors = { bgColor, bgColorAlt };
+		String text = "<html><head> " + "<style>" + ".scrollit {\n" + "    overflow:scroll;\n" + "    height:100px;\n"
+				+ "}" + "</style></head><body>"
+
+				+ "<div class=\"scrollit\"> <table bgcolor=\"#FFFFFF\" width=\"400\">" + " <tr>\n"
+				+ "            <th>Attribute</th>\n" + "            <th >Value</th>\n" + "        </tr>";
+
+		text += "<tr bgcolor=" + rowColors[1] + ">";
+		text += "<td><font size=-2>" + Utils.wrapText("Value", 100, "<br>") + "</font></td>";
+		text += "<td><font size=-2>" + Utils.wrapText(val, 100, "<br>")
+				+ "</font></td>";
+
+		text += "</tr>";
+		
+		text += "<tr bgcolor=" + rowColors[0] + ">";
+		text += "<td><font size=-2>" + Utils.wrapText("Category", 100, "<br>") + "</font></td>";
+		text += "<td><font size=-2>" + Utils.wrapText(row, 100, "<br>")
+				+ "</font></td>";
+
+		text += "</tr>";
+		
+		text += "<tr bgcolor=" + rowColors[1] + ">";
+		text += "<td><font size=-2>" + Utils.wrapText("Column", 100, "<br>") + "</font></td>";
+		text += "<td><font size=-2>" + Utils.wrapText(col, 100, "<br>")
+				+ "</font></td>";
+
+		text += "</tr>";
+
+		
+
+		text += "</table> </div> </body></html>";
+		// System.out.println(text);
+
+		return text;
+
 	}
 
 	@Override
