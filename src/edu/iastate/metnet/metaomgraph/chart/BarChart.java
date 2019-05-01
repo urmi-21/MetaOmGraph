@@ -61,6 +61,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
 import javax.swing.TransferHandler;
 import javax.swing.text.DefaultFormatterFactory;
@@ -95,6 +96,7 @@ import org.jfree.chart.renderer.category.BoxAndWhiskerRenderer;
 import org.jfree.chart.renderer.category.CategoryItemRendererState;
 import org.jfree.chart.renderer.category.StandardBarPainter;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.title.LegendTitle;
 import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
@@ -118,9 +120,10 @@ import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
 import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
-
 /**
- * Class to plot barcharts. THe data should be categorical e.g., columns of metadata table.
+ * Class to plot barcharts. THe data should be categorical e.g., columns of
+ * metadata table.
+ * 
  * @author mrbai
  *
  */
@@ -130,17 +133,17 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 	// on the box plot
 	// HashMap<Integer, double[]> plotData;
 	// plot type 0 for feature 1 for sample
-	private int plotType; //1 for featuremetadata; 2 sample metadata
+	private int plotType; // 1 for featuremetadata; 2 sample metadata
 	private String[] rowNames;
 	private MetaOmProject myProject;
 	private String dataName;
 	private List<String> dataList;
-	
+
 	// private String xAxisname;
 	// private ChartToolBar myToolbar;
 	private ChartPanel chartPanel;
 	private JFreeChart myChart;
-
+	private LegendTitle myLegend;
 	// private XYLineAndShapeRenderer myRenderer;
 	private BoxAndWhiskerRenderer myRenderer;
 	JScrollPane scrollPane;
@@ -155,6 +158,8 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 	private JButton changePalette;
 	private JButton splitDataset;
 	private JButton boxPlotOptions;
+	private JToggleButton toggleLegend;
+	private boolean legendFlag = true;
 
 	// bottom toolbar
 	private JButton btnNewButton_1;
@@ -176,8 +181,6 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 	// to keep an order for the dataset
 	List<String> orderedKeys;
 
-	
-
 	/**
 	 * Launch the application.
 	 */
@@ -188,14 +191,14 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 	/**
 	 * Create the frame.
 	 */
-	public BarChart(MetaOmProject mp,String dataName, List<String> data, int type) {
+	public BarChart(MetaOmProject mp, String dataName, List<String> data, int type) {
 
 		// this.plotData = plotData;
 
 		myProject = mp;
-		this.plotType=type;
-		this.dataName=dataName;
-		this.dataList=data;		
+		this.plotType = type;
+		this.dataName = dataName;
+		this.dataList = data;
 		chartPanel = null;
 
 		// JOptionPane.showMessageDialog(null, Arrays.toString(rowNames));
@@ -255,6 +258,11 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		defaultZoom.setActionCommand("defaultZoom");
 		defaultZoom.addActionListener(this);
 
+		splitDataset = new JButton(theme.getSort());
+		splitDataset.setToolTipText("Split by categories");
+		splitDataset.setActionCommand("splitDataset");
+		splitDataset.addActionListener(this);
+
 		changePalette = new JButton(theme.getPalette());
 		changePalette.setToolTipText("Color Palette");
 		changePalette.setActionCommand("changePalette");
@@ -268,15 +276,20 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		boxPlotOptions.setActionCommand("options");
 		boxPlotOptions.addActionListener(this);
 
+		toggleLegend = new JToggleButton(theme.getLegend(), legendFlag);
+		toggleLegend.setToolTipText("Show/hide legend");
+		toggleLegend.setActionCommand("legend");
+		toggleLegend.addActionListener(this);
+
 		panel.add(properties);
 		panel.add(save);
 		panel.add(print);
 		// panel.add(zoomIn);
 		// panel.add(zoomOut);
 		panel.add(defaultZoom);
-		/*
-		 * if (plotType == 0) { panel.add(splitDataset); }
-		 */
+
+		panel.add(toggleLegend);
+		panel.add(splitDataset);
 		panel.add(boxPlotOptions);
 		panel.add(changePalette);
 
@@ -294,19 +307,18 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 
 	public ChartPanel makeBarChart(CategoryDataset dataset) throws IOException {
 
-		myChart = ChartFactory.createBarChart("Bar Chart Example ", // Chart Title
-				"Year", // Category axis
-				"Population in Million", // Value axis
+		myChart = ChartFactory.createBarChart("", // Chart Title
+				"", // Category axis
+				"Count", // Value axis
 				dataset, PlotOrientation.VERTICAL, true, true, false);
 		myChart.getCategoryPlot().setBackgroundPaint(MetaOmGraph.getPlotBackgroundColor());
 		myChart.setBackgroundPaint(MetaOmGraph.getChartBackgroundColor());
-
+		myLegend = myChart.getLegend();
 		CategoryPlot cplot = (CategoryPlot) myChart.getPlot();
 		BarRenderer renderer = (BarRenderer) cplot.getRenderer();
-		
-		//remove shadows from bar chart
+
+		// remove shadows from bar chart
 		renderer.setBarPainter(new StandardBarPainter());
-		
 
 		MyChartPanel chartPanel = new MyChartPanel(myChart, Toolkit.getDefaultToolkit().getScreenSize().width,
 				Toolkit.getDefaultToolkit().getScreenSize().height, 0, 0,
@@ -321,53 +333,30 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 
 	}
 
-	private CategoryDataset createDataset2() {
-		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-		// Population in 2005
-		/*
-		 * dataset.addValue(10, "USA", "2005"); dataset.addValue(15, "India", "2005");
-		 * dataset.addValue(20, "China", "2005");
-		 * 
-		 * // Population in 2010 dataset.addValue(15, "USA", "2010");
-		 * dataset.addValue(20, "India", "2010"); dataset.addValue(25, "China", "2010");
-		 * 
-		 * // Population in 2015 dataset.addValue(20, "USA", "2015");
-		 * dataset.addValue(25, "India", "2015"); dataset.addValue(30, "China", "2015");
-		 */
-
-		for (int i = 0; i < 2; i++) {
-			for (int j = 0; j < 5; j++) {
-				dataset.addValue(5-(Math.random() * 10), String.valueOf(j), String.valueOf(i));
-				// dataset.addValue(Math.random() * 10, String.valueOf(j), "2015");
-			}
-		}
-
-		return dataset;
-	}
-	
 	/**
-	 * Function to prepare categorical data from a list. 
+	 * Function to prepare categorical data from a list.
+	 * 
 	 * @param data
 	 * @return
 	 */
 	private CategoryDataset createDataset(List<String> data) {
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-		
-		// hashmap to store the frequency of element 
-        Map<String, Integer> freqMap = new HashMap<String, Integer>(); 
-		for (String i : data) { 
-            Integer j = freqMap.get(i); 
-            freqMap.put(i, (j == null) ? 1 : j + 1); 
-        } 
-		
-		//order the map by value
-		freqMap = freqMap.entrySet().stream().sorted(Collections.reverseOrder(Map.Entry.comparingByValue())).collect( Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2,LinkedHashMap::new));
-		
-		for (Map.Entry<String, Integer> val : freqMap.entrySet()) { 
-			
+
+		// hashmap to store the frequency of element
+		Map<String, Integer> freqMap = new HashMap<String, Integer>();
+		for (String i : data) {
+			Integer j = freqMap.get(i);
+			freqMap.put(i, (j == null) ? 1 : j + 1);
+		}
+
+		// order the hashmap by value
+		freqMap = freqMap.entrySet().stream().sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
+
+		for (Map.Entry<String, Integer> val : freqMap.entrySet()) {
+
 			dataset.addValue(val.getValue(), val.getKey(), dataName);
 		}
-		
 
 		return dataset;
 	}
@@ -418,6 +407,18 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		if ("options".equals(e.getActionCommand())) {
 			// TODO
 		}
+
+		if ("legend".equals(e.getActionCommand())) {
+			// TODO
+			if (this.legendFlag) {
+				this.legendFlag = false;
+			} else {
+				this.legendFlag = true;
+			}
+
+			setLegendVisible(legendFlag);
+		}
+
 		if ("splitDataset".equals(e.getActionCommand())) {
 
 			// show metadata categories
@@ -499,7 +500,7 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 						}
 						Integer[] hits = myProject.getMetadataHybrid().search(queries, tsp.matchAll());
 						// remove excluded cols from list
-						
+
 						int index;
 						for (index = 0; index < hits.length; index++) {
 							result.add(hits[index]);
@@ -537,6 +538,21 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 			return;
 		}
 
+	}
+
+	/**
+	 * Sets the legend visible
+	 * 
+	 * @param legendVisible
+	 *            <code>boolean</code> variable which adds the legend when true else
+	 *            removes it
+	 */
+	public void setLegendVisible(boolean legendVisible) {
+		if (legendVisible) {
+			myChart.addLegend(myLegend);
+		} else {
+			myChart.removeLegend();
+		}
 	}
 
 	/**
