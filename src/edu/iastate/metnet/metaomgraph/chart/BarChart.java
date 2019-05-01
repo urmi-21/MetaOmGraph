@@ -351,8 +351,8 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 				// JOptionPane.showMessageDialog(null, entity);
 				if (!(entity instanceof CategoryItemEntity)) {
 					// JOptionPane.showMessageDialog(null, "null");
-					return "null";
-					// return null;
+					//return "null";
+					return null;
 				}
 				CategoryItemEntity item = (CategoryItemEntity) entity;
 				String colKey = (String) item.getColumnKey();
