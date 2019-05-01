@@ -1061,7 +1061,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					f.toFront();
 
 					// add barchart
-					BarChart f2 = new BarChart(myProject);
+					ArrayList<String> list = new ArrayList<String>(); 
+			        list.add("Geeks"); 
+			        list.add("for"); 
+			        list.add("Geeks"); 
+					BarChart f2 = new BarChart(myProject,"samp",list,1);
 					MetaOmGraph.getDesktop().add(f2);
 					f2.setDefaultCloseOperation(2);
 					f2.setClosable(true);
