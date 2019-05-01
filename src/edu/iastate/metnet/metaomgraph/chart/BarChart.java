@@ -669,7 +669,7 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		save.removeActionListener(chartPanel);
 		this.chartPanel = null;
 		try {
-			initdataset = createDataset();
+			initdataset = createDataset(this.dataList);
 			this.chartPanel = makeBarChart(initdataset);
 			scrollPane.setViewportView(chartPanel);
 			properties.addActionListener(chartPanel);
