@@ -462,9 +462,10 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				String rowKey = (String) item.getRowKey();
 				String value = item.getToolTipText();
 
-				//JOptionPane.showMessageDialog(null,"rk:" + rowKey + " ck:" + colKey + " " + item.getToolTipText() + " val:" + value);
+				JOptionPane.showMessageDialog(null,"rk:" + rowKey + " ck:" + colKey + " " + item.getToolTipText() + " val:" + value);
+				String []temp=
 				// create tooltip
-				return createTooltipTable();
+				return createTooltipTable(colKey);
 			}
 
 			
@@ -504,11 +505,84 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 
 	}
 
-	
-	private String createTooltipTable() {
-		// TODO Auto-generated method stub
-		return "tool";
+	/**
+	 * create tooltip for boxplot
+	 * @param featureName
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	private String createTooltipTable(String featureName, double mean, double median,double min, double max, double q1, double q3) {
+		DecimalFormat df = new DecimalFormat("####0.0000");
+		String bgColor = "#" + Integer.toHexString(MetaOmGraph.getTableColor1().getRGB()).substring(2);
+		;
+		String bgColorAlt = "#" + Integer.toHexString(MetaOmGraph.getTableColor2().getRGB()).substring(2);
+		String[] rowColors = { bgColor, bgColorAlt };
+		String text = "<html><head> " + "<style>" + ".scrollit {\n" + "    overflow:scroll;\n" + "    height:100px;\n"
+				+ "}" + "</style></head><body>"
+
+				+ "<div class=\"scrollit\"> <table bgcolor=\"#FFFFFF\" width=\"400\">" + " <tr>\n"
+				+ "            <th>Attribute</th>\n" + "            <th >Value</th>\n" + "        </tr>";
+
+		text += "<tr bgcolor=" + rowColors[1] + ">";
+		text += "<td><font size=-2>" + Utils.wrapText("Median", 100, "<br>") + "</font></td>";
+		text += "<td><font size=-2>" + Utils.wrapText(df.format(mean), 100, "<br>")
+				+ "</font></td>";
+		text += "</tr>";
+		
+		
+		
+		
+		// get gene metadata in String [][] format
+		String[] infoCols = myProject.getInfoColumnNames();
+		Object[] featureRow = myProject.getRowName(myProject.getRowIndexbyName(featureName, true));
+
+		String[][] tableData = new String[infoCols.length][2];
+		for (int i = 0; i < infoCols.length; i++) {
+			tableData[i][0] = infoCols[i];
+			tableData[i][1] = String.valueOf(featureRow[i]);
+		}
+
+		int maxrowsinMD = 40;
+		int maxStringLen = 500;
+
+		int colorIndex = 0;
+		for (int i = 0; i < tableData.length; i++) {
+			if (i == maxrowsinMD) {
+				text += "<tr bgcolor=" + rowColors[colorIndex] + ">";
+				text += "<td><font size=-2>" + "..." + "</font></td>";
+				text += "<td><font size=-2>" + "..." + "</font></td>";
+				text += "</tr>";
+				break;
+			}
+			String thisAtt = tableData[i][0];
+			String thisData = tableData[i][1];
+			if (thisData.length() > maxStringLen) {
+				thisData = thisData.substring(0, maxStringLen) + "...";
+			}
+
+			text += "<tr bgcolor=" + rowColors[colorIndex] + ">";
+			text += "<td><font size=-2>" + Utils.wrapText(thisAtt.trim(), 100, "<br>") + "</font></td>";
+			text += "<td><font size=-2>" + Utils.wrapText(thisData.trim(), 100, "<br>") + "</font></td>";
+
+			text += "</tr>";
+			colorIndex = (colorIndex + 1) % rowColors.length;
+
+		}
+
+		if (tableData.length == 0 || tableData == null) {
+			text += "<tr bgcolor=" + rowColors[colorIndex] + ">";
+			text += "<td><font size=-2>" + "There is no metadata" + "<br>" + "</font></td>";
+			text += "<td><font size=-2>" + "" + "<br>" + "</font></td>";
+			text += "</tr>";
+		}
+
+		text += "</table> </div> </body></html>";
+
+		return text;
+
 	}
+
 	
 	private DefaultBoxAndWhiskerCategoryDataset createDataset() {
 		DefaultBoxAndWhiskerCategoryDataset dataset = new DefaultBoxAndWhiskerCategoryDataset();
