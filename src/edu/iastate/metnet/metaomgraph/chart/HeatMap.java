@@ -42,13 +42,19 @@ package edu.iastate.metnet.metaomgraph.chart;
  */
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GradientPaint;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.event.MouseEvent;
 import java.util.Random;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.entity.CategoryItemEntity;
+import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.data.general.HeatMapUtils;
@@ -71,13 +77,13 @@ public class HeatMap extends ApplicationFrame {
     public HeatMap(final String title) {
         super(title);
         
-        WaferMapDataset dataset = new WaferMapDataset(20,20, 1);
+        WaferMapDataset dataset = new WaferMapDataset(200,200, 1);
        // Random data for wafer dataset
         Random random = new Random();
         
-        for (int i = 1; i < 10; i++) {
-           for (int j = 1; j < 10; j++) {
-              dataset.addValue(random.nextInt(3)+1, i, j);
+        for (int i = 1; i < 200; i++) {
+           for (int j = 1; j < 200; j++) {
+              dataset.addValue(random.nextInt(10)+1, i, j);
            }
         }
         final JFreeChart chart = ChartFactory.createWaferMapChart(
@@ -86,14 +92,63 @@ public class HeatMap extends ApplicationFrame {
             PlotOrientation.VERTICAL, // vertical = notchdown
             true,                     // legend           
             true,                    // tooltips
-            false
+            true
         ); 
         
        // HeatMapUtils.createHeatMapImage(dataset, paintScale)
         
-       
         
-        final ChartPanel chartPanel = new ChartPanel(chart);
+        final ChartPanel chartPanel = new ChartPanel(chart) {
+        	
+        	@Override
+			public String getToolTipText(MouseEvent event) {
+
+				ChartEntity entity = getChartRenderingInfo().getEntityCollection().getEntity(event.getPoint().getX(),
+						event.getPoint().getY());
+				// JOptionPane.showMessageDialog(null, entity);
+				if (!(entity instanceof  CategoryItemEntity)) {
+					// JOptionPane.showMessageDialog(null, "null");
+					return "null";
+					//return null;
+				}
+				CategoryItemEntity item = (CategoryItemEntity) entity;
+				String colKey = (String) item.getColumnKey();
+				String rowKey = (String) item.getRowKey();
+				String value = item.getToolTipText().split("=")[1];
+
+				//JOptionPane.showMessageDialog(null,"rk:" + rowKey + " ck:" + colKey + " " + item.getToolTipText() + " val:" + value);
+				// create tooltip
+				return "toool";
+			}
+
+			// urmi display tooltip away from point
+			@Override
+			public Point getToolTipLocation(MouseEvent event) {
+				Point thisPoint = event.getPoint();
+				Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+				// int maxWidth=(int) screenSize.getWidth();
+				int maxWidth = getWidth();
+				// define horizontal space between tooltip and point
+				int xMargin = 25;
+
+				int y = thisPoint.y;
+				int newy = 100;
+				/*
+				 * select appropriate y if(y-200<=0) { newy=10; }else { newy=y-200; }
+				 */
+				int x = thisPoint.x;
+				// JOptionPane.showMessageDialog(null, "mw:"+maxWidth+" x:"+x);
+				// if point is far right of scree show tool tip to the left
+				if (maxWidth - x <= 450) {
+					// JOptionPane.showMessageDialog(null, "mw:"+maxWidth+" x:"+x);
+					// return new Point(x-300, 5);
+					// table width is 400
+					return new Point(x - (400 + xMargin), newy);
+				}
+				return new Point(x + xMargin, newy);
+			}
+        	
+        };
         chartPanel.setPreferredSize(new java.awt.Dimension(500, 400));
         setContentPane(chartPanel);
     }
