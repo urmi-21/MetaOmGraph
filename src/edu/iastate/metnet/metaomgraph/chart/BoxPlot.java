@@ -463,9 +463,11 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				String value = item.getToolTipText();
 
 				JOptionPane.showMessageDialog(null,"rk:" + rowKey + " ck:" + colKey + " " + item.getToolTipText() + " val:" + value);
-				String []temp=
+				String []temp= item.getToolTipText().split(" ");
+				//String mean=temp[1].split(":")[1].replaceAll("\\s+","");
+				JOptionPane.showMessageDialog(null, "temp: "+Arrays.toString(temp));
 				// create tooltip
-				return createTooltipTable(colKey);
+				return createTooltipTable(colKey,0,0,0,0,0,0);
 			}
 
 			
