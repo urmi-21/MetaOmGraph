@@ -460,14 +460,17 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				CategoryItemEntity item = (CategoryItemEntity) entity;
 				String colKey = (String) item.getColumnKey();
 				String rowKey = (String) item.getRowKey();
-				String value = item.getToolTipText();
-
-				JOptionPane.showMessageDialog(null,"rk:" + rowKey + " ck:" + colKey + " " + item.getToolTipText() + " val:" + value);
 				String []temp= item.getToolTipText().split(" ");
 				//String mean=temp[1].split(":")[1].replaceAll("\\s+","");
-				JOptionPane.showMessageDialog(null, "temp: "+Arrays.toString(temp));
+				String mean=temp[3].replaceAll("\\s+","");
+				String median=temp[5].replaceAll("\\s+","");
+				String min=temp[7].replaceAll("\\s+","");
+				String max=temp[9].replaceAll("\\s+","");
+				String q1=temp[11].replaceAll("\\s+","");
+				String q3=temp[13].replaceAll("\\s+","");
+				
 				// create tooltip
-				return createTooltipTable(colKey,0,0,0,0,0,0);
+				return createTooltipTable(colKey,rowKey,mean,median,min,max,q1,q3);
 			}
 
 			
@@ -514,7 +517,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	 * @param y
 	 * @return
 	 */
-	private String createTooltipTable(String featureName, double mean, double median,double min, double max, double q1, double q3) {
+	private String createTooltipTable(String featureName, String series, String mean, String median,String min, String max, String q1, String q3) {
 		DecimalFormat df = new DecimalFormat("####0.0000");
 		String bgColor = "#" + Integer.toHexString(MetaOmGraph.getTableColor1().getRGB()).substring(2);
 		;
@@ -528,11 +531,45 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 
 		text += "<tr bgcolor=" + rowColors[1] + ">";
 		text += "<td><font size=-2>" + Utils.wrapText("Median", 100, "<br>") + "</font></td>";
-		text += "<td><font size=-2>" + Utils.wrapText(df.format(mean), 100, "<br>")
+		text += "<td><font size=-2>" + Utils.wrapText(median, 100, "<br>")
 				+ "</font></td>";
 		text += "</tr>";
 		
+		text += "<tr bgcolor=" + rowColors[0] + ">";
+		text += "<td><font size=-2>" + Utils.wrapText("Mean", 100, "<br>") + "</font></td>";
+		text += "<td><font size=-2>" + Utils.wrapText(mean, 100, "<br>")
+				+ "</font></td>";
+		text += "</tr>";
 		
+		text += "<tr bgcolor=" + rowColors[1] + ">";
+		text += "<td><font size=-2>" + Utils.wrapText("Min", 100, "<br>") + "</font></td>";
+		text += "<td><font size=-2>" + Utils.wrapText(min, 100, "<br>")
+				+ "</font></td>";
+		text += "</tr>";
+		
+		text += "<tr bgcolor=" + rowColors[0] + ">";
+		text += "<td><font size=-2>" + Utils.wrapText("Max", 100, "<br>") + "</font></td>";
+		text += "<td><font size=-2>" + Utils.wrapText(max, 100, "<br>")
+				+ "</font></td>";
+		text += "</tr>";
+		
+		text += "<tr bgcolor=" + rowColors[1] + ">";
+		text += "<td><font size=-2>" + Utils.wrapText("Q1", 100, "<br>") + "</font></td>";
+		text += "<td><font size=-2>" + Utils.wrapText(q1, 100, "<br>")
+				+ "</font></td>";
+		text += "</tr>";
+		
+		text += "<tr bgcolor=" + rowColors[0] + ">";
+		text += "<td><font size=-2>" + Utils.wrapText("Q3", 100, "<br>") + "</font></td>";
+		text += "<td><font size=-2>" + Utils.wrapText(q3, 100, "<br>")
+				+ "</font></td>";
+		text += "</tr>";
+		
+		text += "<tr bgcolor=" + rowColors[1] + ">";
+		text += "<td><font size=-2>" + Utils.wrapText("Series", 100, "<br>") + "</font></td>";
+		text += "<td><font size=-2>" + Utils.wrapText(series, 100, "<br>")
+				+ "</font></td>";
+		text += "</tr>";
 		
 		
 		// get gene metadata in String [][] format
@@ -942,7 +979,8 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				// changeSeriesColor(((CategoryItemEntity) event.getEntity()).get);
 				//
 				String ck = ((CategoryItemEntity) event.getEntity()).getColumnKey().toString();
-				JOptionPane.showMessageDialog(null, "CLICKED2:" + ck);
+				String rk = ((CategoryItemEntity) event.getEntity()).getRowKey().toString();
+				//JOptionPane.showMessageDialog(null, "CLICKED2:" + ck+" rk:"+rk);
 				return;
 			}
 		}
