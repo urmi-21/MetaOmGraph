@@ -765,7 +765,9 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 				// changeSeriesColor(((CategoryItemEntity) event.getEntity()).get);
 				//
 				String ck = ((CategoryItemEntity) event.getEntity()).getColumnKey().toString();
-				JOptionPane.showMessageDialog(null, "CLICKED2:" + ck);
+				String rk = ((CategoryItemEntity) event.getEntity()).getRowKey().toString();
+				//JOptionPane.showMessageDialog(null, "CLICKED2:" + ck+" rk:"+rk);
+				
 				return;
 			}
 		}
