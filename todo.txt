@@ -156,3 +156,4 @@ take default label axis for all charts
 add filter by expression in main table 
 add spearman corr to samples
 faster filtering of excluded samples while computing DE
+legend font
