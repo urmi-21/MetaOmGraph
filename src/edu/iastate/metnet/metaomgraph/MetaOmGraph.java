@@ -1182,8 +1182,8 @@ public class MetaOmGraph implements ActionListener {
 		infoButtonMenu.setToolTipText("Visit an external website for more info on the selected genes");
 		infoButtonMenu.add(geneCardsItem);
 		infoButtonMenu.add(ensemblItem);
-		infoButtonMenu.add(ensemblPItem);
 		infoButtonMenu.add(refseqItem);
+		infoButtonMenu.add(ensemblPItem);
 		infoButtonMenu.add(atgsItem);
 		infoButtonMenu.add(tairItem);
 		infoButtonMenu.add(thaleMineItem);
