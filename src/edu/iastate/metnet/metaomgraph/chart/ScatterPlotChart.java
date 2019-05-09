@@ -266,7 +266,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 
 		spinner = new JSpinner();
 		spinner.setToolTipText("Changes plot point size");
-		spinner.setModel(new SpinnerNumberModel(pointSize, 4.0, 20.0, 1.0));
+		spinner.setModel(new SpinnerNumberModel(pointSize, 1.0, 20.0, 1.0));
 		//set uneditable
 		((JSpinner.DefaultEditor) spinner.getEditor()).getTextField().setEditable(false);
 		panel.add(spinner);
