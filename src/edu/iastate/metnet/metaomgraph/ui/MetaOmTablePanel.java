@@ -3895,16 +3895,48 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	 * @return
 	 */
 	public String selectFeatureColumn() {
+		
+		//don't show correlation column
+		ArrayList<Integer> colList = myProject.getCorrelationColumns();
+		if ((colList == null) || (colList.size() == 0)) {
+			return null;
+		}
+		String[] corrCols = new String[colList.size()];
+		for (int i = 0; i < corrCols.length; i++) {
+			corrCols[i] = myProject.getInfoColumnNames()[colList.get(i).intValue()];
+			if (corrCols[i].length() > 50) {
+				corrCols[i] = corrCols[i].substring(0, 50) + "...";
+			}
+			if (corrCols[i].equals("")) {
+				corrCols[i] = "<unnamed correlation>";
+			}
+		}
+		
+		List<String> corrColsList= Arrays.asList(corrCols);
+		
+		JOptionPane.showMessageDialog(null, corrColsList.toString());
+		
 		String[] items = myProject.getInfoColumnNames();
+		List<String> newItems=new ArrayList<>();
 		for (int i = 0; i < items.length; i++) {
+			
+			if(corrColsList.contains(items[i])) {
+				JOptionPane.showMessageDialog(null, "CB "+items[i]);
+				continue;
+			}
+			
 			if (items[i].length() > 50) {
 				items[i] = items[i].substring(0, 50) + "...";
+				newItems.add(items[i]);
+				
 			}
 			if (items[i].equals("")) {
 				items[i] = "<unnamed>";
+				newItems.add(items[i]);
 			}
 		}
-
+		JOptionPane.showMessageDialog(null, newItems.toString());
+		items=newItems.toArray(new String[0]);
 		String col_val = (String) JOptionPane.showInputDialog(null, "Choose the column:\n", "Please choose",
 				JOptionPane.PLAIN_MESSAGE, null, items, items[0]);
 
@@ -3989,7 +4021,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	 * @return
 	 */
 	private List<String> getFeatureMetaData(String colName) {
-
+		
 		List<String> metadataVals = new ArrayList<>();
 		// add all values under the colName column
 		for (int r = 0; r < listDisplay.getRowCount(); r++) {
