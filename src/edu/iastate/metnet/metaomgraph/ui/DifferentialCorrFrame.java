@@ -239,7 +239,7 @@ public class DifferentialCorrFrame extends JInternalFrame {
 				
 				//save to MOG
 				if(chckbxSaveResultsWith.isSelected()) {
-					myProject.addDiffCorrRes(id, diffcorrresOB);
+					myProject.addDiffCorrRes(diffcorrresOB.getID(), diffcorrresOB);
 				}
 				
 
