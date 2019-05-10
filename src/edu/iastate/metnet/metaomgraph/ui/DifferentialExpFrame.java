@@ -243,7 +243,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 				logFCResultsFrame frame = null;
 				frame = new logFCResultsFrame(diffExpObj, myProject);
 				frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
-				frame.setTitle("Fold change results");
+				frame.setTitle("DE results");
 				MetaOmGraph.getDesktop().add(frame);
 				frame.setVisible(true);
 
