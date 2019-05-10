@@ -8,6 +8,8 @@ import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
+import edu.iastate.metnet.metaomgraph.utils.Utils;
+
 public class DifferentialCorrResults {
 
 	private String geneList;
@@ -40,8 +42,12 @@ public class DifferentialCorrResults {
 		this.corrGrp1 = corrGrp1;
 		this.corrGrp2 = corrGrp2;
 		this.dataTransform = dataTransform;
-		this.id = id;
+		this.id =  Utils.removeSpecialChars(id);
 
+	}
+	
+	public String getID() {
+		return this.id;
 	}
 
 	public String getGeneListName() {
