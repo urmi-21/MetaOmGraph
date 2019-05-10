@@ -1312,17 +1312,32 @@ public class Utils {
 	 * Remove all special chars from a string to make it usable for XML Names
 	 */
 	public static String removeSpecialChars(String s) {
-		String[] special = { "\\", "+", "[", "^", "$", ".", "|", "?", "*", "(", ")", "{", "}", "-"," ","&" };
-		String res = s;
+		
+		String[] special = { "/", "\\", "+", "[", "^", "$", ".", "|", "?", "*", "(", ")", "{", "}", "-","&", "%","!" };
+		//remove spaces
+		String res = s.replaceAll("\\s+","");
 		try {
 
 			for (String c : special) {
-				res = res.replaceAll("\\" + c, "\\\\" + c);
+				res = res.replaceAll("\\" + c, "");
 			}
 		} catch (IllegalArgumentException iae) {
-			JOptionPane.showMessageDialog(null, "s:" + s);
+			JOptionPane.showMessageDialog(null, "Error:" + s);
 		}
 
+		
 		return res;
 	}
+	
+	
+	/*public static String verifyXML(String s) {
+		
+		
+	}*/
+	
+	public static void main(String args[]) {
+		String s="a b/c  $%^a  a*.";
+		System.out.println(s+"-->"+removeSpecialChars(s));
+	}
+	
 }
