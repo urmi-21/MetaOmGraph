@@ -10,6 +10,8 @@ import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
+import edu.iastate.metnet.metaomgraph.utils.Utils;
+
 /**
  * Class to store results of a differential expression analysis
  * 
@@ -41,7 +43,7 @@ public class DifferentialExpResults {
 	public DifferentialExpResults(String id, int method, String grp1, String grp2, int grp1Size, int grp2Size,
 			String featureListName, String dataTransform, List<String> rowNames, List<Double> meanGrp1,
 			List<Double> meanGrp2, List<Double> fStat, List<Double> fPval, List<Double> pval) {
-		this.id = id;
+		this.id = Utils.removeSpecialChars(id);
 		this.method = method;
 		this.grp1 = grp1;
 		this.grp2 = grp2;
@@ -58,6 +60,8 @@ public class DifferentialExpResults {
 		this.pval = pval;
 
 	}
+	
+	
 
 	// calculate log FC
 	private List<Double> calculatelogFC() {

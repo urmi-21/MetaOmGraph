@@ -1307,4 +1307,22 @@ public class Utils {
 
 		return res;
 	}
+	
+	/*
+	 * Remove all special chars from a string to make it usable for XML Names
+	 */
+	public static String removeSpecialChars(String s) {
+		String[] special = { "\\", "+", "[", "^", "$", ".", "|", "?", "*", "(", ")", "{", "}", "-"," ","&" };
+		String res = s;
+		try {
+
+			for (String c : special) {
+				res = res.replaceAll("\\" + c, "\\\\" + c);
+			}
+		} catch (IllegalArgumentException iae) {
+			JOptionPane.showMessageDialog(null, "s:" + s);
+		}
+
+		return res;
+	}
 }
