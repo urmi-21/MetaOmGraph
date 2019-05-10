@@ -234,7 +234,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 						ob.testPV());
 				
 				if(chckbxSaveResultsWith.isSelected()) {
-					myProject.addDiffExpRes(id, diffExpObj);
+					myProject.addDiffExpRes(diffExpObj.getID(), diffExpObj);
 				}
 				
 				
