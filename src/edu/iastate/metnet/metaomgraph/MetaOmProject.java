@@ -3439,6 +3439,18 @@ public class MetaOmProject {
 		}
 		return diffExpRes.get(key);
 	}
+	
+	/**
+	 * remove diff exp object
+	 * @param key
+	 */
+	public void removeDifferentialExpResults(String key) {
+		
+		if (diffExpRes == null) {
+			return;
+		}
+		diffExpRes.remove(key);
+	}
 
 	//////////////////////
 

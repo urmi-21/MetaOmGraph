@@ -3085,7 +3085,7 @@ public class MetaOmGraph implements ActionListener {
 		if ("loadDiffExp".equals(e.getActionCommand())) {
 
 			String[] listOfDE = getActiveProject().getSavedDiffExpResNames();
-			if (listOfDE == null) {
+			if (listOfDE == null || listOfDE.length<1) {
 				JOptionPane.showMessageDialog(null, "No saved results found", "No results",
 						JOptionPane.INFORMATION_MESSAGE);
 				return;
@@ -3112,7 +3112,30 @@ public class MetaOmGraph implements ActionListener {
 		}
 		
 		if ("removeDiffExp".equals(e.getActionCommand())) {
-			JOptionPane.showMessageDialog(null, "remove DE");
+
+			String[] listOfDE = getActiveProject().getSavedDiffExpResNames();
+			if (listOfDE == null || listOfDE.length<1) {
+				JOptionPane.showMessageDialog(null, "No saved results found", "No results",
+						JOptionPane.INFORMATION_MESSAGE);
+				return;
+			}
+
+
+			// choose one from the available results
+			String chosenVal = (String) JOptionPane.showInputDialog(null, "Choose the DE analysis to remove", "Please choose",
+					JOptionPane.PLAIN_MESSAGE, null, listOfDE, listOfDE[0]);
+			if (chosenVal == null) {
+				return;
+			}
+			
+			 int opt = JOptionPane.showConfirmDialog(null,
+		                "Are you sure you want to delete the selected ?",
+		                "Confirm", 0,
+		                3);
+		        if (opt != 0) {
+		            return;
+		        }
+			getActiveProject().removeDifferentialExpResults(chosenVal);
 			return;
 		}
 		
