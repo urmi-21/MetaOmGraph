@@ -3896,7 +3896,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	 */
 	public String selectFeatureColumn() {
 		
-		//don't show correlation column
+		//don't show correlation columns
 		ArrayList<Integer> colList = myProject.getCorrelationColumns();
 		
 		String[] corrCols = new String[colList.size()];		
@@ -3925,6 +3925,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		items=newItems.toArray(new String[0]);
 		String col_val = (String) JOptionPane.showInputDialog(null, "Choose the column:\n", "Please choose",
 				JOptionPane.PLAIN_MESSAGE, null, items, items[0]);
+		
 
 		return col_val;
 
@@ -3936,8 +3937,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	public void plotCorrHist(String col_val) {
 
 		if (col_val == null || col_val.length() < 1) {
-			JOptionPane.showMessageDialog(null, "No columns containing correlation values found.",
-					"No correlation data.", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 
@@ -3981,6 +3980,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	 * @param colValue
 	 */
 	public void plotBarChart(String colValue) {
+		
+		if(colValue==null) {
+			return;
+		}
 		
 		//gert data for the selected columns
 		 List<String> chartData=getFeatureMetaData(colValue);
