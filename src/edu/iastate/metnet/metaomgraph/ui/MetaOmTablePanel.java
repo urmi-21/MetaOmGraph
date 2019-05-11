@@ -433,6 +433,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		diffcorrMenu.add(diffCorrelationWizard);
 		diffcorrMenu.add(diffCorrelation);
 		diffcorrMenu.add(loaddiffCorrResults);
+		diffcorrMenu.add(removediffCorrResults);
 
 		pairwisePearsonItem = new JMenuItem("Pearson Correlation matrix");
 		pairwisePearsonItem.setActionCommand("pairwise pearson");

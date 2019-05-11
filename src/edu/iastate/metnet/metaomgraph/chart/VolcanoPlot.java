@@ -446,14 +446,16 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 				 */
 				int x = thisPoint.x;
 				// JOptionPane.showMessageDialog(null, "mw:"+maxWidth+" x:"+x);
-				// if point is far right of scree show tool tip to the left
+				// if point is far right of screen show tool tip to the left
 				if (maxWidth - x <= 450) {
 					// JOptionPane.showMessageDialog(null, "mw:"+maxWidth+" x:"+x);
 					// return new Point(x-300, 5);
 					// table width is 400
 					return new Point(x - (400 + xMargin), newy);
 				}
+				//return new Point(-20, newy);
 				return new Point(x + xMargin, newy);
+				
 			}
 
 		};
