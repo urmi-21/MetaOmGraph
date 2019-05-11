@@ -3502,6 +3502,13 @@ public class MetaOmProject {
 		}
 		return diffCorrRes.get(key);
 	}
+	
+	public void removeDiffCorrResults(String key) {
+		if (diffCorrRes == null) {
+			return;
+		}
+		diffCorrRes.remove(key);
+	}
 
 	/**
 	 * @author urmi add metacorr list to save later

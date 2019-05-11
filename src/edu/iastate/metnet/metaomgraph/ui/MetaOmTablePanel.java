@@ -145,6 +145,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	private JMenuItem diffCorrelation;
 	private JMenuItem diffCorrelationWizard;
 	private JMenuItem loaddiffCorrResults;
+	private JMenuItem removediffCorrResults;
 
 	private JMenuItem pairwisePearsonItem;
 	private JMenuItem pairwiseSpearmanItem;
@@ -424,6 +425,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		loaddiffCorrResults = new JMenuItem("Load  Differential Correlation Results");
 		loaddiffCorrResults.setActionCommand("LoadDiffCorrelation");
 		loaddiffCorrResults.addActionListener(this);
+
+		removediffCorrResults = new JMenuItem("Remove Differential Correlation Results");
+		removediffCorrResults.setActionCommand("RemoveDiffCorrelation");
+		removediffCorrResults.addActionListener(this);
 
 		diffcorrMenu.add(diffCorrelationWizard);
 		diffcorrMenu.add(diffCorrelation);
@@ -3262,7 +3267,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 		if (("LoadDiffCorrelation".equals(e.getActionCommand()))) {
 			String[] listOfDC = myProject.getSavedDiffCorrResNames();
-			if (listOfDC == null) {
+			if (listOfDC == null || listOfDC.length < 1) {
 				JOptionPane.showMessageDialog(null, "No saved results found", "No results",
 						JOptionPane.INFORMATION_MESSAGE);
 				return;
@@ -3287,6 +3292,34 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			frame.setVisible(true);
 
 			return;
+		}
+
+		if (("RemoveDiffCorrelation".equals(e.getActionCommand()))) {
+
+			String[] listOfDC = myProject.getSavedDiffCorrResNames();
+			if (listOfDC == null || listOfDC.length < 1) {
+				JOptionPane.showMessageDialog(null, "No saved results found", "No results",
+						JOptionPane.INFORMATION_MESSAGE);
+				return;
+			}
+			// JOptionPane.showMessageDialog(null, "saved" + Arrays.toString(listOfDE));
+
+			// choose one from the available results
+			String chosenVal = (String) JOptionPane.showInputDialog(null, "Choose the DE analysis", "Please choose",
+					JOptionPane.PLAIN_MESSAGE, null, listOfDC, listOfDC[0]);
+			if (chosenVal == null) {
+				return;
+			}
+
+			int opt = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete the selected?", "Confirm", 0,
+					3);
+			if (opt != 0) {
+				return;
+			}
+			
+			myProject.removeDiffCorrResults(chosenVal);
+			return;
+
 		}
 
 	}
@@ -3895,37 +3928,36 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	 * @return
 	 */
 	public String selectFeatureColumn() {
-		
-		//don't show correlation columns
+
+		// don't show correlation columns
 		ArrayList<Integer> colList = myProject.getCorrelationColumns();
-		
-		String[] corrCols = new String[colList.size()];		
+
+		String[] corrCols = new String[colList.size()];
 		for (int i = 0; i < corrCols.length; i++) {
 			corrCols[i] = myProject.getInfoColumnNames()[colList.get(i).intValue()];
 		}
-		List<String> corrColsList= Arrays.asList(corrCols);
+		List<String> corrColsList = Arrays.asList(corrCols);
 		String[] items = myProject.getInfoColumnNames();
-		List<String> newItems=new ArrayList<>();
+		List<String> newItems = new ArrayList<>();
 		for (int i = 0; i < items.length; i++) {
-			
-			if(corrColsList.contains(items[i])) {
+
+			if (corrColsList.contains(items[i])) {
 				continue;
 			}
-			
+
 			if (items[i].length() > 50) {
-				items[i] = items[i].substring(0, 50) + "...";				
+				items[i] = items[i].substring(0, 50) + "...";
 			}
 			if (items[i].equals("")) {
 				items[i] = "<unnamed>";
-				
+
 			}
 			newItems.add(items[i]);
 		}
-		
-		items=newItems.toArray(new String[0]);
+
+		items = newItems.toArray(new String[0]);
 		String col_val = (String) JOptionPane.showInputDialog(null, "Choose the column:\n", "Please choose",
 				JOptionPane.PLAIN_MESSAGE, null, items, items[0]);
-		
 
 		return col_val;
 
@@ -3980,18 +4012,18 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	 * @param colValue
 	 */
 	public void plotBarChart(String colValue) {
-		
-		if(colValue==null) {
+
+		if (colValue == null) {
 			return;
 		}
-		
-		//gert data for the selected columns
-		 List<String> chartData=getFeatureMetaData(colValue);
+
+		// gert data for the selected columns
+		List<String> chartData = getFeatureMetaData(colValue);
 		// add barchart
-		//ArrayList<String> list = new ArrayList<String>();
-		//list.add("Geeks");
-		//list.add("for");
-		//list.add("Geeks");
+		// ArrayList<String> list = new ArrayList<String>();
+		// list.add("Geeks");
+		// list.add("for");
+		// list.add("Geeks");
 		BarChart f2 = new BarChart(myProject, colValue, chartData, 1);
 		MetaOmGraph.getDesktop().add(f2);
 		f2.setDefaultCloseOperation(2);
@@ -4002,15 +4034,15 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		f2.setVisible(true);
 		f2.toFront();
 	}
-	
-	
+
 	/**
 	 * get values in a given correlation column
+	 * 
 	 * @param colName
 	 * @return
 	 */
 	private List<String> getFeatureMetaData(String colName) {
-		
+
 		List<String> metadataVals = new ArrayList<>();
 		// add all values under the colName column
 		for (int r = 0; r < listDisplay.getRowCount(); r++) {
@@ -4023,10 +4055,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 		return metadataVals;
 	}
-	
 
 	/**
 	 * get values in a given correlation column
+	 * 
 	 * @param colName
 	 * @return
 	 */
