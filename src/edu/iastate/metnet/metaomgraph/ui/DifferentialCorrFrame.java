@@ -248,7 +248,7 @@ public class DifferentialCorrFrame extends JInternalFrame {
 						diffcorrresOB.getGrp1Size(), diffcorrresOB.getGrp2Size(), diffcorrresOB.getCorrGrp1(),
 						diffcorrresOB.getCorrGrp2());
 				frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
-				frame.setTitle("Fold change results");
+				frame.setTitle("Differential Correlation Results");
 				MetaOmGraph.getDesktop().add(frame);
 				frame.setVisible(true);
 
