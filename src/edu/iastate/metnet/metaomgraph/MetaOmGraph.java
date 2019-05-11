@@ -3099,7 +3099,7 @@ public class MetaOmGraph implements ActionListener {
 				return;
 			}
 
-			// display chosen value
+			// display chosen results
 			DifferentialExpResults diffExpObj = getActiveProject().getDiffExpResObj(chosenVal);
 			logFCResultsFrame frame = null;
 			frame = new logFCResultsFrame(diffExpObj, getActiveProject());
@@ -3129,7 +3129,7 @@ public class MetaOmGraph implements ActionListener {
 			}
 			
 			 int opt = JOptionPane.showConfirmDialog(null,
-		                "Are you sure you want to delete the selected ?",
+		                "Are you sure you want to delete the selected?",
 		                "Confirm", 0,
 		                3);
 		        if (opt != 0) {
