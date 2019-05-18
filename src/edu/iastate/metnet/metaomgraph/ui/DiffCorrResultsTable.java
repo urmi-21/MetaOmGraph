@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
+import javax.swing.JComboBox;
 import javax.swing.JInternalFrame;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -58,6 +59,8 @@ public class DiffCorrResultsTable extends JInternalFrame {
 
 	private int n1;
 	private int n2;
+	private double pvThresh = 2;
+	String pvAdjMethod;
 	
 
 	/**
@@ -112,12 +115,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 		
 
 		if (pVals != null) {
-			adjpVals = new ArrayList<>();
-			AdjustPval ob = new AdjustPval();
-			double[] adjPV = ob.getBHAdj(pVals.stream().mapToDouble(d -> d).toArray());
-			for (double d : adjPV) {
-				adjpVals.add(d);
-			}
+			adjpVals = computeAdjPV(pVals);
 		}
 
 		setBounds(100, 100, 450, 300);
@@ -156,6 +154,89 @@ public class DiffCorrResultsTable extends JInternalFrame {
 		
 		JMenu mnEdit = new JMenu("Edit");
 		menuBar.add(mnEdit);
+		
+		JMenuItem mntmExportSelectedTo = new JMenuItem("Export selected to list");
+		mntmExportSelectedTo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// get selected rowindex
+				int[] rowIndices = getSelectedRowIndices();
+				if (rowIndices == null || rowIndices.length == 0) {
+					JOptionPane.showMessageDialog(null, "No rows selected", "Nothing selected",
+							JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				String listName = JOptionPane.showInputDialog(DiffCorrResultsTable.this, "Enter a name for new list");
+				if (listName == null || listName.length() < 1) {
+					JOptionPane.showMessageDialog(DiffCorrResultsTable.this, "Invalid name", "Failed",
+							JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+
+				if (myProject.addGeneList(listName, rowIndices, true)) {
+					JOptionPane.showMessageDialog(DiffCorrResultsTable.this, "List" + listName + " added", "List added",
+							JOptionPane.INFORMATION_MESSAGE);
+				}
+				return;
+			}
+		});
+		mnEdit.add(mntmExportSelectedTo);
+		
+		
+		JMenuItem mntmFilter = new JMenuItem("P-value filter");
+		mntmFilter.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				double pvalThresh = 0;
+				try {
+					String input = (String) JOptionPane.showInputDialog(null, "Please Enter a value", "Input p-value",
+							JOptionPane.QUESTION_MESSAGE, null, null, String.valueOf(pvThresh));
+					if (input == null) {
+						return;
+					}
+					pvalThresh = Double.parseDouble(input);
+
+				} catch (NumberFormatException nfe) {
+					JOptionPane.showMessageDialog(null, "Invalid number entered. Please try again.", "Error",
+							JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+
+				pvThresh = pvalThresh;
+
+				updateTable();
+
+				// JOptionPane.showMessageDialog(null, "Done");
+
+			}
+		});
+		mnEdit.add(mntmFilter);
+
+		JMenuItem mntmPvalueCorrection = new JMenuItem("P-value correction");
+		mntmPvalueCorrection.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				//choose adjustment method
+				JPanel cboxPanel=new JPanel();
+				String[] adjMethods=new String[] {"Benjamini–Hochberg", "Bonferroni"};
+				JComboBox pvadjCBox=new JComboBox<>(adjMethods);
+				cboxPanel.add(pvadjCBox);
+				int opt = JOptionPane.showConfirmDialog(null, cboxPanel, "Select categories", JOptionPane.OK_CANCEL_OPTION);
+				if (opt == JOptionPane.OK_OPTION) {
+					pvAdjMethod=pvadjCBox.getSelectedItem().toString();
+				}else {
+					return;
+				}
+			
+				//correct p values
+				if (pVals != null) {
+					adjpVals = computeAdjPV(pVals);
+				}
+				
+				//update in table
+				updateTable();
+			}
+		});
+		mnEdit.add(mntmPvalueCorrection);
+		
 		
 		JMenu mnPlot = new JMenu("Plot");
 		menuBar.add(mnPlot);
@@ -524,6 +605,31 @@ public class DiffCorrResultsTable extends JInternalFrame {
 		rowIndices = myProject.getRowIndexbyName(names, true);
 
 		return rowIndices;
+	}
+	
+	private List<Double> computeAdjPV(List<Double> pv) {
+		if (pv == null) {
+			return null;
+		}
+		List<Double> res=null;
+		double[] adjPV = null;
+		// find adjusted pvalues;default method BH
+		AdjustPval ob = new AdjustPval();
+
+		if (pvAdjMethod == null || pvAdjMethod.length() < 1 || pvAdjMethod == "Benjamini–Hochberg") {
+			adjPV = ob.getBHAdj(pv.stream().mapToDouble(d -> d).toArray());
+		} else if (pvAdjMethod == "Bonferroni") {
+			adjPV = ob.getBonferroniAdj(pv.stream().mapToDouble(d -> d).toArray());
+		}
+
+		if (adjPV != null) {
+			res = new ArrayList<>();
+			for (double d : adjPV) {
+				res.add(d);
+			}
+		}
+		return res;
+
 	}
 
 
