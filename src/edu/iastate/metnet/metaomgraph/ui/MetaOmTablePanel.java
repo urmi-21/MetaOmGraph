@@ -3230,7 +3230,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						listDisplay.convertColumnIndexToView(myProject.getDefaultColumn())));
 			}
 
-			DiffCorrResultsTable frame = new DiffCorrResultsTable(featureNames, n1, n2, corrVals1, corrVals2);
+			DiffCorrResultsTable frame = new DiffCorrResultsTable(featureNames, n1, n2, corrVals1, corrVals2,myProject);
 			frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
 			frame.setTitle("Fold change results");
 			MetaOmGraph.getDesktop().add(frame);
@@ -3287,7 +3287,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			// display result using DiffCorrResultsTable
 			DiffCorrResultsTable frame = new DiffCorrResultsTable(diffcorrresOB.getFeatureNames(),
 					diffcorrresOB.getGrp1Size(), diffcorrresOB.getGrp2Size(), diffcorrresOB.getCorrGrp1(),
-					diffcorrresOB.getCorrGrp2());
+					diffcorrresOB.getCorrGrp2(),myProject);
 			frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
 			MetaOmGraph.getDesktop().add(frame);
 			frame.setVisible(true);

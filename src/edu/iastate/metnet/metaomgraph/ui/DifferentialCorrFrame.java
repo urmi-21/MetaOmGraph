@@ -246,7 +246,7 @@ public class DifferentialCorrFrame extends JInternalFrame {
 				// display result using DiffCorrResultsTable
 				DiffCorrResultsTable frame = new DiffCorrResultsTable(diffcorrresOB.getFeatureNames(),
 						diffcorrresOB.getGrp1Size(), diffcorrresOB.getGrp2Size(), diffcorrresOB.getCorrGrp1(),
-						diffcorrresOB.getCorrGrp2());
+						diffcorrresOB.getCorrGrp2(),myProject);
 				frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
 				frame.setTitle("Differential Correlation Results");
 				MetaOmGraph.getDesktop().add(frame);

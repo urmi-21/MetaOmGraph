@@ -28,6 +28,8 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 
 import edu.iastate.metnet.metaomgraph.AdjustPval;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
+import edu.iastate.metnet.metaomgraph.MetaOmProject;
+import edu.iastate.metnet.metaomgraph.chart.MetaOmChartPanel;
 import edu.iastate.metnet.metaomgraph.DecimalFormatRenderer;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import net.iharder.dnd.TransferableObject.Fetcher;
@@ -47,9 +49,11 @@ public class DiffCorrResultsTable extends JInternalFrame {
 	private List<Double> zScores;
 	private List<Double> pVals;
 	private List<Double> adjpVals;
+	private MetaOmProject myProject;
 
 	private int n1;
 	private int n2;
+	
 
 	/**
 	 * Default Properties
@@ -81,14 +85,15 @@ public class DiffCorrResultsTable extends JInternalFrame {
 	 * Create the frame.
 	 */
 	public DiffCorrResultsTable() {
-		this(null, 0, 0, null, null);
+		this(null, 0, 0, null, null,null);
 
 	}
 
 	
 
 	public DiffCorrResultsTable(List<String> featureNames, int n1, int n2, List<Double> corrVals1,
-			List<Double> corrVals2) {
+			List<Double> corrVals2,MetaOmProject myProject) {
+		this.myProject=myProject;
 		this.featureNames = featureNames;
 		this.n1 = n1;
 		this.n2 = n2;
@@ -99,6 +104,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 		diff = getDiff(zVals1, zVals2);
 		zScores = getZscores(diff);
 		pVals = getPVals(zScores);
+		
 
 		if (pVals != null) {
 			adjpVals = new ArrayList<>();
@@ -151,6 +157,25 @@ public class DiffCorrResultsTable extends JInternalFrame {
 		
 		JMenu mnSelected = new JMenu("Selected");
 		mnPlot.add(mnSelected);
+		
+		JMenuItem mntmLineChart = new JMenuItem("Line Chart");
+		mntmLineChart.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// get selected rowindex
+				int[] rowIndices = getSelectedRowIndices();
+				if (rowIndices == null || rowIndices.length == 0) {
+					JOptionPane.showMessageDialog(null, "No rows selected", "Nothing selected",
+							JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				new MetaOmChartPanel(rowIndices, myProject.getDefaultXAxis(), myProject.getDefaultYAxis(),
+						myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject)
+								.createInternalFrame();
+			}
+		});
+		mnSelected.add(mntmLineChart);
+		
+		
 
 		// frame properties
 		this.setClosable(true);
@@ -340,5 +365,20 @@ public class DiffCorrResultsTable extends JInternalFrame {
 		}
 		return res;
 	}
+	
+	private int[] getSelectedRowIndices() {
+		// get correct indices wrt the list
+		int[] rowIndices = table.getSelectedRows();
+		// JOptionPane.showMessageDialog(null, "sR:" + Arrays.toString(rowIndices));
+		List<String> names = new ArrayList<>();
+		int j = 0;
+		for (int i : rowIndices) {
+			names.add(table.getValueAt(i, table.getColumn("Name").getModelIndex()).toString());
+		}
+		rowIndices = myProject.getRowIndexbyName(names, true);
+
+		return rowIndices;
+	}
+
 
 }

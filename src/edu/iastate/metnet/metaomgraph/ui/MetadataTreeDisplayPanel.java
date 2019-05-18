@@ -249,7 +249,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 		mntmSearch = new JMenuItem("Search");
 		mntmSearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				List<String> result = getQueryResults();
+				List<String> result = getQueryResults("Metadata Search");
 				if (result == null || result.size() < 1 || result.get(0).equals("NULL")) {
 					JOptionPane.showMessageDialog(null, "No hits found", "No hits", JOptionPane.INFORMATION_MESSAGE);
 					return;
@@ -277,7 +277,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 		mntmByMetadata = new JMenuItem("By Metadata");
 		mntmByMetadata.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				List<String> result = getQueryResults();
+				List<String> result = getQueryResults("Filter by Metadata");
 				if (result == null || result.size() < 1 || result.get(0).equals("NULL")) {
 					JOptionPane.showMessageDialog(null, "No hits found", "No hits", JOptionPane.INFORMATION_MESSAGE);
 					return;
@@ -787,11 +787,11 @@ public class MetadataTreeDisplayPanel extends JPanel {
 	 * 
 	 * @return
 	 */
-	public List<String> getQueryResults() {
+	public List<String> getQueryResults(String title) {
 		final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(
 				MetaOmGraph.getActiveProject(), false);
 		final MetadataQuery[] queries;
-		queries = tsp.showSearchDialog("Filter by Metadata");
+		queries = tsp.showSearchDialog(title);
 		if (tsp.getQueryCount() <= 0) {
 			// System.out.println("Search dialog cancelled");
 			// User didn't enter any queries
