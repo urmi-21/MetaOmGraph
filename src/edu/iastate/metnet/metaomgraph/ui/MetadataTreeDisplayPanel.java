@@ -791,7 +791,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 		final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(
 				MetaOmGraph.getActiveProject(), false);
 		final MetadataQuery[] queries;
-		queries = tsp.showSearchDialog();
+		queries = tsp.showSearchDialog("Filter by Metadata");
 		if (tsp.getQueryCount() <= 0) {
 			// System.out.println("Search dialog cancelled");
 			// User didn't enter any queries
