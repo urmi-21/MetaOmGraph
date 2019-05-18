@@ -158,7 +158,10 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 	}
 
 	public Metadata.MetadataQuery[] showSearchDialog() {
-		myDialog = new JDialog(MetaOmGraph.getMainWindow(), "Metadata Search", true);
+		return showSearchDialog("Metadata Search");
+	}
+	public Metadata.MetadataQuery[] showSearchDialog(String title) {
+		myDialog = new JDialog(MetaOmGraph.getMainWindow(), title, true);
 		myDialog.getContentPane().setLayout(new BorderLayout());
 		myDialog.getContentPane().add(this, "Center");
 		JPanel buttonPanel = new JPanel();
