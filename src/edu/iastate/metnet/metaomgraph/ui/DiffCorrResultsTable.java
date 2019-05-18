@@ -5,7 +5,9 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
@@ -29,7 +31,10 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import edu.iastate.metnet.metaomgraph.AdjustPval;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
+import edu.iastate.metnet.metaomgraph.chart.BoxPlot;
+import edu.iastate.metnet.metaomgraph.chart.HistogramChart;
 import edu.iastate.metnet.metaomgraph.chart.MetaOmChartPanel;
+import edu.iastate.metnet.metaomgraph.chart.ScatterPlotChart;
 import edu.iastate.metnet.metaomgraph.DecimalFormatRenderer;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import net.iharder.dnd.TransferableObject.Fetcher;
@@ -174,6 +179,147 @@ public class DiffCorrResultsTable extends JInternalFrame {
 			}
 		});
 		mnSelected.add(mntmLineChart);
+		
+		JMenuItem mntmScatterplot = new JMenuItem("Scatter Plot");
+		mntmScatterplot.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				// get selected rowindex
+				int[] rowIndices = getSelectedRowIndices();
+				if (rowIndices == null) {
+					JOptionPane.showMessageDialog(null, "No rows selected", "Nothing selected",
+							JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				if (rowIndices.length < 1) {
+					JOptionPane.showMessageDialog(null,
+							"Please select two or more rows and try again to plot a scatterplot.",
+							"Invalid number of rows selected", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						try {// get data for selected rows
+
+							ScatterPlotChart f = new ScatterPlotChart(rowIndices, 0, myProject);
+							MetaOmGraph.getDesktop().add(f);
+							f.setDefaultCloseOperation(2);
+							f.setClosable(true);
+							f.setResizable(true);
+							f.pack();
+							f.setSize(1000, 700);
+							f.setVisible(true);
+							f.toFront();
+
+						} catch (Exception e) {
+							JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
+									JOptionPane.ERROR_MESSAGE);
+
+							e.printStackTrace();
+							return;
+						}
+					}
+				});
+
+				return;
+
+			}
+		});
+		mnSelected.add(mntmScatterplot);
+		
+		JMenuItem mntmBoxPlot = new JMenuItem("Box Plot");
+		mntmBoxPlot.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int[] rowIndices = getSelectedRowIndices();
+				if (rowIndices == null || rowIndices.length == 0) {
+					JOptionPane.showMessageDialog(null, "No rows selected", "Nothing selected",
+							JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				// get data for box plot as hasmap
+				HashMap<Integer, double[]> plotData = new HashMap<>();
+				for (int i = 0; i < rowIndices.length; i++) {
+					double[] dataY = null;
+					try {
+						// dataY = myProject.getIncludedData(selected[i]);
+						// send all data; excluded data will be excluded in the boxplot class; this
+						// helps in splitting data by categories by reusing cluster function
+						dataY = myProject.getAllData(rowIndices[i]);
+					} catch (IOException eIO) {
+						// TODO Auto-generated catch block
+						eIO.printStackTrace();
+					}
+					plotData.put(rowIndices[i], dataY);
+				}
+
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						try {// get data for selected rows
+
+							BoxPlot f = new BoxPlot(plotData, 0, myProject);
+							MetaOmGraph.getDesktop().add(f);
+							f.setDefaultCloseOperation(2);
+							f.setClosable(true);
+							f.setResizable(true);
+							f.pack();
+							f.setSize(1000, 700);
+							f.setVisible(true);
+							f.toFront();
+
+						} catch (Exception e) {
+							JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
+									JOptionPane.ERROR_MESSAGE);
+
+							e.printStackTrace();
+							return;
+						}
+					}
+				});
+
+			}
+		});
+		mnSelected.add(mntmBoxPlot);
+
+		JMenuItem mntmHistogram = new JMenuItem("Histogram");
+		mntmHistogram.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						try {// get data for selected rows
+							int[] selected = getSelectedRowIndices();
+							if (selected == null || selected.length == 0) {
+								JOptionPane.showMessageDialog(null, "No rows selected", "Nothing selected",
+										JOptionPane.ERROR_MESSAGE);
+								return;
+							}
+							// number of bins
+							int nBins = myProject.getIncludedDataColumnCount() / 10;
+							HistogramChart f = new HistogramChart(selected, nBins, myProject, 1, null);
+							MetaOmGraph.getDesktop().add(f);
+							f.setDefaultCloseOperation(2);
+							f.setClosable(true);
+							f.setResizable(true);
+							f.pack();
+							f.setSize(1000, 700);
+							f.setVisible(true);
+							f.toFront();
+
+						} catch (Exception e) {
+							JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
+									JOptionPane.ERROR_MESSAGE);
+
+							e.printStackTrace();
+							return;
+						}
+					}
+				});
+				return;
+
+			}
+		});
+		mnSelected.add(mntmHistogram);
 		
 		
 
