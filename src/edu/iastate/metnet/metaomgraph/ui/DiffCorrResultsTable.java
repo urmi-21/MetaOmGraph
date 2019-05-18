@@ -522,7 +522,14 @@ public class DiffCorrResultsTable extends JInternalFrame {
 			temp.add(zVals2.get(i));
 			temp.add(diff.get(i));
 			temp.add(zScores.get(i));
+			
+			//skip if p value is high
+			if (pVals.get(i) >= pvThresh) {
+				continue;
+			}
 			temp.add(pVals.get(i));
+			
+			
 			temp.add(adjpVals.get(i));
 
 			// add ith row in table
