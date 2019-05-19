@@ -111,7 +111,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 	private JButton defaultZoom;
 	private JButton changePalette;
 	private JButton splitDataset;
-	
+
 	private LegendTitle myLegend;
 	private JToggleButton toggleLegend;
 	private boolean legendFlag = true;
@@ -277,12 +277,18 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 			splitDataset.setEnabled(false);
 		}
 
+		toggleLegend = new JToggleButton(theme.getLegend(), legendFlag);
+		toggleLegend.setToolTipText("Show/hide legend");
+		toggleLegend.setActionCommand("legend");
+		toggleLegend.addActionListener(this);
+
 		panel.add(properties);
 		panel.add(save);
 		panel.add(print);
 		panel.add(zoomIn);
 		panel.add(zoomOut);
 		panel.add(defaultZoom);
+		panel.add(toggleLegend);
 		panel.add(splitDataset);
 		panel.add(changePalette);
 		panel.add(alphaSlider);
@@ -311,6 +317,14 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		myChart = ChartFactory.createHistogram("Histogram", "Value", "Count", dataset, PlotOrientation.VERTICAL, true,
 				true, false);
 		XYPlot plot = (XYPlot) myChart.getPlot();
+
+		// save legend
+		myLegend = myChart.getLegend();
+		// if legene flag is off remove legend
+		if (!legendFlag) {
+			myChart.removeLegend();
+		}
+
 		// bg colors
 		plot.setBackgroundPaint(plotbg);
 		myChart.setBackgroundPaint(chartbg);
@@ -560,6 +574,18 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 			updateChart();
 
 		}
+		
+		
+		if ("legend".equals(e.getActionCommand())) {
+			// TODO
+			if (this.legendFlag) {
+				this.legendFlag = false;
+			} else {
+				this.legendFlag = true;
+			}
+
+			setLegendVisible(legendFlag);
+		}
 
 		if ("splitDataset".equals(e.getActionCommand())) {
 			// show metadata categories
@@ -805,20 +831,20 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 			}
 		}
 
-		if (event.getTrigger().getClickCount() == 1) {/*
-			if (event.getEntity() instanceof LegendItemEntity) {
-				Comparable seriesKey = ((LegendItemEntity) event.getEntity()).getSeriesKey();
-				int index = myChart.getXYPlot().getDataset().indexOf(seriesKey);
-				JOptionPane.showMessageDialog(null,
-						"ToFront" + myChart.getXYPlot().getDatasetRenderingOrder().toString() + ":"
-								+ seriesKey.toString() + "," + dataset.getDomainOrder().toString());
-				bringToFront(seriesKey.toString());
-
-				return;
-			} else if (event.getEntity() instanceof XYItemEntity) {
-
-				return;
-			}*/
+		if (event.getTrigger()
+				.getClickCount() == 1) {/*
+										 * if (event.getEntity() instanceof LegendItemEntity) { Comparable seriesKey =
+										 * ((LegendItemEntity) event.getEntity()).getSeriesKey(); int index =
+										 * myChart.getXYPlot().getDataset().indexOf(seriesKey);
+										 * JOptionPane.showMessageDialog(null, "ToFront" +
+										 * myChart.getXYPlot().getDatasetRenderingOrder().toString() + ":" +
+										 * seriesKey.toString() + "," + dataset.getDomainOrder().toString());
+										 * bringToFront(seriesKey.toString());
+										 * 
+										 * return; } else if (event.getEntity() instanceof XYItemEntity) {
+										 * 
+										 * return; }
+										 */
 		}
 
 	}
@@ -886,24 +912,31 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		myChart.getXYPlot().setForegroundAlpha(alpha);
 
 	}
-
-	/*private void bringToFront(String seriesKey) {
-		HistogramDataset temp = new HistogramDataset();
-		for (int i = 0; i < dataset.getSeriesCount(); i++) {
-			String thisKey = dataset.getSeriesKey(i).toString();
-			if (thisKey.equals(seriesKey)) {
-				int icount = dataset.getItemCount(i);
-				double[] data = new double[icount];
-				for (int j = 0; j < icount; j++) {
-					data[j] = dataset.getYValue(i, j);
-				}
-				temp.addSeries(thisKey, data, _bins);
-				// dataset.re
-				// temp.
-			}
+	
+	/**
+	 * Sets the legend visible
+	 * 
+	 * @param legendVisible
+	 *            <code>boolean</code> variable which adds the legend when true else
+	 *            removes it
+	 */
+	public void setLegendVisible(boolean legendVisible) {
+		if (legendVisible) {
+			myChart.addLegend(myLegend);
+		} else {
+			myChart.removeLegend();
 		}
-		dataset = temp;
-		updateChart();
-	}*/
+	}
+
+
+	/*
+	 * private void bringToFront(String seriesKey) { HistogramDataset temp = new
+	 * HistogramDataset(); for (int i = 0; i < dataset.getSeriesCount(); i++) {
+	 * String thisKey = dataset.getSeriesKey(i).toString(); if
+	 * (thisKey.equals(seriesKey)) { int icount = dataset.getItemCount(i); double[]
+	 * data = new double[icount]; for (int j = 0; j < icount; j++) { data[j] =
+	 * dataset.getYValue(i, j); } temp.addSeries(thisKey, data, _bins); //
+	 * dataset.re // temp. } } dataset = temp; updateChart(); }
+	 */
 
 }
