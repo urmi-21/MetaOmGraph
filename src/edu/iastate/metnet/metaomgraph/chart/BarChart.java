@@ -159,7 +159,7 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 	private JButton defaultZoom;
 	private JButton changePalette;
 	private JButton splitDataset;
-	private JButton boxPlotOptions;
+	private JButton barPlotOptions;
 	private JToggleButton toggleLegend;
 	private boolean legendFlag = true;
 	// if number of items in legend is more than this then turn legend off
@@ -275,10 +275,10 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		changePalette.setContentAreaFilled(false);
 		changePalette.setBorderPainted(true);
 
-		boxPlotOptions = new JButton(theme.getOpts());
-		boxPlotOptions.setToolTipText("Options");
-		boxPlotOptions.setActionCommand("options");
-		boxPlotOptions.addActionListener(this);
+		barPlotOptions = new JButton(theme.getOpts());
+		barPlotOptions.setToolTipText("Options");
+		barPlotOptions.setActionCommand("options");
+		barPlotOptions.addActionListener(this);
 
 		toggleLegend = new JToggleButton(theme.getLegend(), legendFlag);
 		toggleLegend.setToolTipText("Show/hide legend");
@@ -294,7 +294,7 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 
 		panel.add(toggleLegend);
 		panel.add(splitDataset);
-		panel.add(boxPlotOptions);
+		//panel.add(barPlotOptions);
 		panel.add(changePalette);
 
 		// frame properties
@@ -323,6 +323,7 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		
 		myChart.getCategoryPlot().setBackgroundPaint(MetaOmGraph.getPlotBackgroundColor());
 		myChart.setBackgroundPaint(MetaOmGraph.getChartBackgroundColor());
+		
 		// save legend
 		myLegend = myChart.getLegend();
 		// if legene flag is off remove legend
