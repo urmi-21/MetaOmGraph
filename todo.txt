@@ -158,3 +158,4 @@ add spearman corr to samples
 faster filtering of excluded samples while computing DE
 legend font
 $add menu to DifferentialCorrFrame
+histogram tooltips
