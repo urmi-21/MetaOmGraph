@@ -58,6 +58,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
 import javax.swing.TransferHandler;
 import javax.swing.text.DefaultFormatterFactory;
@@ -88,6 +89,7 @@ import org.jfree.chart.renderer.OutlierListCollection;
 import org.jfree.chart.renderer.category.BoxAndWhiskerRenderer;
 import org.jfree.chart.renderer.category.CategoryItemRendererState;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.title.LegendTitle;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.statistics.BoxAndWhiskerCategoryDataset;
 import org.jfree.data.statistics.BoxAndWhiskerItem;
@@ -118,8 +120,8 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	int plotType;
 	String[] rowNames;
 	private MetaOmProject myProject;
-	//private String xAxisname;
-	//private ChartToolBar myToolbar;
+	// private String xAxisname;
+	// private ChartToolBar myToolbar;
 	private ChartPanel chartPanel;
 	private JFreeChart myChart;
 
@@ -137,6 +139,12 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	private JButton changePalette;
 	private JButton splitDataset;
 	private JButton boxPlotOptions;
+
+	private LegendTitle myLegend;
+	private JToggleButton toggleLegend;
+	private boolean legendFlag = true;
+	// if number of items in legend is more than this then turn legend off
+	private int maxLegend = 30;
 
 	/*
 	 * TODO: Add option in boxplot show/hide/choose color for mean,median, outliers,
@@ -171,11 +179,12 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 
 	DefaultBoxAndWhiskerCategoryDataset initdataset;
 	String splitCol;
-	
-	//seriesNames keeps all the series in the dataset
+
+	// seriesNames keeps all the series in the dataset
 	List<String> seriesNames;
 	Map<String, Collection<Integer>> splitIndex;
-	// to define custom an order for the dataset; eventually this change will be reflected in seriesNames
+	// to define custom an order for the dataset; eventually this change will be
+	// reflected in seriesNames
 	List<String> orderedKeys;
 
 	private boolean[] excludedCopy;
@@ -282,7 +291,11 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		boxPlotOptions.setToolTipText("Options");
 		boxPlotOptions.setActionCommand("options");
 		boxPlotOptions.addActionListener(this);
-		
+
+		toggleLegend = new JToggleButton(theme.getLegend(), legendFlag);
+		toggleLegend.setToolTipText("Show/hide legend");
+		toggleLegend.setActionCommand("legend");
+		toggleLegend.addActionListener(this);
 
 		panel.add(properties);
 		panel.add(save);
@@ -290,12 +303,12 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		// panel.add(zoomIn);
 		// panel.add(zoomOut);
 		panel.add(defaultZoom);
+		panel.add(toggleLegend);
 		if (plotType == 0) {
 			panel.add(splitDataset);
 		}
 		panel.add(boxPlotOptions);
 		panel.add(changePalette);
-		
 
 		// frame properties
 		this.setClosable(true);
@@ -333,6 +346,13 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		myChart.getCategoryPlot().setRenderer(myRenderer);
 		myChart.getCategoryPlot().setBackgroundPaint(MetaOmGraph.getPlotBackgroundColor());
 		myChart.setBackgroundPaint(MetaOmGraph.getChartBackgroundColor());
+
+		// save legend
+		myLegend = myChart.getLegend();
+		// if legene flag is off remove legend
+		if (!legendFlag) {
+			myChart.removeLegend();
+		}
 
 		myChart.getCategoryPlot().getDomainAxis().setCategoryLabelPositions(
 
@@ -446,7 +466,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				} else
 					super.actionPerformed(e);
 			}
-			
+
 			@Override
 			public String getToolTipText(MouseEvent event) {
 
@@ -460,20 +480,18 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				CategoryItemEntity item = (CategoryItemEntity) entity;
 				String colKey = (String) item.getColumnKey();
 				String rowKey = (String) item.getRowKey();
-				String []temp= item.getToolTipText().split(" ");
-				//String mean=temp[1].split(":")[1].replaceAll("\\s+","");
-				String mean=temp[3].replaceAll("\\s+","");
-				String median=temp[5].replaceAll("\\s+","");
-				String min=temp[7].replaceAll("\\s+","");
-				String max=temp[9].replaceAll("\\s+","");
-				String q1=temp[11].replaceAll("\\s+","");
-				String q3=temp[13].replaceAll("\\s+","");
-				
-				// create tooltip
-				return createTooltipTable(colKey,rowKey,mean,median,min,max,q1,q3);
-			}
+				String[] temp = item.getToolTipText().split(" ");
+				// String mean=temp[1].split(":")[1].replaceAll("\\s+","");
+				String mean = temp[3].replaceAll("\\s+", "");
+				String median = temp[5].replaceAll("\\s+", "");
+				String min = temp[7].replaceAll("\\s+", "");
+				String max = temp[9].replaceAll("\\s+", "");
+				String q1 = temp[11].replaceAll("\\s+", "");
+				String q3 = temp[13].replaceAll("\\s+", "");
 
-			
+				// create tooltip
+				return createTooltipTable(colKey, rowKey, mean, median, min, max, q1, q3);
+			}
 
 			// urmi display tooltip away from point
 			@Override
@@ -512,12 +530,14 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 
 	/**
 	 * create tooltip for boxplot
+	 * 
 	 * @param featureName
 	 * @param x
 	 * @param y
 	 * @return
 	 */
-	private String createTooltipTable(String featureName, String series, String mean, String median,String min, String max, String q1, String q3) {
+	private String createTooltipTable(String featureName, String series, String mean, String median, String min,
+			String max, String q1, String q3) {
 		DecimalFormat df = new DecimalFormat("####0.0000");
 		String bgColor = "#" + Integer.toHexString(MetaOmGraph.getTableColor1().getRGB()).substring(2);
 		;
@@ -531,47 +551,39 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 
 		text += "<tr bgcolor=" + rowColors[1] + ">";
 		text += "<td><font size=-2>" + Utils.wrapText("Median", 100, "<br>") + "</font></td>";
-		text += "<td><font size=-2>" + Utils.wrapText(median, 100, "<br>")
-				+ "</font></td>";
+		text += "<td><font size=-2>" + Utils.wrapText(median, 100, "<br>") + "</font></td>";
 		text += "</tr>";
-		
+
 		text += "<tr bgcolor=" + rowColors[0] + ">";
 		text += "<td><font size=-2>" + Utils.wrapText("Mean", 100, "<br>") + "</font></td>";
-		text += "<td><font size=-2>" + Utils.wrapText(mean, 100, "<br>")
-				+ "</font></td>";
+		text += "<td><font size=-2>" + Utils.wrapText(mean, 100, "<br>") + "</font></td>";
 		text += "</tr>";
-		
+
 		text += "<tr bgcolor=" + rowColors[1] + ">";
 		text += "<td><font size=-2>" + Utils.wrapText("Min", 100, "<br>") + "</font></td>";
-		text += "<td><font size=-2>" + Utils.wrapText(min, 100, "<br>")
-				+ "</font></td>";
+		text += "<td><font size=-2>" + Utils.wrapText(min, 100, "<br>") + "</font></td>";
 		text += "</tr>";
-		
+
 		text += "<tr bgcolor=" + rowColors[0] + ">";
 		text += "<td><font size=-2>" + Utils.wrapText("Max", 100, "<br>") + "</font></td>";
-		text += "<td><font size=-2>" + Utils.wrapText(max, 100, "<br>")
-				+ "</font></td>";
+		text += "<td><font size=-2>" + Utils.wrapText(max, 100, "<br>") + "</font></td>";
 		text += "</tr>";
-		
+
 		text += "<tr bgcolor=" + rowColors[1] + ">";
 		text += "<td><font size=-2>" + Utils.wrapText("Q1", 100, "<br>") + "</font></td>";
-		text += "<td><font size=-2>" + Utils.wrapText(q1, 100, "<br>")
-				+ "</font></td>";
+		text += "<td><font size=-2>" + Utils.wrapText(q1, 100, "<br>") + "</font></td>";
 		text += "</tr>";
-		
+
 		text += "<tr bgcolor=" + rowColors[0] + ">";
 		text += "<td><font size=-2>" + Utils.wrapText("Q3", 100, "<br>") + "</font></td>";
-		text += "<td><font size=-2>" + Utils.wrapText(q3, 100, "<br>")
-				+ "</font></td>";
+		text += "<td><font size=-2>" + Utils.wrapText(q3, 100, "<br>") + "</font></td>";
 		text += "</tr>";
-		
+
 		text += "<tr bgcolor=" + rowColors[1] + ">";
 		text += "<td><font size=-2>" + Utils.wrapText("Series", 100, "<br>") + "</font></td>";
-		text += "<td><font size=-2>" + Utils.wrapText(series, 100, "<br>")
-				+ "</font></td>";
+		text += "<td><font size=-2>" + Utils.wrapText(series, 100, "<br>") + "</font></td>";
 		text += "</tr>";
-		
-		
+
 		// get gene metadata in String [][] format
 		String[] infoCols = myProject.getInfoColumnNames();
 		Object[] featureRow = myProject.getRowName(myProject.getRowIndexbyName(featureName, true));
@@ -622,7 +634,6 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 
 	}
 
-	
 	private DefaultBoxAndWhiskerCategoryDataset createDataset() {
 		DefaultBoxAndWhiskerCategoryDataset dataset = new DefaultBoxAndWhiskerCategoryDataset();
 		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(), "Working",
@@ -761,6 +772,18 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 			}
 
 		}
+
+		if ("legend".equals(e.getActionCommand())) {
+			// TODO
+			if (this.legendFlag) {
+				this.legendFlag = false;
+			} else {
+				this.legendFlag = true;
+			}
+
+			setLegendVisible(legendFlag);
+		}
+
 		if ("splitDataset".equals(e.getActionCommand())) {
 
 			// show metadata categories
@@ -971,7 +994,8 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				// "+seriesKey.toString());
 
 				int index = seriesNames.indexOf(seriesKey.toString());
-				//JOptionPane.showMessageDialog(null, "SR:"+seriesNames.toString()+"ind of:"+index);
+				// JOptionPane.showMessageDialog(null, "SR:"+seriesNames.toString()+"ind
+				// of:"+index);
 				changeSeriesColor(index);
 
 				return;
@@ -980,7 +1004,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				//
 				String ck = ((CategoryItemEntity) event.getEntity()).getColumnKey().toString();
 				String rk = ((CategoryItemEntity) event.getEntity()).getRowKey().toString();
-				//JOptionPane.showMessageDialog(null, "CLICKED2:" + ck+" rk:"+rk);
+				// JOptionPane.showMessageDialog(null, "CLICKED2:" + ck+" rk:"+rk);
 				return;
 			}
 		}
@@ -1071,7 +1095,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 			res.addAll(splitIndex.keySet());
 			return res;
 		} else {
-			//return keys in order
+			// return keys in order
 			return orderedKeys;
 		}
 	}
@@ -1109,6 +1133,21 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 
 		}
 
+	}
+
+	/**
+	 * Sets the legend visible
+	 * 
+	 * @param legendVisible
+	 *            <code>boolean</code> variable which adds the legend when true else
+	 *            removes it
+	 */
+	public void setLegendVisible(boolean legendVisible) {
+		if (legendVisible) {
+			myChart.addLegend(myLegend);
+		} else {
+			myChart.removeLegend();
+		}
 	}
 
 	///////////////////////// BoxPlot Renderer
