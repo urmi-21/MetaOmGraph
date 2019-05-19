@@ -38,6 +38,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.JToggleButton;
 import javax.swing.text.DefaultFormatterFactory;
 
 import org.apache.commons.math3.distribution.BetaDistribution;
@@ -61,6 +62,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYBarPainter;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.title.LegendTitle;
 import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
@@ -109,6 +111,12 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 	private JButton defaultZoom;
 	private JButton changePalette;
 	private JButton splitDataset;
+	
+	private LegendTitle myLegend;
+	private JToggleButton toggleLegend;
+	private boolean legendFlag = true;
+	// if number of items in legend is more than this then turn legend off
+	private int maxLegend = 30;
 
 	private boolean[] excludedCopy;
 
