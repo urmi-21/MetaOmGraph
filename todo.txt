@@ -159,3 +159,4 @@ faster filtering of excluded samples while computing DE
 legend font
 $add menu to DifferentialCorrFrame
 histogram tooltips
+search genes in box plot by metadata
