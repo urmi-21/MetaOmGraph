@@ -440,7 +440,7 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 				int xMargin = 25;
 
 				int y = thisPoint.y;
-				int newy = 100;
+				int newy = 200;
 				/*
 				 * select appropriate y if(y-200<=0) { newy=10; }else { newy=y-200; }
 				 */
@@ -453,8 +453,8 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 					// table width is 400
 					return new Point(x - (400 + xMargin), newy);
 				}
-				//return new Point(-20, newy);
-				return new Point(x + xMargin, newy);
+				return new Point(-10, newy);
+				//return new Point(x + xMargin, newy);
 				
 			}
 
@@ -601,13 +601,13 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		String text = "<html><head> " + "<style>" + ".scrollit {\n" + "    overflow:scroll;\n" + "    height:100px;\n"
 				+ "}" + "</style></head><body>"
 
-				+ "<div class=\"scrollit\"> <table bgcolor=\"#FFFFFF\" width=\"400\">" + " <tr>\n"
+				+ "<div class=\"scrollit\"> <font size=\"12\" face=\"Courier New\" >\n <table bgcolor=\"#FFFFFF\" width=\"400\">" + " <tr>\n"
 				+ "            <th>Attribute</th>\n" + "            <th >Value</th>\n" + "        </tr>";
 
 		text += "<tr bgcolor=" + rowColors[1] + ">";
-		text += "<td><font size=-2>" + Utils.wrapText("Point", 100, "<br>") + "</font></td>";
-		text += "<td><font size=-2>" + Utils.wrapText("(" + df.format(x) + "," + df.format(y) + ")", 100, "<br>")
-				+ "</font></td>";
+		text += "<td>" + Utils.wrapText("Point", 100, "<br>") + "</td>";
+		text += "<td>" + Utils.wrapText("(" + df.format(x) + "," + df.format(y) + ")", 100, "<br>")
+				+ "</td>";
 
 		text += "</tr>";
 		// get gene metadata in String [][] format
@@ -654,7 +654,7 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 			text += "</tr>";
 		}
 
-		text += "</table> </div> </body></html>";
+		text += "</table> </font> </div> </body></html>";
 
 		return text;
 
