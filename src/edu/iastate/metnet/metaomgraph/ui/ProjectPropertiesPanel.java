@@ -245,14 +245,14 @@ public class ProjectPropertiesPanel extends JPanel {
 		c.gridy = 4;
 		add(paramManageButton, c);
 		//removed manage sample and cols
-		//c.gridy = 5;
+		c.gridy = 5;
 		//add(new JLabel("<html><span style='font-size:15px'>properties</span></html>"), c);
-		//add(rowManageButton, c);
-		//c.gridy = 6;
-		//add(columnManageButton, c);
-		// urmi
+		add(rowManageButton, c);
 		c.gridy = 6;
-		add(rPathManageButton, c);
+		add(columnManageButton, c);
+		// urmi
+		//c.gridy = 6;
+		//add(rPathManageButton, c);
 		c.gridy = 7;
 		add(manageColors, c);
 	}
