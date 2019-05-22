@@ -440,7 +440,7 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 				int xMargin = 25;
 
 				int y = thisPoint.y;
-				int newy = 200;
+				int newy = 100;
 				/*
 				 * select appropriate y if(y-200<=0) { newy=10; }else { newy=y-200; }
 				 */
@@ -453,8 +453,8 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 					// table width is 400
 					return new Point(x - (400 + xMargin), newy);
 				}
-				return new Point(-10, newy);
-				//return new Point(x + xMargin, newy);
+				//return new Point(-10, newy);
+				return new Point(x + xMargin, newy);
 				
 			}
 
@@ -601,7 +601,7 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		String text = "<html><head> " + "<style>" + ".scrollit {\n" + "    overflow:scroll;\n" + "    height:100px;\n"
 				+ "}" + "</style></head><body>"
 
-				+ "<div class=\"scrollit\"> <font size=\"12\" face=\"Courier New\" >\n <table bgcolor=\"#FFFFFF\" width=\"400\">" + " <tr>\n"
+				+ "<div class=\"scrollit\"> <font size=\"11\" face=\"Courier New\" >\n <table bgcolor=\"#FFFFFF\" width=\"400\">" + " <tr>\n"
 				+ "            <th>Attribute</th>\n" + "            <th >Value</th>\n" + "        </tr>";
 
 		text += "<tr bgcolor=" + rowColors[1] + ">";
@@ -627,8 +627,8 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		for (int i = 0; i < tableData.length; i++) {
 			if (i == maxrowsinMD) {
 				text += "<tr bgcolor=" + rowColors[colorIndex] + ">";
-				text += "<td><font size=-2>" + "..." + "</font></td>";
-				text += "<td><font size=-2>" + "..." + "</font></td>";
+				text += "<td>" + "..." + "</td>";
+				text += "<td>" + "..." + "</td>";
 				text += "</tr>";
 				break;
 			}
@@ -639,8 +639,8 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 			}
 
 			text += "<tr bgcolor=" + rowColors[colorIndex] + ">";
-			text += "<td><font size=-2>" + Utils.wrapText(thisAtt.trim(), 100, "<br>") + "</font></td>";
-			text += "<td><font size=-2>" + Utils.wrapText(thisData.trim(), 100, "<br>") + "</font></td>";
+			text += "<td>" + Utils.wrapText(thisAtt.trim(), 100, "<br>") + "</td>";
+			text += "<td>" + Utils.wrapText(thisData.trim(), 100, "<br>") + "</td>";
 
 			text += "</tr>";
 			colorIndex = (colorIndex + 1) % rowColors.length;
@@ -649,8 +649,8 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 
 		if (tableData.length == 0 || tableData == null) {
 			text += "<tr bgcolor=" + rowColors[colorIndex] + ">";
-			text += "<td><font size=-2>" + "There is no metadata" + "<br>" + "</font></td>";
-			text += "<td><font size=-2>" + "" + "<br>" + "</font></td>";
+			text += "<td>" + "There is no metadata" + "<br>" + "</td>";
+			text += "<td>" + "" + "<br>" + "</td>";
 			text += "</tr>";
 		}
 
