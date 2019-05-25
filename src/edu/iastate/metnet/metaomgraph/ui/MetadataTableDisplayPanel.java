@@ -146,331 +146,88 @@ public class MetadataTableDisplayPanel extends JPanel {
 		mnFile.add(mntmExport);
 
 		JMenuItem mntmNewProjectWith = new JMenuItem("New Project With Selected");
-		// mnFile.add(mntmNewProjectWith);
 
-		JMenu mnAnalyze = new JMenu("Analyze");
-		menuBar.add(mnAnalyze);
+		JMenu mnSearch = new JMenu("Search");
+		menuBar.add(mnSearch);
+		// remove simple search
+		// mnSearch.add(mntmSimple);
 
-		JMenuItem mntmCosineSililarity = new JMenuItem("Cosine sililarity");
-		mntmCosineSililarity.addActionListener(new ActionListener() {
+		JMenuItem mntmAdvance = new JMenuItem("Search");
+		mntmAdvance.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				/**
-				 * select 2 or more runs and display the cosine simmilarity between them
-				 */
-				new AnimatedSwingWorker("Working...", true) {
-					@Override
-					public Object construct() {
-						EventQueue.invokeLater(new Runnable() {
-							public void run() {
-								// get data for all selceted cols
-								try {
-
-									if (table.getSelectedRows().length < 2) {
-										JOptionPane.showMessageDialog(null, "Please select at least two rows",
-												"Invalid selection", JOptionPane.ERROR_MESSAGE);
-										return;
-									}
-									/**
-									 * get all the row data for each col map colnum to data array
-									 */
-									HashMap<Integer, double[]> databyCols = getDataForSelectedDataCols();
-									if (databyCols == null) {
-										return;
-									}
-
-									// compute similarity here
-									ComputeRunsSimilarity ob = new ComputeRunsSimilarity(1, databyCols);
-									HashMap<String, Double> res = ob.doComputation();
-									// display res in JTable
-									EventQueue.invokeLater(new Runnable() {
-										public void run() {
-											try {
-												SimilarityDisplayFrame frameob = new SimilarityDisplayFrame(res,
-														"cosine similarity");
-
-												frameob.setSize(MetaOmGraph.getMainWindow().getWidth() / 2,
-														MetaOmGraph.getMainWindow().getHeight() / 2);
-												frameob.setTitle("Cosine similarity for runs");
-												MetaOmGraph.getDesktop().add(frameob);
-												frameob.setVisible(true);
-											} catch (Exception e) {
-												e.printStackTrace();
-											}
-										}
-									});
-								} catch (IOException | InterruptedException | ExecutionException e1) {
-									// TODO Auto-generated catch block
-									e1.printStackTrace();
-								}
-							}
-						});
-						return null;
-					}
-				}.start();
-			}
-		});
-		mnAnalyze.add(mntmCosineSililarity);
-
-		JMenuItem mntmPearsonCorrelation = new JMenuItem("Pearson Correlation");
-		mntmPearsonCorrelation.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-
-				/**
-				 * select 2 or more runs and display the pearson correlation between them
-				 */
-				new AnimatedSwingWorker("Working...", true) {
-					@Override
-					public Object construct() {
-						EventQueue.invokeLater(new Runnable() {
-							public void run() {
-								// get data for all selceted cols
-								try {
-									/**
-									 * get all the row data for each col map colnum to data array
-									 */
-									if (table.getSelectedRows().length < 2) {
-										JOptionPane.showMessageDialog(null, "Please select at least two rows",
-												"Invalid selection", JOptionPane.ERROR_MESSAGE);
-										return;
-									}
-									HashMap<Integer, double[]> databyCols = getDataForSelectedDataCols();
-									if (databyCols == null) {
-										return;
-									}
-
-									// compute correlation here 2 for correlation
-									ComputeRunsSimilarity ob = new ComputeRunsSimilarity(2, databyCols);
-									HashMap<String, Double> res = ob.doComputation();
-									// display res in JTable
-									// displaySimilarityTable(res, "Pearson's correlation");
-									EventQueue.invokeLater(new Runnable() {
-										public void run() {
-											try {
-												SimilarityDisplayFrame frameob = new SimilarityDisplayFrame(res,
-														"Pearson's correlation");
-
-												frameob.setSize(MetaOmGraph.getMainWindow().getWidth() / 2,
-														MetaOmGraph.getMainWindow().getHeight() / 2);
-												frameob.setTitle("Pearson's correlation for runs");
-												MetaOmGraph.getDesktop().add(frameob);
-												frameob.setVisible(true);
-											} catch (Exception e) {
-												e.printStackTrace();
-											}
-										}
-									});
-								} catch (IOException | InterruptedException | ExecutionException e1) {
-									// TODO Auto-generated catch block
-									e1.printStackTrace();
-								}
-							}
-						});
-						return null;
-					}
-				}.start();
-			}
-		});
-		mnAnalyze.add(mntmPearsonCorrelation);
-
-		JMenuItem mntmSpearmanCorrelation = new JMenuItem("Spearman Correlation");
-		mntmSpearmanCorrelation.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-
-				/**
-				 * select 2 or more runs and display the spearman correlation between them
-				 */
-				new AnimatedSwingWorker("Working...", true) {
-					@Override
-					public Object construct() {
-						EventQueue.invokeLater(new Runnable() {
-							public void run() {
-								// get data for all selceted cols
-								try {
-									/**
-									 * get all the row data for each col map colnum to data array
-									 */
-									if (table.getSelectedRows().length < 2) {
-										JOptionPane.showMessageDialog(null, "Please select at least two rows",
-												"Invalid selection", JOptionPane.ERROR_MESSAGE);
-										return;
-									}
-									HashMap<Integer, double[]> databyCols = getDataForSelectedDataCols();
-									if (databyCols == null) {
-										return;
-									}
-
-									// compute correlation 3 for spearman correlation
-									ComputeRunsSimilarity ob = new ComputeRunsSimilarity(3, databyCols);
-									HashMap<String, Double> res = ob.doComputation();
-									// display res in JTable
-									// displaySimilarityTable(res, "Pearson's correlation");
-									EventQueue.invokeLater(new Runnable() {
-										public void run() {
-											try {
-												SimilarityDisplayFrame frameob = new SimilarityDisplayFrame(res,
-														"Spearman correlation");
-
-												frameob.setSize(MetaOmGraph.getMainWindow().getWidth() / 2,
-														MetaOmGraph.getMainWindow().getHeight() / 2);
-												frameob.setTitle("Spearman correlation for runs");
-												MetaOmGraph.getDesktop().add(frameob);
-												frameob.setVisible(true);
-											} catch (Exception e) {
-												e.printStackTrace();
-											}
-										}
-									});
-								} catch (IOException | InterruptedException | ExecutionException e1) {
-									// TODO Auto-generated catch block
-									e1.printStackTrace();
-								}
-							}
-						});
-						return null;
-					}
-				}.start();
-
-			}
-		});
-		mnAnalyze.add(mntmSpearmanCorrelation);
-
-		JMenu mnView_1 = new JMenu("View");
-		menuBar.add(mnView_1);
-
-		JMenu mnPlot = new JMenu("Plot");
-		mnView_1.add(mnPlot);
-
-		JMenu mnSelectedRows = new JMenu("Selected Rows");
-		mnPlot.add(mnSelectedRows);
-
-		JMenuItem mntmAsSeries = new JMenuItem("Line Chart");
-		mnSelectedRows.add(mntmAsSeries);
-
-		JMenuItem mntmBoxPlot = new JMenuItem("Box plot");
-		mnSelectedRows.add(mntmBoxPlot);
-
-		JMenu mnColumns = new JMenu("Columns");
-		mnPlot.add(mnColumns);
-
-		JMenuItem mntmBarChart = new JMenuItem("Bar Chart");
-		mntmBarChart.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				plotBarChart(selectColumn());
-				return;
-			}
-		});
-		mnColumns.add(mntmBarChart);
-		mntmBoxPlot.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				new AnimatedSwingWorker("Working...", true) {
-					@Override
-					public Object construct() {
-						EventQueue.invokeLater(new Runnable() {
-							public void run() {
-								// get data for all selceted cols
-								try {
-									/**
-									 * get all the row data for each col map colnum to data array
-									 */
-									HashMap<Integer, double[]> databyCols = getDataForSelectedDataCols();
-									if (databyCols == null) {
-										return;
-									}
-									// create box plot of selected data
-
-									// MetaOmGraph.addInternalFrame(BoxPlotter.getSampleBoxPlot(databyCols),"Box
-									// Plot");
-									EventQueue.invokeLater(new Runnable() {
-										public void run() {
-											try {// get data for selected rows
-												BoxPlot f = new BoxPlot(databyCols, 1, MetaOmGraph.getActiveProject());
-												MetaOmGraph.getDesktop().add(f);
-												f.setDefaultCloseOperation(2);
-												f.setClosable(true);
-												f.setResizable(true);
-												f.pack();
-												f.setSize(1000, 700);
-												f.setVisible(true);
-												f.toFront();
-
-											} catch (Exception e) {
-												JOptionPane.showMessageDialog(null,
-														"Error occured while reading data!!!", "Error",
-														JOptionPane.ERROR_MESSAGE);
-
-												e.printStackTrace();
-												return;
-											}
-										}
-									});
-
-								} catch (IOException e1) {
-									// TODO Auto-generated catch block
-									e1.printStackTrace();
-								}
-							}
-						});
-						return null;
-					}
-				}.start();
-
-			}
-		});
-		mntmAsSeries.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				new AnimatedSwingWorker("Working...", true) {
-					@Override
-					public Object construct() {
-						EventQueue.invokeLater(new Runnable() {
-							public void run() {
-								// get data for all selceted cols
-								try {
-									/**
-									 * get all the row data for each col map colnum to data array
-									 */
-									HashMap<Integer, double[]> databyCols = getDataForSelectedDataCols();
-									if (databyCols == null) {
-										return;
-									}
-									PlotRunsasSeries obj = new PlotRunsasSeries("runsPlot", databyCols, 2);
-									obj.createPlot();
-								} catch (IOException e1) {
-									// TODO Auto-generated catch block
-									e1.printStackTrace();
-								}
-							}
-						});
-						return null;
-					}
-				}.start();
-
-			}
-		});
-
-		JMenuItem mntmSwitchToTree_1 = new JMenuItem("Switch to tree");
-		mntmSwitchToTree_1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				// highlight selected rows in the tree
-				// get selected data cols
-				// s;
-				int[] selected = table.getSelectedRows();
-				String[] selectedNames = new String[selected.length];
-				DefaultTableModel model = (DefaultTableModel) table.getModel();
-				for (int i = 0; i < selected.length; i++) {
-					selectedNames[i] = model.getValueAt(table.convertRowIndexToModel(selected[i]),
-							table.getColumn(obj.getDatacol()).getModelIndex()).toString();
-					int thisInd = MetaOmGraph.getActiveProject().getMetadataHybrid()
-							.getColIndexbyName(selectedNames[i]);
-					MetaOmGraph.getActiveTable().selectNode(thisInd, false);
+				final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(
+						MetaOmGraph.getActiveProject(), false);
+				final MetadataQuery[] queries;
+				queries = tsp.showSearchDialog();
+				if (tsp.getQueryCount() <= 0) {
+					// System.out.println("Search dialog cancelled");
+					// User didn't enter any queries
+					return;
 				}
-				MetaOmGraph.tableToFront();
-				// int
-				// thisInd=MetaOmGraph.getActiveProject().getMetadataHybrid().getColIndexbyName(thisSname);
-				// MetaOmGraph.getActiveTable().selectNode(thisInd,true);
-			}
+				// final int[] result = new
+				// int[MetaOmGraph.getActiveProject().getDataColumnCount()];
+				final List<String> result = new ArrayList<>();
+				new AnimatedSwingWorker("Searching...", true) {
+					@Override
+					public Object construct() {
+						List<String> hits = MetaOmGraph.getActiveProject().getMetadataHybrid().getMatchingRows(queries,
+								tsp.matchAll());
+						// return if no hits
+						if (hits.size() == 0) {
+							// JOptionPane.showMessageDialog(null, "hits len:"+hits.length);
+							// nohits=true;
+							result.add("NULL");
+							return null;
+						} else {
+							for (int i = 0; i < hits.size(); i++) {
+								result.add(hits.get(i));
+							}
+						}
 
+						return null;
+					}
+
+				}.start();
+
+				// add highlights to results
+				// move rows in result to top then highlight
+				int dataColNum = table.getColumn(obj.getDatacol()).getModelIndex();
+				moveRowsToTop(result, dataColNum);
+				highlightedRows = null;
+				highlightedRows = new ArrayList<>();
+				toHighlight = new HashMap<Integer, List<String>>();
+				toHighlight.put(dataColNum, result);
+				// create a list of highlighted rows and save under highlightedRows
+				// this is removed from the rendere function as it didn't add all the rows
+				// unless whole table is rendered of scrolled
+				for (int modelRow = 0; modelRow < table.getRowCount(); modelRow++) {
+					for (Integer j : toHighlight.keySet()) {
+						String type = (String) table.getModel().getValueAt(modelRow, j);
+						if (highlightThisRow(j, type)) {
+							if (!highlightedRows.contains(modelRow)) {
+								highlightedRows.add(modelRow);
+							}
+						}
+					}
+				}
+				JOptionPane.showMessageDialog(null, highlightedRows.size() + " rows matched the query", "Search result",
+						JOptionPane.INFORMATION_MESSAGE);
+				table.repaint();
+				// JOptionPane.showMessageDialog(null, "toH:"+toHighlight.toString());
+
+			}
 		});
-		mnView_1.add(mntmSwitchToTree_1);
+		mnSearch.add(mntmAdvance);
+
+		JMenuItem mntmRemovePrevious = new JMenuItem("Clear Last Search");
+		mntmRemovePrevious.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				clearLastSearchedRows();
+
+			}
+		});
+		mnSearch.add(mntmRemovePrevious);
 
 		JMenu mnEdit = new JMenu("Edit");
 		menuBar.add(mnEdit);
@@ -747,8 +504,330 @@ public class MetadataTableDisplayPanel extends JPanel {
 		JMenuItem mntmProperties = new JMenuItem("Properties");
 		mnEdit.add(mntmProperties);
 
-		JMenu mnSearch = new JMenu("Search");
-		menuBar.add(mnSearch);
+		JMenu mnView_1 = new JMenu("View");
+		menuBar.add(mnView_1);
+
+		JMenu mnPlot = new JMenu("Plot");
+		mnView_1.add(mnPlot);
+
+		JMenu mnSelectedRows = new JMenu("Selected Rows");
+		mnPlot.add(mnSelectedRows);
+
+		JMenuItem mntmAsSeries = new JMenuItem("Line Chart");
+		mnSelectedRows.add(mntmAsSeries);
+
+		JMenuItem mntmBoxPlot = new JMenuItem("Box plot");
+		mnSelectedRows.add(mntmBoxPlot);
+
+		JMenu mnColumns = new JMenu("Columns");
+		mnPlot.add(mnColumns);
+
+		JMenuItem mntmBarChart = new JMenuItem("Bar Chart");
+		mntmBarChart.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				plotBarChart(selectColumn());
+				return;
+			}
+		});
+		mnColumns.add(mntmBarChart);
+		mntmBoxPlot.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				new AnimatedSwingWorker("Working...", true) {
+					@Override
+					public Object construct() {
+						EventQueue.invokeLater(new Runnable() {
+							public void run() {
+								// get data for all selceted cols
+								try {
+									/**
+									 * get all the row data for each col map colnum to data array
+									 */
+									HashMap<Integer, double[]> databyCols = getDataForSelectedDataCols();
+									if (databyCols == null) {
+										return;
+									}
+									// create box plot of selected data
+
+									// MetaOmGraph.addInternalFrame(BoxPlotter.getSampleBoxPlot(databyCols),"Box
+									// Plot");
+									EventQueue.invokeLater(new Runnable() {
+										public void run() {
+											try {// get data for selected rows
+												BoxPlot f = new BoxPlot(databyCols, 1, MetaOmGraph.getActiveProject());
+												MetaOmGraph.getDesktop().add(f);
+												f.setDefaultCloseOperation(2);
+												f.setClosable(true);
+												f.setResizable(true);
+												f.pack();
+												f.setSize(1000, 700);
+												f.setVisible(true);
+												f.toFront();
+
+											} catch (Exception e) {
+												JOptionPane.showMessageDialog(null,
+														"Error occured while reading data!!!", "Error",
+														JOptionPane.ERROR_MESSAGE);
+
+												e.printStackTrace();
+												return;
+											}
+										}
+									});
+
+								} catch (IOException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+							}
+						});
+						return null;
+					}
+				}.start();
+
+			}
+		});
+		mntmAsSeries.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				new AnimatedSwingWorker("Working...", true) {
+					@Override
+					public Object construct() {
+						EventQueue.invokeLater(new Runnable() {
+							public void run() {
+								// get data for all selceted cols
+								try {
+									/**
+									 * get all the row data for each col map colnum to data array
+									 */
+									HashMap<Integer, double[]> databyCols = getDataForSelectedDataCols();
+									if (databyCols == null) {
+										return;
+									}
+									PlotRunsasSeries obj = new PlotRunsasSeries("runsPlot", databyCols, 2);
+									obj.createPlot();
+								} catch (IOException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+							}
+						});
+						return null;
+					}
+				}.start();
+
+			}
+		});
+
+		JMenuItem mntmSwitchToTree_1 = new JMenuItem("Switch to tree");
+		mntmSwitchToTree_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// highlight selected rows in the tree
+				// get selected data cols
+				// s;
+				int[] selected = table.getSelectedRows();
+				String[] selectedNames = new String[selected.length];
+				DefaultTableModel model = (DefaultTableModel) table.getModel();
+				for (int i = 0; i < selected.length; i++) {
+					selectedNames[i] = model.getValueAt(table.convertRowIndexToModel(selected[i]),
+							table.getColumn(obj.getDatacol()).getModelIndex()).toString();
+					int thisInd = MetaOmGraph.getActiveProject().getMetadataHybrid()
+							.getColIndexbyName(selectedNames[i]);
+					MetaOmGraph.getActiveTable().selectNode(thisInd, false);
+				}
+				MetaOmGraph.tableToFront();
+				// int
+				// thisInd=MetaOmGraph.getActiveProject().getMetadataHybrid().getColIndexbyName(thisSname);
+				// MetaOmGraph.getActiveTable().selectNode(thisInd,true);
+			}
+
+		});
+		mnView_1.add(mntmSwitchToTree_1);
+		// mnFile.add(mntmNewProjectWith);
+
+		JMenu mnAnalyze = new JMenu("Analyze");
+		menuBar.add(mnAnalyze);
+
+		JMenuItem mntmCosineSililarity = new JMenuItem("Cosine sililarity");
+		mntmCosineSililarity.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				/**
+				 * select 2 or more runs and display the cosine simmilarity between them
+				 */
+				new AnimatedSwingWorker("Working...", true) {
+					@Override
+					public Object construct() {
+						EventQueue.invokeLater(new Runnable() {
+							public void run() {
+								// get data for all selceted cols
+								try {
+
+									if (table.getSelectedRows().length < 2) {
+										JOptionPane.showMessageDialog(null, "Please select at least two rows",
+												"Invalid selection", JOptionPane.ERROR_MESSAGE);
+										return;
+									}
+									/**
+									 * get all the row data for each col map colnum to data array
+									 */
+									HashMap<Integer, double[]> databyCols = getDataForSelectedDataCols();
+									if (databyCols == null) {
+										return;
+									}
+
+									// compute similarity here
+									ComputeRunsSimilarity ob = new ComputeRunsSimilarity(1, databyCols);
+									HashMap<String, Double> res = ob.doComputation();
+									// display res in JTable
+									EventQueue.invokeLater(new Runnable() {
+										public void run() {
+											try {
+												SimilarityDisplayFrame frameob = new SimilarityDisplayFrame(res,
+														"cosine similarity");
+
+												frameob.setSize(MetaOmGraph.getMainWindow().getWidth() / 2,
+														MetaOmGraph.getMainWindow().getHeight() / 2);
+												frameob.setTitle("Cosine similarity for runs");
+												MetaOmGraph.getDesktop().add(frameob);
+												frameob.setVisible(true);
+											} catch (Exception e) {
+												e.printStackTrace();
+											}
+										}
+									});
+								} catch (IOException | InterruptedException | ExecutionException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+							}
+						});
+						return null;
+					}
+				}.start();
+			}
+		});
+		mnAnalyze.add(mntmCosineSililarity);
+
+		JMenuItem mntmPearsonCorrelation = new JMenuItem("Pearson Correlation");
+		mntmPearsonCorrelation.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+
+				/**
+				 * select 2 or more runs and display the pearson correlation between them
+				 */
+				new AnimatedSwingWorker("Working...", true) {
+					@Override
+					public Object construct() {
+						EventQueue.invokeLater(new Runnable() {
+							public void run() {
+								// get data for all selceted cols
+								try {
+									/**
+									 * get all the row data for each col map colnum to data array
+									 */
+									if (table.getSelectedRows().length < 2) {
+										JOptionPane.showMessageDialog(null, "Please select at least two rows",
+												"Invalid selection", JOptionPane.ERROR_MESSAGE);
+										return;
+									}
+									HashMap<Integer, double[]> databyCols = getDataForSelectedDataCols();
+									if (databyCols == null) {
+										return;
+									}
+
+									// compute correlation here 2 for correlation
+									ComputeRunsSimilarity ob = new ComputeRunsSimilarity(2, databyCols);
+									HashMap<String, Double> res = ob.doComputation();
+									// display res in JTable
+									// displaySimilarityTable(res, "Pearson's correlation");
+									EventQueue.invokeLater(new Runnable() {
+										public void run() {
+											try {
+												SimilarityDisplayFrame frameob = new SimilarityDisplayFrame(res,
+														"Pearson's correlation");
+
+												frameob.setSize(MetaOmGraph.getMainWindow().getWidth() / 2,
+														MetaOmGraph.getMainWindow().getHeight() / 2);
+												frameob.setTitle("Pearson's correlation for runs");
+												MetaOmGraph.getDesktop().add(frameob);
+												frameob.setVisible(true);
+											} catch (Exception e) {
+												e.printStackTrace();
+											}
+										}
+									});
+								} catch (IOException | InterruptedException | ExecutionException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+							}
+						});
+						return null;
+					}
+				}.start();
+			}
+		});
+		mnAnalyze.add(mntmPearsonCorrelation);
+
+		JMenuItem mntmSpearmanCorrelation = new JMenuItem("Spearman Correlation");
+		mntmSpearmanCorrelation.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+
+				/**
+				 * select 2 or more runs and display the spearman correlation between them
+				 */
+				new AnimatedSwingWorker("Working...", true) {
+					@Override
+					public Object construct() {
+						EventQueue.invokeLater(new Runnable() {
+							public void run() {
+								// get data for all selceted cols
+								try {
+									/**
+									 * get all the row data for each col map colnum to data array
+									 */
+									if (table.getSelectedRows().length < 2) {
+										JOptionPane.showMessageDialog(null, "Please select at least two rows",
+												"Invalid selection", JOptionPane.ERROR_MESSAGE);
+										return;
+									}
+									HashMap<Integer, double[]> databyCols = getDataForSelectedDataCols();
+									if (databyCols == null) {
+										return;
+									}
+
+									// compute correlation 3 for spearman correlation
+									ComputeRunsSimilarity ob = new ComputeRunsSimilarity(3, databyCols);
+									HashMap<String, Double> res = ob.doComputation();
+									// display res in JTable
+									// displaySimilarityTable(res, "Pearson's correlation");
+									EventQueue.invokeLater(new Runnable() {
+										public void run() {
+											try {
+												SimilarityDisplayFrame frameob = new SimilarityDisplayFrame(res,
+														"Spearman correlation");
+
+												frameob.setSize(MetaOmGraph.getMainWindow().getWidth() / 2,
+														MetaOmGraph.getMainWindow().getHeight() / 2);
+												frameob.setTitle("Spearman correlation for runs");
+												MetaOmGraph.getDesktop().add(frameob);
+												frameob.setVisible(true);
+											} catch (Exception e) {
+												e.printStackTrace();
+											}
+										}
+									});
+								} catch (IOException | InterruptedException | ExecutionException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+							}
+						});
+						return null;
+					}
+				}.start();
+
+			}
+		});
+		mnAnalyze.add(mntmSpearmanCorrelation);
 
 		JMenuItem mntmSimple = new JMenuItem("Simple");
 		mntmSimple.addActionListener(new ActionListener() {
@@ -775,85 +854,6 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 			}
 		});
-		// remove simple search
-		// mnSearch.add(mntmSimple);
-
-		JMenuItem mntmAdvance = new JMenuItem("Search");
-		mntmAdvance.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(
-						MetaOmGraph.getActiveProject(), false);
-				final MetadataQuery[] queries;
-				queries = tsp.showSearchDialog();
-				if (tsp.getQueryCount() <= 0) {
-					// System.out.println("Search dialog cancelled");
-					// User didn't enter any queries
-					return;
-				}
-				// final int[] result = new
-				// int[MetaOmGraph.getActiveProject().getDataColumnCount()];
-				final List<String> result = new ArrayList<>();
-				new AnimatedSwingWorker("Searching...", true) {
-					@Override
-					public Object construct() {
-						List<String> hits = MetaOmGraph.getActiveProject().getMetadataHybrid().getMatchingRows(queries,
-								tsp.matchAll());
-						// return if no hits
-						if (hits.size() == 0) {
-							// JOptionPane.showMessageDialog(null, "hits len:"+hits.length);
-							// nohits=true;
-							result.add("NULL");
-							return null;
-						} else {
-							for (int i = 0; i < hits.size(); i++) {
-								result.add(hits.get(i));
-							}
-						}
-
-						return null;
-					}
-
-				}.start();
-
-				// add highlights to results
-				// move rows in result to top then highlight
-				int dataColNum = table.getColumn(obj.getDatacol()).getModelIndex();
-				moveRowsToTop(result, dataColNum);
-				highlightedRows = null;
-				highlightedRows = new ArrayList<>();
-				toHighlight = new HashMap<Integer, List<String>>();
-				toHighlight.put(dataColNum, result);
-				// create a list of highlighted rows and save under highlightedRows
-				// this is removed from the rendere function as it didn't add all the rows
-				// unless whole table is rendered of scrolled
-				for (int modelRow = 0; modelRow < table.getRowCount(); modelRow++) {
-					for (Integer j : toHighlight.keySet()) {
-						String type = (String) table.getModel().getValueAt(modelRow, j);
-						if (highlightThisRow(j, type)) {
-							if (!highlightedRows.contains(modelRow)) {
-								highlightedRows.add(modelRow);
-							}
-						}
-					}
-				}
-				JOptionPane.showMessageDialog(null, highlightedRows.size() + " rows matched the query", "Search result",
-						JOptionPane.INFORMATION_MESSAGE);
-				table.repaint();
-				// JOptionPane.showMessageDialog(null, "toH:"+toHighlight.toString());
-
-			}
-		});
-		mnSearch.add(mntmAdvance);
-
-		JMenuItem mntmRemovePrevious = new JMenuItem("Clear Last Search");
-		mntmRemovePrevious.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
-				clearLastSearchedRows();
-
-			}
-		});
-		mnSearch.add(mntmRemovePrevious);
 
 		JMenu mnHelp = new JMenu("Help");
 		menuBar.add(mnHelp);
