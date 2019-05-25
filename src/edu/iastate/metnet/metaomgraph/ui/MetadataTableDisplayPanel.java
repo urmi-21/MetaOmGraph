@@ -502,7 +502,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 		mnLinkToSra.add(mntmRemoveHyperlinks);
 
 		JMenuItem mntmProperties = new JMenuItem("Properties");
-		mnEdit.add(mntmProperties);
+		//mnEdit.add(mntmProperties);
 
 		JMenu mnView_1 = new JMenu("View");
 		menuBar.add(mnView_1);
