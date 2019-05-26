@@ -116,7 +116,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	// hasmap mapping feature num to expression data or datacol to sample depending
 	// on the box plot
 	HashMap<Integer, double[]> plotData;
-	// plot type 0 for feature 1 for sample
+	// plot type 0 for features 1 for samples
 	int plotType;
 	String[] rowNames;
 	private MetaOmProject myProject;
@@ -199,6 +199,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	/**
 	 * Create the frame.
 	 */
+	// plot type 0 for features 1 for samples
 	public BoxPlot(HashMap<Integer, double[]> plotData, int pType, MetaOmProject mp) {
 
 		this.plotData = plotData;
@@ -469,6 +470,8 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 
 			@Override
 			public String getToolTipText(MouseEvent event) {
+				
+				
 
 				ChartEntity entity = getChartRenderingInfo().getEntityCollection().getEntity(event.getPoint().getX(),
 						event.getPoint().getY());
@@ -489,6 +492,8 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				String q1 = temp[11].replaceAll("\\s+", "");
 				String q3 = temp[13].replaceAll("\\s+", "");
 
+				//If box plot is sample display only data statistics in tooltip
+				s
 				// create tooltip
 				return createTooltipTable(colKey, rowKey, mean, median, min, max, q1, q3);
 			}
@@ -584,48 +589,46 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		text += "<td><font size=-2>" + Utils.wrapText(series, 100, "<br>") + "</font></td>";
 		text += "</tr>";
 
-		// get gene metadata in String [][] format
-		String[] infoCols = myProject.getInfoColumnNames();
-		Object[] featureRow = myProject.getRowName(myProject.getRowIndexbyName(featureName, true));
+		// if data is from features
+		if (featureName != null) {
 
-		String[][] tableData = new String[infoCols.length][2];
-		for (int i = 0; i < infoCols.length; i++) {
-			tableData[i][0] = infoCols[i];
-			tableData[i][1] = String.valueOf(featureRow[i]);
-		}
+			// get gene metadata in String [][] format
+			String[] infoCols = myProject.getInfoColumnNames();
+			Object[] featureRow = myProject.getRowName(myProject.getRowIndexbyName(featureName, true));
 
-		int maxrowsinMD = 40;
-		int maxStringLen = 500;
+			String[][] tableData = new String[infoCols.length][2];
+			for (int i = 0; i < infoCols.length; i++) {
+				tableData[i][0] = infoCols[i];
+				tableData[i][1] = String.valueOf(featureRow[i]);
+			}
 
-		int colorIndex = 0;
-		for (int i = 0; i < tableData.length; i++) {
-			if (i == maxrowsinMD) {
+			int maxrowsinMD = 40;
+			int maxStringLen = 500;
+
+			int colorIndex = 0;
+			for (int i = 0; i < tableData.length; i++) {
+				if (i == maxrowsinMD) {
+					text += "<tr bgcolor=" + rowColors[colorIndex] + ">";
+					text += "<td><font size=-2>" + "..." + "</font></td>";
+					text += "<td><font size=-2>" + "..." + "</font></td>";
+					text += "</tr>";
+					break;
+				}
+				String thisAtt = tableData[i][0];
+				String thisData = tableData[i][1];
+				if (thisData.length() > maxStringLen) {
+					thisData = thisData.substring(0, maxStringLen) + "...";
+				}
+
 				text += "<tr bgcolor=" + rowColors[colorIndex] + ">";
-				text += "<td><font size=-2>" + "..." + "</font></td>";
-				text += "<td><font size=-2>" + "..." + "</font></td>";
+				text += "<td><font size=-2>" + Utils.wrapText(thisAtt.trim(), 100, "<br>") + "</font></td>";
+				text += "<td><font size=-2>" + Utils.wrapText(thisData.trim(), 100, "<br>") + "</font></td>";
+
 				text += "</tr>";
-				break;
-			}
-			String thisAtt = tableData[i][0];
-			String thisData = tableData[i][1];
-			if (thisData.length() > maxStringLen) {
-				thisData = thisData.substring(0, maxStringLen) + "...";
+				colorIndex = (colorIndex + 1) % rowColors.length;
+
 			}
 
-			text += "<tr bgcolor=" + rowColors[colorIndex] + ">";
-			text += "<td><font size=-2>" + Utils.wrapText(thisAtt.trim(), 100, "<br>") + "</font></td>";
-			text += "<td><font size=-2>" + Utils.wrapText(thisData.trim(), 100, "<br>") + "</font></td>";
-
-			text += "</tr>";
-			colorIndex = (colorIndex + 1) % rowColors.length;
-
-		}
-
-		if (tableData.length == 0 || tableData == null) {
-			text += "<tr bgcolor=" + rowColors[colorIndex] + ">";
-			text += "<td><font size=-2>" + "There is no metadata" + "<br>" + "</font></td>";
-			text += "<td><font size=-2>" + "" + "<br>" + "</font></td>";
-			text += "</tr>";
 		}
 
 		text += "</table> </div> </body></html>";
