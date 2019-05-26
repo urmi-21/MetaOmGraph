@@ -160,3 +160,4 @@ legend font
 $add menu to DifferentialCorrFrame
 histogram tooltips
 search genes in volcano plot by metadata
+MI validation
