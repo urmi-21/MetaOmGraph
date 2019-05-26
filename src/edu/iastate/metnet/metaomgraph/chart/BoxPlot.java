@@ -493,7 +493,9 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				String q3 = temp[13].replaceAll("\\s+", "");
 
 				//If box plot is sample display only data statistics in tooltip
-				//s
+				if(plotType==1) {
+					return createTooltipTable(null, rowKey, mean, median, min, max, q1, q3);
+				}
 				// create tooltip
 				return createTooltipTable(colKey, rowKey, mean, median, min, max, q1, q3);
 			}
@@ -596,37 +598,41 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 			String[] infoCols = myProject.getInfoColumnNames();
 			Object[] featureRow = myProject.getRowName(myProject.getRowIndexbyName(featureName, true));
 
-			String[][] tableData = new String[infoCols.length][2];
-			for (int i = 0; i < infoCols.length; i++) {
-				tableData[i][0] = infoCols[i];
-				tableData[i][1] = String.valueOf(featureRow[i]);
-			}
+			// if feature metadata is found
+			if (featureRow != null) {
 
-			int maxrowsinMD = 40;
-			int maxStringLen = 500;
+				String[][] tableData = new String[infoCols.length][2];
+				for (int i = 0; i < infoCols.length; i++) {
+					tableData[i][0] = infoCols[i];
+					tableData[i][1] = String.valueOf(featureRow[i]);
+				}
 
-			int colorIndex = 0;
-			for (int i = 0; i < tableData.length; i++) {
-				if (i == maxrowsinMD) {
+				int maxrowsinMD = 40;
+				int maxStringLen = 500;
+
+				int colorIndex = 0;
+				for (int i = 0; i < tableData.length; i++) {
+					if (i == maxrowsinMD) {
+						text += "<tr bgcolor=" + rowColors[colorIndex] + ">";
+						text += "<td><font size=-2>" + "..." + "</font></td>";
+						text += "<td><font size=-2>" + "..." + "</font></td>";
+						text += "</tr>";
+						break;
+					}
+					String thisAtt = tableData[i][0];
+					String thisData = tableData[i][1];
+					if (thisData.length() > maxStringLen) {
+						thisData = thisData.substring(0, maxStringLen) + "...";
+					}
+
 					text += "<tr bgcolor=" + rowColors[colorIndex] + ">";
-					text += "<td><font size=-2>" + "..." + "</font></td>";
-					text += "<td><font size=-2>" + "..." + "</font></td>";
+					text += "<td><font size=-2>" + Utils.wrapText(thisAtt.trim(), 100, "<br>") + "</font></td>";
+					text += "<td><font size=-2>" + Utils.wrapText(thisData.trim(), 100, "<br>") + "</font></td>";
+
 					text += "</tr>";
-					break;
+					colorIndex = (colorIndex + 1) % rowColors.length;
+
 				}
-				String thisAtt = tableData[i][0];
-				String thisData = tableData[i][1];
-				if (thisData.length() > maxStringLen) {
-					thisData = thisData.substring(0, maxStringLen) + "...";
-				}
-
-				text += "<tr bgcolor=" + rowColors[colorIndex] + ">";
-				text += "<td><font size=-2>" + Utils.wrapText(thisAtt.trim(), 100, "<br>") + "</font></td>";
-				text += "<td><font size=-2>" + Utils.wrapText(thisData.trim(), 100, "<br>") + "</font></td>";
-
-				text += "</tr>";
-				colorIndex = (colorIndex + 1) % rowColors.length;
-
 			}
 
 		}
