@@ -493,7 +493,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				String q3 = temp[13].replaceAll("\\s+", "");
 
 				//If box plot is sample display only data statistics in tooltip
-				s
+				//s
 				// create tooltip
 				return createTooltipTable(colKey, rowKey, mean, median, min, max, q1, q3);
 			}
