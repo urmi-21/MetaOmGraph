@@ -1671,6 +1671,9 @@ public class MetaOmProject {
 	 * @return
 	 */
 	public Object[] getGeneName(int entry) {
+		if (entry < 0) {
+			return null;
+		}
 		if (infoColumns == 0) {
 			String[][] result = new String[rowNames.length][1];
 			for (int x = 0; x < result.length; x++)
@@ -1680,7 +1683,16 @@ public class MetaOmProject {
 		return rowNames[entry];
 	}
 
+	/**
+	 * returns the row data from the feature metadata table as Object[]
+	 * 
+	 * @param entry
+	 * @return
+	 */
 	public Object[] getRowName(int entry) {
+		if (entry < 0) {
+			return null;
+		}
 		if (infoColumns == 0) {
 			String[] result = new String[1];
 			result[0] = (entry + 1) + "";
@@ -3439,13 +3451,14 @@ public class MetaOmProject {
 		}
 		return diffExpRes.get(key);
 	}
-	
+
 	/**
 	 * remove diff exp object
+	 * 
 	 * @param key
 	 */
 	public void removeDifferentialExpResults(String key) {
-		
+
 		if (diffExpRes == null) {
 			return;
 		}
@@ -3502,7 +3515,7 @@ public class MetaOmProject {
 		}
 		return diffCorrRes.get(key);
 	}
-	
+
 	public void removeDiffCorrResults(String key) {
 		if (diffCorrRes == null) {
 			return;
