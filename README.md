@@ -22,7 +22,7 @@ Coming Soon...
 
 Download executable from: http://metnetweb.gdcb.iastate.edu/MetNet_MetaOmGraph.htm
 
-User guide is available at: https://raw.githubusercontent.com/urmi-21/MetaOmGraph/master/manual/MOG_User_Guide.pdf
+User guide is available at: https://github.com/urmi-21/MetaOmGraph/blob/master/manual/MOG_User_Guide.pdf
 
 ### Prerequisites
 
