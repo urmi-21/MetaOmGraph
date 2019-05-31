@@ -19,9 +19,7 @@ User guide is available at: https://raw.githubusercontent.com/urmi-21/MetaOmGrap
 * Java Runtime Environment 8 (or higher)
 * R 3.4 (or higher) [optional]
 
-```
-Give examples
-```
+
 
 ### Installing
 
