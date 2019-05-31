@@ -8,6 +8,7 @@ Coming Soon...
 ## Getting Started
 
 Download executable from: http://metnetweb.gdcb.iastate.edu/MetNet_MetaOmGraph.htm
+
 User guide is available at: 
 
 ### Prerequisites
@@ -21,7 +22,7 @@ Give examples
 
 ### Installing
 
-MOG is freely available to download from \url{http://metnetweb.gdcb.iastate.edu/MetNet\textunderscore MetaOmGraph.htm}. Click the download button, and then download the .zip file. Unzip the downloaded file to get a .jar file, this is the MOG program.
+MOG is freely available to download from http://metnetweb.gdcb.iastate.edu/MetNet_MetaOmGraph.htm. Click the download button, and then download the .zip file. Unzip the downloaded file to get a .jar file, this is the MOG program.
 
 DOUBLE CLICK on the .jar file icon to start MOG.
 
