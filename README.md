@@ -9,8 +9,6 @@ MetaOmGraph (MOG) is a Java software to interactively explore and visualize larg
 
 ### Line Chart
 
-![alt text](https://raw.githubusercontent.com/urmi-21/MetaOmGraph/master/images/chartzoom.gif)
-
 ![alt text](https://raw.githubusercontent.com/urmi-21/MetaOmGraph/master/images/sorting.gif)
 
 ### Filtering
