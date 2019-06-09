@@ -162,3 +162,4 @@ histogram tooltips
 search genes in volcano plot by metadata
 MI validation
 fix drag metadata  tree problems 
+table fonts
