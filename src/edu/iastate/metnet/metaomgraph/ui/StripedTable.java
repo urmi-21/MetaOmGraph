@@ -48,6 +48,7 @@ public class StripedTable extends JTable {
 		super(model);
 		setDefaultEditor(Color.class, new ColorEditor());
 		setDefaultRenderer(Color.class, new ColorRenderer(true));
+		
 	}
 
 	
@@ -74,16 +75,7 @@ public class StripedTable extends JTable {
 			return null;
 		}
 
-		// get correct row index based on rowName if the table has been sorted
-		// String[] allRownames=MetaOmGraph.getActiveProject().getAllDefaultRowNames();
-		// JOptionPane.showMessageDialog(null, "All def row names"+
-		// Arrays.toString(allRownames));
-
-		/*
-		 * for(int k=0;k<allRownames.length;k++) { if(rowName.equals(allRownames[k])) {
-		 * JOptionPane.showMessageDialog(null, "11match "+rowName+":"+allRownames[k]);
-		 * rowIndex=k; break; } }
-		 */
+		
 
 		rowIndex = MetaOmGraph.getActiveProject().getRowIndexbyName(rowName, true);
 		// JOptionPane.showMessageDialog(null, "this rowname:"+rowName+" thisrow
@@ -145,7 +137,9 @@ public class StripedTable extends JTable {
 			c.setBackground(SELECTIONBCKGRND);
 		}
 		
-		c.setFont(new Font("Serif", Font.LAYOUT_LEFT_TO_RIGHT, 12));
+		//set font
+		//c.setFont(new Font("Serif", Font.LAYOUT_LEFT_TO_RIGHT, 16));
+		
 		return c;
 	}
 
