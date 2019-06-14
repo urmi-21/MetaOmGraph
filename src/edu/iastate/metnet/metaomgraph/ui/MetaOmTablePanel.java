@@ -606,6 +606,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		 */
 
 		listDisplay = new StripedTable(sorter);
+
+
+		
+
 		sorter.setTableHeader(listDisplay.getTableHeader());
 
 		geneListDisplayPane = new JScrollPane(listDisplay);

@@ -2,6 +2,7 @@ package edu.iastate.metnet.metaomgraph.ui;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -49,6 +50,9 @@ public class StripedTable extends JTable {
 		setDefaultRenderer(Color.class, new ColorRenderer(true));
 	}
 
+	
+	
+	
 	// urmi show p value as tool tip
 	@Override
 	public String getToolTipText(MouseEvent e) {
@@ -140,6 +144,8 @@ public class StripedTable extends JTable {
 			// c.setForeground(UIManager.getColor("Table.selectionForeground"));
 			c.setBackground(SELECTIONBCKGRND);
 		}
+		
+		c.setFont(new Font("Serif", Font.LAYOUT_LEFT_TO_RIGHT, 12));
 		return c;
 	}
 
