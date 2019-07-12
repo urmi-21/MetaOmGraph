@@ -1723,7 +1723,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 	}
 
 	/**
-	 * @author urmi Return the current char panel
+	 * @author urmi Return the current chart panel
 	 * @return
 	 */
 	public MetaOmChartPanel getThisChartPanel() {
