@@ -46,6 +46,7 @@ public class PointInfoPanel extends JPanel {
 	private JMenuItem ensemblItem;
 	private JMenuItem ensemblPlantsItem;
 	private JMenuItem refSeqItem;
+	private JMenuItem geneCardsItem;
 
 	private JButton markButton;
 	private MetaOmChartPanel myChartPanel;
@@ -236,6 +237,33 @@ public class PointInfoPanel extends JPanel {
 
 			}
 		});
+		
+		geneCardsItem = new JMenuItem("GeneCards");
+		geneCardsItem.setEnabled(false);
+		geneCardsItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//if no point is selected, return;
+				if(myChartPanel.getSelectedPoint()==null) {
+					return;
+				}
+				MetaOmProject myProject = myChartPanel.getProject();
+				URI ns = null;
+				int[] rows = myChartPanel.getSelectedRows();
+				int selectedSeries = myChartPanel.getSelectedSeries();
+				String thisName = myProject.getRowName(rows[selectedSeries])[myProject.getDefaultColumn()].toString();
+				try {
+					ns = new URI("https://www.genecards.org/Search/Keyword?queryString=" + thisName);
+					java.awt.Desktop.getDesktop().browse(ns);
+				} catch (URISyntaxException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+
+			}
+		});
 
 		atgsItem = new JMenuItem("AtGeneSearch");
 		atgsItem.setEnabled(false);
@@ -269,7 +297,7 @@ public class PointInfoPanel extends JPanel {
 					JOptionPane.showMessageDialog(null, "Unable to find any gene IDs in the selected rows", "Error", 0);
 					return;
 				}
-				String urlString = "http://www.metnetdb.org/AtGeneSearch/index.php?genelist=" + geneList;
+				String urlString = "http://metnetweb.gdcb.iastate.edu/AtGeneSearch/index.php?genelist=" + geneList;
 				try {
 					Class.forName("java.awt.Desktop");
 					Desktop.getDesktop().browse(new URI(urlString));
@@ -417,6 +445,7 @@ public class PointInfoPanel extends JPanel {
 			}
 		});
 		thalemineItem.setToolTipText("Connect to Araport-ThaleMine for information on the first selected gene");
+		infoPopupMenu.add(geneCardsItem);
 		infoPopupMenu.add(ensemblItem);
 		infoPopupMenu.add(ensemblPlantsItem);
 		infoPopupMenu.add(refSeqItem);
@@ -488,6 +517,7 @@ public class PointInfoPanel extends JPanel {
 		if (myChartPanel.getSelectedPoint() == null) {
 			xValue.setText("");
 			yValue.setText("");
+			geneCardsItem.setEnabled(false);
 			ensemblItem.setEnabled(false);
 			ensemblPlantsItem.setEnabled(false);
 			refSeqItem.setEnabled(false);
@@ -542,6 +572,7 @@ public class PointInfoPanel extends JPanel {
 			}
 			seriesName.setEnabled(true);
 			//if a point is selected enable these buttons
+			geneCardsItem.setEnabled(selectedLocus != null);
 			ensemblItem.setEnabled(selectedLocus != null);
 			ensemblPlantsItem.setEnabled(selectedLocus != null);
 			refSeqItem.setEnabled(selectedLocus != null);
