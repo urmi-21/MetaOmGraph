@@ -155,8 +155,13 @@ public class PointInfoPanel extends JPanel {
 
 		// urmi
 		ensemblItem = new JMenuItem("Ensembl");
+		ensemblItem.setEnabled(false);
 		ensemblItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				//if no point is selected, return;
+				if(myChartPanel.getSelectedPoint()==null) {
+					return;
+				}
 				MetaOmProject myProject = myChartPanel.getProject();
 				URI ns = null;
 				int[] rows = myChartPanel.getSelectedRows();
@@ -177,8 +182,13 @@ public class PointInfoPanel extends JPanel {
 		});
 
 		ensemblPlantsItem = new JMenuItem("EnsemblPlants");
+		ensemblPlantsItem.setEnabled(false);
 		ensemblPlantsItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				//if no point is selected, return;
+				if(myChartPanel.getSelectedPoint()==null) {
+					return;
+				}
 				MetaOmProject myProject = myChartPanel.getProject();
 				URI ns = null;
 				int[] rows = myChartPanel.getSelectedRows();
@@ -200,8 +210,13 @@ public class PointInfoPanel extends JPanel {
 		});
 
 		refSeqItem = new JMenuItem("RefSeq");
+		refSeqItem.setEnabled(false);
 		refSeqItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				//if no point is selected, return;
+				if(myChartPanel.getSelectedPoint()==null) {
+					return;
+				}
 				MetaOmProject myProject = myChartPanel.getProject();
 				URI ns = null;
 				int[] rows = myChartPanel.getSelectedRows();
@@ -223,8 +238,13 @@ public class PointInfoPanel extends JPanel {
 		});
 
 		atgsItem = new JMenuItem("AtGeneSearch");
+		atgsItem.setEnabled(false);
 		atgsItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				//if no point is selected, return;
+				if(myChartPanel.getSelectedPoint()==null) {
+					return;
+				}
 				StringBuilder geneList;
 				if (selectedLocus != null) {
 
@@ -274,6 +294,10 @@ public class PointInfoPanel extends JPanel {
 		tairItem.setEnabled(false);
 		tairItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				//if no point is selected, return;
+				if(myChartPanel.getSelectedPoint()==null) {
+					return;
+				}
 				if (selectedLocus == null) {
 					JOptionPane.showMessageDialog(null, "No Locus ID selected.", "Error", 0);
 					return;
@@ -313,6 +337,10 @@ public class PointInfoPanel extends JPanel {
 		jbrowseItem.setEnabled(false);
 		jbrowseItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				//if no point is selected, return;
+				if(myChartPanel.getSelectedPoint()==null) {
+					return;
+				}
 				if (selectedLocus == null) {
 					JOptionPane.showMessageDialog(null, "No Locus ID selected.", "Error", 0);
 					return;
@@ -351,6 +379,10 @@ public class PointInfoPanel extends JPanel {
 		thalemineItem.setEnabled(false);
 		thalemineItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				//if no point is selected, return;
+				if(myChartPanel.getSelectedPoint()==null) {
+					return;
+				}
 				if (selectedLocus == null) {
 					JOptionPane.showMessageDialog(null, "No Locus ID selected.", "Error", 0);
 					return;
@@ -395,8 +427,8 @@ public class PointInfoPanel extends JPanel {
 
 		infoButton = new MenuButton("External web applications", MetaOmGraph.getIconTheme().getExternalSource(),
 				infoPopupMenu);
-
 		infoButton.setToolTipText("Connect to an external website for more info on the selected genes");
+		
 
 		markButton = new JButton("Mark");
 		markButton.addActionListener(new ActionListener() {
@@ -456,6 +488,10 @@ public class PointInfoPanel extends JPanel {
 		if (myChartPanel.getSelectedPoint() == null) {
 			xValue.setText("");
 			yValue.setText("");
+			ensemblItem.setEnabled(false);
+			ensemblPlantsItem.setEnabled(false);
+			refSeqItem.setEnabled(false);
+			atgsItem.setEnabled(false);
 			tairButton.setEnabled(false);
 			jbrowseButton.setEnabled(false);
 			thalemineButton.setEnabled(false);
@@ -505,13 +541,21 @@ public class PointInfoPanel extends JPanel {
 				}
 			}
 			seriesName.setEnabled(true);
+			//if a point is selected enable these buttons
+			ensemblItem.setEnabled(selectedLocus != null);
+			ensemblPlantsItem.setEnabled(selectedLocus != null);
+			refSeqItem.setEnabled(selectedLocus != null);
+			atgsItem.setEnabled(selectedLocus != null);
 			tairButton.setEnabled(selectedLocus != null);
 			jbrowseButton.setEnabled(selectedLocus != null);
 			thalemineButton.setEnabled(selectedLocus != null);
+			
 			seriesName.setSelectedIndex(myChartPanel.getProject().getDefaultColumn());
 			if (seriesName.getPreferredSize().width > getWidth() / 3)
 				seriesName.setPreferredSize(new Dimension(getWidth() / 3, seriesName.getPreferredSize().height));
 		}
+		
+		
 		tairItem.setEnabled(selectedLocus != null);
 		jbrowseItem.setEnabled(selectedLocus != null);
 		thalemineItem.setEnabled(selectedLocus != null);
