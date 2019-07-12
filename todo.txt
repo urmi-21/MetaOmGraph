@@ -161,6 +161,6 @@ $add menu to DifferentialCorrFrame
 histogram tooltips
 search genes in volcano plot by metadata
 MI validation
-fix drag metadata  tree problems 
+fix drag metadata tree problems 
 table fonts
-add genecards to external web apps button in line charts
+$add genecards to external web apps button in line charts
