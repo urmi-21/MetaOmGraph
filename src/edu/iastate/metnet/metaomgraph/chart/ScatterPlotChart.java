@@ -507,20 +507,23 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 				XYItemEntity item = (XYItemEntity) entity;
 				int thisXind = item.getItem();
 				// get x and y points
-
 				XYDataset thisDS = item.getDataset();
 				double chartX = thisDS.getXValue(item.getSeriesIndex(), thisXind);
 				double chartY = thisDS.getYValue(item.getSeriesIndex(), thisXind);
-
+				
+				//String colKey = (String) item.get
+				//String rowKey = (String) item.getRowKey();
+				
+				//get the series name
+				String thisSeries=item.getToolTipText();
+				int lastChar=thisSeries.lastIndexOf(":");
+				thisSeries=thisSeries.substring(0, lastChar);
+				
 				int correctColIndex = -1;
 				try {
-					// get correct colIndex
+					// Scatterplot dataset is sorted by x-axis values. Get correct colIndex. 
 					if (splitIndex == null) {
-						// correctColIndex =
-						// myProject.getMetadataHybrid().getColIndexbyName(myProject.getDatainSortedOrder(selected[pivotIndex],
-						// thisXind, excludedCopy));
 						// create collection of 0 till #Samples-1
-
 						Collection<Integer> thisIndices = new ArrayList<>(
 								IntStream.rangeClosed(0, myProject.getDataColumnCount() - 1).boxed()
 										.collect(Collectors.toList()));
@@ -543,7 +546,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 					return null;
 				}
 
-				return createTooltipTable(correctColIndex, chartX, chartY);
+				return createTooltipTable(thisSeries,correctColIndex, chartX, chartY);
 
 			}
 
@@ -641,7 +644,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		return dataset;
 	}
 
-	private String createTooltipTable(int colIndex, double x, double y) {
+	private String createTooltipTable(String seriesName, int colIndex, double x, double y) {
 		DecimalFormat df = new DecimalFormat("####0.0000");
 		String bgColor = "#" + Integer.toHexString(MetaOmGraph.getTableColor1().getRGB()).substring(2);
 		;
@@ -657,7 +660,12 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		text += "<td><font size=-2>" + Utils.wrapText("Point", 100, "<br>") + "</font></td>";
 		text += "<td><font size=-2>" + Utils.wrapText("(" + df.format(x) + "," + df.format(y) + ")", 100, "<br>")
 				+ "</font></td>";
-
+		text += "</tr>";
+		
+		text += "<tr bgcolor=" + rowColors[0] + ">";
+		text += "<td><font size=-2>" + Utils.wrapText("Series", 100, "<br>") + "</font></td>";
+		text += "<td><font size=-2>" + Utils.wrapText(seriesName, 100, "<br>")
+				+ "</font></td>";
 		text += "</tr>";
 
 		if (MetaOmGraph.getActiveProject().getMetadataHybrid() == null) {
