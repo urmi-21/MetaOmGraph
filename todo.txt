@@ -165,3 +165,4 @@ fix drag metadata tree problems
 table fonts
 $add genecards to external web apps button in line charts
 MOG icons in all windows
+scaterplot tooltip show series name

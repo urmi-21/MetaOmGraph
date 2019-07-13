@@ -470,9 +470,9 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 
 			@Override
 			public String getToolTipText(MouseEvent event) {
-				
-				
-
+				if (myProject.getMetadataHybrid() == null) {
+					return null;
+				}
 				ChartEntity entity = getChartRenderingInfo().getEntityCollection().getEntity(event.getPoint().getX(),
 						event.getPoint().getY());
 				// JOptionPane.showMessageDialog(null, entity);
@@ -492,8 +492,8 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				String q1 = temp[11].replaceAll("\\s+", "");
 				String q3 = temp[13].replaceAll("\\s+", "");
 
-				//If box plot is sample display only data statistics in tooltip
-				if(plotType==1) {
+				// If box plot is sample display only data statistics in tooltip
+				if (plotType == 1) {
 					return createTooltipTable(null, rowKey, mean, median, min, max, q1, q3);
 				}
 				// create tooltip
