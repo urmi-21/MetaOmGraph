@@ -1,7 +1,7 @@
 package edu.iastate.metnet.metaomgraph;
 
 import edu.iastate.metnet.metaomgraph.utils.Utils;
-import edu.iastate.metnet.arrayexpress.NewAEDataDownloader;
+
 import edu.iastate.metnet.metaomgraph.ui.MetadataEditor;
 import edu.iastate.metnet.metaomgraph.utils.qdxml.SimpleXMLElement;
 //import javassist.expr.NewArray;
