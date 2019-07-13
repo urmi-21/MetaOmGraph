@@ -328,6 +328,7 @@ public class TableSorter extends AbstractTableModel {
 	}
 
 	public Class getColumnClass(int column) {
+		//return String.class;
 		Class result = null;
 		// check if all values are number
 		String thisHeader = getColumnName(column);
@@ -336,7 +337,7 @@ public class TableSorter extends AbstractTableModel {
 			return result;
 
 		}
-		// JOptionPane.showMessageDialog(null, "return null sorter");
+		
 		return this.tableModel.getColumnClass(column);
 	}
 

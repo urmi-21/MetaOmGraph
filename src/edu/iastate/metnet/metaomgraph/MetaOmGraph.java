@@ -806,7 +806,7 @@ public class MetaOmGraph implements ActionListener {
 		// urmi remove unused menu
 		// newProjectMenu.add(newSOFTItem);
 		// newProjectMenu.add(newMetabolomicsItem);
-		// newProjectMenu.add(newArrayExpressItem);
+		 newProjectMenu.add(newArrayExpressItem);
 
 		openProjectItem = new JMenuItem("Open Project...");
 		openProjectItem.setActionCommand(OPEN_COMMAND);
