@@ -1313,7 +1313,7 @@ public class Utils {
 	 */
 	public static String removeSpecialChars(String s) {
 		
-		String[] special = { "/", "\\", "+", "[", "^", "$", ".", "|", "?", "*", "(", ")", "{", "}", "-","&", "%","!" };
+		String[] special = { "/", "\\", "+", "[", "^", "$", ".", "|", "?", "*", "(", ")", "{", "}", "-","&", "%","!",";" };
 		//remove spaces
 		String res = s.replaceAll("\\s+","");
 		try {
