@@ -24,10 +24,9 @@ import javax.swing.table.TableRowSorter;
 
 //import com.itextpdf.xmp.impl.Utils;
 
-
 import apple.awt.CButton;
+import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
-
 
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -164,69 +163,23 @@ public class SearchByExpressionFrame extends JInternalFrame {
 		btnGo = new JButton("Go");
 		btnGo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				double minVal = 0;
-				double maxVal = 0;
-				List<String> colNames = new ArrayList<>();
-				try {
-					minVal = Double.parseDouble(textField.getText());
-					maxVal = Double.parseDouble(textField_1.getText());
-				} catch (NumberFormatException nfe) {
-					JOptionPane.showMessageDialog(null, "Please check min and max values", "Values error",
-							JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				// get results for selected rows
-				int[] selected = table.getSelectedRows();
-				if(selected ==null || selected.length<1) {
-					return;
-				}
-				List<List<String>> res = new ArrayList<>();
-				if (searchDC) {
-					try {
-						for (int s = 0; s < selected.length; s++) {
-							int thisIndex=table.convertRowIndexToModel( selected[s]);
-							List<String> temp = new ArrayList<>();
-							colNames.add(myProject.getDefaultRowNames(thisIndex));
-							double[] values = myProject.getAllData(thisIndex);
-							for (int i = 0; i < values.length; i++) {
+				new AnimatedSwingWorker("Working...", true) {
+					@Override
+					public Object construct() {
+						EventQueue.invokeLater(new Runnable() {
+							public void run() {
 								try {
-									if (values[i] >= minVal && values[i] <= maxVal)
-										temp.add(myProject.getDataColumnHeader(i));
-								} catch (NumberFormatException nfe) {
-									System.err.println("value at " + i + " is not a number");
+									startSearch();
+								} catch (Exception e) {
+									e.printStackTrace();
 								}
 							}
-							res.add(temp);
-						}
-
-					} catch (IOException e) {
-						e.printStackTrace();
+						});
+						return null;
 					}
 
-					// JOptionPane.showMessageDialog(null, "cn:" + colNames.toString());
-					// JOptionPane.showMessageDialog(null, "res:" + res.toString());
-				} else {
-					try {
-						for (int s = 0; s < selected.length; s++) {
-							int thisIndex=table.convertRowIndexToModel(selected[s]);
-							List<String> temp = new ArrayList<>();
-							colNames.add(myProject.getDataColumnHeader(thisIndex));
-							double[] values = myProject.getDataForColumn(thisIndex);
-							for (int i = 0; i < values.length; i++) {
-								try {
-									if (values[i] >= minVal && values[i] <= maxVal)
-										temp.add(myProject.getDefaultRowNames(i));
-								} catch (NumberFormatException nfe) {
-									System.err.println("value at " + i + " is not a number");
-								}
-							}
-							res.add(temp);
-						}
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-				initRightTable(colNames, res);
+				}.start();
+
 			}
 		});
 		panel.add(btnGo);
@@ -526,6 +479,77 @@ public class SearchByExpressionFrame extends JInternalFrame {
 		table_1.setFillsViewportHeight(true);
 		table_1.getTableHeader().setFont(new Font("Garamond", Font.BOLD, 14));
 		scrollPane_1.setViewportView(table_1);
+
+	}
+
+	/**
+	 * function to perform search by expression values
+	 */
+	public void startSearch() {
+		double minVal = 0;
+		double maxVal = 0;
+		List<String> colNames = new ArrayList<>();
+		try {
+			minVal = Double.parseDouble(textField.getText());
+			maxVal = Double.parseDouble(textField_1.getText());
+		} catch (NumberFormatException nfe) {
+			JOptionPane.showMessageDialog(null, "Please check min and max values", "Values error",
+					JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		// get results for selected rows
+		int[] selected = table.getSelectedRows();
+		if (selected == null || selected.length < 1) {
+			JOptionPane.showMessageDialog(null, "Please select rows to search.", "Please select rows",
+					JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		List<List<String>> res = new ArrayList<>();
+		// search datacolumns
+		if (searchDC) {
+			try {
+				for (int s = 0; s < selected.length; s++) {
+					int thisIndex = table.convertRowIndexToModel(selected[s]);
+					List<String> temp = new ArrayList<>();
+					colNames.add(myProject.getDefaultRowNames(thisIndex));
+					double[] values = myProject.getAllData(thisIndex);
+					for (int i = 0; i < values.length; i++) {
+						try {
+							if (values[i] >= minVal && values[i] <= maxVal)
+								temp.add(myProject.getDataColumnHeader(i));
+						} catch (NumberFormatException nfe) {
+							System.err.println("value at " + i + " is not a number");
+						}
+					}
+					res.add(temp);
+				}
+
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+		} else {// search features
+			try {
+				for (int s = 0; s < selected.length; s++) {
+					int thisIndex = table.convertRowIndexToModel(selected[s]);
+					List<String> temp = new ArrayList<>();
+					colNames.add(myProject.getDataColumnHeader(thisIndex));
+					double[] values = myProject.getDataForColumn(thisIndex);
+					for (int i = 0; i < values.length; i++) {
+						try {
+							if (values[i] >= minVal && values[i] <= maxVal)
+								temp.add(myProject.getDefaultRowNames(i));
+						} catch (NumberFormatException nfe) {
+							System.err.println("value at " + i + " is not a number");
+						}
+					}
+					res.add(temp);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		initRightTable(colNames, res);
 
 	}
 
