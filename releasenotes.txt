@@ -3,6 +3,7 @@ Added differential correlation interface
 Added bar charts
 Fixed "External Web Applications" function in line charts
 Added option to show/hide legends in all charts
+Fixed bug which caused crash when saving differential expression analysis
 
 MOG 1.7.7 Release date: 4/6/2019 
 Added option to show outliers/mean in boxplots
