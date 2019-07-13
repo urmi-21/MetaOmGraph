@@ -108,6 +108,7 @@ import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JToggleButton;
 import javax.swing.SpinnerNumberModel;
 
 public class ScatterPlotChart extends JInternalFrame implements ChartMouseListener, ActionListener {
@@ -137,6 +138,12 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 	private JButton defaultZoom;
 	private JButton changePalette;
 	private JButton splitDataset;
+	// for hide and show legends
+	private LegendTitle myLegend;
+	private JToggleButton toggleLegend;
+	private boolean legendFlag = true;
+	// if number of items in legend is more than this then turn legend off
+	private int maxLegend = 30;
 
 	// bottom toolbar
 	private JButton btnNewButton_1;
@@ -254,6 +261,11 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		changePalette.setOpaque(false);
 		changePalette.setContentAreaFilled(false);
 		changePalette.setBorderPainted(true);
+		
+		toggleLegend = new JToggleButton(theme.getLegend(), legendFlag);
+		toggleLegend.setToolTipText("Show/hide legend");
+		toggleLegend.setActionCommand("legend");
+		toggleLegend.addActionListener(this);
 
 		panel.add(properties);
 		panel.add(save);
@@ -261,19 +273,20 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		panel.add(zoomIn);
 		panel.add(zoomOut);
 		panel.add(defaultZoom);
+		panel.add(toggleLegend);
 		panel.add(splitDataset);
 		panel.add(changePalette);
 
 		spinner = new JSpinner();
 		spinner.setToolTipText("Changes plot point size");
 		spinner.setModel(new SpinnerNumberModel(pointSize, 1.0, 20.0, 1.0));
-		//set uneditable
+		// set uneditable
 		((JSpinner.DefaultEditor) spinner.getEditor()).getTextField().setEditable(false);
 		panel.add(spinner);
 		// add change listener
 		ChangeListener listener = new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
-				pointSize=(double) spinner.getValue();
+				pointSize = (double) spinner.getValue();
 				updateChart();
 			}
 		};
@@ -309,8 +322,14 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		XYPlot plot = (XYPlot) myChart.getPlot();
 		plot.setBackgroundPaint(plotbg);
 		myChart.setBackgroundPaint(chartbg);
-		// plot.setpaint
-		// XYItemRenderer renderer = plot.getRenderer();
+
+		// save legend
+		myLegend = myChart.getLegend();
+		// if legene flag is off remove legend
+		if (!legendFlag) {
+			myChart.removeLegend();
+		}
+
 		myRenderer = plot.getRenderer();
 		// double size = 120.0;
 		// double delta = size / 2.0;
@@ -646,12 +665,12 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		}
 
 		String[][] tableData = myProject.getMetadataHybrid().getMetadataForCol(colIndex);
-		
-		//if nothing is returned. this should not happen.
-		if(tableData==null) {
+
+		// if nothing is returned. this should not happen.
+		if (tableData == null) {
 			return "Error. Metadata not found!!";
 		}
-		
+
 		int maxrowsinMD = 40;
 		int maxStringLen = 500;
 
@@ -892,6 +911,17 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 
 			return;
 		}
+		
+		//show hide legend
+		if ("legend".equals(e.getActionCommand())) {
+			// TODO
+			if (this.legendFlag) {
+				this.legendFlag = false;
+			} else {
+				this.legendFlag = true;
+			}
+			setLegendVisible(legendFlag);
+		}
 
 	}
 
@@ -1088,6 +1118,21 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 
 		return result;
 
+	}
+	
+	/**
+	 * Sets the legend visible
+	 * 
+	 * @param legendVisible
+	 *            <code>boolean</code> variable which adds the legend when true else
+	 *            removes it
+	 */
+	public void setLegendVisible(boolean legendVisible) {
+		if (legendVisible) {
+			myChart.addLegend(myLegend);
+		} else {
+			myChart.removeLegend();
+		}
 	}
 
 }
