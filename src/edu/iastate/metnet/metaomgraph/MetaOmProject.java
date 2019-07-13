@@ -3675,6 +3675,7 @@ public class MetaOmProject {
 	public Element getDiffCorrResAsXML() {
 		Element root = new Element("ROOT");
 		root.setAttribute("name", "Root");
+		
 		if (diffCorrRes != null) {
 			String[] savedDC = getSavedDiffCorrResNames();
 			for (String id : savedDC) {
