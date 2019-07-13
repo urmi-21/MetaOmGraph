@@ -607,9 +607,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 		listDisplay = new StripedTable(sorter);
 
-
-		
-
 		sorter.setTableHeader(listDisplay.getTableHeader());
 
 		geneListDisplayPane = new JScrollPane(listDisplay);
@@ -3197,9 +3194,14 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			// create 4 lists r1,pv1,r2,pv2
 			// select two corr columns and do z test
 			String col1 = selectCorrColumn();
+			if(col1==null) {
+				JOptionPane.showMessageDialog(null, "No correlation columns found!", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				return;
+			}
 			int n1 = 0;
 			try {
-				n1 = Integer.parseInt((String) JOptionPane.showInputDialog(null, "Please Enter a value", "Input N1",
+				n1 = Integer.parseInt((String) JOptionPane.showInputDialog(null, "Please Enter the sample size for selected correlation (N1)", "Input N1",
 						JOptionPane.QUESTION_MESSAGE, null, null, String.valueOf(n1)));
 
 			} catch (NumberFormatException nfe) {
@@ -3209,9 +3211,14 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			}
 
 			String col2 = selectCorrColumn();
+			if(col2==null) {
+				JOptionPane.showMessageDialog(null, "No correlation columns found!", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				return;
+			}
 			int n2 = 0;
 			try {
-				n2 = Integer.parseInt((String) JOptionPane.showInputDialog(null, "Please Enter a value", "Input N2",
+				n2 = Integer.parseInt((String) JOptionPane.showInputDialog(null, "Please Enter the sample size for selected correlation (N2)", "Input N2",
 						JOptionPane.QUESTION_MESSAGE, null, null, String.valueOf(n2)));
 
 			} catch (NumberFormatException nfe) {
@@ -3234,7 +3241,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						listDisplay.convertColumnIndexToView(myProject.getDefaultColumn())));
 			}
 
-			DiffCorrResultsTable frame = new DiffCorrResultsTable(featureNames, n1, n2, corrVals1, corrVals2,myProject);
+			DiffCorrResultsTable frame = new DiffCorrResultsTable(featureNames, n1, n2, corrVals1, corrVals2,
+					myProject);
 			frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
 			frame.setTitle("Fold change results");
 			MetaOmGraph.getDesktop().add(frame);
@@ -3291,7 +3299,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			// display result using DiffCorrResultsTable
 			DiffCorrResultsTable frame = new DiffCorrResultsTable(diffcorrresOB.getFeatureNames(),
 					diffcorrresOB.getGrp1Size(), diffcorrresOB.getGrp2Size(), diffcorrresOB.getCorrGrp1(),
-					diffcorrresOB.getCorrGrp2(),myProject);
+					diffcorrresOB.getCorrGrp2(), myProject);
 			frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
 			MetaOmGraph.getDesktop().add(frame);
 			frame.setVisible(true);
@@ -3321,7 +3329,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			if (opt != 0) {
 				return;
 			}
-			
+
 			myProject.removeDiffCorrResults(chosenVal);
 			return;
 
@@ -4068,7 +4076,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	 * @return
 	 */
 	private List<Double> getCorrData(String colName) {
-
+		if (colName == null) {
+			return null;
+		}
 		List<Double> corrVals = new ArrayList<>();
 		// add all values under the colName column
 		for (int r = 0; r < listDisplay.getRowCount(); r++) {
