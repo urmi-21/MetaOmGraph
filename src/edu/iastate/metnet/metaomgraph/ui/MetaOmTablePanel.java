@@ -240,7 +240,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 		// urmi
 		plotRMenu = new JMenu("Using R");
-		//refresh menuitems before display
+		// refresh menuitems before display
 		plotRMenu.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -251,17 +251,18 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		});
 		plotRMenu.addMenuListener(new MenuListener() {
 			public void menuCanceled(MenuEvent arg0) {
-				
+
 			}
+
 			public void menuDeselected(MenuEvent arg0) {
-				
+
 			}
+
 			public void menuSelected(MenuEvent arg0) {
-				//JOptionPane.showMessageDialog(null, "3");
+				// JOptionPane.showMessageDialog(null, "3");
 				refreshRPlotMenu();
 			}
 		});
-		
 
 		plotListItem.setActionCommand(GRAPH_LIST_COMMAND);
 		plotListItem.addActionListener(this);
@@ -286,8 +287,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		plotBoxColItem.addActionListener(this);
 		plotHistogramItem.setActionCommand("create histogram");
 		plotHistogramItem.addActionListener(this);
-	
-	
 
 		JPopupMenu plotPopupMenu = new JPopupMenu();
 		selectedRowsMenu.add(plotRowsItem);
@@ -4130,21 +4129,24 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	 * Build menu for executing R scripts
 	 */
 	private void refreshRPlotMenu() {
-		//remove all existing items
-		plotRMenu.removeAll();
-		
+		// remove all existing items
+		if (plotRMenu.getItemCount() > 0) {
+			plotRMenu.removeAll();
+		}
+
 		String pathtoRscripts = MetaOmGraph.getpathtoRscrips();
 		if (!(pathtoRscripts == null || pathtoRscripts == "")) {
-
 			// get a list of .R files in the directory
 			File[] rFiles = Utils.fileFinder(pathtoRscripts, ".R");
-
-			// add each file to menu
-			for (File f : rFiles) {
-				JMenuItem thisItem = new JMenuItem(f.getName());
-				thisItem.setActionCommand("runuserR::" + f.getAbsolutePath());
-				thisItem.addActionListener(this);
-				plotRMenu.add(thisItem);
+			//if files found
+			if (rFiles != null) {
+				// add each file to menu
+				for (File f : rFiles) {
+					JMenuItem thisItem = new JMenuItem(f.getName());
+					thisItem.setActionCommand("runuserR::" + f.getAbsolutePath());
+					thisItem.addActionListener(this);
+					plotRMenu.add(thisItem);
+				}
 			}
 		}
 
