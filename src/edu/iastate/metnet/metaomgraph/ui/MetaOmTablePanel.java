@@ -239,6 +239,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		// urmi
 		JMenu plotRMenu = new JMenu("Using R");
 		plotHeatMapItem = new JMenuItem("Heatmap");
+		buildPlotRmenu();
 		runOtherScript = new JMenuItem("Run other");
 
 		plotListItem.setActionCommand(GRAPH_LIST_COMMAND);
@@ -4095,6 +4096,15 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 
 		return corrVals;
+	}
+	
+	private void buildPlotRmenu() {
+		String pathtoRscripts=MetaOmGraph.getpathtoRscrips();
+		if(pathtoRscripts==null || pathtoRscripts=="") {
+			return;
+		}
+		
+		//get a list of .R files in the directory
 	}
 
 }

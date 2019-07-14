@@ -1,3 +1,7 @@
+MOG 1.7.8b Release date: TBD
+Fixed problems with executing R files on MAC
+
+
 MOG 1.7.8 Release date: 7/13/2019
 Added differential correlation interface
 Added bar charts
