@@ -15,7 +15,6 @@ import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 
-
 public class MakeChartWithR {
 
 	private String pathtoRscripts = MetaOmGraph.getpathtoRscrips();
@@ -56,7 +55,7 @@ public class MakeChartWithR {
 			dirFile.mkdir();
 		}
 		final File file = new File(directory + System.getProperty("file.separator") + tempFilename);
-		
+
 		new AnimatedSwingWorker("Working...", true) {
 			@Override
 			public Object construct() {
@@ -80,8 +79,7 @@ public class MakeChartWithR {
 								fw.write(thisLine);
 							}
 							fw.close();
-							
-							
+
 							JOptionPane.showMessageDialog(null, "File saved:" + file.getAbsolutePath(), "File saved",
 									JOptionPane.INFORMATION_MESSAGE);
 						} catch (IOException e) {
@@ -92,7 +90,7 @@ public class MakeChartWithR {
 						}
 					}
 				});
-				return null; 
+				return null;
 			}
 		}.start();
 
@@ -140,8 +138,8 @@ public class MakeChartWithR {
 							// JOptionPane.showMessageDialog(null, "rsc:"
 							// +getClass().getResource("/resource/MetaOmicon.png").toString());
 
-							pr = Runtime.getRuntime().exec(new String[] { pathtoR, pathtoRscripts + "/heatmap.R",
-									datafilepath, fileToSave });
+							pr = Runtime.getRuntime().exec(
+									new String[] { pathtoR, pathtoRscripts + "/heatmap.R", datafilepath, fileToSave });
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -206,8 +204,7 @@ public class MakeChartWithR {
 	 */
 	public void runUserR(String rScriptpath, String datafilepath, String metadatafilepath, String outFileDir)
 			throws IOException, InterruptedException {
-		
-		
+
 		// out dir shoud be second argument to user script
 		if (rScriptpath == "" || rScriptpath == null) {
 			JOptionPane.showMessageDialog(null, "Invalid path to R script", "File not found",
@@ -222,7 +219,8 @@ public class MakeChartWithR {
 					public void run() {
 						Process pr = null;
 						try {
-							pr = Runtime.getRuntime().exec(new String[] { pathtoR, rScriptpath, datafilepath, metadatafilepath, outFileDir });
+							pr = Runtime.getRuntime().exec(
+									new String[] { pathtoR, rScriptpath, datafilepath, metadatafilepath, outFileDir});
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -241,13 +239,18 @@ public class MakeChartWithR {
 						switch (code) {
 						case 0:
 							// normal termination
-							JOptionPane.showMessageDialog(null, "File executed successfully", "Success",JOptionPane.INFORMATION_MESSAGE);
-							//JOptionPane.showMessageDialog(null, "Arguments passed:"+pathtoR+" "+rScriptpath+" "+datafilepath+" "+metadatafilepath+ " "+outFileDir, "Error",JOptionPane.INFORMATION_MESSAGE);
+							JOptionPane.showMessageDialog(null, "File executed successfully", "Success",
+									JOptionPane.INFORMATION_MESSAGE);
+							// JOptionPane.showMessageDialog(null, "Arguments passed:"+pathtoR+"
+							// "+rScriptpath+" "+datafilepath+" "+metadatafilepath+ " "+outFileDir,
+							// "Error",JOptionPane.INFORMATION_MESSAGE);
 							break;
 						case 1:
 							// error
-							JOptionPane.showMessageDialog(null, "Error while executing Rscript.\nArguments passed:"+pathtoR+" "+rScriptpath+" "+datafilepath+" "+metadatafilepath+ " "+outFileDir, "Error",
-									JOptionPane.ERROR_MESSAGE);
+							JOptionPane.showMessageDialog(null,
+									"Error while executing Rscript.\nArguments passed:" + pathtoR + " " + rScriptpath
+											+ " " + datafilepath + " " + metadatafilepath + " " + outFileDir,
+									"Error", JOptionPane.ERROR_MESSAGE);
 							return;
 						}
 					}
