@@ -186,6 +186,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	private Throbber throbber;
 	private CorrelationValue[] lastCorrelation;
 
+	JMenu plotRMenu;
+
 	public MetaOmTablePanel(MetaOmProject project) {
 		myProject = project;
 		setLayout(new BorderLayout());
@@ -237,7 +239,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		plotHistogramItem = new JMenuItem("Histogram");
 
 		// urmi
-		JMenu plotRMenu = new JMenu("Using R");
+		plotRMenu = new JMenu("Using R");
 		plotHeatMapItem = new JMenuItem("Heatmap");
 		buildPlotRmenu();
 		runOtherScript = new JMenuItem("Run other");
@@ -1603,18 +1605,30 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			}
 
 		}
-		if ("runuserR".equals(e.getActionCommand())) {
-			// select user script
-			final JFileChooser fc = new JFileChooser();
+
+		if (e.getActionCommand().startsWith("runuserR")) {
+
 			String rFilepath = "";
-			int returnVal = fc.showOpenDialog(MetaOmTablePanel.this);
-			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				File file = fc.getSelectedFile();
-				rFilepath = file.getAbsolutePath();
+			if ("runuserR".equals(e.getActionCommand())) {
+				// select user script
+				final JFileChooser fc = new JFileChooser();
+				int returnVal = fc.showOpenDialog(MetaOmTablePanel.this);
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File file = fc.getSelectedFile();
+					rFilepath = file.getAbsolutePath();
 
-			} else {
+				} else {
 
-				return;
+					return;
+				}
+			} else if (e.getActionCommand().contains("::")) {
+				rFilepath = e.getActionCommand().split("::")[1];
+			}
+
+			
+			if (rFilepath == null || rFilepath.length() < 1) {
+				JOptionPane.showMessageDialog(null, "Error occured locating R file", "Error",
+						JOptionPane.ERROR_MESSAGE);
 			}
 
 			// get data of selected rows
@@ -1638,7 +1652,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			if (outFiledir == null || outFiledir.length() < 1) {
 				return;
 			}
-			
+
 			// save data to file for script to read
 			MakeChartWithR ob = new MakeChartWithR();
 			String datafilePath = "";
@@ -1651,10 +1665,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 			// execute r script
 			try {
-				//construct outdir path
+				// construct outdir path
 				String directory = MetaOmGraph.getActiveProject().getSourceFile().getParent();
 				directory = directory + System.getProperty("file.separator") + outFiledir;
-				//JOptionPane.showMessageDialog(null, "File to save dir:"+directory);
+				// JOptionPane.showMessageDialog(null, "File to save dir:"+directory);
 				ob.runUserR(rFilepath, datafilePath, myProject.getMetadataHybrid().getMetadataFilePath(), directory);
 			} catch (InterruptedException e1) {
 				// TODO Auto-generated catch block
@@ -3200,14 +3214,15 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			// create 4 lists r1,pv1,r2,pv2
 			// select two corr columns and do z test
 			String col1 = selectCorrColumn();
-			if(col1==null) {
+			if (col1 == null) {
 				JOptionPane.showMessageDialog(null, "No correlation columns found!", "Error",
 						JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 			int n1 = 0;
 			try {
-				n1 = Integer.parseInt((String) JOptionPane.showInputDialog(null, "Please Enter the sample size for selected correlation (N1)", "Input N1",
+				n1 = Integer.parseInt((String) JOptionPane.showInputDialog(null,
+						"Please Enter the sample size for selected correlation (N1)", "Input N1",
 						JOptionPane.QUESTION_MESSAGE, null, null, String.valueOf(n1)));
 
 			} catch (NumberFormatException nfe) {
@@ -3217,14 +3232,15 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			}
 
 			String col2 = selectCorrColumn();
-			if(col2==null) {
+			if (col2 == null) {
 				JOptionPane.showMessageDialog(null, "No correlation columns found!", "Error",
 						JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 			int n2 = 0;
 			try {
-				n2 = Integer.parseInt((String) JOptionPane.showInputDialog(null, "Please Enter the sample size for selected correlation (N2)", "Input N2",
+				n2 = Integer.parseInt((String) JOptionPane.showInputDialog(null,
+						"Please Enter the sample size for selected correlation (N2)", "Input N2",
 						JOptionPane.QUESTION_MESSAGE, null, null, String.valueOf(n2)));
 
 			} catch (NumberFormatException nfe) {
@@ -4097,14 +4113,27 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 		return corrVals;
 	}
-	
+
+	/**
+	 * Build menu for executing R scripts
+	 */
 	private void buildPlotRmenu() {
-		String pathtoRscripts=MetaOmGraph.getpathtoRscrips();
-		if(pathtoRscripts==null || pathtoRscripts=="") {
+		String pathtoRscripts = MetaOmGraph.getpathtoRscrips();
+		if (pathtoRscripts == null || pathtoRscripts == "") {
 			return;
 		}
-		
-		//get a list of .R files in the directory
+
+		// get a list of .R files in the directory
+		File[] rFiles = Utils.fileFinder(pathtoRscripts, ".R");
+
+		// add each file to menu
+		for (File f : rFiles) {
+			JMenuItem thisItem = new JMenuItem(f.getName());
+			thisItem.setActionCommand("runuserR::" + f.getAbsolutePath());
+			thisItem.addActionListener(this);
+			plotRMenu.add(thisItem);
+		}
+
 	}
 
 }
