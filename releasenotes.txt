@@ -1,4 +1,4 @@
-MOG 1.7.8 Release date: TBD
+MOG 1.7.8 Release date: 7/13/2019
 Added differential correlation interface
 Added bar charts
 Fixed "External Web Applications" function in line charts
