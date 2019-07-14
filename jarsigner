@@ -1,2 +1,0 @@
-keytool -genkey -keystore mogKeys -alias mog
-jarsigner -keystore mogKeys MetaOmGraph_v2.jar mog
