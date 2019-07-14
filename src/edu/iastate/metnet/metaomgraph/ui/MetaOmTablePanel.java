@@ -1650,7 +1650,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 			// execute r script
 			try {
-				ob.runUserR(rFilepath, datafilePath, myProject.getMetadataHybrid().getMetadataFilePath(), outFiledir);
+				//construct outdir path
+				String directory = MetaOmGraph.getActiveProject().getSourceFile().getParent();
+				directory = directory + System.getProperty("file.separator") + outFiledir;
+				//JOptionPane.showMessageDialog(null, "File to save dir:"+directory);
+				ob.runUserR(rFilepath, datafilePath, myProject.getMetadataHybrid().getMetadataFilePath(), directory);
 			} catch (InterruptedException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
