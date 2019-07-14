@@ -1,4 +1,4 @@
-MOG 1.7.8b Release date: TBD
+MOG 1.7.8b Release date: 7/14/2019
 Fixed problems with executing R files on MAC
 Added support to load  list of R files directly from menu
 
