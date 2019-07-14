@@ -1637,6 +1637,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			if (outFiledir == null || outFiledir.length() < 1) {
 				return;
 			}
+			
 			// save data to file for script to read
 			MakeChartWithR ob = new MakeChartWithR();
 			String datafilePath = "";
@@ -1647,7 +1648,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				e1.printStackTrace();
 			}
 
-			// execute rscript to make plot and save to chartFileName.png
+			// execute r script
 			try {
 				ob.runUserR(rFilepath, datafilePath, myProject.getMetadataHybrid().getMetadataFilePath(), outFiledir);
 			} catch (InterruptedException e1) {

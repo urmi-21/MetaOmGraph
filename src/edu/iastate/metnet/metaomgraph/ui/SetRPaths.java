@@ -91,7 +91,7 @@ public class SetRPaths extends JInternalFrame {
 		getContentPane().add(panel_1, BorderLayout.CENTER);
 		panel_1.setLayout(new MigLayout("", "[][][][grow]", "[][][][][][][]"));
 		
-		JLabel lblPathToRscript = new JLabel("Path to \"Rscript.exe\"");
+		JLabel lblPathToRscript = new JLabel("Path to \"Rscript\"");
 		panel_1.add(lblPathToRscript, "cell 1 0");
 		
 		textField_1 = new JTextField();

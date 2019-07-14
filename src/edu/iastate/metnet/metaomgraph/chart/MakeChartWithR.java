@@ -206,10 +206,9 @@ public class MakeChartWithR {
 	 */
 	public void runUserR(String rScriptpath, String datafilepath, String metadatafilepath, String outFileDir)
 			throws IOException, InterruptedException {
-		//JOptionPane.showMessageDialog(null, "metadata: "+metadatafilepath);
+		
+		
 		// out dir shoud be second argument to user script
-		//String outDir = MetaOmGraph.getActiveProject().getSourceFile().getParent()+ System.getProperty("file.separator") + outFileDir;
-
 		if (rScriptpath == "" || rScriptpath == null) {
 			JOptionPane.showMessageDialog(null, "Invalid path to R script", "File not found",
 					JOptionPane.WARNING_MESSAGE);
@@ -244,10 +243,12 @@ public class MakeChartWithR {
 							// normal termination
 							JOptionPane.showMessageDialog(null, "File executed successfully", "Success",
 									JOptionPane.INFORMATION_MESSAGE);
+							JOptionPane.showMessageDialog(null, "Arguments passed:"+pathtoR+" "+rScriptpath+" "+datafilepath+" "+metadatafilepath+ " "+outFileDir, "Error",
+									JOptionPane.INFORMATION_MESSAGE);
 							break;
 						case 1:
 							// error
-							JOptionPane.showMessageDialog(null, "Error while executing Rscript", "Error",
+							JOptionPane.showMessageDialog(null, "Error while executing Rscript.\nArguments passed:"+pathtoR+" "+rScriptpath+" "+datafilepath+" "+metadatafilepath+ " "+outFileDir, "Error",
 									JOptionPane.ERROR_MESSAGE);
 							return;
 						}
