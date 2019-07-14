@@ -1340,9 +1340,11 @@ public class Utils {
 	 * @param extension
 	 * @return
 	 */
-	public static File[] fileFinder(String dirName,String extension) {
+	public static File[] fileFinder(String dirName, String extension) {
 		File dir = new File(dirName);
-
+		if (!dir.exists()) {
+			return null;
+		}
 		return dir.listFiles(new FilenameFilter() {
 			public boolean accept(File dir, String filename) {
 				return filename.endsWith(extension);
