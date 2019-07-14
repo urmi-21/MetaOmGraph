@@ -240,9 +240,28 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 		// urmi
 		plotRMenu = new JMenu("Using R");
-		plotHeatMapItem = new JMenuItem("Heatmap");
-		buildPlotRmenu();
-		runOtherScript = new JMenuItem("Run other");
+		//refresh menuitems before display
+		plotRMenu.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				JOptionPane.showMessageDialog(null, "cliscked");
+				refreshRPlotMenu();
+			}
+		});
+		plotRMenu.addMenuListener(new MenuListener() {
+			public void menuCanceled(MenuEvent arg0) {
+				
+			}
+			public void menuDeselected(MenuEvent arg0) {
+				
+			}
+			public void menuSelected(MenuEvent arg0) {
+				//JOptionPane.showMessageDialog(null, "3");
+				refreshRPlotMenu();
+			}
+		});
+		
 
 		plotListItem.setActionCommand(GRAPH_LIST_COMMAND);
 		plotListItem.addActionListener(this);
@@ -267,14 +286,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		plotBoxColItem.addActionListener(this);
 		plotHistogramItem.setActionCommand("create histogram");
 		plotHistogramItem.addActionListener(this);
-		// urmi
-		plotHeatMapItem.setActionCommand("create heatmap");
-		plotHeatMapItem.addActionListener(this);
-		// plotRMenu.add(plotHeatMapItem);
-
-		runOtherScript.setActionCommand("runuserR");
-		runOtherScript.addActionListener(this);
-		plotRMenu.add(runOtherScript);
+	
+	
 
 		JPopupMenu plotPopupMenu = new JPopupMenu();
 		selectedRowsMenu.add(plotRowsItem);
@@ -1625,7 +1638,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				rFilepath = e.getActionCommand().split("::")[1];
 			}
 
-			
 			if (rFilepath == null || rFilepath.length() < 1) {
 				JOptionPane.showMessageDialog(null, "Error occured locating R file", "Error",
 						JOptionPane.ERROR_MESSAGE);
@@ -4117,22 +4129,29 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	/**
 	 * Build menu for executing R scripts
 	 */
-	private void buildPlotRmenu() {
+	private void refreshRPlotMenu() {
+		//remove all existing items
+		plotRMenu.removeAll();
+		
 		String pathtoRscripts = MetaOmGraph.getpathtoRscrips();
-		if (pathtoRscripts == null || pathtoRscripts == "") {
-			return;
+		if (!(pathtoRscripts == null || pathtoRscripts == "")) {
+
+			// get a list of .R files in the directory
+			File[] rFiles = Utils.fileFinder(pathtoRscripts, ".R");
+
+			// add each file to menu
+			for (File f : rFiles) {
+				JMenuItem thisItem = new JMenuItem(f.getName());
+				thisItem.setActionCommand("runuserR::" + f.getAbsolutePath());
+				thisItem.addActionListener(this);
+				plotRMenu.add(thisItem);
+			}
 		}
 
-		// get a list of .R files in the directory
-		File[] rFiles = Utils.fileFinder(pathtoRscripts, ".R");
-
-		// add each file to menu
-		for (File f : rFiles) {
-			JMenuItem thisItem = new JMenuItem(f.getName());
-			thisItem.setActionCommand("runuserR::" + f.getAbsolutePath());
-			thisItem.addActionListener(this);
-			plotRMenu.add(thisItem);
-		}
+		runOtherScript = new JMenuItem("Run other");
+		runOtherScript.setActionCommand("runuserR");
+		runOtherScript.addActionListener(this);
+		plotRMenu.add(runOtherScript);
 
 	}
 

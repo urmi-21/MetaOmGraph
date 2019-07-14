@@ -43,6 +43,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.event.MenuListener;
+import javax.swing.event.MenuEvent;
 
 public class DiffCorrResultsTable extends JInternalFrame {
 	private JTable table;
@@ -142,6 +144,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 		setJMenuBar(menuBar);
 
 		JMenu mnFile = new JMenu("File");
+		
 		menuBar.add(mnFile);
 
 		JMenuItem mntmExportToFile = new JMenuItem("Export to file");

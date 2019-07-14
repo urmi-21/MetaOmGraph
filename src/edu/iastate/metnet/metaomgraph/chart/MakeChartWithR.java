@@ -211,6 +211,14 @@ public class MakeChartWithR {
 					JOptionPane.WARNING_MESSAGE);
 			return;
 		}
+		
+		//check if file exists
+		File tempFile=new File(rScriptpath);
+		if(!tempFile.exists()) {
+			JOptionPane.showMessageDialog(null, "Invalid path to R script", "File not found",
+					JOptionPane.WARNING_MESSAGE);
+			return;
+		}
 		// call rscript
 		new AnimatedSwingWorker("Executing R script...", true) {
 			@Override
