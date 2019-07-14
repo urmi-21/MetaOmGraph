@@ -241,10 +241,8 @@ public class MakeChartWithR {
 						switch (code) {
 						case 0:
 							// normal termination
-							JOptionPane.showMessageDialog(null, "File executed successfully", "Success",
-									JOptionPane.INFORMATION_MESSAGE);
-							JOptionPane.showMessageDialog(null, "Arguments passed:"+pathtoR+" "+rScriptpath+" "+datafilepath+" "+metadatafilepath+ " "+outFileDir, "Error",
-									JOptionPane.INFORMATION_MESSAGE);
+							JOptionPane.showMessageDialog(null, "File executed successfully", "Success",JOptionPane.INFORMATION_MESSAGE);
+							//JOptionPane.showMessageDialog(null, "Arguments passed:"+pathtoR+" "+rScriptpath+" "+datafilepath+" "+metadatafilepath+ " "+outFileDir, "Error",JOptionPane.INFORMATION_MESSAGE);
 							break;
 						case 1:
 							// error
