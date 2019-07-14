@@ -1172,28 +1172,29 @@ public class Utils {
 		}
 		return status;
 	}
-	
+
 	public static Color[] filterColors(Color[] carray) {
-		return filterColors(carray,330);
+		return filterColors(carray, 330);
 	}
+
 	public static Color[] filterColors(Color[] carray, int thresh) {
 		Color[] newArray;
-		List<Color> cList=new ArrayList<>();
-		Color plotBG=MetaOmGraph.getPlotBackgroundColor();
-		for(int i=0;i<carray.length;i++) {
-			//threshold 
-			if(getColorSimilarity(carray[i], plotBG)>thresh) {
+		List<Color> cList = new ArrayList<>();
+		Color plotBG = MetaOmGraph.getPlotBackgroundColor();
+		for (int i = 0; i < carray.length; i++) {
+			// threshold
+			if (getColorSimilarity(carray[i], plotBG) > thresh) {
 				cList.add(carray[i]);
 			}
 		}
 		newArray = new Color[cList.size()];
 		newArray = cList.toArray(newArray);
-		//atleast half color remains
-		if(newArray.length>carray.length/2) {
-		return newArray;
-		}else {
-			return filterColors(carray, thresh-30);
-			//return carray; 
+		// atleast half color remains
+		if (newArray.length > carray.length / 2) {
+			return newArray;
+		} else {
+			return filterColors(carray, thresh - 30);
+			// return carray;
 		}
 	}
 
@@ -1212,35 +1213,37 @@ public class Utils {
 		int g2 = c2.getGreen();
 		int r2 = c2.getRed();
 		int b2 = c2.getBlue();
-		double n1=(4*(g1-g2)*(g1-g2)) + (2*(r1-r2)*(r1-r2)) + (3*(b1-b2)*(b1-b2));
-		res=Math.sqrt(n1);
+		double n1 = (4 * (g1 - g2) * (g1 - g2)) + (2 * (r1 - r2) * (r1 - r2)) + (3 * (b1 - b2) * (b1 - b2));
+		res = Math.sqrt(n1);
 		return res;
 	}
-	
+
 	public static Color[] paintArraytoColor(Paint[] parray) {
-		Color[] res=new Color[parray.length];
-		for(int i=0;i<parray.length;i++) {
-			res[i]=(Color)parray[i];
+		Color[] res = new Color[parray.length];
+		for (int i = 0; i < parray.length; i++) {
+			res[i] = (Color) parray[i];
 		}
-		
-		//JOptionPane.showMessageDialog(null, Arrays.toString(res));
+
+		// JOptionPane.showMessageDialog(null, Arrays.toString(res));
 		return res;
 	}
-	
+
 	/**
 	 * get intersection of lists with in a list
-	 * @param listList A list containing lists
+	 * 
+	 * @param listList
+	 *            A list containing lists
 	 * @return
 	 */
 	public static <T> List<T> getListIntersection(java.util.List<java.util.List<T>> origLists) {
 		java.util.List<T> res = new ArrayList<>();
-		java.util.List<java.util.List<T>> listList= new ArrayList<>(origLists);
+		java.util.List<java.util.List<T>> listList = new ArrayList<>(origLists);
 
 		// find smallest list
 		int smIndex = -1;
 		int smSize = 999999999;
 		for (int i = 0; i < listList.size(); i++) {
-			
+
 			if (listList.get(i).size() < smSize) {
 				smSize = listList.size();
 				smIndex = i;
@@ -1248,45 +1251,46 @@ public class Utils {
 		}
 		java.util.List<T> smList = listList.get(smIndex);
 		listList.remove(smIndex);
-		//JOptionPane.showMessageDialog(null, "smlist:"+smList.toString());
+		// JOptionPane.showMessageDialog(null, "smlist:"+smList.toString());
 		for (int j = 0; j < smList.size(); j++) {
-			T thisItem=smList.get(j);
-			boolean breakflag=false;
+			T thisItem = smList.get(j);
+			boolean breakflag = false;
 			for (int i = 0; i < listList.size(); i++) {
 				if (!listList.get(i).contains(thisItem)) {
-					breakflag=true;
+					breakflag = true;
 					break;
 				}
 			}
-			
-			if(!breakflag) {
+
+			if (!breakflag) {
 				res.add(thisItem);
 			}
 		}
 
 		return res;
 	}
-	
+
 	/**
 	 * get intersection of lists with in a list
-	 * @param listList A list containing lists
+	 * 
+	 * @param listList
+	 *            A list containing lists
 	 * @return
 	 */
 	public static <T> List<T> getListUnion(java.util.List<java.util.List<T>> origLists) {
 		java.util.List<T> res = new ArrayList<>();
-		java.util.List<java.util.List<T>> listList= new ArrayList<>(origLists);
+		java.util.List<java.util.List<T>> listList = new ArrayList<>(origLists);
 
 		java.util.Set<T> resSet = new HashSet<>();
-		
-		for(java.util.List l: listList) {
+
+		for (java.util.List l : listList) {
 			resSet.addAll(l);
 		}
 
 		res.addAll(resSet);
 		return res;
 	}
-	
-	
+
 	/**
 	 * @author urmi This function take a string and converts into regex compatible
 	 *         format by escaping special charecters
@@ -1307,15 +1311,16 @@ public class Utils {
 
 		return res;
 	}
-	
+
 	/*
 	 * Remove all special chars from a string to make it usable for XML Names
 	 */
 	public static String removeSpecialChars(String s) {
-		
-		String[] special = { "/", "\\", "+", "[", "^", "$", ".", "|", "?", "*", "(", ")", "{", "}", "-","&", "%","!",";" };
-		//remove spaces
-		String res = s.replaceAll("\\s+","");
+
+		String[] special = { "/", "\\", "+", "[", "^", "$", ".", "|", "?", "*", "(", ")", "{", "}", "-", "&", "%", "!",
+				";" };
+		// remove spaces
+		String res = s.replaceAll("\\s+", "");
 		try {
 
 			for (String c : special) {
@@ -1325,19 +1330,37 @@ public class Utils {
 			JOptionPane.showMessageDialog(null, "Error:" + s);
 		}
 
-		
 		return res;
 	}
-	
-	
-	/*public static String verifyXML(String s) {
-		
-		
-	}*/
-	
-	public static void main(String args[]) {
-		String s="a b/c  $%^a  a*.";
-		System.out.println(s+"-->"+removeSpecialChars(s));
+
+	/**
+	 * Function to get list of all files in a directory
+	 * 
+	 * @param dirName
+	 * @param extension
+	 * @return
+	 */
+	public static File[] fileFinder(String dirName,String extension) {
+		File dir = new File(dirName);
+
+		return dir.listFiles(new FilenameFilter() {
+			public boolean accept(File dir, String filename) {
+				return filename.endsWith(extension);
+			}
+		});
+
 	}
-	
+
+	/*
+	 * public static String verifyXML(String s) {
+	 * 
+	 * 
+	 * }
+	 */
+
+	public static void main(String args[]) {
+		String s = "a b/c  $%^a  a*.";
+		System.out.println(s + "-->" + removeSpecialChars(s));
+	}
+
 }
