@@ -109,7 +109,10 @@ public class ReadMetadata extends JFrame {
 	 */
 	public ReadMetadata(MetadataCollection dataObj, String delim) {
 		this();
-		this.loadMetadata(dataObj, delim);
+		
+		if(!this.loadMetadata(dataObj, delim)) {
+			return;
+		}
 		this.setIconImage(Toolkit.getDefaultToolkit()
 				.getImage(MetadataImportWizard.class.getResource("/resource/MetaOmicon16.png")));
 		this.setTitle("Import Metadata");
@@ -128,6 +131,7 @@ public class ReadMetadata extends JFrame {
 		this.setTitle("Read metadata file");
 		this.toFront();
 		this.pack();
+		
 	}
 
 	/**
@@ -561,11 +565,21 @@ public class ReadMetadata extends JFrame {
 		table.setFont(new Font("Times New Roman", Font.PLAIN, 16));
 		table.setBackground(Color.BLACK);
 		table.setModel(new DefaultTableModel(
-				new Object[][] { { null, null, null, null }, { null, "zxcasd", null, null },
-						{ null, "das", "asd", null }, { "cxz", null, null, null }, { "bc", null, "cvx", null },
-						{ null, "cx", null, null }, { null, null, null, null }, { null, null, "bxc", null },
-						{ null, null, null, "cxz" }, { "vc", null, null, null }, },
-				new String[] { "New column", "New column", "New column", "New column" }));
+			new Object[][] {
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+			},
+			new String[] {
+			}
+		));
 		// table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
 		// table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -641,10 +655,10 @@ public class ReadMetadata extends JFrame {
 		return this;
 	}
 
-	public void loadMetadata(MetadataCollection ob, String delim) {
+	public boolean loadMetadata(MetadataCollection ob, String delim) {
 		if (ob == null) {
 			JOptionPane.showMessageDialog(null, "Metadata file not loaded.", "Error", JOptionPane.INFORMATION_MESSAGE);
-			return;
+			return false;
 		}
 		this.obj = ob;
 		this.metadataDelim = delim;
@@ -667,6 +681,8 @@ public class ReadMetadata extends JFrame {
 		missinginMD = missingextra[0];
 		textField_3.setText(String.valueOf(missingextra[1]));
 		textField_4.setText(String.valueOf(missingextra[0]));
+		
+		return true;
 
 	}
 
@@ -695,7 +711,7 @@ public class ReadMetadata extends JFrame {
 		return res;
 	}
 
-	public void loadMetadata(String path, String delim) {
+	public boolean loadMetadata(String path, String delim) {
 		obj = new MetadataCollection();
 		try {
 			obj.readMetadataTextFile(path, delim, true);
@@ -707,8 +723,8 @@ public class ReadMetadata extends JFrame {
 		if (obj.getNumRows() < 1) {
 			JOptionPane.showMessageDialog(null, "Metadata file not loaded or empty.", "Error",
 					JOptionPane.INFORMATION_MESSAGE);
-			dispose();
-			return;
+			
+			return false;
 		}
 		// JOptionPane.showMessageDialog(null, "Reading metadata..DONE");
 		this.metadataDelim = delim;
@@ -731,6 +747,8 @@ public class ReadMetadata extends JFrame {
 		missinginMD = missingextra[0];
 		textField_3.setText(String.valueOf(missinginD));
 		textField_4.setText(String.valueOf(missinginMD));
+		
+		return true;
 
 	}
 
