@@ -63,6 +63,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Some Java libraries MOG uses
 
 * [JFreeChart](https://github.com/jfree/jfreechart)
+* [Apache Commons Math](https://github.com/apache/commons-math)
+* [Nitrite Database](https://github.com/dizitart/nitrite-database)
+* [Colorbrewer](https://github.com/rcsb/colorbrewer)
+
 
 
 
