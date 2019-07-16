@@ -5,6 +5,10 @@ MetaOmGraph (MOG) is a Java software to interactively explore and visualize larg
 
 ![alt text](https://raw.githubusercontent.com/urmi-21/MetaOmGraph/master/images/MOG_flowchart.png) 
 
+## Citation
+
+[*Singh, U. et al.* (2019). Metaomgraph: a workbench for interactive exploratory data analysis of large expression datasets. bioRxiv.](https://www.biorxiv.org/content/10.1101/698969v1 "Metaomgraph: a workbench for interactive exploratory data analysis of large expression datasets")
+
 ## Examples
 
 ### Line Chart
@@ -15,9 +19,7 @@ MetaOmGraph (MOG) is a Java software to interactively explore and visualize larg
 
 ![alt text](https://raw.githubusercontent.com/urmi-21/MetaOmGraph/master/images/metadatafilter.gif)
 
-## Citation
 
-[*Singh, U. et al.* (2019). Metaomgraph: a workbench for interactive exploratory data analysis of large expression datasets. bioRxiv.](https://www.biorxiv.org/content/10.1101/698969v1 "Metaomgraph: a workbench for interactive exploratory data analysis of large expression datasets")
 
 ## Getting Started
 
@@ -57,3 +59,10 @@ Coming Soon...
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+
+## Some Java libraries MOG uses
+
+
+
+
+
