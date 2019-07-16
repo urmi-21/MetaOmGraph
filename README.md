@@ -16,7 +16,8 @@ MetaOmGraph (MOG) is a Java software to interactively explore and visualize larg
 ![alt text](https://raw.githubusercontent.com/urmi-21/MetaOmGraph/master/images/metadatafilter.gif)
 
 ## Citation
-Coming Soon...
+
+[*Singh, U. et al.* (2019). Metaomgraph: a workbench for interactive exploratory data analysis of large expression datasets. bioRxiv.](https://www.biorxiv.org/content/10.1101/698969v1 "Metaomgraph: a workbench for interactive exploratory data analysis of large expression datasets")
 
 ## Getting Started
 
