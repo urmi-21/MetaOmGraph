@@ -703,9 +703,11 @@ public class ReadMetadata extends JFrame {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		//if failed to read the metadata
 		if (obj.getNumRows() < 1) {
 			JOptionPane.showMessageDialog(null, "Metadata file not loaded or empty.", "Error",
 					JOptionPane.INFORMATION_MESSAGE);
+			dispose();
 			return;
 		}
 		// JOptionPane.showMessageDialog(null, "Reading metadata..DONE");
