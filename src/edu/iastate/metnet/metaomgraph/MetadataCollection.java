@@ -178,6 +178,23 @@ public class MetadataCollection {
 
 					}
 					headers = temp;
+					
+					//check for duplicate headers
+					List<String> headerList=Arrays.asList(headers);
+					Set<String> headerSet = new HashSet<String>(headerList);
+					// if duplicates found return
+					if(headerSet.size()<headers.length) {
+						//find duplicate headers
+						List<String> duplicates=new ArrayList<>();
+						for(String s:headerSet) {
+							if(Collections.frequency(headerList, s)>1) {
+								duplicates.add(s);
+							}
+						}
+						JOptionPane.showMessageDialog(null,"Metadata validation failed. Please remove following duplicate headers from the metadata file:\n"+String.join(",", duplicates),"Error", JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+					
 
 				} else {
 
