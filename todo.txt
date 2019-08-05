@@ -169,3 +169,4 @@ scaterplot tooltip show series name
 Check XML name before saving project
 refactor ;remove unused modules and files
 Handle duplicate column headers in metadata file
+metadata  validation error not showing in MAC
