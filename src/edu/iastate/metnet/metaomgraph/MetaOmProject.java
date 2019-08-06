@@ -814,7 +814,7 @@ public class MetaOmProject {
 					allsWell = loadProjectFile(instream, projectFile);
 					if (!allsWell) {
 						System.out.println("Failure at project file load");
-						JOptionPane.showMessageDialog(null, "Error occured");
+						//JOptionPane.showMessageDialog(null, "Error occured");
 					}
 					projectFileFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
@@ -1327,7 +1327,7 @@ public class MetaOmProject {
 						removedMDCols);
 
 			} catch (NullPointerException | IOException e) {
-				JOptionPane.showMessageDialog(null, "NPE error:");
+				//JOptionPane.showMessageDialog(null, "NPE error:");
 				e.printStackTrace();
 				return false;
 			}
