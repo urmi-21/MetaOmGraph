@@ -420,8 +420,8 @@ public class MetaOmGraph implements ActionListener {
 	}
 
 	/////////////////////
-	private static final String VERSION = "1.7.8.1";
-	private static final String DATE = "July 13, 2019";
+	private static final String VERSION = "1.7.9";
+	private static final String DATE = "August 6, 2019";
 
 	public static String getVersion() {
 		return VERSION;
@@ -806,7 +806,7 @@ public class MetaOmGraph implements ActionListener {
 		// urmi remove unused menu
 		// newProjectMenu.add(newSOFTItem);
 		// newProjectMenu.add(newMetabolomicsItem);
-		 newProjectMenu.add(newArrayExpressItem);
+		newProjectMenu.add(newArrayExpressItem);
 
 		openProjectItem = new JMenuItem("Open Project...");
 		openProjectItem.setActionCommand(OPEN_COMMAND);
@@ -1209,8 +1209,7 @@ public class MetaOmGraph implements ActionListener {
 		loadDiffExpResults.setActionCommand("loadDiffExp");
 		loadDiffExpResults.addActionListener(myself);
 		loadDiffExpResults.setToolTipText("Load saved differential expression results");
-		
-		
+
 		removeDiffExpResults = new JMenuItem("Remove saved DE results");
 		removeDiffExpResults.setActionCommand("removeDiffExp");
 		removeDiffExpResults.addActionListener(myself);
@@ -2076,7 +2075,9 @@ public class MetaOmGraph implements ActionListener {
 				activeProject.initColTypes();
 				// init default reps
 				MetadataHybrid ob = activeProject.getMetadataHybrid();
-				ob.setDefaultRepsMap(ob.buildRepsMap(ob.getDefaultRepCol()));
+				if (ob != null) {
+					ob.setDefaultRepsMap(ob.buildRepsMap(ob.getDefaultRepCol()));
+				}
 				fixTitle();
 
 			} else {
@@ -2509,7 +2510,7 @@ public class MetaOmGraph implements ActionListener {
 				showAboutFrame();
 			} else {
 				showNewAboutFrame();
-				
+
 			}
 			return;
 		}
@@ -3085,12 +3086,12 @@ public class MetaOmGraph implements ActionListener {
 		if ("loadDiffExp".equals(e.getActionCommand())) {
 
 			String[] listOfDE = getActiveProject().getSavedDiffExpResNames();
-			if (listOfDE == null || listOfDE.length<1) {
+			if (listOfDE == null || listOfDE.length < 1) {
 				JOptionPane.showMessageDialog(null, "No saved results found", "No results",
 						JOptionPane.INFORMATION_MESSAGE);
 				return;
 			}
-			//JOptionPane.showMessageDialog(null, "saved" + Arrays.toString(listOfDE));
+			// JOptionPane.showMessageDialog(null, "saved" + Arrays.toString(listOfDE));
 
 			// choose one from the available results
 			String chosenVal = (String) JOptionPane.showInputDialog(null, "Choose the DE analysis", "Please choose",
@@ -3110,35 +3111,31 @@ public class MetaOmGraph implements ActionListener {
 
 			return;
 		}
-		
+
 		if ("removeDiffExp".equals(e.getActionCommand())) {
 
 			String[] listOfDE = getActiveProject().getSavedDiffExpResNames();
-			if (listOfDE == null || listOfDE.length<1) {
+			if (listOfDE == null || listOfDE.length < 1) {
 				JOptionPane.showMessageDialog(null, "No saved results found", "No results",
 						JOptionPane.INFORMATION_MESSAGE);
 				return;
 			}
 
-
 			// choose one from the available results
-			String chosenVal = (String) JOptionPane.showInputDialog(null, "Choose the DE analysis to remove", "Please choose",
-					JOptionPane.PLAIN_MESSAGE, null, listOfDE, listOfDE[0]);
+			String chosenVal = (String) JOptionPane.showInputDialog(null, "Choose the DE analysis to remove",
+					"Please choose", JOptionPane.PLAIN_MESSAGE, null, listOfDE, listOfDE[0]);
 			if (chosenVal == null) {
 				return;
 			}
-			
-			 int opt = JOptionPane.showConfirmDialog(null,
-		                "Are you sure you want to delete the selected?",
-		                "Confirm", 0,
-		                3);
-		        if (opt != 0) {
-		            return;
-		        }
+
+			int opt = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete the selected?", "Confirm", 0,
+					3);
+			if (opt != 0) {
+				return;
+			}
 			getActiveProject().removeDifferentialExpResults(chosenVal);
 			return;
 		}
-		
 
 		if (CASCADE_WINDOWS_COMMAND.equals(e.getActionCommand())) {
 			JInternalFrame[] frames = desktop.getAllFrames();

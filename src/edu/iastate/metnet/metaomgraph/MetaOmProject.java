@@ -814,6 +814,7 @@ public class MetaOmProject {
 					allsWell = loadProjectFile(instream, projectFile);
 					if (!allsWell) {
 						System.out.println("Failure at project file load");
+						JOptionPane.showMessageDialog(null, "Error occured");
 					}
 					projectFileFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
@@ -1302,26 +1303,31 @@ public class MetaOmProject {
 			removedMDCols = new ArrayList<>();
 		}
 
-		if (allsWell && projectFileFound) {
+		if (allsWell && projectFileFound && extendedFound) {
+			//if sample metadata is present then load these information
 			try {
-				// JOptionPane.showMessageDialog(null, "removedcols:"+removedMDCols.toString());
+
 				newcollection.removeUnusedCols(removedMDCols);
+
 				newcollection.removeDataPermanently(new HashSet<>(excluded));
+
 				newcollection.addNullData(missing);
-				// JOptionPane.showMessageDialog(null, "parse tree");
+
 				ParseTableTree ob = new ParseTableTree(newcollection, tree, newcollection.getDatacol(),
 						this.getDataColumnHeaders());
 				// JOptionPane.showMessageDialog(null, "to table tree");
 				org.jdom.Document res = ob.tableToTree();
+
 				// save and read repscolname
 				// add
 				// JOptionPane.showMessageDialog(null, "Creating MDH");
+
 				loadMetadataHybrid(newcollection, res.getRootElement(), ob.getTreeMap(), newcollection.getDatacol(),
 						ob.getMetadataHeaders(), tree, ob.getDefaultRepMap(), ob.getDefaultRepCol(), missing, excluded,
 						removedMDCols);
 
 			} catch (NullPointerException | IOException e) {
-				// JOptionPane.showMessageDialog(null, "error:");
+				JOptionPane.showMessageDialog(null, "NPE error:");
 				e.printStackTrace();
 				return false;
 			}
@@ -3675,7 +3681,7 @@ public class MetaOmProject {
 	public Element getDiffCorrResAsXML() {
 		Element root = new Element("ROOT");
 		root.setAttribute("name", "Root");
-		
+
 		if (diffCorrRes != null) {
 			String[] savedDC = getSavedDiffCorrResNames();
 			for (String id : savedDC) {
