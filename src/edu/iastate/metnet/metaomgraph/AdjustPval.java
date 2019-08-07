@@ -100,25 +100,7 @@ public class AdjustPval {
 
 	}
 
-	/*private static int[] order(double[] array, boolean decreasing) {
-		int size = array.length;
-		int[] idx = new int[size];
-		double[] baseArr = new double[size];
-		for (int i = 0; i < size; ++i) {
-			baseArr[i] = array[i];
-			idx[i] = i;
-		}
-
-		Comparator<Integer> cmp;
-		if (!decreasing) {
-			cmp = Comparator.comparingDouble(a -> baseArr[a]);
-		} else {
-			cmp = (a, b) -> Double.compare(baseArr[b], baseArr[a]);
-		}
-
-		return Arrays.stream(idx).boxed().sorted(cmp).mapToInt(a -> a).toArray();
-	}*/
-
+	
 	private static double[] intToDouble(int[] array) {
 		double[] result = new double[array.length];
 		for (int i = 0; i < array.length; i++) {
@@ -199,6 +181,8 @@ public class AdjustPval {
 		System.out.println("res BH: " + Arrays.toString(ob.getBHAdj(pv)));
 		System.out.println("res bonf: " + Arrays.toString(ob.getBonferroniAdj(pv)));
 		System.out.println("res holms: " + Arrays.toString(ob.getHolmsAdj(pv)));
+
+		
 	}
 
 }
