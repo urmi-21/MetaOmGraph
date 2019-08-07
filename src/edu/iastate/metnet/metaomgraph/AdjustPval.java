@@ -27,8 +27,8 @@ public class AdjustPval {
 		int m = pvals.length;
 		for (int i = 0; i < res.length; i++) {
 			res[i] = pvals[i] * m;
-			if(res[i]>1) {
-				res[i]=1;
+			if (res[i] > 1) {
+				res[i] = 1;
 			}
 		}
 
@@ -44,7 +44,7 @@ public class AdjustPval {
 	public double[] getBHAdj(double[] pvals) {
 		int m = pvals.length;
 		double[] res = new double[m];
-		//get sorted order of pvals
+		// get sorted order of pvals
 		Integer[] idx = new Integer[m];
 		for (int i = 0; i < idx.length; i++)
 			idx[i] = i;
@@ -68,38 +68,72 @@ public class AdjustPval {
 				int rank = i + 1;
 				double v1 = res[i + 1];
 				double v2 = thisPV * (m / (double) rank);
-				if(v1<v2) {
-					res[i]=v1;
-				}else {
-					res[i]=v2;	
+				if (v1 < v2) {
+					res[i] = v1;
+				} else {
+					res[i] = v2;
 				}
-				 
+
 			}
 		}
-		
-		//order result correctly in orignal order
+
+		// order result correctly in orignal order
 		double[] resSorted = new double[m];
 		for (int i = 0; i < idx.length; i++) {
 			resSorted[idx[i]] = res[i];
 		}
 		return resSorted;
 	}
-	
-	
+
+	public double[] getHolmsAdj(double[] pvals) {
+		int m = pvals.length;
+		double[] res = new double[m];
+
+		// idx now contains indices in sorted order
+		double[] pvSorted = getSortedPvals(pvals);
+
+		
+
+		return res;
+	}
+
+	double[] getSortedPvals(double[] pvals) {
+		int m=pvals.length;
+		// get sorted order of pvals
+		Integer[] idx = new Integer[m];
+		for (int i = 0; i < idx.length; i++)
+			idx[i] = i;
+		Arrays.sort(idx, new Comparator<Integer>() {
+			public int compare(Integer i1, Integer i2) {
+				return Double.compare(pvals[i1], pvals[i2]);
+			}
+		});
+
+		// idx now contains indices in sorted order
+		double[] pvSorted = new double[m];
+		for (int i = 0; i < idx.length; i++) {
+			pvSorted[i] = pvals[idx[i]];
+		}
+		
+		return pvSorted;
+	}
+
 	/**
 	 * apply Benjamini and Yekutieli method for p value correction
+	 * 
 	 * @param pvals
 	 * @return
 	 */
-	public double[] getBYAdj(double[] pvals) {
-		
-		return null;
-	}
+	/*
+	 * public double[] getBYAdj(double[] pvals) {
+	 * 
+	 * return null; }
+	 */
 
 	public static void main(String[] args) {
-		//test
+		// test
 		AdjustPval ob = new AdjustPval();
-		double[] pv = { 1, 0, 0.1, 0.3, 0.005,0.025 };
+		double[] pv = { 1, 0, 0.1, 0.3, 0.005, 0.025 };
 		System.out.println("Orig: " + Arrays.toString((pv)));
 		System.out.println("res: " + Arrays.toString(ob.getBHAdj(pv)));
 		System.out.println("res: " + Arrays.toString(ob.getBonferroniAdj(pv)));
