@@ -1,4 +1,5 @@
 MOG 1.7.9 Release date: TBD
+Added checks to validate metadata headers and raise error if duplicate headers are found.
 Fixed reading MOG projects created without metadata.
 
 
