@@ -44,21 +44,16 @@ public class AdjustPval {
 	public double[] getBHAdj(double[] pvals) {
 		int m = pvals.length;
 		double[] res = new double[m];
-		// get sorted order of pvals
-		Integer[] idx = new Integer[m];
-		for (int i = 0; i < idx.length; i++)
-			idx[i] = i;
-		Arrays.sort(idx, new Comparator<Integer>() {
-			public int compare(Integer i1, Integer i2) {
-				return Double.compare(pvals[i1], pvals[i2]);
-			}
-		});
-
+		
 		// idx now contains indices in sorted order
+		Integer[] idx = getSortedIndex(pvals);
+		// get sorted pvalues
 		double[] pvSorted = new double[m];
 		for (int i = 0; i < idx.length; i++) {
 			pvSorted[i] = pvals[idx[i]];
 		}
+		
+		
 		// start correction
 		for (int i = m - 1; i >= 0; i--) {
 			if (i == m - 1) {
@@ -90,15 +85,24 @@ public class AdjustPval {
 		double[] res = new double[m];
 
 		// idx now contains indices in sorted order
-		double[] pvSorted = getSortedPvals(pvals);
-
-		
+		Integer[] idx = getSortedIndex(pvals);
+		// get sorted pvalues
+		double[] pvSorted = new double[m];
+		for (int i = 0; i < idx.length; i++) {
+			pvSorted[i] = pvals[idx[i]];
+		}
 
 		return res;
 	}
 
-	double[] getSortedPvals(double[] pvals) {
-		int m=pvals.length;
+	/**
+	 * get the indices sorted by value
+	 * 
+	 * @param pvals
+	 * @return
+	 */
+	Integer[] getSortedIndex(double[] pvals) {
+		int m = pvals.length;
 		// get sorted order of pvals
 		Integer[] idx = new Integer[m];
 		for (int i = 0; i < idx.length; i++)
@@ -109,13 +113,7 @@ public class AdjustPval {
 			}
 		});
 
-		// idx now contains indices in sorted order
-		double[] pvSorted = new double[m];
-		for (int i = 0; i < idx.length; i++) {
-			pvSorted[i] = pvals[idx[i]];
-		}
-		
-		return pvSorted;
+		return idx;
 	}
 
 	/**
