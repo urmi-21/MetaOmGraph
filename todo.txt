@@ -172,3 +172,4 @@ Handle duplicate column headers in metadata file
 metadata  validation error not showing in MAC
 add pval correction to correlation p values
 add holms method to all tables
+add validation to meta analysis
