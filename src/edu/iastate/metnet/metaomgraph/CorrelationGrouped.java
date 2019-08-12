@@ -18,6 +18,11 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 
+/**
+ * Class to compute meta-analysis of correlation
+ * @author mrbai
+ *
+ */
 public class CorrelationGrouped {
 
 	private List<double[]> dataGrouped;

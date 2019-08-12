@@ -1965,8 +1965,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 												MetaOmGraph.getNumThreads());
 										CorrelationMeta temp;
 										if (n == JOptionPane.YES_OPTION) {
+											//random model
 											temp = ob.doComputation(true);
 										} else {
+											//fixed model
 											temp = ob.doComputation(false);
 										}
 										// CorrelationMeta temp = ob.doComputation(remFlag);
