@@ -342,7 +342,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		JMenu corrMenu = new JMenu("Correlation");
 		JMenu pcorrMenu = new JMenu("Pearson's");
 		JMenu scorrMenu = new JMenu("Spearman's");
-		JMenu poolcorrMenu = new JMenu("Weighted Pearson's");
+		JMenu poolcorrMenu = new JMenu("Meta-analysis");
 		JMenu diffcorrMenu = new JMenu("Differntial Correlation");
 		JMenu informationMenu = new JMenu("Mutual Information");
 		JMenu distMenu = new JMenu("Distance");
