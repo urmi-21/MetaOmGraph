@@ -167,11 +167,56 @@ public class DifferentialCorrResults {
 			grp2.addContent(thisVal);
 		}
 
+		// add zvals1
+		Element zv1 = new Element("zVals1");
+		for (int i = 0; i < zVals1.size(); i++) {
+			Element thisVal = new Element("value");
+			thisVal.addContent(String.valueOf(zVals1.get(i)));
+			zv1.addContent(thisVal);
+		}
+
+		// add zvals2
+		Element zv2 = new Element("zVals2");
+		for (int i = 0; i < zVals2.size(); i++) {
+			Element thisVal = new Element("value");
+			thisVal.addContent(String.valueOf(zVals2.get(i)));
+			zv2.addContent(thisVal);
+		}
+
+		// add diff
+		Element diff = new Element("diffzVals");
+		for (int i = 0; i < diffZvals.size(); i++) {
+			Element thisVal = new Element("value");
+			thisVal.addContent(String.valueOf(diffZvals.get(i)));
+			diff.addContent(thisVal);
+		}
+
+		// add zscores
+		Element zs = new Element("zScores");
+		for (int i = 0; i < zScores.size(); i++) {
+			Element thisVal = new Element("value");
+			thisVal.addContent(String.valueOf(zScores.get(i)));
+			zs.addContent(thisVal);
+		}
+
+		// add p values
+		Element pv = new Element("pValues");
+		for (int i = 0; i < pValues.size(); i++) {
+			Element thisVal = new Element("value");
+			thisVal.addContent(String.valueOf(pValues.get(i)));
+			pv.addContent(thisVal);
+		}
+
 		res.addContent(rowName);
 		res.addContent(grp1Samples);
 		res.addContent(grp2Samples);
 		res.addContent(grp1);
 		res.addContent(grp2);
+		res.addContent(zv1);
+		res.addContent(zv2);
+		res.addContent(diff);
+		res.addContent(zs);
+		res.addContent(pv);
 
 		// print
 		/*
