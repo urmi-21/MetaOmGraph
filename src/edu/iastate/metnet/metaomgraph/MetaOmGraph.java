@@ -847,8 +847,16 @@ public class MetaOmGraph implements ActionListener {
 		quitItem.setToolTipText("Exit this program");
 		quitItem.setAccelerator(
 				KeyStroke.getKeyStroke(KeyEvent.VK_Q, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+		
+		closeProjectItem = new JMenuItem("Close project");
+		closeProjectItem.setMnemonic(KeyEvent.VK_C);
+		closeProjectItem.setActionCommand(CLOSE_PROJECT_COMMAND);
+		closeProjectItem.addActionListener(myself);
+		closeProjectItem.setToolTipText("Close all windows related to the active project");
+		
 		fileMenu.add(newProjectMenu);
 		fileMenu.add(openProjectItem);
+		fileMenu.add(closeProjectItem);
 		fileMenu.add(recentProjectsMenu);
 		fileMenu.add(saveProjectItem);
 		fileMenu.add(saveProjectAsItem);
@@ -860,14 +868,10 @@ public class MetaOmGraph implements ActionListener {
 		projectMenu = new JMenu("Edit");
 		projectMenu.setMnemonic(KeyEvent.VK_P);
 		projectMenu.setEnabled(false);
-		closeProjectItem = new JMenuItem("Close project");
-		closeProjectItem.setMnemonic(KeyEvent.VK_C);
-		closeProjectItem.setActionCommand(CLOSE_PROJECT_COMMAND);
-		closeProjectItem.addActionListener(myself);
-		closeProjectItem.setToolTipText("Close all windows related to the active project");
+		
 		// closeProjectItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W,
 		// Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-		projectMenu.add(closeProjectItem);
+		//projectMenu.add(closeProjectItem); //urmi moved close project to file menu
 		loadInfoItem = new JMenuItem("Load Metadata (xml)");
 		loadInfoItem.setActionCommand(LOAD_INFO_COMMAND);
 		loadInfoItem.addActionListener(myself);
