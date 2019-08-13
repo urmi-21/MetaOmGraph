@@ -21,7 +21,7 @@ public class CalculateDiffCorr {
 	private String g1name;
 	private String g2name;
 	private MetaOmProject myProject;
-	private int method;
+	private int method; //0 paramentric fisher test 1 permutation with FT 2 perm without transform
 
 	private List<Double> corrGrp1;
 	private List<Double> corrGrp2;
@@ -64,6 +64,11 @@ public class CalculateDiffCorr {
 	
 
 	public void doCalc() throws IOException {
+		
+		//get current method
+		if(this.method==0) {
+			
+		}
 		// compute corrGrp1 and corrGrp2
 		corrGrp1 = new ArrayList<>();
 		corrGrp2 = new ArrayList<>();

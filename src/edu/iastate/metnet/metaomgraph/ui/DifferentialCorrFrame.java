@@ -508,7 +508,7 @@ public class DifferentialCorrFrame extends JInternalFrame {
 	}
 
 	private void initComboBoxes() {
-		String[] methods = new String[] { "Fisher transformation" };
+		String[] methods = new String[] { "Fisher transformation","Permutation test" };
 		comboBox_1 = new JComboBox(methods);
 	}
 
