@@ -1965,10 +1965,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 												MetaOmGraph.getNumThreads());
 										CorrelationMeta temp;
 										if (n == JOptionPane.YES_OPTION) {
-											//random model
+											// random model
 											temp = ob.doComputation(true);
 										} else {
-											//fixed model
+											// fixed model
 											temp = ob.doComputation(false);
 										}
 										// CorrelationMeta temp = ob.doComputation(remFlag);
@@ -3276,8 +3276,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						listDisplay.convertColumnIndexToView(myProject.getDefaultColumn())));
 			}
 
-			DiffCorrResultsTable frame = new DiffCorrResultsTable(featureNames, n1, n2, corrVals1, corrVals2,
-					myProject);
+			// Fix this
+			DiffCorrResultsTable frame = new DiffCorrResultsTable(featureNames, 0,0, corrVals1, corrVals2, null, null, null,
+					null, null, myProject);
 			frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
 			frame.setTitle("Fold change results");
 			MetaOmGraph.getDesktop().add(frame);
@@ -3332,8 +3333,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			// display chosen value
 			DifferentialCorrResults diffcorrresOB = myProject.getDiffCorrResObj(chosenVal);
 			// display result using DiffCorrResultsTable
-			DiffCorrResultsTable frame = new DiffCorrResultsTable(diffcorrresOB.getFeatureNames(),
-					diffcorrresOB.getGrp1Size(), diffcorrresOB.getGrp2Size(), diffcorrresOB.getCorrGrp1(),
+			//Fix this
+			DiffCorrResultsTable frame = new DiffCorrResultsTable(diffcorrresOB.getFeatureNames(),diffcorrresOB.getGrp1Size(),diffcorrresOB.getGrp2Size(),
+					diffcorrresOB.getCorrGrp1(), diffcorrresOB.getCorrGrp2(), diffcorrresOB.getCorrGrp2(),
+					diffcorrresOB.getCorrGrp2(), diffcorrresOB.getCorrGrp2(), diffcorrresOB.getCorrGrp2(),
 					diffcorrresOB.getCorrGrp2(), myProject);
 			frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
 			MetaOmGraph.getDesktop().add(frame);
@@ -4140,7 +4143,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		if (!(pathtoRscripts == null || pathtoRscripts == "")) {
 			// get a list of .R files in the directory
 			File[] rFiles = Utils.fileFinder(pathtoRscripts, ".R");
-			//if files found
+			// if files found
 			if (rFiles != null) {
 				// add each file to menu
 				for (File f : rFiles) {

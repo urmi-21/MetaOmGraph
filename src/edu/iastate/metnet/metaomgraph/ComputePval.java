@@ -16,8 +16,8 @@ import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 
 /**
- * Class to compute a p-value for correlation measure data is a row against
- * which we want p-value. shufflist is the list of permuted target row c value
+ * Class to compute a p-value for correlation measure. data is a row against
+ * which we want p-value. shufflist is the list of permuted target row. c value
  * is the original correlation coeff as computed between data and target rows.
  * 
  * 

@@ -1264,8 +1264,9 @@ public class MetaOmProject {
 							corrgrp2.add(Double.parseDouble(c.getContent(0).getValue()));
 						}
 
+						//Fix this
 						DifferentialCorrResults thisOb = new DifferentialCorrResults(flistname, featureName, featureInd,
-								namesgrp1, namesgrp2, g1name, g2name, method, rowNames, corrgrp1, corrgrp2,
+								namesgrp1, namesgrp2, g1name, g2name, method, rowNames, corrgrp1, corrgrp2,corrgrp2,corrgrp2,corrgrp2,corrgrp2,corrgrp2,
 								datatransform, id);
 						// add this ob to saved DE
 						addDiffCorrRes(id, thisOb);
