@@ -1332,8 +1332,7 @@ public class MetaOmProject {
 							pvList = CalculateDiffCorr.computePVals(zsList);
 						}
 
-						
-						
+												
 						DifferentialCorrResults thisOb = new DifferentialCorrResults(flistname, featureName, featureInd,
 								namesgrp1, namesgrp2, g1name, g2name, method, rowNames, corrgrp1, corrgrp2, zv1List,
 								zv2List, diffList, zsList, pvList, datatransform, id);
