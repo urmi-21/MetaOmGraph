@@ -95,25 +95,27 @@ public class DiffCorrResultsTable extends JInternalFrame {
 	 * Create the frame.
 	 */
 	public DiffCorrResultsTable() {
-		this(null, 0, 0, null, null,null);
+		this(null, 0,0,null, null,null,null, null,null,null, null);
 
 	}
 
 	
 
-	public DiffCorrResultsTable(List<String> featureNames, int n1, int n2, List<Double> corrVals1,
-			List<Double> corrVals2,MetaOmProject myProject) {
+	public DiffCorrResultsTable(List<String> featureNames, int grp1Size,int grp2Size,List<Double> corrVals1,
+			List<Double> corrVals2,List<Double> zvals1,List<Double> zvals2,List<Double> diffZvals,List<Double> zscores,List<Double> pvals, MetaOmProject myProject) {
 		this.myProject=myProject;
 		this.featureNames = featureNames;
-		this.n1 = n1;
-		this.n2 = n2;
+		this.n1 = grp1Size;
+		this.n2 = grp2Size;
 		this.corrVals1 = corrVals1;
 		this.corrVals2 = corrVals2;
-		zVals1 = converttoZ(this.corrVals1);
-		zVals2 = converttoZ(this.corrVals2);
-		diff = getDiff(zVals1, zVals2);
-		zScores = getZscores(diff);
-		pVals = getPVals(zScores);
+		
+		
+		zVals1=zvals1;
+		zVals2=zvals2;
+		diff=diffZvals;
+		zScores=zscores;
+		pVals=pvals;
 		
 
 		if (pVals != null) {
@@ -559,7 +561,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 	 * @param rVals
 	 * @return
 	 */
-	private List<Double> converttoZ(List<Double> rVals) {
+	/*private List<Double> converttoZ(List<Double> rVals) {
 		List<Double> res = new ArrayList<>();
 		Atanh atan = new Atanh();
 		for (double d : rVals) {
@@ -601,7 +603,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 			res.add(nob.cumulativeProbability(thisZ) * 2);
 		}
 		return res;
-	}
+	}*/
 	
 	private int[] getSelectedRowIndices() {
 		// get correct indices wrt the list

@@ -23,12 +23,18 @@ public class DifferentialCorrResults {
 	private List<String> featureNames;
 	private List<Double> corrGrp1;
 	private List<Double> corrGrp2;
+	private List<Double> zVals1;
+	private List<Double> zVals2;
+	private List<Double> diffZvals;
+	private List<Double> zScores;
+	private List<Double> pValues;
 	private String id;
 	String dataTransform;
 
 	public DifferentialCorrResults(String geneList, String featureName, int featureID, List<String> grp1,
 			List<String> grp2, String grp1Name, String grp2Name, int method, List<String> featureNames,
-			List<Double> corrGrp1, List<Double> corrGrp2, String dataTransform, String id) {
+			List<Double> corrGrp1, List<Double> corrGrp2, List<Double> zvals1, List<Double> zvals2, List<Double> diff,
+			List<Double> zscores, List<Double> pvals, String dataTransform, String id) {
 
 		this.geneList = geneList;
 		this.featureName = featureName;
@@ -41,11 +47,16 @@ public class DifferentialCorrResults {
 		this.featureNames = featureNames;
 		this.corrGrp1 = corrGrp1;
 		this.corrGrp2 = corrGrp2;
+		this.zVals1 = zvals1;
+		this.zVals2 = zvals2;
+		this.diffZvals = diff;
+		this.zScores = zscores;
+		this.pValues = pvals;
 		this.dataTransform = dataTransform;
-		this.id =  Utils.removeSpecialChars(id);
+		this.id = Utils.removeSpecialChars(id);
 
 	}
-	
+
 	public String getID() {
 		return this.id;
 	}
@@ -169,6 +180,33 @@ public class DifferentialCorrResults {
 		 * outter.outputString(res); JOptionPane.showMessageDialog(null, resDoc);
 		 */
 		return res;
+	}
+
+	/**
+	 * get z vals
+	 * 
+	 * @param index
+	 * @return
+	 */
+	public List<Double> getzVals(int index) {
+		if (index == 1) {
+			return zVals1;
+		} else if (index == 2) {
+			return zVals2;
+		}
+		return null;
+	}
+
+	public List<Double> getDiffZVals() {
+		return diffZvals;
+	}
+
+	public List<Double> getzScores() {
+		return zScores;
+	}
+
+	public List<Double> getpValues() {
+		return pValues;
 	}
 
 }
