@@ -814,7 +814,7 @@ public class MetaOmProject {
 					allsWell = loadProjectFile(instream, projectFile);
 					if (!allsWell) {
 						System.out.println("Failure at project file load");
-						//JOptionPane.showMessageDialog(null, "Error occured");
+						// JOptionPane.showMessageDialog(null, "Error occured");
 					}
 					projectFileFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
@@ -1264,10 +1264,82 @@ public class MetaOmProject {
 							corrgrp2.add(Double.parseDouble(c.getContent(0).getValue()));
 						}
 
-						//Fix this
+						// read zvals1, zvals2, diff, zscores, pvals
+						// if these values are not found (older MOG projects) then compute using Fisher
+						// transform and parametric method
+						// get zvals1
+						List<Element> zv1 = null;
+						List<Double> zv1List = new ArrayList<>();
+						try {
+							zv1 = thisNode.getChild("zVals1").getChildren();
+							for (Element c : zv1) {
+								zv1List.add(Double.parseDouble(c.getContent(0).getValue()));
+							}
+						} catch (Exception e) {
+							zv1List = CalculateDiffCorr.getConveredttoZ(corrgrp1);
+						}
+
+						// get zvals2
+						List<Element> zv2 = null;
+						List<Double> zv2List = new ArrayList<>();
+
+						try {
+							zv2 = thisNode.getChild("zVals2").getChildren();
+							for (Element c : zv2) {
+								zv2List.add(Double.parseDouble(c.getContent(0).getValue()));
+							}
+						} catch (Exception e) {
+							zv2List = CalculateDiffCorr.getConveredttoZ(corrgrp2);
+						}
+
+						// get diff
+						List<Element> diff = null;
+						List<Double> diffList = new ArrayList<>();
+
+						try {
+							diff = thisNode.getChild("diffzVals").getChildren();
+							for (Element c : diff) {
+								diffList.add(Double.parseDouble(c.getContent(0).getValue()));
+							}
+						} catch (Exception e) {
+							diffList = CalculateDiffCorr.getDiff(zv1List, zv2List);
+						}
+
+						// get zscores
+						List<Element> zs = null;
+						List<Double> zsList = new ArrayList<>();
+
+						try {
+							zs = thisNode.getChild("zScores").getChildren();
+							for (Element c : zs) {
+								zsList.add(Double.parseDouble(c.getContent(0).getValue()));
+							}
+						} catch (Exception e) {
+							zsList = CalculateDiffCorr.computeZscores(diffList, namesgrp1.size(), namesgrp2.size());
+						}
+
+						// get pvals
+						List<Element> pv = null;
+						List<Double> pvList = new ArrayList<>();
+
+						try {
+							pv = thisNode.getChild("pValues").getChildren();
+							for (Element c : pv) {
+								pvList.add(Double.parseDouble(c.getContent(0).getValue()));
+							}
+
+						} catch (Exception e) {
+							pvList = CalculateDiffCorr.computePVals(zsList);
+						}
+
+						
+
+						// Fix this
+						JOptionPane.showMessageDialog(null, "zv1:"+zv1List.toString());
+						JOptionPane.showMessageDialog(null, "zv2:"+zv2List.toString());
 						DifferentialCorrResults thisOb = new DifferentialCorrResults(flistname, featureName, featureInd,
-								namesgrp1, namesgrp2, g1name, g2name, method, rowNames, corrgrp1, corrgrp2,corrgrp2,corrgrp2,corrgrp2,corrgrp2,corrgrp2,
-								datatransform, id);
+								namesgrp1, namesgrp2, g1name, g2name, method, rowNames, corrgrp1, corrgrp2, zv1List,
+								zv2List, diffList, zsList, pvList, datatransform, id);
 						// add this ob to saved DE
 						addDiffCorrRes(id, thisOb);
 
@@ -1305,7 +1377,7 @@ public class MetaOmProject {
 		}
 
 		if (allsWell && projectFileFound && extendedFound) {
-			//if sample metadata is present then load these information
+			// if sample metadata is present then load these information
 			try {
 
 				newcollection.removeUnusedCols(removedMDCols);
@@ -1328,7 +1400,7 @@ public class MetaOmProject {
 						removedMDCols);
 
 			} catch (NullPointerException | IOException e) {
-				//JOptionPane.showMessageDialog(null, "NPE error:");
+				// JOptionPane.showMessageDialog(null, "NPE error:");
 				e.printStackTrace();
 				return false;
 			}

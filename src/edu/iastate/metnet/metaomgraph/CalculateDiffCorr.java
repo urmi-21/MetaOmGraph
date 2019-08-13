@@ -213,7 +213,7 @@ public class CalculateDiffCorr {
 	 * @param rVals
 	 * @return
 	 */
-	public List<Double> getConveredttoZ(List<Double> rVals) {
+	public static List<Double> getConveredttoZ(List<Double> rVals) {
 		List<Double> res = new ArrayList<>();
 		Atanh atan = new Atanh();
 		for (double d : rVals) {
@@ -229,7 +229,7 @@ public class CalculateDiffCorr {
 	 * @param rVals2
 	 * @return
 	 */
-	public List<Double> getDiff(List<Double> rVals1, List<Double> rVals2) {
+	public static List<Double> getDiff(List<Double> rVals1, List<Double> rVals2) {
 		List<Double> res = new ArrayList<>();
 		for (int i = 0; i < rVals1.size(); i++) {
 			res.add(rVals1.get(i) - rVals2.get(i));
@@ -245,7 +245,7 @@ public class CalculateDiffCorr {
 	 */
 	
 	
-	public List<Double> computeZscores(List<Double> diff, int n1,int n2) {
+	public static List<Double> computeZscores(List<Double> diff, int n1,int n2) {
 		
 		List<Double> res = new ArrayList<>();
 		for (int i = 0; i < diff.size(); i++) {
@@ -263,7 +263,7 @@ public class CalculateDiffCorr {
 	 * @param zScores list of z scores
 	 * @return
 	 */
-	public List<Double> computePVals(List<Double> zScores) {
+	public static List<Double> computePVals(List<Double> zScores) {
 		List<Double> res = new ArrayList<>();
 		NormalDistribution nob = new NormalDistribution();
 

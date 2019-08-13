@@ -254,11 +254,7 @@ public class DifferentialCorrFrame extends JInternalFrame {
 				MetaOmGraph.getDesktop().add(frame);
 				frame.setVisible(true);
 
-				// long endTime = System.nanoTime();
-				// get difference of two nanoTime values
-				// float timeElapsed = endTime - startTime;
-				// timeElapsed = (timeElapsed / (float) 1000000000.00);
-				// JOptionPane.showMessageDialog(null, "Time taken:" + timeElapsed);
+				
 
 			}
 		});
