@@ -1333,10 +1333,7 @@ public class MetaOmProject {
 						}
 
 						
-
-						// Fix this
-						JOptionPane.showMessageDialog(null, "zv1:"+zv1List.toString());
-						JOptionPane.showMessageDialog(null, "zv2:"+zv2List.toString());
+						
 						DifferentialCorrResults thisOb = new DifferentialCorrResults(flistname, featureName, featureInd,
 								namesgrp1, namesgrp2, g1name, g2name, method, rowNames, corrgrp1, corrgrp2, zv1List,
 								zv2List, diffList, zsList, pvList, datatransform, id);
