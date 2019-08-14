@@ -10,6 +10,7 @@ import javax.swing.JOptionPane;
 
 import org.apache.commons.math3.analysis.function.Atanh;
 import org.apache.commons.math3.distribution.NormalDistribution;
+import org.biomage.Array.Array;
 
 import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
 
@@ -69,18 +70,80 @@ public class CalculateDiffCorr {
 		}
 		return res;
 	}
-	
-	
+
 	/**
-	 * Function to calculate correlations of a feature wrt to other features in two groups (e.g. grp1 has samples A,B,C grp2 has samples C,D,E).
-	 * Returns two Lists with correlation value of the feature in the two groups
-	 * @param g1Ind Indices of samples in group1
-	 * @param g2Ind Indices of samples in group2
+	 * Function to calculate correlations of a feature wrt to other features in two
+	 * groups (e.g. grp1 has samples A,B,C grp2 has samples C,D,E). The feature is
+	 * accessed via the featureIndex Returns two Lists with correlation value of the
+	 * feature in the two groups.
+	 * 
+	 * @param g1Ind
+	 *            Indices of samples in group1
+	 * @param g2Ind
+	 *            Indices of samples in group2
 	 * 
 	 * @throws IOException
 	 */
-	public void computeTwoGroupCorrelations(Collection<Integer> g1Ind, Collection<Integer> g2Ind) throws IOException {
+	public List<List<Double>> computeTwoGroupCorrelations(Collection<Integer> g1Ind, Collection<Integer> g2Ind) throws IOException {
+		// compute corrGrp1 and corrGrp2
+		corrGrp1 = new ArrayList<>();
+		corrGrp2 = new ArrayList<>();
+		// get the target data
+		final int[] entries = myProject.getGeneListRowNumbers(geneList);
+		// apply transformations if specified
+		double[] targetData = myProject.getAllData(featureIndex, false);
+		// split targetData into two groups target1 and target2
+		double target1[] = new double[grp1Ind.size()];
+		double target2[] = new double[grp2Ind.size()];
+
+		int i1, i2;
+		i1 = i2 = 0;
+		for (int k = 0; k < targetData.length; k++) {
+			if (excluded != null && excluded[k]) {
+				continue;
+			}
+			if (g1Ind.contains(k)) {
+				target1[i1++] = targetData[k];
+			} else if (g2Ind.contains(k)) {
+				target2[i2++] = targetData[k];
+			}
+		}
+
+		// calculate two lists of correlation wrt to target1 and target2
+		CorrelationCalc calcy1 = new CorrelationCalc(target1, excluded);
+		CorrelationCalc calcy2 = new CorrelationCalc(target2, excluded);
+
+		for (int i = 0; i < entries.length; i++) {
+			double[] thisdata;
+			thisdata = myProject.getAllData(entries[i], false);
+
+			// split targetData into two groups target1 and target2
+			double data1[] = new double[grp1Ind.size()];
+			double data2[] = new double[grp2Ind.size()];
+			i1 = i2 = 0;
+			for (int k = 0; k < thisdata.length; k++) {
+				if (excluded != null && excluded[k]) {
+					continue;
+				}
+				if (g1Ind.contains(k)) {
+					data1[i1++] = thisdata[k];
+				} else if (g2Ind.contains(k)) {
+					data2[i2++] = thisdata[k];
+				}
+			}
+			corrGrp1.add(
+					calcy1.pearsonCorrelation(data1, myProject.mayContainBlankValues(), myProject.getBlankValue()));
+			corrGrp2.add(
+					calcy2.pearsonCorrelation(data2, myProject.mayContainBlankValues(), myProject.getBlankValue()));
+
+		}
+
+		List<List<Double>> result=new ArrayList<>();
+		result.add(corrGrp1);
+		result.add(corrGrp2);
 		
+		return result;
+
 	}
 
 	public void methodParametric() throws IOException {
@@ -185,11 +248,11 @@ public class CalculateDiffCorr {
 	 * @throws IOException
 	 */
 	public void methodPermutation(boolean fTransform) throws IOException {
-		
+
 		// compute corrGrp1 and corrGrp2
 		corrGrp1 = new ArrayList<>();
 		corrGrp2 = new ArrayList<>();
-		//exchange grp1Ind and grp2Ind to shuffle data
+		// exchange grp1Ind and grp2Ind to shuffle data
 		Collection<Integer> g1Ind = grp1Ind;
 		Collection<Integer> g2Ind = grp2Ind;
 
@@ -213,8 +276,8 @@ public class CalculateDiffCorr {
 				target2[i2++] = targetData[k];
 			}
 		}
-		//target1 contains values of the target genes over samples in first group
-		//target2 contains values of the target genes over samples in second group
+		// target1 contains values of the target genes over samples in first group
+		// target2 contains values of the target genes over samples in second group
 
 		// calculate two lists of correlation wrt to target1 and target2
 		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(),
@@ -288,7 +351,10 @@ public class CalculateDiffCorr {
 
 		// get current method
 		if (this.method == 0) {
-			methodParametric();
+			//methodParametric();
+			List<List<Double>> res=computeTwoGroupCorrelations(grp1Ind, grp2Ind);
+			this.corrGrp1=res.get(0);
+			this.corrGrp2=res.get(1);
 		} else if (this.method == 1) {
 			JOptionPane.showMessageDialog(null, "No method");
 		} else {
