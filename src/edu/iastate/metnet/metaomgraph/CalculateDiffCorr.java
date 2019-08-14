@@ -351,21 +351,27 @@ public class CalculateDiffCorr {
 
 	/**
 	 * Function takes two integer collection and randomly shuffle the two lists
+	 * 
 	 * @param list1
 	 * @param list2
 	 * @return
 	 */
-	public List<Collection<Integer>> exchangeIndices(Collection<Integer> list1, Collection<Integer> list2) {
-		Collection<Integer> grp1Copy = new ArrayList<>();
-		Collection<Integer> grp2Copy = new ArrayList<>();
-		for (Integer i : list1) {
-			grp1Copy.add(i);
-		}
-		for (Integer i : list2) {
-			grp2Copy.add(i);
-		}
-
-		return null;
+	public List<Collection<Integer>> randomlySplitIndices(Collection<Integer> list,int size1,int size2) {
+		List<Integer> indexList= new ArrayList<>(list);
+		
+		//shuffle the input list
+		Collections.shuffle(indexList);
+		List<Integer> sublist1=indexList.subList(0, size1);
+		List<Integer> sublist2=indexList.subList(size1, indexList.size());
+		
+		Collection<Integer> grp1Copy = new ArrayList<>(sublist1);
+		Collection<Integer> grp2Copy = new ArrayList<>(sublist2);
+		
+		List<Collection<Integer>> result=new ArrayList<>();
+		result.add(grp1Copy);
+		result.add(grp2Copy);
+		
+		return result;
 	}
 
 	public void doCalc() throws IOException {
@@ -381,12 +387,28 @@ public class CalculateDiffCorr {
 			List<List<Double>> res = computeTwoGroupCorrelations(grp1Ind, grp2Ind);
 			this.corrGrp1 = res.get(0);
 			this.corrGrp2 = res.get(1);
+		
+			//combine indices to shuffle
+			Collection<Integer> combinedInd = new ArrayList<>();
+			for (Integer i : grp1Ind) {
+				combinedInd.add(i);
+			}
+			for (Integer i : grp2Ind) {
+				combinedInd.add(i);
+			}
+			
 			// shuffle groups and compute correlations
-			List<List<Double>> corrListGrp1 = new ArrayList<>();
-			List<List<Double>> corrListGrp2 = new ArrayList<>();
-
+			List<List<Double>> corrRes1=new ArrayList<>();
+			List<List<Double>> corrRes2=new ArrayList<>();
+			JOptionPane.showMessageDialog(null, "Orig:"+" l1"+grp1Ind.toString()+" l2"+grp2Ind.toString());
 			for (int i = 0; i < MetaOmGraph.getNumPermutations(); i++) {
-
+				List<Collection<Integer>> shuffleResult=randomlySplitIndices(combinedInd, getGrp1Size(), getGrp2Size());
+				JOptionPane.showMessageDialog(null, "ind:"+i+" l1"+shuffleResult.get(0).toString()+" l2"+shuffleResult.get(1).toString());
+				//get the groupwise correlation for this permutation
+				List<List<Double>> thisResult = computeTwoGroupCorrelations(shuffleResult.get(0), shuffleResult.get(1));
+				//add the results two two lists
+				corrRes1.add(thisResult.get(0));
+				corrRes2.add(thisResult.get(1));
 			}
 
 		} else {
