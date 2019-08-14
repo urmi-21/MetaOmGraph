@@ -88,8 +88,8 @@ public class CalculateDiffCorr {
 	public List<List<Double>> computeTwoGroupCorrelations(Collection<Integer> g1Ind, Collection<Integer> g2Ind)
 			throws IOException {
 		// compute corrGrp1 and corrGrp2
-		corrGrp1 = new ArrayList<>();
-		corrGrp2 = new ArrayList<>();
+		List<Double> resGrp1 = new ArrayList<>();
+		List<Double> resGrp2 = new ArrayList<>();
 		// get the target data
 		final int[] entries = myProject.getGeneListRowNumbers(geneList);
 		// apply transformations if specified
@@ -133,16 +133,16 @@ public class CalculateDiffCorr {
 					data2[i2++] = thisdata[k];
 				}
 			}
-			corrGrp1.add(
+			resGrp1.add(
 					calcy1.pearsonCorrelation(data1, myProject.mayContainBlankValues(), myProject.getBlankValue()));
-			corrGrp2.add(
+			resGrp2.add(
 					calcy2.pearsonCorrelation(data2, myProject.mayContainBlankValues(), myProject.getBlankValue()));
 
 		}
 
 		List<List<Double>> result = new ArrayList<>();
-		result.add(corrGrp1);
-		result.add(corrGrp2);
+		result.add(resGrp1);
+		result.add(resGrp2);
 
 		return result;
 
@@ -352,25 +352,29 @@ public class CalculateDiffCorr {
 	/**
 	 * Function takes two integer collection and randomly shuffle the two lists
 	 * 
-	 * @param list1
-	 * @param list2
+	 * @param list
+	 *            input list of indices
+	 * @param size1
+	 *            size of output list1
+	 * @param size2
+	 *            size of output list2
 	 * @return
 	 */
-	public List<Collection<Integer>> randomlySplitIndices(Collection<Integer> list,int size1,int size2) {
-		List<Integer> indexList= new ArrayList<>(list);
-		
-		//shuffle the input list
+	public List<Collection<Integer>> randomlySplitIndices(Collection<Integer> list, int size1, int size2) {
+		List<Integer> indexList = new ArrayList<>(list);
+
+		// shuffle the input list
 		Collections.shuffle(indexList);
-		List<Integer> sublist1=indexList.subList(0, size1);
-		List<Integer> sublist2=indexList.subList(size1, indexList.size());
-		
+		List<Integer> sublist1 = indexList.subList(0, size1);
+		List<Integer> sublist2 = indexList.subList(size1, indexList.size());
+
 		Collection<Integer> grp1Copy = new ArrayList<>(sublist1);
 		Collection<Integer> grp2Copy = new ArrayList<>(sublist2);
-		
-		List<Collection<Integer>> result=new ArrayList<>();
+
+		List<Collection<Integer>> result = new ArrayList<>();
 		result.add(grp1Copy);
 		result.add(grp2Copy);
-		
+
 		return result;
 	}
 
@@ -382,13 +386,21 @@ public class CalculateDiffCorr {
 			List<List<Double>> res = computeTwoGroupCorrelations(grp1Ind, grp2Ind);
 			this.corrGrp1 = res.get(0);
 			this.corrGrp2 = res.get(1);
+
+			// after computation of corr vals
+			zVals1 = getConveredttoZ(this.corrGrp1);
+			zVals2 = getConveredttoZ(this.corrGrp2);
+			diffZvals = getDiff(zVals1, zVals2);
+			zScores = computeZscores(diffZvals, getGrp1Size(), getGrp2Size());
+			pValues = computePVals(zScores);
+
 		} else if (this.method == 1) {
 			JOptionPane.showMessageDialog(null, "Permutation method");
 			List<List<Double>> res = computeTwoGroupCorrelations(grp1Ind, grp2Ind);
 			this.corrGrp1 = res.get(0);
 			this.corrGrp2 = res.get(1);
-		
-			//combine indices to shuffle
+
+			// combine indices to shuffle
 			Collection<Integer> combinedInd = new ArrayList<>();
 			for (Integer i : grp1Ind) {
 				combinedInd.add(i);
@@ -396,31 +408,84 @@ public class CalculateDiffCorr {
 			for (Integer i : grp2Ind) {
 				combinedInd.add(i);
 			}
-			
+
 			// shuffle groups and compute correlations
-			List<List<Double>> corrRes1=new ArrayList<>();
-			List<List<Double>> corrRes2=new ArrayList<>();
-			JOptionPane.showMessageDialog(null, "Orig:"+" l1"+grp1Ind.toString()+" l2"+grp2Ind.toString());
+			List<List<Double>> corrRes1 = new ArrayList<>();
+			List<List<Double>> corrRes2 = new ArrayList<>();
+
+			
 			for (int i = 0; i < MetaOmGraph.getNumPermutations(); i++) {
-				List<Collection<Integer>> shuffleResult=randomlySplitIndices(combinedInd, getGrp1Size(), getGrp2Size());
-				JOptionPane.showMessageDialog(null, "ind:"+i+" l1"+shuffleResult.get(0).toString()+" l2"+shuffleResult.get(1).toString());
-				//get the groupwise correlation for this permutation
+				List<Collection<Integer>> shuffleResult = randomlySplitIndices(combinedInd, getGrp1Size(),
+						getGrp2Size());
+				// JOptionPane.showMessageDialog(null, "ind:"+i+"
+				// l1"+shuffleResult.get(0).toString()+" l2"+shuffleResult.get(1).toString());
+				// get the groupwise correlation for this permutation
 				List<List<Double>> thisResult = computeTwoGroupCorrelations(shuffleResult.get(0), shuffleResult.get(1));
-				//add the results two two lists
+				// add the results two two lists
 				corrRes1.add(thisResult.get(0));
 				corrRes2.add(thisResult.get(1));
 			}
+
+			// compute p value obtained with permutation method
+			zVals1 = corrGrp1;
+			zVals2 = corrGrp2;
+			diffZvals = getDiff(zVals1, zVals2);
+			// zscores are irrelevant in this method
+			zScores = new ArrayList<>();
+			//pValues = new ArrayList<>();
+			pValues=computePermutationPvals(diffZvals, corrRes1, corrRes2);
+			// initialize zscores with zeroes
+			for (int i = 0; i < zVals1.size(); i++) {
+				zScores.add(0.0);
+			}
+			
 
 		} else {
 			JOptionPane.showMessageDialog(null, "Error");
 		}
 
-		// after computation of corr vals
-		zVals1 = getConveredttoZ(this.corrGrp1);
-		zVals2 = getConveredttoZ(this.corrGrp2);
-		diffZvals = getDiff(zVals1, zVals2);
-		zScores = computeZscores(diffZvals, getGrp1Size(), getGrp2Size());
-		pValues = computePVals(zScores);
+	}
+
+	/**
+	 * Function to compute p values from the permutations
+	 * 
+	 * @param diff
+	 *            the observed difference in correlation values
+	 * @param permutedResGrp1
+	 *            correlation under group 1 obtained with permuted datasets
+	 * @param permutedResGrp2
+	 *            correlation under group 2 obtained with permuted datasets
+	 * @return
+	 */
+	public List<Double> computePermutationPvals(List<Double> diff, List<List<Double>> permutedResGrp1,
+			List<List<Double>> permutedResGrp2) {
+
+		List<Double> result = new ArrayList<>();
+
+		// do for each row
+		for (int i = 0; i < diff.size(); i++) {
+			// initialize extreme results
+			int numExtreme = 0;
+			double thisDiff = diff.get(i);
+
+			// for each permutation
+			for (int j = 0; j < permutedResGrp1.size(); j++) {
+				// get result from jth permutation for ith row
+				double thisr1 = permutedResGrp1.get(j).get(i);
+				double thisr2 = permutedResGrp2.get(j).get(i);
+				double obsDiff = thisr1 - thisr2;
+
+				if (Math.abs(obsDiff) >= Math.abs(thisDiff)) {
+					numExtreme++;
+				}
+			}
+
+			double thisPval = (double) numExtreme / permutedResGrp1.size();
+			
+			result.add(thisPval);
+		}
+
+		return result;
 
 	}
 
