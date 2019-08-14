@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -84,7 +85,8 @@ public class CalculateDiffCorr {
 	 * 
 	 * @throws IOException
 	 */
-	public List<List<Double>> computeTwoGroupCorrelations(Collection<Integer> g1Ind, Collection<Integer> g2Ind) throws IOException {
+	public List<List<Double>> computeTwoGroupCorrelations(Collection<Integer> g1Ind, Collection<Integer> g2Ind)
+			throws IOException {
 		// compute corrGrp1 and corrGrp2
 		corrGrp1 = new ArrayList<>();
 		corrGrp2 = new ArrayList<>();
@@ -138,10 +140,10 @@ public class CalculateDiffCorr {
 
 		}
 
-		List<List<Double>> result=new ArrayList<>();
+		List<List<Double>> result = new ArrayList<>();
 		result.add(corrGrp1);
 		result.add(corrGrp2);
-		
+
 		return result;
 
 	}
@@ -347,16 +349,46 @@ public class CalculateDiffCorr {
 
 	}
 
+	/**
+	 * Function takes two integer collection and randomly shuffle the two lists
+	 * @param list1
+	 * @param list2
+	 * @return
+	 */
+	public List<Collection<Integer>> exchangeIndices(Collection<Integer> list1, Collection<Integer> list2) {
+		Collection<Integer> grp1Copy = new ArrayList<>();
+		Collection<Integer> grp2Copy = new ArrayList<>();
+		for (Integer i : list1) {
+			grp1Copy.add(i);
+		}
+		for (Integer i : list2) {
+			grp2Copy.add(i);
+		}
+
+		return null;
+	}
+
 	public void doCalc() throws IOException {
 
 		// get current method
 		if (this.method == 0) {
-			//methodParametric();
-			List<List<Double>> res=computeTwoGroupCorrelations(grp1Ind, grp2Ind);
-			this.corrGrp1=res.get(0);
-			this.corrGrp2=res.get(1);
+			// methodParametric();
+			List<List<Double>> res = computeTwoGroupCorrelations(grp1Ind, grp2Ind);
+			this.corrGrp1 = res.get(0);
+			this.corrGrp2 = res.get(1);
 		} else if (this.method == 1) {
-			JOptionPane.showMessageDialog(null, "No method");
+			JOptionPane.showMessageDialog(null, "Permutation method");
+			List<List<Double>> res = computeTwoGroupCorrelations(grp1Ind, grp2Ind);
+			this.corrGrp1 = res.get(0);
+			this.corrGrp2 = res.get(1);
+			// shuffle groups and compute correlations
+			List<List<Double>> corrListGrp1 = new ArrayList<>();
+			List<List<Double>> corrListGrp2 = new ArrayList<>();
+
+			for (int i = 0; i < MetaOmGraph.getNumPermutations(); i++) {
+
+			}
+
 		} else {
 			JOptionPane.showMessageDialog(null, "Error");
 		}
