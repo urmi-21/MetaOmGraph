@@ -57,6 +57,7 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
+import org.apache.commons.math3.analysis.function.Atanh;
 import org.biomage.Array.Array;
 
 import edu.iastate.metnet.metaomgraph.GraphFileFilter;
@@ -1353,12 +1354,23 @@ public class Utils {
 
 	}
 
-	/*
-	 * public static String verifyXML(String s) {
+	/**
+	 * return value of AtanH. Don't return inf values if domain is over 1 and less
+	 * than -1
 	 * 
-	 * 
-	 * }
+	 * @param x
+	 * @return
 	 */
+	public static double getAtanH(double x) {
+		Atanh atanh = new Atanh();
+		if (x < 0.99999 && x > -0.99999) {
+			return (atanh.value(x));
+
+		} else {
+			return (x * 10000000);
+		}
+
+	}
 
 	public static void main(String args[]) {
 		String s = "a b/c  $%^a  a*.";
