@@ -133,10 +133,8 @@ public class CalculateDiffCorr {
 					data2[i2++] = thisdata[k];
 				}
 			}
-			resGrp1.add(
-					calcy1.pearsonCorrelation(data1, myProject.mayContainBlankValues(), myProject.getBlankValue()));
-			resGrp2.add(
-					calcy2.pearsonCorrelation(data2, myProject.mayContainBlankValues(), myProject.getBlankValue()));
+			resGrp1.add(calcy1.pearsonCorrelation(data1, myProject.mayContainBlankValues(), myProject.getBlankValue()));
+			resGrp2.add(calcy2.pearsonCorrelation(data2, myProject.mayContainBlankValues(), myProject.getBlankValue()));
 
 		}
 
@@ -395,7 +393,7 @@ public class CalculateDiffCorr {
 			pValues = computePVals(zScores);
 
 		} else if (this.method == 1) {
-			JOptionPane.showMessageDialog(null, "Permutation method");
+
 			List<List<Double>> res = computeTwoGroupCorrelations(grp1Ind, grp2Ind);
 			this.corrGrp1 = res.get(0);
 			this.corrGrp2 = res.get(1);
@@ -410,21 +408,12 @@ public class CalculateDiffCorr {
 			}
 
 			// shuffle groups and compute correlations
-			List<List<Double>> corrRes1 = new ArrayList<>();
-			List<List<Double>> corrRes2 = new ArrayList<>();
-
-			
-			for (int i = 0; i < MetaOmGraph.getNumPermutations(); i++) {
-				List<Collection<Integer>> shuffleResult = randomlySplitIndices(combinedInd, getGrp1Size(),
-						getGrp2Size());
-				// JOptionPane.showMessageDialog(null, "ind:"+i+"
-				// l1"+shuffleResult.get(0).toString()+" l2"+shuffleResult.get(1).toString());
-				// get the groupwise correlation for this permutation
-				List<List<Double>> thisResult = computeTwoGroupCorrelations(shuffleResult.get(0), shuffleResult.get(1));
-				// add the results two two lists
-				corrRes1.add(thisResult.get(0));
-				corrRes2.add(thisResult.get(1));
+			List<List<List<Double>>> permutationResults = getPermutatedCorrelations(combinedInd);
+			if (permutationResults == null) {
+				return;
 			}
+			List<List<Double>> corrRes1 = permutationResults.get(0);
+			List<List<Double>> corrRes2 = permutationResults.get(1);
 
 			// compute p value obtained with permutation method
 			zVals1 = corrGrp1;
@@ -432,18 +421,98 @@ public class CalculateDiffCorr {
 			diffZvals = getDiff(zVals1, zVals2);
 			// zscores are irrelevant in this method
 			zScores = new ArrayList<>();
-			//pValues = new ArrayList<>();
-			pValues=computePermutationPvals(diffZvals, corrRes1, corrRes2);
+			// pValues = new ArrayList<>();
+			pValues = computePermutationPvals(diffZvals, corrRes1, corrRes2);
 			// initialize zscores with zeroes
 			for (int i = 0; i < zVals1.size(); i++) {
 				zScores.add(0.0);
 			}
-			
 
 		} else {
 			JOptionPane.showMessageDialog(null, "Error");
 		}
 
+	}
+
+	/**
+	 * Function to generate permuted data and calculate the correlation values
+	 * 
+	 * @param combinedInd
+	 * @return
+	 * @throws IOException
+	 */
+	private List<List<List<Double>>> getPermutatedCorrelations(Collection<Integer> combinedInd) throws IOException {
+		List<List<Double>> corrRes1 = new ArrayList<>();
+		List<List<Double>> corrRes2 = new ArrayList<>();
+		int permutations = MetaOmGraph.getNumPermutations();
+
+		final List<Boolean> status = new ArrayList<>();
+		// status.add(0, true);
+		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(),
+				"Calculating permutations...", "", 0L, permutations, true);
+
+		SwingWorker analyzeWorker = new SwingWorker() {
+			public boolean errored = false;
+
+			public Object construct() {
+				try {
+
+					for (int i = 0; i < permutations && !progress.isCanceled(); i++) {
+						progress.setProgress(i);
+						List<Collection<Integer>> shuffleResult = randomlySplitIndices(combinedInd, getGrp1Size(),
+								getGrp2Size());
+						// JOptionPane.showMessageDialog(null, "ind:"+i+"
+						// l1"+shuffleResult.get(0).toString()+" l2"+shuffleResult.get(1).toString());
+						// get the groupwise correlation for this permutation
+						List<List<Double>> thisResult = computeTwoGroupCorrelations(shuffleResult.get(0),
+								shuffleResult.get(1));
+						// add the results two two lists
+						corrRes1.add(thisResult.get(0));
+						corrRes2.add(thisResult.get(1));
+					}
+
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return null;
+			}
+
+			public void finished() {
+				if (progress.isCanceled()) {
+					JOptionPane.showMessageDialog(null, "click cancelled");
+					errored = true;
+					JOptionPane.showMessageDialog(null, status.toString());
+					status.add(false);
+					JOptionPane.showMessageDialog(null, status.toString());
+					progress.dispose();
+
+				}
+
+				if ((!progress.isCanceled()) && (!errored)) {
+					status.add(true);
+				}
+				progress.dispose();
+			}
+
+		};
+
+		analyzeWorker.start();
+		progress.setVisible(true);
+
+		
+			
+			JOptionPane.showMessageDialog(null, status.toString());
+			// cancelled or error
+			if (!status.get(0)) {
+				return null;
+			}
+			List<List<List<Double>>> result = new ArrayList<>();
+			result.add(corrRes1);
+			result.add(corrRes2);
+			JOptionPane.showMessageDialog(null, "returning RES");
+			return result;
+		
 	}
 
 	/**
@@ -481,7 +550,7 @@ public class CalculateDiffCorr {
 			}
 
 			double thisPval = (double) numExtreme / permutedResGrp1.size();
-			
+
 			result.add(thisPval);
 		}
 
