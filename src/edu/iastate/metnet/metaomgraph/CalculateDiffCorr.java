@@ -69,6 +69,19 @@ public class CalculateDiffCorr {
 		}
 		return res;
 	}
+	
+	
+	/**
+	 * Function to calculate correlations of a feature wrt to other features in two groups (e.g. grp1 has samples A,B,C grp2 has samples C,D,E).
+	 * Returns two Lists with correlation value of the feature in the two groups
+	 * @param g1Ind Indices of samples in group1
+	 * @param g2Ind Indices of samples in group2
+	 * 
+	 * @throws IOException
+	 */
+	public void computeTwoGroupCorrelations(Collection<Integer> g1Ind, Collection<Integer> g2Ind) throws IOException {
+		
+	}
 
 	public void methodParametric() throws IOException {
 		// compute corrGrp1 and corrGrp2
@@ -165,6 +178,112 @@ public class CalculateDiffCorr {
 		progress.setVisible(true);
 	}
 
+	/**
+	 * Calculate differential correlation values and p value using permutation
+	 * method
+	 * 
+	 * @throws IOException
+	 */
+	public void methodPermutation(boolean fTransform) throws IOException {
+		
+		// compute corrGrp1 and corrGrp2
+		corrGrp1 = new ArrayList<>();
+		corrGrp2 = new ArrayList<>();
+		//exchange grp1Ind and grp2Ind to shuffle data
+		Collection<Integer> g1Ind = grp1Ind;
+		Collection<Integer> g2Ind = grp2Ind;
+
+		// get the target data
+		final int[] entries = myProject.getGeneListRowNumbers(geneList);
+		// apply transformations if specified
+		double[] targetData = myProject.getAllData(featureIndex, false);
+		// split targetData into two groups target1 and target2
+		double target1[] = new double[grp1Ind.size()];
+		double target2[] = new double[grp2Ind.size()];
+		int i1, i2;
+		i1 = i2 = 0;
+		// handle excluded samples
+		for (int k = 0; k < targetData.length; k++) {
+			if (excluded != null && excluded[k]) {
+				continue;
+			}
+			if (g1Ind.contains(k)) {
+				target1[i1++] = targetData[k];
+			} else if (g2Ind.contains(k)) {
+				target2[i2++] = targetData[k];
+			}
+		}
+		//target1 contains values of the target genes over samples in first group
+		//target2 contains values of the target genes over samples in second group
+
+		// calculate two lists of correlation wrt to target1 and target2
+		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(),
+				"Calculating...", "", 0L, entries.length, true);
+		SwingWorker analyzeWorker = new SwingWorker() {
+
+			boolean errored = false;
+
+			public Object construct() {
+				try {
+					CorrelationCalc calcy1 = new CorrelationCalc(target1, excluded);
+					CorrelationCalc calcy2 = new CorrelationCalc(target2, excluded);
+
+					int i = 0;
+					do {
+						progress.setProgress(i);
+						double[] thisdata;
+						thisdata = myProject.getAllData(entries[i], false);
+
+						// split data into two groups target1 and target2
+						double data1[] = new double[grp1Ind.size()];
+						double data2[] = new double[grp2Ind.size()];
+						int i1 = 0, i2 = 0;
+						for (int k = 0; k < thisdata.length; k++) {
+							if (excluded != null && excluded[k]) {
+								continue;
+							}
+							if (g1Ind.contains(k)) {
+								data1[i1++] = thisdata[k];
+							} else if (g2Ind.contains(k)) {
+								data2[i2++] = thisdata[k];
+							}
+						}
+
+						corrGrp1.add(calcy1.pearsonCorrelation(data1, myProject.mayContainBlankValues(),
+								myProject.getBlankValue()));
+						corrGrp2.add(calcy2.pearsonCorrelation(data2, myProject.mayContainBlankValues(),
+								myProject.getBlankValue()));
+
+						i++;
+						if (i >= entries.length)
+							break;
+					} while (!progress.isCanceled());
+
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return null;
+			}
+
+			public void finished() {
+				if (progress.isCanceled()) {
+					// JOptionPane.showMessageDialog(null, "click cancelled");
+					errored = true;
+					progress.dispose();
+				}
+				if ((!progress.isCanceled()) && (!errored)) {
+
+				}
+				progress.dispose();
+			}
+		};
+
+		analyzeWorker.start();
+		progress.setVisible(true);
+
+	}
+
 	public void doCalc() throws IOException {
 
 		// get current method
@@ -176,14 +295,13 @@ public class CalculateDiffCorr {
 			JOptionPane.showMessageDialog(null, "Error");
 		}
 
-		
-		//after computation of corr vals
+		// after computation of corr vals
 		zVals1 = getConveredttoZ(this.corrGrp1);
 		zVals2 = getConveredttoZ(this.corrGrp2);
 		diffZvals = getDiff(zVals1, zVals2);
-		zScores = computeZscores(diffZvals,getGrp1Size(),getGrp2Size());
+		zScores = computeZscores(diffZvals, getGrp1Size(), getGrp2Size());
 		pValues = computePVals(zScores);
-		
+
 	}
 
 	public List<String> getFeatureNames() {
@@ -206,7 +324,7 @@ public class CalculateDiffCorr {
 	public List<Double> getCorrGrp2() {
 		return corrGrp2;
 	}
-	
+
 	/**
 	 * convert r values to z applying Fisher's transform
 	 * 
@@ -222,9 +340,10 @@ public class CalculateDiffCorr {
 		}
 		return res;
 	}
-	
+
 	/**
 	 * returns difference between two correlation value arrays
+	 * 
 	 * @param rVals1
 	 * @param rVals2
 	 * @return
@@ -236,17 +355,17 @@ public class CalculateDiffCorr {
 		}
 		return res;
 	}
-	
+
 	/**
 	 * Get z score array from two correlation arrays
+	 * 
 	 * @param rVals1
 	 * @param rVals2
 	 * @return
 	 */
-	
-	
-	public static List<Double> computeZscores(List<Double> diff, int n1,int n2) {
-		
+
+	public static List<Double> computeZscores(List<Double> diff, int n1, int n2) {
+
 		List<Double> res = new ArrayList<>();
 		for (int i = 0; i < diff.size(); i++) {
 			double thisZ = diff.get(i);
@@ -260,7 +379,9 @@ public class CalculateDiffCorr {
 
 	/**
 	 * get the pvalues using normal distribution
-	 * @param zScores list of z scores
+	 * 
+	 * @param zScores
+	 *            list of z scores
 	 * @return
 	 */
 	public static List<Double> computePVals(List<Double> zScores) {
@@ -276,35 +397,32 @@ public class CalculateDiffCorr {
 		}
 		return res;
 	}
-	
+
 	/**
 	 * get z vals
+	 * 
 	 * @param index
 	 * @return
 	 */
 	public List<Double> getzVals(int index) {
-		if(index==1) {
+		if (index == 1) {
 			return zVals1;
-		}
-		else if(index==2) {
+		} else if (index == 2) {
 			return zVals2;
 		}
 		return null;
 	}
-	
+
 	public List<Double> getDiffZVals() {
 		return diffZvals;
 	}
-	
+
 	public List<Double> getzScores() {
 		return zScores;
 	}
-	
+
 	public List<Double> getpValues() {
 		return pValues;
 	}
-	
-	
-	
 
 }
