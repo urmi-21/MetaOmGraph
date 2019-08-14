@@ -207,6 +207,11 @@ public class DifferentialCorrFrame extends JInternalFrame {
 					e1.printStackTrace();
 				}
 
+				// check if calculation were complete
+				if (ob.getpValues() == null) {
+					return;
+				}
+
 				// save results in MOG
 				String id = "";
 				if (chckbxSaveResultsWith.isSelected()) {
@@ -253,8 +258,6 @@ public class DifferentialCorrFrame extends JInternalFrame {
 				frame.setTitle("Differential Correlation Results");
 				MetaOmGraph.getDesktop().add(frame);
 				frame.setVisible(true);
-
-				
 
 			}
 		});
@@ -506,7 +509,8 @@ public class DifferentialCorrFrame extends JInternalFrame {
 	}
 
 	private void initComboBoxes() {
-		String[] methods = new String[] { "Fisher transformation", "Permutation test" };
+		String[] methods = new String[] { "Parametric-Fisher's z transformation",
+				"Permutation test-Fisher's z transformation", "Permutation test-No transformation" };
 		comboBox_1 = new JComboBox(methods);
 	}
 

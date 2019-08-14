@@ -1,5 +1,6 @@
 package edu.iastate.metnet.metaomgraph;
 
+import java.awt.EventQueue;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,6 +15,7 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import org.biomage.Array.Array;
 
 import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
+import edu.iastate.metnet.metaomgraph.ui.ReadMetadata;
 
 public class CalculateDiffCorr {
 
@@ -379,11 +381,27 @@ public class CalculateDiffCorr {
 	public void doCalc() throws IOException {
 
 		// get current method
+		// See DifferentialCorrFrame for methods and their index
 		if (this.method == 0) {
 			// methodParametric();
-			List<List<Double>> res = computeTwoGroupCorrelations(grp1Ind, grp2Ind);
-			this.corrGrp1 = res.get(0);
-			this.corrGrp2 = res.get(1);
+
+			new AnimatedSwingWorker("Working...", true) {
+				@Override
+				public Object construct() {
+					EventQueue.invokeLater(new Runnable() {
+						public void run() {
+							try {
+								List<List<Double>> res = computeTwoGroupCorrelations(grp1Ind, grp2Ind);
+								corrGrp1 = res.get(0);
+								corrGrp2 = res.get(1);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					});
+					return null;
+				}
+			}.start();
 
 			// after computation of corr vals
 			zVals1 = getConveredttoZ(this.corrGrp1);
@@ -392,11 +410,27 @@ public class CalculateDiffCorr {
 			zScores = computeZscores(diffZvals, getGrp1Size(), getGrp2Size());
 			pValues = computePVals(zScores);
 
-		} else if (this.method == 1) {
+		} else if (this.method == 1 || this.method == 2) {
+			// if method is 1 do transformation and then do permutation test
+			// if method is 2 do permutation test on correlation values directly
 
-			List<List<Double>> res = computeTwoGroupCorrelations(grp1Ind, grp2Ind);
-			this.corrGrp1 = res.get(0);
-			this.corrGrp2 = res.get(1);
+			new AnimatedSwingWorker("Working...", true) {
+				@Override
+				public Object construct() {
+					EventQueue.invokeLater(new Runnable() {
+						public void run() {
+							try {
+								List<List<Double>> res = computeTwoGroupCorrelations(grp1Ind, grp2Ind);
+								corrGrp1 = res.get(0);
+								corrGrp2 = res.get(1);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					});
+					return null;
+				}
+			}.start();
 
 			// combine indices to shuffle
 			Collection<Integer> combinedInd = new ArrayList<>();
@@ -414,26 +448,57 @@ public class CalculateDiffCorr {
 			}
 			List<List<Double>> corrRes1 = permutationResults.get(0);
 			List<List<Double>> corrRes2 = permutationResults.get(1);
-			//check size to know if progess was cancelled
-			if(corrRes1.size()<MetaOmGraph.getNumPermutations()) {
+			// check size to know if progess was cancelled
+			if (corrRes1.size() < MetaOmGraph.getNumPermutations()) {
+				//JOptionPane.showMessageDialog(null, "Cancelled");
 				return;
 			}
 
+			// if method is 1 apply transformation and then conduct the test
+			if (method == 1) {
+				zVals1 = getConveredttoZ(this.corrGrp1);
+				zVals2 = getConveredttoZ(this.corrGrp2);
+				diffZvals = getDiff(zVals1, zVals2);
+
+				// convert all lists in the permuted results to z values
+				for (int i = 0; i < corrRes1.size(); i++) {
+					corrRes1.set(i, getConveredttoZ(corrRes1.get(i)));
+					corrRes2.set(i, getConveredttoZ(corrRes2.get(i)));
+				}
+
+			} else if (method == 2) {
+				zVals1 = corrGrp1;
+				zVals2 = corrGrp2;
+				diffZvals = getDiff(zVals1, zVals2);
+			}
 			// compute p value obtained with permutation method
-			zVals1 = corrGrp1;
-			zVals2 = corrGrp2;
-			diffZvals = getDiff(zVals1, zVals2);
+
 			// zscores are irrelevant in this method
 			zScores = new ArrayList<>();
-			// pValues = new ArrayList<>();
-			pValues = computePermutationPvals(diffZvals, corrRes1, corrRes2);
 			// initialize zscores with zeroes
 			for (int i = 0; i < zVals1.size(); i++) {
 				zScores.add(0.0);
 			}
 
+			new AnimatedSwingWorker("Working...", true) {
+				@Override
+				public Object construct() {
+					EventQueue.invokeLater(new Runnable() {
+						public void run() {
+							try {
+								pValues = computePermutationPvals(diffZvals, corrRes1, corrRes2);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					});
+					return null;
+				}
+
+			}.start();
+
 		} else {
-			JOptionPane.showMessageDialog(null, "Error");
+			JOptionPane.showMessageDialog(null, "Unknown Method Error");
 		}
 
 	}
@@ -484,9 +549,9 @@ public class CalculateDiffCorr {
 
 			public void finished() {
 				if (progress.isCanceled()) {
-					
+
 					errored = true;
-					
+
 					progress.dispose();
 
 				}
@@ -502,11 +567,10 @@ public class CalculateDiffCorr {
 		analyzeWorker.start();
 		progress.setVisible(true);
 
-		
 		List<List<List<Double>>> result = new ArrayList<>();
 		result.add(corrRes1);
 		result.add(corrRes2);
-		//JOptionPane.showMessageDialog(null, "returning RES");
+		// JOptionPane.showMessageDialog(null, "returning RES");
 		return result;
 
 	}
@@ -545,7 +609,8 @@ public class CalculateDiffCorr {
 				}
 			}
 
-			double thisPval = (double) numExtreme / permutedResGrp1.size();
+			// add +1 for the observed value
+			double thisPval = (double) (numExtreme + 1) / (permutedResGrp1.size() + 1);
 
 			result.add(thisPval);
 		}
