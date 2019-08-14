@@ -414,6 +414,10 @@ public class CalculateDiffCorr {
 			}
 			List<List<Double>> corrRes1 = permutationResults.get(0);
 			List<List<Double>> corrRes2 = permutationResults.get(1);
+			//check size to know if progess was cancelled
+			if(corrRes1.size()<MetaOmGraph.getNumPermutations()) {
+				return;
+			}
 
 			// compute p value obtained with permutation method
 			zVals1 = corrGrp1;
@@ -480,11 +484,9 @@ public class CalculateDiffCorr {
 
 			public void finished() {
 				if (progress.isCanceled()) {
-					JOptionPane.showMessageDialog(null, "click cancelled");
+					
 					errored = true;
-					JOptionPane.showMessageDialog(null, status.toString());
-					status.add(false);
-					JOptionPane.showMessageDialog(null, status.toString());
+					
 					progress.dispose();
 
 				}
@@ -501,18 +503,12 @@ public class CalculateDiffCorr {
 		progress.setVisible(true);
 
 		
-			
-			JOptionPane.showMessageDialog(null, status.toString());
-			// cancelled or error
-			if (!status.get(0)) {
-				return null;
-			}
-			List<List<List<Double>>> result = new ArrayList<>();
-			result.add(corrRes1);
-			result.add(corrRes2);
-			JOptionPane.showMessageDialog(null, "returning RES");
-			return result;
-		
+		List<List<List<Double>>> result = new ArrayList<>();
+		result.add(corrRes1);
+		result.add(corrRes2);
+		//JOptionPane.showMessageDialog(null, "returning RES");
+		return result;
+
 	}
 
 	/**
