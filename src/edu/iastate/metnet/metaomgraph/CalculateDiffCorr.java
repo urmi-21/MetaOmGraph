@@ -16,6 +16,7 @@ import org.biomage.Array.Array;
 
 import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
 import edu.iastate.metnet.metaomgraph.ui.ReadMetadata;
+import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 public class CalculateDiffCorr {
 
@@ -450,7 +451,7 @@ public class CalculateDiffCorr {
 			List<List<Double>> corrRes2 = permutationResults.get(1);
 			// check size to know if progess was cancelled
 			if (corrRes1.size() < MetaOmGraph.getNumPermutations()) {
-				//JOptionPane.showMessageDialog(null, "Cancelled");
+				// JOptionPane.showMessageDialog(null, "Cancelled");
 				return;
 			}
 
@@ -593,20 +594,22 @@ public class CalculateDiffCorr {
 
 		// do for each row
 		for (int i = 0; i < diff.size(); i++) {
+
 			// initialize extreme results
 			int numExtreme = 0;
-			double thisDiff = diff.get(i);
+			double obsDiff = diff.get(i);
 
 			// for each permutation
 			for (int j = 0; j < permutedResGrp1.size(); j++) {
 				// get result from jth permutation for ith row
 				double thisr1 = permutedResGrp1.get(j).get(i);
 				double thisr2 = permutedResGrp2.get(j).get(i);
-				double obsDiff = thisr1 - thisr2;
-
-				if (Math.abs(obsDiff) >= Math.abs(thisDiff)) {
+				double thisDiff = thisr1 - thisr2;
+				if (Math.abs(thisDiff) >= Math.abs(obsDiff)) {
 					numExtreme++;
 				}
+
+				
 			}
 
 			// add +1 for the observed value
@@ -648,10 +651,9 @@ public class CalculateDiffCorr {
 	 */
 	public static List<Double> getConveredttoZ(List<Double> rVals) {
 		List<Double> res = new ArrayList<>();
-		Atanh atan = new Atanh();
+		// Atanh atanh = new Atanh();
 		for (double d : rVals) {
-			res.add(atan.value(d));
-			// JOptionPane.showMessageDialog(null, "val:"+d+" atan:"+atan.value(d));
+			res.add(Utils.getAtanH(d));
 		}
 		return res;
 	}
