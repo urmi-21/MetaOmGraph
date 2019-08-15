@@ -195,13 +195,16 @@ public class DifferentialExpFrame extends JInternalFrame {
 				CalculateLogFC ob = new CalculateLogFC(selectedFeatureList, grp1, grp2, txtGroup1.getText(),
 						txtGroup2.getText(), myProject, comboBox_1.getSelectedIndex());
 
-				// display result
+				
+				//start calculation
 				ob.doCalc();
+				//check if calculation was cancelled
 				if (!ob.getcalcStatus()) {
 					ob=null;
 					return;
 				}
-
+				
+				
 				// save object
 				String id = "";
 				if (chckbxSaveResultsWith.isSelected()) {
