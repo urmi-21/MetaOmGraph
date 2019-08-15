@@ -596,7 +596,7 @@ public class CalculateDiffCorr {
 		for (int i = 0; i < diff.size(); i++) {
 
 			// initialize extreme results
-			int numExtreme = 0;
+			double numExtreme = 0;
 			double obsDiff = diff.get(i);
 			
 			// for each permutation
@@ -606,14 +606,14 @@ public class CalculateDiffCorr {
 				double thisr2 = permutedResGrp2.get(j).get(i);
 				double thisDiff = thisr1 - thisr2;
 				if (Math.abs(thisDiff) >= Math.abs(obsDiff)) {
-					numExtreme++;
+					numExtreme+=1.0;
 				}
 				
 				
 			}
 
 			// add +1 for the observed value
-			double thisPval = (double) (numExtreme + 1) / (permutedResGrp1.size() + 1);
+			double thisPval = (double) (numExtreme + 1.0) / (permutedResGrp1.size() + 1.0);
 
 			result.add(thisPval);
 		}

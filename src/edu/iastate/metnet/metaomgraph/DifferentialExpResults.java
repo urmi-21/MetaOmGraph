@@ -94,6 +94,9 @@ public class DifferentialExpResults {
 		if (method == 4) {
 			return "Wilcoxon signed-rank test";
 		}
+		if (method == 5) {
+			return "Permutation test";
+		}
 
 		return "unknown";
 	}
