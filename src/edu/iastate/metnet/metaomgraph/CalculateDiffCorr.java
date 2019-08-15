@@ -598,7 +598,7 @@ public class CalculateDiffCorr {
 			// initialize extreme results
 			int numExtreme = 0;
 			double obsDiff = diff.get(i);
-
+			
 			// for each permutation
 			for (int j = 0; j < permutedResGrp1.size(); j++) {
 				// get result from jth permutation for ith row
@@ -608,7 +608,7 @@ public class CalculateDiffCorr {
 				if (Math.abs(thisDiff) >= Math.abs(obsDiff)) {
 					numExtreme++;
 				}
-
+				
 				
 			}
 

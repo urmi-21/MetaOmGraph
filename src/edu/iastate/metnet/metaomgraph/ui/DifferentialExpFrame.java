@@ -505,7 +505,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 	private void initComboBoxes() {
 		comboBox = new JComboBox(MetaOmGraph.getActiveProject().getGeneListNames());
 		String[] methods = new String[] { "M-W U test", "Student's t-test", "Welch's t-test", "Paired t-test",
-				"Wilcoxon Signed Rank Test" };
+				"Wilcoxon Signed Rank Test","Permutation test" };
 		comboBox_1 = new JComboBox(methods);
 	}
 
