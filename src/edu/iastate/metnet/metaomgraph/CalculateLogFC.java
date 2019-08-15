@@ -335,8 +335,7 @@ public class CalculateLogFC {
 
 						else if (testMethod == 5) {
 							// perform permutation test
-							JOptionPane.showMessageDialog(null, "Permtest", "PT", JOptionPane.INFORMATION_MESSAGE);
-
+							
 							// combine the data and randomly sample
 							List<Double> combinedData = new ArrayList<>();
 							for (int k = 0; k < thisDataRaw.length; k++) {
@@ -418,14 +417,15 @@ public class CalculateLogFC {
 		List<Double> permutedDiffs=computeTwoGroupGeometricMeanDifferences(size1, size2, combinedData);
 		
 		//compute pvalue
-		int numExtremes=0;
+		double numExtremes=0;
 		for(int i=0;i<permutedDiffs.size();i++) {
-			if(permutedDiffs.get(i)>=thisDiff) {
-				numExtremes++;
+			if(Math.abs(permutedDiffs.get(i))>=Math.abs(thisDiff)) {
+				numExtremes+=1;
 			}
 		}
 
-		return (double)(numExtremes+1)/(permutedDiffs.size()+1);
+		//add 1 for observed statistic
+		return (numExtremes+1.0)/(permutedDiffs.size()+1.0);
 	}
 
 	/**
