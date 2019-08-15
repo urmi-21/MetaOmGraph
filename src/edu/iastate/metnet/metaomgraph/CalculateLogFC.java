@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -41,7 +42,7 @@ public class CalculateLogFC {
 	private List<Double> ftestPvals;
 	private List<Double> ftestRatiovals;
 
-	private boolean calcStatus=true;
+	private boolean calcStatus = true;
 	SwingWorker analyzeWorker;
 
 	// group indices
@@ -233,23 +234,24 @@ public class CalculateLogFC {
 			public Object construct() {
 				for (int r = 0; r < selected.length; r++) {
 					progress.setProgress(r);
+					double[] thisDataRaw = null; // untransformed data
 					double[] thisData = null;
 					try {
 						// get untransformed data to calculate logFC
-						thisData = myProject.getAllData(selected[r], true);
+						thisDataRaw = myProject.getAllData(selected[r], true);
 						// JOptionPane.showMessageDialog(null, "this Data:"+Arrays.toString(thisData));
 
 						double m1 = 0, m2 = 0, fc = 0;
 
-						for (int k = 0; k < thisData.length; k++) {
+						for (int k = 0; k < thisDataRaw.length; k++) {
 							if (excluded != null && excluded[k]) {
 								continue;
 							}
 							if (g1Ind.contains(k)) {
-								m1 += (Math.log(thisData[k] + 1) / log2b10);
+								m1 += (Math.log(thisDataRaw[k] + 1) / log2b10);
 
 							} else if (g2Ind.contains(k)) {
-								m2 += (Math.log(thisData[k] + 1) / log2b10);
+								m2 += (Math.log(thisDataRaw[k] + 1) / log2b10);
 							}
 						}
 
@@ -334,9 +336,22 @@ public class CalculateLogFC {
 						else if (testMethod == 5) {
 							// perform permutation test
 							JOptionPane.showMessageDialog(null, "Permtest", "PT", JOptionPane.INFORMATION_MESSAGE);
-							//combine the indices and randomly sample
-							
-							return null;
+
+							// combine the data and randomly sample
+							List<Double> combinedData = new ArrayList<>();
+							for (int k = 0; k < thisDataRaw.length; k++) {
+								if (excluded != null && excluded[k]) {
+									continue;
+								}
+								if (g1Ind.contains(k) || g2Ind.contains(k)) {
+									combinedData.add(thisDataRaw[k]);
+								}
+							}
+
+							// observed geometric means are m1 and m2
+							double thisPval=computePermutationPval(m1, m2, g1Ind.size(), g2Ind.size(), combinedData);
+							testPvals.add(thisPval);
+							//return null;
 						}
 
 						else {
@@ -383,28 +398,73 @@ public class CalculateLogFC {
 		progress.setVisible(true);
 
 	}
-	
-	
+
 	/**
-	 * Function to compute geometric means of genes over two groups
+	 * Function to compute p value of geometric means equality test using
+	 * permutations
+	 * 
+	 * @param mean1
+	 * @param mean2
+	 * @param size1
+	 * @param size2
+	 * @param combinedData
+	 * @return
+	 * @throws IOException 
+	 */
+	public double computePermutationPval(double mean1, double mean2, int size1, int size2, List<Double> combinedData) throws IOException {
+
+		double thisDiff = mean1 - mean2;
+
+		List<Double> permutedDiffs=computeTwoGroupGeometricMeanDifferences(size1, size2, combinedData);
+		
+		//compute pvalue
+		int numExtremes=0;
+		for(int i=0;i<permutedDiffs.size();i++) {
+			if(permutedDiffs.get(i)>=thisDiff) {
+				numExtremes++;
+			}
+		}
+
+		return (double)(numExtremes+1)/(permutedDiffs.size()+1);
+	}
+
+	/**
+	 * Function to compute difference in geometric means of genes over two groups after shuffling
+	 * data
+	 * 
 	 * @param g1Ind
 	 * @param g2Ind
 	 * @return
 	 * @throws IOException
 	 */
-	public List<List<Double>> computeTwoGroupCorrelations(Collection<Integer> g1Ind, Collection<Integer> g2Ind)
+	public List<Double> computeTwoGroupGeometricMeanDifferences(int size1, int size2, List<Double> combinedData)
 			throws IOException {
 		// compute corrGrp1 and corrGrp2
-		List<Double> resGrp1 = new ArrayList<>();
-		List<Double> resGrp2 = new ArrayList<>();
-		
+		List<Double> diff = new ArrayList<>();
 
-		List<List<Double>> result = new ArrayList<>();
-		result.add(resGrp1);
-		result.add(resGrp2);
+		for (int i = 0; i < MetaOmGraph.getNumPermutations(); i++) {
+			Collections.shuffle(combinedData);
+			List<Double> grp1Data = combinedData.subList(0, size1);
+			List<Double> grp2Data = combinedData.subList(size1, combinedData.size());
+			// compute the two geometric means
+			double m1 = getGeometricMean(grp1Data);
+			double m2 = getGeometricMean(grp2Data);
+			diff.add(m1 - m2);
+		}
 
-		return result;
+		return diff;
 
+	}
+
+	public double getGeometricMean(List<Double> data) {
+
+		double sum = 0;
+		double log2b10 = Math.log(2.0D);
+		for (double d : data) {
+			sum += (Math.log(d + 1) / log2b10);
+		}
+
+		return sum / data.size();
 	}
 
 	/**
@@ -413,7 +473,7 @@ public class CalculateLogFC {
 	 * @return
 	 */
 	public boolean getcalcStatus() {
-		
+
 		return this.calcStatus;
 	}
 
