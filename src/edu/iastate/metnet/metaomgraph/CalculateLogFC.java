@@ -102,7 +102,8 @@ public class CalculateLogFC {
 	private Collection<Integer> getIndices(List<String> listDC) {
 		Collection<Integer> res = new ArrayList<>();
 		String[] dataColumnheaders = myProject.getDataColumnHeaders();
-		//JOptionPane.showMessageDialog(null, "DH:"+Arrays.toString(dataColumnheaders));
+		// JOptionPane.showMessageDialog(null,
+		// "DH:"+Arrays.toString(dataColumnheaders));
 		for (int i = 0; i < dataColumnheaders.length; i++) {
 			if (listDC.contains(dataColumnheaders[i])) {
 				res.add(i);
@@ -224,6 +225,7 @@ public class CalculateLogFC {
 				"Calculating...", "", 0L, selected.length, true);
 		analyzeWorker = new SwingWorker() {
 			boolean errored = false;
+
 			public Object construct() {
 				for (int r = 0; r < selected.length; r++) {
 					progress.setProgress(r);
@@ -325,8 +327,19 @@ public class CalculateLogFC {
 							}
 						}
 
-					}
-					catch (IOException ioe) {
+						else if (testMethod == 5) {
+							// perfor permutation test
+							JOptionPane.showMessageDialog(null, "Unknown Test Error", "Error",
+									JOptionPane.INFORMATION_MESSAGE);
+						}
+
+						else {
+							JOptionPane.showMessageDialog(null, "Unknown Test Error", "Error",
+									JOptionPane.ERROR_MESSAGE);
+							
+						}
+
+					} catch (IOException ioe) {
 						JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Error reading project data",
 								"IOException", 0);
 						ioe.printStackTrace();
@@ -346,11 +359,11 @@ public class CalculateLogFC {
 
 			public void finished() {
 				if (progress.isCanceled()) {
-					//JOptionPane.showMessageDialog(null, "click cancelled");
+					// JOptionPane.showMessageDialog(null, "click cancelled");
 					calcStatus = false;
 					errored = true;
 					progress.dispose();
-					
+
 				}
 				if ((!progress.isCanceled()) && (!errored)) {
 					calcStatus = true;
@@ -358,21 +371,9 @@ public class CalculateLogFC {
 				progress.dispose();
 			}
 		};
-		
+
 		analyzeWorker.start();
 		progress.setVisible(true);
-		/*EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					analyzeWorker.start();
-					progress.setVisible(true);
-				} catch (Exception e) {
-					analyzeWorker.interrupt();
-					progress.dispose();
-					e.printStackTrace();
-				}
-			}
-		});*/
 		
 
 	}
@@ -383,8 +384,8 @@ public class CalculateLogFC {
 	 * @return
 	 */
 	public boolean getcalcStatus() {
-		if(this.calcStatus==false) {
-			//JOptionPane.showMessageDialog(null, "interupt T");
+		if (this.calcStatus == false) {
+			// JOptionPane.showMessageDialog(null, "interupt T");
 			analyzeWorker.interrupt();
 		}
 		return this.calcStatus;
