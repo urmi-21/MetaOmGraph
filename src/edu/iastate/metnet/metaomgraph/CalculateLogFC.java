@@ -332,8 +332,10 @@ public class CalculateLogFC {
 						}
 
 						else if (testMethod == 5) {
-							// perfor permutation test
+							// perform permutation test
 							JOptionPane.showMessageDialog(null, "Permtest", "PT", JOptionPane.INFORMATION_MESSAGE);
+							//combine the indices and randomly sample
+							
 							return null;
 						}
 
@@ -379,6 +381,29 @@ public class CalculateLogFC {
 
 		analyzeWorker.start();
 		progress.setVisible(true);
+
+	}
+	
+	
+	/**
+	 * Function to compute geometric means of genes over two groups
+	 * @param g1Ind
+	 * @param g2Ind
+	 * @return
+	 * @throws IOException
+	 */
+	public List<List<Double>> computeTwoGroupCorrelations(Collection<Integer> g1Ind, Collection<Integer> g2Ind)
+			throws IOException {
+		// compute corrGrp1 and corrGrp2
+		List<Double> resGrp1 = new ArrayList<>();
+		List<Double> resGrp2 = new ArrayList<>();
+		
+
+		List<List<Double>> result = new ArrayList<>();
+		result.add(resGrp1);
+		result.add(resGrp2);
+
+		return result;
 
 	}
 
