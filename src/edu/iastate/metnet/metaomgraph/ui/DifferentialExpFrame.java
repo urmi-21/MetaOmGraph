@@ -174,7 +174,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 				if (selectedMethod.equals("Paired t-test") || selectedMethod.equals("Wilcoxon Signed Rank Test")) {
 					if (grp1.size() != grp2.size()) {
 						JOptionPane.showMessageDialog(null,
-								"The two groups must be equal to perform paired test. Please check the lists.",
+								"The two groups must be equal to perform paired test. Please check the input lists.",
 								"Unequal lists", JOptionPane.ERROR_MESSAGE);
 						return;
 					}
