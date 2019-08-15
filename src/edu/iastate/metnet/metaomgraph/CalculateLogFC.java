@@ -41,7 +41,7 @@ public class CalculateLogFC {
 	private List<Double> ftestPvals;
 	private List<Double> ftestRatiovals;
 
-	private boolean calcStatus;
+	private boolean calcStatus=true;
 	SwingWorker analyzeWorker;
 
 	// group indices
@@ -83,8 +83,9 @@ public class CalculateLogFC {
 		this.myProject = myProject;
 		excluded = MetaOmAnalyzer.getExclude();
 		this.testMethod = method;
-		if (testMethod < 0 || testMethod > 4) {
+		if (testMethod < 0 || testMethod > 5) {
 			JOptionPane.showMessageDialog(null, "Invalid method selected", "Invalid method", JOptionPane.ERROR_MESSAGE);
+			calcStatus = false;
 		}
 
 		// create collection of indices
@@ -196,6 +197,9 @@ public class CalculateLogFC {
 	}
 
 	public void doCalc() {
+		if (calcStatus == false) {
+			return;
+		}
 		// indices of selected feature list
 		int[] selected = myProject.getGeneListRowNumbers(this.selectedList);
 		// array to store fc values
@@ -262,7 +266,7 @@ public class CalculateLogFC {
 						// perform selected tests
 						// step 1 create two arrays containing data from two groups for rth feature
 
-						// get transformed data if any applied
+						// get transformed data, if any transformation applied
 						thisData = myProject.getAllData(selected[r]);
 						// JOptionPane.showMessageDialog(null, "this Data2:"+Arrays.toString(thisData));
 
@@ -329,14 +333,15 @@ public class CalculateLogFC {
 
 						else if (testMethod == 5) {
 							// perfor permutation test
-							JOptionPane.showMessageDialog(null, "Unknown Test Error", "Error",
-									JOptionPane.INFORMATION_MESSAGE);
+							JOptionPane.showMessageDialog(null, "Permtest", "PT", JOptionPane.INFORMATION_MESSAGE);
+							return null;
 						}
 
 						else {
 							JOptionPane.showMessageDialog(null, "Unknown Test Error", "Error",
 									JOptionPane.ERROR_MESSAGE);
-							
+							return null;
+
 						}
 
 					} catch (IOException ioe) {
@@ -374,7 +379,6 @@ public class CalculateLogFC {
 
 		analyzeWorker.start();
 		progress.setVisible(true);
-		
 
 	}
 
@@ -384,10 +388,7 @@ public class CalculateLogFC {
 	 * @return
 	 */
 	public boolean getcalcStatus() {
-		if (this.calcStatus == false) {
-			// JOptionPane.showMessageDialog(null, "interupt T");
-			analyzeWorker.interrupt();
-		}
+		
 		return this.calcStatus;
 	}
 
