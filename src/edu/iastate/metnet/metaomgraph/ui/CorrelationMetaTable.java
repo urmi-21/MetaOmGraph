@@ -574,11 +574,11 @@ public class CorrelationMetaTable extends JInternalFrame {
 				table = new JTable(model);
 				model.addColumn("Name");
 				model.addColumn("r");
-				model.addColumn("pval");
 				double cilevel = (1 - alpha) * 100;
 				model.addColumn(cilevel + "% CI for r");
 				model.addColumn("z");
 				model.addColumn("Q");
+				model.addColumn("pval");
 				table.setAutoCreateRowSorter(true);
 				table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 				table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
