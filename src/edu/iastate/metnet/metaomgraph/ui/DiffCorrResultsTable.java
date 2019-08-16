@@ -405,39 +405,9 @@ public class DiffCorrResultsTable extends JInternalFrame {
 		JMenuItem mntmPvalueHistogram = new JMenuItem("P-value histogram");
 		mntmPvalueHistogram.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
-				// plot histogram of current pvalues in table
-				double[] pdata = new double[table.getRowCount()];
-				for (int r = 0; r < table.getRowCount(); r++) {
-					// get p values
-
-					pdata[r] = (double) table.getModel().getValueAt(r, table.getColumn("p-value").getModelIndex());
-				}
-				EventQueue.invokeLater(new Runnable() {
-					public void run() {
-						try {// get data for selected rows
-							int nBins = 10;
-							HistogramChart f = new HistogramChart(null, nBins, null, 2, pdata);
-							MetaOmGraph.getDesktop().add(f);
-							f.setDefaultCloseOperation(2);
-							f.setClosable(true);
-							f.setResizable(true);
-							f.pack();
-							f.setSize(1000, 700);
-							f.setVisible(true);
-							f.toFront();
-
-						} catch (Exception e) {
-							JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
-									JOptionPane.ERROR_MESSAGE);
-
-							e.printStackTrace();
-							return;
-						}
-					}
-				});
+				//plot histogram of column p-value
+				plotColumnHistogram("p-value");
 				return;
-
 			}
 		});
 		mnPlot.add(mntmPvalueHistogram);
@@ -447,16 +417,16 @@ public class DiffCorrResultsTable extends JInternalFrame {
 			public void actionPerformed(ActionEvent e) {
 				// display option to select a column
 				JPanel cboxPanel = new JPanel();
-				String[] colNames = new String[table.getColumnCount()];
+				String[] colNames = new String[table.getColumnCount() - 1];
 
-				for (int cols = 0; cols < table.getColumnCount(); cols++) {
+				// dont display 1st column or other non-numerical columns
+				for (int cols = 1; cols < table.getColumnCount(); cols++) {
 					colNames[cols] = table.getColumnName(cols);
 				}
 				// get a list of multiple correction methods implemented
 				JComboBox options = new JComboBox<>(colNames);
 				cboxPanel.add(options);
-				int opt = JOptionPane.showConfirmDialog(null, cboxPanel, "Select categories",
-						JOptionPane.OK_CANCEL_OPTION);
+				int opt = JOptionPane.showConfirmDialog(null, cboxPanel, "Select column", JOptionPane.OK_CANCEL_OPTION);
 				if (opt == JOptionPane.OK_OPTION) {
 					// draw histogram with the selected column
 					plotColumnHistogram(options.getSelectedItem().toString());
