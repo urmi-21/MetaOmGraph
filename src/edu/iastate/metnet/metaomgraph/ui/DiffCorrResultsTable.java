@@ -63,7 +63,6 @@ public class DiffCorrResultsTable extends JInternalFrame {
 	private int n2;
 	private double pvThresh = 2;
 	String pvAdjMethod;
-	
 
 	/**
 	 * Default Properties
@@ -95,31 +94,28 @@ public class DiffCorrResultsTable extends JInternalFrame {
 	 * Create the frame.
 	 */
 	public DiffCorrResultsTable() {
-		this(null, 0,0,null, null,null,null, null,null,null, null);
+		this(null, 0, 0, null, null, null, null, null, null, null, null);
 
 	}
 
-	
-
-	public DiffCorrResultsTable(List<String> featureNames, int grp1Size,int grp2Size,List<Double> corrVals1,
-			List<Double> corrVals2,List<Double> zvals1,List<Double> zvals2,List<Double> diffZvals,List<Double> zscores,List<Double> pvals, MetaOmProject myProject) {
-		this.myProject=myProject;
+	public DiffCorrResultsTable(List<String> featureNames, int grp1Size, int grp2Size, List<Double> corrVals1,
+			List<Double> corrVals2, List<Double> zvals1, List<Double> zvals2, List<Double> diffZvals,
+			List<Double> zscores, List<Double> pvals, MetaOmProject myProject) {
+		this.myProject = myProject;
 		this.featureNames = featureNames;
 		this.n1 = grp1Size;
 		this.n2 = grp2Size;
 		this.corrVals1 = corrVals1;
 		this.corrVals2 = corrVals2;
-		
-		
-		zVals1=zvals1;
-		zVals2=zvals2;
-		diff=diffZvals;
-		zScores=zscores;
-		pVals=pvals;
-		
+
+		zVals1 = zvals1;
+		zVals2 = zvals2;
+		diff = diffZvals;
+		zScores = zscores;
+		pVals = pvals;
 
 		if (pVals != null) {
-			adjpVals = AdjustPval.computeAdjPV(pVals,pvAdjMethod); //by default use B-H correction
+			adjpVals = AdjustPval.computeAdjPV(pVals, pvAdjMethod); // by default use B-H correction
 		}
 
 		setBounds(100, 100, 450, 300);
@@ -146,7 +142,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 		setJMenuBar(menuBar);
 
 		JMenu mnFile = new JMenu("File");
-		
+
 		menuBar.add(mnFile);
 
 		JMenuItem mntmExportToFile = new JMenuItem("Export to file");
@@ -156,10 +152,10 @@ public class DiffCorrResultsTable extends JInternalFrame {
 			}
 		});
 		mnFile.add(mntmExportToFile);
-		
+
 		JMenu mnEdit = new JMenu("Edit");
 		menuBar.add(mnEdit);
-		
+
 		JMenuItem mntmExportSelectedTo = new JMenuItem("Export selected to list");
 		mntmExportSelectedTo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -185,8 +181,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 			}
 		});
 		mnEdit.add(mntmExportSelectedTo);
-		
-		
+
 		JMenuItem mntmFilter = new JMenuItem("P-value filter");
 		mntmFilter.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -218,37 +213,37 @@ public class DiffCorrResultsTable extends JInternalFrame {
 		JMenuItem mntmPvalueCorrection = new JMenuItem("P-value correction");
 		mntmPvalueCorrection.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				
-				//choose adjustment method
-				JPanel cboxPanel=new JPanel();
-				String[] adjMethods=AdjustPval.getMethodNames();
-				JComboBox pvadjCBox=new JComboBox<>(adjMethods);
+
+				// choose adjustment method
+				JPanel cboxPanel = new JPanel();
+				String[] adjMethods = AdjustPval.getMethodNames();
+				JComboBox pvadjCBox = new JComboBox<>(adjMethods);
 				cboxPanel.add(pvadjCBox);
-				int opt = JOptionPane.showConfirmDialog(null, cboxPanel, "Select categories", JOptionPane.OK_CANCEL_OPTION);
+				int opt = JOptionPane.showConfirmDialog(null, cboxPanel, "Select categories",
+						JOptionPane.OK_CANCEL_OPTION);
 				if (opt == JOptionPane.OK_OPTION) {
-					pvAdjMethod=pvadjCBox.getSelectedItem().toString();
-				}else {
+					pvAdjMethod = pvadjCBox.getSelectedItem().toString();
+				} else {
 					return;
 				}
-			
-				//correct p values
+
+				// correct p values
 				if (pVals != null) {
-					adjpVals = AdjustPval.computeAdjPV(pVals,pvAdjMethod);
+					adjpVals = AdjustPval.computeAdjPV(pVals, pvAdjMethod);
 				}
-				
-				//update in table
+
+				// update in table
 				updateTable();
 			}
 		});
 		mnEdit.add(mntmPvalueCorrection);
-		
-		
+
 		JMenu mnPlot = new JMenu("Plot");
 		menuBar.add(mnPlot);
-		
+
 		JMenu mnSelected = new JMenu("Selected");
 		mnPlot.add(mnSelected);
-		
+
 		JMenuItem mntmLineChart = new JMenuItem("Line Chart");
 		mntmLineChart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -265,7 +260,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 			}
 		});
 		mnSelected.add(mntmLineChart);
-		
+
 		JMenuItem mntmScatterplot = new JMenuItem("Scatter Plot");
 		mntmScatterplot.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -313,7 +308,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 			}
 		});
 		mnSelected.add(mntmScatterplot);
-		
+
 		JMenuItem mntmBoxPlot = new JMenuItem("Box Plot");
 		mntmBoxPlot.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -406,8 +401,55 @@ public class DiffCorrResultsTable extends JInternalFrame {
 			}
 		});
 		mnSelected.add(mntmHistogram);
+
+		JMenuItem mntmPvalueHistogram = new JMenuItem("P-value histogram");
+		mntmPvalueHistogram.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				// plot histogram of current pvalues in table
+				double[] pdata = new double[table.getRowCount()];
+				for (int r = 0; r < table.getRowCount(); r++) {
+					// get p values
+
+					pdata[r] = (double) table.getModel().getValueAt(r,
+							table.getColumn("p-value").getModelIndex());
+				}
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						try {// get data for selected rows
+							int nBins = 10;
+							HistogramChart f = new HistogramChart(null, nBins, null, 2, pdata);
+							MetaOmGraph.getDesktop().add(f);
+							f.setDefaultCloseOperation(2);
+							f.setClosable(true);
+							f.setResizable(true);
+							f.pack();
+							f.setSize(1000, 700);
+							f.setVisible(true);
+							f.toFront();
+
+						} catch (Exception e) {
+							JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
+									JOptionPane.ERROR_MESSAGE);
+
+							e.printStackTrace();
+							return;
+						}
+					}
+				});
+				return;
+
+			}
+		});
+		mnPlot.add(mntmPvalueHistogram);
 		
-		
+		JMenuItem mntmHistogramcolumn = new JMenuItem("Histogram (column)");
+		mntmHistogramcolumn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//display option to select a column
+			}
+		});
+		mnPlot.add(mntmHistogramcolumn);
 
 		// frame properties
 		this.setClosable(true);
@@ -513,8 +555,8 @@ public class DiffCorrResultsTable extends JInternalFrame {
 		tablemodel.addColumn("z2");
 		tablemodel.addColumn("z1-z2");
 		tablemodel.addColumn("zScore");
-		tablemodel.addColumn("pVal");
-		tablemodel.addColumn("Adj pVal");
+		tablemodel.addColumn("p-value");
+		tablemodel.addColumn("Adj p-value");
 
 		// for each row add each coloumn
 		for (int i = 0; i < featureNames.size(); i++) {
@@ -527,14 +569,13 @@ public class DiffCorrResultsTable extends JInternalFrame {
 			temp.add(zVals2.get(i));
 			temp.add(diff.get(i));
 			temp.add(zScores.get(i));
-			
-			//skip if p value is high
+
+			// skip if p value is high
 			if (pVals.get(i) >= pvThresh) {
 				continue;
 			}
 			temp.add(pVals.get(i));
-			
-			
+
 			temp.add(adjpVals.get(i));
 
 			// add ith row in table
@@ -550,7 +591,8 @@ public class DiffCorrResultsTable extends JInternalFrame {
 
 		// set decimal formatter to all cols except first
 		for (int i = 1; i < table.getColumnCount(); i++) {
-			table.getColumnModel().getColumn(i).setCellRenderer(new edu.iastate.metnet.metaomgraph.DecimalFormatRenderer());
+			table.getColumnModel().getColumn(i)
+					.setCellRenderer(new edu.iastate.metnet.metaomgraph.DecimalFormatRenderer());
 		}
 
 	}
@@ -561,50 +603,30 @@ public class DiffCorrResultsTable extends JInternalFrame {
 	 * @param rVals
 	 * @return
 	 */
-	/*private List<Double> converttoZ(List<Double> rVals) {
-		List<Double> res = new ArrayList<>();
-		Atanh atan = new Atanh();
-		for (double d : rVals) {
-			res.add(atan.value(d));
-			// JOptionPane.showMessageDialog(null, "val:"+d+" atan:"+atan.value(d));
-		}
-		return res;
-	}
+	/*
+	 * private List<Double> converttoZ(List<Double> rVals) { List<Double> res = new
+	 * ArrayList<>(); Atanh atan = new Atanh(); for (double d : rVals) {
+	 * res.add(atan.value(d)); // JOptionPane.showMessageDialog(null,
+	 * "val:"+d+" atan:"+atan.value(d)); } return res; }
+	 * 
+	 * private List<Double> getDiff(List<Double> rVals1, List<Double> rVals2) {
+	 * List<Double> res = new ArrayList<>(); for (int i = 0; i < rVals1.size(); i++)
+	 * { res.add(rVals1.get(i) - rVals2.get(i)); } return res; }
+	 * 
+	 * private List<Double> getZscores(List<Double> diff) { List<Double> res = new
+	 * ArrayList<>(); for (int i = 0; i < diff.size(); i++) { double thisZ =
+	 * diff.get(i); double denom = Math.sqrt((1 / ((double) n1 - 3)) + (1 /
+	 * ((double) n2 - 3))); // JOptionPane.showMessageDialog(null, "denom:" +
+	 * denom); thisZ = thisZ / denom; res.add(thisZ); } return res; }
+	 * 
+	 * private List<Double> getPVals(List<Double> zScores) { List<Double> res = new
+	 * ArrayList<>(); NormalDistribution nob = new NormalDistribution();
+	 * 
+	 * for (int i = 0; i < zScores.size(); i++) { double thisZ = zScores.get(i); if
+	 * (thisZ > 0) { thisZ = thisZ * -1; } res.add(nob.cumulativeProbability(thisZ)
+	 * * 2); } return res; }
+	 */
 
-	private List<Double> getDiff(List<Double> rVals1, List<Double> rVals2) {
-		List<Double> res = new ArrayList<>();
-		for (int i = 0; i < rVals1.size(); i++) {
-			res.add(rVals1.get(i) - rVals2.get(i));
-		}
-		return res;
-	}
-
-	private List<Double> getZscores(List<Double> diff) {
-		List<Double> res = new ArrayList<>();
-		for (int i = 0; i < diff.size(); i++) {
-			double thisZ = diff.get(i);
-			double denom = Math.sqrt((1 / ((double) n1 - 3)) + (1 / ((double) n2 - 3)));
-			// JOptionPane.showMessageDialog(null, "denom:" + denom);
-			thisZ = thisZ / denom;
-			res.add(thisZ);
-		}
-		return res;
-	}
-
-	private List<Double> getPVals(List<Double> zScores) {
-		List<Double> res = new ArrayList<>();
-		NormalDistribution nob = new NormalDistribution();
-
-		for (int i = 0; i < zScores.size(); i++) {
-			double thisZ = zScores.get(i);
-			if (thisZ > 0) {
-				thisZ = thisZ * -1;
-			}
-			res.add(nob.cumulativeProbability(thisZ) * 2);
-		}
-		return res;
-	}*/
-	
 	private int[] getSelectedRowIndices() {
 		// get correct indices wrt the list
 		int[] rowIndices = table.getSelectedRows();
@@ -618,8 +640,5 @@ public class DiffCorrResultsTable extends JInternalFrame {
 
 		return rowIndices;
 	}
-	
-	
-
 
 }
