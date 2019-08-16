@@ -465,8 +465,8 @@ public class logFCResultsFrame extends JInternalFrame {
 		});
 		mnPlot.add(mntmFcHistogram);
 
-		JMenuItem mntmPvalHistogram = new JMenuItem("FC histogram");
-		mntmFcHistogram.addActionListener(new ActionListener() {
+		JMenuItem mntmPvalHistogram = new JMenuItem("P-value histogram");
+		mntmPvalHistogram.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
 				// plot histogram of current pvalues in table
