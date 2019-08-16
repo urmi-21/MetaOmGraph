@@ -1367,7 +1367,7 @@ public class Utils {
 			return (atanh.value(x));
 
 		} else {
-			return (x * 10000000);
+			return (x * 10);
 		}
 
 	}
