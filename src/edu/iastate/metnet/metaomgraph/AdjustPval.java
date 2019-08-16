@@ -1,8 +1,10 @@
 package edu.iastate.metnet.metaomgraph;
 
 import java.awt.EventQueue;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 
@@ -23,6 +25,9 @@ public class AdjustPval {
 	 * @return
 	 */
 	public double[] getBonferroniAdj(double[] pvals) {
+		if (pvals == null || pvals.length < 2) {
+			return pvals;
+		}
 		double[] res = new double[pvals.length];
 		int m = pvals.length;
 		for (int i = 0; i < res.length; i++) {
@@ -42,6 +47,9 @@ public class AdjustPval {
 	 * @return
 	 */
 	public double[] getBHAdj(double[] pvals) {
+		if (pvals == null || pvals.length < 2) {
+			return pvals;
+		}
 		int m = pvals.length;
 		double[] res = new double[m];
 
@@ -78,14 +86,20 @@ public class AdjustPval {
 		}
 		return resSorted;
 	}
-	
-	
 
 	public double[] getHolmsAdj(double[] pvals) {
+
+		// if less than 2 elements
+		if (pvals == null || pvals.length < 2) {
+			return pvals;
+		}
+
 		int m = pvals.length;
+
 		int[] sortedInd = getSortedIndex(pvals);
 		double[] sortedIndDouble = intToDouble(sortedInd);
 		double[] cummaxInput = new double[m];
+
 		for (int i = 0; i < m; ++i) {
 			cummaxInput[i] = (m - i) * pvals[sortedInd[i]];
 		}
@@ -96,12 +110,12 @@ public class AdjustPval {
 		for (int i = 0; i < m; ++i) {
 			result[i] = pmin[ro[i]];
 		}
+
 		return result;
 
 	}
 
-	
-	private static double[] intToDouble(int[] array) {
+	private double[] intToDouble(int[] array) {
 		double[] result = new double[array.length];
 		for (int i = 0; i < array.length; i++) {
 			result[i] = array[i];
@@ -109,9 +123,10 @@ public class AdjustPval {
 		return result;
 	}
 
-	private static double[] pminx(double[] array, double x) {
-		if (array.length < 1)
-			throw new IllegalArgumentException("pmin requires at least one element");
+	private double[] pminx(double[] array, double x) {
+		if (array.length < 1) {
+			return null;
+		}
 		double[] result = new double[array.length];
 		for (int i = 0; i < array.length; ++i) {
 			if (array[i] < x) {
@@ -123,9 +138,11 @@ public class AdjustPval {
 		return result;
 	}
 
-	private static double[] cummax(double[] array) {
-		if (array.length < 1)
-			throw new IllegalArgumentException("cummax requires at least one element");
+	private double[] cummax(double[] array) {
+		if (array.length < 1) {
+			return null;
+		}
+
 		double[] output = new double[array.length];
 		double cumulativeMax = array[0];
 		for (int i = 0; i < array.length; ++i) {
@@ -153,10 +170,58 @@ public class AdjustPval {
 				return Double.compare(pvals[i1], pvals[i2]);
 			}
 		});
-		
-		int[] res=new int[idx.length];
-		for(int i=0;i<idx.length;i++) {
-			res[i]=idx[i];
+
+		int[] res = new int[idx.length];
+		for (int i = 0; i < idx.length; i++) {
+			res[i] = idx[i];
+		}
+		return res;
+	}
+
+	/**
+	 * Function to return all the methods implemented
+	 * 
+	 * @return
+	 */
+	public static String[] getMethodNames() {
+		return new String[] { "Benjamini–Hochberg", "Holm", "Bonferroni" };
+
+	}
+
+	/**
+	 * Compute adjusted p values and return as a list
+	 * 
+	 * @param pv
+	 * @param methodName
+	 * @return
+	 */
+	public static List<Double> computeAdjPV(List<Double> pv) {
+		return computeAdjPV(pv, "Benjamini–Hochberg");
+	}
+
+	public static List<Double> computeAdjPV(List<Double> pv, String methodName) {
+
+		if (pv == null) {
+			return null;
+		}
+		List<Double> res = null;
+		double[] adjPV = null;
+		// find adjusted pvalues;default method BH
+		AdjustPval ob = new AdjustPval();
+
+		if (methodName == null || methodName.length() < 1 || methodName == "Benjamini–Hochberg") {
+			adjPV = ob.getBHAdj(pv.stream().mapToDouble(d -> d).toArray());
+		} else if (methodName == "Bonferroni") {
+			adjPV = ob.getBonferroniAdj(pv.stream().mapToDouble(d -> d).toArray());
+		} else if (methodName == "Holm") {
+			adjPV = ob.getHolmsAdj(pv.stream().mapToDouble(d -> d).toArray());
+		}
+
+		if (adjPV != null) {
+			res = new ArrayList<>();
+			for (double d : adjPV) {
+				res.add(d);
+			}
 		}
 		return res;
 	}
@@ -182,7 +247,6 @@ public class AdjustPval {
 		System.out.println("res bonf: " + Arrays.toString(ob.getBonferroniAdj(pv)));
 		System.out.println("res holms: " + Arrays.toString(ob.getHolmsAdj(pv)));
 
-		
 	}
 
 }
