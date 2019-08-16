@@ -370,27 +370,28 @@ public class CorrelationMetaTable extends JInternalFrame {
 				}
 			}
 		});
-		
+
 		JMenuItem mntmPvalueCorrection = new JMenuItem("P-value correction");
 		mntmPvalueCorrection.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				//choose adjustment method
-				JPanel cboxPanel=new JPanel();
-				String[] adjMethods=AdjustPval.getMethodNames();
-				//get a list of multiple correction methods implemented				
-				JComboBox pvadjCBox=new JComboBox<>(adjMethods);
+				// choose adjustment method
+				JPanel cboxPanel = new JPanel();
+				String[] adjMethods = AdjustPval.getMethodNames();
+				// get a list of multiple correction methods implemented
+				JComboBox pvadjCBox = new JComboBox<>(adjMethods);
 				cboxPanel.add(pvadjCBox);
-				int opt = JOptionPane.showConfirmDialog(null, cboxPanel, "Select categories", JOptionPane.OK_CANCEL_OPTION);
+				int opt = JOptionPane.showConfirmDialog(null, cboxPanel, "Select categories",
+						JOptionPane.OK_CANCEL_OPTION);
 				if (opt == JOptionPane.OK_OPTION) {
-					//set selected method to the adjustment method
-					pvAdjMethod=pvadjCBox.getSelectedItem().toString();
-				}else {
+					// set selected method to the adjustment method
+					pvAdjMethod = pvadjCBox.getSelectedItem().toString();
+				} else {
 					return;
 				}
-			
-				//correct p values
+
+				// correct p values
 				loadDatainTable(comboBox.getSelectedItem().toString());
-			
+
 			}
 		});
 		mnEdit.add(mntmPvalueCorrection);
@@ -549,13 +550,21 @@ public class CorrelationMetaTable extends JInternalFrame {
 			if (corrTypeId == 0) {
 				DefaultTableModel model = new DefaultTableModel() {
 					@Override
+					public boolean isCellEditable(int row, int column) {
+						// all cells false
+						return false;
+					}
+
+					@Override
 					public Class getColumnClass(int column) {
 						switch (column) {
 						case 0:
 							return String.class;
 						case 1:
 							return Double.class;
-						case 2:
+						case 5:
+							return Double.class;
+						case 6:
 							return Double.class;
 						default:
 							return Object.class;
@@ -601,6 +610,12 @@ public class CorrelationMetaTable extends JInternalFrame {
 			} else {
 				DefaultTableModel model = new DefaultTableModel() {
 					@Override
+					public boolean isCellEditable(int row, int column) {
+						// all cells false
+						return false;
+					}
+
+					@Override
 					public Class getColumnClass(int column) {
 						switch (column) {
 						case 0:
@@ -608,6 +623,8 @@ public class CorrelationMetaTable extends JInternalFrame {
 						case 1:
 							return Double.class;
 						case 2:
+							return Double.class;
+						case 3:
 							return Double.class;
 						default:
 							return Object.class;
