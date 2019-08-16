@@ -28,6 +28,7 @@ import javax.swing.JScrollPane;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
+import edu.iastate.metnet.metaomgraph.AdjustPval;
 import edu.iastate.metnet.metaomgraph.CorrelationMeta;
 import edu.iastate.metnet.metaomgraph.CorrelationMetaCollection;
 import edu.iastate.metnet.metaomgraph.DecimalFormatRenderer;
@@ -74,6 +75,9 @@ public class CorrelationMetaTable extends JInternalFrame {
 	private double maxrVal = 99999;
 	private double minpVal = -99999;
 	private double maxpVal = -99999;
+
+	// for multiple correction
+	String pvAdjMethod;
 
 	/**
 	 * Launch the application.
@@ -199,11 +203,12 @@ public class CorrelationMetaTable extends JInternalFrame {
 
 		JMenuItem mntmPlotLineChart = new JMenuItem("Line Chart");
 		mntmPlotLineChart.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {		
-				//get selected rowindex
-				int[] rowIndices=getSelectedRowIndices();
-				if(rowIndices==null || rowIndices.length==0) {
-					JOptionPane.showMessageDialog(null, "No rows selected", "Nothing selected", JOptionPane.ERROR_MESSAGE);
+			public void actionPerformed(ActionEvent arg0) {
+				// get selected rowindex
+				int[] rowIndices = getSelectedRowIndices();
+				if (rowIndices == null || rowIndices.length == 0) {
+					JOptionPane.showMessageDialog(null, "No rows selected", "Nothing selected",
+							JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 				new MetaOmChartPanel(rowIndices, myProject.getDefaultXAxis(), myProject.getDefaultYAxis(),
@@ -216,10 +221,11 @@ public class CorrelationMetaTable extends JInternalFrame {
 		JMenuItem mntmPlotScatterPlot = new JMenuItem("Scatter Plot");
 		mntmPlotScatterPlot.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				//get selected rowindex
-				int[] rowIndices=getSelectedRowIndices();
-				if(rowIndices==null ) {
-					JOptionPane.showMessageDialog(null, "No rows selected", "Nothing selected", JOptionPane.ERROR_MESSAGE);
+				// get selected rowindex
+				int[] rowIndices = getSelectedRowIndices();
+				if (rowIndices == null) {
+					JOptionPane.showMessageDialog(null, "No rows selected", "Nothing selected",
+							JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 				if (rowIndices.length < 1) {
@@ -265,16 +271,16 @@ public class CorrelationMetaTable extends JInternalFrame {
 		mntmPvalueHistogram.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// plot histogram of current pvalues in table
-				double []pdata=new double[table.getRowCount()];
-				for(int r=0;r<table.getRowCount();r++) {
-					
-					pdata[r]=(double) table.getModel().getValueAt(r, table.getColumn("pval").getModelIndex() );
+				double[] pdata = new double[table.getRowCount()];
+				for (int r = 0; r < table.getRowCount(); r++) {
+
+					pdata[r] = (double) table.getModel().getValueAt(r, table.getColumn("pval").getModelIndex());
 				}
 				EventQueue.invokeLater(new Runnable() {
 					public void run() {
 						try {// get data for selected rows
 							int nBins = 10;
-							HistogramChart f = new HistogramChart(null, nBins, null, 2,pdata);
+							HistogramChart f = new HistogramChart(null, nBins, null, 2, pdata);
 							MetaOmGraph.getDesktop().add(f);
 							f.setDefaultCloseOperation(2);
 							f.setClosable(true);
@@ -297,22 +303,22 @@ public class CorrelationMetaTable extends JInternalFrame {
 			}
 		});
 		mnPlot.add(mntmPvalueHistogram);
-		
+
 		JMenuItem mntmHistogramRValues = new JMenuItem("Histogram r values");
 		mntmHistogramRValues.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
 				// plot histogram of current pvalues in table
-				double []pdata=new double[table.getRowCount()];
-				for(int r=0;r<table.getRowCount();r++) {
-					
-					pdata[r]=(double) table.getModel().getValueAt(r, table.getColumn("r").getModelIndex() );
+				double[] pdata = new double[table.getRowCount()];
+				for (int r = 0; r < table.getRowCount(); r++) {
+
+					pdata[r] = (double) table.getModel().getValueAt(r, table.getColumn("r").getModelIndex());
 				}
 				EventQueue.invokeLater(new Runnable() {
 					public void run() {
 						try {// get data for selected rows
 							int nBins = 10;
-							HistogramChart f = new HistogramChart(null, nBins, null, 2,pdata);
+							HistogramChart f = new HistogramChart(null, nBins, null, 2, pdata);
 							MetaOmGraph.getDesktop().add(f);
 							f.setDefaultCloseOperation(2);
 							f.setClosable(true);
@@ -332,8 +338,7 @@ public class CorrelationMetaTable extends JInternalFrame {
 					}
 				});
 				return;
-			
-				
+
 			}
 		});
 		mnPlot.add(mntmHistogramRValues);
@@ -365,6 +370,30 @@ public class CorrelationMetaTable extends JInternalFrame {
 				}
 			}
 		});
+		
+		JMenuItem mntmPvalueCorrection = new JMenuItem("P-value correction");
+		mntmPvalueCorrection.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				//choose adjustment method
+				JPanel cboxPanel=new JPanel();
+				String[] adjMethods=AdjustPval.getMethodNames();
+				//get a list of multiple correction methods implemented				
+				JComboBox pvadjCBox=new JComboBox<>(adjMethods);
+				cboxPanel.add(pvadjCBox);
+				int opt = JOptionPane.showConfirmDialog(null, cboxPanel, "Select categories", JOptionPane.OK_CANCEL_OPTION);
+				if (opt == JOptionPane.OK_OPTION) {
+					//set selected method to the adjustment method
+					pvAdjMethod=pvadjCBox.getSelectedItem().toString();
+				}else {
+					return;
+				}
+			
+				//correct p values
+				loadDatainTable(comboBox.getSelectedItem().toString());
+			
+			}
+		});
+		mnEdit.add(mntmPvalueCorrection);
 		mnEdit.add(mntmAlphaForCi);
 
 		JMenuItem mntmRemoveCorrelation = new JMenuItem("Remove correlation");
@@ -481,7 +510,7 @@ public class CorrelationMetaTable extends JInternalFrame {
 	}
 
 	/**
-	 * load data for correlation with name s
+	 * load data for correlation with the key s
 	 * 
 	 * @param s
 	 */
@@ -492,11 +521,17 @@ public class CorrelationMetaTable extends JInternalFrame {
 
 	/**
 	 * Load data in table
-	 * @param s name of correlation
-	 * @param minr minimum r val
-	 * @param maxr maximum r val
-	 * @param minp minimum p val
-	 * @param maxp maximum p val
+	 * 
+	 * @param s
+	 *            name of correlation
+	 * @param minr
+	 *            minimum r val
+	 * @param maxr
+	 *            maximum r val
+	 * @param minp
+	 *            minimum p val
+	 * @param maxp
+	 *            maximum p val
 	 */
 	private void loadDatainTable(String s, double minr, double maxr, double minp, double maxp) {
 		CorrelationMetaCollection cmcObj = metaCorrRes.get(s);
@@ -506,6 +541,10 @@ public class CorrelationMetaTable extends JInternalFrame {
 		List<CorrelationMeta> corrList = cmcObj.getCorrList();
 
 		if (corrList != null) {
+
+			List<Double> pvalueList = new ArrayList<>(); // store all p values in this list use later for multiple
+															// correction
+
 			// if object is type of metacorrelation
 			if (corrTypeId == 0) {
 				DefaultTableModel model = new DefaultTableModel() {
@@ -549,15 +588,16 @@ public class CorrelationMetaTable extends JInternalFrame {
 					if (thisr >= minr && thisr <= maxr && thisp >= minp && thisp <= maxp) {
 						row.add(thisObj.getName());
 						row.add(thisObj.getrVal());
-						row.add(thisObj.getpVal());
 						row.add(thisObj.getrCI(alpha));
 						row.add(thisObj.getzVal());
 						row.add(thisObj.getqVal());
+						row.add(thisObj.getpVal());
+						pvalueList.add(thisObj.getpVal()); // add p values in the list
 						model.addRow(row);
 					}
 
 				}
-				scrollPane.setViewportView(table);
+
 			} else {
 				DefaultTableModel model = new DefaultTableModel() {
 					@Override
@@ -597,11 +637,18 @@ public class CorrelationMetaTable extends JInternalFrame {
 						row.add(thisObj.getName());
 						row.add(thisObj.getrVal());
 						row.add(thisObj.getpVal());
+						pvalueList.add(thisObj.getpVal());
 						model.addRow(row);
 					}
 				}
-				scrollPane.setViewportView(table);
 			}
+
+			// add adjusted p value
+			AdjustPval.computeAdjPV(pvalueList, pvAdjMethod);
+			DefaultTableModel model = (DefaultTableModel) table.getModel();
+			model.addColumn("Adj pval", AdjustPval.computeAdjPV(pvalueList, pvAdjMethod).toArray());
+
+			scrollPane.setViewportView(table);
 		}
 		// update corr info label
 		// String corrInfo=getcorrInfo(cmcObj);
@@ -619,22 +666,22 @@ public class CorrelationMetaTable extends JInternalFrame {
 		return alpha;
 	}
 
-	
 	/**
 	 * return indices of selected rows in table
+	 * 
 	 * @return
 	 */
 	private int[] getSelectedRowIndices() {
 		// get correct indices wrt the list
 		int[] rowIndices = table.getSelectedRows();
 		// JOptionPane.showMessageDialog(null, "sR:" + Arrays.toString(rowIndices));
-		List<String> names=new ArrayList<>();
+		List<String> names = new ArrayList<>();
 		int j = 0;
 		for (int i : rowIndices) {
 			names.add(table.getValueAt(i, table.getColumn("Name").getModelIndex()).toString());
 		}
-		rowIndices=myProject.getRowIndexbyName(names,true);
-		
+		rowIndices = myProject.getRowIndexbyName(names, true);
+
 		return rowIndices;
 	}
 

@@ -1701,7 +1701,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 				public void run() {
 					try {
-
 						HashMap<String, CorrelationMetaCollection> metaCorrRes = myProject.getMetaCorrRes();
 						if (metaCorrRes == null || metaCorrRes.size() < 1) {
 							JOptionPane.showMessageDialog(null, "No correlations found...");
@@ -3271,17 +3270,16 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				featureNames.add((String) listDisplay.getValueAt(i,
 						listDisplay.convertColumnIndexToView(myProject.getDefaultColumn())));
 			}
-			//calculate z values and p values for the corrValues
-			
+			// calculate z values and p values for the corrValues
+
 			List<Double> zVals1 = CalculateDiffCorr.getConveredttoZ(corrVals1);
 			List<Double> zVals2 = CalculateDiffCorr.getConveredttoZ(corrVals2);
 			List<Double> diffZvals = CalculateDiffCorr.getDiff(zVals1, zVals2);
-			List<Double> zScores = CalculateDiffCorr.computeZscores(diffZvals,n1,n2);
+			List<Double> zScores = CalculateDiffCorr.computeZscores(diffZvals, n1, n2);
 			List<Double> pValues = CalculateDiffCorr.computePVals(zScores);
 
-					
-			DiffCorrResultsTable frame = new DiffCorrResultsTable(featureNames, n1, n2, corrVals1, corrVals2, zVals1, zVals2,
-					diffZvals, zScores, pValues, myProject);
+			DiffCorrResultsTable frame = new DiffCorrResultsTable(featureNames, n1, n2, corrVals1, corrVals2, zVals1,
+					zVals2, diffZvals, zScores, pValues, myProject);
 			frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
 			frame.setTitle("Fold change results");
 			MetaOmGraph.getDesktop().add(frame);
@@ -3336,7 +3334,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			// display chosen value
 			DifferentialCorrResults diffcorrresOB = myProject.getDiffCorrResObj(chosenVal);
 			// display result using DiffCorrResultsTable
-			
+
 			DiffCorrResultsTable frame = new DiffCorrResultsTable(diffcorrresOB.getFeatureNames(),
 					diffcorrresOB.getGrp1Size(), diffcorrresOB.getGrp2Size(), diffcorrresOB.getCorrGrp1(),
 					diffcorrresOB.getCorrGrp2(), diffcorrresOB.getzVals(1), diffcorrresOB.getzVals(2),
