@@ -119,7 +119,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 		
 
 		if (pVals != null) {
-			adjpVals = computeAdjPV(pVals);
+			adjpVals = AdjustPval.computeAdjPV(pVals,pvAdjMethod); //by default use B-H correction
 		}
 
 		setBounds(100, 100, 450, 300);
@@ -221,7 +221,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 				
 				//choose adjustment method
 				JPanel cboxPanel=new JPanel();
-				String[] adjMethods=new String[] {"Benjamini–Hochberg", "Bonferroni"};
+				String[] adjMethods=AdjustPval.getMethodNames();
 				JComboBox pvadjCBox=new JComboBox<>(adjMethods);
 				cboxPanel.add(pvadjCBox);
 				int opt = JOptionPane.showConfirmDialog(null, cboxPanel, "Select categories", JOptionPane.OK_CANCEL_OPTION);
@@ -233,7 +233,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 			
 				//correct p values
 				if (pVals != null) {
-					adjpVals = computeAdjPV(pVals);
+					adjpVals = AdjustPval.computeAdjPV(pVals,pvAdjMethod);
 				}
 				
 				//update in table
@@ -619,30 +619,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 		return rowIndices;
 	}
 	
-	private List<Double> computeAdjPV(List<Double> pv) {
-		if (pv == null) {
-			return null;
-		}
-		List<Double> res=null;
-		double[] adjPV = null;
-		// find adjusted pvalues;default method BH
-		AdjustPval ob = new AdjustPval();
-
-		if (pvAdjMethod == null || pvAdjMethod.length() < 1 || pvAdjMethod == "Benjamini–Hochberg") {
-			adjPV = ob.getBHAdj(pv.stream().mapToDouble(d -> d).toArray());
-		} else if (pvAdjMethod == "Bonferroni") {
-			adjPV = ob.getBonferroniAdj(pv.stream().mapToDouble(d -> d).toArray());
-		}
-
-		if (adjPV != null) {
-			res = new ArrayList<>();
-			for (double d : adjPV) {
-				res.add(d);
-			}
-		}
-		return res;
-
-	}
+	
 
 
 }
