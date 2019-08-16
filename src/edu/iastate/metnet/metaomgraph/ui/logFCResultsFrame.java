@@ -105,8 +105,8 @@ public class logFCResultsFrame extends JInternalFrame {
 	}
 
 	public logFCResultsFrame(DifferentialExpResults ob, MetaOmProject myProject) {
-		this(ob.getRowNames(), ob.getMeanGrp1(), ob.getMeanGrp2(), ob.getGrp1Name(), ob.getGrp2Name(), ob.getmethodName(),
-				ob.getPVal(), ob.getfStat(), ob.getFPVal(), myProject);
+		this(ob.getRowNames(), ob.getMeanGrp1(), ob.getMeanGrp2(), ob.getGrp1Name(), ob.getGrp2Name(),
+				ob.getmethodName(), ob.getPVal(), ob.getfStat(), ob.getFPVal(), myProject);
 	}
 
 	public logFCResultsFrame(List<String> featureNames, List<Double> mean1, List<Double> mean2, String name1,
@@ -123,12 +123,12 @@ public class logFCResultsFrame extends JInternalFrame {
 		ftestRatiovals = ftestratio;
 		ftestPvals = ftestpv;
 		// compute adjusted pv
-		if (testPvals != null ) {
-			testadjutestPvals = AdjustPval.computeAdjPV(testPvals,pvAdjMethod);
+		if (testPvals != null) {
+			testadjutestPvals = AdjustPval.computeAdjPV(testPvals, pvAdjMethod);
 		}
 		if (ftestPvals != null) {
-			
-			ftestadjutestPvals = AdjustPval.computeAdjPV(ftestPvals,pvAdjMethod);
+
+			ftestadjutestPvals = AdjustPval.computeAdjPV(ftestPvals, pvAdjMethod);
 		}
 
 		setBounds(100, 100, 450, 300);
@@ -220,32 +220,33 @@ public class logFCResultsFrame extends JInternalFrame {
 		JMenuItem mntmPvalueCorrection = new JMenuItem("P-value correction");
 		mntmPvalueCorrection.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				
-				//choose adjustment method
-				JPanel cboxPanel=new JPanel();
-				String[] adjMethods=AdjustPval.getMethodNames();
-				//get a list of multiple correction methods implemented				
-				JComboBox pvadjCBox=new JComboBox<>(adjMethods);
+
+				// choose adjustment method
+				JPanel cboxPanel = new JPanel();
+				String[] adjMethods = AdjustPval.getMethodNames();
+				// get a list of multiple correction methods implemented
+				JComboBox pvadjCBox = new JComboBox<>(adjMethods);
 				cboxPanel.add(pvadjCBox);
-				int opt = JOptionPane.showConfirmDialog(null, cboxPanel, "Select categories", JOptionPane.OK_CANCEL_OPTION);
+				int opt = JOptionPane.showConfirmDialog(null, cboxPanel, "Select categories",
+						JOptionPane.OK_CANCEL_OPTION);
 				if (opt == JOptionPane.OK_OPTION) {
-					//set selected method to the adjustment method
-					pvAdjMethod=pvadjCBox.getSelectedItem().toString();
-				}else {
+					// set selected method to the adjustment method
+					pvAdjMethod = pvadjCBox.getSelectedItem().toString();
+				} else {
 					return;
 				}
-			
-				//correct p values
-			
-				if (testPvals != null ) {
-					testadjutestPvals = AdjustPval.computeAdjPV(testPvals,pvAdjMethod);
+
+				// correct p values
+
+				if (testPvals != null) {
+					testadjutestPvals = AdjustPval.computeAdjPV(testPvals, pvAdjMethod);
 				}
-				if (ftestPvals != null ) {
-					
-					ftestadjutestPvals = AdjustPval.computeAdjPV(ftestPvals,pvAdjMethod);
+				if (ftestPvals != null) {
+
+					ftestadjutestPvals = AdjustPval.computeAdjPV(ftestPvals, pvAdjMethod);
 				}
-				
-				//update in table
+
+				// update in table
 				updateTable();
 			}
 		});
@@ -415,6 +416,16 @@ public class logFCResultsFrame extends JInternalFrame {
 		});
 		mnSelected.add(mntmHistogram);
 
+		JMenuItem mntmVolcanoPlot = new JMenuItem("Volcano plot");
+		mntmVolcanoPlot.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+
+				makeVolcano();
+
+			}
+		});
+		mnPlot.add(mntmVolcanoPlot);
+
 		JMenuItem mntmFcHistogram = new JMenuItem("FC histogram");
 		mntmFcHistogram.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -453,16 +464,46 @@ public class logFCResultsFrame extends JInternalFrame {
 			}
 		});
 		mnPlot.add(mntmFcHistogram);
-		
-		JMenuItem mntmVolcanoPlot = new JMenuItem("Volcano plot");
-		mntmVolcanoPlot.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				
-				makeVolcano();
-				
+
+		JMenuItem mntmPvalHistogram = new JMenuItem("FC histogram");
+		mntmFcHistogram.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				// plot histogram of current pvalues in table
+				double[] pdata = new double[table.getRowCount()];
+				for (int r = 0; r < table.getRowCount(); r++) {
+					//get p values
+					
+					pdata[r] = (double) table.getModel().getValueAt(r, table.getColumn(methodName + " pval").getModelIndex());
+				}
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						try {// get data for selected rows
+							int nBins = 10;
+							HistogramChart f = new HistogramChart(null, nBins, null, 2, pdata);
+							MetaOmGraph.getDesktop().add(f);
+							f.setDefaultCloseOperation(2);
+							f.setClosable(true);
+							f.setResizable(true);
+							f.pack();
+							f.setSize(1000, 700);
+							f.setVisible(true);
+							f.toFront();
+
+						} catch (Exception e) {
+							JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
+									JOptionPane.ERROR_MESSAGE);
+
+							e.printStackTrace();
+							return;
+						}
+					}
+				});
+				return;
+
 			}
 		});
-		mnPlot.add(mntmVolcanoPlot);
+		mnPlot.add(mntmPvalHistogram);
 
 		// frame properties
 		this.setClosable(true);
@@ -474,20 +515,20 @@ public class logFCResultsFrame extends JInternalFrame {
 		setClosable(true);
 
 	}
-	
+
 	private void makeVolcano() {
-		//create data for volcano plot object
-		List<String> featureNames=new ArrayList<>();
-		List<Double> fc=new ArrayList<>();
-		List<Double> pv=new ArrayList<>();
-		for(int i=0;i<table.getRowCount();i++) {
-			featureNames.add( (String) table.getModel().getValueAt(i, table.getColumn("Name").getModelIndex()));
-			fc.add( (Double) table.getModel().getValueAt(i, table.getColumn("logFC").getModelIndex()));
-			pv.add( (Double) table.getModel().getValueAt(i, table.getColumn(methodName + " pval").getModelIndex()));
+		// create data for volcano plot object
+		List<String> featureNames = new ArrayList<>();
+		List<Double> fc = new ArrayList<>();
+		List<Double> pv = new ArrayList<>();
+		for (int i = 0; i < table.getRowCount(); i++) {
+			featureNames.add((String) table.getModel().getValueAt(i, table.getColumn("Name").getModelIndex()));
+			fc.add((Double) table.getModel().getValueAt(i, table.getColumn("logFC").getModelIndex()));
+			pv.add((Double) table.getModel().getValueAt(i, table.getColumn(methodName + " pval").getModelIndex()));
 		}
-		
-		//make plot
-		VolcanoPlot f = new VolcanoPlot(featureNames, fc, pv,name1,name2);
+
+		// make plot
+		VolcanoPlot f = new VolcanoPlot(featureNames, fc, pv, name1, name2);
 		MetaOmGraph.getDesktop().add(f);
 		f.setDefaultCloseOperation(2);
 		f.setClosable(true);
@@ -649,7 +690,5 @@ public class logFCResultsFrame extends JInternalFrame {
 
 		return rowIndices;
 	}
-
-	
 
 }
