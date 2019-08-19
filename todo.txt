@@ -177,3 +177,4 @@ permutation test for DiffCorr
 diff corr with same feature show 0 p value
 corr p value t test
 add p value hist/ correction in all results frames
+permutation test for paired data
