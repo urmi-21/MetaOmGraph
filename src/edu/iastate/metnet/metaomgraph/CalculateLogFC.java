@@ -642,7 +642,6 @@ public class CalculateLogFC {
 				86.70 };
 
 		System.out.println(ob.computePermutationPvalPaired(d1, d2, 1000));
-		
 		System.out.println(ob.computePermutationPval(d1, d2, 100000));
 
 	}
