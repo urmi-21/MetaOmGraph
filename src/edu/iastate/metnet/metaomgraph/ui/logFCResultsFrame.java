@@ -460,7 +460,7 @@ public class logFCResultsFrame extends JInternalFrame {
 
 				// dont display 1st column or other non-numerical columns
 				for (int cols = 1; cols < table.getColumnCount(); cols++) {
-					colNames[cols] = table.getColumnName(cols);
+					colNames[cols-1] = table.getColumnName(cols);
 				}
 				// get a list of multiple correction methods implemented
 				JComboBox options = new JComboBox<>(colNames);
