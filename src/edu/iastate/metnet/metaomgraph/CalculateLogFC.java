@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.OptionalDouble;
 import java.util.Random;
 import java.util.TreeMap;
 
@@ -351,7 +352,8 @@ public class CalculateLogFC {
 							}
 
 							// observed geometric means are m1 and m2
-							double thisPval = computePermutationPval(m1, m2, g1Ind.size(), g2Ind.size(), combinedData);
+
+							double thisPval = computePermutationPval(s1, s2, MetaOmGraph.getNumPermutations());
 							testPvals.add(thisPval);
 							// return null;
 						}
@@ -409,6 +411,22 @@ public class CalculateLogFC {
 
 	}
 
+	/**
+	 * get diff in means of two lists
+	 * @param list1
+	 * @param list2
+	 * @return
+	 */
+	public double getDiffInMeans(List<Double> list1, List<Double> list2) {
+		OptionalDouble avg1 = list1.stream().mapToDouble(a -> a).average();
+		OptionalDouble avg2 = list2.stream().mapToDouble(a -> a).average();
+		if (!avg1.isPresent() || !avg2.isPresent()) {
+			return 0.0;
+		}
+		return avg1.getAsDouble() - avg2.getAsDouble();
+
+	}
+
 	public double getDiffInMeans(double[] s1, double[] s2) {
 		double mean1 = 0;
 		double mean2 = 0;
@@ -436,7 +454,7 @@ public class CalculateLogFC {
 	public double computePermutationPvalPaired(double[] s1, double[] s2, int numPermutations) {
 
 		double thisDiff = getDiffInMeans(s1, s2);
-		//System.out.println("Obs mean:" + thisDiff);
+		// System.out.println("Obs mean:" + thisDiff);
 
 		double[] diffArray = new double[s1.length];
 		List<Double> permutedMeanDiffs = new ArrayList<>();
@@ -495,12 +513,22 @@ public class CalculateLogFC {
 	 * @return
 	 * @throws IOException
 	 */
-	public double computePermutationPval(double mean1, double mean2, int size1, int size2, List<Double> combinedData)
-			throws IOException {
+	public double computePermutationPval(double[] s1, double[] s2, int numPermutations) {
 
-		double thisDiff = mean1 - mean2;
+		// combine the data and randomly sample
+		List<Double> combinedData = new ArrayList<>();
+		for (int k = 0; k < s1.length; k++) {
+			combinedData.add(s1[k]);
+		}
+		for (int k = 0; k < s2.length; k++) {
+			combinedData.add(s2[k]);
+		}
 
-		List<Double> permutedDiffs = computeTwoGroupGeometricMeanDifferences(size1, size2, combinedData);
+		double thisDiff = getDiffInMeans(s1, s2);
+		System.out.println("ObsMean:"+thisDiff);
+
+		List<Double> permutedDiffs = computeTwoGroupMeanDifferences(s1.length, s2.length, combinedData,
+				numPermutations);
 
 		// compute pvalue
 		double numExtremes = 0;
@@ -523,19 +551,17 @@ public class CalculateLogFC {
 	 * @return
 	 * @throws IOException
 	 */
-	public List<Double> computeTwoGroupGeometricMeanDifferences(int size1, int size2, List<Double> combinedData)
-			throws IOException {
+	public List<Double> computeTwoGroupMeanDifferences(int size1, int size2, List<Double> combinedData,
+			int numPermutations) {
 		// compute corrGrp1 and corrGrp2
 		List<Double> diff = new ArrayList<>();
 
-		for (int i = 0; i < MetaOmGraph.getNumPermutations(); i++) {
+		for (int i = 0; i < numPermutations; i++) {
 			Collections.shuffle(combinedData);
 			List<Double> grp1Data = combinedData.subList(0, size1);
 			List<Double> grp2Data = combinedData.subList(size1, combinedData.size());
 			// compute the two geometric means
-			double m1 = getGeometricMean(grp1Data);
-			double m2 = getGeometricMean(grp2Data);
-			diff.add(m1 - m2);
+			diff.add(getDiffInMeans(grp1Data, grp2Data));
 		}
 
 		return diff;
@@ -616,6 +642,8 @@ public class CalculateLogFC {
 				86.70 };
 
 		System.out.println(ob.computePermutationPvalPaired(d1, d2, 1000));
+		
+		System.out.println(ob.computePermutationPval(d1, d2, 100000));
 
 	}
 }
