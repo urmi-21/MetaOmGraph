@@ -18,6 +18,8 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 
+import edu.iastate.metnet.metaomgraph.utils.Utils;
+
 /**
  * Class to compute meta-analysis of correlation
  * @author mrbai
@@ -101,10 +103,10 @@ public class CorrelationGrouped {
 		double qStatistic = 0;
 		double pvalQ = 0;
 
-		Atanh atanh = new Atanh();
+		//Atanh atanh = new Atanh();
 		Tanh tanh = new Tanh();
 		for (int i = 0; i < z_r.length; i++) {
-			z_r[i] = atanh.value(corrvals[i]);
+			z_r[i] = Utils.getAtanH(corrvals[i]);
 		}
 
 		for (int i = 0; i < groupSizes.length; i++) {
@@ -186,10 +188,10 @@ public class CorrelationGrouped {
 		double sumWstarZr = 0;
 		double sumWstar = 0;
 
-		Atanh atanh = new Atanh();
+		//Atanh atanh = new Atanh();
 		Tanh tanh = new Tanh();
 		for (int i = 0; i < z_r.length; i++) {
-			z_r[i] = atanh.value(corrvals[i]);
+			z_r[i] = Utils.getAtanH(corrvals[i]);
 		}
 
 		for (int i = 0; i < groupSizes.length; i++) {
