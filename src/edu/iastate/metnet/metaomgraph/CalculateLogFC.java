@@ -359,7 +359,7 @@ public class CalculateLogFC {
 						else if (testMethod == 6) {
 							// perform permutation test on paired data
 
-							double thisPval = computePermutationPvalPaired(s1, s2);
+							double thisPval = computePermutationPvalPaired(s1, s2, MetaOmGraph.getNumPermutations());
 							testPvals.add(thisPval);
 							// return null;
 						}
@@ -433,47 +433,44 @@ public class CalculateLogFC {
 	 * @return
 	 * @throws IOException
 	 */
-	public double computePermutationPvalPaired(double[] s1, double[] s2) throws IOException {
+	public double computePermutationPvalPaired(double[] s1, double[] s2, int numPermutations) {
 
 		double thisDiff = getDiffInMeans(s1, s2);
+		//System.out.println("Obs mean:" + thisDiff);
+
 		double[] diffArray = new double[s1.length];
 		List<Double> permutedMeanDiffs = new ArrayList<>();
 
 		for (int i = 0; i < s1.length; i++) {
 			diffArray[i] = s1[i] - s2[i];
 		}
-		ArrayList<Integer> indices=new ArrayList<>();
+		ArrayList<Integer> indices = new ArrayList<>();
 		for (int i = 0; i < diffArray.length; i++) {
 			indices.add(i);
 		}
 		// do for number of permutations
-		for (int k = 0; k < MetaOmGraph.getNumPermutations(); k++) {
-			// number of groups to exchange
-			Random random = new Random();
-			//change at least one sign
-			int r = random.nextInt(s1.length-1)+1;
-			//shuffle indices and take first r as random indices
-			Collections.shuffle(indices);
-			ArrayList<Integer> randomIndices = new ArrayList<Integer>();
-			for (int i = 0; i < r; i++) {
-				randomIndices.add(indices.get(i));
+		for (int k = 0; k < numPermutations; k++) {
+
+			int[] toFlip = new int[diffArray.length];
+
+			// randomly choose values to exchange
+			for (int i = 0; i < toFlip.length; i++) {
+				toFlip[i] = new Random().nextInt(2);
+				if (toFlip[i] == 0) {
+					toFlip[i] = -1;
+				}
 			}
-			
-			//JOptionPane.showMessageDialog(null, "flip: " + randomIndices.toString());
+
 			// calculate statistic from permuted data
 			double thisSum = 0;
 			for (int i = 0; i < diffArray.length; i++) {
-				if (randomIndices.contains(i)) {
-					// flip the sign
-					thisSum += -1 * diffArray[i];
-				} else {
-					thisSum += diffArray[i];
-				}
-
+				thisSum += (toFlip[i] * diffArray[i]);
 			}
 
 			permutedMeanDiffs.add(thisSum / s1.length);
 		}
+
+		// System.out.println("Perm mean:"+permutedMeanDiffs.toString());
 		// compute pvalue
 		double numExtremes = 0;
 		for (int i = 0; i < permutedMeanDiffs.size(); i++) {
@@ -605,9 +602,20 @@ public class CalculateLogFC {
 	}
 
 	public static void main(String[] args) {
-		CalculateLogFC ob=new CalculateLogFC(null, null, null, false);
-		double []s1= {5,6,7};
-		double []s2= {1,2,3};
-		System.out.print(ob.getDiffInMeans(s1, s2));
+		CalculateLogFC ob = new CalculateLogFC(null, null, null, false);
+		double[] s1 = { 5, 6, 7 };
+		double[] s2 = { 1, 2, 3 };
+		System.out.println(ob.getDiffInMeans(s1, s2));
+
+		// test permutation test for paired data
+		double[] d1 = { 80.50, 84.90, 81.50, 82.60, 79.90, 88.70, 94.90, 76.30, 81.00, 80.50, 85.00, 89.20, 81.30,
+				76.50, 70.00, 80.40, 83.30, 83.00, 87.70, 84.20, 86.40, 76.50, 80.20, 87.80, 83.30, 79.70, 84.50, 80.80,
+				87.40 };
+		double[] d2 = { 82.20, 85.60, 81.40, 81.90, 76.40, 103.6, 98.40, 93.40, 73.40, 82.10, 96.70, 95.30, 82.40,
+				72.50, 90.90, 71.30, 85.40, 81.60, 89.10, 83.90, 82.70, 75.70, 82.60, 100.4, 85.20, 83.60, 84.60, 96.20,
+				86.70 };
+
+		System.out.println(ob.computePermutationPvalPaired(d1, d2, 1000));
+
 	}
 }
