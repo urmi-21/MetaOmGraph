@@ -319,10 +319,10 @@ public class CalculateLogFC {
 								testPvals.add(tob.tTest(s1, s2));
 							}
 
-						} else if (testMethod == 3) {
+						} else if (testMethod == 4) {
 							// perform paired t
 							testPvals.add(tob.pairedTTest(s1, s2));
-						} else if (testMethod == 4) {
+						} else if (testMethod == 5) {
 							// perform wilcoxonSignedRankTest
 							// NOTE: exact p vals only work for n <=30
 							// set exact pv is n <= 10 otherwise its slow
@@ -333,8 +333,28 @@ public class CalculateLogFC {
 							}
 						}
 
-						else if (testMethod == 5) {
+						else if (testMethod == 3) {
 							// perform permutation test
+							
+							// combine the data and randomly sample
+							List<Double> combinedData = new ArrayList<>();
+							for (int k = 0; k < thisDataRaw.length; k++) {
+								if (excluded != null && excluded[k]) {
+									continue;
+								}
+								if (g1Ind.contains(k) || g2Ind.contains(k)) {
+									combinedData.add(thisDataRaw[k]);
+								}
+							}
+
+							// observed geometric means are m1 and m2
+							double thisPval=computePermutationPval(m1, m2, g1Ind.size(), g2Ind.size(), combinedData);
+							testPvals.add(thisPval);
+							//return null;
+						}
+						
+						else if (testMethod == 6) {
+							// perform permutation test on paired data
 							
 							// combine the data and randomly sample
 							List<Double> combinedData = new ArrayList<>();
