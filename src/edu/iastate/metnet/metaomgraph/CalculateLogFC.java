@@ -442,18 +442,24 @@ public class CalculateLogFC {
 		for (int i = 0; i < s1.length; i++) {
 			diffArray[i] = s1[i] - s2[i];
 		}
-
+		ArrayList<Integer> indices=new ArrayList<>();
+		for (int i = 0; i < diffArray.length; i++) {
+			indices.add(i);
+		}
 		// do for number of permutations
 		for (int k = 0; k < MetaOmGraph.getNumPermutations(); k++) {
 			// number of groups to exchange
 			Random random = new Random();
 			//change at least one sign
 			int r = random.nextInt(s1.length-1)+1;
+			//shuffle indices and take first r as random indices
+			Collections.shuffle(indices);
 			ArrayList<Integer> randomIndices = new ArrayList<Integer>();
 			for (int i = 0; i < r; i++) {
-				randomIndices.add(random.nextInt(s1.length));
+				randomIndices.add(indices.get(i));
 			}
-			JOptionPane.showMessageDialog(null, "flip: " + randomIndices.toString());
+			
+			//JOptionPane.showMessageDialog(null, "flip: " + randomIndices.toString());
 			// calculate statistic from permuted data
 			double thisSum = 0;
 			for (int i = 0; i < diffArray.length; i++) {
