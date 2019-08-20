@@ -201,7 +201,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 
 				// check if calculation was cancelled
 				// compare if pvalues math size of gene list. hacky way to do
-				if (ob.testPV().size() < myProject.getGeneListRowNumbers(selectedFeatureList).length) {
+				if (ob.testPV()==null || ob.testPV().size() < myProject.getGeneListRowNumbers(selectedFeatureList).length) {
 					// JOptionPane.showMessageDialog(null, "cancelled");
 					return;
 				}
