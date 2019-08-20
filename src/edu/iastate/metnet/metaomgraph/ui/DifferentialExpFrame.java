@@ -185,7 +185,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 				if (grp1.size() < 30 || grp2.size() < 30) {
 					JOptionPane.showMessageDialog(null,
 							"Smaller group size will have lower statistical power. Group size > 30 is recommended",
-							"Unequal lists", JOptionPane.WARNING_MESSAGE);
+							"Small groups", JOptionPane.WARNING_MESSAGE);
 				}
 
 				// all checks completed, compute logFC
