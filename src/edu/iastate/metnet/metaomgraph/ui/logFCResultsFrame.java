@@ -430,35 +430,8 @@ public class logFCResultsFrame extends JInternalFrame {
 		mntmFcHistogram.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				// plot histogram of current pvalues in table
-				double[] fcdata = new double[table.getRowCount()];
-				for (int r = 0; r < table.getRowCount(); r++) {
+				plotColumnHistogram("logFC");
 
-					fcdata[r] = (double) table.getModel().getValueAt(r, table.getColumn("logFC").getModelIndex());
-				}
-				EventQueue.invokeLater(new Runnable() {
-					public void run() {
-						try {// get data for selected rows
-							int nBins = 10;
-							HistogramChart f = new HistogramChart(null, nBins, null, 2, fcdata);
-							MetaOmGraph.getDesktop().add(f);
-							f.setDefaultCloseOperation(2);
-							f.setClosable(true);
-							f.setResizable(true);
-							f.pack();
-							f.setSize(1000, 700);
-							f.setVisible(true);
-							f.toFront();
-
-						} catch (Exception e) {
-							JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
-									JOptionPane.ERROR_MESSAGE);
-
-							e.printStackTrace();
-							return;
-						}
-					}
-				});
 				return;
 
 			}
@@ -469,41 +442,40 @@ public class logFCResultsFrame extends JInternalFrame {
 		mntmPvalHistogram.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				// plot histogram of current pvalues in table
-				double[] pdata = new double[table.getRowCount()];
-				for (int r = 0; r < table.getRowCount(); r++) {
-					//get p values
-					
-					pdata[r] = (double) table.getModel().getValueAt(r, table.getColumn(methodName + " pval").getModelIndex());
-				}
-				EventQueue.invokeLater(new Runnable() {
-					public void run() {
-						try {// get data for selected rows
-							int nBins = 10;
-							HistogramChart f = new HistogramChart(null, nBins, null, 2, pdata);
-							MetaOmGraph.getDesktop().add(f);
-							f.setDefaultCloseOperation(2);
-							f.setClosable(true);
-							f.setResizable(true);
-							f.pack();
-							f.setSize(1000, 700);
-							f.setVisible(true);
-							f.toFront();
+				plotColumnHistogram(methodName + " pval");
 
-						} catch (Exception e) {
-							JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
-									JOptionPane.ERROR_MESSAGE);
-
-							e.printStackTrace();
-							return;
-						}
-					}
-				});
 				return;
 
 			}
 		});
 		mnPlot.add(mntmPvalHistogram);
+
+		JMenuItem mntmHistogramcolumn = new JMenuItem("Histogram (column)");
+		mntmHistogramcolumn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+
+				// display option to select a column
+				JPanel cboxPanel = new JPanel();
+				String[] colNames = new String[table.getColumnCount() - 1];
+
+				// dont display 1st column or other non-numerical columns
+				for (int cols = 1; cols < table.getColumnCount(); cols++) {
+					colNames[cols] = table.getColumnName(cols);
+				}
+				// get a list of multiple correction methods implemented
+				JComboBox options = new JComboBox<>(colNames);
+				cboxPanel.add(options);
+				int opt = JOptionPane.showConfirmDialog(null, cboxPanel, "Select column", JOptionPane.OK_CANCEL_OPTION);
+				if (opt == JOptionPane.OK_OPTION) {
+					// draw histogram with the selected column
+					plotColumnHistogram(options.getSelectedItem().toString());
+				} else {
+					return;
+				}
+
+			}
+		});
+		mnPlot.add(mntmHistogramcolumn);
 
 		// frame properties
 		this.setClosable(true);
@@ -689,6 +661,48 @@ public class logFCResultsFrame extends JInternalFrame {
 		rowIndices = myProject.getRowIndexbyName(names, true);
 
 		return rowIndices;
+	}
+
+	/**
+	 * Function to plot histogram of selected column
+	 * 
+	 * @param columnName
+	 */
+	private void plotColumnHistogram(String columnName) {
+
+		// plot histogram of current pvalues in table
+		double[] data = new double[table.getRowCount()];
+		for (int r = 0; r < table.getRowCount(); r++) {
+			// get p values
+
+			data[r] = (double) table.getModel().getValueAt(r, table.getColumn(columnName).getModelIndex());
+		}
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {// get data for selected rows
+					int nBins = 10;
+					HistogramChart f = new HistogramChart(null, nBins, null, 2, data);
+					f.setTitle(columnName + " histogram");
+					MetaOmGraph.getDesktop().add(f);
+					f.setDefaultCloseOperation(2);
+					f.setClosable(true);
+					f.setResizable(true);
+					f.pack();
+					f.setSize(1000, 700);
+					f.setVisible(true);
+					f.toFront();
+
+				} catch (Exception e) {
+					JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
+							JOptionPane.ERROR_MESSAGE);
+
+					e.printStackTrace();
+					return;
+				}
+			}
+		});
+		return;
+
 	}
 
 }
