@@ -171,7 +171,8 @@ public class DifferentialExpFrame extends JInternalFrame {
 				String selectedFeatureList = comboBox.getSelectedItem().toString();
 				String selectedMethod = comboBox_1.getSelectedItem().toString();
 				// if paired test is selected lists must be equal size
-				if (selectedMethod.equals("Paired t-test") || selectedMethod.equals("Wilcoxon Signed Rank Test")) {
+				if (selectedMethod.equals("Paired t-test") || selectedMethod.equals("Wilcoxon Signed Rank Test")
+						|| selectedMethod.equals("Permutation test (paired samples)")) {
 					if (grp1.size() != grp2.size()) {
 						JOptionPane.showMessageDialog(null,
 								"The two groups must be equal to perform paired test. Please check the input lists.",
@@ -195,25 +196,23 @@ public class DifferentialExpFrame extends JInternalFrame {
 				CalculateLogFC ob = new CalculateLogFC(selectedFeatureList, grp1, grp2, txtGroup1.getText(),
 						txtGroup2.getText(), myProject, comboBox_1.getSelectedIndex());
 
-				
-				//start calculation
+				// start calculation
 				ob.doCalc();
-								
-				//check if calculation was cancelled
-				//compare if pvalues math size of gene list. hacky way to do
-				if(ob.testPV().size()< myProject.getGeneListRowNumbers(selectedFeatureList).length) {
-					//JOptionPane.showMessageDialog(null, "cancelled");
+
+				// check if calculation was cancelled
+				// compare if pvalues math size of gene list. hacky way to do
+				if (ob.testPV().size() < myProject.getGeneListRowNumbers(selectedFeatureList).length) {
+					// JOptionPane.showMessageDialog(null, "cancelled");
 					return;
 				}
-				
-				
+
 				// save object
 				String id = "";
 				if (chckbxSaveResultsWith.isSelected()) {
 					id = JOptionPane.showInputDialog(MetaOmGraph.getMainWindow(),
 							"Please enter a name for this analysis:", "Save differential expression results", 2);
-					if(id==null) {
-						//cancelled
+					if (id == null) {
+						// cancelled
 						return;
 					}
 					id = id.trim();
@@ -222,27 +221,25 @@ public class DifferentialExpFrame extends JInternalFrame {
 							id = (String) JOptionPane.showInputDialog(MetaOmGraph.getDesktop(),
 									"A previous analysis exists with the same name. Please enter a different name for this analysis",
 									"Save differential expression results", 2);
-							if(id==null) {
-								//cancelled
+							if (id == null) {
+								// cancelled
 								return;
 							}
 							id = id.trim();
 						}
 					}
 				}
-				
+
 				// create DifferentialExpResults object to store results in MOG
-				DifferentialExpResults diffExpObj = new DifferentialExpResults(id,comboBox_1.getSelectedIndex(),
+				DifferentialExpResults diffExpObj = new DifferentialExpResults(id, comboBox_1.getSelectedIndex(),
 						txtGroup1.getText(), txtGroup2.getText(), getAllRows(tableGrp1).size(),
 						getAllRows(tableGrp2).size(), selectedFeatureList, MetaOmGraph.getInstance().getTransform(),
 						ob.getFeatureNames(), ob.getMean1(), ob.getMean2(), ob.ftestRatios(), ob.ftestPV(),
 						ob.testPV());
-				
-				if(chckbxSaveResultsWith.isSelected()) {
+
+				if (chckbxSaveResultsWith.isSelected()) {
 					myProject.addDiffExpRes(diffExpObj.getID(), diffExpObj);
 				}
-				
-				
 
 				// display result using diffExpObj
 				logFCResultsFrame frame = null;
@@ -509,8 +506,8 @@ public class DifferentialExpFrame extends JInternalFrame {
 
 	private void initComboBoxes() {
 		comboBox = new JComboBox(MetaOmGraph.getActiveProject().getGeneListNames());
-		String[] methods = new String[] { "M-W U test", "Student's t-test", "Welch's t-test", "Paired t-test",
-				"Wilcoxon Signed Rank Test","Permutation test" };
+		String[] methods = new String[] { "M-W U test", "Student's t-test", "Welch's t-test", "Permutation test",
+				"Paired t-test", "Wilcoxon Signed Rank Test", "Permutation test (paired samples)" };
 		comboBox_1 = new JComboBox(methods);
 	}
 
