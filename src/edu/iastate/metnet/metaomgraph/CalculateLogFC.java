@@ -15,6 +15,7 @@ import java.util.TreeMap;
 import javax.swing.JOptionPane;
 
 import org.apache.commons.math3.distribution.FDistribution;
+import org.apache.commons.math3.stat.descriptive.moment.GeometricMean;
 import org.apache.commons.math3.stat.descriptive.moment.Variance;
 import org.apache.commons.math3.stat.inference.MannWhitneyUTest;
 import org.apache.commons.math3.stat.inference.TTest;
@@ -86,7 +87,7 @@ public class CalculateLogFC {
 		this.myProject = myProject;
 		excluded = MetaOmAnalyzer.getExclude();
 		this.testMethod = method;
-		if (testMethod < 0 || testMethod > 5) {
+		if (testMethod < 0 || testMethod > 6) {
 			JOptionPane.showMessageDialog(null, "Invalid method selected", "Invalid method", JOptionPane.ERROR_MESSAGE);
 			calcStatus = false;
 		}
@@ -358,21 +359,7 @@ public class CalculateLogFC {
 						else if (testMethod == 6) {
 							// perform permutation test on paired data
 
-							// combine the data and randomly sample
-							List<Double> combinedData = new ArrayList<>();
-							for (int k = 0; k < thisDataRaw.length; k++) {
-								if (excluded != null && excluded[k]) {
-									continue;
-								}
-								if (g1Ind.contains(k) || g2Ind.contains(k)) {
-									combinedData.add(thisDataRaw[k]);
-								}
-							}
-
-							// observed geometric means are m1 and m2
-							// double thisPval=computePermutationPval(m1, m2, g1Ind.size(), g2Ind.size(),
-							// combinedData);
-							double thisPval = computePermutationPvalPaired(m1, m2, s1, s2);
+							double thisPval = computePermutationPvalPaired(s1, s2);
 							testPvals.add(thisPval);
 							// return null;
 						}
@@ -422,10 +409,33 @@ public class CalculateLogFC {
 
 	}
 
-	public double computePermutationPvalPaired(double mean1, double mean2, double[] s1, double[] s2)
-			throws IOException {
+	public double getDiffInMeans(double[] s1, double[] s2) {
+		double mean1 = 0;
+		double mean2 = 0;
+		for (int i = 0; i < s1.length; i++) {
+			mean1 += s1[i];
+		}
 
-		double thisDiff = mean1 - mean2;
+		for (int i = 0; i < s2.length; i++) {
+			mean2 += s2[i];
+		}
+
+		mean1 = mean1 / s1.length;
+		mean2 = mean2 / s2.length;
+		return mean1 - mean2;
+	}
+
+	/**
+	 * Function to perform a permutation test on paired data
+	 * 
+	 * @param s1
+	 * @param s2
+	 * @return
+	 * @throws IOException
+	 */
+	public double computePermutationPvalPaired(double[] s1, double[] s2) throws IOException {
+
+		double thisDiff = getDiffInMeans(s1, s2);
 		double[] diffArray = new double[s1.length];
 		List<Double> permutedMeanDiffs = new ArrayList<>();
 
@@ -437,12 +447,13 @@ public class CalculateLogFC {
 		for (int k = 0; k < MetaOmGraph.getNumPermutations(); k++) {
 			// number of groups to exchange
 			Random random = new Random();
-			int r = random.nextInt(s1.length);
+			//change at least one sign
+			int r = random.nextInt(s1.length-1)+1;
 			ArrayList<Integer> randomIndices = new ArrayList<Integer>();
 			for (int i = 0; i < r; i++) {
 				randomIndices.add(random.nextInt(s1.length));
 			}
-			JOptionPane.showMessageDialog(null, "flip: "+randomIndices.toString());
+			JOptionPane.showMessageDialog(null, "flip: " + randomIndices.toString());
 			// calculate statistic from permuted data
 			double thisSum = 0;
 			for (int i = 0; i < diffArray.length; i++) {
@@ -585,5 +596,12 @@ public class CalculateLogFC {
 
 	public String getGrp2Name() {
 		return grp2Name;
+	}
+
+	public static void main(String[] args) {
+		CalculateLogFC ob=new CalculateLogFC(null, null, null, false);
+		double []s1= {5,6,7};
+		double []s2= {1,2,3};
+		System.out.print(ob.getDiffInMeans(s1, s2));
 	}
 }
