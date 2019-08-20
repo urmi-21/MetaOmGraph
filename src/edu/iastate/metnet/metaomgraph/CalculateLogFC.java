@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.TreeMap;
 
 import javax.swing.JOptionPane;
@@ -18,6 +19,7 @@ import org.apache.commons.math3.stat.descriptive.moment.Variance;
 import org.apache.commons.math3.stat.inference.MannWhitneyUTest;
 import org.apache.commons.math3.stat.inference.TTest;
 import org.apache.commons.math3.stat.inference.WilcoxonSignedRankTest;
+import org.biomage.Array.Array;
 
 import com.sun.xml.internal.ws.api.Cancelable;
 
@@ -335,7 +337,7 @@ public class CalculateLogFC {
 
 						else if (testMethod == 3) {
 							// perform permutation test
-							
+
 							// combine the data and randomly sample
 							List<Double> combinedData = new ArrayList<>();
 							for (int k = 0; k < thisDataRaw.length; k++) {
@@ -348,14 +350,14 @@ public class CalculateLogFC {
 							}
 
 							// observed geometric means are m1 and m2
-							double thisPval=computePermutationPval(m1, m2, g1Ind.size(), g2Ind.size(), combinedData);
+							double thisPval = computePermutationPval(m1, m2, g1Ind.size(), g2Ind.size(), combinedData);
 							testPvals.add(thisPval);
-							//return null;
+							// return null;
 						}
-						
+
 						else if (testMethod == 6) {
 							// perform permutation test on paired data
-							
+
 							// combine the data and randomly sample
 							List<Double> combinedData = new ArrayList<>();
 							for (int k = 0; k < thisDataRaw.length; k++) {
@@ -368,9 +370,11 @@ public class CalculateLogFC {
 							}
 
 							// observed geometric means are m1 and m2
-							double thisPval=computePermutationPval(m1, m2, g1Ind.size(), g2Ind.size(), combinedData);
+							// double thisPval=computePermutationPval(m1, m2, g1Ind.size(), g2Ind.size(),
+							// combinedData);
+							double thisPval = computePermutationPvalPaired(m1, m2, s1, s2);
 							testPvals.add(thisPval);
-							//return null;
+							// return null;
 						}
 
 						else {
@@ -418,6 +422,53 @@ public class CalculateLogFC {
 
 	}
 
+	public double computePermutationPvalPaired(double mean1, double mean2, double[] s1, double[] s2)
+			throws IOException {
+
+		double thisDiff = mean1 - mean2;
+		double[] diffArray = new double[s1.length];
+		List<Double> permutedMeanDiffs = new ArrayList<>();
+
+		for (int i = 0; i < s1.length; i++) {
+			diffArray[i] = s1[i] - s2[i];
+		}
+
+		// do for number of permutations
+		for (int k = 0; k < MetaOmGraph.getNumPermutations(); k++) {
+			// number of groups to exchange
+			Random random = new Random();
+			int r = random.nextInt(s1.length);
+			ArrayList<Integer> randomIndices = new ArrayList<Integer>();
+			for (int i = 0; i < r; i++) {
+				randomIndices.add(random.nextInt(s1.length));
+			}
+			JOptionPane.showMessageDialog(null, "flip: "+randomIndices.toString());
+			// calculate statistic from permuted data
+			double thisSum = 0;
+			for (int i = 0; i < diffArray.length; i++) {
+				if (randomIndices.contains(i)) {
+					// flip the sign
+					thisSum += -1 * diffArray[i];
+				} else {
+					thisSum += diffArray[i];
+				}
+
+			}
+
+			permutedMeanDiffs.add(thisSum / s1.length);
+		}
+		// compute pvalue
+		double numExtremes = 0;
+		for (int i = 0; i < permutedMeanDiffs.size(); i++) {
+			if (Math.abs(permutedMeanDiffs.get(i)) >= Math.abs(thisDiff)) {
+				numExtremes += 1;
+			}
+		}
+
+		// add 1 for observed statistic
+		return (numExtremes + 1.0) / (permutedMeanDiffs.size() + 1.0);
+	}
+
 	/**
 	 * Function to compute p value of geometric means equality test using
 	 * permutations
@@ -428,29 +479,30 @@ public class CalculateLogFC {
 	 * @param size2
 	 * @param combinedData
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
-	public double computePermutationPval(double mean1, double mean2, int size1, int size2, List<Double> combinedData) throws IOException {
+	public double computePermutationPval(double mean1, double mean2, int size1, int size2, List<Double> combinedData)
+			throws IOException {
 
 		double thisDiff = mean1 - mean2;
 
-		List<Double> permutedDiffs=computeTwoGroupGeometricMeanDifferences(size1, size2, combinedData);
-		
-		//compute pvalue
-		double numExtremes=0;
-		for(int i=0;i<permutedDiffs.size();i++) {
-			if(Math.abs(permutedDiffs.get(i))>=Math.abs(thisDiff)) {
-				numExtremes+=1;
+		List<Double> permutedDiffs = computeTwoGroupGeometricMeanDifferences(size1, size2, combinedData);
+
+		// compute pvalue
+		double numExtremes = 0;
+		for (int i = 0; i < permutedDiffs.size(); i++) {
+			if (Math.abs(permutedDiffs.get(i)) >= Math.abs(thisDiff)) {
+				numExtremes += 1;
 			}
 		}
 
-		//add 1 for observed statistic
-		return (numExtremes+1.0)/(permutedDiffs.size()+1.0);
+		// add 1 for observed statistic
+		return (numExtremes + 1.0) / (permutedDiffs.size() + 1.0);
 	}
 
 	/**
-	 * Function to compute difference in geometric means of genes over two groups after shuffling
-	 * data
+	 * Function to compute difference in geometric means of genes over two groups
+	 * after shuffling data
 	 * 
 	 * @param g1Ind
 	 * @param g2Ind

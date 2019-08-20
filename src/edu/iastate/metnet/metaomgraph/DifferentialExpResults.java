@@ -88,14 +88,17 @@ public class DifferentialExpResults {
 		if (method == 2) {
 			return "Weltch's t test";
 		}
-		if (method == 3) {
+		if (method == 4) {
 			return "Paired t test";
 		}
-		if (method == 4) {
+		if (method == 5) {
 			return "Wilcoxon signed-rank test";
 		}
-		if (method == 5) {
+		if (method == 3) {
 			return "Permutation test";
+		}
+		if (method == 6) {
+			return "Permutation test (paired)";
 		}
 
 		return "unknown";
