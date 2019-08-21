@@ -1,4 +1,4 @@
-MOG 1.7.9 Release date: 8/20/2019
+MOG 1.7.9 Release date: 8/21/2019
 Added checks to validate metadata headers and raise error if duplicate headers are found.
 Fixed reading MOG projects created without metadata.
 Added permutation test for differential correlation.
@@ -8,6 +8,7 @@ Added option to plot histogram of any column in the differential expression or d
 Refractor differential expression and correlation classes to save data with MOG project.
 Added Holm method for p-value correction.
 Added option to correct correlation p-values. 
+Fixed bug in meta-analysis which computed incorrect p-values with REM.
 
 
 MOG 1.7.8b Release date: 7/14/2019
