@@ -1938,6 +1938,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					boolean[] exclude = MetaOmAnalyzer.getExclude();
 					// create list of source data into groups
 					List<double[]> sourceGrouped = groupDatabyRepColumn(groupsMap, sourceDataAll, exclude);
+					//if groping failed
+					if(sourceGrouped==null) {
+						return;
+					}
 					final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(),
 							"Computing p-vals...", "", 0L, entries.length, true);
 					final String nameSave = name;
@@ -3796,6 +3800,12 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		for (Map.Entry<String, List<Integer>> entry : groupsMap.entrySet()) {
 			String key = entry.getKey();
 			List<Integer> value = entry.getValue();
+			//value contains the indices of data column is the current group ("key")
+			//return if #samples are less than 4
+			if(value.size()<4) {
+				JOptionPane.showMessageDialog(null, "Group with less than 4 samples found. Please check the replicate group column in properties. Can't proceed with computation.","Error",JOptionPane.ERROR_MESSAGE);
+				return null;
+			}
 			List<Double> thisVals = new ArrayList<>();
 
 			for (int i = 0; i < value.size(); i++) {
