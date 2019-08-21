@@ -18,6 +18,8 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 
+import com.sun.xml.internal.bind.v2.runtime.reflect.opt.MethodAccessor_Ref;
+
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 /**
@@ -258,8 +260,23 @@ public class CorrelationGrouped {
 		 */
 		double[] corrvals = new double[] { 0.56, 0.43, 0.53, 0.51, 0.66, 0.46, 0.33, 0.38 };
 		int[] groupSizes = new int[] { 133, 149, 131, 120, 111, 152, 60, 122 };
+		//test source https://www.medcalc.org/manual/meta-analysis-correlation.php
+		CorrelationMeta ob1FEM=getrvalueFEModel(corrvals, groupSizes);	
+		double femRvalue=ob1FEM.getrVal();
+		double femPvalue=ob1FEM.getpVal();
+		assert (femRvalue - 0.49497123931969983)>1E-4 : " Incorrect r value FEM model"; 
+        System.out.println("value is "+femRvalue); 
+        assert (femPvalue - 0.0)>1E-4 : " Incorrect p value FEM model"; 
+        System.out.println("value is "+femRvalue);
+        
+        CorrelationMeta ob1REM=getrvalueRandModel(corrvals, groupSizes);
+        double remRvalue=ob1REM.getrVal();
+		double remPvalue=ob1REM.getpVal();
+		assert (remRvalue - 0.3831321186946234)>1E-4 : " Incorrect r value REM model"; 
+        System.out.println("value is "+femRvalue); 
+        assert (remPvalue - 0.0)>1E-4 : " Incorrect p value REM model"; 
+        System.out.println("value is "+femRvalue);
 		
-		//test source https://www.medcalc.org/manual/meta-analysis-correlation.php		
 		System.out.println("pooldr:" + getrvalueFEModel(corrvals, groupSizes).getrVal() + " pv:"
 				+ getrvalueFEModel(corrvals, groupSizes).getpVal());
 		System.out.println("..........");
@@ -277,6 +294,24 @@ public class CorrelationGrouped {
 		System.out.println("..........");
 		System.out.println("RAND pooldr:" + getrvalueRandModel(corrvals, groupSizes).getrVal() + " pv:"
 				+ getrvalueRandModel(corrvals, groupSizes).getpVal());
+		
+		ob1FEM=getrvalueFEModel(corrvals, groupSizes);	
+		femRvalue=ob1FEM.getrVal();
+		femPvalue=ob1FEM.getpVal();
+		assert (femRvalue - 0.3831321186946234)>1E-4 : " Incorrect r value FEM model"; 
+        System.out.println("value is "+femRvalue); 
+        assert (femPvalue - 0.0)>1E-4 : " Incorrect p value FEM model"; 
+        System.out.println("value is "+femRvalue);
+        
+        ob1REM=getrvalueRandModel(corrvals, groupSizes);
+        remRvalue=ob1REM.getrVal();
+		remPvalue=ob1REM.getpVal();
+		assert (remRvalue - 0.387032495536854)>1E-4 : " Incorrect r value REM model"; 
+        System.out.println("value is "+femRvalue); 
+        assert (remPvalue - 7.408895719152042E-11)>1E-4 : " Incorrect p value REM model"; 
+        System.out.println("value is "+femRvalue);
+		
+		
 
 	}
 
