@@ -243,7 +243,7 @@ public class CorrelationGrouped {
 		if (Double.isNaN(pooledr)) {
 			pooledr = 0;
 		}
-		CorrelationMeta toReturn = new CorrelationMeta(pooledr, pvalQ, zStatistic, qStatistic, pooledzr_rand, stdErr);
+		CorrelationMeta toReturn = new CorrelationMeta(pooledr, pvalzr, zStatistic, qStatistic, pooledzr_rand, stdErr);
 
 		return toReturn;
 
@@ -258,8 +258,17 @@ public class CorrelationGrouped {
 		 */
 		double[] corrvals = new double[] { 0.56, 0.43, 0.53, 0.51, 0.66, 0.46, 0.33, 0.38 };
 		int[] groupSizes = new int[] { 133, 149, 131, 120, 111, 152, 60, 122 };
+		
+		//test source https://www.medcalc.org/manual/meta-analysis-correlation.php		
+		System.out.println("pooldr:" + getrvalueFEModel(corrvals, groupSizes).getrVal() + " pv:"
+				+ getrvalueFEModel(corrvals, groupSizes).getpVal());
+		System.out.println("..........");
+		System.out.println("RAND pooldr:" + getrvalueRandModel(corrvals, groupSizes).getrVal() + " pv:"
+				+ getrvalueRandModel(corrvals, groupSizes).getpVal());
+		
 		corrvals = new double[] { 0.51, 0.48, 0.30, 0.21, 0.60, 0.46, 0.22, 0.25 };
 		groupSizes = new int[] { 131, 129, 155, 121, 111, 119, 112, 145 };
+		//test source https://www.statsdirect.com/help/meta_analysis/correlation.htm
 		// corrvals = new double[] { 0.7026,0.494856,-0.655774568 };
 		// groupSizes = new int[] { 4,7,7 };
 
