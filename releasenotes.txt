@@ -9,6 +9,7 @@ Refractor differential expression and correlation classes to save data with MOG 
 Added Holm method for p-value correction.
 Added option to correct correlation p-values. 
 Fixed bug in meta-analysis which computed incorrect p-values with REM.
+Removed the contact developer option under help.
 
 
 MOG 1.7.8b Release date: 7/14/2019
