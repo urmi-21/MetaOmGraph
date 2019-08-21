@@ -1385,7 +1385,7 @@ public class MetaOmGraph implements ActionListener {
 		contactItem.setMnemonic(KeyEvent.VK_C);
 		contactItem.setActionCommand(CONTACT_COMMAND);
 		contactItem.addActionListener(myself);
-		helpMenu.add(contactItem);
+		//helpMenu.add(contactItem);
 		aboutItem = new JMenuItem("About...");
 		aboutItem.setMnemonic(KeyEvent.VK_A);
 		aboutItem.setActionCommand(ABOUT_COMMAND);
