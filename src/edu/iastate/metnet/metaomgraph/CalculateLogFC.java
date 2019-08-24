@@ -259,6 +259,7 @@ public class CalculateLogFC {
 
 							} else if (g2Ind.contains(k)) {
 								// for GM
+								
 								m2 += (Math.log(thisDataRaw[k] + 1) / log2b10);
 								// for AM
 								// m2 += thisDataRaw[k] ;
