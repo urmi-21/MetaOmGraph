@@ -241,7 +241,7 @@ public class CalculateLogFC {
 					double[] thisDataRaw = null; // untransformed data
 					double[] thisData = null;
 					try {
-						// get untransformed data to calculate logFC
+						// get untransformed data to calculate logFC as log2(ratio of geom means)
 						thisDataRaw = myProject.getAllData(selected[r], true);
 						// JOptionPane.showMessageDialog(null, "this Data:"+Arrays.toString(thisData));
 
