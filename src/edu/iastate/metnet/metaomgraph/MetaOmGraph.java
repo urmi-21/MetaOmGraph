@@ -243,6 +243,7 @@ public class MetaOmGraph implements ActionListener {
 			mogThemes.remove(name);
 		}
 	}
+	
 
 	public static HashMap<String, MOGColorThemes> getAllThemes() {
 		return mogThemes;
