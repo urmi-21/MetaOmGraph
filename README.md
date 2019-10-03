@@ -45,8 +45,7 @@ DOUBLE CLICK on the .jar file icon to start MOG.
 
 ## Contributing
 
-Coming Soon...
-
+Please see https://github.com/urmi-21/MetaOmGraph/blob/master/CONTRIBUTING.md
 
 ## Developers
 
