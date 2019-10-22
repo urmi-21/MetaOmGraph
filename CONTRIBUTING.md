@@ -16,7 +16,10 @@ git clone https://github.com/urmi-21/MetaOmGraph.git
 ```
 
 ## Dependencies
-* JFreeChart
+* [JFreeChart](https://github.com/jfree/jfreechart)
+* [Apache Commons Math](https://github.com/apache/commons-math)
+* [Nitrite Database](https://github.com/dizitart/nitrite-database)
+* [Colorbrewer](https://github.com/rcsb/colorbrewer)
 
 ## Accessing the code
 Eclipse IDE is suggested to open the MetaOmGraph project.
