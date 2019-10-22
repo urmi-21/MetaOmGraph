@@ -15,6 +15,9 @@ To download the code please clone MetaOmGraph's repository using the command:
 git clone https://github.com/urmi-21/MetaOmGraph.git
 ```
 
+## Dependencies
+* JFreeChart
+
 ## Accessing the code
 Eclipse IDE is suggested to open the MetaOmGraph project.
 
