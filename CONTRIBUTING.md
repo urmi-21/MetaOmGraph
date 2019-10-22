@@ -9,7 +9,7 @@ Here, information is provided for contributers who would like to contribute to M
 
 
 ## Cloning MetaOmGraph
-To download the code please clone ORIS using the command:
+To download the code please clone MOG using the command:
 
 ```
 git clone https://github.com/urmi-21/MetaOmGraph.git
