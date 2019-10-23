@@ -146,6 +146,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	// if number of items in legend is more than this then turn legend off
 	private int maxLegend = 30;
 	
+	//keep track of user selected palette and retain this on updating the chart
 	private Color[] currentlySetColors=null;
 
 	/*
