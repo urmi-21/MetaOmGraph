@@ -158,7 +158,8 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 	private Color chartbg = MetaOmGraph.getChartBackgroundColor();
 	private Color plotbg = MetaOmGraph.getPlotBackgroundColor();
 
-	Color[] colorArray = null;
+	// keep track of user selected palette and retain this on updating the chart
+	private Color[] currentlySetColors = null;
 
 	String splitCol;
 	Map<String, Collection<Integer>> splitIndex;
@@ -261,7 +262,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		changePalette.setOpaque(false);
 		changePalette.setContentAreaFilled(false);
 		changePalette.setBorderPainted(true);
-		
+
 		toggleLegend = new JToggleButton(theme.getLegend(), legendFlag);
 		toggleLegend.setToolTipText("Show/hide legend");
 		toggleLegend.setActionCommand("legend");
@@ -337,8 +338,8 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		// myRenderer.setsha DefaultShape(shape1);
 
 		// use palette if available
-		if (colorArray != null) {
-			plot.setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(colorArray,
+		if (currentlySetColors != null) {
+			plot.setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(currentlySetColors,
 					DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
@@ -348,13 +349,18 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 			// DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE
 
 		} else {
-			Paint[] defaultPaint = DefaultDrawingSupplier.DEFAULT_PAINT_SEQUENCE;
-			Color[] defaultColor = Utils.paintArraytoColor(defaultPaint);
-			plot.setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(Utils.filterColors(defaultColor),
-					DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
-					DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
-					DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
-					DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE, getShapesSequence(pointSize)));
+			/*
+			 * Paint[] defaultPaint = DefaultDrawingSupplier.DEFAULT_PAINT_SEQUENCE; Color[]
+			 * defaultColor = Utils.paintArraytoColor(defaultPaint);
+			 * plot.setDrawingSupplier((DrawingSupplier) new
+			 * DefaultDrawingSupplier(Utils.filterColors(defaultColor),
+			 * DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
+			 * DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
+			 * DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
+			 * DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
+			 * getShapesSequence(pointSize)));
+			 */
+			setDefaultPalette();
 		}
 		// Create Panel
 		// use full constructor otherwise tooltips dont work
@@ -510,18 +516,18 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 				XYDataset thisDS = item.getDataset();
 				double chartX = thisDS.getXValue(item.getSeriesIndex(), thisXind);
 				double chartY = thisDS.getYValue(item.getSeriesIndex(), thisXind);
-				
-				//String colKey = (String) item.get
-				//String rowKey = (String) item.getRowKey();
-				
-				//get the series name
-				String thisSeries=item.getToolTipText();
-				int lastChar=thisSeries.lastIndexOf(":");
-				thisSeries=thisSeries.substring(0, lastChar);
-				
+
+				// String colKey = (String) item.get
+				// String rowKey = (String) item.getRowKey();
+
+				// get the series name
+				String thisSeries = item.getToolTipText();
+				int lastChar = thisSeries.lastIndexOf(":");
+				thisSeries = thisSeries.substring(0, lastChar);
+
 				int correctColIndex = -1;
 				try {
-					// Scatterplot dataset is sorted by x-axis values. Get correct colIndex. 
+					// Scatterplot dataset is sorted by x-axis values. Get correct colIndex.
 					if (splitIndex == null) {
 						// create collection of 0 till #Samples-1
 						Collection<Integer> thisIndices = new ArrayList<>(
@@ -546,7 +552,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 					return null;
 				}
 
-				return createTooltipTable(thisSeries,correctColIndex, chartX, chartY);
+				return createTooltipTable(thisSeries, correctColIndex, chartX, chartY);
 
 			}
 
@@ -661,11 +667,10 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		text += "<td><font size=-2>" + Utils.wrapText("(" + df.format(x) + "," + df.format(y) + ")", 100, "<br>")
 				+ "</font></td>";
 		text += "</tr>";
-		
+
 		text += "<tr bgcolor=" + rowColors[0] + ">";
 		text += "<td><font size=-2>" + Utils.wrapText("Series", 100, "<br>") + "</font></td>";
-		text += "<td><font size=-2>" + Utils.wrapText(seriesName, 100, "<br>")
-				+ "</font></td>";
+		text += "<td><font size=-2>" + Utils.wrapText(seriesName, 100, "<br>") + "</font></td>";
 		text += "</tr>";
 
 		if (MetaOmGraph.getActiveProject().getMetadataHybrid() == null) {
@@ -770,8 +775,9 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 				int numColors = myChart.getXYPlot().getSeriesCount();
 				numColors = Math.min(numColors, 10);
 				// get color array
-				colorArray = cb.getColorPalette(numColors);
+				Color[] colorArray = cb.getColorPalette(numColors);
 				setPalette(Utils.filterColors(colorArray));
+				currentlySetColors = colorArray;
 			} else {
 				// show default colors
 				// colorArray = null;
@@ -919,8 +925,8 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 
 			return;
 		}
-		
-		//show hide legend
+
+		// show hide legend
 		if ("legend".equals(e.getActionCommand())) {
 			// TODO
 			if (this.legendFlag) {
@@ -965,8 +971,15 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 
 		}
 
-		// updateChart();
+	}
 
+	private void setDefaultPalette() {
+		ColorBrewer[] qlPalettes = ColorBrewer.getQualitativeColorPalettes(false);
+		// choose default
+		ColorBrewer myBrewer = qlPalettes[6];
+		XYPlot plot = (XYPlot) myChart.getPlot();
+		Color[] myFills = myBrewer.getColorPalette(plot.getSeriesCount());
+		setPalette(myFills);
 	}
 
 	private Point2D getCenterPoint() {
@@ -1127,7 +1140,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		return result;
 
 	}
-	
+
 	/**
 	 * Sets the legend visible
 	 * 
