@@ -976,7 +976,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 	private void setDefaultPalette() {
 		ColorBrewer[] qlPalettes = ColorBrewer.getQualitativeColorPalettes(false);
 		// choose default
-		ColorBrewer myBrewer = qlPalettes[6];
+		ColorBrewer myBrewer = qlPalettes[1];
 		XYPlot plot = (XYPlot) myChart.getPlot();
 		Color[] myFills = myBrewer.getColorPalette(plot.getSeriesCount());
 		setPalette(myFills);
