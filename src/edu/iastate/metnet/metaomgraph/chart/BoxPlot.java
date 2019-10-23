@@ -145,6 +145,8 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	private boolean legendFlag = true;
 	// if number of items in legend is more than this then turn legend off
 	private int maxLegend = 30;
+	
+	private Color[] currentlySetColors=null;
 
 	/*
 	 * TODO: Add option in boxplot show/hide/choose color for mean,median, outliers,
@@ -529,7 +531,13 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		};
 		chartPanel.setPreferredSize(new Dimension(800, 600));
 		chartPanel.addChartMouseListener(this);
+		//if a palette/colors is selected keep that otherwise use default
+		if(currentlySetColors==null) {
+		//set default colors
 		setDefaultPalette();
+		}else {
+			setPalette(currentlySetColors);
+		}
 
 		return chartPanel;
 
@@ -741,6 +749,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 				// get color array
 				colorArray = cb.getColorPalette(numColors);
 				setPalette(colorArray);
+				currentlySetColors=colorArray;
 			} else {
 				// reset was pressed and the OK. show default colors
 				colorArray = null;
