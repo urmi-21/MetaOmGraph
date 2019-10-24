@@ -349,17 +349,15 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 			// DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE
 
 		} else {
-			/*
-			 * Paint[] defaultPaint = DefaultDrawingSupplier.DEFAULT_PAINT_SEQUENCE; Color[]
-			 * defaultColor = Utils.paintArraytoColor(defaultPaint);
-			 * plot.setDrawingSupplier((DrawingSupplier) new
-			 * DefaultDrawingSupplier(Utils.filterColors(defaultColor),
-			 * DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
-			 * DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
-			 * DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
-			 * DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
-			 * getShapesSequence(pointSize)));
-			 */
+			//redraw plot
+			Paint[] defaultPaint = DefaultDrawingSupplier.DEFAULT_PAINT_SEQUENCE;
+			Color[] defaultColor = Utils.paintArraytoColor(defaultPaint);
+			plot.setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(Utils.filterColors(defaultColor),
+					DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
+					DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
+					DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
+					DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE, getShapesSequence(pointSize)));
+			//apply default palette
 			setDefaultPalette();
 		}
 		// Create Panel
@@ -387,10 +385,10 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 			}
 
 			public void actionPerformed(ActionEvent e) {
-				
+
 				if (e.getActionCommand().equals(ChartPanel.SAVE_COMMAND)) {
 					ChartActions.exportChart(this);
-					
+
 				} else
 					super.actionPerformed(e);
 			}

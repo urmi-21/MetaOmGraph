@@ -203,8 +203,8 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 	// chart colors
 	private Color chartbg = MetaOmGraph.getChartBackgroundColor();
 	private Color plotbg = MetaOmGraph.getPlotBackgroundColor();
-	
-	private int lineWidth=MetaOmGraph.getDefaultLineWidth();
+
+	private int lineWidth = MetaOmGraph.getDefaultLineWidth();
 
 	// private TreeMap<String, List<Integer>> repsMapUsed;
 
@@ -273,7 +273,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 			if (result != JOptionPane.YES_OPTION)
 				return;
 		}
-		
+
 		props = new ChartProperties();
 		normalizeMode = "none";
 		if (MetaOmGraph.getInstance() != null) {
@@ -472,110 +472,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 
 				public void actionPerformed(ActionEvent e) {
 					if (e.getActionCommand().equals(ChartPanel.SAVE_COMMAND)) {
-						File destination = null;
-						JFileChooser chooseDialog = new JFileChooser(Utils.getLastDir());
-						chooseDialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
-						chooseDialog.setFileFilter(new GraphFileFilter(GraphFileFilter.PNG));
-						JPanel sizer = new JPanel();
-						JFormattedTextField widthField, heightField;
-						JFormattedTextField.AbstractFormatter af = new JFormattedTextField.AbstractFormatter() {
-
-							public Object stringToValue(String text) throws ParseException {
-								try {
-									return new Integer(text);
-								} catch (NumberFormatException nfe) {
-									return getFormattedTextField().getValue();
-								}
-							}
-
-							public String valueToString(Object value) throws ParseException {
-								if (value instanceof Integer) {
-									Integer intValue = (Integer) value;
-									if (intValue.intValue() < 1)
-										return "1";
-									else
-										return ((Integer) value).intValue() + "";
-								}
-								return null;
-							}
-
-						};
-
-						widthField = new JFormattedTextField(new DefaultFormatterFactory(af),
-								new Integer(myChartPanel.getWidth()));
-						heightField = new JFormattedTextField(new DefaultFormatterFactory(af),
-								new Integer(myChartPanel.getHeight()));
-						widthField.setColumns(4);
-						heightField.setColumns(4);
-						sizer.setLayout(new GridBagLayout());
-						GridBagConstraints c = new GridBagConstraints();
-						c.gridwidth = 3;
-						c.fill = GridBagConstraints.NONE;
-						sizer.add(new JLabel("Image size:"), c);
-						c.gridwidth = 1;
-						c.gridy = 1;
-						sizer.add(new JLabel("Width:"), c);
-						c.gridx = 1;
-						sizer.add(widthField, c);
-						c.gridx = 2;
-						sizer.add(new JLabel("pixels"), c);
-						c.gridx = 0;
-						c.gridy = 2;
-						sizer.add(new JLabel("Height:"), c);
-						c.gridx = 1;
-						sizer.add(heightField, c);
-						c.gridx = 2;
-						sizer.add(new JLabel("pixels"), c);
-						chooseDialog.setAccessory(sizer);
-						int returnVal = JFileChooser.APPROVE_OPTION;
-						/*
-						 * Continually show a file chooser until user selects a valid location, or
-						 * cancels.
-						 */
-						boolean ready = false;
-						while (!ready) {
-							while (((destination == null)) && (returnVal != JFileChooser.CANCEL_OPTION)) {
-								returnVal = chooseDialog.showSaveDialog(MetaOmGraph.getMainWindow());
-								destination = chooseDialog.getSelectedFile();
-							}
-							// Did user cancel? If so, don't do anything.
-							if (returnVal == JFileChooser.CANCEL_OPTION)
-								return;
-							// Check if file exists, prompt to overwrite if it
-							// does
-							String filename = destination.getAbsolutePath();
-							if (!filename.substring(filename.length() - 4).equals(".png")) {
-								filename += ".png";
-								destination = new File(filename);
-							}
-							if (destination.exists()) {
-								int overwrite = JOptionPane.showConfirmDialog(MetaOmGraph.getMainWindow(),
-										filename + " already exists.  Overwrite?", "Overwrite File",
-										JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
-								if ((overwrite == JOptionPane.CANCEL_OPTION)
-										|| (overwrite == JOptionPane.CLOSED_OPTION))
-									return;
-								else if (overwrite == JOptionPane.YES_OPTION)
-									ready = true;
-								else
-									destination = null; // No option
-							} else
-								ready = true;
-						}
-						final int oldDrawWidth = myChartPanel.getMaximumDrawWidth();
-						final int oldDrawHeight = myChartPanel.getMaximumDrawHeight();
-						final int newWidth = Integer.parseInt(widthField.getText());
-						final int newHeight = Integer.parseInt(heightField.getText());
-						final File trueDest = new File(destination.getAbsolutePath());
-						myChartPanel.setMaximumDrawWidth(newWidth);
-						myChartPanel.setMaximumDrawHeight(newHeight);
-						try {
-							ComponentToImage.saveAsPNG(myChartPanel, trueDest, newWidth, newHeight);
-						} catch (IOException ioe) {
-							ioe.printStackTrace();
-						}
-						myChartPanel.setMaximumDrawWidth(oldDrawWidth);
-						myChartPanel.setMaximumDrawHeight(oldDrawHeight);
+						ChartActions.exportChart(this);
 					} else
 						super.actionPerformed(e);
 				}
@@ -630,11 +527,11 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 						// get all metadata for this Gname
 						String[][] tableData = getProject().getMetadataHybrid()
 								.getNodeMetadata(getProject().getMetadataHybrid().getParentNodeForCol(thisSampIndex));
-						//if nothing is returned. this should not happen.
-						if(tableData==null) {
+						// if nothing is returned. this should not happen.
+						if (tableData == null) {
 							return "Error. Metadata not found!!";
 						}
-						
+
 						String text = "<html><table bgcolor=\"#FFFFFF\">" + " <tr>\n"
 								+ "            <th>Attribute</th>\n" + "            <th>Value</th>\n" + "        </tr>";
 
@@ -670,7 +567,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 							colorIndex = (colorIndex + 1) % rowColors.length;
 							// JOptionPane.showMessageDialog(null," message"); //urmi
 						}
-						text+="</html>";
+						text += "</html>";
 						return text.toString();
 					}
 					/*
@@ -684,12 +581,12 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 
 					String[][] tableData = getProject().getMetadataHybrid()
 							.getNodeMetadata(sortOrder[plottedColumns[(int) itemX]]);
-					
-					//if nothing is returned. this should not happen.
-					if(tableData==null) {
+
+					// if nothing is returned. this should not happen.
+					if (tableData == null) {
 						return "Error. Metadata not found!!";
 					}
-					
+
 					int maxrowsinMD = 40;
 					int maxStringLen = 500;
 					String text = "<html><head> " + "<style>" + ".scrollit {\n" + "    overflow:scroll;\n"
@@ -725,7 +622,6 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 
 					}
 
-					
 					if (tableData.length == 0 || tableData == null) {
 						text += "<tr bgcolor=" + rowColors[colorIndex] + ">";
 						text += "<td><font size=-2>" + "There is no metadata on " + getFormatter().format(itemX)
@@ -790,9 +686,9 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 			JMenuItem manageAnnotationsItem = new JMenuItem("Annotations...");
 			manageAnnotationsItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					
+
 					myAnnotator.manageAnnotations();
-					
+
 				}
 
 			});
@@ -821,13 +717,13 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 			});
 			manageMenu.add(manageAnnotationsItem);
 			manageMenu.add(manageColumnsItem);
-			
+
 			// urmi add manage range markers
 			JMenuItem manageMarkersItem = new JMenuItem("Markers...");
 			manageAnnotationsItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					
-					//myAnnotator.manageAnnotations();
+
+					// myAnnotator.manageAnnotations();
 
 				}
 
@@ -996,16 +892,16 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 		myRenderer.setDefaultLinesVisible(props.isLinePainted());
 
 		ChartColorScheme colorScheme = props.getColorScheme();
-		
+
 		if (colorScheme != null) {
 			for (int i = 0; i < selected.length; i++) {
 				myRenderer.setSeriesPaint(i, colorScheme.getSeriesPaint(i));
 			}
 		}
-		
-		//urmi set series width
+
+		// urmi set series width
 		updateLineWidths();
-		
+
 		myRenderer.setUseOutlinePaint(false);
 		myRenderer.setUseFillPaint(true);
 		try {
@@ -1050,7 +946,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 				if (stddev == null) {
 
 					XYSeries mySeries = new XYSeries(seriesName, false, false);
-					
+
 					int chartX = 0;
 					plottedColumns = new int[visibleColumns];
 					boolean[] exclude = MetaOmAnalyzer.getExclude();
@@ -1157,17 +1053,19 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 			myChart.getPlot().setBackgroundPaint(plotbg);
 			// change chart colors
 			myChart.setBackgroundPaint(chartbg);
-			
+
 			// init colors
-			//Color[] defaultColors= Utils.filterColors((Color[]) new DefaultDrawingSupplier().DEFAULT_PAINT_SEQUENCE);
-			Paint[] defaultPaint=DefaultDrawingSupplier.DEFAULT_PAINT_SEQUENCE;
-			Color[] defaultColor=Utils.paintArraytoColor(defaultPaint);
-			myChart.getPlot().setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(Utils.filterColors(defaultColor),
-					DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
-					DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
-					DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
-					DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
-					DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE));
+			// Color[] defaultColors= Utils.filterColors((Color[]) new
+			// DefaultDrawingSupplier().DEFAULT_PAINT_SEQUENCE);
+			Paint[] defaultPaint = DefaultDrawingSupplier.DEFAULT_PAINT_SEQUENCE;
+			Color[] defaultColor = Utils.paintArraytoColor(defaultPaint);
+			myChart.getPlot()
+					.setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(Utils.filterColors(defaultColor),
+							DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
+							DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
+							DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
+							DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
+							DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE));
 
 			myAnnotator.redrawAnnotations(); // by mhhur
 
@@ -1193,11 +1091,11 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 			myChart.getXYPlot().getDomainAxis().setUpperBound(visibleColumns);
 			myChart.getXYPlot().setRenderer(myRenderer);
 
-			/*if (selectedSeries >= 0)
-				myRenderer.setSeriesStroke(selectedSeries, new BasicStroke(lineWidth)); 
-			*/
+			/*
+			 * if (selectedSeries >= 0) myRenderer.setSeriesStroke(selectedSeries, new
+			 * BasicStroke(lineWidth));
+			 */
 			myChart.setBorderVisible(true); // by mhhur
-			
 
 			if (myChartPanel != null)
 				myChartPanel.setChart(myChart);
@@ -1208,7 +1106,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 			myChart.addChangeListener(hscroll); // mhhur
 			// myChart.addChangeListener(vscroll);
 			myChart.addChangeListener(this);
-			
+
 			if (myChartPanel != null) {
 				myChartPanel.restoreAutoBounds();
 			}
@@ -1991,8 +1889,11 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 
 	/**
 	 * Set a color to series
-	 * @param series series index
-	 * @param newColor Color value
+	 * 
+	 * @param series
+	 *            series index
+	 * @param newColor
+	 *            Color value
 	 */
 	public void changeSeriesColor(int series, Color newColor) {
 		if (newColor != null) {
@@ -2003,6 +1904,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 	// urmi
 	/**
 	 * Function to set color from palette
+	 * 
 	 * @param colors
 	 */
 	void setPalette(Color[] colors) {
@@ -2130,24 +2032,24 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 		}
 		return props;
 	}
-	
+
 	public int getLineWidth() {
 		return lineWidth;
 	}
-	
+
 	public int getHighlightedLineWidth() {
-		return lineWidth+2;
+		return lineWidth + 2;
 	}
-	
+
 	public void setLineWidth(int width) {
-		lineWidth=width;
+		lineWidth = width;
 		updateLineWidths();
 	}
-	
+
 	private void updateLineWidths() {
-		//selected contains all the series in the graph
+		// selected contains all the series in the graph
 		for (int i = 0; i < selected.length; i++) {
-			myRenderer.setSeriesStroke(i, new BasicStroke(lineWidth)); 
+			myRenderer.setSeriesStroke(i, new BasicStroke(lineWidth));
 		}
 	}
 
