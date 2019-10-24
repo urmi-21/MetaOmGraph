@@ -1,3 +1,8 @@
+MOG 1.7.10 Release date: TBD
+Fixed bug to remember colors after chart is updated
+Added support for exporting SVG graphics
+Multiple refactors
+
 MOG 1.7.9 Release date: 8/21/2019
 Added checks to validate metadata headers and raise error if duplicate headers are found.
 Fixed reading MOG projects created without metadata.
