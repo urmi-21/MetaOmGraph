@@ -148,26 +148,24 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 	 */
 	public VolcanoPlot() {
 
-		this(null, null, null,"","");
+		this(null, null, null, "", "");
 
 	}
 
-	public VolcanoPlot(List<String> featureNames, List<Double> fc, List<Double> pv, String g1,String g2) {
+	public VolcanoPlot(List<String> featureNames, List<Double> fc, List<Double> pv, String g1, String g2) {
 		this.featureNames = featureNames;
 		this.foldChange = fc;
 		this.pVals = pv;
-		this.grp1=g1;
-		this.grp2=g2;
+		this.grp1 = g1;
+		this.grp2 = g2;
 		// format the data; order data by foldchange values so order in lists and chart
 		// is maintained
 		formatInput();
 		splitData();
-		
-		//initialize color array
-		colorArray=new Color[] {new  Color(228, 26, 28, 180),new  Color(55, 126, 184, 180), new  Color(153, 153, 153, 121)};
-		
-		
-		
+
+		// initialize color array
+		colorArray = new Color[] { new Color(228, 26, 28, 180), new Color(55, 126, 184, 180),
+				new Color(153, 153, 153, 121) };
 
 		myProject = MetaOmGraph.getActiveProject();
 		chartPanel = null;
@@ -180,10 +178,11 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		JPanel panel_1 = new JPanel();
 		getContentPane().add(panel_1, BorderLayout.SOUTH);
 
-		/*btnNewButton_1 = new JButton("Change X axis");
-		btnNewButton_1.setActionCommand("chooseX");
-		btnNewButton_1.addActionListener(this);
-		panel_1.add(btnNewButton_1);*/
+		/*
+		 * btnNewButton_1 = new JButton("Change X axis");
+		 * btnNewButton_1.setActionCommand("chooseX");
+		 * btnNewButton_1.addActionListener(this); panel_1.add(btnNewButton_1);
+		 */
 
 		scrollPane = new JScrollPane();
 		getContentPane().add(scrollPane, BorderLayout.CENTER);
@@ -300,106 +299,7 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 
 			public void actionPerformed(ActionEvent e) {
 				if (e.getActionCommand().equals(ChartPanel.SAVE_COMMAND)) {
-					File destination = null;
-					JFileChooser chooseDialog = new JFileChooser(Utils.getLastDir());
-					chooseDialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
-					chooseDialog.setFileFilter(new GraphFileFilter(GraphFileFilter.PNG));
-					JPanel sizer = new JPanel();
-					JFormattedTextField widthField, heightField;
-					JFormattedTextField.AbstractFormatter af = new JFormattedTextField.AbstractFormatter() {
-
-						public Object stringToValue(String text) throws ParseException {
-							try {
-								return new Integer(text);
-							} catch (NumberFormatException nfe) {
-								return getFormattedTextField().getValue();
-							}
-						}
-
-						public String valueToString(Object value) throws ParseException {
-							if (value instanceof Integer) {
-								Integer intValue = (Integer) value;
-								if (intValue.intValue() < 1)
-									return "1";
-								else
-									return ((Integer) value).intValue() + "";
-							}
-							return null;
-						}
-
-					};
-					widthField = new JFormattedTextField(new DefaultFormatterFactory(af), new Integer(getWidth()));
-					heightField = new JFormattedTextField(new DefaultFormatterFactory(af), new Integer(getHeight()));
-					widthField.setColumns(4);
-					heightField.setColumns(4);
-					sizer.setLayout(new GridBagLayout());
-					GridBagConstraints c = new GridBagConstraints();
-					c.gridwidth = 3;
-					c.fill = GridBagConstraints.NONE;
-					sizer.add(new JLabel("Image size:"), c);
-					c.gridwidth = 1;
-					c.gridy = 1;
-					sizer.add(new JLabel("Width:"), c);
-					c.gridx = 1;
-					sizer.add(widthField, c);
-					c.gridx = 2;
-					sizer.add(new JLabel("pixels"), c);
-					c.gridx = 0;
-					c.gridy = 2;
-					sizer.add(new JLabel("Height:"), c);
-					c.gridx = 1;
-					sizer.add(heightField, c);
-					c.gridx = 2;
-					sizer.add(new JLabel("pixels"), c);
-					chooseDialog.setAccessory(sizer);
-					int returnVal = JFileChooser.APPROVE_OPTION;
-					/*
-					 * Continually show a file chooser until user selects a valid location, or
-					 * cancels.
-					 */
-					boolean ready = false;
-					while (!ready) {
-						while (((destination == null)) && (returnVal != JFileChooser.CANCEL_OPTION)) {
-							returnVal = chooseDialog.showSaveDialog(MetaOmGraph.getMainWindow());
-							destination = chooseDialog.getSelectedFile();
-						}
-						// Did user cancel? If so, don't do anything.
-						if (returnVal == JFileChooser.CANCEL_OPTION)
-							return;
-						// Check if file exists, prompt to overwrite if it
-						// does
-						String filename = destination.getAbsolutePath();
-						if (!filename.substring(filename.length() - 4).equals(".png")) {
-							filename += ".png";
-							destination = new File(filename);
-						}
-						if (destination.exists()) {
-							int overwrite = JOptionPane.showConfirmDialog(MetaOmGraph.getMainWindow(),
-									filename + " already exists.  Overwrite?", "Overwrite File",
-									JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
-							if ((overwrite == JOptionPane.CANCEL_OPTION) || (overwrite == JOptionPane.CLOSED_OPTION))
-								return;
-							else if (overwrite == JOptionPane.YES_OPTION)
-								ready = true;
-							else
-								destination = null; // No option
-						} else
-							ready = true;
-					}
-					final int oldDrawWidth = getMaximumDrawWidth();
-					final int oldDrawHeight = getMaximumDrawHeight();
-					final int newWidth = Integer.parseInt(widthField.getText());
-					final int newHeight = Integer.parseInt(heightField.getText());
-					final File trueDest = new File(destination.getAbsolutePath());
-					setMaximumDrawWidth(newWidth);
-					setMaximumDrawHeight(newHeight);
-					try {
-						ComponentToImage.saveAsPNG(this, trueDest, newWidth, newHeight);
-					} catch (IOException ioe) {
-						ioe.printStackTrace();
-					}
-					setMaximumDrawWidth(oldDrawWidth);
-					setMaximumDrawHeight(oldDrawHeight);
+					ChartActions.exportChart(this);
 				} else
 					super.actionPerformed(e);
 			}
@@ -453,9 +353,9 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 					// table width is 400
 					return new Point(x - (400 + xMargin), newy);
 				}
-				//return new Point(-10, newy);
+				// return new Point(-10, newy);
 				return new Point(x + xMargin, newy);
-				
+
 			}
 
 		};
@@ -488,12 +388,12 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		// List<String> thisName=upRegData.getNames();
 		List<Double> thisFC = upRegData.getFC();
 		List<Double> thisPV = upRegData.getPV();
-		XYSeries seriesUp = createSeries(thisFC, thisPV, "Upregulated("+grp1+")");
+		XYSeries seriesUp = createSeries(thisFC, thisPV, "Upregulated(" + grp1 + ")");
 		dataset.addSeries(seriesUp);
 		// add dwnReg
 		thisFC = dwnRegData.getFC();
 		thisPV = dwnRegData.getPV();
-		XYSeries seriesDwn = createSeries(thisFC, thisPV, "Upregulated("+grp2+")");
+		XYSeries seriesDwn = createSeries(thisFC, thisPV, "Upregulated(" + grp2 + ")");
 		dataset.addSeries(seriesDwn);
 		// add unReg
 		thisFC = unRegData.getFC();
@@ -601,13 +501,12 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		String text = "<html><head> " + "<style>" + ".scrollit {\n" + "    overflow:scroll;\n" + "    height:100px;\n"
 				+ "}" + "</style></head><body>"
 
-				+ "<div class=\"scrollit\"> <font size=\"11\" face=\"Courier New\" >\n <table bgcolor=\"#FFFFFF\" width=\"400\">" + " <tr>\n"
-				+ "            <th>Attribute</th>\n" + "            <th >Value</th>\n" + "        </tr>";
+				+ "<div class=\"scrollit\"> <font size=\"11\" face=\"Courier New\" >\n <table bgcolor=\"#FFFFFF\" width=\"400\">"
+				+ " <tr>\n" + "            <th>Attribute</th>\n" + "            <th >Value</th>\n" + "        </tr>";
 
 		text += "<tr bgcolor=" + rowColors[1] + ">";
 		text += "<td>" + Utils.wrapText("Point", 100, "<br>") + "</td>";
-		text += "<td>" + Utils.wrapText("(" + df.format(x) + "," + df.format(y) + ")", 100, "<br>")
-				+ "</td>";
+		text += "<td>" + Utils.wrapText("(" + df.format(x) + "," + df.format(y) + ")", 100, "<br>") + "</td>";
 
 		text += "</tr>";
 		// get gene metadata in String [][] format
@@ -705,16 +604,16 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		}
 
 		if ("splitDataset".equals(e.getActionCommand())) {
-			
-			//display panel to choose cutoff
-			JPanel optPanel=new JPanel(new GridLayout(3, 2));
-			JLabel labUpreg=new JLabel("Upregulated cutoff");
-			JLabel labDwnreg=new JLabel("Downregulated cutoff");
-			JLabel labpv=new JLabel("P-value cutoff");
-			JTextField upCutoff=new JTextField(String.valueOf(foldChangeCutOffUp));
-			JTextField dwnCutoff=new JTextField(String.valueOf(foldChangeCutOffDwn));
-			JTextField pvCutoff=new JTextField(String.valueOf(significanceCutOff));
-			
+
+			// display panel to choose cutoff
+			JPanel optPanel = new JPanel(new GridLayout(3, 2));
+			JLabel labUpreg = new JLabel("Upregulated cutoff");
+			JLabel labDwnreg = new JLabel("Downregulated cutoff");
+			JLabel labpv = new JLabel("P-value cutoff");
+			JTextField upCutoff = new JTextField(String.valueOf(foldChangeCutOffUp));
+			JTextField dwnCutoff = new JTextField(String.valueOf(foldChangeCutOffDwn));
+			JTextField pvCutoff = new JTextField(String.valueOf(significanceCutOff));
+
 			optPanel.add(labUpreg);
 			optPanel.add(upCutoff);
 			optPanel.add(labDwnreg);
@@ -723,27 +622,27 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 			optPanel.add(pvCutoff);
 			int res = JOptionPane.showConfirmDialog(null, optPanel, "Input values", JOptionPane.OK_CANCEL_OPTION);
 			if (res == JOptionPane.OK_OPTION) {
-				//validate input
+				// validate input
 				try {
-					
-					double upCutOffVal=Double.parseDouble(upCutoff.getText().trim());
-					double dwnCutOffVal=Double.parseDouble(dwnCutoff.getText().trim());
-					double pvCutOffVal=Double.parseDouble(pvCutoff.getText().trim());
-					
-					foldChangeCutOffUp=upCutOffVal;
-					foldChangeCutOffDwn=dwnCutOffVal;
-					significanceCutOff=pvCutOffVal;
-					
+
+					double upCutOffVal = Double.parseDouble(upCutoff.getText().trim());
+					double dwnCutOffVal = Double.parseDouble(dwnCutoff.getText().trim());
+					double pvCutOffVal = Double.parseDouble(pvCutoff.getText().trim());
+
+					foldChangeCutOffUp = upCutOffVal;
+					foldChangeCutOffDwn = dwnCutOffVal;
+					significanceCutOff = pvCutOffVal;
+
 					updateChart();
-					
-				}catch(NumberFormatException nfe) {
-					JOptionPane.showMessageDialog(null, "Invalid values. Please check input","Invalid input",JOptionPane.ERROR_MESSAGE);
+
+				} catch (NumberFormatException nfe) {
+					JOptionPane.showMessageDialog(null, "Invalid values. Please check input", "Invalid input",
+							JOptionPane.ERROR_MESSAGE);
 					return;
 				}
-					
-			}		
-			
-			
+
+			}
+
 			return;
 		}
 

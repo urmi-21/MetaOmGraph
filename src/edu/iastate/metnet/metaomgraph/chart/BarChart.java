@@ -294,7 +294,7 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 
 		panel.add(toggleLegend);
 		panel.add(splitDataset);
-		//panel.add(barPlotOptions);
+		// panel.add(barPlotOptions);
 		panel.add(changePalette);
 
 		// frame properties
@@ -315,15 +315,16 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 				"", // Category axis
 				"Count", // Value axis
 				dataset, PlotOrientation.VERTICAL, true, true, false);
-		
-		/*myChart = ChartFactory.createStackedBarChart("", // Chart Title
-				"", // Category axis
-				"Count", // Value axis
-				dataset, PlotOrientation.VERTICAL, true, true, false);*/
-		
+
+		/*
+		 * myChart = ChartFactory.createStackedBarChart("", // Chart Title "", //
+		 * Category axis "Count", // Value axis dataset, PlotOrientation.VERTICAL, true,
+		 * true, false);
+		 */
+
 		myChart.getCategoryPlot().setBackgroundPaint(MetaOmGraph.getPlotBackgroundColor());
 		myChart.setBackgroundPaint(MetaOmGraph.getChartBackgroundColor());
-		
+
 		// save legend
 		myLegend = myChart.getLegend();
 		// if legene flag is off remove legend
@@ -334,7 +335,6 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		myRenderer = (BarRenderer) cplot.getRenderer();
 		// remove shadows from bar chart
 		myRenderer.setBarPainter(new StandardBarPainter());
-		
 
 		/*
 		 * myRenderer.setDefaultToolTipGenerator(new StandardCategoryToolTipGenerator()
@@ -351,6 +351,13 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 				true, true, true, true, true, true, MyChartPanel.BARCHART) {
 			private static final long serialVersionUID = 1L;
 
+			public void actionPerformed(ActionEvent e) {
+				if (e.getActionCommand().equals(ChartPanel.SAVE_COMMAND)) {
+					ChartActions.exportChart(this);
+				} else
+					super.actionPerformed(e);
+			}
+
 			@Override
 			public String getToolTipText(MouseEvent event) {
 
@@ -359,7 +366,7 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 				// JOptionPane.showMessageDialog(null, entity);
 				if (!(entity instanceof CategoryItemEntity)) {
 					// JOptionPane.showMessageDialog(null, "null");
-					//return "null";
+					// return "null";
 					return null;
 				}
 				CategoryItemEntity item = (CategoryItemEntity) entity;
@@ -367,9 +374,10 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 				String rowKey = (String) item.getRowKey();
 				String value = item.getToolTipText().split("=")[1];
 
-				//JOptionPane.showMessageDialog(null,"rk:" + rowKey + " ck:" + colKey + " " + item.getToolTipText() + " val:" + value);
+				// JOptionPane.showMessageDialog(null,"rk:" + rowKey + " ck:" + colKey + " " +
+				// item.getToolTipText() + " val:" + value);
 				// create tooltip
-				return createTooltipTable(rowKey,colKey,value);
+				return createTooltipTable(rowKey, colKey, value);
 			}
 
 			// urmi display tooltip away from point
@@ -459,26 +467,21 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 
 		text += "<tr bgcolor=" + rowColors[1] + ">";
 		text += "<td><font size=-2>" + Utils.wrapText("Value", 100, "<br>") + "</font></td>";
-		text += "<td><font size=-2>" + Utils.wrapText(val, 100, "<br>")
-				+ "</font></td>";
+		text += "<td><font size=-2>" + Utils.wrapText(val, 100, "<br>") + "</font></td>";
 
 		text += "</tr>";
-		
+
 		text += "<tr bgcolor=" + rowColors[0] + ">";
 		text += "<td><font size=-2>" + Utils.wrapText("Category", 100, "<br>") + "</font></td>";
-		text += "<td><font size=-2>" + Utils.wrapText(row, 100, "<br>")
-				+ "</font></td>";
+		text += "<td><font size=-2>" + Utils.wrapText(row, 100, "<br>") + "</font></td>";
 
 		text += "</tr>";
-		
+
 		text += "<tr bgcolor=" + rowColors[1] + ">";
 		text += "<td><font size=-2>" + Utils.wrapText("Column", 100, "<br>") + "</font></td>";
-		text += "<td><font size=-2>" + Utils.wrapText(col, 100, "<br>")
-				+ "</font></td>";
+		text += "<td><font size=-2>" + Utils.wrapText(col, 100, "<br>") + "</font></td>";
 
 		text += "</tr>";
-
-		
 
 		text += "</table> </div> </body></html>";
 		// System.out.println(text);
@@ -767,8 +770,8 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 				//
 				String ck = ((CategoryItemEntity) event.getEntity()).getColumnKey().toString();
 				String rk = ((CategoryItemEntity) event.getEntity()).getRowKey().toString();
-				//JOptionPane.showMessageDialog(null, "CLICKED2:" + ck+" rk:"+rk);
-				
+				// JOptionPane.showMessageDialog(null, "CLICKED2:" + ck+" rk:"+rk);
+
 				return;
 			}
 		}
