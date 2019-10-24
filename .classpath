@@ -66,5 +66,10 @@
 	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/jcommon-1.0.23/jcommon-1.0.23.jar"/>
 	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/jcommon-1.0.23/jcommon-xml-1.0.23.jar"/>
 	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/jcolorbrewer-5.2.jar"/>
+	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/batik-1.11/batik-rasterizer-1.11.jar"/>
+	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/batik-1.11/batik-slideshow-1.11.jar"/>
+	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/batik-1.11/batik-squiggle-1.11.jar"/>
+	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/batik-1.11/batik-svgpp-1.11.jar"/>
+	<classpathentry kind="lib" path="D:/mogGIT/MetaOmGraph/src/lib/batik-1.11/batik-ttf2svg-1.11.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
