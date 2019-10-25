@@ -2,6 +2,7 @@
 
 Before contributing to this project please discuss the suggested changes via issues or email.
 To contribute to MetaOmGraph, please fork this repository, make changes and then send a pull request.
+Please note that this project is released with a Contributor [Code of Conduct](https://github.com/urmi-21/MetaOmGraph/blob/master/CODE_OF_CONDUCT.md). By participating in this project you agree to abide by its terms.
 
 
 # Getting Started
