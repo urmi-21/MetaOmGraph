@@ -332,10 +332,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		}
 
 		myRenderer = plot.getRenderer();
-		// double size = 120.0;
-		// double delta = size / 2.0;
-		// Shape shape1 = new Rectangle2D.Double(-delta, -delta, size, size);
-		// myRenderer.setsha DefaultShape(shape1);
+	
 
 		// use palette if available
 		if (currentlySetColors != null) {
