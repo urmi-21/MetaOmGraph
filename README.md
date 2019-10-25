@@ -15,6 +15,18 @@ MetaOmGraph (MOG) is a Java software to interactively explore and visualize larg
 
 ![alt text](https://raw.githubusercontent.com/urmi-21/MetaOmGraph/master/images/sorting.gif)
 
+### Box Plot
+
+![alt text](https://raw.githubusercontent.com/urmi-21/MetaOmGraph/master/images/BoxPlots.gif)
+
+### Scatter Plot
+
+![alt text](https://raw.githubusercontent.com/urmi-21/MetaOmGraph/master/images/ScatterPlots.gif)
+
+### Volcano Plot
+
+![alt text](https://raw.githubusercontent.com/urmi-21/MetaOmGraph/master/images/VolcanoPlots.gif)
+
 ### Filtering
 
 ![alt text](https://raw.githubusercontent.com/urmi-21/MetaOmGraph/master/images/metadatafilter.gif)
