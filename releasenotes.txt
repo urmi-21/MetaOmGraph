@@ -1,4 +1,4 @@
-MOG 1.7.10 Release date: TBD
+MOG 1.8.0 Release date: 10/28/2019
 Fixed bug to remember colors after chart is updated
 Added support for exporting SVG graphics
 Multiple refactors
