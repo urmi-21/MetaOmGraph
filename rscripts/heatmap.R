@@ -47,4 +47,5 @@ ggplot(data.melt, aes(variable, Name)) + geom_tile(aes(fill = rescale),colour = 
 dev.off()
 
 #Recomended to save the session info for reproducibility details
+#Create a file sessionInfo.txt and save the R sessionInfo()
 writeLines(capture.output(sessionInfo()), paste(outDir,.Platform$file.sep,"sessionInfo.txt",sep = ""))
