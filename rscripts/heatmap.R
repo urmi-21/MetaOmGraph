@@ -10,6 +10,11 @@ library(readr)
 library(data.table)
 library(ggplot2)
 
+#This script takes 3 arguments
+#arg1: Path to input file (this file is created by MOG)
+#arg2: Path to the metadatafile (used in the MOG project)
+#arg3: Path to the output directory (specified by the MOG user in MOG)
+
 args = commandArgs(trailingOnly=TRUE)
 
 if (length(args)<2) {
