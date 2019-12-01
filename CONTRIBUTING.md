@@ -29,4 +29,4 @@ Eclipse IDE is suggested to open the MetaOmGraph project.
 The main class is _MetaOmGraph_. Run the _MetaOmGraph.java_ project to start MetaOmGraph.
 
 ## Getting help
-Please contact the developers through email if any help is required regarding setting up MetaOmGraph.
+Please contact the developers through [email](!http://metnetweb.gdcb.iastate.edu/MetNet_MetaOmGraph_download.php) if any help is required regarding setting up MetaOmGraph.
