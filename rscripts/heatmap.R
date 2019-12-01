@@ -40,5 +40,11 @@ ggplot(data.melt, aes(variable, Name)) + geom_tile(aes(fill = rescale),colour = 
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),panel.background = element_blank(), axis.line = element_line(colour = "black"))
   
+
+
+
+
 dev.off()
 
+#Recomended to save the session info for reproducibility details
+writeLines(capture.output(sessionInfo()), paste(outDir,.Platform$file.sep,"sessionInfo.txt",sep = ""))
