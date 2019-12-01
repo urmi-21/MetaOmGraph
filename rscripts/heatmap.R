@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 #author: urmi
-#script to create heatmap
+#A script to create heatmap. Invoked through MetaOmGraph.
 
 library(dplyr)
 library(plyr)
