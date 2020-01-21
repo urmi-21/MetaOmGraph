@@ -7,7 +7,7 @@ MetaOmGraph (MOG) is a Java software to interactively explore and visualize larg
 
 ## Citation
 
-[Urminder Singh, Manhoi Hur, Karin Dorman, Eve Syrkin Wurtele, MetaOmGraph: a workbench for interactive exploratory data analysis of large expression datasets, Nucleic Acids Research](https://academic.oup.com/nar/advance-article/doi/10.1093/nar/gkz1209/5709708?guestAccessKey=db072c1a-c4a2-4671-995b-ab99d9f348b5)
+[Urminder Singh, Manhoi Hur, Karin Dorman, Eve Syrkin Wurtele, MetaOmGraph: a workbench for interactive exploratory data analysis of large expression datasets, *Nucleic Acids Research*.](https://academic.oup.com/nar/advance-article/doi/10.1093/nar/gkz1209/5709708?guestAccessKey=db072c1a-c4a2-4671-995b-ab99d9f348b5)
 
 ## Examples
 
