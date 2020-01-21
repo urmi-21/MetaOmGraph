@@ -1,4 +1,4 @@
-![PyPI - Downloads](https://img.shields.io/badge/publication-NAR-blue)
+![https://img.shields.io/badge/publication-NAR-blue](https://img.shields.io)
 
 # MetaOmGraph
 
