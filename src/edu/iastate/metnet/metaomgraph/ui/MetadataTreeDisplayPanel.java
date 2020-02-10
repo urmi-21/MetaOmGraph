@@ -44,7 +44,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
-import javax.xml.bind.annotation.XmlRootElement;
+//import javax.xml.bind.annotation.XmlRootElement;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.text.DefaultCaret;
 
@@ -52,7 +52,7 @@ import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
-import com.sun.xml.internal.ws.api.streaming.XMLStreamReaderFactory.Default;
+//import com.sun.xml.internal.ws.api.streaming.XMLStreamReaderFactory.Default;
 
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.GraphFileFilter;

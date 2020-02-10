@@ -39,8 +39,8 @@ import javax.swing.table.TableModel;
 
 import org.dizitart.no2.Document;
 
-import com.sun.deploy.uitoolkit.impl.fx.Utils;
-import com.sun.glass.events.WindowEvent;
+//import com.sun.deploy.uitoolkit.impl.fx.Utils;
+//import com.sun.glass.events.WindowEvent;
 
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetadataCollection;

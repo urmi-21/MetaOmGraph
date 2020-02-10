@@ -23,7 +23,7 @@ import org.apache.commons.math3.stat.inference.TTest;
 import org.apache.commons.math3.stat.inference.WilcoxonSignedRankTest;
 import org.biomage.Array.Array;
 
-import com.sun.xml.internal.ws.api.Cancelable;
+//import com.sun.xml.internal.ws.api.Cancelable;
 
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;

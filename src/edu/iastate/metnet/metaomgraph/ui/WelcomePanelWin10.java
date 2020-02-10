@@ -41,7 +41,7 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.border.SoftBevelBorder;
 
-import com.sun.javafx.embed.swing.Disposer;
+//import com.sun.javafx.embed.swing.Disposer;
 
 public class WelcomePanelWin10 extends JPanel {
 

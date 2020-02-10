@@ -20,7 +20,7 @@ import edu.stanford.ejalbert.BrowserLauncher;
 import edu.stanford.ejalbert.BrowserLauncherRunner;
 import edu.stanford.ejalbert.exceptionhandler.BrowserLauncherDefaultErrorHandler;
 import edu.stanford.ejalbert.exceptionhandler.BrowserLauncherErrorHandler;
-import javafx.scene.control.SelectionMode;
+//import javafx.scene.control.SelectionMode;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;

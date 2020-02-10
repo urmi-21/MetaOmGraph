@@ -13,7 +13,9 @@ import javax.swing.JOptionPane;
 
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 
-import javafx.util.Pair;
+import com.sun.tools.javac.util.Pair;
+
+//import javafx.util.Pair;
 
 public class ComputeRunsSimilarity {
 
