@@ -117,17 +117,7 @@ public class ComputeRunsSimilarity {
 		return resultsCombined;
 	}
 
-	/**
-	 * Function to convert results with names to a pair
-	 * 
-	 * @param results
-	 * @param resNames
-	 * @return
-	 */
-	public Pair<String[], Double[]> getMatrixData(List<Double> results, List<String> resNames) {
-
-		return null;
-	}
+	
 }
 
 /**
