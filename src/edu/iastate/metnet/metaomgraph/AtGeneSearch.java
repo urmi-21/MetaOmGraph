@@ -3,7 +3,6 @@ package edu.iastate.metnet.metaomgraph;
 import edu.iastate.metnet.metaomgraph.utils.MetNetUtils;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
-import java.io.PrintStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;

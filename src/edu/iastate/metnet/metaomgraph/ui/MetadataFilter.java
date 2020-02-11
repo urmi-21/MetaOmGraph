@@ -12,7 +12,6 @@ import javax.swing.plaf.ColorUIResource;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
-import org.biomage.Array.Array;
 import org.jfree.chart.axis.ValueAxis;
 
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
@@ -40,6 +39,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import java.awt.event.ActionListener;
@@ -73,6 +73,7 @@ public class MetadataFilter extends JFrame {
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					MetadataFilter frame = new MetadataFilter(null);
@@ -110,7 +111,7 @@ public class MetadataFilter extends JFrame {
 		// TODO Auto-generated constructor stub
 		this.delete = val;
 		this.chartPanel=thisChartPanel;
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		this.mogColl = metadataCollection;
 		included = mogColl.getIncluded();
@@ -138,6 +139,7 @@ public class MetadataFilter extends JFrame {
 			btnDone = new JButton("Filter");
 		}
 		btnDone.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				/*if(getTablerows(table_1).size()<1) {
 					JOptionPane.showMessageDialog(null, "Please use buttons to move selected columns to the excluded list", "Excluded list empty", JOptionPane.ERROR_MESSAGE);
@@ -179,6 +181,7 @@ public class MetadataFilter extends JFrame {
 		
 		JButton btnSwapIncludedAnd = new JButton("Swap included and excluded");
 		btnSwapIncludedAnd.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				//switch included and excluced lists
 				//s;
@@ -205,6 +208,7 @@ public class MetadataFilter extends JFrame {
 
 		JButton btnSearch = new JButton("Search Included");
 		btnSearch.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				/*
 				 * try { SimpleSearchDialog dialog = new SimpleSearchDialog(); searchIncres =
@@ -266,6 +270,7 @@ public class MetadataFilter extends JFrame {
 		JButton btnMoveSelected = new JButton("Move selected");
 		btnMoveSelected.addActionListener(new ActionListener() {
 
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				/**
 				 * Transfer selected rows of included to excluded
@@ -295,6 +300,7 @@ public class MetadataFilter extends JFrame {
 
 		JButton btnMoveAll = new JButton("Move all");
 		btnMoveAll.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				/**
 				 * Transfer all rows of included to excluded
@@ -330,6 +336,7 @@ public class MetadataFilter extends JFrame {
 
 		JButton btnMoveAll_1 = new JButton("Move all");
 		btnMoveAll_1.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				/**
 				 * Transfer all rows of excluded to included
@@ -350,6 +357,7 @@ public class MetadataFilter extends JFrame {
 
 		JButton btnMoveSelected_1 = new JButton("Move selected");
 		btnMoveSelected_1.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				/**
 				 * Transfer selected rows of included to excluded
@@ -377,6 +385,7 @@ public class MetadataFilter extends JFrame {
 
 		JButton btnSearch_1 = new JButton("Search excluded");
 		btnSearch_1.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				/*
 				 * try { SimpleSearchDialog dialog = new SimpleSearchDialog(); searchExcres =
@@ -457,10 +466,12 @@ public class MetadataFilter extends JFrame {
 		// toHighlight.put(0, ls);
 		// headers = obj.getHeaders();
 		table = new JTable() {
+			@Override
 			public boolean getScrollableTracksViewportWidth() {
 				return getPreferredSize().width < getParent().getWidth();
 			}
 
+			@Override
 			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
 				Component c = super.prepareRenderer(renderer, row, column);
 
@@ -527,10 +538,12 @@ public class MetadataFilter extends JFrame {
 
 		////////////////////// init exclude table//////////////////////
 		table_1 = new JTable() {
+			@Override
 			public boolean getScrollableTracksViewportWidth() {
 				return getPreferredSize().width < getParent().getWidth();
 			}
 
+			@Override
 			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
 				Component c = super.prepareRenderer(renderer, row, column);
 

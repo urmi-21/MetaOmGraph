@@ -1,7 +1,6 @@
 package edu.iastate.metnet.metaomgraph.utils.qdxml;
 
 import java.io.FileReader;
-import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -15,7 +14,8 @@ public class Conf
     public Conf() {
     }
 
-    public void text(String s) {
+    @Override
+	public void text(String s) {
     }
 
     static class Propulsion {
@@ -78,7 +78,8 @@ public class Conf
     Object model = new ShipConfig();
 
 
-    public void startElement(String name, Hashtable h) {
+    @Override
+	public void startElement(String name, Hashtable h) {
         System.out.println("  Configuring: " + name);
         if (stack.empty()) {
             stack.push(model);
@@ -116,15 +117,18 @@ public class Conf
         }
     }
 
-    public void endElement(String name) {
+    @Override
+	public void endElement(String name) {
         model = stack.pop();
     }
 
-    public void startDocument() {
+    @Override
+	public void startDocument() {
         stack = new Stack();
     }
 
-    public void endDocument() {
+    @Override
+	public void endDocument() {
         stack = null;
     }
 

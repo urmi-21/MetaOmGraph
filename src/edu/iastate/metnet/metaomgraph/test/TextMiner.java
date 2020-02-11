@@ -157,7 +157,8 @@ public class TextMiner {
             regexps = new String[]{regex};
         }
 
-        public boolean equals(Object obj) {
+        @Override
+		public boolean equals(Object obj) {
             if ((obj instanceof TargetString)) {
                 TargetString compMe = (TargetString) obj;
                 boolean result = (startValue.equals(startValue)) &&

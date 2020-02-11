@@ -2,14 +2,12 @@ package edu.iastate.metnet.metaomgraph.utils.qdxml;
 
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
-import java.awt.Container;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.security.InvalidParameterException;
 import java.util.ArrayDeque;
 import java.util.Enumeration;
@@ -71,7 +69,8 @@ public class SimpleXMLElement extends DefaultMutableTreeNode {
         private MyDocHandler() {
         }
 
-        public void startElement(String tag, Hashtable h) throws Exception {
+        @Override
+		public void startElement(String tag, Hashtable h) throws Exception {
             SimpleXMLElement elem = new SimpleXMLElement(tag);
             Enumeration e = h.keys();
             while (e.hasMoreElements()) {
@@ -82,7 +81,8 @@ public class SimpleXMLElement extends DefaultMutableTreeNode {
             nodeStack.push(elem);
         }
 
-        public void endElement(String tag) throws Exception {
+        @Override
+		public void endElement(String tag) throws Exception {
             SimpleXMLElement elem = nodeStack.pop();
             SimpleXMLElement parent = nodeStack.peek();
             if (parent == null) {
@@ -95,19 +95,22 @@ public class SimpleXMLElement extends DefaultMutableTreeNode {
             }
         }
 
-        public void startDocument() throws Exception {
+        @Override
+		public void startDocument() throws Exception {
             nodeStack = new ArrayDeque();
             root = null;
         }
 
-        public void endDocument() throws Exception {
+        @Override
+		public void endDocument() throws Exception {
             if ((root != null) && (nodeStack.isEmpty())) {
                 return;
             }
             System.out.println("Looks like something went wrong in XML parsing");
         }
 
-        public void text(String str) throws Exception {
+        @Override
+		public void text(String str) throws Exception {
             nodeStack.peek().setText(str);
         }
     }
@@ -172,15 +175,18 @@ public class SimpleXMLElement extends DefaultMutableTreeNode {
     }
 
 
-    public void setUserObject(Object userObject) {
+    @Override
+	public void setUserObject(Object userObject) {
     }
 
 
-    public Object getUserObject() {
+    @Override
+	public Object getUserObject() {
         return this;
     }
 
-    public String toString() {
+    @Override
+	public String toString() {
         if (getAttributeValue("name") != null) {
             return getAttributeValue("name");
         }
@@ -190,7 +196,8 @@ public class SimpleXMLElement extends DefaultMutableTreeNode {
         return name;
     }
 
-    public void add(MutableTreeNode newChild) {
+    @Override
+	public void add(MutableTreeNode newChild) {
         throw new InvalidParameterException("Only SimpleXMLElements accepted!");
     }
 
@@ -199,11 +206,13 @@ public class SimpleXMLElement extends DefaultMutableTreeNode {
         return this;
     }
 
-    public SimpleXMLElement getChildAt(int index) {
+    @Override
+	public SimpleXMLElement getChildAt(int index) {
         return (SimpleXMLElement) super.getChildAt(index);
     }
 
-    public SimpleXMLElement getParent() {
+    @Override
+	public SimpleXMLElement getParent() {
         return (SimpleXMLElement) super.getParent();
     }
 

@@ -55,7 +55,8 @@ public class OrderableTable extends StripedTable implements DropTargetListener {
         // this.setTransferHandler(new OrderTransferHandler());
     }
 
-    public void setModel(TableModel newModel) {
+    @Override
+	public void setModel(TableModel newModel) {
         if (!(newModel instanceof NoneditableTableModel)) {
             System.err.println("Sorry, only NoneditableTableModels are accepted");
             return;
@@ -64,7 +65,8 @@ public class OrderableTable extends StripedTable implements DropTargetListener {
         super.setModel(newModel);
     }
 
-    public void setSelectionMode(int selectionMode) {
+    @Override
+	public void setSelectionMode(int selectionMode) {
         if ((selectionMode == ListSelectionModel.SINGLE_INTERVAL_SELECTION)
                 || (selectionMode == ListSelectionModel.SINGLE_SELECTION))
             super.setSelectionMode(selectionMode);
@@ -100,12 +102,14 @@ public class OrderableTable extends StripedTable implements DropTargetListener {
         f.setVisible(true);
     }
 
-    public void dragEnter(DropTargetDragEvent dtde) {
+    @Override
+	public void dragEnter(DropTargetDragEvent dtde) {
         // TODO Auto-generated method stub
 
     }
 
-    public void dragOver(DropTargetDragEvent dtde) {
+    @Override
+	public void dragOver(DropTargetDragEvent dtde) {
         dropRow = this.rowAtPoint(dtde.getLocation());
         int firstSelected = this.getSelectedRow();
         int lastSelected = firstSelected + getSelectedRowCount();
@@ -157,15 +161,18 @@ public class OrderableTable extends StripedTable implements DropTargetListener {
         this.scrollRectToVisible(newVisible);
     }
 
-    public void dropActionChanged(DropTargetDragEvent dtde) {
+    @Override
+	public void dropActionChanged(DropTargetDragEvent dtde) {
 
     }
 
-    public void dragExit(DropTargetEvent dte) {
+    @Override
+	public void dragExit(DropTargetEvent dte) {
 
     }
 
-    public void drop(DropTargetDropEvent dtde) {
+    @Override
+	public void drop(DropTargetDropEvent dtde) {
         // doMove();
         dropRow = -1;
         lastScrollOp = 0;

@@ -23,7 +23,8 @@ public class InfoPopupManager
         enabled = true;
     }
 
-    public void chartProgress(ChartProgressEvent event) {
+    @Override
+	public void chartProgress(ChartProgressEvent event) {
         if (event.getType() != 2) {
             return;
         }
@@ -51,34 +52,41 @@ public class InfoPopupManager
     }
 
 
-    public void internalFrameOpened(InternalFrameEvent e) {
+    @Override
+	public void internalFrameOpened(InternalFrameEvent e) {
     }
 
 
-    public void internalFrameClosing(InternalFrameEvent e) {
+    @Override
+	public void internalFrameClosing(InternalFrameEvent e) {
         if (metadataPopup != null)
             removePopup();
     }
 
-    public void internalFrameClosed(InternalFrameEvent e) {
+    @Override
+	public void internalFrameClosed(InternalFrameEvent e) {
         if (metadataPopup != null)
             removePopup();
     }
 
-    public void internalFrameIconified(InternalFrameEvent e) {
+    @Override
+	public void internalFrameIconified(InternalFrameEvent e) {
         if (metadataPopup != null)
             removePopup();
     }
 
-    public void internalFrameDeiconified(InternalFrameEvent e) {
+    @Override
+	public void internalFrameDeiconified(InternalFrameEvent e) {
         showPopup();
     }
 
-    public void internalFrameActivated(InternalFrameEvent e) {
+    @Override
+	public void internalFrameActivated(InternalFrameEvent e) {
         showPopup();
     }
 
-    public void internalFrameDeactivated(InternalFrameEvent e) {
+    @Override
+	public void internalFrameDeactivated(InternalFrameEvent e) {
         if (metadataPopup != null)
             removePopup();
     }
@@ -95,23 +103,27 @@ public class InfoPopupManager
         return enabled;
     }
 
-    public void componentResized(ComponentEvent e) {
+    @Override
+	public void componentResized(ComponentEvent e) {
         if (metadataPopup != null) {
             removePopup();
             showPopup();
         }
     }
 
-    public void componentMoved(ComponentEvent e) {
+    @Override
+	public void componentMoved(ComponentEvent e) {
         if (metadataPopup != null) {
             removePopup();
             showPopup();
         }
     }
 
-    public void componentShown(ComponentEvent e) {
+    @Override
+	public void componentShown(ComponentEvent e) {
     }
 
-    public void componentHidden(ComponentEvent e) {
+    @Override
+	public void componentHidden(ComponentEvent e) {
     }
 }

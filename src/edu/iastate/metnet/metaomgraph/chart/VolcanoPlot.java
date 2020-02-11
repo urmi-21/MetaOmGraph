@@ -5,49 +5,29 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
-import java.awt.GradientPaint;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Paint;
 import java.awt.Point;
-import java.awt.Shape;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
-import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
-import javax.swing.JFileChooser;
-import javax.swing.JFormattedTextField;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.text.DefaultFormatterFactory;
-
 import org.jcolorbrewer.ColorBrewer;
 import org.jcolorbrewer.ui.ColorPaletteChooserDialog;
 import org.jfree.chart.ChartFactory;
@@ -66,16 +46,9 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.util.ShapeUtilities;
-
-import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
-import edu.iastate.metnet.metaomgraph.ComponentToImage;
-import edu.iastate.metnet.metaomgraph.GraphFileFilter;
 import edu.iastate.metnet.metaomgraph.IconTheme;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
-import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
-import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, ActionListener {
@@ -85,6 +58,7 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					VolcanoPlot frame = new VolcanoPlot();
@@ -274,7 +248,7 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		// use palette if available
 
 		if (colorArray != null) {
-			plot.setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(colorArray,
+			plot.setDrawingSupplier(new DefaultDrawingSupplier(colorArray,
 					DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
@@ -283,7 +257,7 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		} else {
 			Paint[] defaultPaint = DefaultDrawingSupplier.DEFAULT_PAINT_SEQUENCE;
 			Color[] defaultColor = Utils.paintArraytoColor(defaultPaint);
-			plot.setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(Utils.filterColors(defaultColor),
+			plot.setDrawingSupplier(new DefaultDrawingSupplier(Utils.filterColors(defaultColor),
 					DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
@@ -297,6 +271,7 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 				true) {
 			private Dimension oldSize = new Dimension(100, 100);
 
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (e.getActionCommand().equals(ChartPanel.SAVE_COMMAND)) {
 					ChartActions.exportChart(this);
@@ -686,14 +661,17 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		final double miny = range.getLowerBound();
 		final double maxy = range.getUpperBound();
 		Point2D result = new Point2D() {
+			@Override
 			public double getX() {
 				return (maxx - maxy) / 2.0D;
 			}
 
+			@Override
 			public double getY() {
 				return (maxy - miny) / 2;
 			}
 
+			@Override
 			public void setLocation(double x, double y) {
 			}
 		};

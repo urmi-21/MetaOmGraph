@@ -2,7 +2,6 @@ package edu.iastate.metnet.metaomgraph.ui;
 
 import java.awt.EventQueue;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
@@ -22,10 +21,8 @@ import javax.swing.JButton;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JMenu;
-import javax.swing.JScrollBar;
 import javax.swing.JTable;
 import javax.swing.JScrollPane;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import edu.iastate.metnet.metaomgraph.AdjustPval;
@@ -43,17 +40,12 @@ import edu.iastate.metnet.metaomgraph.utils.Utils;
 import java.awt.Font;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.text.DecimalFormat;
-
 import javax.swing.ListSelectionModel;
-import java.awt.Dimension;
 import javax.swing.JLabel;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 
 import java.awt.Color;
-import java.awt.Component;
-
 import javax.swing.SwingConstants;
 import javax.swing.JMenuItem;
 import java.awt.event.ActionListener;
@@ -84,6 +76,7 @@ public class CorrelationMetaTable extends JInternalFrame {
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					CorrelationMetaTable frame = new CorrelationMetaTable();
@@ -134,6 +127,7 @@ public class CorrelationMetaTable extends JInternalFrame {
 		panel.add(comboBox, BorderLayout.CENTER);
 		// change data in table with combobox selection
 		comboBox.addItemListener(new ItemListener() {
+			@Override
 			public void itemStateChanged(ItemEvent arg0) {
 				// Do Something
 				loadDatainTable(comboBox.getSelectedItem().toString());
@@ -186,6 +180,7 @@ public class CorrelationMetaTable extends JInternalFrame {
 
 		JMenuItem mntmSaveTable = new JMenuItem("Save table");
 		mntmSaveTable.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				Utils.saveJTabletofile(table);
 			}
@@ -203,6 +198,7 @@ public class CorrelationMetaTable extends JInternalFrame {
 
 		JMenuItem mntmPlotLineChart = new JMenuItem("Line Chart");
 		mntmPlotLineChart.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// get selected rowindex
 				int[] rowIndices = getSelectedRowIndices();
@@ -220,6 +216,7 @@ public class CorrelationMetaTable extends JInternalFrame {
 
 		JMenuItem mntmPlotScatterPlot = new JMenuItem("Scatter Plot");
 		mntmPlotScatterPlot.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// get selected rowindex
 				int[] rowIndices = getSelectedRowIndices();
@@ -236,6 +233,7 @@ public class CorrelationMetaTable extends JInternalFrame {
 				}
 
 				EventQueue.invokeLater(new Runnable() {
+					@Override
 					public void run() {
 						try {// get data for selected rows
 
@@ -269,6 +267,7 @@ public class CorrelationMetaTable extends JInternalFrame {
 
 		JMenuItem mntmPvalueHistogram = new JMenuItem("Histogram p-value");
 		mntmPvalueHistogram.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				// plot histogram of current pvalues in table
 				double[] pdata = new double[table.getRowCount()];
@@ -277,6 +276,7 @@ public class CorrelationMetaTable extends JInternalFrame {
 					pdata[r] = (double) table.getModel().getValueAt(r, table.getColumn("pval").getModelIndex());
 				}
 				EventQueue.invokeLater(new Runnable() {
+					@Override
 					public void run() {
 						try {// get data for selected rows
 							int nBins = 10;
@@ -306,6 +306,7 @@ public class CorrelationMetaTable extends JInternalFrame {
 
 		JMenuItem mntmHistogramRValues = new JMenuItem("Histogram r values");
 		mntmHistogramRValues.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 
 				// plot histogram of current pvalues in table
@@ -315,6 +316,7 @@ public class CorrelationMetaTable extends JInternalFrame {
 					pdata[r] = (double) table.getModel().getValueAt(r, table.getColumn("r").getModelIndex());
 				}
 				EventQueue.invokeLater(new Runnable() {
+					@Override
 					public void run() {
 						try {// get data for selected rows
 							int nBins = 10;
@@ -348,6 +350,7 @@ public class CorrelationMetaTable extends JInternalFrame {
 
 		JMenuItem mntmAlphaForCi = new JMenuItem("alpha for CI");
 		mntmAlphaForCi.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// choose pval dialog
 				boolean flag = false;
@@ -373,6 +376,7 @@ public class CorrelationMetaTable extends JInternalFrame {
 
 		JMenuItem mntmPvalueCorrection = new JMenuItem("P-value correction");
 		mntmPvalueCorrection.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// choose adjustment method
 				JPanel cboxPanel = new JPanel();
@@ -399,6 +403,7 @@ public class CorrelationMetaTable extends JInternalFrame {
 
 		JMenuItem mntmRemoveCorrelation = new JMenuItem("Remove correlation");
 		mntmRemoveCorrelation.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				// JOptionPane.showMessageDialog(null, "Remove correlation");
 
@@ -431,6 +436,7 @@ public class CorrelationMetaTable extends JInternalFrame {
 				JButton removeButton = new JButton("Remove");
 				// action performed
 				removeButton.addActionListener(new ActionListener() {
+					@Override
 					public void actionPerformed(ActionEvent e) {
 						int[] selectedInd = tabNames.getSelectedRows();
 						// JOptionPane.showMessageDialog(null, "remove:" +
@@ -481,6 +487,7 @@ public class CorrelationMetaTable extends JInternalFrame {
 
 		JMenuItem mntmFilter = new JMenuItem("Filter");
 		mntmFilter.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				FilterCorrMetaTablePanel optPanel = new FilterCorrMetaTablePanel();
 

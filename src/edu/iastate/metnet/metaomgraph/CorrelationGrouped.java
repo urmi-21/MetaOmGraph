@@ -1,7 +1,6 @@
 package edu.iastate.metnet.metaomgraph;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -9,9 +8,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import javax.swing.JOptionPane;
-
-import org.apache.commons.math3.analysis.function.Atanh;
 import org.apache.commons.math3.analysis.function.Tanh;
 import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;

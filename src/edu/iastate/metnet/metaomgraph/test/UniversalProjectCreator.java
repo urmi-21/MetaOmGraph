@@ -12,7 +12,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -81,7 +80,8 @@ public class UniversalProjectCreator
         f.setVisible(true);
     }
 
-    public void actionPerformed(ActionEvent e) {
+    @Override
+	public void actionPerformed(ActionEvent e) {
         if ("add file".equals(e.getActionCommand())) {
             try {
                 MetaOmFile source = new MetaOmFile(Utils.chooseFileToOpen());
@@ -271,7 +271,8 @@ public class UniversalProjectCreator
             }
         }
 
-        public String toString() {
+        @Override
+		public String toString() {
             return getName();
         }
     }

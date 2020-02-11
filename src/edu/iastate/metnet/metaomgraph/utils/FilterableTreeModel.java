@@ -6,7 +6,6 @@ import edu.iastate.metnet.metaomgraph.utils.qdxml.SimpleXMLElement;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.PrintStream;
 import javax.swing.JFrame;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -31,7 +30,8 @@ public class FilterableTreeModel
             setFilter((Filter) null);
         }
         setFilter(new Filter() {
-            public boolean include(Object testMe) {
+            @Override
+			public boolean include(Object testMe) {
                 if (!(testMe instanceof DefaultMutableTreeNode)) {
                     return false;
                 }
@@ -50,7 +50,8 @@ public class FilterableTreeModel
         reload();
     }
 
-    public Object getChild(Object parent, int index) {
+    @Override
+	public Object getChild(Object parent, int index) {
         if ((!(parent instanceof DefaultMutableTreeNode)) || (currentFilter == null)) {
             return super.getChild(parent, index);
         }
@@ -70,7 +71,8 @@ public class FilterableTreeModel
         return null;
     }
 
-    public int getChildCount(Object parent) {
+    @Override
+	public int getChildCount(Object parent) {
         if ((!(parent instanceof DefaultMutableTreeNode)) || (currentFilter == null)) {
             return super.getChildCount(parent);
         }
@@ -95,7 +97,8 @@ public class FilterableTreeModel
         f.add(tree, "Center");
         final ClearableTextField field = new ClearableTextField("Tree filter");
         field.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
+            @Override
+			public void actionPerformed(ActionEvent arg0) {
                 model.setFilter(field.getText());
             }
         });

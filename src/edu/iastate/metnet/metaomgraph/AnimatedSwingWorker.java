@@ -6,8 +6,6 @@ import edu.iastate.metnet.metaomgraph.utils.ExceptionListener;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
-import java.awt.Container;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
@@ -90,6 +88,7 @@ public abstract class AnimatedSwingWorker implements ExceptionListener {
 	public AnimatedSwingWorker(String label, boolean blockCaller) {
 		this.blockCaller = blockCaller;
 		final Runnable doFinished = new Runnable() {
+			@Override
 			public void run() {
 				finished();
 				AnimatedSwingWorker.this.removeDialog();
@@ -97,6 +96,7 @@ public abstract class AnimatedSwingWorker implements ExceptionListener {
 
 		};
 		Runnable doConstruct = new Runnable() {
+			@Override
 			public void run() {
 				try {
 					AnimatedSwingWorker.this.setValue(construct());
@@ -115,6 +115,7 @@ public abstract class AnimatedSwingWorker implements ExceptionListener {
 		myLabel.setForeground(Color.BLACK);
 		myLabel.setFont(myLabel.getFont().deriveFont(1));
 		JPanel labelPanel = new JPanel() {
+			@Override
 			protected void paintComponent(Graphics g) {
 				Graphics2D g2d = (Graphics2D) g.create();
 				g2d.setComposite(AlphaComposite.getInstance(10, 0.75F));
@@ -129,6 +130,7 @@ public abstract class AnimatedSwingWorker implements ExceptionListener {
 		dialog.setLocationRelativeTo(MetaOmGraph.getMainWindow());
 		dialog.setDefaultCloseOperation(0);
 		ActionListener repainter = new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (animPanel != null)
 					animPanel.repaint();
@@ -138,6 +140,7 @@ public abstract class AnimatedSwingWorker implements ExceptionListener {
 		repaintTimer.setRepeats(true);
 
 		dialogThread = new Thread() {
+			@Override
 			public void run() {
 				dialog.setVisible(true);
 			}
@@ -174,6 +177,7 @@ public abstract class AnimatedSwingWorker implements ExceptionListener {
 		dialog.setLocationRelativeTo(dialog.getParent());
 	}
 
+	@Override
 	public void exception(Throwable e) {
 		interrupt();
 		dialog.dispose();

@@ -6,7 +6,6 @@ import java.awt.FlowLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
-import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
 
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
@@ -16,8 +15,9 @@ import javax.swing.JLabel;
 import javax.swing.JComboBox;
 import javax.swing.JCheckBox;
 import javax.swing.JTextField;
+import javax.swing.WindowConstants;
+
 import java.awt.event.ActionListener;
-import java.util.HashMap;
 import java.util.List;
 import java.awt.event.ActionEvent;
 
@@ -36,7 +36,7 @@ public class SimpleSearchDialog extends JDialog {
 	public static void main(String[] args) {
 		try {
 			SimpleSearchDialog dialog = new SimpleSearchDialog();
-			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -65,6 +65,7 @@ public class SimpleSearchDialog extends JDialog {
 			{
 				JButton btnSearch = new JButton("Search");
 				btnSearch.addActionListener(new ActionListener() {
+					@Override
 					public void actionPerformed(ActionEvent e) {
 						MetadataHybrid obj= MetaOmGraph.getActiveProject().getMetadataHybrid();
 						// search for query
@@ -132,7 +133,7 @@ public class SimpleSearchDialog extends JDialog {
 	}
 	
 	public List<String> showDialog(){
-		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setVisible(true);
 		return this.res;
 	}

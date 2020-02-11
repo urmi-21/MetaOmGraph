@@ -2,8 +2,6 @@ package edu.iastate.metnet.metaomgraph.utils;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
-import java.awt.Container;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -11,7 +9,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.io.PrintStream;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.Timer;
@@ -44,7 +41,8 @@ public class ProgressiveLabel
     }
 
 
-    protected void paintComponent(Graphics g) {
+    @Override
+	protected void paintComponent(Graphics g) {
         if (revealed < lineCount) {
             if (!t.isRunning()) {
                 System.out.println("Premature stoppage!");
@@ -86,7 +84,8 @@ public class ProgressiveLabel
     }
 
 
-    public void actionPerformed(ActionEvent e) {
+    @Override
+	public void actionPerformed(ActionEvent e) {
         paintImmediately(0, 0, myself.getWidth(), getHeight());
     }
 
@@ -94,23 +93,27 @@ public class ProgressiveLabel
         private VisibilityListener() {
         }
 
-        public void componentHidden(ComponentEvent e) {
+        @Override
+		public void componentHidden(ComponentEvent e) {
             System.out.println("Hidden!");
             t.stop();
             t = null;
         }
 
-        public void componentMoved(ComponentEvent e) {
+        @Override
+		public void componentMoved(ComponentEvent e) {
         }
 
-        public void componentResized(ComponentEvent e) {
+        @Override
+		public void componentResized(ComponentEvent e) {
             if (t == null) {
                 t = new Timer(50, myself);
                 t.start();
             }
         }
 
-        public void componentShown(ComponentEvent e) {
+        @Override
+		public void componentShown(ComponentEvent e) {
         }
     }
 
@@ -119,7 +122,8 @@ public class ProgressiveLabel
             super();
         }
 
-        protected void paintComponent(Graphics g) {
+        @Override
+		protected void paintComponent(Graphics g) {
             Graphics2D g2d = (Graphics2D) g.create();
             g2d.setComposite(AlphaComposite.getInstance(
                     10, 0.5F));

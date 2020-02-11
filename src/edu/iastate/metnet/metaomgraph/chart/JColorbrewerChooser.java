@@ -5,8 +5,6 @@ import java.awt.EventQueue;
 import java.awt.Paint;
 
 import javax.swing.JInternalFrame;
-import javax.swing.JOptionPane;
-
 import org.jcolorbrewer.ColorBrewer;
 import org.jcolorbrewer.ui.ColorPaletteChooserDialog;
 import javax.swing.JPanel;
@@ -20,6 +18,7 @@ public class JColorbrewerChooser extends JInternalFrame {
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					JColorbrewerChooser frame = new JColorbrewerChooser();

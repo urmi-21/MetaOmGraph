@@ -10,8 +10,6 @@ import javax.swing.tree.*;
 
 import org.dizitart.no2.Document;
 
-import apple.laf.JRSUIUtils.Tree;
-
 import javax.swing.event.*;
 import java.awt.*;
 import java.awt.datatransfer.*;
@@ -40,7 +38,7 @@ public class MetadataEditor extends JFrame implements ActionListener {
 	private static String chip_root = "";
 	public Metadataviewer objView=null;
 	public List<String> getHeaders() {
-		return this.headers;
+		return MetadataEditor.headers;
 	}
 
 	// function to parse the csv data to xml format
@@ -62,7 +60,7 @@ public class MetadataEditor extends JFrame implements ActionListener {
 		}
 
 		for (int i = 0; i < chip_root_child_count; i++) {
-			chip_attributes[i] = (String) tree.getModel().getChild(root_chip, i).toString();
+			chip_attributes[i] = tree.getModel().getChild(root_chip, i).toString();
 		}
 
 		// JOptionPane.showMessageDialog(null, exp_attributes);
@@ -145,6 +143,7 @@ public class MetadataEditor extends JFrame implements ActionListener {
 		return result;
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		if ("buildxml".equals(e.getActionCommand())) {
 			JOptionPane.showMessageDialog(null, "Started to build data model", getTitle(), JOptionPane.WARNING_MESSAGE);
@@ -243,7 +242,7 @@ public class MetadataEditor extends JFrame implements ActionListener {
 
 		JPanel left = new JPanel();
 		left.setLayout(new BoxLayout(left, BoxLayout.X_AXIS));
-		left.add(createList(model, this.headers));
+		left.add(createList(model, MetadataEditor.headers));
 
 		splitPane.setLeftComponent(left);
 		splitPane.setSize(200, 500);
@@ -303,7 +302,7 @@ public class MetadataEditor extends JFrame implements ActionListener {
 		splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
 		JPanel left = new JPanel();
 		left.setLayout(new BoxLayout(left, BoxLayout.X_AXIS));
-		left.add(createList(model, this.headers));
+		left.add(createList(model, MetadataEditor.headers));
 		splitPane.setLeftComponent(left);
 		splitPane.setSize(200, 500);
 		JPanel right = new JPanel();
@@ -341,7 +340,7 @@ public class MetadataEditor extends JFrame implements ActionListener {
 
 		// Create and set up the window.
 		MetadataEditor test = new MetadataEditor(headers, metadata, mo, exp_root, chip_root, active_project);
-		test.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		test.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		// Display the window.
 		test.pack();
 		test.setVisible(true);

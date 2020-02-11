@@ -87,6 +87,7 @@ public class JavaIconTheme implements IconTheme {
 
 	private String reportPath = "/resource/javaicon/History16.gif";
 
+	@Override
 	public ImageIcon getProperties() {
 		if (properties == null) {
 			properties = new ImageIcon(getClass().getResource(propertiesPath));
@@ -94,6 +95,7 @@ public class JavaIconTheme implements IconTheme {
 		return properties;
 	}
 
+	@Override
 	public ImageIcon getSaveAs() {
 		if (saveAs == null) {
 			saveAs = new ImageIcon(getClass().getResource(saveAsPath));
@@ -101,6 +103,7 @@ public class JavaIconTheme implements IconTheme {
 		return saveAs;
 	}
 
+	@Override
 	public ImageIcon getPrint() {
 		if (print == null) {
 			print = new ImageIcon(getClass().getResource(printPath));
@@ -108,6 +111,7 @@ public class JavaIconTheme implements IconTheme {
 		return print;
 	}
 
+	@Override
 	public ImageIcon getZoomIn() {
 		if (zoomIn == null) {
 			zoomIn = new ImageIcon(getClass().getResource(zoomInPath));
@@ -115,6 +119,7 @@ public class JavaIconTheme implements IconTheme {
 		return zoomIn;
 	}
 
+	@Override
 	public ImageIcon getZoomOut() {
 		if (zoomOut == null) {
 			zoomOut = new ImageIcon(getClass().getResource(zoomOutPath));
@@ -122,6 +127,7 @@ public class JavaIconTheme implements IconTheme {
 		return zoomOut;
 	}
 
+	@Override
 	public ImageIcon getDefaultZoom() {
 		if (defaultZoom == null) {
 			defaultZoom = new ImageIcon(getClass().getResource(defaultZoomPath));
@@ -129,6 +135,7 @@ public class JavaIconTheme implements IconTheme {
 		return defaultZoom;
 	}
 
+	@Override
 	public ImageIcon getShapes() {
 		if (shapes == null) {
 			shapes = new ImageIcon(getClass().getResource(shapesPath));
@@ -136,6 +143,7 @@ public class JavaIconTheme implements IconTheme {
 		return shapes;
 	}
 
+	@Override
 	public ImageIcon getLegend() {
 		if (legend == null) {
 			legend = new ImageIcon(getClass().getResource(legendPath));
@@ -143,6 +151,7 @@ public class JavaIconTheme implements IconTheme {
 		return legend;
 	}
 
+	@Override
 	public ImageIcon getPopups() {
 		if (popups == null) {
 			popups = new ImageIcon(getClass().getResource(popupsPath));
@@ -150,6 +159,7 @@ public class JavaIconTheme implements IconTheme {
 		return popups;
 	}
 
+	@Override
 	public ImageIcon getPopupClose() {
 		if (popupClose == null) {
 			popupClose = new ImageIcon(getClass().getResource(popupClosePath));
@@ -157,6 +167,7 @@ public class JavaIconTheme implements IconTheme {
 		return popupClose;
 	}
 
+	@Override
 	public ImageIcon getPopupUp() {
 		if (popupUp == null) {
 			popupUp = new ImageIcon(getClass().getResource(popupUpPath));
@@ -164,6 +175,7 @@ public class JavaIconTheme implements IconTheme {
 		return popupUp;
 	}
 
+	@Override
 	public ImageIcon getTextFieldClear() {
 		if (textFieldClear == null) {
 			textFieldClear = new ImageIcon(getClass().getResource(textFieldClearPath));
@@ -171,6 +183,7 @@ public class JavaIconTheme implements IconTheme {
 		return textFieldClear;
 	}
 
+	@Override
 	public ImageIcon getTextFieldClearHover() {
 		if (textFieldClearHover == null) {
 			textFieldClearHover = new ImageIcon(getClass().getResource(textFieldClearHoverPath));
@@ -178,6 +191,7 @@ public class JavaIconTheme implements IconTheme {
 		return textFieldClearHover;
 	}
 
+	@Override
 	public ImageIcon getTextFieldClearPress() {
 		if (textFieldClearPress == null) {
 			textFieldClearPress = new ImageIcon(getClass().getResource(textFieldClearPressPath));
@@ -185,6 +199,7 @@ public class JavaIconTheme implements IconTheme {
 		return textFieldClearPress;
 	}
 
+	@Override
 	public ImageIcon getListLoad() {
 		if (listLoad == null) {
 			listLoad = new ImageIcon(getClass().getResource(listLoadPath));
@@ -192,6 +207,7 @@ public class JavaIconTheme implements IconTheme {
 		return listLoad;
 	}
 
+	@Override
 	public ImageIcon getListSave() {
 		if (listSave == null) {
 			listSave = new ImageIcon(getClass().getResource(listSavePath));
@@ -199,6 +215,7 @@ public class JavaIconTheme implements IconTheme {
 		return listSave;
 	}
 
+	@Override
 	public ImageIcon getListDelete() {
 		if (listDelete == null) {
 			listDelete = new ImageIcon(getClass().getResource(listDeletePath));
@@ -206,6 +223,7 @@ public class JavaIconTheme implements IconTheme {
 		return listDelete;
 	}
 
+	@Override
 	public ImageIcon getListAdd() {
 		if (listAdd == null) {
 			listAdd = new ImageIcon(getClass().getResource(listAddPath));
@@ -213,6 +231,7 @@ public class JavaIconTheme implements IconTheme {
 		return listAdd;
 	}
 
+	@Override
 	public ImageIcon getListEdit() {
 		if (listEdit == null) {
 			listEdit = new ImageIcon(getClass().getResource(listEditPath));
@@ -220,6 +239,7 @@ public class JavaIconTheme implements IconTheme {
 		return listEdit;
 	}
 
+	@Override
 	public ImageIcon getListRename() {
 		if (listRename == null) {
 			listRename = new ImageIcon(getClass().getResource(listRenamePath));
@@ -227,6 +247,7 @@ public class JavaIconTheme implements IconTheme {
 		return listRename;
 	}
 
+	@Override
 	public ImageIcon getPlot() {
 		if (plot == null) {
 			plot = new ImageIcon(getClass().getResource(plotPath));
@@ -234,6 +255,7 @@ public class JavaIconTheme implements IconTheme {
 		return plot;
 	}
 
+	@Override
 	public ImageIcon getMath() {
 		if (math == null) {
 			math = new ImageIcon(getClass().getResource(mathPath));
@@ -241,6 +263,7 @@ public class JavaIconTheme implements IconTheme {
 		return math;
 	}
 
+	@Override
 	public ImageIcon getReport() {
 		if (report == null) {
 			report = new ImageIcon(getClass().getResource(reportPath));
@@ -248,6 +271,7 @@ public class JavaIconTheme implements IconTheme {
 		return report;
 	}
 
+	@Override
 	public ImageIcon getExternalSource() {
 		if (externalSource == null) {
 			externalSource = new ImageIcon(getClass().getResource(externalSourcePath));
@@ -255,6 +279,7 @@ public class JavaIconTheme implements IconTheme {
 		return externalSource;
 	}
 
+	@Override
 	public ImageIcon getSort() {
 		if (sort == null) {
 			sort = new ImageIcon(getClass().getResource(sortPath));
@@ -262,6 +287,7 @@ public class JavaIconTheme implements IconTheme {
 		return sort;
 	}
 
+	@Override
 	public ImageIcon getExcel() {
 		if (excel == null) {
 			excel = new ImageIcon(getClass().getResource(excelPath));
@@ -287,11 +313,13 @@ public class JavaIconTheme implements IconTheme {
 		}
 	}
 
+	@Override
 	public ImageIcon getMetadata() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public ImageIcon getPalette() {
 		if (palette == null) {
 			palette = new ImageIcon(getClass().getResource(propertiesPath));

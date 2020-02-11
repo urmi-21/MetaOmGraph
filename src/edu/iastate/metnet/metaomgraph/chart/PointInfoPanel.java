@@ -63,6 +63,7 @@ public class PointInfoPanel extends JPanel {
 		seriesName.setEnabled(false);
 		jbrowseButton = new JButton("Araport-JBrowse");
 		jbrowseButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (selectedLocus == null) {
 					JOptionPane.showMessageDialog(null, "No Locus ID found.", "Error", 0);
@@ -93,6 +94,7 @@ public class PointInfoPanel extends JPanel {
 		jbrowseButton.setEnabled(false);
 		thalemineButton = new JButton("Araport-ThaleMine");
 		thalemineButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (selectedLocus == null) {
 					JOptionPane.showMessageDialog(null, "No Locus ID found.", "Error", 0);
@@ -123,6 +125,7 @@ public class PointInfoPanel extends JPanel {
 		thalemineButton.setEnabled(false);
 		tairButton = new JButton("TAIR");
 		tairButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (selectedLocus == null) {
 					JOptionPane.showMessageDialog(null, "No Locus ID found.", "Error", 0);
@@ -158,6 +161,7 @@ public class PointInfoPanel extends JPanel {
 		ensemblItem = new JMenuItem("Ensembl");
 		ensemblItem.setEnabled(false);
 		ensemblItem.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				//if no point is selected, return;
 				if(myChartPanel.getSelectedPoint()==null) {
@@ -185,6 +189,7 @@ public class PointInfoPanel extends JPanel {
 		ensemblPlantsItem = new JMenuItem("EnsemblPlants");
 		ensemblPlantsItem.setEnabled(false);
 		ensemblPlantsItem.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				//if no point is selected, return;
 				if(myChartPanel.getSelectedPoint()==null) {
@@ -213,6 +218,7 @@ public class PointInfoPanel extends JPanel {
 		refSeqItem = new JMenuItem("RefSeq");
 		refSeqItem.setEnabled(false);
 		refSeqItem.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				//if no point is selected, return;
 				if(myChartPanel.getSelectedPoint()==null) {
@@ -241,6 +247,7 @@ public class PointInfoPanel extends JPanel {
 		geneCardsItem = new JMenuItem("GeneCards");
 		geneCardsItem.setEnabled(false);
 		geneCardsItem.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				//if no point is selected, return;
 				if(myChartPanel.getSelectedPoint()==null) {
@@ -268,6 +275,7 @@ public class PointInfoPanel extends JPanel {
 		atgsItem = new JMenuItem("AtGeneSearch");
 		atgsItem.setEnabled(false);
 		atgsItem.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				//if no point is selected, return;
 				if(myChartPanel.getSelectedPoint()==null) {
@@ -321,6 +329,7 @@ public class PointInfoPanel extends JPanel {
 		tairItem = new JMenuItem("TAIR");
 		tairItem.setEnabled(false);
 		tairItem.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				//if no point is selected, return;
 				if(myChartPanel.getSelectedPoint()==null) {
@@ -364,6 +373,7 @@ public class PointInfoPanel extends JPanel {
 		jbrowseItem = new JMenuItem("Araport-JBrowse");
 		jbrowseItem.setEnabled(false);
 		jbrowseItem.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				//if no point is selected, return;
 				if(myChartPanel.getSelectedPoint()==null) {
@@ -406,6 +416,7 @@ public class PointInfoPanel extends JPanel {
 		thalemineItem = new JMenuItem("Araport-ThaleMine");
 		thalemineItem.setEnabled(false);
 		thalemineItem.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				//if no point is selected, return;
 				if(myChartPanel.getSelectedPoint()==null) {
@@ -461,6 +472,7 @@ public class PointInfoPanel extends JPanel {
 
 		markButton = new JButton("Mark");
 		markButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				myChartPanel.getAnnotator().markSelected();
 			}
@@ -623,14 +635,17 @@ public class PointInfoPanel extends JPanel {
 			final double finalX = x;
 			final double finalY = Double.parseDouble(yValue.getText());
 			myChartPanel.setSelectedPoint(new Point2D() {
+				@Override
 				public double getX() {
 					return finalX;
 				}
 
+				@Override
 				public double getY() {
 					return finalY;
 				}
 
+				@Override
 				public void setLocation(double d, double d1) {
 				}
 			});

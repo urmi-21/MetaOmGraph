@@ -3,12 +3,10 @@ package edu.iastate.metnet.metaomgraph;
 import edu.iastate.metnet.metaomgraph.ui.NoneditableTableModel;
 
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.io.PrintStream;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -22,7 +20,6 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreePath;
 
 
 public class ListPanel
@@ -61,7 +58,8 @@ public class ListPanel
         listToolbar.add(buttonPanel, "North");
         final JCheckBox sortBox = new JCheckBox("Autosort");
         sortBox.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
+            @Override
+			public void itemStateChanged(ItemEvent e) {
                 tree.setAutosort(sortBox.isSelected());
             }
 
@@ -78,7 +76,8 @@ public class ListPanel
         return tree.getListTransferHandler();
     }
 
-    public void actionPerformed(ActionEvent e) {
+    @Override
+	public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("create list")) {
             int[] rows = {(int) (Math.random() * 100.0D),
                     (int) (Math.random() * 100.0D), (int) (Math.random() * 100.0D)};
@@ -103,7 +102,8 @@ public class ListPanel
         table.setDragEnabled(true);
         final JScrollPane scrolly = new JScrollPane(table);
         panel.tree.addTreeSelectionListener(new TreeSelectionListener() {
-            public void valueChanged(TreeSelectionEvent e) {
+            @Override
+			public void valueChanged(TreeSelectionEvent e) {
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) e
                         .getPath().getLastPathComponent();
                 if (!node.getAllowsChildren()) {

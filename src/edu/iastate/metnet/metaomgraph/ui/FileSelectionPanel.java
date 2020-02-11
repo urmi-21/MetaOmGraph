@@ -3,7 +3,6 @@ package edu.iastate.metnet.metaomgraph.ui;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -148,7 +147,8 @@ public class FileSelectionPanel
         return isOpenMode;
     }
 
-    public void setEnabled(boolean enabled) {
+    @Override
+	public void setEnabled(boolean enabled) {
         for (int i = 0; i < fields.length; i++) {
             fields[i].setEnabled(enabled);
             buttons[i].setEnabled(enabled);
@@ -168,7 +168,8 @@ public class FileSelectionPanel
             this.myPanel = myPanel;
         }
 
-        public void actionPerformed(ActionEvent e) {
+        @Override
+		public void actionPerformed(ActionEvent e) {
             File source = null;
 
 

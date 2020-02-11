@@ -5,28 +5,18 @@ import java.awt.EventQueue;
 import javax.swing.JInternalFrame;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
-
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-
 import java.awt.FlowLayout;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
-import javax.swing.plaf.ColorUIResource;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetadataHybrid;
 
 import javax.swing.JCheckBox;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.awt.event.ActionEvent;
@@ -52,6 +42,7 @@ public class SimpleSearchFrame extends JInternalFrame {
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					SimpleSearchFrame frame = new SimpleSearchFrame(null);
@@ -122,6 +113,7 @@ public class SimpleSearchFrame extends JInternalFrame {
 		btnCancel = new JButton("Close");
 		btnCancel.setFont(new Font("Times New Roman", Font.PLAIN, 13));
 		btnCancel.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				dispose();
 			}
@@ -131,6 +123,7 @@ public class SimpleSearchFrame extends JInternalFrame {
 		btnSearch = new JButton("Search");
 		btnSearch.setFont(new Font("Times New Roman", Font.PLAIN, 13));
 		btnSearch.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				// search for query
 				String toSearch = txtToSearch.getText();
@@ -222,6 +215,7 @@ public class SimpleSearchFrame extends JInternalFrame {
 		btnCancel = new JButton("Close");
 		btnCancel.setFont(new Font("Times New Roman", Font.PLAIN, 13));
 		btnCancel.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				dispose();
 			}
@@ -231,6 +225,7 @@ public class SimpleSearchFrame extends JInternalFrame {
 		btnSearch = new JButton("Search");
 		btnSearch.setFont(new Font("Times New Roman", Font.PLAIN, 13));
 		btnSearch.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				// search for query
 				String toSearch = txtToSearch.getText();

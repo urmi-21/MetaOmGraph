@@ -1,13 +1,11 @@
 package edu.iastate.metnet.metaomgraph.throbber;
 
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.PrintStream;
 import javax.swing.JFrame;
 
 
@@ -25,11 +23,13 @@ public class SpinningPolygonThrobber
         poly = regularPolygon(25, 25, radius, sides, 0.0D);
     }
 
-    public int getThrobberWidth() {
+    @Override
+	public int getThrobberWidth() {
         return 50;
     }
 
-    public int getThrobberHeight() {
+    @Override
+	public int getThrobberHeight() {
         return 50;
     }
 
@@ -67,7 +67,8 @@ public class SpinningPolygonThrobber
     }
 
 
-    protected void drawThrobber(Graphics2D g2d) {
+    @Override
+	protected void drawThrobber(Graphics2D g2d) {
         g2d.setColor(Color.BLACK);
         g2d.fillRect(0, 0, getThrobberWidth(), getThrobberHeight());
         spin();
@@ -85,7 +86,8 @@ public class SpinningPolygonThrobber
         f.pack();
         f.setDefaultCloseOperation(3);
         f.getContentPane().addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {
+            @Override
+			public void mouseClicked(MouseEvent e) {
                 if (isAnimating()) {
                     throbber.stop();
                 } else {
@@ -94,19 +96,23 @@ public class SpinningPolygonThrobber
             }
 
 
-            public void mousePressed(MouseEvent e) {
+            @Override
+			public void mousePressed(MouseEvent e) {
             }
 
 
-            public void mouseReleased(MouseEvent e) {
+            @Override
+			public void mouseReleased(MouseEvent e) {
             }
 
 
-            public void mouseEntered(MouseEvent e) {
+            @Override
+			public void mouseEntered(MouseEvent e) {
             }
 
 
-            public void mouseExited(MouseEvent e) {
+            @Override
+			public void mouseExited(MouseEvent e) {
             }
         });
         f.setVisible(true);

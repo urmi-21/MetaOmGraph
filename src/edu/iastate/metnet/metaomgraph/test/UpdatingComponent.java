@@ -1,6 +1,5 @@
 package edu.iastate.metnet.metaomgraph.test;
 
-import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -55,7 +54,8 @@ public class UpdatingComponent
         }
         thisFrame = animation[0];
         t = new Timer(25, new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            @Override
+			public void actionPerformed(ActionEvent e) {
                 if (!animating) {
                     t.stop();
                     return;
@@ -71,7 +71,8 @@ public class UpdatingComponent
         animating = false;
     }
 
-    protected void paintComponent(Graphics g) {
+    @Override
+	protected void paintComponent(Graphics g) {
         if (!animating) {
             super.paintComponent(g);
             return;

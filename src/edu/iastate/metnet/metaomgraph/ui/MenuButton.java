@@ -1,6 +1,5 @@
 package edu.iastate.metnet.metaomgraph.ui;
 
-import java.awt.Container;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -56,10 +55,12 @@ public class MenuButton
         this.myMenu = myMenu;
     }
 
-    public void mouseClicked(MouseEvent arg0) {
+    @Override
+	public void mouseClicked(MouseEvent arg0) {
     }
 
-    public void mousePressed(MouseEvent arg0) {
+    @Override
+	public void mousePressed(MouseEvent arg0) {
         if (myMenu == null)
             return;
         if (!myMenu.isVisible()) {
@@ -70,20 +71,25 @@ public class MenuButton
     }
 
 
-    public void mouseReleased(MouseEvent arg0) {
+    @Override
+	public void mouseReleased(MouseEvent arg0) {
     }
 
 
-    public void mouseEntered(MouseEvent arg0) {
+    @Override
+	public void mouseEntered(MouseEvent arg0) {
     }
 
-    public void mouseExited(MouseEvent arg0) {
+    @Override
+	public void mouseExited(MouseEvent arg0) {
     }
 
-    public void keyPressed(KeyEvent e) {
+    @Override
+	public void keyPressed(KeyEvent e) {
     }
 
-    public void keyReleased(KeyEvent e) {
+    @Override
+	public void keyReleased(KeyEvent e) {
         if (myMenu == null)
             return;
         if (e.getKeyChar() == ' ') {
@@ -91,7 +97,8 @@ public class MenuButton
         }
     }
 
-    public void keyTyped(KeyEvent e) {
+    @Override
+	public void keyTyped(KeyEvent e) {
     }
 
     public static void main(String[] args) {

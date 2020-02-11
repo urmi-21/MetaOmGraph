@@ -26,7 +26,8 @@ public class MultiComboBox
             boxes[i] = new JCheckBox(options[i] + "");
             menu.add(boxes[i]);
             boxes[i].addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent paramActionEvent) {
+                @Override
+				public void actionPerformed(ActionEvent paramActionEvent) {
                     setText(getButtonText());
                 }
             });
@@ -51,7 +52,8 @@ public class MultiComboBox
         return result;
     }
 
-    public Object[] getSelectedObjects() {
+    @Override
+	public Object[] getSelectedObjects() {
         ArrayList<Object> result = new ArrayList();
         for (int i = 0; i < boxes.length; i++) {
             if (boxes[i].isSelected()) {

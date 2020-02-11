@@ -8,19 +8,23 @@ public class GrayColorScheme implements ChartColorScheme {
 
     public static final Color GRAY_COLOR = new Color(0, 0, 0, 100);
 
-    public java.awt.Paint getSelectionPaint(int series) {
+    @Override
+	public java.awt.Paint getSelectionPaint(int series) {
         return Color.RED;
     }
 
-    public int getSelectionWidth() {
+    @Override
+	public int getSelectionWidth() {
         return 2;
     }
 
-    public java.awt.Paint getSeriesPaint(int series) {
+    @Override
+	public java.awt.Paint getSeriesPaint(int series) {
         return GRAY_COLOR;
     }
 
-    public int getDefaultWidth() {
+    @Override
+	public int getDefaultWidth() {
         return 1;
     }
 }

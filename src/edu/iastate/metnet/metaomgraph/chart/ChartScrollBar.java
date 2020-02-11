@@ -1,17 +1,13 @@
 package edu.iastate.metnet.metaomgraph.chart;
 
-import edu.iastate.metnet.metaomgraph.MetaOmProject;
-
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.MouseWheelEvent;
 import javax.swing.JScrollBar;
 
-import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.event.ChartChangeEvent;
 import org.jfree.chart.event.ChartChangeListener;
 import org.jfree.chart.event.ChartProgressEvent;
-import org.jfree.chart.plot.XYPlot;
 
 public class ChartScrollBar extends JScrollBar implements ChartChangeListener, java.awt.event.AdjustmentListener, java.awt.event.MouseWheelListener {
     private int min;
@@ -111,12 +107,14 @@ public class ChartScrollBar extends JScrollBar implements ChartChangeListener, j
         myChartPanel.getChart().addChangeListener(this);
     }
 
-    public void chartChanged(ChartChangeEvent event) {
+    @Override
+	public void chartChanged(ChartChangeEvent event) {
         if (getOrientation() == 0) horizChange();
         else vertChange();
     }
 
-    public void adjustmentValueChanged(AdjustmentEvent e) {
+    @Override
+	public void adjustmentValueChanged(AdjustmentEvent e) {
         if (getOrientation() == 0) horizAdjustment();
         else vertAdjustment();
     }
@@ -128,7 +126,8 @@ public class ChartScrollBar extends JScrollBar implements ChartChangeListener, j
         else vertChange();
     }
 
-    public void mouseWheelMoved(MouseWheelEvent e) {
+    @Override
+	public void mouseWheelMoved(MouseWheelEvent e) {
         setValue(getValue() + e.getUnitsToScroll());
     }
 }

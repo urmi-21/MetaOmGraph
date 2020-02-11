@@ -12,7 +12,8 @@ public class MetaOmApplicationListener implements ApplicationListener {
         Application.getApplication().addApplicationListener(this);
     }
 
-    public void handleAbout(ApplicationEvent arg0) {
+    @Override
+	public void handleAbout(ApplicationEvent arg0) {
         new JButton();
         MetaOmGraph.getInstance()
                 .actionPerformed(
@@ -21,21 +22,27 @@ public class MetaOmApplicationListener implements ApplicationListener {
         arg0.setHandled(true);
     }
 
-    public void handleOpenApplication(ApplicationEvent arg0) {
+    @Override
+	public void handleOpenApplication(ApplicationEvent arg0) {
     }
 
-    public void handleOpenFile(ApplicationEvent arg0) {
+    @Override
+	public void handleOpenFile(ApplicationEvent arg0) {
     }
 
-    public void handlePreferences(ApplicationEvent arg0) {
+    @Override
+	public void handlePreferences(ApplicationEvent arg0) {
     }
 
-    public void handlePrintFile(ApplicationEvent arg0) {
+    @Override
+	public void handlePrintFile(ApplicationEvent arg0) {
     }
 
-    public void handleQuit(ApplicationEvent arg0) {
+    @Override
+	public void handleQuit(ApplicationEvent arg0) {
     }
 
-    public void handleReOpenApplication(ApplicationEvent arg0) {
+    @Override
+	public void handleReOpenApplication(ApplicationEvent arg0) {
     }
 }

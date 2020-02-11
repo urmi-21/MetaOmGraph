@@ -10,12 +10,13 @@ import javax.swing.table.DefaultTableCellRenderer;
 	public  class DecimalFormatRenderer extends DefaultTableCellRenderer {
 		private static final DecimalFormat formatter = new DecimalFormat("#.0000");
 
+		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
 				int row, int column) {
 
 			// First format the cell value as required
 
-			value = formatter.format((Number) value);
+			value = formatter.format(value);
 
 			// And pass it on to parent class
 

@@ -2,22 +2,16 @@ package edu.iastate.metnet.metaomgraph.chart;
 
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
-import edu.iastate.metnet.metaomgraph.MetaOmGraph;
-import edu.iastate.metnet.metaomgraph.MetaOmProject;
-import edu.iastate.metnet.metaomgraph.Metadata;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.SortableData;
 import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
 
 
-import java.awt.*;
-import java.io.PrintStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,7 +21,6 @@ import java.util.regex.Pattern;
 
 import javax.swing.JOptionPane;
 
-import org.biomage.Array.Array;
 
 public class DataSorter {
 	private Vector<RangeMarker> rangeMarkers;

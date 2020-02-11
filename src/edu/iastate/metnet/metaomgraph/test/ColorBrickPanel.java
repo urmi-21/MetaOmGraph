@@ -1,9 +1,6 @@
 package edu.iastate.metnet.metaomgraph.test;
 
-import edu.iastate.metnet.metaomgraph.ui.StripedTable;
-
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
@@ -11,11 +8,9 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.plaf.ColorUIResource;
 
 public class ColorBrickPanel extends JPanel implements MouseListener {
     private BufferedImage originalImage;
@@ -33,7 +28,8 @@ public class ColorBrickPanel extends JPanel implements MouseListener {
             Thread r = new Thread() {
 
 
-                public void run() {
+                @Override
+				public void run() {
 
 
                     for (; ; ) {
@@ -106,7 +102,8 @@ public class ColorBrickPanel extends JPanel implements MouseListener {
         return new Color((float) Math.random(), (float) Math.random(), (float) Math.random());
     }
 
-    protected void paintComponent(Graphics g) {
+    @Override
+	protected void paintComponent(Graphics g) {
         Graphics2D g2d = (Graphics2D) g.create();
         if (currentColor == null) {
             currentColor = randomColor();
@@ -217,19 +214,24 @@ public class ColorBrickPanel extends JPanel implements MouseListener {
         colorFrame.setVisible(true);
     }
 
-    public void mouseClicked(MouseEvent e) {
+    @Override
+	public void mouseClicked(MouseEvent e) {
         bounce = (!bounce);
     }
 
-    public void mousePressed(MouseEvent e) {
+    @Override
+	public void mousePressed(MouseEvent e) {
     }
 
-    public void mouseReleased(MouseEvent e) {
+    @Override
+	public void mouseReleased(MouseEvent e) {
     }
 
-    public void mouseEntered(MouseEvent e) {
+    @Override
+	public void mouseEntered(MouseEvent e) {
     }
 
-    public void mouseExited(MouseEvent e) {
+    @Override
+	public void mouseExited(MouseEvent e) {
     }
 }

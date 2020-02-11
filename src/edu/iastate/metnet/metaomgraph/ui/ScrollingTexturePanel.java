@@ -3,7 +3,6 @@ package edu.iastate.metnet.metaomgraph.ui;
 import edu.iastate.metnet.metaomgraph.SwingWorker;
 
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
@@ -93,7 +92,8 @@ public class ScrollingTexturePanel
         private TimedAnimator() {
         }
 
-        public void actionPerformed(ActionEvent e) {
+        @Override
+		public void actionPerformed(ActionEvent e) {
             if ((dir == 6) || (dir == 3) || (dir == 4))
                 x = ((x + 1) % getImage().getWidth());
             if ((dir == 7) || (dir == 2) || (dir == 5))
@@ -167,7 +167,8 @@ public class ScrollingTexturePanel
                 .getWidth(), getImage().getHeight())));
     }
 
-    protected void paintComponent(Graphics g) {
+    @Override
+	protected void paintComponent(Graphics g) {
         if (isOpaque()) {
             Graphics2D g2d = (Graphics2D) g.create();
             g2d.setPaint(myPaint);
@@ -178,7 +179,8 @@ public class ScrollingTexturePanel
         }
     }
 
-    public void update(Graphics g) {
+    @Override
+	public void update(Graphics g) {
         paint(g);
     }
 
@@ -206,7 +208,8 @@ public class ScrollingTexturePanel
             fadeTo = newColor;
         }
 
-        public Object construct() {
+        @Override
+		public Object construct() {
             int newR = currentColor.getRed();
             int newG = currentColor.getGreen();
             int newB = currentColor.getBlue();

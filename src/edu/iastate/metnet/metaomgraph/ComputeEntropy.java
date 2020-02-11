@@ -8,8 +8,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
-
 public class ComputeEntropy {
 
 	private List<double[][]> wtMatlist;

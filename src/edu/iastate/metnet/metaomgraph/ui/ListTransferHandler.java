@@ -21,6 +21,7 @@ public class ListTransferHandler extends TransferHandler {
 	/**
 	 * only support importing strings.
 	 */
+	@Override
 	public boolean canImport(TransferHandler.TransferSupport info) {
 		// Check for String flavor
 		// if (!info.isDataFlavorSupported(DataFlavor.stringFlavor)) {
@@ -37,6 +38,7 @@ public class ListTransferHandler extends TransferHandler {
 	 * separated by a newline.
 	 */
 	// change this function work with multiple selection
+	@Override
 	protected Transferable createTransferable(JComponent c) {
 		JList list = (JList) c;
 		indices = list.getSelectedIndices();
@@ -58,6 +60,7 @@ public class ListTransferHandler extends TransferHandler {
 	 * We support both copy and move actions.
 	 */
 	// set to move to remove items from list after drop
+	@Override
 	public int getSourceActions(JComponent c) {
 		return TransferHandler.MOVE;
 		// return TransferHandler.COPY;
@@ -66,6 +69,7 @@ public class ListTransferHandler extends TransferHandler {
 	/**
 	 * Perform the actual import. This demo only supports drag and drop.
 	 */
+	@Override
 	public boolean importData(TransferHandler.TransferSupport info) {
 
 		// System.out.println("in import");
@@ -164,6 +168,7 @@ public class ListTransferHandler extends TransferHandler {
 	/**
 	 * Remove the items moved from the list.
 	 */
+	@Override
 	protected void exportDone(JComponent c, Transferable data, int action) {
 		JList source = (JList) c;
 		DefaultListModel listModel = (DefaultListModel) source.getModel();

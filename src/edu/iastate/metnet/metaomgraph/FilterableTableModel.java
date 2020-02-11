@@ -2,18 +2,15 @@ package edu.iastate.metnet.metaomgraph;
 
 import edu.iastate.metnet.metaomgraph.ui.NoneditableTableModel;
 
-import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.security.InvalidParameterException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -256,6 +253,7 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 		fireTableChanged(new TableModelEvent(this));
 	}
 
+	@Override
 	public void fireTableChanged(TableModelEvent e) {
 		TableModelListener[] listeners = getTableModelListeners();
 		for (int x = 0; x < listeners.length; x++) {
@@ -263,6 +261,7 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 		}
 	}
 
+	@Override
 	public Object getValueAt(int row, int col) {
 		while (!available) {
 			try {
@@ -288,6 +287,7 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 		return result;
 	}
 
+	@Override
 	public int getRowCount() {
 		if (filteredData == null)
 			return 0;
@@ -344,6 +344,7 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 		f.setSize(800, 600);
 		f.setDefaultCloseOperation(3);
 		filterField.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				model.applyFilter(filterField.getText());
 				scrolly.setViewportView(table);
@@ -353,14 +354,17 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 		f.setVisible(true);
 	}
 
+	@Override
 	public int getColumnCount() {
 		return model.getColumnCount();
 	}
 
+	@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
 		return model.isCellEditable(rowIndex, columnIndex);
 	}
 
+	@Override
 	public Class<?> getColumnClass(int columnIndex) {
 		Class result = null;
 		// check if all values are number
@@ -375,6 +379,7 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 		return model.getColumnClass(columnIndex);
 	}
 
+	@Override
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 		while (!available) {
 			try {
@@ -393,18 +398,22 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 		}
 	}
 
+	@Override
 	public String getColumnName(int columnIndex) {
 		return model.getColumnName(columnIndex);
 	}
 
+	@Override
 	public void changedUpdate(DocumentEvent e) {
 		documentChange(e.getDocument());
 	}
 
+	@Override
 	public void insertUpdate(DocumentEvent e) {
 		documentChange(e.getDocument());
 	}
 
+	@Override
 	public void removeUpdate(DocumentEvent e) {
 		documentChange(e.getDocument());
 	}
@@ -426,6 +435,7 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 		this.caseSensitive = caseSensitive;
 	}
 
+	@Override
 	public void tableChanged(TableModelEvent e) {
 		if (!manualFilter) {
 			applyFilter(filterText);

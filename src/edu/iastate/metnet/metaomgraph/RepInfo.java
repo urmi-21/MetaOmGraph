@@ -8,7 +8,6 @@ import edu.iastate.metnet.metaomgraph.utils.Utils;
 import java.awt.BorderLayout;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -71,14 +70,16 @@ public class RepInfo implements XMLizable {
             this.col = col;
         }
 
-        public boolean equals(Object obj) {
+        @Override
+		public boolean equals(Object obj) {
             if (!(obj instanceof Sample)) {
                 return false;
             }
             return compareTo((Sample) obj) == 0;
         }
 
-        public int compareTo(Sample o) {
+        @Override
+		public int compareTo(Sample o) {
             if ((name.equals(name)) && (expID.equals(expID))) {
                 return 0;
             }
@@ -88,7 +89,8 @@ public class RepInfo implements XMLizable {
             return expID.compareTo(expID);
         }
 
-        public String toString() {
+        @Override
+		public String toString() {
             return expID + ": " + name;
         }
     }
@@ -106,7 +108,8 @@ public class RepInfo implements XMLizable {
         new Thread() {
 
 
-            public void run() {
+            @Override
+			public void run() {
 
                 throw new Error("Unresolved compilation problems: \n\tThe method getChildCount() is undefined for the type Metadata\n\tThe method getChildAt(int) is undefined for the type Metadata\n\tInfoNode cannot be resolved to a type\n\tInfoNode cannot be resolved to a type\n");
 
@@ -135,7 +138,8 @@ public class RepInfo implements XMLizable {
         new Thread() {
 
 
-            public void run() {
+            @Override
+			public void run() {
 
                 throw new Error("Unresolved compilation problems: \n\troot cannot be resolved\n\troot cannot be resolved\n\tDuplicate local variable samples\n\tInfoNode cannot be resolved to a type\n\tInfoNode cannot be resolved to a type\n");
 
@@ -191,7 +195,8 @@ public class RepInfo implements XMLizable {
         model.addTableModelListener(new TableModelListener() {
             boolean update = true;
 
-            public void tableChanged(TableModelEvent e) {
+            @Override
+			public void tableChanged(TableModelEvent e) {
                 if (!update)
                     return;
                 if (e.getColumn() == GNAME_COL) {
@@ -465,7 +470,8 @@ public class RepInfo implements XMLizable {
         return members;
     }
 
-    public void fromXML(Element source) {
+    @Override
+	public void fromXML(Element source) {
         if (!"reps".equals(source.getName())) {
             throw new IllegalArgumentException("Not a replicate Element");
         }
@@ -581,7 +587,8 @@ public class RepInfo implements XMLizable {
         }
     }
 
-    public Element toXML() {
+    @Override
+	public Element toXML() {
         Element result = new Element("reps");
         Set<Integer> groups = repGroups.keySet();
         for (Integer group : groups) {

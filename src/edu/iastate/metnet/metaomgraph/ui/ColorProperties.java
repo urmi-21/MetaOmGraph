@@ -8,8 +8,6 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.jvnet.substance.theme.ThemeChangeListener;
-
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.utils.MOGColorThemes;
 
@@ -48,6 +46,7 @@ public class ColorProperties extends JInternalFrame {
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					ColorProperties frame = new ColorProperties();
@@ -79,6 +78,7 @@ public class ColorProperties extends JInternalFrame {
 
 		JButton btnCancel = new JButton("Cancel");
 		btnCancel.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				dispose();
 			}
@@ -87,6 +87,7 @@ public class ColorProperties extends JInternalFrame {
 
 		JButton btnApply = new JButton("Apply");
 		btnApply.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (!themeEdited) {
 					String selTheme=comboBox.getSelectedItem().toString();
@@ -101,6 +102,7 @@ public class ColorProperties extends JInternalFrame {
 
 		JButton btnOk = new JButton("OK");
 		btnOk.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				if (!themeEdited) {
 					String selTheme=comboBox.getSelectedItem().toString();
@@ -116,6 +118,7 @@ public class ColorProperties extends JInternalFrame {
 		
 		JButton btnRemove = new JButton("Remove");
 		btnRemove.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				String selTheme=comboBox.getSelectedItem().toString();
 				if(selTheme.equals("light") || selTheme.equals("dark")) {
@@ -151,6 +154,7 @@ public class ColorProperties extends JInternalFrame {
 		initButtons(MetaOmGraph.getTheme(MetaOmGraph.getCurrentThemeName()));
 		comboBox = new JComboBox();
 		comboBox.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				String selectedTheme = comboBox.getSelectedItem().toString();
 				// JOptionPane.showMessageDialog(null, "sel theme:"+selectedTheme);
@@ -311,6 +315,7 @@ public class ColorProperties extends JInternalFrame {
 		tabCol1Button.setColor(theme.getTableColor1());
 
 		tabCol1Button.addChangeListener(new ChangeListener() {
+			@Override
 			public void stateChanged(ChangeEvent arg0) {
 				editTheme();
 			}
@@ -319,6 +324,7 @@ public class ColorProperties extends JInternalFrame {
 
 		tabCol2Button = new ColorChooseButton(theme.getTableColor2(), "Table background color 2");
 		tabCol2Button.addChangeListener(new ChangeListener() {
+			@Override
 			public void stateChanged(ChangeEvent arg0) {
 				editTheme();
 			}
@@ -327,6 +333,7 @@ public class ColorProperties extends JInternalFrame {
 
 		tabSelButton = new ColorChooseButton(theme.getTableSelectionColor(), "Table selection color");
 		tabSelButton.addChangeListener(new ChangeListener() {
+			@Override
 			public void stateChanged(ChangeEvent arg0) {
 				editTheme();
 			}
@@ -335,6 +342,7 @@ public class ColorProperties extends JInternalFrame {
 
 		tabHyprlnkButton = new ColorChooseButton(theme.getTableHyperlinkColor(), "Table hyperlink color");
 		tabHyprlnkButton.addChangeListener(new ChangeListener() {
+			@Override
 			public void stateChanged(ChangeEvent arg0) {
 				editTheme();
 			}
@@ -342,6 +350,7 @@ public class ColorProperties extends JInternalFrame {
 		});
 		tabHighlightButton = new ColorChooseButton(theme.getTableHighlightColor(), "Table highlight color");
 		tabHighlightButton.addChangeListener(new ChangeListener() {
+			@Override
 			public void stateChanged(ChangeEvent arg0) {
 				editTheme();
 			}
@@ -350,6 +359,7 @@ public class ColorProperties extends JInternalFrame {
 
 		chartBckButton = new ColorChooseButton(theme.getChartBackgroundColor(), "Chart background color");
 		chartBckButton.addChangeListener(new ChangeListener() {
+			@Override
 			public void stateChanged(ChangeEvent arg0) {
 				editTheme();
 			}
@@ -358,6 +368,7 @@ public class ColorProperties extends JInternalFrame {
 
 		plotBckButton = new ColorChooseButton(theme.getPlotBackgroundColor(), "Plot background color");
 		plotBckButton.addChangeListener(new ChangeListener() {
+			@Override
 			public void stateChanged(ChangeEvent arg0) {
 				editTheme();
 			}

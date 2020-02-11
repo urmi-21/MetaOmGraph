@@ -1,6 +1,5 @@
 package edu.iastate.metnet.metaomgraph.ui;
 
-import java.awt.Color;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Frame;
@@ -21,7 +20,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
@@ -49,6 +47,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.text.DefaultFormatterFactory;
@@ -60,7 +59,6 @@ import edu.iastate.metnet.metaomgraph.GraphFileFilter;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
 import edu.iastate.metnet.metaomgraph.RandomAccessFile;
-import edu.iastate.metnet.metaomgraph.test.MarchingFocusBorder;
 import edu.iastate.metnet.metaomgraph.utils.MetNetUtils;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
@@ -126,6 +124,7 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 		final JComponent origEditor = infoColumnSpinner.getEditor();
 		JFormattedTextField.AbstractFormatter af = new JFormattedTextField.AbstractFormatter() {
 
+			@Override
 			public Object stringToValue(String text) throws ParseException {
 				try {
 					return new Integer(text);
@@ -134,6 +133,7 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 				}
 			}
 
+			@Override
 			public String valueToString(Object value) throws ParseException {
 				if (value instanceof Integer) {
 					Integer intValue = (Integer) value;
@@ -178,7 +178,8 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 		delimiterMetadatafile.addItem("Space");
 		
 		delimiterDatafile.addActionListener(new ActionListener(){
-		    public void actionPerformed(ActionEvent e)
+		    @Override
+			public void actionPerformed(ActionEvent e)
 		    {
 		        int selectedIndex =  delimiterMetadatafile.getSelectedIndex();
 		       if(selectedIndex==0) {
@@ -193,7 +194,8 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 		    }
 		});
 		delimiterMetadatafile.addActionListener(new ActionListener(){
-		    public void actionPerformed(ActionEvent e)
+		    @Override
+			public void actionPerformed(ActionEvent e)
 		    {
 		        int selectedIndex =  delimiterMetadatafile.getSelectedIndex();
 		       if(selectedIndex==0) {
@@ -295,7 +297,7 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 		JButton sourceButton, rowsButton, colsButton, infoButton;
 		JButton infoButton2;
 		sourceLabel = new JLabel("<html><pre>Data File (csv/tsv):</pre></html>");
-		sourceLabel.setHorizontalAlignment(JLabel.RIGHT);
+		sourceLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		sourceLabel.setToolTipText("Data file should be a tab or commma-delimited file. Can be .csv or .txt format");
 		sourceField = new JTextField();
 		sourceField.setEditable(false);
@@ -303,6 +305,7 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 		GraphFileFilter filter = new GraphFileFilter();
 		filter.setMode(GraphFileFilter.TEXT);
 		FileBrowseListener sourceListener = new FileBrowseListener(sourceField, filter) {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				super.actionPerformed(e);
 				if (source == null)
@@ -312,20 +315,20 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 		};
 		sourceButton.addActionListener(sourceListener);
 		rowsLabel = new JLabel("<html><pre>Row Names<font size=-2>&nbsp;(optional)</font>:</pre></html>");
-		rowsLabel.setHorizontalAlignment(JLabel.RIGHT);
+		rowsLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		rowsField = new JTextField();
 		rowsField.setEditable(false);
 		rowsButton = new JButton("Browse...");
 		rowsButton.addActionListener(new FileBrowseListener(rowsField, null));
 		colsLabel = new JLabel("<html><pre>Column Names<font size=-2>&nbsp;(optional)</font>:</pre></html>");
-		colsLabel.setHorizontalAlignment(JLabel.RIGHT);
+		colsLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		colsField = new JTextField();
 		colsField.setEditable(false);
 		colsButton = new JButton("Browse...");
 		colsButton.addActionListener(new FileBrowseListener(colsField, null));
 
 		infoLabel = new JLabel("<html><pre>Metadata (xml)<font size=-2>&nbsp;(optional)</font>:</pre></html>");
-		infoLabel.setHorizontalAlignment(JLabel.RIGHT);
+		infoLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		infoLabel.setToolTipText("Reads .XML file containing the metadata");
 		infoField = new JTextField();
 		infoField.setEditable(false);
@@ -335,7 +338,7 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 
 		// by urmi to read csv files
 		infoLabel2 = new JLabel("<html><pre>Metadata (csv/tsv)<font size=-2>&nbsp;(optional)</font>:</pre></html>");
-		infoLabel2.setHorizontalAlignment(JLabel.RIGHT);
+		infoLabel2.setHorizontalAlignment(SwingConstants.RIGHT);
 		infoLabel2.setToolTipText(
 				"Reads .csv or .txt file containing the metadata. This file should be tab or commma-delimited.");
 		infoField2 = new JTextField();
@@ -345,6 +348,7 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 		GraphFileFilter filter2 = new GraphFileFilter();
 		filter2.setMode(GraphFileFilter.TEXT);
 		FileBrowseListener sourceListener2 = new FileBrowseListener(infoField2, filter2) {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				super.actionPerformed(e);
 				if (source == null)
@@ -435,6 +439,7 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 		this.setLocation((width - getWidth()) / 2 + MetaOmGraph.getMainWindow().getX(),
 				(height - getHeight()) / 2 + MetaOmGraph.getMainWindow().getY());
 		AbstractAction act = new AbstractAction() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				MetaOmGraph.getHelpListener().actionPerformed(
 						new ActionEvent(helpButton, ActionEvent.ACTION_PERFORMED, "newproject-delimited.php"));
@@ -461,6 +466,7 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 			this.filter = filter;
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			source = Utils.chooseFileToOpen(filter, MetaOmGraph.getMainWindow());
 			if (source != null) {
@@ -627,6 +633,7 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 	}
 
 	// action for OK button
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equals("ok")) {
 			cancelled = false;
@@ -1188,6 +1195,7 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 	// create analyze class for metadata file source. This is quick fix ideally
 	// should merge two classes together
 
+	@Override
 	public void itemStateChanged(ItemEvent e) {
 		if (e.getSource() == allowBlanksBox) {
 			ignoreBlanksButton.setEnabled(allowBlanksBox.isSelected());

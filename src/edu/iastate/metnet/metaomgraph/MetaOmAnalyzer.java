@@ -3,12 +3,10 @@ package edu.iastate.metnet.metaomgraph;
 import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
 import edu.iastate.metnet.metaomgraph.ui.ClearableTextField;
 import edu.iastate.metnet.metaomgraph.ui.DualTablePanel;
-import edu.iastate.metnet.metaomgraph.ui.SortableFilterableTable;
 import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import edu.iastate.metnet.metaomgraph.utils.qdxml.SimpleXMLElement;
 
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
@@ -17,7 +15,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,11 +31,6 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.table.TableModel;
-import javax.swing.text.Document;
-
-import org.apache.commons.math3.exception.NotANumberException;
-import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
-import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.jdom.Element;
 
@@ -179,6 +171,7 @@ public class MetaOmAnalyzer {
 		SwingWorker analyzeWorker = new SwingWorker() {
 			boolean errored = false;
 
+			@Override
 			public Object construct() {
 				try {
 					// source data is selected data row
@@ -251,6 +244,7 @@ public class MetaOmAnalyzer {
 				return null;
 			}
 
+			@Override
 			public void finished() {
 				if ((!progress.isCanceled()) && (!errored)) {
 					project.setLastCorrelation(result, name);
@@ -299,6 +293,7 @@ public class MetaOmAnalyzer {
 			boolean errored = false;
 			ArrayList<double[]> dataBuffer = new ArrayList();
 
+			@Override
 			public Object construct() {
 				try {
 					// to save relatedness
@@ -519,6 +514,7 @@ public class MetaOmAnalyzer {
 				return null;
 			}
 
+			@Override
 			public void finished() {
 				try {
 					out.close();
@@ -577,6 +573,7 @@ public class MetaOmAnalyzer {
 			boolean errored = false;
 			ArrayList<double[]> dataBuffer = new ArrayList();
 
+			@Override
 			public Object construct() {
 				try {
 					DecimalFormat format = new DecimalFormat("0.0000");
@@ -710,6 +707,7 @@ public class MetaOmAnalyzer {
 				return null;
 			}
 
+			@Override
 			public void finished() {
 				try {
 					out.close();
@@ -869,6 +867,7 @@ public class MetaOmAnalyzer {
 			pack();
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			if ("cancel".equals(e.getActionCommand())) {
 				dispose();
@@ -912,6 +911,7 @@ public class MetaOmAnalyzer {
 				final BlockingProgressDialog progress = new BlockingProgressDialog(this, "Saving",
 						"Creating " + dest.getName(), 0L, myProject.getRowCount(), true);
 				new Thread() {
+					@Override
 					public void run() {
 						try {
 							BufferedWriter out = new BufferedWriter(new FileWriter(dest));
@@ -985,6 +985,7 @@ public class MetaOmAnalyzer {
 				}
 				final Vector<Integer> hitColumns = new Vector();
 				new AnimatedSwingWorker("Searching...", true) {
+					@Override
 					public Object construct() {
 						Utils.startWatch();
 						Integer[] hitCols = myProject.getMetadata().search(queries, tsp.matchAll());
@@ -1031,6 +1032,7 @@ public class MetaOmAnalyzer {
 			}
 		}
 
+		@Override
 		public MetaOmAnalyzer.ExcludeData getSaveData() {
 			Object[][] excluded = dtp.getActiveValues();
 			boolean[] excludeUs = new boolean[myProject.getDataColumnCount()];
@@ -1051,6 +1053,7 @@ public class MetaOmAnalyzer {
 			return data;
 		}
 
+		@Override
 		public void loadData(MetaOmAnalyzer.ExcludeData data) {
 			Object[][] includedData = new Object[myProject.getDataColumnCount() - excludeCount][2];
 			Object[][] excludedData = new Object[excludeCount][2];
@@ -1070,6 +1073,7 @@ public class MetaOmAnalyzer {
 			dtp.setValues(includedData, excludedData, new String[] { "Number", "Sample Name" });
 		}
 
+		@Override
 		public String getNoun() {
 			return "exclude set";
 		}
@@ -1095,6 +1099,7 @@ public class MetaOmAnalyzer {
 		public ExcludeData() {
 		}
 
+		@Override
 		public void fromXML(Element source) {
 			String[] excludeRows = source.getText().split(",");
 			excludeCount = excludeRows.length;
@@ -1108,6 +1113,7 @@ public class MetaOmAnalyzer {
 			}
 		}
 
+		@Override
 		public Element toXML() {
 			Element myElement = new Element(getXMLElementName());
 			String excludeString = null;

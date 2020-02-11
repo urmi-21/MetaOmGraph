@@ -3,7 +3,6 @@ package edu.iastate.metnet.metaomgraph.throbber;
 import edu.iastate.metnet.metaomgraph.ui.MetNetLAF;
 
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
@@ -27,7 +26,8 @@ public class FlippingSquaresThrobber
         resetPolys();
     }
 
-    public int getDelay() {
+    @Override
+	public int getDelay() {
         return 75;
     }
 
@@ -74,15 +74,18 @@ public class FlippingSquaresThrobber
         squareColor = (front ? MetNetLAF.MNDarkGreen : MetNetLAF.MNBlue);
     }
 
-    public int getThrobberWidth() {
+    @Override
+	public int getThrobberWidth() {
         return 24;
     }
 
-    public int getThrobberHeight() {
+    @Override
+	public int getThrobberHeight() {
         return 24;
     }
 
-    protected void drawThrobber(Graphics2D g2d) {
+    @Override
+	protected void drawThrobber(Graphics2D g2d) {
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setColor(MetNetLAF.MNYellow);
@@ -109,7 +112,8 @@ public class FlippingSquaresThrobber
         f.getContentPane().addMouseListener(new MouseListener() {
 
 
-            public void mouseClicked(MouseEvent e) {
+            @Override
+			public void mouseClicked(MouseEvent e) {
                 if (Throbber.isAnimating())
                     throbber.stop();
                 else
@@ -117,19 +121,23 @@ public class FlippingSquaresThrobber
             }
 
 
-            public void mousePressed(MouseEvent e) {
+            @Override
+			public void mousePressed(MouseEvent e) {
             }
 
 
-            public void mouseReleased(MouseEvent e) {
+            @Override
+			public void mouseReleased(MouseEvent e) {
             }
 
 
-            public void mouseEntered(MouseEvent e) {
+            @Override
+			public void mouseEntered(MouseEvent e) {
             }
 
 
-            public void mouseExited(MouseEvent e) {
+            @Override
+			public void mouseExited(MouseEvent e) {
             }
         });
         f.setVisible(true);

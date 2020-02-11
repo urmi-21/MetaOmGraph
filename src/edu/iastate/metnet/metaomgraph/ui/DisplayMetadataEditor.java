@@ -6,12 +6,8 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
@@ -35,13 +31,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
-import javax.swing.tree.DefaultTreeModel;
+import javax.swing.WindowConstants;
 import javax.swing.tree.TreeNode;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.dom.DOMSource;
-
 import org.dizitart.no2.Document;
 import org.dizitart.no2.Filter;
 import org.dizitart.no2.filters.Filters;
@@ -163,7 +154,7 @@ public class DisplayMetadataEditor extends JFrame implements ActionListener {
 			exp_attributes[i] = tree.getModel().getChild(root_exp, i).toString();
 		}
 		for (int i = 0; i < chip_root_child_count; i++) {
-			chip_attributes[i] = (String) tree.getModel().getChild(root_chip, i).toString();
+			chip_attributes[i] = tree.getModel().getChild(root_chip, i).toString();
 		}
 		// start building XML string
 		String result = "";
@@ -197,13 +188,14 @@ public class DisplayMetadataEditor extends JFrame implements ActionListener {
 		frame2.add(pBar);
 		frame2.setSize(400, 80);
 		// frame.pack();
-		frame2.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frame2.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		// set the frame in the middle of screen
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		frame2.setLocation(dim.width / 2 - frame2.getSize().width / 2, dim.height / 2 - frame2.getSize().height / 2);
 		frame2.setResizable(false);
 		frame2.setVisible(true);
 		new Thread() {
+			@Override
 			public void run() {
 				pBar.setValue(40);
 			}
@@ -439,13 +431,14 @@ public class DisplayMetadataEditor extends JFrame implements ActionListener {
 		frame2.add(pBar);
 		frame2.setSize(400, 80);
 		// frame.pack();
-		frame2.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frame2.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		// set the frame in the middle of screen
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		frame2.setLocation(dim.width / 2 - frame2.getSize().width / 2, dim.height / 2 - frame2.getSize().height / 2);
 		frame2.setResizable(false);
 		frame2.setVisible(true);
 		new Thread() {
+			@Override
 			public void run() {
 				pBar.setValue(0);
 			}

@@ -5,9 +5,6 @@ import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.IOException;
-
 import javax.activation.ActivationDataFlavor;
 import javax.swing.JComponent;
 import javax.swing.JTable;
@@ -49,6 +46,7 @@ public class TableTransferHandler extends TransferHandler {
 	protected void exportDone(JComponent source, Transferable data, int action) {
 	}
 
+	@Override
 	public int getSourceActions(JComponent c) {
 		return TransferHandler.MOVE;
 		// return TransferHandler.COPY;

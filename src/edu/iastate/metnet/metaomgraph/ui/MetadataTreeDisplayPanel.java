@@ -4,14 +4,7 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.Font;
-import java.awt.MenuBar;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -36,13 +29,10 @@ import javax.swing.JTree;
 import javax.swing.UIManager;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.plaf.ColorUIResource;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 //import javax.xml.bind.annotation.XmlRootElement;
 import javax.swing.table.TableCellRenderer;
@@ -63,7 +53,6 @@ import edu.iastate.metnet.metaomgraph.MetadataHybrid;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 
 import java.awt.event.ActionListener;
@@ -217,6 +206,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 
 		mntmExportXml = new JMenuItem("Export XML");
 		mntmExportXml.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// save to file
 				// JOptionPane.showMessageDialog(null, "saving file");
@@ -248,6 +238,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 
 		mntmSearch = new JMenuItem("Search");
 		mntmSearch.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				List<String> result = getQueryResults("Metadata Search");
 				if (result == null || result.size() < 1 || result.get(0).equals("NULL")) {
@@ -263,6 +254,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 
 		mntmClearLastSearch = new JMenuItem("Clear Last Search");
 		mntmClearLastSearch.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				toHighlightNodes = new ArrayList<>();
 			}
@@ -276,6 +268,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 
 		mntmByMetadata = new JMenuItem("By Metadata");
 		mntmByMetadata.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				List<String> result = getQueryResults("Filter by Metadata");
 				if (result == null || result.size() < 1 || result.get(0).equals("NULL")) {
@@ -308,6 +301,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 
 		mntmReset = new JMenuItem("Reset");
 		mntmReset.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// update excluded included
 				obj.resetRowFilter();
@@ -321,6 +315,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 
 		mntmSwitchToTable = new JMenuItem("Switch To Table");
 		mntmSwitchToTable.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				// get current selected node
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
@@ -881,6 +876,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 		    caret.setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
 		}
 
+		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
 				int row, int column) {
 			

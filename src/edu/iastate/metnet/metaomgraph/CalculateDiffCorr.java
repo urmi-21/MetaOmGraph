@@ -10,12 +10,10 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import org.apache.commons.math3.analysis.function.Atanh;
 import org.apache.commons.math3.distribution.NormalDistribution;
-import org.biomage.Array.Array;
+//import org.biomage.Array.Array;
 
 import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
-import edu.iastate.metnet.metaomgraph.ui.ReadMetadata;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 public class CalculateDiffCorr {
@@ -184,6 +182,7 @@ public class CalculateDiffCorr {
 
 			boolean errored = false;
 
+			@Override
 			public Object construct() {
 				try {
 					CorrelationCalc calcy1 = new CorrelationCalc(target1, excluded);
@@ -227,6 +226,7 @@ public class CalculateDiffCorr {
 				return null;
 			}
 
+			@Override
 			public void finished() {
 				if (progress.isCanceled()) {
 					// JOptionPane.showMessageDialog(null, "click cancelled");
@@ -289,6 +289,7 @@ public class CalculateDiffCorr {
 
 			boolean errored = false;
 
+			@Override
 			public Object construct() {
 				try {
 					CorrelationCalc calcy1 = new CorrelationCalc(target1, excluded);
@@ -332,6 +333,7 @@ public class CalculateDiffCorr {
 				return null;
 			}
 
+			@Override
 			public void finished() {
 				if (progress.isCanceled()) {
 					// JOptionPane.showMessageDialog(null, "click cancelled");
@@ -390,6 +392,7 @@ public class CalculateDiffCorr {
 				@Override
 				public Object construct() {
 					EventQueue.invokeLater(new Runnable() {
+						@Override
 						public void run() {
 							try {
 								List<List<Double>> res = computeTwoGroupCorrelations(grp1Ind, grp2Ind);
@@ -419,6 +422,7 @@ public class CalculateDiffCorr {
 				@Override
 				public Object construct() {
 					EventQueue.invokeLater(new Runnable() {
+						@Override
 						public void run() {
 							try {
 								List<List<Double>> res = computeTwoGroupCorrelations(grp1Ind, grp2Ind);
@@ -485,6 +489,7 @@ public class CalculateDiffCorr {
 				@Override
 				public Object construct() {
 					EventQueue.invokeLater(new Runnable() {
+						@Override
 						public void run() {
 							try {
 								pValues = computePermutationPvals(diffZvals, corrRes1, corrRes2);
@@ -524,6 +529,7 @@ public class CalculateDiffCorr {
 		SwingWorker analyzeWorker = new SwingWorker() {
 			public boolean errored = false;
 
+			@Override
 			public Object construct() {
 				try {
 
@@ -548,6 +554,7 @@ public class CalculateDiffCorr {
 				return null;
 			}
 
+			@Override
 			public void finished() {
 				if (progress.isCanceled()) {
 
@@ -613,7 +620,7 @@ public class CalculateDiffCorr {
 			}
 
 			// add +1 for the observed value
-			double thisPval = (double) (numExtreme + 1.0) / (permutedResGrp1.size() + 1.0);
+			double thisPval = (numExtreme + 1.0) / (permutedResGrp1.size() + 1.0);
 
 			result.add(thisPval);
 		}

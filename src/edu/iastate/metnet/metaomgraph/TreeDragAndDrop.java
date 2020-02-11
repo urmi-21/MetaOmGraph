@@ -1,8 +1,6 @@
 package edu.iastate.metnet.metaomgraph;
 
-import java.awt.*;
 import java.awt.datatransfer.*;
-import java.awt.dnd.*;
 import java.util.*;
 import java.util.List;
 import javax.swing.*;
@@ -62,7 +60,8 @@ class TreeTransferHandler2 extends TransferHandler {
         }
     }
 
-    public boolean canImport(TransferHandler.TransferSupport support) {
+    @Override
+	public boolean canImport(TransferHandler.TransferSupport support) {
         if(!support.isDrop()) {
             return false;
         }
@@ -127,7 +126,8 @@ class TreeTransferHandler2 extends TransferHandler {
         return true;
     }
 
-    protected Transferable createTransferable(JComponent c) {
+    @Override
+	protected Transferable createTransferable(JComponent c) {
         JTree tree = (JTree)c;
         TreePath[] paths = tree.getSelectionPaths();
         if(paths != null) {
@@ -171,7 +171,8 @@ class TreeTransferHandler2 extends TransferHandler {
         return new DefaultMutableTreeNode(node);
     }
 
-    protected void exportDone(JComponent source, Transferable data, int action) {
+    @Override
+	protected void exportDone(JComponent source, Transferable data, int action) {
         if((action & MOVE) == MOVE) {
             JTree tree = (JTree)source;
             DefaultTreeModel model = (DefaultTreeModel)tree.getModel();
@@ -182,12 +183,14 @@ class TreeTransferHandler2 extends TransferHandler {
         }
     }
 
-    public int getSourceActions(JComponent c) {
+    @Override
+	public int getSourceActions(JComponent c) {
         return COPY_OR_MOVE;
         //return TransferHandler.MOVE;
     }
 
-    public boolean importData(TransferHandler.TransferSupport support) {
+    @Override
+	public boolean importData(TransferHandler.TransferSupport support) {
         if(!canImport(support)) {
             return false;
         }
@@ -222,7 +225,8 @@ class TreeTransferHandler2 extends TransferHandler {
         return true;
     }
 
-    public String toString() {
+    @Override
+	public String toString() {
         return getClass().getName();
     }
 
@@ -233,18 +237,21 @@ class TreeTransferHandler2 extends TransferHandler {
             this.nodes = nodes;
          }
 
-        public Object getTransferData(DataFlavor flavor)
+        @Override
+		public Object getTransferData(DataFlavor flavor)
                                  throws UnsupportedFlavorException {
             if(!isDataFlavorSupported(flavor))
                 throw new UnsupportedFlavorException(flavor);
             return nodes;
         }
 
-        public DataFlavor[] getTransferDataFlavors() {
+        @Override
+		public DataFlavor[] getTransferDataFlavors() {
             return flavors;
         }
 
-        public boolean isDataFlavorSupported(DataFlavor flavor) {
+        @Override
+		public boolean isDataFlavorSupported(DataFlavor flavor) {
             return nodesFlavor.equals(flavor);
         }
     }

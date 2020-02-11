@@ -122,7 +122,8 @@ public class MetadataPanel extends JPanel {
         tableModel.setColumnEditable(1, true);
         tableEditListener = new TableModelListener() {
 
-            public void tableChanged(TableModelEvent arg0) {
+            @Override
+			public void tableChanged(TableModelEvent arg0) {
                 if (dataTable.getSelectedRow() >= 0) {
                     dataTable.scrollRectToVisible(dataTable.getCellRect(dataTable.getSelectedRow(),
                             dataTable.getSelectedColumn(), true));
@@ -184,7 +185,8 @@ public class MetadataPanel extends JPanel {
         final JScrollPane dataPane = new JScrollPane(dataTable);
         myTree.addTreeSelectionListener(new TreeSelectionListener() {
 
-            public void valueChanged(TreeSelectionEvent arg0) {
+            @Override
+			public void valueChanged(TreeSelectionEvent arg0) {
                 if (myTree.getLastSelectedPathComponent() == null) {
                     deleteButton.setEnabled(false);
                 }
@@ -232,11 +234,13 @@ public class MetadataPanel extends JPanel {
         myTree.setCellEditor(new MetadataTreeCellEditor(myTree, treeRenderer));
         myTree.getCellEditor().addCellEditorListener(new CellEditorListener() {
 
-            public void editingCanceled(ChangeEvent e) {
+            @Override
+			public void editingCanceled(ChangeEvent e) {
 
             }
 
-            public void editingStopped(ChangeEvent e) {
+            @Override
+			public void editingStopped(ChangeEvent e) {
                 String newVal = myTree.getCellEditor().getCellEditorValue() + "";
                 SimpleXMLElement node = (SimpleXMLElement) myTree.getEditingPath()
                         .getLastPathComponent();
@@ -317,7 +321,8 @@ public class MetadataPanel extends JPanel {
         filterButton = new JButton("Filter");
         ActionListener filterListener = new ActionListener() {
 
-            public void actionPerformed(ActionEvent e) {
+            @Override
+			public void actionPerformed(ActionEvent e) {
                 treeModel.setFilter(filterField.getText());
             }
 
@@ -330,7 +335,8 @@ public class MetadataPanel extends JPanel {
         addMenu = new JPopupMenu();
         AbstractAction addExpAction = new AbstractAction("Add Experiment") {
 
-            public void actionPerformed(ActionEvent arg0) {
+            @Override
+			public void actionPerformed(ActionEvent arg0) {
                 String name = JOptionPane.showInputDialog("Name?", "");
                 SimpleXMLElement newNode = myMetadata.createExperimentNode(name);
                 treeModel.reload(newNode.getParent());
@@ -343,7 +349,8 @@ public class MetadataPanel extends JPanel {
         };
         AbstractAction addGroupAction = new AbstractAction("Add Replicate Group") {
 
-            public void actionPerformed(ActionEvent e) {
+            @Override
+			public void actionPerformed(ActionEvent e) {
                 String name = JOptionPane.showInputDialog("Name?", "");
                 SimpleXMLElement parent = (SimpleXMLElement) myTree.getLastSelectedPathComponent();
                 if (parent == null) {
@@ -361,7 +368,8 @@ public class MetadataPanel extends JPanel {
         };
         AbstractAction addSampleAction = new AbstractAction("Add Sample") {
 
-            public void actionPerformed(ActionEvent e) {
+            @Override
+			public void actionPerformed(ActionEvent e) {
                 String name = JOptionPane.showInputDialog("Name?", "");
                 SimpleXMLElement parent = (SimpleXMLElement) myTree.getLastSelectedPathComponent();
                 if (parent == null) {
@@ -392,7 +400,8 @@ public class MetadataPanel extends JPanel {
         inspectMenu = new JPopupMenu();
         AbstractAction findRepsAction = new AbstractAction("Generate replicate groups") {
 
-            public void actionPerformed(ActionEvent e) {
+            @Override
+			public void actionPerformed(ActionEvent e) {
                 if (myMetadata.hasRepGroups()) {
                     int result = JOptionPane
                             .showConfirmDialog(
@@ -420,7 +429,8 @@ public class MetadataPanel extends JPanel {
 
             int selectedRow;
 
-            public void actionPerformed(ActionEvent e) {
+            @Override
+			public void actionPerformed(ActionEvent e) {
                 String[] headers = {"Sample Node", "Associated Column"};
                 ArrayList<SimpleXMLElement> sampleNodes = myMetadata.getSampleNodes();
                 Object[][] data = new Object[sampleNodes.size()][2];
@@ -437,7 +447,8 @@ public class MetadataPanel extends JPanel {
                 final StripedTable myTable = new StripedTable(model);
                 myTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
-                    public void valueChanged(ListSelectionEvent arg0) {
+                    @Override
+					public void valueChanged(ListSelectionEvent arg0) {
                         selectedRow = myTable.getSelectedRow();
                     }
 
@@ -457,17 +468,20 @@ public class MetadataPanel extends JPanel {
                 comboEditor.setEditable(false);
                 comboEditor.addPopupMenuListener(new PopupMenuListener() {
 
-                    public void popupMenuCanceled(PopupMenuEvent arg0) {
+                    @Override
+					public void popupMenuCanceled(PopupMenuEvent arg0) {
                         // TODO Auto-generated method stub
 
                     }
 
-                    public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0) {
+                    @Override
+					public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0) {
                         // TODO Auto-generated method stub
 
                     }
 
-                    public void popupMenuWillBecomeVisible(PopupMenuEvent arg0) {
+                    @Override
+					public void popupMenuWillBecomeVisible(PopupMenuEvent arg0) {
                         Object oldVal = myTable.getValueAt(myTable.getSelectedRow(), 1);
                         comboEditor.removePopupMenuListener(this);
                         comboEditor.insertItemAt(oldVal, 0);
@@ -477,7 +491,8 @@ public class MetadataPanel extends JPanel {
                 });
                 comboEditor.addItemListener(new ItemListener() {
 
-                    public void itemStateChanged(ItemEvent arg0) {
+                    @Override
+					public void itemStateChanged(ItemEvent arg0) {
                         Object item = arg0.getItem();
                         int state = arg0.getStateChange();
                         if (state == ItemEvent.DESELECTED) {
@@ -521,7 +536,8 @@ public class MetadataPanel extends JPanel {
         AbstractAction deleteAction = new AbstractAction("Delete", new ImageIcon(getClass()
                 .getResource("/resource/tango/16x16/places/user-trash.png"))) {
 
-            public void actionPerformed(ActionEvent e) {
+            @Override
+			public void actionPerformed(ActionEvent e) {
                 int ok = JOptionPane
                         .showConfirmDialog(
                                 MetaOmGraph.getDesktop(),
@@ -624,7 +640,8 @@ public class MetadataPanel extends JPanel {
             }
             Transferable transferMe = new Transferable() {
 
-                public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException,
+                @Override
+				public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException,
                         IOException {
                     if (!flavor.equals(metadataFlavor)) {
                         throw new UnsupportedFlavorException(flavor);
@@ -636,11 +653,13 @@ public class MetadataPanel extends JPanel {
                     return result;
                 }
 
-                public DataFlavor[] getTransferDataFlavors() {
+                @Override
+				public DataFlavor[] getTransferDataFlavors() {
                     return new DataFlavor[]{metadataFlavor};
                 }
 
-                public boolean isDataFlavorSupported(DataFlavor flavor) {
+                @Override
+				public boolean isDataFlavorSupported(DataFlavor flavor) {
                     return metadataFlavor.equals(flavor);
                 }
 
@@ -841,7 +860,8 @@ public class MetadataPanel extends JPanel {
             super(items);
         }
 
-        public Component getTableCellRendererComponent(JTable table, Object value,
+        @Override
+		public Component getTableCellRendererComponent(JTable table, Object value,
                                                        boolean isSelected, boolean hasFocus, int row, int column) {
             if (isSelected) {
                 setForeground(table.getSelectionForeground());

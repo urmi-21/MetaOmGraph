@@ -2,14 +2,7 @@ package edu.iastate.metnet.metaomgraph;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
-
-import javax.swing.JOptionPane;
-
 import org.jdom.Element;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
-
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 /**

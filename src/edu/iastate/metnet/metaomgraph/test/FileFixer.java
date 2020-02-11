@@ -1,7 +1,6 @@
 package edu.iastate.metnet.metaomgraph.test;
 
 import java.io.File;
-import java.io.PrintStream;
 import javax.swing.JFileChooser;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;

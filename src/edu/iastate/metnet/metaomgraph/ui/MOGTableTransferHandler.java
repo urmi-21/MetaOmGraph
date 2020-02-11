@@ -1,11 +1,8 @@
 package edu.iastate.metnet.metaomgraph.ui;
 
 import java.awt.datatransfer.*;
-import java.io.IOException;
-
 import javax.activation.ActivationDataFlavor;
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 public class MOGTableTransferHandler extends TransferHandler {
@@ -14,6 +11,7 @@ public class MOGTableTransferHandler extends TransferHandler {
 	private int[] indices = null;
 	private int addIndex = -1; // Location where items were added
 	private int addCount = 0; // Number of items added.
+	@Override
 	public boolean canImport(TransferHandler.TransferSupport info) {
 		// Check for String flavor
 		// if (!info.isDataFlavorSupported(DataFlavor.stringFlavor)) {
@@ -26,6 +24,7 @@ public class MOGTableTransferHandler extends TransferHandler {
 	}
 	
 	// change this function work with multiple selection
+		@Override
 		protected Transferable createTransferable(JComponent c) {
 			JList list = (JList) c;
 

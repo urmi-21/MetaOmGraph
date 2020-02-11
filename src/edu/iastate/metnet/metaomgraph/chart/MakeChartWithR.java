@@ -4,15 +4,10 @@ import java.awt.EventQueue;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
-
 import javax.swing.JOptionPane;
 
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
-import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 
 public class MakeChartWithR {
@@ -60,6 +55,7 @@ public class MakeChartWithR {
 			@Override
 			public Object construct() {
 				EventQueue.invokeLater(new Runnable() {
+					@Override
 					public void run() {
 
 						// save to file as tab delimited and
@@ -129,6 +125,7 @@ public class MakeChartWithR {
 			@Override
 			public Object construct() {
 				EventQueue.invokeLater(new Runnable() {
+					@Override
 					public void run() {
 						Process pr = null;
 						try {
@@ -224,6 +221,7 @@ public class MakeChartWithR {
 			@Override
 			public Object construct() {
 				EventQueue.invokeLater(new Runnable() {
+					@Override
 					public void run() {
 						Process pr = null;
 						try {

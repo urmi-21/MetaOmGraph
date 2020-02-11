@@ -25,8 +25,6 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
-import org.h2.command.dml.Set;
-
 import edu.iastate.metnet.metaomgraph.GraphFileFilter;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.chart.HistogramChart;
@@ -50,6 +48,7 @@ public class SimilarityDisplayFrame extends JInternalFrame {
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					SimilarityDisplayFrame frame = new SimilarityDisplayFrame();
@@ -82,6 +81,7 @@ public class SimilarityDisplayFrame extends JInternalFrame {
 
 		JMenuItem mntmExport = new JMenuItem("Export");
 		mntmExport.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// save to file
 				Utils.saveJTabletofile(table);
@@ -94,6 +94,7 @@ public class SimilarityDisplayFrame extends JInternalFrame {
 
 		JMenuItem mntmAsMatrix = new JMenuItem("As matrix");
 		mntmAsMatrix.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				initTableMatrix();
 				table.repaint();
@@ -105,6 +106,7 @@ public class SimilarityDisplayFrame extends JInternalFrame {
 
 		JMenuItem mntmAsLiist = new JMenuItem("As list");
 		mntmAsLiist.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				initTableList();
 				table.repaint();
@@ -118,6 +120,7 @@ public class SimilarityDisplayFrame extends JInternalFrame {
 		
 		JMenuItem mntmHistogram = new JMenuItem("Histogram");
 		mntmHistogram.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 
 
@@ -128,6 +131,7 @@ public class SimilarityDisplayFrame extends JInternalFrame {
 					data[r] = (double) table.getModel().getValueAt(r, table.getColumn(metricName).getModelIndex());
 				}
 				EventQueue.invokeLater(new Runnable() {
+					@Override
 					public void run() {
 						try {// get data for selected rows
 							int nBins = data.length/100;

@@ -2,7 +2,6 @@ package edu.iastate.metnet.metaomgraph.ui;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -162,7 +161,8 @@ public class PolygonPanel
         private TimedAnimator() {
         }
 
-        public void actionPerformed(ActionEvent e) {
+        @Override
+		public void actionPerformed(ActionEvent e) {
             repaint();
             for (int i = 0; i < myPolygons.length; i++) {
                 myPolygons[i].move();
@@ -172,7 +172,8 @@ public class PolygonPanel
     }
 
 
-    protected void paintComponent(Graphics g) {
+    @Override
+	protected void paintComponent(Graphics g) {
         off = ((Graphics2D) g.create());
         off.setStroke(new BasicStroke(2.0F));
         if (isOpaque()) {

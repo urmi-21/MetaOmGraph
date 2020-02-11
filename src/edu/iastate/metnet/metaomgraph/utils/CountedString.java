@@ -9,7 +9,8 @@ public class CountedString implements Comparable<CountedString> {
         this.count = count;
     }
 
-    public String toString() {
+    @Override
+	public String toString() {
         return text + " (" + count + ")";
     }
 
@@ -21,7 +22,8 @@ public class CountedString implements Comparable<CountedString> {
         return count;
     }
 
-    public int compareTo(CountedString arg0) {
+    @Override
+	public int compareTo(CountedString arg0) {
         if (arg0 == null) {
             return 1;
         }

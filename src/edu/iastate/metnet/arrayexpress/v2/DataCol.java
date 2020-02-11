@@ -16,11 +16,13 @@ public class DataCol implements Comparable<DataCol> {
         }
     }
 
-    public int compareTo(DataCol o) {
+    @Override
+	public int compareTo(DataCol o) {
         return header.compareTo(header);
     }
 
-    public String toString() {
+    @Override
+	public String toString() {
         return col + " - " + header;
     }
 }

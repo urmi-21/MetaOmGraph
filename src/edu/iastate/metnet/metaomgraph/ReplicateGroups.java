@@ -3,15 +3,11 @@ package edu.iastate.metnet.metaomgraph;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 
 import javax.swing.JOptionPane;
-
-import org.biomage.Array.Array;
 
 /**
  * Class to store replicate group objects based on old RepAveragedData class

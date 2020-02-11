@@ -449,7 +449,8 @@ public class WelcomePanel extends JPanel {
 
     private static class ProjectDownloader implements ActionListener {
 
-        public void actionPerformed(ActionEvent e) {
+        @Override
+		public void actionPerformed(ActionEvent e) {
             URL site;
             try {
                 site = new URL(e.getActionCommand());

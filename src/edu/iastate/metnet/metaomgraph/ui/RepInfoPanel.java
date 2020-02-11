@@ -47,12 +47,14 @@ public class RepInfoPanel
     }
 
 
-    public void actionPerformed(ActionEvent paramActionEvent) {
+    @Override
+	public void actionPerformed(ActionEvent paramActionEvent) {
         throw new Error("Unresolved compilation problems: \n\tThe method getReps() is undefined for the type MetaOmProject\n\tThe method getReps() is undefined for the type MetaOmProject\n\tThe method getReps() is undefined for the type MetaOmProject\n\tThe method getReps() is undefined for the type MetaOmProject\n\tThe method getReps() is undefined for the type MetaOmProject\n\tThe method getReps() is undefined for the type MetaOmProject\n\tThe method getReps() is undefined for the type MetaOmProject\n\tThe method getReps() is undefined for the type MetaOmProject\n\tThe method getReps() is undefined for the type MetaOmProject\n\tThe method getReps() is undefined for the type MetaOmProject\n");
     }
 
 
-    public void tableChanged(TableModelEvent paramTableModelEvent) {
+    @Override
+	public void tableChanged(TableModelEvent paramTableModelEvent) {
         throw new Error("Unresolved compilation problems: \n\tThe method getReps() is undefined for the type MetaOmProject\n\tThe method getReps() is undefined for the type MetaOmProject\n");
     }
 
@@ -103,12 +105,14 @@ public class RepInfoPanel
             throw new Error("Unresolved compilation problem: \n");
         }
 
-        public Insets getBorderInsets(Component paramComponent) {
+        @Override
+		public Insets getBorderInsets(Component paramComponent) {
             throw new Error("Unresolved compilation problem: \n");
         }
 
 
-        public void paintBorder(Component paramComponent, Graphics paramGraphics, int paramInt1, int paramInt2, int paramInt3, int paramInt4) {
+        @Override
+		public void paintBorder(Component paramComponent, Graphics paramGraphics, int paramInt1, int paramInt2, int paramInt3, int paramInt4) {
             throw new Error("Unresolved compilation problem: \n");
         }
 

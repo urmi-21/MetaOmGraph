@@ -2,8 +2,6 @@ package edu.iastate.metnet.metaomgraph.ui;
 
 import edu.iastate.metnet.metaomgraph.FilterableTableModel;
 import edu.iastate.metnet.metaomgraph.TableSorter;
-import edu.iastate.metnet.metaomgraph.utils.NumberStringComparator;
-
 import java.awt.Color;
 import java.awt.Component;
 import javax.swing.JTable;
@@ -75,7 +73,8 @@ public class SortableFilterableTable
     }
 
 
-    public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+    @Override
+	public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
         Component c = super.prepareRenderer(renderer, row, column);
         if ((c instanceof StripedTable.ColorRenderer)) {
             return c;
@@ -101,7 +100,8 @@ public class SortableFilterableTable
         this.striped = striped;
     }
 
-    public void setModel(TableModel dataModel) {
+    @Override
+	public void setModel(TableModel dataModel) {
         mainModel = dataModel;
         filterModel = new FilterableTableModel(mainModel);
         sorter = new TableSorter(filterModel);

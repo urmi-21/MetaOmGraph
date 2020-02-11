@@ -22,7 +22,8 @@ public class SortableData extends Number  implements Comparable {
         this.sortByData = sortByData;
     }
 
-    public int compareTo(Object arg0) {
+    @Override
+	public int compareTo(Object arg0) {
         double compareMe;
         if ((arg0 instanceof SortableData)) {
             compareMe = ((SortableData) arg0).getValueToCompare();
@@ -63,19 +64,23 @@ public class SortableData extends Number  implements Comparable {
         return sortByData ? value : index;
     }
 
-    public double doubleValue() {
+    @Override
+	public double doubleValue() {
         return value;
     }
 
-    public float floatValue() {
+    @Override
+	public float floatValue() {
         return (float) value;
     }
 
-    public int intValue() {
+    @Override
+	public int intValue() {
         return (int) value;
     }
 
-    public long longValue() {
+    @Override
+	public long longValue() {
         return (long) value;
     }
 

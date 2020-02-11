@@ -1,9 +1,5 @@
 package edu.iastate.metnet.metaomgraph;
 
-import java.util.Arrays;
-
-import javax.swing.JOptionPane;
-
 //estimate density using B spline
 public class ComputeDensityFromSpline {
 	private double[] knotVector;

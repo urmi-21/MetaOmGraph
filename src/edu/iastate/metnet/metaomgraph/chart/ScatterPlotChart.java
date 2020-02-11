@@ -2,36 +2,24 @@ package edu.iastate.metnet.metaomgraph.chart;
 
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.HeadlessException;
 import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Polygon;
-import java.awt.RenderingHints;
 import java.awt.Dimension;
 import java.awt.Shape;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.awt.font.FontRenderContext;
-import java.awt.font.TextLayout;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.beans.PropertyVetoException;
-import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,30 +27,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.Vector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
-import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Color;
 
 import javax.swing.JPanel;
-import javax.swing.JToolBar;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
-import javax.swing.JFileChooser;
-import javax.swing.JFormattedTextField;
-
 import org.jcolorbrewer.ColorBrewer;
 import org.jcolorbrewer.ui.ColorPaletteChooserDialog;
 import org.jfree.chart.ChartFactory;
@@ -70,40 +49,22 @@ import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.LegendItemEntity;
-import org.jfree.chart.entity.PlotEntity;
 import org.jfree.chart.entity.XYItemEntity;
-import org.jfree.chart.event.ChartChangeEvent;
-import org.jfree.chart.event.ChartChangeListener;
-import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.plot.*;
-import org.jfree.chart.renderer.xy.XYErrorRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
-import org.jfree.chart.renderer.xy.XYItemRendererState;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.title.LegendTitle;
-import org.jfree.data.xy.AbstractIntervalXYDataset;
-import org.jfree.data.xy.DefaultTableXYDataset;
-import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYDataset;
-import org.jfree.data.xy.XYIntervalSeries;
-import org.jfree.data.xy.XYIntervalSeriesCollection;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.util.ShapeUtilities;
-
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
-import edu.iastate.metnet.metaomgraph.ComponentToImage;
-import edu.iastate.metnet.metaomgraph.GraphFileFilter;
 import edu.iastate.metnet.metaomgraph.IconTheme;
 import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
-import edu.iastate.metnet.metaomgraph.ui.StripedTable;
 import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import javax.swing.JScrollPane;
@@ -171,6 +132,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 
@@ -286,6 +248,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		panel.add(spinner);
 		// add change listener
 		ChangeListener listener = new ChangeListener() {
+			@Override
 			public void stateChanged(ChangeEvent e) {
 				pointSize = (double) spinner.getValue();
 				updateChart();
@@ -336,7 +299,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 
 		// use palette if available
 		if (currentlySetColors != null) {
-			plot.setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(currentlySetColors,
+			plot.setDrawingSupplier(new DefaultDrawingSupplier(currentlySetColors,
 					DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
@@ -349,7 +312,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 			//redraw plot
 			Paint[] defaultPaint = DefaultDrawingSupplier.DEFAULT_PAINT_SEQUENCE;
 			Color[] defaultColor = Utils.paintArraytoColor(defaultPaint);
-			plot.setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(Utils.filterColors(defaultColor),
+			plot.setDrawingSupplier(new DefaultDrawingSupplier(Utils.filterColors(defaultColor),
 					DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
@@ -381,6 +344,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 				g2d.dispose();
 			}
 
+			@Override
 			public void actionPerformed(ActionEvent e) {
 
 				if (e.getActionCommand().equals(ChartPanel.SAVE_COMMAND)) {
@@ -890,14 +854,17 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		final double miny = range.getLowerBound();
 		final double maxy = range.getUpperBound();
 		Point2D result = new Point2D() {
+			@Override
 			public double getX() {
 				return (maxx - maxy) / 2.0D;
 			}
 
+			@Override
 			public double getY() {
 				return (maxy - miny) / 2;
 			}
 
+			@Override
 			public void setLocation(double x, double y) {
 			}
 		};

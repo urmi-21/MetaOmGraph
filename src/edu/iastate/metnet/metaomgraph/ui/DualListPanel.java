@@ -312,7 +312,8 @@ public class DualListPanel
         fireChange(new ChangeEvent("reset"));
     }
 
-    public void actionPerformed(ActionEvent arg0) {
+    @Override
+	public void actionPerformed(ActionEvent arg0) {
         if (arg0.getActionCommand().equals("add")) {
             doAdd();
             return;

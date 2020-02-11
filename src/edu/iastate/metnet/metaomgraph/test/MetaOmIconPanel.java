@@ -4,7 +4,6 @@ import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
@@ -23,7 +22,6 @@ import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -71,7 +69,8 @@ public class MetaOmIconPanel extends JPanel {
         }
     }
 
-    protected void paintComponent(Graphics g) {
+    @Override
+	protected void paintComponent(Graphics g) {
         Graphics2D g2d = (Graphics2D) g.create();
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
                 RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
@@ -234,7 +233,8 @@ public class MetaOmIconPanel extends JPanel {
 
         panel.setFocusable(true);
         panel.addKeyListener(new KeyAdapter() {
-            public void keyTyped(KeyEvent e) {
+            @Override
+			public void keyTyped(KeyEvent e) {
                 System.out.println("Keyed!");
                 File dest = Utils.chooseFileToSave();
                 if (dest == null) {

@@ -4,7 +4,6 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 public class OriginalOrderMap<K, V> extends AbstractMap<K, V> {
 
@@ -28,15 +27,18 @@ public class OriginalOrderMap<K, V> extends AbstractMap<K, V> {
             final V value = myMap.get(i);
             ComparableEntry<K, V> addMe = new ComparableEntry<K, V>() {
 
-                public V setValue(V value) {
+                @Override
+				public V setValue(V value) {
                     return null;
                 }
 
-                public V getValue() {
+                @Override
+				public V getValue() {
                     return value;
                 }
 
-                public K getKey() {
+                @Override
+				public K getKey() {
                     return key;
                 }
             };
@@ -45,7 +47,8 @@ public class OriginalOrderMap<K, V> extends AbstractMap<K, V> {
         return result;
     }
 
-    public V put(K key, V value) {
+    @Override
+	public V put(K key, V value) {
         if (keys.contains(key)) {
             int insertHere = keys.indexOf(key);
             myMap.put(insertHere, value);
@@ -59,17 +62,21 @@ public class OriginalOrderMap<K, V> extends AbstractMap<K, V> {
     @SuppressWarnings("hiding")
     private abstract class ComparableEntry<K, V> implements Entry<K, V>, Comparable<ComparableEntry> {
 
-        public int compareTo(ComparableEntry o) {
+        @Override
+		public int compareTo(ComparableEntry o) {
             Comparable o1 = (Comparable) getKey();
             Comparable o2 = (Comparable) getKey();
             return o1.compareTo(o2);
         }
 
-        public abstract K getKey();
+        @Override
+		public abstract K getKey();
 
-        public abstract V getValue();
+        @Override
+		public abstract V getValue();
 
-        public abstract V setValue(V value);
+        @Override
+		public abstract V setValue(V value);
 
     }
 }

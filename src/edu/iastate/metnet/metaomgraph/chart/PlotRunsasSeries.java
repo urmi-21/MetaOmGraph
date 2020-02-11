@@ -6,9 +6,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
@@ -104,7 +104,7 @@ public class PlotRunsasSeries extends JPanel implements ChartChangeListener, Cha
 		SwingUtilities.invokeLater(() -> {
 			JFrame newf = new JFrame();
 			newf.setContentPane(panel);
-			newf.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			newf.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 			newf.pack();
 			newf.setVisible(true);
 		});

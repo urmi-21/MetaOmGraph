@@ -1,6 +1,5 @@
 package edu.iastate.metnet.metaomgraph.throbber;
 
-import java.awt.Container;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -33,15 +32,18 @@ public class ImageThrobber
         }
     }
 
-    public int getThrobberWidth() {
+    @Override
+	public int getThrobberWidth() {
         return width;
     }
 
-    public int getThrobberHeight() {
+    @Override
+	public int getThrobberHeight() {
         return height;
     }
 
-    protected void drawThrobber(Graphics2D g2d) {
+    @Override
+	protected void drawThrobber(Graphics2D g2d) {
         g2d.drawImage(frames[frame], 0, 0, getThrobberWidth(), getThrobberHeight(), null);
         frame = ((frame + 1) % frames.length);
     }
@@ -58,7 +60,8 @@ public class ImageThrobber
         f.pack();
         f.setDefaultCloseOperation(3);
         f.getContentPane().addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {
+            @Override
+			public void mouseClicked(MouseEvent e) {
                 if (isAnimating()) {
                     throbber.stop();
                 } else
@@ -67,19 +70,23 @@ public class ImageThrobber
             }
 
 
-            public void mousePressed(MouseEvent e) {
+            @Override
+			public void mousePressed(MouseEvent e) {
             }
 
 
-            public void mouseReleased(MouseEvent e) {
+            @Override
+			public void mouseReleased(MouseEvent e) {
             }
 
 
-            public void mouseEntered(MouseEvent e) {
+            @Override
+			public void mouseEntered(MouseEvent e) {
             }
 
 
-            public void mouseExited(MouseEvent e) {
+            @Override
+			public void mouseExited(MouseEvent e) {
             }
         });
         f.setVisible(true);

@@ -2,12 +2,10 @@ package edu.iastate.metnet.metaomgraph.ui;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -18,11 +16,9 @@ import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
-import javax.swing.plaf.ColorUIResource;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
@@ -30,7 +26,6 @@ import javax.swing.table.TableModel;
 import edu.iastate.metnet.metaomgraph.CorrelationMeta;
 import edu.iastate.metnet.metaomgraph.CorrelationMetaCollection;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
-import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 public class StripedTable extends JTable {
 	// public static final ColorUIResource alternateRowColor = new
@@ -123,6 +118,7 @@ public class StripedTable extends JTable {
 		return row % 2 == 0 ? BCKGRNDCOLOR1 : BCKGRNDCOLOR2;
 	}
 
+	@Override
 	public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
 		Component c = super.prepareRenderer(renderer, row, column);
 		if ((c instanceof ColorRenderer)) {
@@ -157,6 +153,7 @@ public class StripedTable extends JTable {
 			button.setBorderPainted(false);
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			if ("edit".equals(e.getActionCommand())) {
 
@@ -175,10 +172,12 @@ public class StripedTable extends JTable {
 			}
 		}
 
+		@Override
 		public Object getCellEditorValue() {
 			return currentColor;
 		}
 
+		@Override
 		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
 				int column) {
 			currentColor = ((Color) value);
@@ -194,11 +193,13 @@ public class StripedTable extends JTable {
 			setOpaque(true);
 		}
 
+		@Override
 		protected void paintComponent(Graphics g) {
 			g.setColor(myColor);
 			g.fillRect(getX(), getY(), getWidth(), getHeight());
 		}
 
+		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
 				int row, int column) {
 			myColor = ((Color) value);
@@ -220,6 +221,7 @@ public class StripedTable extends JTable {
 			setOpaque(true);
 		}
 
+		@Override
 		public Component getTableCellRendererComponent(JTable table, Object color, boolean isSelected, boolean hasFocus,
 				int row, int column) {
 			Color newColor = (Color) color;

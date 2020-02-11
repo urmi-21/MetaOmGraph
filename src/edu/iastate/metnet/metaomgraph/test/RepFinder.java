@@ -34,12 +34,14 @@ public class RepFinder {
         }
 
 
-        public boolean equals(Object paramObject) {
+        @Override
+		public boolean equals(Object paramObject) {
             throw new Error("Unresolved compilation problem: \n");
         }
 
 
-        public int compareTo(Sample paramSample) {
+        @Override
+		public int compareTo(Sample paramSample) {
             throw new Error("Unresolved compilation problem: \n");
         }
     }
@@ -97,7 +99,8 @@ public class RepFinder {
         }
 
 
-        public int compareTo(RepGroup paramRepGroup) {
+        @Override
+		public int compareTo(RepGroup paramRepGroup) {
             throw new Error("Unresolved compilation problem: \n");
         }
     }

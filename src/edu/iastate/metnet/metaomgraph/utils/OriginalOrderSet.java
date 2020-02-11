@@ -22,7 +22,8 @@ public class OriginalOrderSet<E> extends AbstractSet<E> {
         return list.size();
     }
 
-    public boolean add(E o) {
+    @Override
+	public boolean add(E o) {
         if (list.contains(o)) {
             return false;
         }

@@ -1,7 +1,5 @@
 package edu.iastate.metnet.metaomgraph.chart;
 
-import edu.iastate.metnet.metaomgraph.MetaOmProject;
-
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -13,14 +11,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.geom.Rectangle2D.Double;
-import java.io.PrintStream;
 import java.util.Vector;
 import javax.swing.Timer;
-
-import org.jfree.chart.ChartPanel;
 
 
 public class RangeSelector implements MouseListener, MouseMotionListener {
@@ -58,25 +51,30 @@ public class RangeSelector implements MouseListener, MouseMotionListener {
         phase = 0;
         stroke = new BasicStroke(1.0F, 0, 1, 1.0F, new float[]{dashSize, gapSize}, dashSize + gapSize - phase);
         t = new Timer(50, new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            @Override
+			public void actionPerformed(ActionEvent e) {
                 updateStroke();
             }
         });
     }
 
 
-    public void mouseClicked(MouseEvent mouseevent) {
+    @Override
+	public void mouseClicked(MouseEvent mouseevent) {
     }
 
 
-    public void mouseEntered(MouseEvent mouseevent) {
+    @Override
+	public void mouseEntered(MouseEvent mouseevent) {
     }
 
 
-    public void mouseExited(MouseEvent mouseevent) {
+    @Override
+	public void mouseExited(MouseEvent mouseevent) {
     }
 
-    public void mousePressed(MouseEvent e) {
+    @Override
+	public void mousePressed(MouseEvent e) {
         if (e.getButton() != 1) return;
         area = myChartPanel.getChartPanel().getScreenDataArea();
         if (!area.contains(e.getPoint())) {
@@ -93,7 +91,8 @@ public class RangeSelector implements MouseListener, MouseMotionListener {
     }
 
 
-    public void mouseReleased(MouseEvent e) {
+    @Override
+	public void mouseReleased(MouseEvent e) {
         System.out.println("released at " + endPoint);
         dragging = false;
         t.stop();
@@ -120,7 +119,8 @@ public class RangeSelector implements MouseListener, MouseMotionListener {
         actionPerformed();
     }
 
-    public void mouseDragged(MouseEvent e) {
+    @Override
+	public void mouseDragged(MouseEvent e) {
         if (!dragging) return;
         if (!area.contains(e.getPoint())) return;
         if (e.getX() + myChartPanel.getChartPanel().getX() < screenStart) {
@@ -140,7 +140,8 @@ public class RangeSelector implements MouseListener, MouseMotionListener {
         g2d.dispose();
     }
 
-    public void mouseMoved(MouseEvent mouseevent) {
+    @Override
+	public void mouseMoved(MouseEvent mouseevent) {
     }
 
     public void paintComponent(Graphics g) {

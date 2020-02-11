@@ -24,7 +24,6 @@ import javax.swing.table.TableRowSorter;
 
 //import com.itextpdf.xmp.impl.Utils;
 
-import apple.awt.CButton;
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 
@@ -74,6 +73,7 @@ public class SearchByExpressionFrame extends JInternalFrame {
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					SearchByExpressionFrame frame = new SearchByExpressionFrame(null);
@@ -139,6 +139,7 @@ public class SearchByExpressionFrame extends JInternalFrame {
 		 */
 		initFrame();
 		comboBox.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				int selected = comboBox.getSelectedIndex();
 				if (selected == 0) {
@@ -162,11 +163,13 @@ public class SearchByExpressionFrame extends JInternalFrame {
 
 		btnGo = new JButton("Go");
 		btnGo.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				new AnimatedSwingWorker("Working...", true) {
 					@Override
 					public Object construct() {
 						EventQueue.invokeLater(new Runnable() {
+							@Override
 							public void run() {
 								try {
 									startSearch();
@@ -200,6 +203,7 @@ public class SearchByExpressionFrame extends JInternalFrame {
 
 		mntmExportResults = new JMenuItem("Export results");
 		mntmExportResults.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				edu.iastate.metnet.metaomgraph.utils.Utils.saveJTabletofile(table_1);
 			}
@@ -232,10 +236,12 @@ public class SearchByExpressionFrame extends JInternalFrame {
 	public void initLeftTable() {
 
 		table = new JTable() {
+			@Override
 			public boolean getScrollableTracksViewportWidth() {
 				return getPreferredSize().width < getParent().getWidth();
 			}
 
+			@Override
 			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
 				Component c = super.prepareRenderer(renderer, row, column);
 
@@ -331,10 +337,12 @@ public class SearchByExpressionFrame extends JInternalFrame {
 	public void initRightTable(List<String> colNames, List<List<String>> data) {
 
 		table_1 = new JTable() {
+			@Override
 			public boolean getScrollableTracksViewportWidth() {
 				return getPreferredSize().width < getParent().getWidth();
 			}
 
+			@Override
 			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
 				Component c = super.prepareRenderer(renderer, row, column);
 

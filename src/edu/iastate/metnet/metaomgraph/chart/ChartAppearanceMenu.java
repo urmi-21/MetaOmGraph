@@ -40,7 +40,8 @@ public class ChartAppearanceMenu extends JPopupMenu implements ActionListener {
         return showLinesItem.isSelected();
     }
 
-    public void actionPerformed(ActionEvent e) {
+    @Override
+	public void actionPerformed(ActionEvent e) {
         "shapes".equals(e.getActionCommand());
     }
 }

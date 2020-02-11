@@ -3,16 +3,13 @@ package edu.iastate.metnet.metaomgraph.ui;
 import edu.iastate.metnet.metaomgraph.HashLoadable;
 import edu.iastate.metnet.metaomgraph.HashtableSavePanel;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
-import edu.iastate.metnet.metaomgraph.MetaOmHelpListener;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.Metadata;
-import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.utils.qdxml.SimpleXMLElement;
 import edu.iastate.metnet.metaomgraph.utils.qdxml.SimpleXMLizable;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -21,7 +18,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import javax.swing.AbstractAction;
-import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -30,11 +26,8 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
@@ -170,12 +163,14 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 		JButton cancelButton = new JButton("Cancel");
 		isOK = false;
 		okButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				isOK = true;
 				myDialog.dispose();
 			}
 		});
 		cancelButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				isOK = false;
 				myDialog.dispose();
@@ -190,6 +185,7 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 		int height = MetaOmGraph.getMainWindow().getHeight();
 		myDialog.setLocation((width - myDialog.getWidth()) / 2, (height - myDialog.getHeight()) / 2);
 		AbstractAction helpAction = new AbstractAction() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				MetaOmGraph.getHelpListener().actionPerformed(new ActionEvent(myDialog, 0, "metadatasort.php"));
 			}
@@ -319,6 +315,7 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 		}
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		if ("more".equals(e.getActionCommand())) {
 			addQueryField();
@@ -342,6 +339,7 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 		public QuerySet() {
 		}
 
+		@Override
 		public SimpleXMLElement toXML() {
 			SimpleXMLElement result = new SimpleXMLElement(getXMLElementName()).setAttribute("matchAll",
 					matchAll ? "true" : "false");
@@ -351,6 +349,7 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 			return result;
 		}
 
+		@Override
 		public QuerySet fromXML(SimpleXMLElement source) {
 			matchAll = "true".equals(source.getAttributeValue("matchAll"));
 			queries = new Metadata.MetadataQuery[source.getChildCount()];
@@ -366,6 +365,7 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 		}
 	}
 
+	@Override
 	public QuerySet getSaveData() {
 		boolean all = allButton.isSelected();
 		ArrayList<Metadata.MetadataQuery> result = new ArrayList();
@@ -383,6 +383,7 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 		return new QuerySet(resultArray, all);
 	}
 
+	@Override
 	public void loadData(QuerySet data) {
 		queryPanel.removeAll();
 		Metadata.MetadataQuery[] queries = data.queries;
@@ -403,6 +404,7 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 		mainScrollPane.setViewportView(queryViewport);
 	}
 
+	@Override
 	public String getNoun() {
 		return "query set";
 	}

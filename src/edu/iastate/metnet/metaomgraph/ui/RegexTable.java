@@ -26,7 +26,8 @@ public class RegexTable {
         { "J", "Jack", 49.54 }, { "K", "Kids", 280.00 } };
     String columns[] = { "Symbol", "Name", "Price" };
     TableModel model = new DefaultTableModel(rows, columns) {
-      public Class getColumnClass(int column) {
+      @Override
+	public Class getColumnClass(int column) {
         Class returnValue;
         if ((column >= 0) && (column < getColumnCount())) {
           returnValue = getValueAt(0, column).getClass();
@@ -51,7 +52,8 @@ public class RegexTable {
     frame.add(panel, BorderLayout.NORTH);
     JButton button = new JButton("Filter");
     button.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
+      @Override
+	public void actionPerformed(ActionEvent e) {
         String text = filterText.getText();
         if (text.length() == 0) {
           sorter.setRowFilter(null);

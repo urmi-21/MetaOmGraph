@@ -1,8 +1,6 @@
 package edu.iastate.metnet.metaomgraph.ui;
 
-import java.awt.Container;
 import java.awt.Dialog;
-import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -87,7 +85,8 @@ public class BlockingProgressDialog
         c.fill = 0;
         getContentPane().add(cancelButton, c);
         addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent arg0) {
+            @Override
+			public void windowClosing(WindowEvent arg0) {
                 if (!cancelButton.isEnabled()) {
                     return;
                 }
@@ -111,7 +110,8 @@ public class BlockingProgressDialog
         }
     }
 
-    public void actionPerformed(ActionEvent arg0) {
+    @Override
+	public void actionPerformed(ActionEvent arg0) {
         if ("cancel".equals(arg0.getActionCommand())) {
             canceled = true;
             dispose();

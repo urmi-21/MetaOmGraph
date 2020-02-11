@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
@@ -27,6 +26,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.RowFilter;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
@@ -35,7 +35,6 @@ import javax.swing.table.TableColumnModel;
 import org.dizitart.no2.Document;
 
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
-import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
 
 import javax.swing.table.TableModel;
@@ -134,6 +133,7 @@ public class Metadataviewer extends JFrame implements ActionListener {
 		String[] colNames = headers;
 		panel.setLayout(new BorderLayout());
 		table = new JTable() {
+			@Override
 			public boolean getScrollableTracksViewportWidth() {
 				return getPreferredSize().width < getParent().getWidth();
 			}
@@ -175,14 +175,15 @@ public class Metadataviewer extends JFrame implements ActionListener {
 
 		// JScrollPane tableContainer = new JScrollPane(table);
 		// panel.add(tableContainer, BorderLayout.CENTER);
-		JScrollPane scrollPane = new JScrollPane(table, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		JScrollPane scrollPane = new JScrollPane(table, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 		// scrollPane.setSize(900, 900);
 		panel.add(scrollPane, BorderLayout.CENTER);
 
 		// add filter button
 		JButton jButton1 = new JButton("Filter");
 		jButton1.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				System.out.println("button pressed");
 				// filter metadata
@@ -556,8 +557,8 @@ public class Metadataviewer extends JFrame implements ActionListener {
 	public void displayTable(JTable t) {
 		JFrame frame = new JFrame("Search Results");
 		JPanel jp = new JPanel();
-		JScrollPane scrollPane = new JScrollPane(table, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		JScrollPane scrollPane = new JScrollPane(table, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 		// scrollPane.setSize(900, 900);
 		jp.add(scrollPane, BorderLayout.CENTER);
 

@@ -35,21 +35,25 @@ public class ByteArrayDataSource implements javax.activation.DataSource {
         this.type = type;
     }
 
-    public java.io.InputStream getInputStream() throws IOException {
+    @Override
+	public java.io.InputStream getInputStream() throws IOException {
         if (data == null)
             throw new IOException("no data");
         return new java.io.ByteArrayInputStream(data);
     }
 
-    public java.io.OutputStream getOutputStream() throws IOException {
+    @Override
+	public java.io.OutputStream getOutputStream() throws IOException {
         throw new IOException("cannot do this");
     }
 
-    public String getContentType() {
+    @Override
+	public String getContentType() {
         return type;
     }
 
-    public String getName() {
+    @Override
+	public String getName() {
         return "dummy";
     }
 }

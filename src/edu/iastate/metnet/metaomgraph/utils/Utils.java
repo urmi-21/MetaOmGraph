@@ -58,8 +58,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
 import org.apache.commons.math3.analysis.function.Atanh;
-import org.biomage.Array.Array;
-
 import edu.iastate.metnet.metaomgraph.GraphFileFilter;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 
@@ -227,6 +225,7 @@ public class Utils {
 		}
 		if (filter != null) {
 			FilenameFilter nameFilter = new FilenameFilter() {
+				@Override
 				public boolean accept(File dir, String name) {
 					return filter.accept(new File(dir, name));
 				}
@@ -314,6 +313,7 @@ public class Utils {
 		}
 		if (filter != null) {
 			FilenameFilter nameFilter = new FilenameFilter() {
+				@Override
 				public boolean accept(File dir, String name) {
 
 					return filter.accept(new File(dir, name));
@@ -425,6 +425,7 @@ public class Utils {
 
 		FileFilter filter = new FileFilter() {
 
+			@Override
 			public boolean accept(File f) {
 				if (f.isDirectory())
 					return true;
@@ -435,6 +436,7 @@ public class Utils {
 				return false;
 			}
 
+			@Override
 			public String getDescription() {
 				String extString = "(*." + extensions[0];
 				for (int x = 1; x < extensions.length; x++) {
@@ -864,6 +866,7 @@ public class Utils {
 		panel.add(new JLabel(message));
 		panel.add(box);
 		JButton okButton = new JButton(new AbstractAction("OK") {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				result.setValue(box.getSelectedIndex());
 				dialog.dispose();
@@ -871,6 +874,7 @@ public class Utils {
 
 		});
 		JButton cancelButton = new JButton(new AbstractAction("Cancel") {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				dialog.dispose();
 			}
@@ -902,6 +906,7 @@ public class Utils {
 			return value;
 		}
 
+		@Override
 		public String toString() {
 			return value + "";
 		}
@@ -1347,6 +1352,7 @@ public class Utils {
 			return null;
 		}
 		return dir.listFiles(new FilenameFilter() {
+			@Override
 			public boolean accept(File dir, String filename) {
 				return filename.endsWith(extension);
 			}

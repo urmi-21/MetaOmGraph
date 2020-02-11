@@ -4,46 +4,28 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Paint;
-import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
-import java.io.File;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.TreeMap;
-import java.util.stream.DoubleStream;
-import java.util.stream.IntStream;
-
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
-import javax.swing.JFileChooser;
-import javax.swing.JFormattedTextField;
 import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JToggleButton;
-import javax.swing.text.DefaultFormatterFactory;
-
-import org.apache.commons.math3.distribution.BetaDistribution;
-import org.apache.commons.math3.distribution.NormalDistribution;
-import org.apache.commons.math3.distribution.PoissonDistribution;
 import org.jcolorbrewer.ColorBrewer;
 import org.jcolorbrewer.ui.ColorPaletteChooserDialog;
 import org.jfree.chart.ChartFactory;
@@ -54,24 +36,15 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.entity.LegendItemEntity;
 import org.jfree.chart.entity.XYItemEntity;
-import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.chart.plot.DefaultDrawingSupplier;
 import org.jfree.chart.plot.DrawingSupplier;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYBarPainter;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
-import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.title.LegendTitle;
 import org.jfree.data.statistics.HistogramDataset;
-import org.jfree.data.xy.XYDataset;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.util.ShapeUtilities;
-
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
-import edu.iastate.metnet.metaomgraph.ComponentToImage;
-import edu.iastate.metnet.metaomgraph.GraphFileFilter;
 import edu.iastate.metnet.metaomgraph.IconTheme;
 import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
@@ -79,8 +52,6 @@ import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
-import edu.iastate.metnet.metaomgraph.utils.Utils.ChangeableInt;
-
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 
@@ -144,6 +115,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					HistogramChart frame = new HistogramChart(null, 1, null, 2, null);
@@ -206,6 +178,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		alphaSlider.setMaximum((int) maxAlpha);
 		alphaSlider.setMinimum((int) minAlpha);
 		alphaSlider.addChangeListener(new ChangeListener() {
+			@Override
 			public void stateChanged(ChangeEvent arg0) {
 				float alphaVal = alphaSlider.getValue() / 10.0F;
 				// JOptionPane.showMessageDialog(null, "val:"+alphaVal);
@@ -333,7 +306,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		myRenderer = (XYBarRenderer) plot.getRenderer();
 		myRenderer.setBarPainter(new StandardXYBarPainter());
 		if (colorArray != null) {
-			plot.setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(colorArray,
+			plot.setDrawingSupplier(new DefaultDrawingSupplier(colorArray,
 					DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
@@ -342,7 +315,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		} else {
 			Paint[] defaultPaint = DefaultDrawingSupplier.DEFAULT_PAINT_SEQUENCE;
 			Color[] defaultColor = Utils.paintArraytoColor(defaultPaint);
-			plot.setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(Utils.filterColors(defaultColor),
+			plot.setDrawingSupplier(new DefaultDrawingSupplier(Utils.filterColors(defaultColor),
 					DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
@@ -350,6 +323,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 					DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE));
 		}
 		chartPanel = new ChartPanel(myChart, 800, 600, 2, 2, 10000, 10000, true, true, true, true, true, true) {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (e.getActionCommand().equals(ChartPanel.SAVE_COMMAND)) {
 					ChartActions.exportChart(this);
@@ -698,14 +672,17 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		final double miny = range.getLowerBound();
 		final double maxy = range.getUpperBound();
 		Point2D result = new Point2D() {
+			@Override
 			public double getX() {
 				return (maxx - maxy) / 2.0D;
 			}
 
+			@Override
 			public double getY() {
 				return (maxy - miny) / 2;
 			}
 
+			@Override
 			public void setLocation(double x, double y) {
 			}
 		};

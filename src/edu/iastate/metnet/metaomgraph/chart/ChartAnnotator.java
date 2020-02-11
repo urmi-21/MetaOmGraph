@@ -4,17 +4,11 @@ import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.ui.NoneditableTableModel;
 
 import java.awt.BasicStroke;
-import java.awt.Container;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
-import java.awt.geom.Point2D.Double;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -23,9 +17,6 @@ import javax.swing.JTable;
 
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.annotations.XYAnnotation;
 import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.LegendItemEntity;
@@ -33,9 +24,7 @@ import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.event.ChartChangeEvent;
 import org.jfree.chart.event.ChartProgressEvent;
 import org.jfree.chart.event.ChartProgressListener;
-import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.xy.XYDataset;
 
 public class ChartAnnotator implements ChartMouseListener, ChartProgressListener {
 	private JTable annotTable;
@@ -71,6 +60,7 @@ public class ChartAnnotator implements ChartMouseListener, ChartProgressListener
 		JButton clearButton = new JButton("Clear all");
 		initAnnotationTable();
 		clearButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				int result = JOptionPane.showConfirmDialog(null,	"Are you sure you want to remove ALL annotations from this chart?", "Confirm", 0, 2);
 				if (result == 0) {
@@ -85,6 +75,7 @@ public class ChartAnnotator implements ChartMouseListener, ChartProgressListener
 			}
 		});
 		removeButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				int[] removeUs = annotTable.getSelectedRows();
 				if ((removeUs.length <= 0) || (annotationList == null))
@@ -142,6 +133,7 @@ public class ChartAnnotator implements ChartMouseListener, ChartProgressListener
 		annotTable = new JTable(new NoneditableTableModel(annotations, headers));
 	}
 
+	@Override
 	public void chartMouseMoved(ChartMouseEvent arg0) {
 		if (!myChartPanel.getChartPanel().getScreenDataArea().contains(arg0.getTrigger().getPoint())) {
 			if (arg0.getEntity() == null) {
@@ -154,6 +146,7 @@ public class ChartAnnotator implements ChartMouseListener, ChartProgressListener
 		}
 	}
 
+	@Override
 	public void chartMouseClicked(ChartMouseEvent arg0) {
 		if ((arg0.getEntity() instanceof LegendItemEntity)) {
 			doLegendEntity((LegendItemEntity) arg0.getEntity());
@@ -256,6 +249,7 @@ public class ChartAnnotator implements ChartMouseListener, ChartProgressListener
 				myChartPanel.getChart().getXYPlot().addAnnotation(annotationList.get(i));
 	}
 
+	@Override
 	public void chartProgress(ChartProgressEvent event) {
 		if (event.getType() != 2) {
 			return;

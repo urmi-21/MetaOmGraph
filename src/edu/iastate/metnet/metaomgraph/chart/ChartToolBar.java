@@ -5,20 +5,12 @@ import edu.iastate.metnet.metaomgraph.ComponentToImage;
 import edu.iastate.metnet.metaomgraph.IconTheme;
 import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
-import edu.iastate.metnet.metaomgraph.MetaOmProject;
-import edu.iastate.metnet.metaomgraph.Metadata;
-import edu.iastate.metnet.metaomgraph.MetadataCollection;
 import edu.iastate.metnet.metaomgraph.ui.MenuButton;
-import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel;
-import edu.iastate.metnet.metaomgraph.ui.ReadMetadata;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
-import edu.iastate.metnet.metaomgraph.utils.qdxml.SimpleXMLElement;
-
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.GridLayout;
-import java.awt.List;
 import java.awt.Paint;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,18 +19,12 @@ import java.awt.event.FocusEvent;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
-import java.text.FieldPosition;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -46,7 +32,6 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JDesktopPane;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -59,31 +44,17 @@ import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.JToolBar.Separator;
-import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.dizitart.no2.Document;
-import org.dizitart.no2.Filter;
-import org.dizitart.no2.NitriteId;
-import org.dizitart.no2.filters.Filters;
-import org.dizitart.no2.internals.NitriteService;
-import org.dizitart.no2.objects.Cursor;
-import org.dizitart.no2.store.NitriteMap;
 import org.jcolorbrewer.ColorBrewer;
 import org.jcolorbrewer.ui.ColorPaletteChooserDialog;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.CategoryLabelPositions;
-import org.jfree.chart.axis.SymbolAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.event.AxisChangeEvent;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.xy.XYDataset;
 
-import com.mysql.jdbc.Util;
 
 //import com.itextpdf.text.pdf.PdfStructTreeController.returnType;
 
@@ -177,6 +148,7 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 		// nameLengthSlider.setSnapToTicks(true);
 
 		nameLengthSlider.addChangeListener(new ChangeListener() {
+			@Override
 			public void stateChanged(ChangeEvent e) {
 
 				XYPlot plot = myChartPanel.getChart().getXYPlot();
@@ -315,6 +287,7 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 		// sortMenu.add(hideColumnsItem);
 		sortMenuButton.setMenu(sortMenu);
 		sortMenuButton.addFocusListener(new FocusAdapter() {
+			@Override
 			public void focusGained(FocusEvent e) {
 				int sortCount;
 
@@ -383,6 +356,7 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 		add(lWidthSpinner);
 		// add change listener
 		ChangeListener listener = new ChangeListener() {
+			@Override
 			public void stateChanged(ChangeEvent e) {
 				myChartPanel.setLineWidth((int) lWidthSpinner.getValue());
 				
@@ -413,20 +387,24 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 		final double miny = range.getLowerBound();
 		final double maxy = range.getUpperBound();
 		Point2D result = new Point2D() {
+			@Override
 			public double getX() {
 				return (maxx - maxy) / 2.0D;
 			}
 
+			@Override
 			public double getY() {
 				return (maxy - miny) / 2;
 			}
 
+			@Override
 			public void setLocation(double x, double y) {
 			}
 		};
 		return result;
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
 
 		if ("changelabels".equals(e.getActionCommand())) {
@@ -458,6 +436,7 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 				@Override
 				public Object construct() {
 					EventQueue.invokeLater(new Runnable() {
+						@Override
 						public void run() {
 							try {
 								// String[] curr_samp = myChartPanel.getSampleNames();
@@ -687,6 +666,7 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 			}
 			new AnimatedSwingWorker("Sorting...", true) {
 
+				@Override
 				public Object construct() {
 					if (newOrder == null) {
 						lastSelected.setSelected(true);
@@ -737,6 +717,7 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 				}
 			}
 			new AnimatedSwingWorker("Working...", false) {
+				@Override
 				public Object construct() {
 					newOrder = myChartPanel.getDataSorter().clusterByMetadata(selectedVals);
 					if (newOrder.length == 0 || newOrder == null) {

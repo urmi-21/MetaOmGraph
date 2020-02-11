@@ -2,17 +2,14 @@ package edu.iastate.metnet.metaomgraph.ui;
 
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
-import edu.iastate.metnet.metaomgraph.TableSorter;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.PrintStream;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,23 +26,17 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.RowSorter;
-import javax.swing.SortOrder;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
 
 public class DualTablePanel extends JPanel implements ActionListener {
 	public static final int MAKE_ALL_INACTIVE = 0;
@@ -117,6 +108,7 @@ public class DualTablePanel extends JPanel implements ActionListener {
 		inactivePane = new JScrollPane(inactiveTable);
 
 		searchInactive.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// JOptionPane.showMessageDialog(null, "Searching");
 				new AnimatedSwingWorker("Searching...", true) {
@@ -141,6 +133,7 @@ public class DualTablePanel extends JPanel implements ActionListener {
 				BorderFactory.createCompoundBorder(etchedBorder, BorderFactory.createTitledBorder("Inactive")));
 
 		searchActive.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// JOptionPane.showMessageDialog(null, "Searching");
 				new AnimatedSwingWorker("Searching...", true) {
@@ -640,6 +633,7 @@ public class DualTablePanel extends JPanel implements ActionListener {
 		fireChange(new ChangeEvent("add event"));
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		if (arg0.getActionCommand().equals("add")) {
 			doAdd(false);
@@ -709,6 +703,7 @@ public class DualTablePanel extends JPanel implements ActionListener {
 		JButton button = new JButton("Report values");
 		button.addActionListener(new ActionListener() {
 
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				Object[][] activeValues = myPanel.getActiveValues();
 				Object[][] inactiveValues = myPanel.getInactiveValues();

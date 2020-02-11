@@ -4,7 +4,6 @@ import edu.iastate.metnet.metaomgraph.RandomAccessFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.TreeSet;

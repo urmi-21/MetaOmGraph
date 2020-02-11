@@ -14,6 +14,7 @@ import java.util.TreeSet;
 
 import javax.swing.JDialog;
 import javax.swing.JScrollPane;
+import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -57,7 +58,8 @@ public class AEProjectMaker {
 
     private static class DownloadListener implements ChangeListener {
 
-        public void stateChanged(ChangeEvent e) {
+        @Override
+		public void stateChanged(ChangeEvent e) {
             AEXMLNodeInfo exp = (AEXMLNodeInfo) e.getSource();
             int row = rowMap.get(exp.accession);
             long size = exp.getDownloadProgress().getMax();
@@ -151,7 +153,7 @@ public class AEProjectMaker {
         downloadDialog.add(new JScrollPane(downloadTable));
         downloadDialog.setSize(800, 600);
         downloadDialog.pack();
-        downloadDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        downloadDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         startDownloading();
         downloadDialog.setVisible(true);
         if (canceled) {

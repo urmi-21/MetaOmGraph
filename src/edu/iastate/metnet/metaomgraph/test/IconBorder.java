@@ -30,7 +30,8 @@ public class IconBorder
         this.iconPosition = iconPosition;
     }
 
-    public Insets getBorderInsets(Component c) {
+    @Override
+	public Insets getBorderInsets(Component c) {
         int horizontalInset = icon.getIconWidth() + 8;
         int iconPosition = bidiDecodeLeadingTrailing(c
                 .getComponentOrientation(), this.iconPosition);
@@ -44,11 +45,13 @@ public class IconBorder
         icon = validIcon;
     }
 
-    public boolean isBorderOpaque() {
+    @Override
+	public boolean isBorderOpaque() {
         return false;
     }
 
-    public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+    @Override
+	public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
         int iconPosition = bidiDecodeLeadingTrailing(c
                 .getComponentOrientation(), this.iconPosition);
         if (iconPosition == 2) {

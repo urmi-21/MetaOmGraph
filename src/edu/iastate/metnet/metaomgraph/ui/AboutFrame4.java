@@ -4,7 +4,6 @@ import edu.iastate.metnet.metaomgraph.test.MetaOmIconPanel;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -22,7 +21,8 @@ public class AboutFrame4
         setLayout(new BoxLayout(this, 1));
         add(Box.createVerticalGlue());
         JPanel shadowPanel = new JPanel() {
-            protected void paintComponent(Graphics g) {
+            @Override
+			protected void paintComponent(Graphics g) {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setComposite(AlphaComposite.getInstance(
                         10, 0.7F));
@@ -36,7 +36,8 @@ public class AboutFrame4
 
             private String password = "lessmagic";
 
-            public void keyTyped(KeyEvent e) {
+            @Override
+			public void keyTyped(KeyEvent e) {
                 if (buffer == null) {
                     buffer = new StringBuffer();
                 }

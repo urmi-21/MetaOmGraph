@@ -1,7 +1,6 @@
 package edu.iastate.metnet.metaomgraph.ui;
 
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -9,7 +8,6 @@ import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import javax.swing.Icon;
 import javax.swing.JFrame;
@@ -26,7 +24,8 @@ public class ClickableLabel extends JLabel implements java.awt.event.MouseListen
     public static void main(String[] args) {
         ClickableLabel label = new ClickableLabel("Click Me!");
         label.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            @Override
+			public void actionPerformed(ActionEvent e) {
                 System.out.println("Clicked!");
                 if ((e.getModifiers() & 0x2) == 2) {
                     System.out.println("CTRL!");
@@ -100,7 +99,8 @@ public class ClickableLabel extends JLabel implements java.awt.event.MouseListen
         }
     }
 
-    public void mouseClicked(MouseEvent e) {
+    @Override
+	public void mouseClicked(MouseEvent e) {
         if (isEnabled()) {
             ActionEvent event = new ActionEvent(this,
                     1001, actionCommand, e
@@ -109,27 +109,31 @@ public class ClickableLabel extends JLabel implements java.awt.event.MouseListen
         }
     }
 
-    public void mouseEntered(MouseEvent e) {
+    @Override
+	public void mouseEntered(MouseEvent e) {
         if (isEnabled()) {
             setText(htmlText);
         }
     }
 
-    public void mouseExited(MouseEvent e) {
+    @Override
+	public void mouseExited(MouseEvent e) {
         if (isEnabled()) {
             setText(text);
             setBorder(null);
         }
     }
 
-    public void mousePressed(MouseEvent e) {
+    @Override
+	public void mousePressed(MouseEvent e) {
         if (isEnabled()) {
             setText(pressedText);
             setBorder(pressedBorder);
         }
     }
 
-    public void mouseReleased(MouseEvent e) {
+    @Override
+	public void mouseReleased(MouseEvent e) {
         if (isEnabled()) {
             if (contains(e.getPoint())) {
                 setText(htmlText);
@@ -140,20 +144,23 @@ public class ClickableLabel extends JLabel implements java.awt.event.MouseListen
         }
     }
 
-    public void focusGained(FocusEvent e) {
+    @Override
+	public void focusGained(FocusEvent e) {
         if (isEnabled()) {
             setText(htmlText);
         }
     }
 
-    public void focusLost(FocusEvent e) {
+    @Override
+	public void focusLost(FocusEvent e) {
         if (isEnabled()) {
             setText(text);
             setBorder(null);
         }
     }
 
-    public void keyPressed(KeyEvent e) {
+    @Override
+	public void keyPressed(KeyEvent e) {
         if ((isEnabled()) && (
                 (e.getKeyCode() == 10) ||
                         (e.getKeyCode() == 32))) {
@@ -162,7 +169,8 @@ public class ClickableLabel extends JLabel implements java.awt.event.MouseListen
         }
     }
 
-    public void keyReleased(KeyEvent e) {
+    @Override
+	public void keyReleased(KeyEvent e) {
         if (isEnabled()) {
             if ((hasFocus()) && (getBorder() != null) && (
                     (e.getKeyCode() == 10) ||
@@ -182,7 +190,8 @@ public class ClickableLabel extends JLabel implements java.awt.event.MouseListen
         }
     }
 
-    public void keyTyped(KeyEvent e) {
+    @Override
+	public void keyTyped(KeyEvent e) {
         if ((isEnabled()) && (
                 (e.getKeyCode() == 10) ||
                         (e.getKeyCode() == 32))) {

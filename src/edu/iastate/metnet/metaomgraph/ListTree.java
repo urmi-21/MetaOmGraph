@@ -24,7 +24,6 @@ import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.Serializable;
 import javax.swing.Icon;
 import javax.swing.JCheckBox;
@@ -35,7 +34,6 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
-import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
@@ -64,15 +62,18 @@ public class ListTree extends JTree implements DropTargetListener, java.awt.dnd.
             return nodeFlavor;
         }
 
-        public DataFlavor[] getTransferDataFlavors() {
+        @Override
+		public DataFlavor[] getTransferDataFlavors() {
             return new DataFlavor[]{getNodeFlavor()};
         }
 
-        public boolean isDataFlavorSupported(DataFlavor flavor) {
+        @Override
+		public boolean isDataFlavorSupported(DataFlavor flavor) {
             return flavor.equals(getNodeFlavor());
         }
 
-        public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
+        @Override
+		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
             return this;
         }
 
@@ -204,7 +205,8 @@ public class ListTree extends JTree implements DropTargetListener, java.awt.dnd.
         return childNode;
     }
 
-    public void dragEnter(DropTargetDragEvent droptargetdragevent) {
+    @Override
+	public void dragEnter(DropTargetDragEvent droptargetdragevent) {
     }
 
     private void nodeDragOver(DropTargetDragEvent dtde) {
@@ -223,7 +225,8 @@ public class ListTree extends JTree implements DropTargetListener, java.awt.dnd.
         dtde.equals(null);
     }
 
-    public void dragOver(DropTargetDragEvent dtde) {
+    @Override
+	public void dragOver(DropTargetDragEvent dtde) {
         if ((transferHandler.getLastMadeTransferable() instanceof DraggableNode)) {
             nodeDragOver(dtde);
         } else if ((transferHandler.getLastMadeTransferable() instanceof ListTransferHandler.DraggableRows))
@@ -253,7 +256,8 @@ public class ListTree extends JTree implements DropTargetListener, java.awt.dnd.
         g2d.dispose();
     }
 
-    public void dropActionChanged(DropTargetDragEvent dtde) {
+    @Override
+	public void dropActionChanged(DropTargetDragEvent dtde) {
         System.out.println("Changed to: " + dtde.getDropAction());
         if (dtde.getDropAction() == 1) {
             setCursor(DragSource.DefaultCopyDrop);
@@ -261,7 +265,8 @@ public class ListTree extends JTree implements DropTargetListener, java.awt.dnd.
             setCursor(DragSource.DefaultMoveDrop);
     }
 
-    public void drop(DropTargetDropEvent dtde) {
+    @Override
+	public void drop(DropTargetDropEvent dtde) {
         setCursor(Cursor.getDefaultCursor());
         if (lastDrawnRect != null) {
             Graphics2D g2d = (Graphics2D) getGraphics();
@@ -336,31 +341,38 @@ public class ListTree extends JTree implements DropTargetListener, java.awt.dnd.
     }
 
 
-    public void dragExit(DropTargetEvent droptargetevent) {
+    @Override
+	public void dragExit(DropTargetEvent droptargetevent) {
     }
 
 
-    public void dragEnter(DragSourceDragEvent dragsourcedragevent) {
+    @Override
+	public void dragEnter(DragSourceDragEvent dragsourcedragevent) {
     }
 
 
-    public void dragOver(DragSourceDragEvent dragsourcedragevent) {
+    @Override
+	public void dragOver(DragSourceDragEvent dragsourcedragevent) {
     }
 
 
-    public void dropActionChanged(DragSourceDragEvent dragsourcedragevent) {
+    @Override
+	public void dropActionChanged(DragSourceDragEvent dragsourcedragevent) {
     }
 
-    public void dragExit(DragSourceEvent dragsourceevent) {
+    @Override
+	public void dragExit(DragSourceEvent dragsourceevent) {
     }
 
-    public void dragDropEnd(DragSourceDropEvent dsde) {
+    @Override
+	public void dragDropEnd(DragSourceDropEvent dsde) {
         System.out.println("done");
 
         repaint();
     }
 
-    public void dragGestureRecognized(DragGestureEvent dge) {
+    @Override
+	public void dragGestureRecognized(DragGestureEvent dge) {
         Point ptDragOrigin = dge.getDragOrigin();
         System.out.println("reckognized");
         if (getSelectionPath() == null) {
@@ -391,7 +403,8 @@ public class ListTree extends JTree implements DropTargetListener, java.awt.dnd.
         transferHandler.exportAsDrag(this, dge.getTriggerEvent(),2);
     }
 
-    public Insets getAutoscrollInsets() {
+    @Override
+	public Insets getAutoscrollInsets() {
         Rectangle outer = getBounds();
         Rectangle inner = getParent().getBounds();
 
@@ -403,7 +416,8 @@ public class ListTree extends JTree implements DropTargetListener, java.awt.dnd.
                 + outer.x + autoScrollMargin);
     }
 
-    public void autoscroll(Point p) {
+    @Override
+	public void autoscroll(Point p) {
         int realrow = getRowForLocation(p.x, p.y);
         Rectangle outer = getBounds();
         realrow = p.y + outer.y > 5 ? realrow >= getRowCount() - 1 ? realrow : realrow + 1 : realrow >= 1 ? realrow - 1 : 0;
@@ -492,12 +506,12 @@ public class ListTree extends JTree implements DropTargetListener, java.awt.dnd.
         Rectangle bounds;
         if (draggingNode.getAllowsChildren() && !((DefaultMutableTreeNode) destPath.getLastPathComponent()).getAllowsChildren()) {
             bounds = getPathBounds(destPath);
-            return (double) pt.y >= bounds.getHeight() / 2D + (double) bounds.y ? INSERT_BELOW : INSERT_ABOVE;
+            return pt.y >= bounds.getHeight() / 2D + bounds.y ? INSERT_BELOW : INSERT_ABOVE;
         }
         bounds = getPathBounds(destPath);
         double thirdHeight = bounds.getHeight() / 3D;
-        if ((double) pt.y < thirdHeight + (double) bounds.y) return INSERT_ABOVE;
-        return (double) pt.y <= 2D * thirdHeight + (double) bounds.y ? MERGE : INSERT_BELOW;
+        if (pt.y < thirdHeight + bounds.y) return INSERT_ABOVE;
+        return pt.y <= 2D * thirdHeight + bounds.y ? MERGE : INSERT_BELOW;
     }
 
     private int getRowDropDest(TreePath destPath) {

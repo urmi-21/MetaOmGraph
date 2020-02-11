@@ -20,6 +20,7 @@ import java.io.PrintStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.sql.Connection;
+import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,8 +33,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-
-import org.gjt.mm.mysql.Driver;
 
 public class MetNetUtils {
     public MetNetUtils() {
@@ -85,7 +84,8 @@ public class MetNetUtils {
             myLabel.setForeground(Color.BLACK);
             myLabel.setFont(myLabel.getFont().deriveFont(1));
             JPanel labelPanel = new JPanel() {
-                protected void paintComponent(Graphics g) {
+                @Override
+				protected void paintComponent(Graphics g) {
                     Graphics2D g2d = (Graphics2D) g.create();
                     g2d.setComposite(AlphaComposite.getInstance(
                             10, 0.75F));
@@ -101,7 +101,8 @@ public class MetNetUtils {
             dialog.setDefaultCloseOperation(0);
             dialog.setLocationRelativeTo(MetaOmGraph.getMainWindow());
             new Thread() {
-                public void run() {
+                @Override
+				public void run() {
                     dialog.setVisible(true);
                 }
 
@@ -138,7 +139,8 @@ public class MetNetUtils {
             myLabel.setForeground(Color.BLACK);
             myLabel.setFont(myLabel.getFont().deriveFont(1));
             JPanel labelPanel = new JPanel() {
-                protected void paintComponent(Graphics g) {
+                @Override
+				protected void paintComponent(Graphics g) {
                     Graphics2D g2d = (Graphics2D) g.create();
                     g2d.setComposite(AlphaComposite.getInstance(
                             10, 0.75F));
@@ -266,7 +268,8 @@ public class MetNetUtils {
             myLabel.setForeground(Color.BLACK);
             myLabel.setFont(myLabel.getFont().deriveFont(1));
             JPanel labelPanel = new JPanel() {
-                protected void paintComponent(Graphics g) {
+                @Override
+				protected void paintComponent(Graphics g) {
                     Graphics2D g2d = (Graphics2D) g.create();
                     g2d.setComposite(AlphaComposite.getInstance(
                             10, 0.75F));
@@ -422,7 +425,8 @@ public class MetNetUtils {
         System.out.println("Creating file: " + destFile.getAbsolutePath());
         destFile.createNewFile();
         SwingWorker worker = new SwingWorker() {
-            public Object construct() {
+            @Override
+			public Object construct() {
                 try {
                     BufferedInputStream in = new BufferedInputStream(conn.getInputStream());
                     FileOutputStream out = new FileOutputStream(destFile);

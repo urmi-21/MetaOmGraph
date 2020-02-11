@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeMap;
@@ -499,11 +498,13 @@ public class PathAndLocusSmasher {
             this.username = username;
         }
 
-        public String toString() {
+        @Override
+		public String toString() {
             return name + "\t" + source + "\t" + username + "\t" + date;
         }
 
-        public int compareTo(Object o) {
+        @Override
+		public int compareTo(Object o) {
             if ((o instanceof PathData)) {
                 PathData data2 = (PathData) o;
                 return name.compareTo(name);

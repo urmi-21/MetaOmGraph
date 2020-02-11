@@ -2,12 +2,10 @@ package edu.iastate.metnet.metaomgraph.ui;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.Insets;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
@@ -21,14 +19,16 @@ public class WelcomeHeader extends javax.swing.JComponent {
         setFont(new JLabel().getFont().deriveFont(18.0F));
     }
 
-    public Dimension getPreferredSize() {
+    @Override
+	public Dimension getPreferredSize() {
         int width = SwingUtilities.computeStringWidth(this.getFontMetrics(this
                 .getFont()), text)
                 + icon.getWidth(null) + this.getInsets().left + this.getInsets().right + 50;
         return new Dimension(width, 50);
     }
 
-    protected void paintComponent(Graphics g) {
+    @Override
+	protected void paintComponent(Graphics g) {
         GradientPaint gradient = new GradientPaint(0.0F, 0.0F, Color.WHITE, 0.0F,
                 getHeight(), new Color(255, 255, 255, 0));
 

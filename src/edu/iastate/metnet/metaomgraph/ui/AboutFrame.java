@@ -3,7 +3,6 @@ package edu.iastate.metnet.metaomgraph.ui;
 import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -11,13 +10,11 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.IOException;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
@@ -53,6 +50,7 @@ public class AboutFrame extends JInternalFrame {
 
 		polyPanel.add(Box.createVerticalGlue());
 		JPanel shadowPanel = new JPanel() {
+			@Override
 			protected void paintComponent(Graphics g) {
 				Graphics2D g2d = (Graphics2D) g.create();
 				g2d.setComposite(AlphaComposite.getInstance(10, 0.5F));
@@ -65,6 +63,7 @@ public class AboutFrame extends JInternalFrame {
 			private StringBuffer buffer;
 			private String password = "hesoyam";
 
+			@Override
 			public void keyTyped(KeyEvent e) {
 				if (buffer == null) {
 					buffer = new StringBuffer();
@@ -113,6 +112,7 @@ public class AboutFrame extends JInternalFrame {
 				new Dimension(shadowPanel.getPreferredSize().width + 100, shadowPanel.getPreferredSize().height + 100));
 		// allow closing on click
 		MouseAdapter ml = new MouseAdapter() {
+			@Override
 			public void mouseClicked(MouseEvent event) {
 				// Put JFrame close code here
 				if (event.getClickCount() >= 2) {

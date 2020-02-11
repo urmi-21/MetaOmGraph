@@ -9,16 +9,15 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JMenu;
-import javax.swing.JDesktopPane;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JButton;
 import javax.swing.JSplitPane;
 import java.awt.FlowLayout;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.JComboBox;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,12 +27,13 @@ import java.awt.event.ActionEvent;
 import javax.swing.JTable;
 import java.awt.Color;
 import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
+
 import java.awt.Font;
 import java.awt.Toolkit;
 
 import javax.swing.border.LineBorder;
 import javax.swing.JScrollPane;
-import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
@@ -45,13 +45,9 @@ import org.dizitart.no2.Document;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
 
-import javax.swing.ScrollPaneConstants;
 import java.awt.ComponentOrientation;
 import javax.swing.DefaultComboBoxModel;
 import java.awt.Dimension;
-
-import javax.imageio.ImageIO;
-import javax.swing.BoxLayout;
 
 public class ReadMetadata extends JFrame {
 
@@ -92,6 +88,7 @@ public class ReadMetadata extends JFrame {
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					// ReadMetadata frame = new ReadMetadata();
@@ -139,7 +136,7 @@ public class ReadMetadata extends JFrame {
 	 */
 	public ReadMetadata() {
 		this.toFront();
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		comboBox_1 = new JComboBox();
 
@@ -199,6 +196,7 @@ public class ReadMetadata extends JFrame {
 		btnNext = new JButton("Next");
 		btnNext.setEnabled(false);
 		btnNext.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 
 				// call MetadataImportWizard
@@ -216,6 +214,7 @@ public class ReadMetadata extends JFrame {
 					return;
 				}
 				EventQueue.invokeLater(new Runnable() {
+					@Override
 					public void run() {
 						try {
 
@@ -282,6 +281,7 @@ public class ReadMetadata extends JFrame {
 
 		btnBrowse = new JButton("Browse");
 		btnBrowse.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser fileChooser = new JFileChooser(edu.iastate.metnet.metaomgraph.utils.Utils.getLastDir());
 				// MetaOmGraph.
@@ -315,6 +315,7 @@ public class ReadMetadata extends JFrame {
 
 		btnPriview = new JButton("Preview");
 		btnPriview.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 
 				// read metadata file and display in table first 20 lines
@@ -428,6 +429,7 @@ public class ReadMetadata extends JFrame {
 		btnBut = new JButton("Rename headers");
 		btnBut.setEnabled(false);
 		btnBut.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				// if no metadata read
 				if (metadata == null) {
@@ -437,6 +439,7 @@ public class ReadMetadata extends JFrame {
 				}
 				// pop up and let user edit header_names
 				EventQueue.invokeLater(new Runnable() {
+					@Override
 					public void run() {
 						try {
 							MetadataHearderEdit frame = new MetadataHearderEdit(headers, obj, getThisFrame());
@@ -462,8 +465,10 @@ public class ReadMetadata extends JFrame {
 		btnBut_1 = new JButton("Remove columns");
 		btnBut_1.setEnabled(false);
 		btnBut_1.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				EventQueue.invokeLater(new Runnable() {
+					@Override
 					public void run() {
 						try {
 							MetadataRemoveCols frame = new MetadataRemoveCols(headers, obj, getThisFrame());
@@ -490,6 +495,7 @@ public class ReadMetadata extends JFrame {
 		// btnBut_2.setEnabled(false);
 		btnBut_2.setEnabled(true);
 		btnBut_2.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// let user select a column and 2 other parameter
 				// colheader sep, col separator
@@ -501,6 +507,7 @@ public class ReadMetadata extends JFrame {
 				// Handle where values are absent or missing
 
 				EventQueue.invokeLater(new Runnable() {
+					@Override
 					public void run() {
 						try {
 							MetadataSplitcol frame = new MetadataSplitcol(obj, getThisFrame());
@@ -530,6 +537,7 @@ public class ReadMetadata extends JFrame {
 
 		btnTranspose = new JButton("Transpose");
 		btnTranspose.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 
 			}
@@ -543,8 +551,8 @@ public class ReadMetadata extends JFrame {
 		btnFindAndReplace.setFont(new Font("Times New Roman", Font.PLAIN, 13));
 		// panel_5.add(btnFindAndReplace);
 
-		scrollPane = new JScrollPane(table, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scrollPane = new JScrollPane(table, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scrollPane.setFont(new Font("Times New Roman", Font.PLAIN, 13));
 		scrollPane.setBackground(Color.BLACK);
 		scrollPane.setBorder(null);

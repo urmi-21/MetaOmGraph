@@ -2,7 +2,6 @@ package edu.iastate.metnet.metaomgraph;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
-import java.io.PrintStream;
 import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.TransferHandler;
@@ -28,15 +27,18 @@ public class ListTransferHandler extends TransferHandler {
             return rowFlavor;
         }
 
-        public DataFlavor[] getTransferDataFlavors() {
+        @Override
+		public DataFlavor[] getTransferDataFlavors() {
             return new DataFlavor[]{getRowFlavor()};
         }
 
-        public boolean isDataFlavorSupported(DataFlavor flavor) {
+        @Override
+		public boolean isDataFlavorSupported(DataFlavor flavor) {
             return flavor.equals(getRowFlavor());
         }
 
-        public Object getTransferData(DataFlavor flavor) throws java.awt.datatransfer.UnsupportedFlavorException, java.io.IOException {
+        @Override
+		public Object getTransferData(DataFlavor flavor) throws java.awt.datatransfer.UnsupportedFlavorException, java.io.IOException {
             return null;
         }
 
@@ -46,13 +48,15 @@ public class ListTransferHandler extends TransferHandler {
     }
 
 
-    public boolean canImport(JComponent comp, DataFlavor[] transferFlavors) {
+    @Override
+	public boolean canImport(JComponent comp, DataFlavor[] transferFlavors) {
         boolean result = super.canImport(comp, transferFlavors);
         System.out.println("canImport? " + result);
         return result;
     }
 
-    protected Transferable createTransferable(JComponent c) {
+    @Override
+	protected Transferable createTransferable(JComponent c) {
         if ((c instanceof ListTree)) {
             System.out.println("Creating a ListTree transferable!");
             ListTree tree = (ListTree) c;
@@ -82,7 +86,8 @@ public class ListTransferHandler extends TransferHandler {
         return transferable;
     }
 
-    protected void exportDone(JComponent source, Transferable data, int action) {
+    @Override
+	protected void exportDone(JComponent source, Transferable data, int action) {
         System.out.println("Export done!  Transferable: " + data);
         if (((data instanceof ListTree.DraggableNode)) &&
                 (action == 2)) {
@@ -96,14 +101,16 @@ public class ListTransferHandler extends TransferHandler {
         super.exportDone(source, data, action);
     }
 
-    public int getSourceActions(JComponent c) {
+    @Override
+	public int getSourceActions(JComponent c) {
         if ((c instanceof ListTree)) {
             return 3;
         }
         return super.getSourceActions(c);
     }
 
-    public boolean importData(JComponent comp, Transferable t) {
+    @Override
+	public boolean importData(JComponent comp, Transferable t) {
         return super.importData(comp, t);
     }
 

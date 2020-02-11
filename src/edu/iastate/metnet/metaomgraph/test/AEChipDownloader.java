@@ -3,7 +3,6 @@ package edu.iastate.metnet.metaomgraph.test;
 import edu.iastate.metnet.metaomgraph.SwingWorker;
 import edu.iastate.metnet.metaomgraph.ui.LongProgressBar;
 
-import java.awt.Container;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -13,7 +12,6 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -88,13 +86,15 @@ public class AEChipDownloader {
 
         final JDialog dialog = new JDialog((Frame) null, "Download All Experiments", true);
         JButton okButton = new JButton(new AbstractAction("OK") {
-            public void actionPerformed(ActionEvent e) {
+            @Override
+			public void actionPerformed(ActionEvent e) {
                 dialog.dispose();
             }
 
         });
         JButton cancelButton = new JButton(new AbstractAction("Cancel") {
-            public void actionPerformed(ActionEvent e) {
+            @Override
+			public void actionPerformed(ActionEvent e) {
                 AEChipDownloader.isCanceled = true;
                 dialog.dispose();
             }
@@ -202,7 +202,8 @@ public class AEChipDownloader {
             this.prog = prog;
         }
 
-        public Object construct() {
+        @Override
+		public Object construct() {
             try {
                 myFile.getProcessedData(dest, prog);
             } catch (IOException e) {
@@ -211,7 +212,8 @@ public class AEChipDownloader {
             return null;
         }
 
-        public void finished() {
+        @Override
+		public void finished() {
             threadFinished();
             super.finished();
         }
@@ -331,11 +333,13 @@ public class AEChipDownloader {
             this.value = value;
         }
 
-        public String toString() {
+        @Override
+		public String toString() {
             return name;
         }
 
-        public boolean equals(Object obj) {
+        @Override
+		public boolean equals(Object obj) {
             return name.equals(obj);
         }
     }

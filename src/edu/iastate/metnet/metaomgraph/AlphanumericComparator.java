@@ -2,8 +2,6 @@ package edu.iastate.metnet.metaomgraph;
 
 import java.util.Comparator;
 
-import javax.swing.JOptionPane;
-
 /**
  * Class for comparision of numbers and string in the tables
  * 
@@ -15,6 +13,7 @@ public class AlphanumericComparator implements Comparator {
 	public AlphanumericComparator() {
 	}
 
+	@Override
 	public int compare(Object o1, Object o2) {
 		if ((o1 == null) && (o2 == null))
 			return 0;

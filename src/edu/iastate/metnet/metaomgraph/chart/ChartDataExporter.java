@@ -3,16 +3,13 @@ package edu.iastate.metnet.metaomgraph.chart;
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.AtGeneSearch;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
-import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.Metadata;
 import edu.iastate.metnet.metaomgraph.ui.NoneditableTableModel;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
-import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -46,12 +43,10 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
 // new testing by mhhur
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+//import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 
-import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYDataset;
 
 public class ChartDataExporter extends JInternalFrame implements ActionListener {
@@ -165,14 +160,16 @@ public class ChartDataExporter extends JInternalFrame implements ActionListener 
         pack();
         selectLabel = new JLabel("Click and drag on the chart to select a range...");
         selectedButton.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
+            @Override
+			public void itemStateChanged(ItemEvent e) {
                 rangePickButton.setEnabled(selectedButton.isSelected());
                 rangeField.setEnabled(selectedButton.isSelected());
             }
 
         });
         atgsBox.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
+            @Override
+			public void itemStateChanged(ItemEvent e) {
                 colorCodeBox.setEnabled(atgsBox.isSelected());
             }
 
@@ -337,7 +334,8 @@ public class ChartDataExporter extends JInternalFrame implements ActionListener 
         }
     }
 
-    public void actionPerformed(ActionEvent e) {
+    @Override
+	public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("ok")) {
             Vector<Integer> selectedSeries = new Vector();
             for (int x = 0; x < seriesTable.getRowCount(); x++) {
@@ -383,7 +381,8 @@ public class ChartDataExporter extends JInternalFrame implements ActionListener 
             if (destination == null) return;
 
             new AnimatedSwingWorker("Exporting...") {
-                public Object construct() {
+                @Override
+				public Object construct() {
                     ChartDataExporter.this.doExport(columns, series, destination);
                     return null;
                 }

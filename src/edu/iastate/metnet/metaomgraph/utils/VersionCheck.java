@@ -1,28 +1,12 @@
 package edu.iastate.metnet.metaomgraph.utils;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.List;
-
 import javax.swing.JOptionPane;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.XMLReaderFactory;
-
-import com.sun.org.apache.xml.internal.serialize.OutputFormat;
-import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
-
-import edu.iastate.metnet.metaomgraph.MetaOmGraph;
-import jdk.internal.org.xml.sax.XMLReader;
 
 /**
  * Class to check current version of MOG.
@@ -54,7 +38,7 @@ public class VersionCheck {
 		// read xml online to get the latest version
 		SAXBuilder builder = new SAXBuilder();
 		URL xmlUrl = new URL(xmlpath);
-		Document document = (Document) builder.build(xmlUrl);
+		Document document = builder.build(xmlUrl);
 		Element rootNode = document.getRootElement();
 		//System.out.println("Ver:"+rootNode.getChildText("Version"));
 		//System.out.println("ThisVer:"+thisVersion);

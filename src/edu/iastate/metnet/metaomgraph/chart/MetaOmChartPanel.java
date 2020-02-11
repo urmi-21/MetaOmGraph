@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.font.FontRenderContext;
-import java.awt.font.GlyphVector;
 import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -15,12 +14,9 @@ import java.io.File;
 import java.io.IOException;
 import java.text.FieldPosition;
 import java.text.NumberFormat;
-import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 import java.util.Vector;
 
@@ -28,8 +24,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JColorChooser;
-import javax.swing.JFileChooser;
-import javax.swing.JFormattedTextField;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -42,11 +36,9 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.text.DefaultFormatterFactory;
-
-import org.dizitart.no2.Document;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
@@ -74,14 +66,11 @@ import org.jfree.data.xy.XYIntervalSeriesCollection;
 import org.jfree.data.xy.XYSeries;
 
 import edu.iastate.metnet.metaomgraph.ComponentToImage;
-import edu.iastate.metnet.metaomgraph.GraphFileFilter;
 import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
-import edu.iastate.metnet.metaomgraph.MetadataCollection;
 import edu.iastate.metnet.metaomgraph.ui.MetadataFilter;
 import edu.iastate.metnet.metaomgraph.ui.NoneditableTableModel;
-import edu.iastate.metnet.metaomgraph.ui.StripedTable;
 import edu.iastate.metnet.metaomgraph.utils.ExceptionHandler;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
@@ -342,6 +331,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 
 				private Dimension oldSize = new Dimension(100, 100);
 
+				@Override
 				public void paintComponent(Graphics g) {
 					if (!oldSize.equals(getSize())) {
 						oldSize = getSize();
@@ -455,6 +445,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 					g2d.setPaint(oldPaint);
 				}
 
+				@Override
 				public void restoreAutoDomainBounds() {
 					myChart.getXYPlot().getDomainAxis().setLowerBound(-1);
 					myChart.getXYPlot().getDomainAxis().setUpperBound(visibleColumns);
@@ -470,6 +461,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 				 * vscroll.setEnabled(false); }
 				 */
 
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					if (e.getActionCommand().equals(ChartPanel.SAVE_COMMAND)) {
 						ChartActions.exportChart(this);
@@ -685,6 +677,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 			JMenu manageMenu = new JMenu("Manage");
 			JMenuItem manageAnnotationsItem = new JMenuItem("Annotations...");
 			manageAnnotationsItem.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent arg0) {
 
 					myAnnotator.manageAnnotations();
@@ -694,11 +687,13 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 			});
 			JMenuItem manageColumnsItem = new JMenuItem("Columns...");
 			manageColumnsItem.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					// removed urmi
 					// manageColumns();
 
 					EventQueue.invokeLater(new Runnable() {
+						@Override
 						public void run() {
 							try {
 								MetadataFilter frame = new MetadataFilter(
@@ -721,6 +716,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 			// urmi add manage range markers
 			JMenuItem manageMarkersItem = new JMenuItem("Markers...");
 			manageAnnotationsItem.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent arg0) {
 
 					// myAnnotator.manageAnnotations();
@@ -734,6 +730,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 
 			log2Item.setSelected("log2".equals(normalizeMode));
 			log2Item.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					log2Item.setSelected(true);
 					log10Item.setSelected(false);
@@ -747,6 +744,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 
 			log10Item.setSelected("log10".equals(normalizeMode));
 			log10Item.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					log2Item.setSelected(false);
 					log10Item.setSelected(true);
@@ -760,6 +758,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 
 			logeItem.setSelected("loge".equals(normalizeMode));
 			logeItem.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					log2Item.setSelected(false);
 					log10Item.setSelected(false);
@@ -773,6 +772,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 
 			sqrtItem.setSelected("sqrt".equals(normalizeMode));
 			sqrtItem.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					log2Item.setSelected(false);
 					log10Item.setSelected(false);
@@ -786,6 +786,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 
 			noneItem.setSelected("NONE".equals(normalizeMode));
 			noneItem.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					log2Item.setSelected(false);
 					log10Item.setSelected(false);
@@ -1060,7 +1061,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 			Paint[] defaultPaint = DefaultDrawingSupplier.DEFAULT_PAINT_SEQUENCE;
 			Color[] defaultColor = Utils.paintArraytoColor(defaultPaint);
 			myChart.getPlot()
-					.setDrawingSupplier((DrawingSupplier) new DefaultDrawingSupplier(Utils.filterColors(defaultColor),
+					.setDrawingSupplier(new DefaultDrawingSupplier(Utils.filterColors(defaultColor),
 							DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
 							DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
 							DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
@@ -1100,7 +1101,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 			if (myChartPanel != null)
 				myChartPanel.setChart(myChart);
 			if (hscroll == null)
-				hscroll = new ChartScrollBar(this, JScrollBar.HORIZONTAL); // by mhhur
+				hscroll = new ChartScrollBar(this, Adjustable.HORIZONTAL); // by mhhur
 			// if (vscroll == null)
 			// vscroll = new ChartScrollBar(this, JScrollBar.VERTICAL);
 			myChart.addChangeListener(hscroll); // mhhur
@@ -1133,7 +1134,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 		myParent.setSize(width - 200, height - 200);
 		myParent.setLocation((width - myParent.getWidth()) / 2, (height - myParent.getHeight()) / 2);
 		myParent.setClosable(true);
-		myParent.setDefaultCloseOperation(JInternalFrame.DISPOSE_ON_CLOSE);
+		myParent.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		myParent.setResizable(true);
 		myParent.setIconifiable(true);
 		myParent.setMaximizable(true);
@@ -1283,6 +1284,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 		applyButton = new JButton("Apply");
 		okButton.addActionListener(new ActionListener() {
 
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				if (applyButton.isEnabled())
 					applyButton.getActionListeners()[0].actionPerformed(null);
@@ -1292,12 +1294,14 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 		});
 		cancelButton.addActionListener(new ActionListener() {
 
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				f.dispose();
 			}
 
 		});
 		applyButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				ValueAxis domainAxis = myChart.getXYPlot().getDomainAxis();
 				ValueAxis rangeAxis = myChart.getXYPlot().getRangeAxis();
@@ -1324,6 +1328,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 		});
 		model.addTableModelListener(new TableModelListener() {
 
+			@Override
 			public void tableChanged(TableModelEvent arg0) {
 				applyButton.setEnabled(true);
 			}
@@ -1339,7 +1344,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 		f.setResizable(true);
 		f.setIconifiable(true);
 		f.setMaximizable(true);
-		f.setDefaultCloseOperation(JInternalFrame.DISPOSE_ON_CLOSE);
+		f.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		f.pack();
 		MetaOmGraph.getDesktop().add(f);
 		f.setVisible(true);
@@ -1353,6 +1358,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 	 */
 	public class ExperimentFormat extends NumberFormat {
 
+		@Override
 		public Number parse(String arg0, ParsePosition arg1) {
 			// TODO Auto-generated method stub
 			return null;
@@ -1364,6 +1370,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 		 *
 		 * @return column name
 		 */
+		@Override
 		public StringBuffer format(double arg0, StringBuffer arg1, FieldPosition arg2) {
 
 			// urmi change x-axis labels
@@ -1447,6 +1454,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 		 * the state of shortenItem. Both versions are included so that we can use this
 		 * formatter to format annotations without shortening them.
 		 */
+		@Override
 		public StringBuffer format(long arg0, StringBuffer arg1, FieldPosition arg2) {
 			if (((int) arg0 < 0) || ((int) arg0 >= visibleColumns))
 				return arg1;
@@ -1606,6 +1614,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 	/**
 	 * Changes the orientation of the chart
 	 */
+	@Override
 	public void chartChanged(ChartChangeEvent event) {
 		myChart.getXYPlot().getDomainAxis()
 				.setVerticalTickLabels(myChart.getXYPlot().getOrientation() == PlotOrientation.VERTICAL);
@@ -1806,6 +1815,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 	/**
 	 * Called just after the user clicks the listened-to component.
 	 */
+	@Override
 	public void chartMouseClicked(ChartMouseEvent event) {
 		if (!myParent.hasFocus()) {
 			// MetaOmGraph.getMainWindow().getDesktopManager()
@@ -1845,6 +1855,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 	/**
 	 * Called just after the user moves the mouse over the listened-to component.
 	 */
+	@Override
 	public void chartMouseMoved(ChartMouseEvent event) {
 		// if ((!myChartPanel.getScreenDataArea().contains(
 		// event.getTrigger().getPoint()))
@@ -1925,6 +1936,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 	/**
 	 * Captures the action event triggered by the user
 	 */
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equals(RangeSelector.ACTION_COMMAND)) {
 			myChartPanel.setMouseZoomable(true, false);
@@ -1980,14 +1992,17 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 	public Point2D getCrosshairPoint() {
 		Point2D result = new Point2D() {
 
+			@Override
 			public double getX() {
 				return myChart.getXYPlot().getDomainCrosshairValue();
 			}
 
+			@Override
 			public double getY() {
 				return myChart.getXYPlot().getRangeCrosshairValue();
 			}
 
+			@Override
 			public void setLocation(double x, double y) {
 			}
 

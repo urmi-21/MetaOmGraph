@@ -3,13 +3,11 @@ package edu.iastate.metnet.metaomgraph.test;
 import edu.iastate.metnet.metaomgraph.ui.NoneditableTableModel;
 
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.PrintStream;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
@@ -39,7 +37,8 @@ public class CheckBoxHeader
     }
 
 
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+    @Override
+	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         if (table != null) {
             JTableHeader header = table.getTableHeader();
             if (header != null) {
@@ -83,26 +82,31 @@ public class CheckBoxHeader
         }
     }
 
-    public void mouseClicked(MouseEvent e) {
+    @Override
+	public void mouseClicked(MouseEvent e) {
         handleClickEvent(e);
 
         ((JTableHeader) e.getSource()).repaint();
     }
 
-    public void mousePressed(MouseEvent e) {
+    @Override
+	public void mousePressed(MouseEvent e) {
         mousePressed = true;
     }
 
 
-    public void mouseReleased(MouseEvent e) {
+    @Override
+	public void mouseReleased(MouseEvent e) {
     }
 
 
-    public void mouseEntered(MouseEvent e) {
+    @Override
+	public void mouseEntered(MouseEvent e) {
     }
 
 
-    public void mouseExited(MouseEvent e) {
+    @Override
+	public void mouseExited(MouseEvent e) {
     }
 
 
@@ -121,7 +125,8 @@ public class CheckBoxHeader
         }
         JButton checkButton = new JButton("Check");
         checkButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            @Override
+			public void actionPerformed(ActionEvent e) {
                 for (CheckBoxHeader box : boxes) {
                     System.out.println(box.isSelected());
                 }

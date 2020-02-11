@@ -1,15 +1,12 @@
 package edu.iastate.metnet.metaomgraph;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.DropMode;
-import javax.swing.JOptionPane;
 import javax.swing.JTree;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
@@ -44,9 +41,9 @@ public class MetadataTreeStructure {
 		this.headers = new ArrayList<>();
 		this.headers = headers;
 		this.metadata = metadata;
-		this.exp = exp;
-		this.samp=samp;
-		this.chip = run;
+		MetadataTreeStructure.exp = exp;
+		MetadataTreeStructure.samp=samp;
+		MetadataTreeStructure.chip = run;
 		// create a Default tree and list
 		treeModel = getDefaultTreeModel();
 		tree = new JTree(treeModel);

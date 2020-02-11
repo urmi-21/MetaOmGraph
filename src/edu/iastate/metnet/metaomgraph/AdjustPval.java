@@ -1,14 +1,9 @@
 package edu.iastate.metnet.metaomgraph;
 
-import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-
-import javax.swing.JOptionPane;
-
-import edu.iastate.metnet.metaomgraph.chart.HistogramChart;
 
 /**
  * Class contains p value adjustment methods
@@ -166,6 +161,7 @@ public class AdjustPval {
 		for (int i = 0; i < idx.length; i++)
 			idx[i] = i;
 		Arrays.sort(idx, new Comparator<Integer>() {
+			@Override
 			public int compare(Integer i1, Integer i2) {
 				return Double.compare(pvals[i1], pvals[i2]);
 			}

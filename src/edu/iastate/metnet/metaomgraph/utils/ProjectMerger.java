@@ -6,8 +6,6 @@ import edu.iastate.metnet.metaomgraph.RandomAccessFile;
 import edu.iastate.metnet.metaomgraph.ui.FileSelectionPanel;
 
 import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -16,7 +14,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.TreeMap;
@@ -387,7 +384,8 @@ public class ProjectMerger {
         mainPanel.add(panel2, "East");
         JPanel buttonPanel = new JPanel();
         JButton okButton = new JButton(new AbstractAction("OK") {
-            public void actionPerformed(ActionEvent e) {
+            @Override
+			public void actionPerformed(ActionEvent e) {
                 result[0] = list1.getSelectedIndex();
                 result[1] = list2.getSelectedIndex();
                 if ((result[0] < 0) || (result[1] < 0)) {
@@ -402,7 +400,8 @@ public class ProjectMerger {
             }
         });
         JButton cancelButton = new JButton(new AbstractAction("Cancel") {
-            public void actionPerformed(ActionEvent e) {
+            @Override
+			public void actionPerformed(ActionEvent e) {
                 dialog.dispose();
             }
 
@@ -452,7 +451,8 @@ public class ProjectMerger {
         mainPanel.add(savePanel, "South");
         JPanel buttonPanel = new JPanel();
         JButton okButton = new JButton(new AbstractAction("OK") {
-            public void actionPerformed(ActionEvent e) {
+            @Override
+			public void actionPerformed(ActionEvent e) {
                 if (!openPanel.checkFiles()) {
                     return;
                 }
@@ -462,7 +462,8 @@ public class ProjectMerger {
 
                 final File dest = savePanel.getFile(0);
                 new AnimatedSwingWorker("Merging... ", true) {
-                    public Object construct() {
+                    @Override
+					public Object construct() {
                         try {
                             return ProjectMerger.mergeProjects(files[0], files[1], dest);
                         } catch (JDOMException e1) {
@@ -474,7 +475,8 @@ public class ProjectMerger {
                         }
                     }
 
-                    public void finished() {
+                    @Override
+					public void finished() {
                         super.finished();
                         if ((get() != null) && ((get() instanceof File))) {
                             JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Projects merged successfully!", "Success", 1);
@@ -487,7 +489,8 @@ public class ProjectMerger {
             }
         });
         JButton cancelButton = new JButton(new AbstractAction("Cancel") {
-            public void actionPerformed(ActionEvent e) {
+            @Override
+			public void actionPerformed(ActionEvent e) {
                 dialog.dispose();
             }
 

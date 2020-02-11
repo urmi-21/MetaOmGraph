@@ -21,7 +21,9 @@ import java.awt.Toolkit;
 import javax.swing.JSplitPane;
 import java.awt.FlowLayout;
 import javax.swing.SpringLayout;
+import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
 import javax.swing.JList;
@@ -50,8 +52,6 @@ import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
-
-import org.apache.poi.openxml4j.util.ZipSecureFile.ThresholdInputStream;
 
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
@@ -100,6 +100,7 @@ public class MetadataImportWizard extends JFrame {
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					MetadataImportWizard frame = new MetadataImportWizard(null, new String[] { "AA", "bb", "cc" },
@@ -156,7 +157,7 @@ public class MetadataImportWizard extends JFrame {
 				.getImage(MetadataImportWizard.class.getResource("/resource/MetaOmicon16.png")));
 		setTitle("Metadata Table to Tree");
 		// setAlwaysOnTop(true);
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 702, 482);
 		// remove or keep unused cols
 		this.removeUnusedCols = removeCols;
@@ -164,6 +165,7 @@ public class MetadataImportWizard extends JFrame {
 		removedCols = mdrmCols;
 		chckbxRemoveUnusedColumns = new JCheckBox("Remove unused columns from metadata");
 		chckbxRemoveUnusedColumns.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				if (chckbxRemoveUnusedColumns.isSelected()) {
 					// JOptionPane.showMessageDialog(null, "selc");
@@ -216,6 +218,7 @@ public class MetadataImportWizard extends JFrame {
 
 		JButton btnBack = new JButton("Back");
 		btnBack.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				ReadMetadata ob = new ReadMetadata(obj, obj.getdelimiter());
 				ob.setVisible(true);
@@ -226,6 +229,7 @@ public class MetadataImportWizard extends JFrame {
 
 		JButton btnResetTree = new JButton("Reset Tree");
 		btnResetTree.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// reset the list
 				String[] allHeaders= obj.getHeaders();
@@ -246,7 +250,7 @@ public class MetadataImportWizard extends JFrame {
 				list.setDropMode(DropMode.INSERT);
 				// align center and other properties
 				DefaultListCellRenderer listRenderer = (DefaultListCellRenderer) list.getCellRenderer();
-				listRenderer.setHorizontalAlignment(JLabel.LEFT);
+				listRenderer.setHorizontalAlignment(SwingConstants.LEFT);
 				scrollPaneTable.setViewportView(list);
 				// reset the tree
 				// UIManager.put("Tree.rendererFillBackground", false);
@@ -274,6 +278,7 @@ public class MetadataImportWizard extends JFrame {
 
 		JButton btnImport = new JButton("Next");
 		btnImport.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 
 				if (obj == null || tree == null) {
@@ -382,6 +387,7 @@ public class MetadataImportWizard extends JFrame {
 		JButton btnPreviewTree = new JButton("Preview tree");
 		btnPreviewTree.addActionListener(new ActionListener() {
 
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 
 				if (obj == null || headers.length <= 0 || tree == null) {
@@ -481,7 +487,7 @@ public class MetadataImportWizard extends JFrame {
 		list.setDropMode(DropMode.INSERT);
 		// align center and other properties
 		DefaultListCellRenderer listRenderer = (DefaultListCellRenderer) list.getCellRenderer();
-		listRenderer.setHorizontalAlignment(JLabel.LEFT);
+		listRenderer.setHorizontalAlignment(SwingConstants.LEFT);
 
 		scrollPaneTable.setViewportView(list);
 

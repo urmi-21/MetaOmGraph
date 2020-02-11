@@ -9,7 +9,8 @@ public class LimitedTextField extends JTextField {
     public LimitedTextField() {
     }
 
-    protected void paintComponent(Graphics g) {
+    @Override
+	protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g.create();
         g2d.setComposite(java.awt.AlphaComposite.getInstance(10,

@@ -6,11 +6,9 @@ import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.text.ParseException;
 
 import javax.swing.JFileChooser;
@@ -22,11 +20,6 @@ import javax.swing.text.DefaultFormatterFactory;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.entity.ChartEntity;
-import org.jfree.chart.entity.XYItemEntity;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.data.xy.XYDataset;
-
 import edu.iastate.metnet.metaomgraph.ComponentToImage;
 import edu.iastate.metnet.metaomgraph.GraphFileFilter;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
@@ -56,6 +49,7 @@ public class MyChartPanel extends ChartPanel {
 		// TODO Auto-generated constructor stub
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
 
 		if (e.getActionCommand().equals(ChartPanel.SAVE_COMMAND)) {
@@ -67,6 +61,7 @@ public class MyChartPanel extends ChartPanel {
 			JFormattedTextField widthField, heightField;
 			JFormattedTextField.AbstractFormatter af = new JFormattedTextField.AbstractFormatter() {
 
+				@Override
 				public Object stringToValue(String text) throws ParseException {
 					try {
 						return new Integer(text);
@@ -75,6 +70,7 @@ public class MyChartPanel extends ChartPanel {
 					}
 				}
 
+				@Override
 				public String valueToString(Object value) throws ParseException {
 					if (value instanceof Integer) {
 						Integer intValue = (Integer) value;

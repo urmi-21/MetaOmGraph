@@ -86,168 +86,192 @@ public class SilkIconTheme implements IconTheme {
 
     private String reportPath = "/resource/silkicon/newspaper.png";
 
-    public ImageIcon getProperties() {
+    @Override
+	public ImageIcon getProperties() {
         if (properties == null) {
             properties = new ImageIcon(getClass().getResource(propertiesPath));
         }
         return properties;
     }
 
-    public ImageIcon getSaveAs() {
+    @Override
+	public ImageIcon getSaveAs() {
         if (saveAs == null) {
             saveAs = new ImageIcon(getClass().getResource(saveAsPath));
         }
         return saveAs;
     }
 
-    public ImageIcon getPrint() {
+    @Override
+	public ImageIcon getPrint() {
         if (print == null) {
             print = new ImageIcon(getClass().getResource(printPath));
         }
         return print;
     }
 
-    public ImageIcon getZoomIn() {
+    @Override
+	public ImageIcon getZoomIn() {
         if (zoomIn == null) {
             zoomIn = new ImageIcon(getClass().getResource(zoomInPath));
         }
         return zoomIn;
     }
 
-    public ImageIcon getZoomOut() {
+    @Override
+	public ImageIcon getZoomOut() {
         if (zoomOut == null) {
             zoomOut = new ImageIcon(getClass().getResource(zoomOutPath));
         }
         return zoomOut;
     }
 
-    public ImageIcon getDefaultZoom() {
+    @Override
+	public ImageIcon getDefaultZoom() {
         if (defaultZoom == null) {
             defaultZoom = new ImageIcon(getClass().getResource(defaultZoomPath));
         }
         return defaultZoom;
     }
 
-    public ImageIcon getShapes() {
+    @Override
+	public ImageIcon getShapes() {
         if (shapes == null) {
             shapes = new ImageIcon(getClass().getResource(shapesPath));
         }
         return shapes;
     }
 
-    public ImageIcon getLegend() {
+    @Override
+	public ImageIcon getLegend() {
         if (legend == null) {
             legend = new ImageIcon(getClass().getResource(legendPath));
         }
         return legend;
     }
 
-    public ImageIcon getPopups() {
+    @Override
+	public ImageIcon getPopups() {
         if (popups == null) {
             popups = new ImageIcon(getClass().getResource(popupsPath));
         }
         return popups;
     }
 
-    public ImageIcon getPopupClose() {
+    @Override
+	public ImageIcon getPopupClose() {
         if (popupClose == null) {
             popupClose = new ImageIcon(getClass().getResource(popupClosePath));
         }
         return popupClose;
     }
 
-    public ImageIcon getPopupUp() {
+    @Override
+	public ImageIcon getPopupUp() {
         if (popupUp == null) {
             popupUp = new ImageIcon(getClass().getResource(popupUpPath));
         }
         return popupUp;
     }
 
-    public ImageIcon getTextFieldClear() {
+    @Override
+	public ImageIcon getTextFieldClear() {
         if (textFieldClear == null) {
             textFieldClear = new ImageIcon(getClass().getResource(textFieldClearPath));
         }
         return textFieldClear;
     }
 
-    public ImageIcon getTextFieldClearHover() {
+    @Override
+	public ImageIcon getTextFieldClearHover() {
         if (textFieldClearHover == null) {
             textFieldClearHover = new ImageIcon(getClass().getResource(textFieldClearHoverPath));
         }
         return textFieldClearHover;
     }
 
-    public ImageIcon getTextFieldClearPress() {
+    @Override
+	public ImageIcon getTextFieldClearPress() {
         if (textFieldClearPress == null) {
             textFieldClearPress = new ImageIcon(getClass().getResource(textFieldClearPressPath));
         }
         return textFieldClearPress;
     }
 
-    public ImageIcon getListLoad() {
+    @Override
+	public ImageIcon getListLoad() {
         if (listLoad == null) {
             listLoad = new ImageIcon(getClass().getResource(listLoadPath));
         }
         return listLoad;
     }
 
-    public ImageIcon getListSave() {
+    @Override
+	public ImageIcon getListSave() {
         if (listSave == null) {
             listSave = new ImageIcon(getClass().getResource(listSavePath));
         }
         return listSave;
     }
 
-    public ImageIcon getListDelete() {
+    @Override
+	public ImageIcon getListDelete() {
         if (listDelete == null) {
             listDelete = new ImageIcon(getClass().getResource(listDeletePath));
         }
         return listDelete;
     }
 
-    public ImageIcon getListAdd() {
+    @Override
+	public ImageIcon getListAdd() {
         if (listAdd == null) {
             listAdd = new ImageIcon(getClass().getResource(listAddPath));
         }
         return listAdd;
     }
 
-    public ImageIcon getListEdit() {
+    @Override
+	public ImageIcon getListEdit() {
         if (listEdit == null) {
             listEdit = new ImageIcon(getClass().getResource(listEditPath));
         }
         return listEdit;
     }
 
-    public ImageIcon getListRename() {
+    @Override
+	public ImageIcon getListRename() {
         if (listRename == null) {
             listRename = new ImageIcon(getClass().getResource(listRenamePath));
         }
         return listRename;
     }
 
-    public ImageIcon getPlot() {
+    @Override
+	public ImageIcon getPlot() {
         if (plot == null) {
             plot = new ImageIcon(getClass().getResource(plotPath));
         }
         return plot;
     }
 
-    public ImageIcon getMath() {
+    @Override
+	public ImageIcon getMath() {
         if (math == null) {
             math = new ImageIcon(getClass().getResource(mathPath));
         }
         return math;
     }
 
-    public ImageIcon getReport() {
+    @Override
+	public ImageIcon getReport() {
         if (report == null) {
             report = new ImageIcon(getClass().getResource(reportPath));
         }
         return report;
     }
 
-    public ImageIcon getExternalSource() {
+    @Override
+	public ImageIcon getExternalSource() {
         if (externalSource == null) {
             externalSource = new ImageIcon(getClass().getResource(
                     externalSourcePath));
@@ -255,14 +279,16 @@ public class SilkIconTheme implements IconTheme {
         return externalSource;
     }
 
-    public ImageIcon getSort() {
+    @Override
+	public ImageIcon getSort() {
         if (sort == null) {
             sort = new ImageIcon(getClass().getResource(sortPath));
         }
         return sort;
     }
 
-    public ImageIcon getExcel() {
+    @Override
+	public ImageIcon getExcel() {
         if (excel == null) {
             excel = new ImageIcon(getClass().getResource(excelPath));
         }
@@ -270,7 +296,8 @@ public class SilkIconTheme implements IconTheme {
     }
     
     //urmi
-    public ImageIcon getPalette() {
+    @Override
+	public ImageIcon getPalette() {
 		if (palette == null) {
 			palette = new ImageIcon(getClass().getResource(propertiesPath));
 		}
@@ -295,7 +322,8 @@ public class SilkIconTheme implements IconTheme {
         }
     }
 
-    public ImageIcon getMetadata() {
+    @Override
+	public ImageIcon getMetadata() {
         // TODO Auto-generated method stub
         return null;
     }

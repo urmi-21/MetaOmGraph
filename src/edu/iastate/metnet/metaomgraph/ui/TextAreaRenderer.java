@@ -17,7 +17,8 @@ public class TextAreaRenderer extends javax.swing.JTextArea implements javax.swi
     }
 
 
-    public java.awt.Component getTableCellRendererComponent(JTable table, Object obj, boolean isSelected, boolean hasFocus, int row, int column) {
+    @Override
+	public java.awt.Component getTableCellRendererComponent(JTable table, Object obj, boolean isSelected, boolean hasFocus, int row, int column) {
         adaptee.getTableCellRendererComponent(table, obj,
                 isSelected, hasFocus, row, column);
         setForeground(adaptee.getForeground());

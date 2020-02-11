@@ -25,8 +25,6 @@ import java.util.Vector;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
-import org.biomage.Array.Array;
-
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
 
@@ -45,6 +43,7 @@ public class MetadataRemoveCols extends JFrame {
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					// MetadataRemoveCols frame = new MetadataRemoveCols(new String[]
@@ -89,6 +88,7 @@ public class MetadataRemoveCols extends JFrame {
 
 		JButton btnDone = new JButton("Done");
 		btnDone.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (obj == null) {
 					JOptionPane.showMessageDialog(panel, "Error!!! Can't delete columns. No file read...", "Error",
@@ -255,6 +255,7 @@ public class MetadataRemoveCols extends JFrame {
 
 		// action
 		btnDone.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 
 				// get data from table

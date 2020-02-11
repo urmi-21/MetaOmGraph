@@ -3,7 +3,6 @@ package edu.iastate.metnet.metaomgraph.throbber;
 import edu.iastate.metnet.metaomgraph.ui.PolygonPanel.BouncingPolygon;
 
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
@@ -17,15 +16,18 @@ public class PolygonThrobber extends Throbber {
         poly = new BouncingPolygon(3, 0, 0, getThrobberWidth(), getThrobberHeight());
     }
 
-    public int getThrobberWidth() {
+    @Override
+	public int getThrobberWidth() {
         return 32;
     }
 
-    public int getThrobberHeight() {
+    @Override
+	public int getThrobberHeight() {
         return 32;
     }
 
-    protected void drawThrobber(Graphics2D g2d) {
+    @Override
+	protected void drawThrobber(Graphics2D g2d) {
         if (poly == null) {
             poly = new BouncingPolygon(3, 0, 0, getThrobberWidth(), getThrobberHeight());
         }
@@ -46,7 +48,8 @@ public class PolygonThrobber extends Throbber {
         f.pack();
         f.setDefaultCloseOperation(3);
         f.getContentPane().addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {
+            @Override
+			public void mouseClicked(MouseEvent e) {
                 if (isAnimating()) {
                     throbber.stop();
                 } else {
@@ -55,19 +58,23 @@ public class PolygonThrobber extends Throbber {
             }
 
 
-            public void mousePressed(MouseEvent e) {
+            @Override
+			public void mousePressed(MouseEvent e) {
             }
 
 
-            public void mouseReleased(MouseEvent e) {
+            @Override
+			public void mouseReleased(MouseEvent e) {
             }
 
 
-            public void mouseEntered(MouseEvent e) {
+            @Override
+			public void mouseEntered(MouseEvent e) {
             }
 
 
-            public void mouseExited(MouseEvent e) {
+            @Override
+			public void mouseExited(MouseEvent e) {
             }
         });
         f.setVisible(true);

@@ -28,16 +28,19 @@ public class MogTreeTransferHandler extends TransferHandler {
 		}
 	}
 
+	@Override
 	public String toString() {
 		return getClass().getName();
 	}
 
+	@Override
 	public int getSourceActions(JComponent c) {
 
 		return TransferHandler.MOVE;
 
 	}
 
+	@Override
 	public Transferable createTransferable(JComponent c) {
 		JTree tree = (JTree) c;
 		TreePath[] paths = tree.getSelectionPaths();
@@ -111,6 +114,7 @@ public class MogTreeTransferHandler extends TransferHandler {
 		return new DefaultMutableTreeNode(node);
 	}
 
+	@Override
 	public boolean canImport(TransferHandler.TransferSupport info) {
 		
 		if (!info.isDrop()) {
@@ -250,6 +254,7 @@ public class MogTreeTransferHandler extends TransferHandler {
 	}
 
 	// urmi; handles multiple selection
+	@Override
 	public boolean importData(TransferHandler.TransferSupport info) {
 		// if we can't handle the import, say so
 		if (!canImport(info)) {
@@ -321,6 +326,7 @@ public class MogTreeTransferHandler extends TransferHandler {
 		return true;
 	}
 
+	@Override
 	protected void exportDone(JComponent source, Transferable data, int action) {
 		if ((action & MOVE) == MOVE) {
 			JTree tree = (JTree) source;
@@ -339,16 +345,19 @@ public class MogTreeTransferHandler extends TransferHandler {
 			this.nodes = nodes;
 		}
 
+		@Override
 		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {
 			if (!isDataFlavorSupported(flavor))
 				throw new UnsupportedFlavorException(flavor);
 			return nodes;
 		}
 
+		@Override
 		public DataFlavor[] getTransferDataFlavors() {
 			return flavors;
 		}
 
+		@Override
 		public boolean isDataFlavorSupported(DataFlavor flavor) {
 			return nodesFlavor.equals(flavor);
 		}

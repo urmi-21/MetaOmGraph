@@ -1,14 +1,11 @@
 package edu.iastate.metnet.metaomgraph.ui;
 
-import java.io.PrintStream;
 import java.security.InvalidParameterException;
 import java.util.Arrays;
 import java.util.Hashtable;
 
-import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
 
-import edu.iastate.metnet.metaomgraph.CorrelationValue;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 
 public class NoneditableTableModel extends AbstractTableModel {
@@ -22,18 +19,21 @@ public class NoneditableTableModel extends AbstractTableModel {
 		editableColumns = null;
 	}
 
+	@Override
 	public int getColumnCount() {
 		if (columnNames == null)
 			return 0;
 		return columnNames.length;
 	}
 
+	@Override
 	public int getRowCount() {
 		if (data == null)
 			return 0;
 		return data.length;
 	}
 
+	@Override
 	public String getColumnName(int col) {
 		if (columnNames == null)
 			return null;
@@ -46,6 +46,7 @@ public class NoneditableTableModel extends AbstractTableModel {
 		columnNames[col] = newName;
 	}
 
+	@Override
 	public Object getValueAt(int row, int col) {
 		if ((data == null) || (row >= getRowCount()) || (col >= getColumnCount()))
 			return null;
@@ -86,6 +87,7 @@ public class NoneditableTableModel extends AbstractTableModel {
 		return String.class;
 	}
 
+	@Override
 	public boolean isCellEditable(int row, int col) {
 		if (editableColumns == null)
 			return false;
@@ -100,6 +102,7 @@ public class NoneditableTableModel extends AbstractTableModel {
 		editableColumns.put(new Integer(col), new Boolean(isEditable));
 	}
 
+	@Override
 	public void setValueAt(Object value, int row, int col) {
 		data[row][col] = value;
 		fireTableCellUpdated(row, col);

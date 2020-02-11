@@ -1,7 +1,6 @@
 package edu.iastate.metnet.metaomgraph.throbber;
 
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import javax.swing.JFrame;
@@ -14,15 +13,18 @@ public class GlowyChipThrobber extends Throbber {
 
     private double colorValue = 1.0D;
 
-    public int getThrobberWidth() {
+    @Override
+	public int getThrobberWidth() {
         return 8;
     }
 
-    public int getThrobberHeight() {
+    @Override
+	public int getThrobberHeight() {
         return 8;
     }
 
-    protected void drawThrobber(Graphics2D g2d) {
+    @Override
+	protected void drawThrobber(Graphics2D g2d) {
         g2d.setPaint(getBackground());
         if (!isAnimating()) {
             g2d.setPaint(Color.GRAY);
@@ -59,7 +61,8 @@ public class GlowyChipThrobber extends Throbber {
         f.pack();
         f.setDefaultCloseOperation(3);
         f.getContentPane().addMouseListener(new java.awt.event.MouseListener() {
-            public void mouseClicked(MouseEvent e) {
+            @Override
+			public void mouseClicked(MouseEvent e) {
                 if (isAnimating()) {
                     throbber.stop();
                 } else {
@@ -68,19 +71,23 @@ public class GlowyChipThrobber extends Throbber {
             }
 
 
-            public void mousePressed(MouseEvent e) {
+            @Override
+			public void mousePressed(MouseEvent e) {
             }
 
 
-            public void mouseReleased(MouseEvent e) {
+            @Override
+			public void mouseReleased(MouseEvent e) {
             }
 
 
-            public void mouseEntered(MouseEvent e) {
+            @Override
+			public void mouseEntered(MouseEvent e) {
             }
 
 
-            public void mouseExited(MouseEvent e) {
+            @Override
+			public void mouseExited(MouseEvent e) {
             }
         });
         f.setVisible(true);

@@ -10,10 +10,10 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 import java.awt.GridLayout;
-import net.miginfocom.swing.MigLayout;
 import javax.swing.JTextField;
 
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -32,6 +32,7 @@ public class SetProgramParameters extends JInternalFrame {
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					SetProgramParameters frame = new SetProgramParameters();
@@ -51,6 +52,7 @@ public class SetProgramParameters extends JInternalFrame {
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		JButton btnOk = new JButton("OK");
 		btnOk.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				int thisThreads = Integer.parseInt(comboBox.getSelectedItem().toString());
 				int thisPerms = 0;
@@ -79,6 +81,7 @@ public class SetProgramParameters extends JInternalFrame {
 		
 		JButton btnDefault = new JButton("Default");
 		btnDefault.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				textField.setText("100");				
 			}
@@ -86,6 +89,7 @@ public class SetProgramParameters extends JInternalFrame {
 		
 		JButton btnCancel = new JButton("Cancel");
 		btnCancel.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				dispose();
 			}

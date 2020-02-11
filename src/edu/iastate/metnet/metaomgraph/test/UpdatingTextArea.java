@@ -41,7 +41,8 @@ public class UpdatingTextArea
         }
         thisFrame = animation[0];
         t = new Timer(25, new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            @Override
+			public void actionPerformed(ActionEvent e) {
                 if (!animating) {
                     t.stop();
                     return;
@@ -57,7 +58,8 @@ public class UpdatingTextArea
         animating = false;
     }
 
-    protected void paintComponent(Graphics g) {
+    @Override
+	protected void paintComponent(Graphics g) {
         if (!animating) {
             super.paintComponent(g);
             return;
@@ -89,7 +91,8 @@ public class UpdatingTextArea
         t.start();
     }
 
-    public void setText(String t) {
+    @Override
+	public void setText(String t) {
         super.setText(t);
         cachedText = null;
     }

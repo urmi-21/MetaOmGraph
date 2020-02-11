@@ -7,10 +7,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Paint;
-import java.awt.event.MouseEvent;
 import java.awt.geom.RectangularShape;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 
@@ -23,27 +21,21 @@ import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.entity.LegendItemEntity;
 import org.jfree.chart.entity.XYItemEntity;
-import org.jfree.chart.labels.ItemLabelAnchor;
 import org.jfree.chart.labels.ItemLabelPosition;
 import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.chart.renderer.xy.ClusteredXYBarRenderer;
 import org.jfree.chart.renderer.xy.XYBarPainter;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
-import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.ui.RectangleEdge;
-import org.jfree.ui.TextAnchor;
 
 public class GeneHistogram {
     public GeneHistogram() {
@@ -116,7 +108,8 @@ public class GeneHistogram {
         });
         plot.setRenderer(renderer);
         panel.addChartMouseListener(new ChartMouseListener() {
-            public void chartMouseClicked(ChartMouseEvent event) {
+            @Override
+			public void chartMouseClicked(ChartMouseEvent event) {
                 if (event.getTrigger().getClickCount() == 2) {
                     int series = -1;
                     if ((event.getEntity() instanceof LegendItemEntity)) {
@@ -140,7 +133,8 @@ public class GeneHistogram {
                 }
             }
 
-            public void chartMouseMoved(ChartMouseEvent event) {
+            @Override
+			public void chartMouseMoved(ChartMouseEvent event) {
             }
         });
 

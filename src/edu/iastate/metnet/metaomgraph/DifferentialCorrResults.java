@@ -2,12 +2,7 @@ package edu.iastate.metnet.metaomgraph;
 
 import java.util.List;
 
-import javax.swing.JOptionPane;
-
 import org.jdom.Element;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
-
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 public class DifferentialCorrResults {

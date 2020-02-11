@@ -7,7 +7,6 @@ import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedList;
-import javax.swing.ButtonModel;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.event.ChangeEvent;
@@ -30,7 +29,8 @@ public class ColorChooseButton
         setPreferredSize(new Dimension(16, 16));
         changeListeners = null;
         addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
+            @Override
+			public void actionPerformed(ActionEvent arg0) {
                 Color newColor = JColorChooser.showDialog(null, myTitle,
                         myColor);
                 if (newColor != null) {
@@ -61,7 +61,8 @@ public class ColorChooseButton
     }
 
 
-    protected void paintComponent(Graphics g) {
+    @Override
+	protected void paintComponent(Graphics g) {
         Graphics2D g2d = (Graphics2D) g.create();
 
         g2d.setPaint(myColor);
@@ -86,7 +87,8 @@ public class ColorChooseButton
     }
 
 
-    public void addChangeListener(ChangeListener myChangeListener) {
+    @Override
+	public void addChangeListener(ChangeListener myChangeListener) {
         if (changeListeners == null)
             changeListeners = new LinkedList();
         changeListeners.add(myChangeListener);

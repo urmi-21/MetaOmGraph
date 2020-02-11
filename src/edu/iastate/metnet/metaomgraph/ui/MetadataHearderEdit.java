@@ -11,13 +11,13 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.WindowConstants;
+
 import java.awt.Color;
 import java.awt.Font;
 import javax.swing.table.DefaultTableModel;
 
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
-import ui.DOMTreeFull.Model;
-
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
@@ -35,6 +35,7 @@ public class MetadataHearderEdit extends JFrame {
 	public static void main(String[] args) {
 		String []h= {"h1","h2"};
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					MetadataHearderEdit frame = new MetadataHearderEdit(h,null,null)  ;
@@ -56,7 +57,7 @@ public class MetadataHearderEdit extends JFrame {
 		this.parent=p;
 		this.mobj=obj;
 		this.headers=headervals;
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -68,6 +69,7 @@ public class MetadataHearderEdit extends JFrame {
 		
 		JButton btnDone = new JButton("Done");
 		btnDone.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				
 				if(mobj==null) {

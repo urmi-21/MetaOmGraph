@@ -70,7 +70,8 @@ public class SimpleXMLReader {
             }
         }
 
-        public String toString() {
+        @Override
+		public String toString() {
             return name;
         }
 

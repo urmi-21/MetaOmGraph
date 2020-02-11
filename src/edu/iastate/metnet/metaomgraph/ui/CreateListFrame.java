@@ -4,14 +4,11 @@ import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
-import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Arrays;
 import java.util.Vector;
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -125,7 +122,8 @@ public class CreateListFrame
         setDefaultCloseOperation(2);
     }
 
-    public void actionPerformed(ActionEvent e) {
+    @Override
+	public void actionPerformed(ActionEvent e) {
         if ("OK".equals(e.getActionCommand())) {
             Object[][] activeValues = dtp.getActiveValues();
             int[] result = new int[activeValues.length];
@@ -168,7 +166,8 @@ public class CreateListFrame
         }
     }
 
-    public void stateChanged(ChangeEvent e) {
+    @Override
+	public void stateChanged(ChangeEvent e) {
         if ("reset".equals(e.getSource())) {
             dtp.hideColumn(0);
         }

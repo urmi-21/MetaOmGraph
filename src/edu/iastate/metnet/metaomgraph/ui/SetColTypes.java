@@ -2,12 +2,9 @@ package edu.iastate.metnet.metaomgraph.ui;
 
 import java.awt.EventQueue;
 import java.awt.Font;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import javax.swing.JInternalFrame;
-import javax.swing.JOptionPane;
-
 import java.awt.BorderLayout;
 import javax.swing.JPanel;
 import javax.swing.DefaultCellEditor;
@@ -39,6 +36,7 @@ public class SetColTypes extends JInternalFrame {
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					SetColTypes frame = new SetColTypes(null,false);
@@ -69,6 +67,7 @@ public class SetColTypes extends JInternalFrame {
 		
 		btnOk = new JButton("OK");
 		btnOk.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				HashMap<String, Class> map=new HashMap<>();
 				for(int i=0;i<table.getRowCount();i++) {

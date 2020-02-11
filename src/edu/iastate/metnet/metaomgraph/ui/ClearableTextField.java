@@ -2,11 +2,8 @@ package edu.iastate.metnet.metaomgraph.ui;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
@@ -84,7 +81,8 @@ public class ClearableTextField
         repaint();
     }
 
-    public String getToolTipText(MouseEvent event) {
+    @Override
+	public String getToolTipText(MouseEvent event) {
         if (clearIconRect.contains(event.getPoint())) {
             return "Clear";
         }
@@ -92,7 +90,8 @@ public class ClearableTextField
     }
 
 
-    public Dimension getPreferredSize() {
+    @Override
+	public Dimension getPreferredSize() {
         Dimension d = super.getPreferredSize();
         d.width += clearIcon.getIconWidth();
         if (d.height < clearIcon.getIconHeight()) {
@@ -115,15 +114,18 @@ public class ClearableTextField
         Border border = new Border() {
             ClearableTextField parent;
 
-            public Insets getBorderInsets(Component c) {
+            @Override
+			public Insets getBorderInsets(Component c) {
                 return new Insets(0, 0, 0, clearIcon.getIconWidth() + 5);
             }
 
-            public boolean isBorderOpaque() {
+            @Override
+			public boolean isBorderOpaque() {
                 return false;
             }
 
-            public void paintBorder(Component c, Graphics g, int dx, int dy, int dwidth, int dheight) {
+            @Override
+			public void paintBorder(Component c, Graphics g, int dx, int dy, int dwidth, int dheight) {
                 int width = clearIcon.getIconWidth();
                 int height = clearIcon.getIconHeight();
                 int x = getWidth() - width - 5;
@@ -155,7 +157,8 @@ public class ClearableTextField
         f.setVisible(true);
     }
 
-    protected void paintComponent(Graphics g) {
+    @Override
+	protected void paintComponent(Graphics g) {
         Graphics2D g2d = (Graphics2D) g.create();
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
                 RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
@@ -186,7 +189,8 @@ public class ClearableTextField
         g2d.dispose();
     }
 
-    public void mouseClicked(MouseEvent e) {
+    @Override
+	public void mouseClicked(MouseEvent e) {
         if (clearIconRect.contains(e.getPoint())) {
             setText("");
             fireActionPerformed();
@@ -194,17 +198,20 @@ public class ClearableTextField
     }
 
 
-    public void mouseEntered(MouseEvent e) {
+    @Override
+	public void mouseEntered(MouseEvent e) {
     }
 
-    public void mouseExited(MouseEvent e) {
+    @Override
+	public void mouseExited(MouseEvent e) {
         if (clearIcon != normalIcon) {
             clearIcon = normalIcon;
             repaint();
         }
     }
 
-    public void mousePressed(MouseEvent e) {
+    @Override
+	public void mousePressed(MouseEvent e) {
         if ((clearIconRect.contains(e.getPoint())) &&
                 (clearIcon != pressedIcon)) {
             clearIcon = pressedIcon;
@@ -213,7 +220,8 @@ public class ClearableTextField
         }
     }
 
-    public void mouseReleased(MouseEvent e) {
+    @Override
+	public void mouseReleased(MouseEvent e) {
         if (clearIcon != normalIcon) {
             clearIcon = normalIcon;
             repaint();
@@ -221,7 +229,8 @@ public class ClearableTextField
         activated = false;
     }
 
-    public void keyPressed(KeyEvent e) {
+    @Override
+	public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == 27) {
             setText("");
             fireActionPerformed();
@@ -229,15 +238,18 @@ public class ClearableTextField
     }
 
 
-    public void keyReleased(KeyEvent e) {
+    @Override
+	public void keyReleased(KeyEvent e) {
     }
 
 
-    public void keyTyped(KeyEvent e) {
+    @Override
+	public void keyTyped(KeyEvent e) {
     }
 
 
-    public void mouseDragged(MouseEvent e) {
+    @Override
+	public void mouseDragged(MouseEvent e) {
         if (clearIconRect.contains(e.getPoint())) {
             if ((activated) &&
                     (clearIcon != pressedIcon)) {
@@ -251,7 +263,8 @@ public class ClearableTextField
         }
     }
 
-    public void mouseMoved(MouseEvent e) {
+    @Override
+	public void mouseMoved(MouseEvent e) {
         if (clearIconRect.contains(e.getPoint())) {
             setCursor(Cursor.getDefaultCursor());
             if (clearIcon == normalIcon) {
@@ -294,11 +307,13 @@ public class ClearableTextField
         repaint();
     }
 
-    public void focusGained(FocusEvent e) {
+    @Override
+	public void focusGained(FocusEvent e) {
         repaint();
     }
 
-    public void focusLost(FocusEvent e) {
+    @Override
+	public void focusLost(FocusEvent e) {
         repaint();
     }
 

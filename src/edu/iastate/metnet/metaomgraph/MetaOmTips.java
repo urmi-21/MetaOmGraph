@@ -1,9 +1,7 @@
 package edu.iastate.metnet.metaomgraph;
 
-import com.l2fprod.common.swing.JTipOfTheDay.ShowOnStartupChoice;
 import com.l2fprod.common.swing.JTipOfTheDay;
 import com.l2fprod.common.swing.TipModel;
-import com.l2fprod.common.swing.TipModel.Tip;
 import edu.stanford.ejalbert.BrowserLauncher;
 import edu.stanford.ejalbert.BrowserLauncherRunner;
 import edu.stanford.ejalbert.exceptionhandler.BrowserLauncherDefaultErrorHandler;
@@ -13,8 +11,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import javax.swing.JTextPane;
 import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.event.HyperlinkListener;
+
+import edu.stanford.ejalbert.launching.IBrowserLaunching;
+import net.sf.wraplog.AbstractLogger;
+import java.util.List;
 
 public class MetaOmTips implements TipModel, HyperlinkListener {
     private ArrayList<TipModel.Tip> tips;
@@ -45,14 +46,16 @@ public class MetaOmTips implements TipModel, HyperlinkListener {
         //add tips
     }
 
-    public TipModel.Tip getTipAt(int index) {
+    @Override
+	public TipModel.Tip getTipAt(int index) {
         if ((index < 0) || (index >= tips.size())) {
             return null;
         }
         return tips.get(index);
     }
 
-    public int getTipCount() {
+    @Override
+	public int getTipCount() {
         return tips.size();
     }
 
@@ -63,22 +66,26 @@ public class MetaOmTips implements TipModel, HyperlinkListener {
 
         boolean show = true;
 
-        public boolean isShowingOnStartup() {
+        @Override
+		public boolean isShowingOnStartup() {
             return show;
         }
 
-        public void setShowingOnStartup(boolean showOnStartup) {
+        @Override
+		public void setShowingOnStartup(boolean showOnStartup) {
             show = showOnStartup;
         }
     }
 
     public void addTip(final String name, final String tip) {
         TipModel.Tip myTip = new TipModel.Tip() {
-            public Object getTip() {
+            @Override
+			public Object getTip() {
                 return tip;
             }
 
-            public String getTipName() {
+            @Override
+			public String getTipName() {
                 return name;
             }
 
@@ -89,11 +96,13 @@ public class MetaOmTips implements TipModel, HyperlinkListener {
     public void addTip(final String name, final JTextPane tip) {
         tip.addHyperlinkListener(this);
         TipModel.Tip myTip = new TipModel.Tip() {
-            public Object getTip() {
+            @Override
+			public Object getTip() {
                 return tip;
             }
 
-            public String getTipName() {
+            @Override
+			public String getTipName() {
                 return name;
             }
 
@@ -101,12 +110,14 @@ public class MetaOmTips implements TipModel, HyperlinkListener {
         tips.add(myTip);
     }
 
-    public void hyperlinkUpdate(HyperlinkEvent e) {
+    @Override
+	public void hyperlinkUpdate(HyperlinkEvent e) {
         if (HyperlinkEvent.EventType.ACTIVATED.equals(e.getEventType())) {
             String urlString = e.getURL() + "";
             try {
                 BrowserLauncher launcher = new BrowserLauncher(null);
                 BrowserLauncherErrorHandler errorHandler = new BrowserLauncherDefaultErrorHandler();
+                
                 BrowserLauncherRunner runner = new BrowserLauncherRunner(launcher, urlString, errorHandler);
                 Thread launcherThread = new Thread(runner);
                 launcherThread.start();
@@ -116,3 +127,5 @@ public class MetaOmTips implements TipModel, HyperlinkListener {
         }
     }
 }
+
+

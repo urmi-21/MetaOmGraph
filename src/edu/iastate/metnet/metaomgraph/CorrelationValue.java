@@ -1,6 +1,5 @@
 package edu.iastate.metnet.metaomgraph;
 
-import java.io.PrintStream;
 import java.text.DecimalFormat;
 
 
@@ -17,7 +16,8 @@ public class CorrelationValue extends Number implements Comparable {
         asPercent = false;
     }
 
-    public int compareTo(Object arg0) {
+    @Override
+	public int compareTo(Object arg0) {
         int result = 100;
         if (arg0 == null) return 1;
 
@@ -48,7 +48,8 @@ public class CorrelationValue extends Number implements Comparable {
         return 0;
     }
 
-    public String toString() {
+    @Override
+	public String toString() {
         if (percentFormat == null) {
             percentFormat = new DecimalFormat("###.00%");
         }
@@ -73,22 +74,26 @@ public class CorrelationValue extends Number implements Comparable {
     }
 
 
-    public double doubleValue() {
+    @Override
+	public double doubleValue() {
         return myValue;
     }
 
 
-    public float floatValue() {
+    @Override
+	public float floatValue() {
         return (float) myValue;
     }
 
 
-    public int intValue() {
+    @Override
+	public int intValue() {
         return Math.round((float) myValue);
     }
 
 
-    public long longValue() {
+    @Override
+	public long longValue() {
         return Math.round(myValue);
     }
 

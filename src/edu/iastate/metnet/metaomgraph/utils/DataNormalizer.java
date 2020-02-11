@@ -18,7 +18,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -590,7 +589,8 @@ public class DataNormalizer {
             return percentPresent;
         }
 
-        public int compareTo(MeanResult o) {
+        @Override
+		public int compareTo(MeanResult o) {
             if (o == null) {
                 return 1;
             }
@@ -792,7 +792,8 @@ public class DataNormalizer {
                 "Split logged and non-logged data");
         splitBox.setSelected(true);
         splitBox.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            @Override
+			public void actionPerformed(ActionEvent e) {
                 fileSelectPanel.setEnabled(splitBox.isSelected());
             }
 
@@ -824,7 +825,8 @@ public class DataNormalizer {
         final JSpinner spinner = new JSpinner(spinnerModel);
         spinner.setEnabled(false);
         excludeBox.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            @Override
+			public void actionPerformed(ActionEvent e) {
                 spinner.setEnabled(excludeBox.isSelected());
             }
 
@@ -852,7 +854,8 @@ public class DataNormalizer {
         buttonPanel.add(cancelButton);
         dialog.add(buttonPanel, "South");
         okButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
+            @Override
+			public void actionPerformed(ActionEvent arg0) {
 
                 if (!splitBox.isSelected() && !excludeBox.isSelected()) {
                     result.split = false;
@@ -935,7 +938,8 @@ public class DataNormalizer {
                         return null;
                     }
 
-                    public void finished() {
+                    @Override
+					public void finished() {
                         super.finished();
                         dialog.dispose();
                     }
@@ -945,7 +949,8 @@ public class DataNormalizer {
             }
         });
         cancelButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
+            @Override
+			public void actionPerformed(ActionEvent arg0) {
                 result.split = false;
                 dialog.dispose();
             }

@@ -3,7 +3,6 @@ package edu.iastate.metnet.metaomgraph.test;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -44,15 +43,18 @@ public class MarchingFocusBorder
         }
     }
 
-    public Insets getBorderInsets(Component c) {
+    @Override
+	public Insets getBorderInsets(Component c) {
         return new Insets(1, 1, 1, 1);
     }
 
-    public boolean isBorderOpaque() {
+    @Override
+	public boolean isBorderOpaque() {
         return false;
     }
 
-    public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+    @Override
+	public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
         Graphics2D g2d = (Graphics2D) g.create();
         g2d.setStroke(borderStroke);
         if (myComponent.hasFocus()) {
@@ -61,18 +63,21 @@ public class MarchingFocusBorder
         }
     }
 
-    public void actionPerformed(ActionEvent e) {
+    @Override
+	public void actionPerformed(ActionEvent e) {
         if ("march".equals(e.getActionCommand())) {
             march();
         }
     }
 
-    public void focusGained(FocusEvent e) {
+    @Override
+	public void focusGained(FocusEvent e) {
         t.start();
         march();
     }
 
-    public void focusLost(FocusEvent e) {
+    @Override
+	public void focusLost(FocusEvent e) {
         halt();
     }
 

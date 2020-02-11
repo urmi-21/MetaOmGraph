@@ -10,8 +10,6 @@ import edu.iastate.metnet.metaomgraph.chart.HistogramChart;
 import edu.iastate.metnet.metaomgraph.chart.MakeChartWithR;
 import edu.iastate.metnet.metaomgraph.chart.MetaOmChartPanel;
 import edu.iastate.metnet.metaomgraph.chart.ScatterPlotChart;
-import edu.iastate.metnet.metaomgraph.test.BoxPlotter;
-import edu.iastate.metnet.metaomgraph.test.GeneHistogram;
 import edu.iastate.metnet.metaomgraph.throbber.MetaOmThrobber;
 import edu.iastate.metnet.metaomgraph.throbber.MultiFrameImageThrobber;
 import edu.iastate.metnet.metaomgraph.throbber.Throbber;
@@ -20,7 +18,6 @@ import edu.stanford.ejalbert.BrowserLauncher;
 import edu.stanford.ejalbert.BrowserLauncherRunner;
 import edu.stanford.ejalbert.exceptionhandler.BrowserLauncherDefaultErrorHandler;
 import edu.stanford.ejalbert.exceptionhandler.BrowserLauncherErrorHandler;
-//import javafx.scene.control.SelectionMode;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -37,11 +34,6 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-import org.apache.commons.math3.analysis.function.Atanh;
-import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
-import org.biomage.Array.Array;
-import org.jdom.Element;
-import org.jfree.data.xy.XYSeries;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -250,14 +242,17 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			}
 		});
 		plotRMenu.addMenuListener(new MenuListener() {
+			@Override
 			public void menuCanceled(MenuEvent arg0) {
 
 			}
 
+			@Override
 			public void menuDeselected(MenuEvent arg0) {
 
 			}
 
+			@Override
 			public void menuSelected(MenuEvent arg0) {
 				// JOptionPane.showMessageDialog(null, "3");
 				refreshRPlotMenu();
@@ -319,6 +314,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		plotButton.setMenu(plotPopupMenu);
 		plotButton.addFocusListener(new FocusAdapter() {
 
+			@Override
 			public void focusGained(FocusEvent e) {
 				selectedRowsMenu.setEnabled(listDisplay.getSelectedRowCount() > 0);
 			}
@@ -522,6 +518,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		analyzeMenuButton = new MenuButton("Statistical analysis", theme.getMath(), analyzePopupMenu);
 
 		analyzeMenuButton.addFocusListener(new FocusAdapter() {
+			@Override
 			public void focusGained(FocusEvent e) {
 				saveCorrelationItem.setEnabled(myProject.hasLastCorrelation());
 				MetaOmTablePanel.this.populateRemoveCorrelationMenu();
@@ -629,6 +626,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		searchPanel.add(new JLabel("Filter:"), "Before");
 		filterField = new ClearableTextField();
 		filterField.addKeyListener(new KeyAdapter() {
+			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == 27) {
 					filterModel.clearFilter();
@@ -682,6 +680,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		sorter.setSortingStatus(myProject.getDefaultColumn(), 1);
 	}
 
+	@Override
 	public void stateChanged(ChangeEvent event) {
 		int selectedList = geneLists.getSelectedIndex();
 		String[] listNames = myProject.getGeneListNames();
@@ -766,6 +765,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 	}
 
+	@Override
 	public void valueChanged(ListSelectionEvent event) {
 		int[] oldWidths = new int[listDisplay.getColumnCount()];
 		for (int x = 0; x < oldWidths.length; x++)
@@ -947,6 +947,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			try {
 				BrowserLauncher launcher = new BrowserLauncher(null);
 				BrowserLauncherErrorHandler errorHandler = new BrowserLauncherDefaultErrorHandler();
+				launcher.openURLinBrowser(urlString);
 				BrowserLauncherRunner runner = new BrowserLauncherRunner(launcher, urlString, errorHandler);
 				Thread launcherThread = new Thread(runner);
 				launcherThread.start();
@@ -983,6 +984,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			try {
 				BrowserLauncher launcher = new BrowserLauncher(null);
 				BrowserLauncherErrorHandler errorHandler = new BrowserLauncherDefaultErrorHandler();
+				launcher.openURLinBrowser(urlString);
 				BrowserLauncherRunner runner = new BrowserLauncherRunner(launcher, urlString, errorHandler);
 				Thread launcherThread = new Thread(runner);
 				launcherThread.start();
@@ -1068,6 +1070,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {// get data for selected rows
 
@@ -1103,6 +1106,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {// get data for selected rows
 
@@ -1312,6 +1316,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		public ListNameComparator() {
 		}
 
+		@Override
 		public int compare(String o1, String o2) {
 			if ((!(o1 instanceof String)) || (!(o2 instanceof String)))
 				return 0;
@@ -1324,6 +1329,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		if ("new list".equals(e.getActionCommand())) {
 			CreateListFrame clf = new CreateListFrame(myProject);
@@ -1541,6 +1547,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 		if ("create histogram".equals(e.getActionCommand())) {
 			EventQueue.invokeLater(new Runnable() {
+				@Override
 				public void run() {
 					try {// get data for selected rows
 						int[] selected = getSelectedRowsInList();
@@ -1699,6 +1706,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			// JOptionPane.showMessageDialog(null, "showmwta...");
 			EventQueue.invokeLater(new Runnable() {
 
+				@Override
 				public void run() {
 					try {
 						HashMap<String, CorrelationMetaCollection> metaCorrRes = myProject.getMetaCorrRes();
@@ -1955,6 +1963,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						List<Double> pvres = new ArrayList<>();
 						List<Double> corres = new ArrayList<>();
 
+						@Override
 						public Object construct() {
 							try {
 								int j = 0;
@@ -2019,6 +2028,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 							return null;
 						}
 
+						@Override
 						public void finished() {
 
 							if ((!progress.isCanceled()) && (!errored)) {
@@ -2097,6 +2107,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						List<Double> pvres = new ArrayList<>();
 						List<Double> corrres = new ArrayList<>();
 
+						@Override
 						public Object construct() {
 							try {
 								// for each data row do
@@ -2162,6 +2173,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 							return null;
 						}
 
+						@Override
 						public void finished() {
 							if ((!progress.isCanceled()) && (!errored)) {
 								final Number[] result = new Number[myProject.getRowCount()];
@@ -2217,6 +2229,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						List<Double> pvres = new ArrayList<>();
 						List<Double> corrres = new ArrayList<>();
 
+						@Override
 						public Object construct() {
 							try {
 								// for each data row do
@@ -2271,6 +2284,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 							return null;
 						}
 
+						@Override
 						public void finished() {
 							if ((!progress.isCanceled()) && (!errored)) {
 								final Number[] result = new Number[myProject.getRowCount()];
@@ -2330,6 +2344,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						// List<Double> jointEntropyList = new ArrayList<>();
 						List<Double> mutualInfoList = new ArrayList<>();
 
+						@Override
 						public Object construct() {
 							try {
 								// for each data row do
@@ -2403,6 +2418,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 							return null;
 						}
 
+						@Override
 						public void finished() {
 							if ((!progress.isCanceled()) && (!errored)) {
 								final Number[] result = new Number[myProject.getRowCount()];
@@ -2500,6 +2516,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 						double targetH = shuffEntropies.get(0);
 
+						@Override
 						public Object construct() {
 							try {
 								// for each data row do
@@ -2568,6 +2585,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 							return null;
 						}
 
+						@Override
 						public void finished() {
 							if ((!progress.isCanceled()) && (!errored)) {
 
@@ -2656,6 +2674,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						List<Double> mutualInfoList = new ArrayList<>();
 						// get entopies
 
+						@Override
 						public Object construct() {
 							try {
 								// for each data row do
@@ -2757,6 +2776,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 							return null;
 						}
 
+						@Override
 						public void finished() {
 							if ((!progress.isCanceled()) && (!errored)) {
 
@@ -2826,6 +2846,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						List<Double> pvres = new ArrayList<>();
 						List<Double> corrres = new ArrayList<>();
 
+						@Override
 						public Object construct() {
 							try {
 								// for each data row do
@@ -2888,6 +2909,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 							return null;
 						}
 
+						@Override
 						public void finished() {
 							if ((!progress.isCanceled()) && (!errored)) {
 								final Number[] result = new Number[myProject.getRowCount()];
@@ -2944,6 +2966,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						List<Double> pvres = new ArrayList<>();
 						List<Double> corrres = new ArrayList<>();
 
+						@Override
 						public Object construct() {
 							try {
 								// for each data row do
@@ -2998,6 +3021,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 							return null;
 						}
 
+						@Override
 						public void finished() {
 							if ((!progress.isCanceled()) && (!errored)) {
 								final Number[] result = new Number[myProject.getRowCount()];
@@ -3663,17 +3687,21 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			}
 		}
 
+		@Override
 		public void insertUpdate(DocumentEvent e) {
 			doChange();
 		}
 
+		@Override
 		public void removeUpdate(DocumentEvent e) {
 			doChange();
 		}
 
+		@Override
 		public void changedUpdate(DocumentEvent e) {
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			filterModel.applyFilter(filterField.getText().trim());
 			throbber.stop();
@@ -4039,6 +4067,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		// create histogram
 
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {// get data for selected rows
 					int nBins = corrVals.size() / 100;

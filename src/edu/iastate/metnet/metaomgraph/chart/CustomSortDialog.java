@@ -3,7 +3,6 @@ package edu.iastate.metnet.metaomgraph.chart;
 import edu.iastate.metnet.metaomgraph.HashLoadable;
 import edu.iastate.metnet.metaomgraph.HashtableSavePanel;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
-import edu.iastate.metnet.metaomgraph.MetaOmHelpListener;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.XMLizable;
 import edu.iastate.metnet.metaomgraph.ui.ColorChooseButton;
@@ -15,14 +14,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.PrintStream;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 import javax.swing.AbstractAction;
-import javax.swing.ActionMap;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultCellEditor;
 import javax.swing.ImageIcon;
@@ -31,25 +28,19 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
-import javax.swing.JFormattedTextField.AbstractFormatter;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.ToolTipManager;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 import org.jdom.Element;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.plot.XYPlot;
 
 
 public class CustomSortDialog extends JDialog implements ActionListener, HashLoadable<CustomSortDialog.CustomSortObject> {
@@ -105,7 +96,8 @@ public class CustomSortDialog extends JDialog implements ActionListener, HashLoa
         markPanel = new JPanel(new BorderLayout());
         initSortModel(originalOrder);
         sortTable = new OrderableTable(sortTableModel) {
-            protected void paintComponent(Graphics g) {
+            @Override
+			protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2d = (Graphics2D) g.create();
 
@@ -190,7 +182,8 @@ public class CustomSortDialog extends JDialog implements ActionListener, HashLoa
         pack();
         setLocationRelativeTo(null);
         AbstractAction helpAction = new AbstractAction() {
-            public void actionPerformed(ActionEvent e) { MetaOmGraph.getHelpListener().actionPerformed(new ActionEvent(this, 0, "customsort.php"));
+            @Override
+			public void actionPerformed(ActionEvent e) { MetaOmGraph.getHelpListener().actionPerformed(new ActionEvent(this, 0, "customsort.php"));
             }
         };
         getRootPane().getActionMap().put("help", helpAction);
@@ -255,7 +248,8 @@ public class CustomSortDialog extends JDialog implements ActionListener, HashLoa
         return cancelled;
     }
 
-    public void actionPerformed(ActionEvent e) {
+    @Override
+	public void actionPerformed(ActionEvent e) {
         if ("ok".equals(e.getActionCommand())) {
             cancelled = false;
             dispose();
@@ -345,7 +339,8 @@ public class CustomSortDialog extends JDialog implements ActionListener, HashLoa
         JDialog dialog = pane.createDialog(null, "Add marker");
         dialog.addWindowListener(new WindowAdapter() {
 
-            public void windowActivated(WindowEvent e) {
+            @Override
+			public void windowActivated(WindowEvent e) {
                 labelField.requestFocusInWindow();
             }
 
@@ -388,11 +383,13 @@ public class CustomSortDialog extends JDialog implements ActionListener, HashLoa
         return result;
     }
 
-    public CustomSortObject getSaveData() {
+    @Override
+	public CustomSortObject getSaveData() {
         return new CustomSortObject(getSortOrder(), getRangeMarkers());
     }
 
-    public void loadData(CustomSortObject data) {
+    @Override
+	public void loadData(CustomSortObject data) {
         initSortModel(data.getSortOrder());
         sortTable.setModel(sortTableModel);
         TableColumnModel colModel = sortTable.getColumnModel();
@@ -409,7 +406,8 @@ public class CustomSortDialog extends JDialog implements ActionListener, HashLoa
         markScrollPane.setViewportView(markTable);
     }
 
-    public String getNoun() {
+    @Override
+	public String getNoun() {
         return "custom sort";
     }
 
@@ -471,7 +469,8 @@ public class CustomSortDialog extends JDialog implements ActionListener, HashLoa
             this.sortOrder = sortOrder;
         }
 
-        public Element toXML() {
+        @Override
+		public Element toXML() {
             Element sort = new Element(getXMLElementName());
             String orderString = sortOrder[0] + "";
             for (int x = 1; x < sortOrder.length; x++) {
@@ -492,7 +491,8 @@ public class CustomSortDialog extends JDialog implements ActionListener, HashLoa
             return sort;
         }
 
-        public void fromXML(Element source) {
+        @Override
+		public void fromXML(Element source) {
             String order = source.getChildText("order");
             String[] splitOrder = order.split(",");
             sortOrder = new int[splitOrder.length];
@@ -531,15 +531,18 @@ public class CustomSortDialog extends JDialog implements ActionListener, HashLoa
         public ColumnValueRenderer() {
         }
 
-        public void setValue(Object value) {
+        @Override
+		public void setValue(Object value) {
             if (formatter == null) {
                 formatter = new JFormattedTextField.AbstractFormatter() {
-                    public Object stringToValue(String text) throws ParseException {
+                    @Override
+					public Object stringToValue(String text) throws ParseException {
                         System.out.println("stringToValue called for some reason");
                         return null;
                     }
 
-                    public String valueToString(Object value) throws ParseException {
+                    @Override
+					public String valueToString(Object value) throws ParseException {
                         if (!(value instanceof Integer)) {
                             throw new ParseException(
                                     "ColumnValueRenderer can only render Integers",

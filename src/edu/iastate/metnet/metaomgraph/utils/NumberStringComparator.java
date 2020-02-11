@@ -1,8 +1,6 @@
 package edu.iastate.metnet.metaomgraph.utils;
 
-import java.io.PrintStream;
 import java.util.Comparator;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
@@ -11,7 +9,8 @@ public class NumberStringComparator<T>
     public NumberStringComparator() {
     }
 
-    public int compare(T arg0, T arg1) {
+    @Override
+	public int compare(T arg0, T arg1) {
         if (arg0 == null) {
             if (arg1 == null) {
                 return 0;

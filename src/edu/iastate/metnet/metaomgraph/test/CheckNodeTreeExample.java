@@ -1,7 +1,6 @@
 package edu.iastate.metnet.metaomgraph.test;
 
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,7 +22,6 @@ import javax.swing.border.TitledBorder;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
 
 
 public class CheckNodeTreeExample
@@ -76,7 +74,8 @@ public class CheckNodeTreeExample
             this.tree = tree;
         }
 
-        public void mouseClicked(MouseEvent e) {
+        @Override
+		public void mouseClicked(MouseEvent e) {
             int x = e.getX();
             int y = e.getY();
             int row = tree.getRowForLocation(x, y);
@@ -122,7 +121,8 @@ public class CheckNodeTreeExample
             b_dig_in.setSelected(true);
         }
 
-        public void actionPerformed(ActionEvent e) {
+        @Override
+		public void actionPerformed(ActionEvent e) {
             int mode;
             if (b_single == e.getSource()) {
                 mode = 0;
@@ -144,7 +144,8 @@ public class CheckNodeTreeExample
             this.textArea = textArea;
         }
 
-        public void actionPerformed(ActionEvent ev) {
+        @Override
+		public void actionPerformed(ActionEvent ev) {
             Enumeration e = root.breadthFirstEnumeration();
             while (e.hasMoreElements()) {
                 CheckNode node = (CheckNode) e.nextElement();
@@ -166,7 +167,8 @@ public class CheckNodeTreeExample
         }
         CheckNodeTreeExample frame = new CheckNodeTreeExample();
         frame.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
+            @Override
+			public void windowClosing(WindowEvent e) {
                 System.exit(0);
             }
         });

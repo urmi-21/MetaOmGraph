@@ -2,28 +2,19 @@
 package edu.iastate.metnet.metaomgraph;
 
 import edu.iastate.metnet.metaomgraph.chart.NewCustomSortDialog;
-import edu.iastate.metnet.metaomgraph.chart.NewCustomSortDialog.CustomSortObject;
 import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
-import edu.iastate.metnet.metaomgraph.ui.DisplayMetadataEditor;
 import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel;
 import edu.iastate.metnet.metaomgraph.ui.MetadataEditor;
-import edu.iastate.metnet.metaomgraph.ui.MetadataTreeDisplayPanel;
-import edu.iastate.metnet.metaomgraph.ui.Metadataviewer;
 import edu.iastate.metnet.metaomgraph.ui.ParseTableTree;
 import edu.iastate.metnet.metaomgraph.ui.ReadMetadata;
 import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
-//import edu.iastate.metnet.metaomgraph.ui.CorrelationMetaTable.DecimalFormatRenderer;
-import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel.QuerySet;
 import edu.iastate.metnet.metaomgraph.utils.MetNetUtils;
 import edu.iastate.metnet.metaomgraph.utils.MetadataUpdater;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import edu.iastate.metnet.metaomgraph.utils.qdxml.SimpleXMLElement;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.Font;
-import java.awt.Toolkit;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -49,7 +40,6 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Scanner;
 import java.util.Set;
 //import java.util.Set;
 import java.util.StringTokenizer;
@@ -57,25 +47,18 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.JTable;
 import javax.swing.JTree;
-import javax.swing.ListSelectionModel;
 //import javax.swing.SwingUtilities;
 //import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.apache.commons.io.FilenameUtils;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -83,8 +66,6 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
-
-import com.sun.org.apache.xml.internal.security.Init;
 
 public class MetaOmProject {
 	public static final String COMPLETE_LIST = "Complete List";
@@ -347,6 +328,7 @@ public class MetaOmProject {
 		final BlockingProgressDialog progressWindow = new BlockingProgressDialog(MetaOmGraph.getMainWindow(), "Parsing",
 				"Parsing " + source.getName(), 0L, fileSize / 100, true);
 		new Thread() {
+			@Override
 			public void run() {
 				progressWindow.setVisible(true);
 
@@ -830,7 +812,7 @@ public class MetaOmProject {
 						sb.append(inline);
 					}
 					builder = new SAXBuilder();
-					Document mdFileInfo = (Document) builder.build(new ByteArrayInputStream(sb.toString().getBytes()));
+					Document mdFileInfo = builder.build(new ByteArrayInputStream(sb.toString().getBytes()));
 					outter = new XMLOutputter();
 					outter.setFormat(Format.getPrettyFormat());
 					// org.jdom.Document res = new org.jdom.Document();
@@ -909,7 +891,7 @@ public class MetaOmProject {
 						sb.append(inline);
 					}
 					builder = new SAXBuilder();
-					Document mdTreeStruc = (Document) builder.build(new ByteArrayInputStream(sb.toString().getBytes()));
+					Document mdTreeStruc = builder.build(new ByteArrayInputStream(sb.toString().getBytes()));
 					outter = new XMLOutputter();
 					outter.setFormat(Format.getPrettyFormat());
 					// org.jdom.Document res = new org.jdom.Document();
@@ -938,7 +920,7 @@ public class MetaOmProject {
 						sb.append(inline);
 					}
 					builder = new SAXBuilder();
-					Document corr = (Document) builder.build(new ByteArrayInputStream(sb.toString().getBytes()));
+					Document corr = builder.build(new ByteArrayInputStream(sb.toString().getBytes()));
 					Element xmlRoot = corr.getRootElement();
 					// load data into corrmeta objects
 					// each element under root is a coormetacollection and each "corr" element is a
@@ -1007,7 +989,7 @@ public class MetaOmProject {
 						sb.append(inline);
 					}
 					builder = new SAXBuilder();
-					Document params = (Document) builder.build(new ByteArrayInputStream(sb.toString().getBytes()));
+					Document params = builder.build(new ByteArrayInputStream(sb.toString().getBytes()));
 					Element xmlRoot = params.getRootElement();
 					// read program parameters
 					List<Element> clist = xmlRoot.getChildren();
@@ -1050,7 +1032,7 @@ public class MetaOmProject {
 						sb.append(inline);
 					}
 					builder = new SAXBuilder();
-					Document doc = (Document) builder.build(new ByteArrayInputStream(sb.toString().getBytes()));
+					Document doc = builder.build(new ByteArrayInputStream(sb.toString().getBytes()));
 					Element xmlRoot = doc.getRootElement();
 					// read program parameters
 					List<Element> clist = xmlRoot.getChildren();
@@ -1071,7 +1053,7 @@ public class MetaOmProject {
 						sb.append(inline);
 					}
 					builder = new SAXBuilder();
-					Document doc = (Document) builder.build(new ByteArrayInputStream(sb.toString().getBytes()));
+					Document doc = builder.build(new ByteArrayInputStream(sb.toString().getBytes()));
 					Element xmlRoot = doc.getRootElement();
 					// read program parameters
 					List<Element> clist = xmlRoot.getChildren();
@@ -1092,7 +1074,7 @@ public class MetaOmProject {
 						sb.append(inline);
 					}
 					builder = new SAXBuilder();
-					Document doc = (Document) builder.build(new ByteArrayInputStream(sb.toString().getBytes()));
+					Document doc = builder.build(new ByteArrayInputStream(sb.toString().getBytes()));
 					Element xmlRoot = doc.getRootElement();
 					// read program parameters
 					List<Element> clist = xmlRoot.getChildren();
@@ -1119,7 +1101,7 @@ public class MetaOmProject {
 						sb.append(inline);
 					}
 					builder = new SAXBuilder();
-					Document doc = (Document) builder.build(new ByteArrayInputStream(sb.toString().getBytes()));
+					Document doc = builder.build(new ByteArrayInputStream(sb.toString().getBytes()));
 					Element xmlRoot = doc.getRootElement();
 					// read program parameters
 					List<Element> clist = xmlRoot.getChildren();
@@ -1212,7 +1194,7 @@ public class MetaOmProject {
 						sb.append(inline);
 					}
 					builder = new SAXBuilder();
-					Document doc = (Document) builder.build(new ByteArrayInputStream(sb.toString().getBytes()));
+					Document doc = builder.build(new ByteArrayInputStream(sb.toString().getBytes()));
 					Element xmlRoot = doc.getRootElement();
 					// read program parameters
 					List<Element> clist = xmlRoot.getChildren();
@@ -1474,6 +1456,7 @@ public class MetaOmProject {
 					final BufferedInputStream oldMetadataIn = new BufferedInputStream(instream);
 					PipedInputStream newMetadataIn = new PipedInputStream(newMetadataOut);
 					new Thread() {
+						@Override
 						public void run() {
 							try {
 								MetadataUpdater.update(oldMetadataIn, newMetadataOut);
@@ -1538,10 +1521,12 @@ public class MetaOmProject {
 						return false;
 					JFileChooser chooser = new JFileChooser(projectFile.getParentFile());
 					chooser.setFileFilter(new FileFilter() {
+						@Override
 						public boolean accept(File f) {
 							return (f.isDirectory()) || (f.getName().equals(source.getName()));
 						}
 
+						@Override
 						public String getDescription() {
 							return source.getName();
 						}
@@ -2502,6 +2487,7 @@ public class MetaOmProject {
 			@Override
 			public Object construct() {
 				EventQueue.invokeLater(new Runnable() {
+					@Override
 					public void run() {
 						try {
 

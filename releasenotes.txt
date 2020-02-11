@@ -1,3 +1,8 @@
+MOG 1.8.1 Release date: TBD
+Convert to maven project
+Remove unwanted packages
+Refactor 
+
 MOG 1.8.0 Release date: 10/28/2019
 Fixed bug to remember colors after chart is updated
 Added support for exporting SVG graphics

@@ -1,8 +1,6 @@
 package edu.iastate.metnet.metaomgraph.test;
 
-import java.awt.Container;
 import java.util.Enumeration;
-import java.util.Vector;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;

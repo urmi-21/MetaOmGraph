@@ -1,7 +1,6 @@
 package edu.iastate.metnet.metaomgraph.ui;
 
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -45,7 +44,8 @@ public class UpdatingSortableFilterableTable extends SortableFilterableTable {
             javax.swing.JPanel buttonPanel = new javax.swing.JPanel();
             final JButton toggleButton = new JButton("Empty");
             javax.swing.AbstractAction toggleAction = new javax.swing.AbstractAction("Start") {
-                public void actionPerformed(ActionEvent e) {
+                @Override
+				public void actionPerformed(ActionEvent e) {
                     if ("Start".equals(toggleButton.getText())) {
                         table.start();
                         toggleButton.setText("Stop");
@@ -62,7 +62,8 @@ public class UpdatingSortableFilterableTable extends SortableFilterableTable {
 
             final ClearableTextField filterField = new ClearableTextField();
             filterField.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(ActionEvent arg0) {
+                @Override
+				public void actionPerformed(ActionEvent arg0) {
                     table.getFilterModel().applyFilter(filterField.getText());
                 }
 
@@ -114,7 +115,8 @@ public class UpdatingSortableFilterableTable extends SortableFilterableTable {
         }
         thisFrame = animation[0];
         t = new javax.swing.Timer(25, new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            @Override
+			public void actionPerformed(ActionEvent e) {
                 if (!animating) {
                     t.stop();
                     return;
@@ -153,7 +155,8 @@ public class UpdatingSortableFilterableTable extends SortableFilterableTable {
         }
     }
 
-    protected void paintComponent(Graphics g) {
+    @Override
+	protected void paintComponent(Graphics g) {
         if (!animating) {
             super.paintComponent(g);
             return;
@@ -306,7 +309,8 @@ public class UpdatingSortableFilterableTable extends SortableFilterableTable {
         revalidate();
     }
 
-    public void setVisible(boolean aFlag) {
+    @Override
+	public void setVisible(boolean aFlag) {
         super.setVisible(aFlag);
         System.out.println("Visible!");
     }

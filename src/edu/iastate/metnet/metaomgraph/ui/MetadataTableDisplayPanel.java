@@ -5,7 +5,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -13,12 +12,9 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
@@ -29,12 +25,11 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
-import javax.swing.plaf.ColorUIResource;
+import javax.swing.WindowConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import org.dizitart.no2.Document;
@@ -42,28 +37,19 @@ import org.dizitart.no2.Document;
 import edu.iastate.metnet.metaomgraph.AlphanumericComparator;
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.ComputeRunsSimilarity;
-import edu.iastate.metnet.metaomgraph.CorrelationValue;
-import edu.iastate.metnet.metaomgraph.FilterableTableModel;
 import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
-import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
-import edu.iastate.metnet.metaomgraph.TableSorter;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.chart.BarChart;
 import edu.iastate.metnet.metaomgraph.chart.BoxPlot;
-import edu.iastate.metnet.metaomgraph.chart.MetaOmChartPanel;
 import edu.iastate.metnet.metaomgraph.chart.PlotRunsasSeries;
-import edu.iastate.metnet.metaomgraph.chart.RangeMarker;
-import edu.iastate.metnet.metaomgraph.test.BoxPlotter;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JDesktopPane;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
@@ -74,7 +60,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyVetoException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -139,6 +124,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 		JMenuItem mntmExport = new JMenuItem("Export");
 		mntmExport.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				Utils.saveJTabletofile(table);
 			}
@@ -154,6 +140,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 		JMenuItem mntmAdvance = new JMenuItem("Search");
 		mntmAdvance.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(
 						MetaOmGraph.getActiveProject(), false);
@@ -222,6 +209,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 		JMenuItem mntmRemovePrevious = new JMenuItem("Clear Last Search");
 		mntmRemovePrevious.addActionListener(new ActionListener() {
 
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				clearLastSearchedRows();
 
@@ -242,6 +230,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 		JMenuItem mntmFilterSelectedRows = new JMenuItem("Filter selected rows");
 		mntmFilterSelectedRows.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				Object[] options = { "Remove", "Keep", "Cancel" };
 				JPanel optPanel = new JPanel();
@@ -263,6 +252,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 		JMenuItem mntmFilterLastSearched = new JMenuItem("Filter last searched");
 		mntmFilterLastSearched.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				Object[] options = { "Remove", "Keep", "Cancel" };
 				JPanel optPanel = new JPanel();
@@ -290,8 +280,10 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 		JMenuItem mntmAdvanceFilter = new JMenuItem("Advance filter");
 		mntmAdvanceFilter.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				EventQueue.invokeLater(new Runnable() {
+					@Override
 					public void run() {
 						try {
 							MetadataFilter frame = new MetadataFilter(obj);
@@ -308,6 +300,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 		JMenuItem mntmReset_1 = new JMenuItem("Reset");
 		mntmReset_1.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				obj.resetRowFilter();
 				// clear last searched
@@ -325,8 +318,10 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 		JMenuItem mntmSelectColumn = new JMenuItem("Select columns");
 		mntmSelectColumn.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				EventQueue.invokeLater(new Runnable() {
+					@Override
 					public void run() {
 						try {
 							MetadataRemoveCols frame = new MetadataRemoveCols(headers, obj, getThisPanel(), false);
@@ -342,6 +337,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 		JMenuItem mntmReset = new JMenuItem("Reset");
 		mntmReset.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				resetData();
 				updateTable();
@@ -356,8 +352,10 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 		JMenuItem mntmRows = new JMenuItem("Rows");
 		mntmRows.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				EventQueue.invokeLater(new Runnable() {
+					@Override
 					public void run() {
 						try {
 							MetadataFilter frame = new MetadataFilter(obj, true);
@@ -374,9 +372,11 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 		JMenuItem mntmColumns = new JMenuItem("Columns");
 		mntmColumns.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 
 				EventQueue.invokeLater(new Runnable() {
+					@Override
 					public void run() {
 						try {
 							// remove cols permanently from metadata
@@ -396,6 +396,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 		JMenuItem mntmAutomaticallyDetectColumns = new JMenuItem("Automatically detect columns");
 		mntmAutomaticallyDetectColumns.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				detectSRAColumns();
 				autoDetect = true;
@@ -406,6 +407,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 		JMenuItem mntmChooseColumns = new JMenuItem("Choose columns");
 		mntmChooseColumns.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// choose columns with SRRids
 				String[] colheaders = new String[table.getColumnCount()];
@@ -455,6 +457,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 				// OK button
 				JButton okbutton = new JButton("OK");
 				okbutton.addActionListener(new ActionListener() {
+					@Override
 					public void actionPerformed(ActionEvent arg0) {
 						// validate input and set the columns
 						for (int i = 0; i < optionTable.getRowCount(); i++) {
@@ -483,7 +486,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 				optionsDiag.getContentPane().add(optionsPane, BorderLayout.CENTER);
 				optionsDiag.getContentPane().add(okbutton, BorderLayout.SOUTH);
 				optionsPane.setViewportView(optionTable);
-				optionsDiag.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+				optionsDiag.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 				optionsDiag.pack();
 				optionsDiag.setVisible(true);
 
@@ -495,6 +498,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 		JMenuItem mntmRemoveHyperlinks = new JMenuItem("Remove hyperlinks");
 		mntmRemoveHyperlinks.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				removeHyperlinks();
 			}
@@ -524,6 +528,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 		JMenuItem mntmBarChart = new JMenuItem("Bar Chart");
 		mntmBarChart.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				plotBarChart(selectColumn());
 				return;
@@ -531,11 +536,13 @@ public class MetadataTableDisplayPanel extends JPanel {
 		});
 		mnColumns.add(mntmBarChart);
 		mntmBoxPlot.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				new AnimatedSwingWorker("Working...", true) {
 					@Override
 					public Object construct() {
 						EventQueue.invokeLater(new Runnable() {
+							@Override
 							public void run() {
 								// get data for all selceted cols
 								try {
@@ -551,6 +558,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 									// MetaOmGraph.addInternalFrame(BoxPlotter.getSampleBoxPlot(databyCols),"Box
 									// Plot");
 									EventQueue.invokeLater(new Runnable() {
+										@Override
 										public void run() {
 											try {// get data for selected rows
 												BoxPlot f = new BoxPlot(databyCols, 1, MetaOmGraph.getActiveProject());
@@ -587,11 +595,13 @@ public class MetadataTableDisplayPanel extends JPanel {
 			}
 		});
 		mntmAsSeries.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				new AnimatedSwingWorker("Working...", true) {
 					@Override
 					public Object construct() {
 						EventQueue.invokeLater(new Runnable() {
+							@Override
 							public void run() {
 								// get data for all selceted cols
 								try {
@@ -619,6 +629,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 		JMenuItem mntmSwitchToTree_1 = new JMenuItem("Switch to tree");
 		mntmSwitchToTree_1.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				// highlight selected rows in the tree
 				// get selected data cols
@@ -648,6 +659,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 		JMenuItem mntmCosineSililarity = new JMenuItem("Cosine sililarity");
 		mntmCosineSililarity.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				/**
 				 * select 2 or more runs and display the cosine simmilarity between them
@@ -656,6 +668,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 					@Override
 					public Object construct() {
 						EventQueue.invokeLater(new Runnable() {
+							@Override
 							public void run() {
 								// get data for all selceted cols
 								try {
@@ -678,6 +691,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 									HashMap<String, Double> res = ob.doComputation();
 									// display res in JTable
 									EventQueue.invokeLater(new Runnable() {
+										@Override
 										public void run() {
 											try {
 												SimilarityDisplayFrame frameob = new SimilarityDisplayFrame(res,
@@ -708,6 +722,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 		JMenuItem mntmPearsonCorrelation = new JMenuItem("Pearson Correlation");
 		mntmPearsonCorrelation.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 
 				/**
@@ -717,6 +732,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 					@Override
 					public Object construct() {
 						EventQueue.invokeLater(new Runnable() {
+							@Override
 							public void run() {
 								// get data for all selceted cols
 								try {
@@ -739,6 +755,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 									// display res in JTable
 									// displaySimilarityTable(res, "Pearson's correlation");
 									EventQueue.invokeLater(new Runnable() {
+										@Override
 										public void run() {
 											try {
 												SimilarityDisplayFrame frameob = new SimilarityDisplayFrame(res,
@@ -769,6 +786,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 		JMenuItem mntmSpearmanCorrelation = new JMenuItem("Spearman Correlation");
 		mntmSpearmanCorrelation.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 
 				/**
@@ -778,6 +796,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 					@Override
 					public Object construct() {
 						EventQueue.invokeLater(new Runnable() {
+							@Override
 							public void run() {
 								// get data for all selceted cols
 								try {
@@ -800,6 +819,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 									// display res in JTable
 									// displaySimilarityTable(res, "Pearson's correlation");
 									EventQueue.invokeLater(new Runnable() {
+										@Override
 										public void run() {
 											try {
 												SimilarityDisplayFrame frameob = new SimilarityDisplayFrame(res,
@@ -831,6 +851,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 		JMenuItem mntmSimple = new JMenuItem("Simple");
 		mntmSimple.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				/*
 				 * SimpleSearchDialog o= new SimpleSearchDialog();
@@ -877,10 +898,12 @@ public class MetadataTableDisplayPanel extends JPanel {
 		// toHighlight.put(0, ls);
 		// headers = obj.getHeaders();
 		table = new JTable() {
+			@Override
 			public boolean getScrollableTracksViewportWidth() {
 				return getPreferredSize().width < getParent().getWidth();
 			}
 
+			@Override
 			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
 				// urmi enclose in try catch
 				try {

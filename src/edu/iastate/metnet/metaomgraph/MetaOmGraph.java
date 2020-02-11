@@ -3,13 +3,9 @@ package edu.iastate.metnet.metaomgraph;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Event;
 import java.awt.EventQueue;
-import java.awt.Frame;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.SplashScreen;
@@ -20,12 +16,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyVetoException;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -40,13 +34,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.Vector;
-import java.util.concurrent.TimeUnit;
-
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
-import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
@@ -59,62 +49,49 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JRadioButton;
-import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
-import javax.swing.SpinnerNumberModel;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
-import javax.swing.event.TableModelEvent;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.ColorUIResource;
 
-import org.biomage.examples.GetToDataExample;
+//import org.biomage.examples.GetToDataExample;
 import org.jdom.JDOMException;
+
 
 import com.apple.eawt.Application;
 import com.l2fprod.common.swing.JTipOfTheDay;
+
+//import com.l2fprod.common.swing.*;
 
 import edu.iastate.metnet.arrayexpress.v2.AEImportDialog;
 import edu.iastate.metnet.arrayexpress.v2.AEProjectMaker;
 import edu.iastate.metnet.metaomgraph.AnnotationImporter.Annotation;
 import edu.iastate.metnet.metaomgraph.MetaOmTips.MetaOmShowTipsChoice;
-import edu.iastate.metnet.metaomgraph.RepInfo.RepAveragedData;
 import edu.iastate.metnet.metaomgraph.chart.MetaOmChartPanel;
-import edu.iastate.metnet.metaomgraph.metabolomics.MetabolomicsProjectMaker;
 import edu.iastate.metnet.metaomgraph.ui.AboutFrame;
 import edu.iastate.metnet.metaomgraph.ui.AboutFrame4;
-import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
 import edu.iastate.metnet.metaomgraph.ui.ClickableLabel;
 import edu.iastate.metnet.metaomgraph.ui.DifferentialExpFrame;
-import edu.iastate.metnet.metaomgraph.ui.DisplayMetadataEditor;
 import edu.iastate.metnet.metaomgraph.ui.ListMergePanel;
-import edu.iastate.metnet.metaomgraph.ui.MenuButton;
-import edu.iastate.metnet.metaomgraph.ui.MetNet3ListExporter;
-import edu.iastate.metnet.metaomgraph.ui.MetNet3ListImportPanel;
 import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel;
-import edu.iastate.metnet.metaomgraph.ui.MetadataEditor;
 import edu.iastate.metnet.metaomgraph.ui.MetadataFilter;
 import edu.iastate.metnet.metaomgraph.ui.MetadataImportWizard;
 import edu.iastate.metnet.metaomgraph.ui.Metadataviewer;
 import edu.iastate.metnet.metaomgraph.ui.NewProjectDialog;
 import edu.iastate.metnet.metaomgraph.ui.ProjectPropertiesPanel;
 import edu.iastate.metnet.metaomgraph.ui.ReadMetadata;
-import edu.iastate.metnet.metaomgraph.ui.RepInfoPanel;
 import edu.iastate.metnet.metaomgraph.ui.SearchByExpressionFrame;
 import edu.iastate.metnet.metaomgraph.ui.SetColTypes;
-import edu.iastate.metnet.metaomgraph.ui.SetProgramParameters;
 import edu.iastate.metnet.metaomgraph.ui.WelcomePanel;
 import edu.iastate.metnet.metaomgraph.ui.WelcomePanelWin10;
-import edu.iastate.metnet.metaomgraph.ui.logFCPanel;
 import edu.iastate.metnet.metaomgraph.ui.logFCResultsFrame;
-import edu.iastate.metnet.metaomgraph.ui.NewProjectDialog.FileBrowseListener;
 import edu.iastate.metnet.metaomgraph.utils.DataNormalizer;
 import edu.iastate.metnet.metaomgraph.utils.DataNormalizer.MeanResult;
 import edu.iastate.metnet.metaomgraph.utils.ExceptionHandler;
@@ -122,15 +99,6 @@ import edu.iastate.metnet.metaomgraph.utils.MOGColorThemes;
 import edu.iastate.metnet.metaomgraph.utils.ProjectMerger;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import edu.iastate.metnet.metaomgraph.utils.VersionCheck;
-import edu.iastate.metnet.my.EntityList;
-import edu.iastate.metnet.my.EntityListPart;
-import edu.iastate.metnet.soft.SOFTFile;
-import edu.iastate.metnet.soft.SOFTParser;
-import edu.iastate.metnet.soft.SOFTParserOptionPanel;
-import edu.stanford.ejalbert.BrowserLauncher;
-import edu.stanford.ejalbert.BrowserLauncherRunner;
-import edu.stanford.ejalbert.exceptionhandler.BrowserLauncherDefaultErrorHandler;
-import edu.stanford.ejalbert.exceptionhandler.BrowserLauncherErrorHandler;
 
 /**
  * The main class of the MetaOmGraph. Handles all non-project-specific
@@ -715,7 +683,7 @@ public class MetaOmGraph implements ActionListener {
 				// JOptionPane.showMessageDialog(null, "Lastpath:"+lastF.getAbsolutePath());
 				recentProjects = (Vector<File>) in.readObject();
 				// JOptionPane.showMessageDialog(null, recentProjects.toString());
-				Utils.setLastDir((File) recentProjects.get(0));
+				Utils.setLastDir(recentProjects.get(0));
 				showTips = (MetaOmShowTipsChoice) in.readObject();
 				currentTip = (Integer) in.readObject();
 				try {
@@ -1242,16 +1210,19 @@ public class MetaOmGraph implements ActionListener {
 		windowMenu.add(cascadeItem);
 		windowMenu.addMenuListener(new MenuListener() {
 
+			@Override
 			public void menuCanceled(MenuEvent e) {
 				// TODO Auto-generated method stub
 
 			}
 
+			@Override
 			public void menuDeselected(MenuEvent e) {
 				// TODO Auto-generated method stub
 
 			}
 
+			@Override
 			public void menuSelected(MenuEvent e) {
 				JInternalFrame[] frames = getDesktop().getAllFrames();
 				if (openWindowItems != null) {
@@ -1418,12 +1389,14 @@ public class MetaOmGraph implements ActionListener {
 		// (height - mainWindow.getHeight()) / 2);
 		mainWindow.setLocationRelativeTo(null);
 		mainWindow.setVisible(true);
-		mainWindow.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		mainWindow.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		mainWindow.addWindowListener(new WindowAdapter() {
+			@Override
 			public void windowClosed(WindowEvent arg0) {
 				shutdown();
 			}
 
+			@Override
 			public void windowClosing(WindowEvent arg0) {
 				shutdown();
 			}
@@ -1684,6 +1657,7 @@ public class MetaOmGraph implements ActionListener {
 		projectMenu.setEnabled(true);
 		activeTablePanel.getTabbedPane().addChangeListener(new ChangeListener() {
 
+			@Override
 			public void stateChanged(ChangeEvent e) {
 				if (activeTablePanel.getTabbedPane().getSelectedIndex() == 0) {
 					projectTableFrame.setName("projectdata.php");
@@ -1876,6 +1850,7 @@ public class MetaOmGraph implements ActionListener {
 		/**
 		 * Creates the project.
 		 */
+		@Override
 		public Object construct() {
 			// try {
 			// activeProject=new MetaOmProject(new
@@ -1896,6 +1871,7 @@ public class MetaOmGraph implements ActionListener {
 		 * (row names, column names, extended info) and displays the project table.
 		 * Otherwise, it removes all traces of the attempted operation.
 		 */
+		@Override
 		public void finished() {
 			// System.out.println("Finished!");
 			if (activeProject.isInitialized()) {
@@ -2040,6 +2016,7 @@ public class MetaOmGraph implements ActionListener {
 		/**
 		 * Creates the project.
 		 */
+		@Override
 		public Object construct() {
 			// hide welcome dialog
 			if (welcomeDialog != null) {
@@ -2065,6 +2042,7 @@ public class MetaOmGraph implements ActionListener {
 		 * If the project was opened successfully, this opens a table frame and calls
 		 * projectOpened(). Otherwise, it removes all traces of the attempted operation.
 		 */
+		@Override
 		public void finished() {
 			if (activeProject == null) {
 				JOptionPane.showMessageDialog(null, "Failed to open the project.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -2237,6 +2215,7 @@ public class MetaOmGraph implements ActionListener {
 	/**
 	 * ActionListener for the MetaOmGraph window's menu items.
 	 */
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		// Close the active project
 		if (CLOSE_PROJECT_COMMAND.equals(e.getActionCommand())) {
@@ -2348,6 +2327,7 @@ public class MetaOmGraph implements ActionListener {
 					@Override
 					public Object construct() {
 						EventQueue.invokeLater(new Runnable() {
+							@Override
 							public void run() {
 								try {
 
@@ -2414,6 +2394,7 @@ public class MetaOmGraph implements ActionListener {
 
 		if ("coltypes".equals(e.getActionCommand())) {
 			EventQueue.invokeLater(new Runnable() {
+				@Override
 				public void run() {
 					try {
 
@@ -2442,6 +2423,7 @@ public class MetaOmGraph implements ActionListener {
 				JOptionPane.showMessageDialog(null, "No metadata found", "No Metadata", JOptionPane.ERROR_MESSAGE);
 			}
 			EventQueue.invokeLater(new Runnable() {
+				@Override
 				public void run() {
 					try {
 
@@ -2489,7 +2471,7 @@ public class MetaOmGraph implements ActionListener {
 			propertiesFrame = new JInternalFrame("Properties", true, true, true, true);
 			propertiesFrame.putClientProperty("JInternalFrame.frameType", "normal");
 			propertiesFrame.getContentPane().add(ppp, BorderLayout.CENTER);
-			propertiesFrame.setDefaultCloseOperation(JInternalFrame.DISPOSE_ON_CLOSE);
+			propertiesFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 			propertiesFrame.pack();
 			propertiesFrame.setSize(400, 400);
 			MetaOmGraph.getDesktop().add(propertiesFrame);
@@ -2537,63 +2519,7 @@ public class MetaOmGraph implements ActionListener {
 
 		// Create a new project from a SOFT file
 		if (NEW_PROJECT_SOFT_COMMAND.equals(e.getActionCommand())) {
-			if (!closeProject())
-				return;
-			final SOFTParserOptionPanel spop = new SOFTParserOptionPanel();
-			JDialog dialog = spop.makeDialog(getMainWindow());
-			dialog.setModal(true);
-			dialog.setVisible(true);
-			if (!spop.isOK())
-				return;
-			final SOFTFile[] parseUs = spop.getFilesToParse();
-			if ((parseUs == null) || (parseUs.length <= 0))
-				return;
-
-			// String[] rowNames=spop.getRowIDs();
-			// boolean sortSeries=spop.isSortSeriesSelected();
-			// final MetaOmProject project;
-			SwingWorker worker = new SwingWorker() {
-
-				@Override
-				public Object construct() {
-					MetaOmProject project = null;
-					try {
-						project = new SOFTParser().createProjectFromFiles(parseUs, spop.getDestination(),
-								spop.getRowIDs());
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
-
-					if (project == null)
-						return null;
-
-					openProject(project);
-					return null;
-				}
-
-				@Override
-				public void finished() {
-					MetaOmGraph.getMainWindow().setEnabled(true);
-				}
-
-			};
-			// try {
-			// project=new
-			// SOFTParser().createProjectFromFile(parseUs[0],spop.getDestination(
-			// ),spop.getRowIDs());
-			// } catch (IOException e1) {
-			// e1.printStackTrace();
-			// }
-			// if (project==null)
-			// return;
-			// openProject(project);
-			getMainWindow().setEnabled(false);
-			worker.start();
-			// try {
-			// t.join();
-			// } catch (InterruptedException e1) {
-			// e1.printStackTrace();
-			// }
+			//nothing to do
 			return;
 		}
 
@@ -2601,13 +2527,8 @@ public class MetaOmGraph implements ActionListener {
 		if (NEW_PROJECT_METABOLOMICS_COMMAND.equals(e.getActionCommand())) {
 			if (!closeProject())
 				return;
-
-			MetabolomicsProjectMaker maker = new MetabolomicsProjectMaker();
-			File source = maker.showProjectMakerPanel(getMainWindow());
-			if (source == null)
-				return;
-
-			new NewProjectWorker(source, 1, '\t', null, null, maker.getMetadataFile(), false, 0.0).start();
+			//nothing to do
+			return;
 		}
 
 		if (NEW_PROJECT_ARRAYEXPRESS_COMMAND.equals(e.getActionCommand())) {
@@ -2892,6 +2813,7 @@ public class MetaOmGraph implements ActionListener {
 			final File dest = Utils.chooseFileToSave(xmlFilter, "xml", MetaOmGraph.getMainWindow(), true);
 			new AnimatedSwingWorker("Exporting...", true) {
 
+				@Override
 				public Object construct() {
 					getActiveProject().exportLists(dest, idCol);
 					return null;
@@ -2900,7 +2822,7 @@ public class MetaOmGraph implements ActionListener {
 			return;
 		}
 		if (EXPORT_METNET3_LISTS_COMMAND.equals(e.getActionCommand())) {
-			MetNet3ListExporter.doExport(getActiveProject());
+			//MetNet3ListExporter.doExport(getActiveProject());
 			return;
 		}
 		if (IMPORT_LISTS_COMMAND.equals(e.getActionCommand())) {
@@ -2910,6 +2832,7 @@ public class MetaOmGraph implements ActionListener {
 				return;
 
 			new AnimatedSwingWorker("Importing...", true) {
+				@Override
 				public Object construct() {
 					getActiveProject().importLists(source);
 					return null;
@@ -2917,6 +2840,8 @@ public class MetaOmGraph implements ActionListener {
 			}.start();
 			return;
 		}
+		
+		/* urmi: this function is not used
 		if (IMPORT_METNET3_LISTS_COMMAND.equals(e.getActionCommand())) {
 			final MetNet3ListImportPanel importer;
 			try {
@@ -3000,7 +2925,7 @@ public class MetaOmGraph implements ActionListener {
 				e1.printStackTrace();
 			}
 			return;
-		}
+		}*/
 		if (MERGE_LISTS_COMMAND.equals(e.getActionCommand())) {
 			ListMergePanel.showMergeDialog(getActiveProject());
 			return;
@@ -3180,6 +3105,7 @@ public class MetaOmGraph implements ActionListener {
 		}
 		if (EXCLUDE_SAMPLES_COMMAND.equals(e.getActionCommand())) {
 			EventQueue.invokeLater(new Runnable() {
+				@Override
 				public void run() {
 					try {
 						MetadataFilter frame = new MetadataFilter(
@@ -3386,6 +3312,7 @@ public class MetaOmGraph implements ActionListener {
 						welcomeDialog.setLocationRelativeTo(MetaOmGraph.getMainWindow());
 						AbstractAction action = new AbstractAction() {
 
+							@Override
 							public void actionPerformed(ActionEvent e) {
 								ActionEvent e2 = new ActionEvent(welcomeDialog, ActionEvent.ACTION_PERFORMED,
 										"welcome.php");
@@ -3428,7 +3355,7 @@ public class MetaOmGraph implements ActionListener {
 		else {
 			aboutFrame = new AboutFrame();
 			aboutFrame.setClosable(true);
-			aboutFrame.setDefaultCloseOperation(JInternalFrame.DISPOSE_ON_CLOSE);
+			aboutFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 			aboutFrame.setResizable(true);
 			aboutFrame.setIconifiable(false);
 			aboutFrame.setMaximizable(false);
@@ -3452,7 +3379,7 @@ public class MetaOmGraph implements ActionListener {
 		dialog.add(new AboutFrame4());
 		dialog.pack();
 		dialog.setLocationRelativeTo(MetaOmGraph.getMainWindow());
-		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		dialog.setVisible(true);
 	}
 

@@ -5,23 +5,14 @@ package edu.iastate.metnet.metaomgraph.ui;
  */
 
 import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Deque;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.TreeMap;
 
-import javax.print.attribute.standard.JobPriority;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
@@ -31,15 +22,12 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 
 import org.dizitart.no2.Document;
-import org.dizitart.no2.Filter;
-import org.dizitart.no2.filters.Filters;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
-import edu.iastate.metnet.metaomgraph.utils.qdxml.SimpleXMLElement;
 
 /**
  * Class handles conversion of tabular to tree data structures

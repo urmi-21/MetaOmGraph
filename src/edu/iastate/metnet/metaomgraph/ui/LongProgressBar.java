@@ -24,11 +24,13 @@ public class LongProgressBar extends JProgressBar {
         paintImmediately(getBounds());
     }
 
-    public void setMinimum(int n) {
+    @Override
+	public void setMinimum(int n) {
         min = n;
     }
 
-    public void setMaximum(int n) {
+    @Override
+	public void setMaximum(int n) {
         max = n;
     }
 

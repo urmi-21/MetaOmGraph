@@ -1,6 +1,5 @@
 package edu.iastate.metnet.metaomgraph.chart;
 
-import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.io.File;
@@ -34,6 +33,7 @@ public class ChartActions {
 		JFormattedTextField widthField, heightField;
 		JFormattedTextField.AbstractFormatter af = new JFormattedTextField.AbstractFormatter() {
 
+			@Override
 			public Object stringToValue(String text) throws ParseException {
 				try {
 					return new Integer(text);
@@ -42,6 +42,7 @@ public class ChartActions {
 				}
 			}
 
+			@Override
 			public String valueToString(Object value) throws ParseException {
 				if (value instanceof Integer) {
 					Integer intValue = (Integer) value;

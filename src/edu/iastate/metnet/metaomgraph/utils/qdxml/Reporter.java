@@ -1,7 +1,6 @@
 package edu.iastate.metnet.metaomgraph.utils.qdxml;
 
 import java.io.FileReader;
-import java.io.PrintStream;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -13,16 +12,19 @@ public class Reporter
     public Reporter() {
     }
 
-    public void startDocument() {
+    @Override
+	public void startDocument() {
         System.out.println("  start document");
     }
 
 
-    public void endDocument() {
+    @Override
+	public void endDocument() {
         System.out.println("  end document");
     }
 
-    public void startElement(String elem, Hashtable h) {
+    @Override
+	public void startElement(String elem, Hashtable h) {
         System.out.println("    start elem: " + elem);
         Enumeration e = h.keys();
         while (e.hasMoreElements()) {
@@ -32,11 +34,13 @@ public class Reporter
         }
     }
 
-    public void endElement(String elem) {
+    @Override
+	public void endElement(String elem) {
         System.out.println("    end elem: " + elem);
     }
 
-    public void text(String text) {
+    @Override
+	public void text(String text) {
         System.out.println("        text: " + text);
     }
 

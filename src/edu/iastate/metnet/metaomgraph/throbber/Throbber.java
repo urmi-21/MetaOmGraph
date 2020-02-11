@@ -84,12 +84,14 @@ public abstract class Throbber extends JLabel implements ActionListener {
         return animating;
     }
 
-    public void actionPerformed(ActionEvent e) {
+    @Override
+	public void actionPerformed(ActionEvent e) {
         drawThrobber();
         setIcon(new ImageIcon(image));
     }
 
-    protected void paintComponent(Graphics g) {
+    @Override
+	protected void paintComponent(Graphics g) {
         if (!drawn) actionPerformed(null);
 
         super.paintComponent(g);

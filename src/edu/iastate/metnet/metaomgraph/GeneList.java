@@ -40,7 +40,8 @@ public class GeneList implements Transferable, Serializable {
         return correlationList;
     }
 
-    public String toString() {
+    @Override
+	public String toString() {
         return name;
     }
 
@@ -70,11 +71,13 @@ public class GeneList implements Transferable, Serializable {
         return geneListFlavor;
     }
 
-    public DataFlavor[] getTransferDataFlavors() {
+    @Override
+	public DataFlavor[] getTransferDataFlavors() {
         return new DataFlavor[]{getGeneListFlavor()};
     }
 
-    public boolean isDataFlavorSupported(DataFlavor flavor) {
+    @Override
+	public boolean isDataFlavorSupported(DataFlavor flavor) {
         return flavor.equals(getGeneListFlavor());
     }
 
@@ -90,7 +93,8 @@ public class GeneList implements Transferable, Serializable {
         return result;
     }
 
-    public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
+    @Override
+	public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
         return this;
     }
 

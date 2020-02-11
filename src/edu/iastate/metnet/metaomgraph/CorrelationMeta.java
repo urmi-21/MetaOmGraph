@@ -2,11 +2,7 @@ package edu.iastate.metnet.metaomgraph;
 
 import java.text.DecimalFormat;
 
-import org.apache.commons.math3.analysis.function.Atanh;
-import org.apache.commons.math3.analysis.function.Tanh;
-import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
-import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 
 /**
  * 

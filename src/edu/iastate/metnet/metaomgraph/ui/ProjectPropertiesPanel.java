@@ -3,14 +3,11 @@ package edu.iastate.metnet.metaomgraph.ui;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.RandomAccessFile;
-import edu.iastate.metnet.metaomgraph.TableSorter;
 import edu.iastate.metnet.metaomgraph.utils.MetNetUtils;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Container;
-import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Toolkit;
@@ -25,9 +22,6 @@ import java.io.IOException;
 import java.util.Vector;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JDesktopPane;
-import javax.swing.JDialog;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -35,8 +29,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 public class ProjectPropertiesPanel extends JPanel {
 	private JTextField xaxisField;
@@ -79,20 +71,25 @@ public class ProjectPropertiesPanel extends JPanel {
 
 		xaxisField = new JTextField(x);
 		xaxisField.addKeyListener(new KeyListener() {
+			@Override
 			public void keyPressed(KeyEvent arg0) {
 			}
 
+			@Override
 			public void keyReleased(KeyEvent arg0) {
 				myProject.setDefaultXAxis(xaxisField.getText());
 			}
 
+			@Override
 			public void keyTyped(KeyEvent arg0) {
 			}
 		});
 		xaxisField.addFocusListener(new FocusListener() {
+			@Override
 			public void focusGained(FocusEvent e) {
 			}
 
+			@Override
 			public void focusLost(FocusEvent e) {
 				myProject.setDefaultXAxis(xaxisField.getText());
 			}
@@ -100,20 +97,25 @@ public class ProjectPropertiesPanel extends JPanel {
 		});
 		yaxisField = new JTextField(y);
 		yaxisField.addKeyListener(new KeyListener() {
+			@Override
 			public void keyPressed(KeyEvent arg0) {
 			}
 
+			@Override
 			public void keyReleased(KeyEvent arg0) {
 				myProject.setDefaultYAxis(yaxisField.getText());
 			}
 
+			@Override
 			public void keyTyped(KeyEvent arg0) {
 			}
 		});
 		yaxisField.addFocusListener(new FocusListener() {
+			@Override
 			public void focusGained(FocusEvent e) {
 			}
 
+			@Override
 			public void focusLost(FocusEvent e) {
 				myProject.setDefaultYAxis(yaxisField.getText());
 			}
@@ -122,20 +124,25 @@ public class ProjectPropertiesPanel extends JPanel {
 		titleField = new JTextField(title);
 
 		titleField.addKeyListener(new KeyListener() {
+			@Override
 			public void keyPressed(KeyEvent arg0) {
 			}
 
+			@Override
 			public void keyReleased(KeyEvent arg0) {
 				myProject.setDefaultTitle(titleField.getText());
 			}
 
+			@Override
 			public void keyTyped(KeyEvent arg0) {
 			}
 		});
 		titleField.addFocusListener(new FocusListener() {
+			@Override
 			public void focusGained(FocusEvent e) {
 			}
 
+			@Override
 			public void focusLost(FocusEvent e) {
 				myProject.setDefaultTitle(titleField.getText());
 			}
@@ -143,6 +150,7 @@ public class ProjectPropertiesPanel extends JPanel {
 		});
 		JButton rowManageButton = new JButton("Manage...");
 		rowManageButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 
 				new RowNameManager().manageRows();
@@ -151,6 +159,7 @@ public class ProjectPropertiesPanel extends JPanel {
 		});
 		JButton columnManageButton = new JButton("Manage...");
 		columnManageButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 
 				new ColumnManager().manageCols();
@@ -159,6 +168,7 @@ public class ProjectPropertiesPanel extends JPanel {
 		});
 		JButton paramManageButton = new JButton("Change...");
 		paramManageButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 
 				if(MetaOmGraph.getActiveProject().getMetadataHybrid()==null) {
@@ -180,6 +190,7 @@ public class ProjectPropertiesPanel extends JPanel {
 		
 		JButton rPathManageButton = new JButton("Change...");
 		rPathManageButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				SetRPaths frame = new SetRPaths();
 				frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
@@ -193,6 +204,7 @@ public class ProjectPropertiesPanel extends JPanel {
 		
 		JButton manageColors= new JButton("Manage...");
 		manageColors.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				ColorProperties frame = new ColorProperties();
 				frame.setSize(500,300);
@@ -303,6 +315,7 @@ public class ProjectPropertiesPanel extends JPanel {
 			importButton.addActionListener(new RowImportListener());
 			deleteButton.addActionListener(new ColumnDeleteListener());
 			defaultButton.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					if (myTable.getSelectedColumnCount() == 0)
 						return;
@@ -331,6 +344,7 @@ public class ProjectPropertiesPanel extends JPanel {
 
 			JButton okButton = new JButton("OK");
 			okButton.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					myProject.setRowNames(model.getData(), model.getHeaders());
 					myProject.setDefaultColumn(defaultColumn);
@@ -345,6 +359,7 @@ public class ProjectPropertiesPanel extends JPanel {
 			});
 			JButton cancelButton = new JButton("Cancel");
 			cancelButton.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					f.dispose();
 				}
@@ -370,6 +385,7 @@ public class ProjectPropertiesPanel extends JPanel {
 			private RowImportListener() {
 			}
 
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				File source = Utils.chooseFileToOpen();
 				if (source == null)
@@ -426,6 +442,7 @@ public class ProjectPropertiesPanel extends JPanel {
 			private ColumnDeleteListener() {
 			}
 
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				int[] selected = myTable.getSelectedColumns();
 				for (int x = selected.length - 1; x >= 0; x--) {
@@ -480,6 +497,7 @@ public class ProjectPropertiesPanel extends JPanel {
 
 			JButton okButton = new JButton("OK");
 			okButton.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					myProject.setDataColumnHeaders(model.getData());
 					f.dispose();
@@ -488,6 +506,7 @@ public class ProjectPropertiesPanel extends JPanel {
 			});
 			JButton cancelButton = new JButton("Cancel");
 			cancelButton.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					f.dispose();
 				}
@@ -514,6 +533,7 @@ public class ProjectPropertiesPanel extends JPanel {
 			private ColumnImportListener() {
 			}
 
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				File source = Utils.chooseFileToOpen();
 				if (source == null)
@@ -546,9 +566,11 @@ public class ProjectPropertiesPanel extends JPanel {
 				buffer = "";
 			}
 
+			@Override
 			public void keyTyped(KeyEvent e) {
 			}
 
+			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == 27) {
 					buffer = "";
@@ -579,6 +601,7 @@ public class ProjectPropertiesPanel extends JPanel {
 				e.consume();
 			}
 
+			@Override
 			public void keyReleased(KeyEvent e) {
 			}
 		}

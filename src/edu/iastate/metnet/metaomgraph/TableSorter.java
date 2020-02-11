@@ -5,9 +5,7 @@
 
 package edu.iastate.metnet.metaomgraph;
 
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -22,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -39,11 +36,13 @@ public class TableSorter extends AbstractTableModel {
 	public static final int ASCENDING = 1;
 	private static TableSorter.Directive EMPTY_DIRECTIVE = new TableSorter.Directive(-1, 0);
 	public static final Comparator COMPARABLE_COMAPRATOR = new Comparator() {
+		@Override
 		public int compare(Object o1, Object o2) {
 			return ((Comparable) o1).compareTo(o2);
 		}
 	};
 	public static final Comparator LEXICAL_COMPARATOR = new Comparator() {
+		@Override
 		public int compare(Object o1, Object o2) {
 			// JOptionPane.showMessageDialog(null, "here");
 			return o1.toString().compareTo(o2.toString());
@@ -51,6 +50,7 @@ public class TableSorter extends AbstractTableModel {
 	};
 
 	public static final Comparator DOUBLE_COMPARATOR = new Comparator() {
+		@Override
 		public int compare(Object o1, Object o2) {
 			double diff = (double) o1 - (double) o2;
 			return (int) diff;
@@ -315,18 +315,22 @@ public class TableSorter extends AbstractTableModel {
 		return this.modelToView;
 	}
 
+	@Override
 	public int getRowCount() {
 		return this.tableModel != null ? this.tableModel.getRowCount() : 0;
 	}
 
+	@Override
 	public int getColumnCount() {
 		return this.tableModel != null ? this.tableModel.getColumnCount() : 0;
 	}
 
+	@Override
 	public String getColumnName(int column) {
 		return this.tableModel.getColumnName(column);
 	}
 
+	@Override
 	public Class getColumnClass(int column) {
 		//return String.class;
 		Class result = null;
@@ -341,16 +345,19 @@ public class TableSorter extends AbstractTableModel {
 		return this.tableModel.getColumnClass(column);
 	}
 
+	@Override
 	public boolean isCellEditable(int row, int column) {
 		return this.tableModel.isCellEditable(this.modelIndex(row), column);
 	}
 
+	@Override
 	public synchronized Object getValueAt(int row, int column) {
 		return row <= this.tableModel.getRowCount() && column <= this.tableModel.getColumnCount()
 				? this.tableModel.getValueAt(this.modelIndex(row), column)
 				: null;
 	}
 
+	@Override
 	public void setValueAt(Object aValue, int row, int column) {
 		this.tableModel.setValueAt(aValue, this.modelIndex(row), column);
 	}
@@ -360,9 +367,10 @@ public class TableSorter extends AbstractTableModel {
 		private int size;
 		private int priority;
 
+		@Override
 		public void paintIcon(java.awt.Component c, java.awt.Graphics g, int x, int y) {
 			java.awt.Color color = c != null ? c.getBackground() : java.awt.Color.GRAY;
-			int dx = (int) ((double) (size / 2) * Math.pow(0.80000000000000004D, priority));
+			int dx = (int) (size / 2 * Math.pow(0.80000000000000004D, priority));
 			int dy = descending ? dx : -dx;
 			y = y + (5 * size) / 6 + (descending ? -dy : 0);
 			int shift = descending ? 1 : -1;
@@ -382,10 +390,12 @@ public class TableSorter extends AbstractTableModel {
 			g.translate(-x, -y);
 		}
 
+		@Override
 		public int getIconWidth() {
 			return this.size;
 		}
 
+		@Override
 		public int getIconHeight() {
 			return this.size;
 		}
@@ -408,6 +418,7 @@ public class TableSorter extends AbstractTableModel {
 	}
 
 	private class MouseHandler extends MouseAdapter {
+		@Override
 		public void mouseClicked(MouseEvent e) {
 			try {
 				JTableHeader h = (JTableHeader) e.getSource();
@@ -448,6 +459,7 @@ public class TableSorter extends AbstractTableModel {
 		 * public int compareTo(Object o) { return 0; }
 		 */
 
+		@Override
 		public int compareTo(Object o) {
 
 			int row1 = this.modelIndex;
@@ -489,6 +501,7 @@ public class TableSorter extends AbstractTableModel {
 	private class SortableHeaderRenderer implements TableCellRenderer {
 		private TableCellRenderer tableCellRenderer;
 
+		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
 				int row, int column) {
 			Component c = this.tableCellRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
@@ -509,6 +522,7 @@ public class TableSorter extends AbstractTableModel {
 	}
 
 	private class TableModelHandler implements TableModelListener {
+		@Override
 		public void tableChanged(TableModelEvent e) {
 			TableSorter.this.rebuildViewToModel();
 			if (!TableSorter.this.isSorting()) {

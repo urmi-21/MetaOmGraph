@@ -12,8 +12,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -119,6 +117,7 @@ public class ListMergePanel extends JPanel {
 		JCheckBox intersect = new JCheckBox("Intersection");
 
 		JButton okButton = new JButton(new AbstractAction("OK") {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				Integer[] selected = mergePanel.getSelectedLists();
 				if (selected.length <= 1) {
@@ -153,6 +152,7 @@ public class ListMergePanel extends JPanel {
 			}
 		});
 		JButton cancelButton = new JButton(new AbstractAction("Cancel") {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				dialog.dispose();
 			}

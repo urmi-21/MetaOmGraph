@@ -10,10 +10,10 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 import java.awt.GridLayout;
-import net.miginfocom.swing.MigLayout;
 import javax.swing.JTextField;
 
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -33,6 +33,7 @@ public class SetRPaths extends JInternalFrame {
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					SetProgramParameters frame = new SetProgramParameters();
@@ -52,6 +53,7 @@ public class SetRPaths extends JInternalFrame {
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		JButton btnOk = new JButton("OK");
 		btnOk.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				MetaOmGraph.setpathtoRscrips(textField_2.getText().trim());
 				MetaOmGraph.setUserRPath(textField_1.getText().trim());
@@ -64,6 +66,7 @@ public class SetRPaths extends JInternalFrame {
 		
 		JButton btnDefault = new JButton("Default");
 		btnDefault.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				MetaOmGraph.useDefaultRPath();
 				textField_1.setText(MetaOmGraph.getRPath());
@@ -73,6 +76,7 @@ public class SetRPaths extends JInternalFrame {
 		
 		JButton btnCancel = new JButton("Cancel");
 		btnCancel.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				dispose();
 			}
@@ -100,6 +104,7 @@ public class SetRPaths extends JInternalFrame {
 		textField_1.setText(MetaOmGraph.getRPath());
 		browseRPath=new JButton("Browse...");
 		browseRPath.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				final JFileChooser fc = new JFileChooser();
 				int returnVal = fc.showOpenDialog(SetRPaths.this);
@@ -121,6 +126,7 @@ public class SetRPaths extends JInternalFrame {
 		
 		browseRScriptsPath=new JButton("Browse...");
 		browseRScriptsPath.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				final JFileChooser fc = new JFileChooser();
 				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);

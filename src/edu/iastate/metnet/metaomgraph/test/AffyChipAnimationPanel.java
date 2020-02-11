@@ -1,7 +1,6 @@
 package edu.iastate.metnet.metaomgraph.test;
 
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
@@ -20,7 +19,8 @@ public class AffyChipAnimationPanel
     public AffyChipAnimationPanel() {
     }
 
-    protected void paintComponent(Graphics g) {
+    @Override
+	protected void paintComponent(Graphics g) {
         if ((offscreen == null) || (offscreen.getWidth() != getWidth()) ||
                 (offscreen.getHeight() != getHeight())) {
             offscreen = new BufferedImage(getWidth(), getHeight(),
@@ -67,7 +67,8 @@ public class AffyChipAnimationPanel
         t.start();
     }
 
-    public void actionPerformed(ActionEvent e) {
+    @Override
+	public void actionPerformed(ActionEvent e) {
         repaint();
     }
 }

@@ -3,9 +3,7 @@ package edu.iastate.metnet.metaomgraph;
 import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.PrintStream;
 import java.util.Vector;
-import javax.swing.JFrame;
 
 
 public class SimpleModalMaker
@@ -16,13 +14,15 @@ public class SimpleModalMaker
         myDialogs = new Vector();
     }
 
-    public void windowOpened(WindowEvent e) {
+    @Override
+	public void windowOpened(WindowEvent e) {
         System.out.println("open");
         MetaOmGraph.getMainWindow().setEnabled(false);
         myDialogs.add(e.getWindow());
     }
 
-    public void windowClosed(WindowEvent e) {
+    @Override
+	public void windowClosed(WindowEvent e) {
         System.out.println("closed");
         myDialogs.remove(e.getWindow());
         if (myDialogs.size() == 0) {
@@ -31,7 +31,8 @@ public class SimpleModalMaker
         }
     }
 
-    public void windowClosing(WindowEvent e) {
+    @Override
+	public void windowClosing(WindowEvent e) {
         System.out.println("closing");
         myDialogs.remove(e.getWindow());
         if (myDialogs.size() == 0) {

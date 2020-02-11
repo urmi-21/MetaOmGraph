@@ -1,9 +1,5 @@
 package edu.iastate.metnet.metaomgraph;
 
-import edu.stanford.ejalbert.BrowserLauncher;
-import edu.stanford.ejalbert.BrowserLauncherRunner;
-import edu.stanford.ejalbert.exceptionhandler.BrowserLauncherDefaultErrorHandler;
-import edu.stanford.ejalbert.exceptionhandler.BrowserLauncherErrorHandler;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,8 +8,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import javax.swing.AbstractAction;
-import javax.swing.JDesktopPane;
-import javax.swing.JInternalFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JTextPane;
@@ -35,7 +29,8 @@ public class MetaOmHelpListener
     public MetaOmHelpListener() {
     }
 
-    public void actionPerformed(ActionEvent e) {
+    @Override
+	public void actionPerformed(ActionEvent e) {
         String target = "";
         if (e.getSource() == null) {
             target = e.getActionCommand();
@@ -105,7 +100,8 @@ public class MetaOmHelpListener
             this.sourcePage = sourcePage;
         }
 
-        public String toString() {
+        @Override
+		public String toString() {
             return treeText;
         }
 
@@ -118,7 +114,8 @@ public class MetaOmHelpListener
         }
     }
 
-    public void valueChanged(TreeSelectionEvent e) {
+    @Override
+	public void valueChanged(TreeSelectionEvent e) {
         String destPage = "http://metnetweb.gdcb.iastate.edu/MetaOmGraph/help/newhelp/" +
                 ((HelpNode) helpTree.getLastSelectedPathComponent())
                         .getPage();
@@ -130,12 +127,14 @@ public class MetaOmHelpListener
     }
 
 
-    public void hyperlinkUpdate(HyperlinkEvent e) {
+    @Override
+	public void hyperlinkUpdate(HyperlinkEvent e) {
     }
 
     public AbstractAction createHelpAction(final String pagename) {
         AbstractAction result = new AbstractAction() {
-            public void actionPerformed(ActionEvent e) {
+            @Override
+			public void actionPerformed(ActionEvent e) {
                 ActionEvent e2 = new ActionEvent(this, 1001, pagename);
                 MetaOmGraph.getHelpListener().actionPerformed(e2);
             }

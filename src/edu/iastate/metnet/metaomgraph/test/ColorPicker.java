@@ -121,21 +121,25 @@ public class ColorPicker extends java.awt.event.MouseAdapter implements java.awt
         return myRobot.getPixelColor(pt.x + f.getX(), pt.y + f.getY());
     }
 
-    public void mousePressed(MouseEvent e) {
+    @Override
+	public void mousePressed(MouseEvent e) {
         f.setCursor(java.awt.Cursor.getPredefinedCursor(1));
     }
 
-    public void mouseReleased(MouseEvent e) {
+    @Override
+	public void mouseReleased(MouseEvent e) {
         System.out.println(getColor(e.getPoint()) + " at " + e.getPoint().x + ", " + e.getPoint().y);
         f.setCursor(java.awt.Cursor.getDefaultCursor());
     }
 
 
-    public void keyTyped(KeyEvent e) {
+    @Override
+	public void keyTyped(KeyEvent e) {
     }
 
 
-    public void keyPressed(KeyEvent e) {
+    @Override
+	public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == 27)
             System.exit(0);
         Object o = e.getSource();
@@ -144,11 +148,13 @@ public class ColorPicker extends java.awt.event.MouseAdapter implements java.awt
     }
 
 
-    public void keyReleased(KeyEvent e) {
+    @Override
+	public void keyReleased(KeyEvent e) {
     }
 
 
-    public void mouseDragged(MouseEvent e) {
+    @Override
+	public void mouseDragged(MouseEvent e) {
         f.getContentPane().setBackground(getColor(e.getPoint()));
         Color c = getColor(e.getPoint());
         midcolor.setBackground(c);
@@ -162,6 +168,7 @@ public class ColorPicker extends java.awt.event.MouseAdapter implements java.awt
         web.setText("#" + webString);
     }
 
-    public void mouseMoved(MouseEvent e) {
+    @Override
+	public void mouseMoved(MouseEvent e) {
     }
 }

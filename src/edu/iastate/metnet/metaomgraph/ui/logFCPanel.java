@@ -8,12 +8,7 @@ import java.awt.GridBagLayout;
 import javax.swing.JComboBox;
 import java.awt.GridBagConstraints;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-
 import java.awt.Insets;
-import java.util.Arrays;
-
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 
 public class logFCPanel extends JPanel {

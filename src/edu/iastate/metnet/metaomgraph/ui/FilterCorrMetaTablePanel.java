@@ -6,7 +6,6 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -46,6 +45,7 @@ public class FilterCorrMetaTablePanel extends JPanel {
 
 		chckbxCorrelationValue = new JCheckBox("correlation value");
 		chckbxCorrelationValue.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				if (chckbxCorrelationValue.isSelected()) {
 					minr.setEditable(true);
@@ -96,6 +96,7 @@ public class FilterCorrMetaTablePanel extends JPanel {
 
 		chckbxPvalue = new JCheckBox("p-value");
 		chckbxPvalue.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (chckbxPvalue.isSelected()) {
 					maxp.setEditable(true);

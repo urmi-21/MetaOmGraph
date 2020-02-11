@@ -3,7 +3,6 @@ package edu.iastate.metnet.metaomgraph.ui;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
@@ -17,15 +16,18 @@ public class ThinDottedBorder implements Border {
         myColor = color;
     }
 
-    public Insets getBorderInsets(Component c) {
+    @Override
+	public Insets getBorderInsets(Component c) {
         return new Insets(0, 0, 0, 0);
     }
 
-    public boolean isBorderOpaque() {
+    @Override
+	public boolean isBorderOpaque() {
         return false;
     }
 
-    public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+    @Override
+	public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
         Graphics2D g2d = (Graphics2D) g.create();
         g2d.setPaint(myColor);
         BasicStroke stroke = new BasicStroke(0.1F, 0,

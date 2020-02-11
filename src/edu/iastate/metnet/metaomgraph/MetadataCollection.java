@@ -2,32 +2,23 @@ package edu.iastate.metnet.metaomgraph;
 
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
-import edu.iastate.metnet.metaomgraph.ui.MetadataEditor;
-import edu.iastate.metnet.metaomgraph.utils.qdxml.SimpleXMLElement;
-//import javassist.expr.NewArray;
-
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.biomage.Array.Array;
-import org.biomage.examples.GetToDataExample;
+//import org.apache.poi.ss.usermodel.*;
+//import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+//import org.biomage.Array.Array;
+//import org.biomage.examples.GetToDataExample;
 import org.dizitart.no2.*;
 import org.dizitart.no2.SortOrder;
 import org.dizitart.no2.filters.Filters;
-import org.dizitart.no2.objects.ObjectRepository;
+
 
 //import com.sun.xml.internal.ws.api.policy.ModelGenerator;
 
 import javax.swing.*;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
-import static org.dizitart.no2.filters.Filters.*;
 
 public class MetadataCollection {
 	private Nitrite mogInMemoryDB = null;

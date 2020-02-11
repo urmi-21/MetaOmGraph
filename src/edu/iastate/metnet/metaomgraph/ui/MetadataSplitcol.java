@@ -10,7 +10,6 @@ import javax.swing.plaf.ColorUIResource;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
-import org.biomage.Array.Array;
 import org.dizitart.no2.Document;
 
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
@@ -18,6 +17,7 @@ import edu.iastate.metnet.metaomgraph.MetadataCollection;
 import javax.swing.JLabel;
 import java.awt.FlowLayout;
 import javax.swing.SpringLayout;
+import javax.swing.WindowConstants;
 import javax.swing.JSplitPane;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
@@ -71,6 +71,7 @@ public class MetadataSplitcol extends JFrame {
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					MetadataSplitcol frame = new MetadataSplitcol();
@@ -92,6 +93,7 @@ public class MetadataSplitcol extends JFrame {
 	public MetadataSplitcol(MetadataCollection obj, ReadMetadata p) {
 		parent = p;
 		addWindowListener(new WindowAdapter() {
+			@Override
 			public void windowClosing(WindowEvent e) {
 				p.enableNext();
 			}
@@ -100,7 +102,7 @@ public class MetadataSplitcol extends JFrame {
 		if (this.obj != null) {
 			headers = this.obj.getHeaders();
 		}
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 
 		JMenuBar menuBar = new JMenuBar();
@@ -131,6 +133,7 @@ public class MetadataSplitcol extends JFrame {
 
 		JButton btnCancel = new JButton("Cancel");
 		btnCancel.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				dispose();
 			}
@@ -139,6 +142,7 @@ public class MetadataSplitcol extends JFrame {
 
 		JButton btnDone = new JButton("Done");
 		btnDone.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				p.enableNext();
 				p.toFront();
@@ -205,6 +209,7 @@ public class MetadataSplitcol extends JFrame {
 
 		JButton btnPreview = new JButton("Split");
 		btnPreview.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				String headerSep = textField.getText();
 				String colSep = textField_1.getText();
@@ -276,10 +281,12 @@ public class MetadataSplitcol extends JFrame {
 
 		// initialize tables; no data
 		table = new JTable() {
+			@Override
 			public boolean getScrollableTracksViewportWidth() {
 				return getPreferredSize().width < getParent().getWidth();
 			}
 
+			@Override
 			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
 				Component c = super.prepareRenderer(renderer, row, column);
 
@@ -307,10 +314,12 @@ public class MetadataSplitcol extends JFrame {
 		};
 
 		table_1 = new JTable() {
+			@Override
 			public boolean getScrollableTracksViewportWidth() {
 				return getPreferredSize().width < getParent().getWidth();
 			}
 
+			@Override
 			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
 				Component c = super.prepareRenderer(renderer, row, column);
 

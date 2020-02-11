@@ -4,13 +4,10 @@ import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.RoundRectangle2D;
-import java.awt.geom.RoundRectangle2D.Float;
 import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -21,10 +18,12 @@ public class ProgressTableCellRenderer implements javax.swing.table.TableCellRen
     public ProgressTableCellRenderer() {
     }
 
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+    @Override
+	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         final Progress prog = (Progress) value;
         JPanel c = new JPanel() {
-            protected void paintComponent(Graphics g) {
+            @Override
+			protected void paintComponent(Graphics g) {
                 BufferedImage nextImage = new BufferedImage(getWidth(), getHeight(),
                         1);
                 Graphics2D g2d = (Graphics2D) nextImage.getGraphics();

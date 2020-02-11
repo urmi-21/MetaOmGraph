@@ -4,7 +4,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
-import javax.swing.SpringLayout;
 import java.awt.Color;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
@@ -24,22 +23,12 @@ import java.awt.Font;
 import java.awt.Cursor;
 import java.awt.ComponentOrientation;
 import java.awt.Component;
-import javax.swing.border.LineBorder;
-
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 
 import javax.swing.border.EtchedBorder;
-import java.awt.Rectangle;
 import javax.swing.Box;
-import javax.swing.JSeparator;
-import javax.swing.SwingConstants;
-import javax.swing.JTextArea;
-import javax.swing.JEditorPane;
-import java.awt.FlowLayout;
 import javax.swing.BoxLayout;
-import javax.swing.border.BevelBorder;
 import javax.swing.border.MatteBorder;
-import javax.swing.border.SoftBevelBorder;
 
 //import com.sun.javafx.embed.swing.Disposer;
 
@@ -80,6 +69,7 @@ public class WelcomePanelWin10 extends JPanel {
 		btnQuickStartGuide.setBorder(null);
 		btnQuickStartGuide.setBorderPainted(false);
 		btnQuickStartGuide.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				URI thisURI = null;
 				try {
@@ -113,6 +103,7 @@ public class WelcomePanelWin10 extends JPanel {
 		btnNewButton.setMaximumSize(new Dimension(89, 89));
 		btnNewButton.setOpaque(true);
 		btnNewButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// open new project dialog
 				MetaOmGraph.startNewFromDelimited();
@@ -148,7 +139,7 @@ public class WelcomePanelWin10 extends JPanel {
 
 		// panel to show recent projects
 		panel_2 = new JPanel();
-		panel_2.setBorder(new MatteBorder(1, 1, 1, 1, (Color) new Color(0, 0, 0)));
+		panel_2.setBorder(new MatteBorder(1, 1, 1, 1, new Color(0, 0, 0)));
 		panel_2.setBackground(Color.BLACK);
 		GridBagConstraints gbc_panel_2 = new GridBagConstraints();
 		gbc_panel_2.gridheight = 6;
@@ -192,6 +183,7 @@ public class WelcomePanelWin10 extends JPanel {
 
 		JButton btnHelp_1 = new JButton("Overview");
 		btnHelp_1.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				URI thisURI = null;
 				try {
@@ -231,6 +223,7 @@ public class WelcomePanelWin10 extends JPanel {
 
 		JButton btnHelp = new JButton("Downloads");
 		btnHelp.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 
 				URI thisURI = null;
@@ -270,6 +263,7 @@ public class WelcomePanelWin10 extends JPanel {
 
 		JButton btnHelp_2 = new JButton("GitHub");
 		btnHelp_2.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				URI thisURI = null;
 				try {
@@ -306,6 +300,7 @@ public class WelcomePanelWin10 extends JPanel {
 
 		JButton btnNewButton_1 = new JButton("About");
 		btnNewButton_1.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				MetaOmGraph.showAboutFrame();
 				MetaOmGraph.closeWelcomeDialog();
@@ -329,6 +324,7 @@ public class WelcomePanelWin10 extends JPanel {
 
 		JButton btnBut = new JButton("Cite");
 		btnBut.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				JOptionPane.showMessageDialog(null, "Please cite as...");
 			}
@@ -351,6 +347,7 @@ public class WelcomePanelWin10 extends JPanel {
 
 		JButton btnBut_1 = new JButton("Exit MetaOmGraph");
 		btnBut_1.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				MetaOmGraph.shutdown();
 				return;
@@ -406,6 +403,7 @@ public class WelcomePanelWin10 extends JPanel {
 			thisBtn.setToolTipText(thisFilePath);
 			// add action listener
 			thisBtn.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					// add action
 					MetaOmGraph.openRecentProject(thisFilePath);
@@ -436,6 +434,7 @@ public class WelcomePanelWin10 extends JPanel {
 		thisBtn.setToolTipText("Open other MOG projects");
 		// add action listener
 		thisBtn.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// add action
 				MetaOmGraph.openAnotherProject();

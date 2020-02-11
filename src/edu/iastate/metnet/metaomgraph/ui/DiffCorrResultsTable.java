@@ -38,7 +38,6 @@ import edu.iastate.metnet.metaomgraph.chart.MetaOmChartPanel;
 import edu.iastate.metnet.metaomgraph.chart.ScatterPlotChart;
 import edu.iastate.metnet.metaomgraph.DecimalFormatRenderer;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
-import net.iharder.dnd.TransferableObject.Fetcher;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import java.awt.event.ActionListener;
@@ -79,6 +78,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					DiffCorrResultsTable frame = new DiffCorrResultsTable();
@@ -147,6 +147,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 
 		JMenuItem mntmExportToFile = new JMenuItem("Export to file");
 		mntmExportToFile.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				Utils.saveJTabletofile(table);
 			}
@@ -158,6 +159,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 
 		JMenuItem mntmExportSelectedTo = new JMenuItem("Export selected to list");
 		mntmExportSelectedTo.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				// get selected rowindex
 				int[] rowIndices = getSelectedRowIndices();
@@ -184,6 +186,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 
 		JMenuItem mntmFilter = new JMenuItem("P-value filter");
 		mntmFilter.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				double pvalThresh = 0;
 				try {
@@ -212,6 +215,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 
 		JMenuItem mntmPvalueCorrection = new JMenuItem("P-value correction");
 		mntmPvalueCorrection.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 
 				// choose adjustment method
@@ -246,6 +250,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 
 		JMenuItem mntmLineChart = new JMenuItem("Line Chart");
 		mntmLineChart.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				// get selected rowindex
 				int[] rowIndices = getSelectedRowIndices();
@@ -263,6 +268,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 
 		JMenuItem mntmScatterplot = new JMenuItem("Scatter Plot");
 		mntmScatterplot.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 
 				// get selected rowindex
@@ -280,6 +286,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 				}
 
 				EventQueue.invokeLater(new Runnable() {
+					@Override
 					public void run() {
 						try {// get data for selected rows
 
@@ -311,6 +318,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 
 		JMenuItem mntmBoxPlot = new JMenuItem("Box Plot");
 		mntmBoxPlot.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				int[] rowIndices = getSelectedRowIndices();
 				if (rowIndices == null || rowIndices.length == 0) {
@@ -335,6 +343,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 				}
 
 				EventQueue.invokeLater(new Runnable() {
+					@Override
 					public void run() {
 						try {// get data for selected rows
 
@@ -364,9 +373,11 @@ public class DiffCorrResultsTable extends JInternalFrame {
 
 		JMenuItem mntmHistogram = new JMenuItem("Histogram");
 		mntmHistogram.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 
 				EventQueue.invokeLater(new Runnable() {
+					@Override
 					public void run() {
 						try {// get data for selected rows
 							int[] selected = getSelectedRowIndices();
@@ -404,6 +415,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 
 		JMenuItem mntmPvalueHistogram = new JMenuItem("P-value histogram");
 		mntmPvalueHistogram.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				//plot histogram of column p-value
 				plotColumnHistogram("p-value");
@@ -414,6 +426,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 
 		JMenuItem mntmHistogramcolumn = new JMenuItem("Histogram (column)");
 		mntmHistogramcolumn.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				// display option to select a column
 				JPanel cboxPanel = new JPanel();
@@ -451,10 +464,12 @@ public class DiffCorrResultsTable extends JInternalFrame {
 
 	private void initTableModel() {
 		table = new JTable() {
+			@Override
 			public boolean getScrollableTracksViewportWidth() {
 				return getPreferredSize().width < getParent().getWidth();
 			}
 
+			@Override
 			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
 				Component c = super.prepareRenderer(renderer, row, column);
 
@@ -638,6 +653,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 			data[r] = (double) table.getModel().getValueAt(r, table.getColumn(columnName).getModelIndex());
 		}
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {// get data for selected rows
 					int nBins = 10;

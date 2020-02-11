@@ -43,17 +43,20 @@ public class MetNetLAF {
         }
 
 
-        public int getIconWidth() {
+        @Override
+		public int getIconWidth() {
             return 15;
         }
 
 
-        public int getIconHeight() {
+        @Override
+		public int getIconHeight() {
             return 16;
         }
 
 
-        public void paintIcon(Component c, Graphics g, int x, int y) {
+        @Override
+		public void paintIcon(Component c, Graphics g, int x, int y) {
             boolean enabled = false;
             boolean focus = false;
             if (c != null) {

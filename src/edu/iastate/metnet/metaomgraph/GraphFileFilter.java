@@ -30,6 +30,7 @@ public class GraphFileFilter extends FileFilter {
 		this.mode = mode;
 	}
 
+	@Override
 	public boolean accept(File arg0) {
 		if (arg0.isDirectory())
 			return true;
@@ -52,6 +53,7 @@ public class GraphFileFilter extends FileFilter {
 		return false;
 	}
 
+	@Override
 	public String getDescription() {
 		switch (mode) {
 		case 0:

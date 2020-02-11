@@ -1,14 +1,8 @@
 package edu.iastate.metnet.metaomgraph;
 
-import java.io.PrintStream;
 import java.util.Arrays;
 
 import javax.swing.JOptionPane;
-
-import org.apache.commons.math3.exception.NotANumberException;
-import org.apache.commons.math3.ml.distance.ManhattanDistance;
-import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
-import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 
 public class CorrelationCalc {
 	private double[] a;

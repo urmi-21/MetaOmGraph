@@ -20,19 +20,23 @@ public class CustomColorScheme implements ChartColorScheme {
         selectionWidth = base.getSelectionWidth();
     }
 
-    public Paint getSelectionPaint(int series) {
+    @Override
+	public Paint getSelectionPaint(int series) {
         return selectionPaint.get(series);
     }
 
-    public int getSelectionWidth() {
+    @Override
+	public int getSelectionWidth() {
         return selectionWidth;
     }
 
-    public Paint getSeriesPaint(int series) {
+    @Override
+	public Paint getSeriesPaint(int series) {
         return paint.get(series);
     }
 
-    public int getDefaultWidth() {
+    @Override
+	public int getDefaultWidth() {
         return defaultWidth;
     }
 

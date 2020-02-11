@@ -9,19 +9,23 @@ public class DefaultColorScheme implements ChartColorScheme {
         this.defaultPaint = defaultPaint;
     }
 
-    public Paint getSelectionPaint(int series) {
+    @Override
+	public Paint getSelectionPaint(int series) {
         return null;
     }
 
-    public int getSelectionWidth() {
+    @Override
+	public int getSelectionWidth() {
         return 3;
     }
 
-    public Paint getSeriesPaint(int series) {
+    @Override
+	public Paint getSeriesPaint(int series) {
         return defaultPaint[series];
     }
 
-    public int getDefaultWidth() {
+    @Override
+	public int getDefaultWidth() {
         return 1;
     }
 }

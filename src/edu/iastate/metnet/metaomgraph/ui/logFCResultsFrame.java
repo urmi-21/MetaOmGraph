@@ -6,9 +6,6 @@ import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,24 +15,15 @@ import javax.swing.JInternalFrame;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Cursor;
-
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JTable;
-import javax.swing.SortOrder;
-import javax.swing.RowSorter.SortKey;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableRowSorter;
-
 import edu.iastate.metnet.metaomgraph.AdjustPval;
-import edu.iastate.metnet.metaomgraph.CalculateLogFC;
 import edu.iastate.metnet.metaomgraph.DecimalFormatRenderer;
 import edu.iastate.metnet.metaomgraph.DifferentialExpResults;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
@@ -86,6 +74,7 @@ public class logFCResultsFrame extends JInternalFrame {
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 
 			}
@@ -154,6 +143,7 @@ public class logFCResultsFrame extends JInternalFrame {
 
 		JMenuItem mntmSave = new JMenuItem("Save to file");
 		mntmSave.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				Utils.saveJTabletofile(table);
 			}
@@ -165,6 +155,7 @@ public class logFCResultsFrame extends JInternalFrame {
 
 		JMenuItem mntmExportSelectedTo = new JMenuItem("Export selected to list");
 		mntmExportSelectedTo.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				// get selected rowindex
 				int[] rowIndices = getSelectedRowIndices();
@@ -191,6 +182,7 @@ public class logFCResultsFrame extends JInternalFrame {
 
 		JMenuItem mntmFilter = new JMenuItem("P-value filter");
 		mntmFilter.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				double pvalThresh = 0;
 				try {
@@ -219,6 +211,7 @@ public class logFCResultsFrame extends JInternalFrame {
 
 		JMenuItem mntmPvalueCorrection = new JMenuItem("P-value correction");
 		mntmPvalueCorrection.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 
 				// choose adjustment method
@@ -260,6 +253,7 @@ public class logFCResultsFrame extends JInternalFrame {
 
 		JMenuItem mntmLineChart = new JMenuItem("Line Chart");
 		mntmLineChart.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				// get selected rowindex
 				int[] rowIndices = getSelectedRowIndices();
@@ -277,6 +271,7 @@ public class logFCResultsFrame extends JInternalFrame {
 
 		JMenuItem mntmScatterplot = new JMenuItem("Scatter Plot");
 		mntmScatterplot.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 
 				// get selected rowindex
@@ -294,6 +289,7 @@ public class logFCResultsFrame extends JInternalFrame {
 				}
 
 				EventQueue.invokeLater(new Runnable() {
+					@Override
 					public void run() {
 						try {// get data for selected rows
 
@@ -325,6 +321,7 @@ public class logFCResultsFrame extends JInternalFrame {
 
 		JMenuItem mntmBoxPlot = new JMenuItem("Box Plot");
 		mntmBoxPlot.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				int[] rowIndices = getSelectedRowIndices();
 				if (rowIndices == null || rowIndices.length == 0) {
@@ -349,6 +346,7 @@ public class logFCResultsFrame extends JInternalFrame {
 				}
 
 				EventQueue.invokeLater(new Runnable() {
+					@Override
 					public void run() {
 						try {// get data for selected rows
 
@@ -378,9 +376,11 @@ public class logFCResultsFrame extends JInternalFrame {
 
 		JMenuItem mntmHistogram = new JMenuItem("Histogram");
 		mntmHistogram.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 
 				EventQueue.invokeLater(new Runnable() {
+					@Override
 					public void run() {
 						try {// get data for selected rows
 							int[] selected = getSelectedRowIndices();
@@ -418,6 +418,7 @@ public class logFCResultsFrame extends JInternalFrame {
 
 		JMenuItem mntmVolcanoPlot = new JMenuItem("Volcano plot");
 		mntmVolcanoPlot.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 
 				makeVolcano();
@@ -428,6 +429,7 @@ public class logFCResultsFrame extends JInternalFrame {
 
 		JMenuItem mntmFcHistogram = new JMenuItem("FC histogram");
 		mntmFcHistogram.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 
 				plotColumnHistogram("logFC");
@@ -440,6 +442,7 @@ public class logFCResultsFrame extends JInternalFrame {
 
 		JMenuItem mntmPvalHistogram = new JMenuItem("P-value histogram");
 		mntmPvalHistogram.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 
 				plotColumnHistogram(methodName + " pval");
@@ -452,6 +455,7 @@ public class logFCResultsFrame extends JInternalFrame {
 
 		JMenuItem mntmHistogramcolumn = new JMenuItem("Histogram (column)");
 		mntmHistogramcolumn.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 
 				// display option to select a column
@@ -514,10 +518,12 @@ public class logFCResultsFrame extends JInternalFrame {
 
 	private void initTableModel() {
 		table = new JTable() {
+			@Override
 			public boolean getScrollableTracksViewportWidth() {
 				return getPreferredSize().width < getParent().getWidth();
 			}
 
+			@Override
 			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
 				Component c = super.prepareRenderer(renderer, row, column);
 
@@ -678,6 +684,7 @@ public class logFCResultsFrame extends JInternalFrame {
 			data[r] = (double) table.getModel().getValueAt(r, table.getColumn(columnName).getModelIndex());
 		}
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {// get data for selected rows
 					int nBins = 10;

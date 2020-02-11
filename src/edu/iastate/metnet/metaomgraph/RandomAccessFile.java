@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.UTFDataFormatException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -270,13 +269,15 @@ public class RandomAccessFile
     }
 
 
-    public final void readFully(byte[] b)
+    @Override
+	public final void readFully(byte[] b)
             throws IOException {
         readFully(b, 0, b.length);
     }
 
 
-    public final void readFully(byte[] b, int off, int len)
+    @Override
+	public final void readFully(byte[] b, int off, int len)
             throws IOException {
         int n = 0;
         while (n < len) {
@@ -288,7 +289,8 @@ public class RandomAccessFile
     }
 
 
-    public int skipBytes(int n)
+    @Override
+	public int skipBytes(int n)
             throws IOException {
         seek(getFilePointer() + n);
         return n;
@@ -300,7 +302,8 @@ public class RandomAccessFile
     }
 
 
-    public final void write(int b)
+    @Override
+	public final void write(int b)
             throws IOException {
         if (filePosition < dataEnd) {
             buffer[((int) (filePosition++ - bufferStart))] = ((byte) b);
@@ -363,19 +366,22 @@ public class RandomAccessFile
     }
 
 
-    public void write(byte[] b)
+    @Override
+	public void write(byte[] b)
             throws IOException {
         writeBytes(b, 0, b.length);
     }
 
 
-    public void write(byte[] b, int off, int len)
+    @Override
+	public void write(byte[] b, int off, int len)
             throws IOException {
         writeBytes(b, off, len);
     }
 
 
-    public final boolean readBoolean()
+    @Override
+	public final boolean readBoolean()
             throws IOException {
         int ch = read();
         if (ch < 0)
@@ -384,7 +390,8 @@ public class RandomAccessFile
     }
 
 
-    public final byte readByte()
+    @Override
+	public final byte readByte()
             throws IOException {
         int ch = read();
         if (ch < 0)
@@ -393,7 +400,8 @@ public class RandomAccessFile
     }
 
 
-    public final int readUnsignedByte()
+    @Override
+	public final int readUnsignedByte()
             throws IOException {
         int ch = read();
         if (ch < 0)
@@ -402,7 +410,8 @@ public class RandomAccessFile
     }
 
 
-    public final short readShort()
+    @Override
+	public final short readShort()
             throws IOException {
         int ch1 = read();
         int ch2 = read();
@@ -412,7 +421,8 @@ public class RandomAccessFile
     }
 
 
-    public final int readUnsignedShort()
+    @Override
+	public final int readUnsignedShort()
             throws IOException {
         int ch1 = read();
         int ch2 = read();
@@ -422,7 +432,8 @@ public class RandomAccessFile
     }
 
 
-    public final char readChar()
+    @Override
+	public final char readChar()
             throws IOException {
         int ch1 = read();
         int ch2 = read();
@@ -432,7 +443,8 @@ public class RandomAccessFile
     }
 
 
-    public final int readInt()
+    @Override
+	public final int readInt()
             throws IOException {
         int ch1 = read();
         int ch2 = read();
@@ -444,25 +456,29 @@ public class RandomAccessFile
     }
 
 
-    public final long readLong()
+    @Override
+	public final long readLong()
             throws IOException {
         return (readInt() << 32) + (readInt() & 0xFFFFFFFF);
     }
 
 
-    public final float readFloat()
+    @Override
+	public final float readFloat()
             throws IOException {
         return Float.intBitsToFloat(readInt());
     }
 
 
-    public final double readDouble()
+    @Override
+	public final double readDouble()
             throws IOException {
         return Double.longBitsToDouble(readLong());
     }
 
 
-    public final String readLine()
+    @Override
+	public final String readLine()
             throws IOException {
         if (myLineBuffer == null)
             myLineBuffer = new StringBuffer();
@@ -484,39 +500,45 @@ public class RandomAccessFile
     }
 
 
-    public final String readUTF()
+    @Override
+	public final String readUTF()
             throws IOException {
         return DataInputStream.readUTF(this);
     }
 
 
-    public final void writeBoolean(boolean v)
+    @Override
+	public final void writeBoolean(boolean v)
             throws IOException {
         write(v ? 1 : 0);
     }
 
 
-    public final void writeByte(int v)
+    @Override
+	public final void writeByte(int v)
             throws IOException {
         write(v);
     }
 
 
-    public final void writeShort(int v)
+    @Override
+	public final void writeShort(int v)
             throws IOException {
         write(v >>> 8 & 0xFF);
         write(v >>> 0 & 0xFF);
     }
 
 
-    public final void writeChar(int v)
+    @Override
+	public final void writeChar(int v)
             throws IOException {
         write(v >>> 8 & 0xFF);
         write(v >>> 0 & 0xFF);
     }
 
 
-    public final void writeInt(int v)
+    @Override
+	public final void writeInt(int v)
             throws IOException {
         write(v >>> 24 & 0xFF);
         write(v >>> 16 & 0xFF);
@@ -525,7 +547,8 @@ public class RandomAccessFile
     }
 
 
-    public final void writeLong(long v)
+    @Override
+	public final void writeLong(long v)
             throws IOException {
         write((int) (v >>> 56) & 0xFF);
         write((int) (v >>> 48) & 0xFF);
@@ -538,19 +561,22 @@ public class RandomAccessFile
     }
 
 
-    public final void writeFloat(float v)
+    @Override
+	public final void writeFloat(float v)
             throws IOException {
         writeInt(Float.floatToIntBits(v));
     }
 
 
-    public final void writeDouble(double v)
+    @Override
+	public final void writeDouble(double v)
             throws IOException {
         writeLong(Double.doubleToLongBits(v));
     }
 
 
-    public final void writeBytes(String s)
+    @Override
+	public final void writeBytes(String s)
             throws IOException {
         int len = s.length();
         for (int i = 0; i < len; i++) {
@@ -567,7 +593,8 @@ public class RandomAccessFile
     }
 
 
-    public final void writeChars(String s)
+    @Override
+	public final void writeChars(String s)
             throws IOException {
         int len = s.length();
         for (int i = 0; i < len; i++) {
@@ -578,7 +605,8 @@ public class RandomAccessFile
     }
 
 
-    public final void writeUTF(String str)
+    @Override
+	public final void writeUTF(String str)
             throws IOException {
         int strlen = str.length();
         int utflen = 0;
@@ -614,7 +642,8 @@ public class RandomAccessFile
     }
 
 
-    public String toString() {
+    @Override
+	public String toString() {
         return
 
                 "fp=" + filePosition + ", bs=" + bufferStart + ", de=" + dataEnd + ", ds=" + dataSize + ", bl=" + buffer.length + ", m=" + mode + ", bm=" + bufferModified;

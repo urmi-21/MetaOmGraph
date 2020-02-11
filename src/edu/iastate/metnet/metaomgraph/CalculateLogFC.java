@@ -1,14 +1,11 @@
 package edu.iastate.metnet.metaomgraph;
 
-import java.awt.EventQueue;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.OptionalDouble;
 import java.util.Random;
 import java.util.TreeMap;
@@ -16,18 +13,16 @@ import java.util.TreeMap;
 import javax.swing.JOptionPane;
 
 import org.apache.commons.math3.distribution.FDistribution;
-import org.apache.commons.math3.stat.descriptive.moment.GeometricMean;
 import org.apache.commons.math3.stat.descriptive.moment.Variance;
 import org.apache.commons.math3.stat.inference.MannWhitneyUTest;
 import org.apache.commons.math3.stat.inference.TTest;
 import org.apache.commons.math3.stat.inference.WilcoxonSignedRankTest;
-import org.biomage.Array.Array;
+
 
 //import com.sun.xml.internal.ws.api.Cancelable;
 
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
-import edu.iastate.metnet.metaomgraph.ui.DifferentialExpFrame;
 import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
 
 public class CalculateLogFC {
@@ -235,6 +230,7 @@ public class CalculateLogFC {
 		analyzeWorker = new SwingWorker() {
 			boolean errored = false;
 
+			@Override
 			public Object construct() {
 				for (int r = 0; r < selected.length; r++) {
 					progress.setProgress(r);
@@ -407,6 +403,7 @@ public class CalculateLogFC {
 				return null;
 			}
 
+			@Override
 			public void finished() {
 				if (progress.isCanceled()) {
 					// JOptionPane.showMessageDialog(null, "click cancelled");

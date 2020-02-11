@@ -1,7 +1,5 @@
 package edu.iastate.metnet.metaomgraph.test;
 
-import java.io.PrintStream;
-
 public class CompareTest {
     public CompareTest() {
     }

@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -32,11 +31,9 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -44,9 +41,6 @@ import java.util.zip.ZipFile;
 import javax.swing.JTable;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
-
 import org.jdom.Element;
 
 
@@ -80,7 +74,8 @@ public class AEXMLNodeInfo {
         status = "Waiting";
     }
 
-    public String toString() {
+    @Override
+	public String toString() {
         if (attributes.get("name") != null) {
             return attributes.get(name) + "";
         }
@@ -119,7 +114,8 @@ public class AEXMLNodeInfo {
         }
         Arrays.sort(thisData, new Comparator<Object[]>() {
 
-            public int compare(Object[] o1, Object[] o2) {
+            @Override
+			public int compare(Object[] o1, Object[] o2) {
                 return (o1[0] + "").compareTo(o2[0] + "");
             }
 
@@ -1133,14 +1129,16 @@ public class AEXMLNodeInfo {
             return files;
         }
 
-        public void startElement(String tag, Hashtable h) throws Exception {
+        @Override
+		public void startElement(String tag, Hashtable h) throws Exception {
             if ("file".equals(tag)) {
                 thisFile = new AEXMLNodeInfo.FileInfo();
                 return;
             }
         }
 
-        public void endElement(String tag) throws Exception {
+        @Override
+		public void endElement(String tag) throws Exception {
             if ("kind".equals(tag)) {
                 thisFile.kind = thisText;
                 return;
@@ -1166,14 +1164,17 @@ public class AEXMLNodeInfo {
             }
         }
 
-        public void startDocument()
+        @Override
+		public void startDocument()
                 throws Exception {
         }
 
-        public void endDocument() throws Exception {
+        @Override
+		public void endDocument() throws Exception {
         }
 
-        public void text(String str) throws Exception {
+        @Override
+		public void text(String str) throws Exception {
             thisText = str;
         }
     }

@@ -8,12 +8,10 @@ import edu.iastate.metnet.metaomgraph.utils.qdxml.QDParser;
 import java.awt.Window;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.net.URL;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
@@ -25,7 +23,6 @@ import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreePath;
 
 
 public class AEXMLParser
@@ -97,7 +94,8 @@ public class AEXMLParser
         return result;
     }
 
-    public void startElement(String tag, Hashtable h) throws Exception {
+    @Override
+	public void startElement(String tag, Hashtable h) throws Exception {
         if (toIgnore > 0) {
             toIgnore += 1;
             return;
@@ -152,7 +150,8 @@ public class AEXMLParser
     }
 
 
-    public void endElement(String tag)
+    @Override
+	public void endElement(String tag)
             throws Exception {
         if (toIgnore > 0) {
             toIgnore -= 1;
@@ -283,15 +282,18 @@ public class AEXMLParser
         }
     }
 
-    public void startDocument()
+    @Override
+	public void startDocument()
             throws Exception {
     }
 
-    public void endDocument()
+    @Override
+	public void endDocument()
             throws Exception {
     }
 
-    public void text(String str)
+    @Override
+	public void text(String str)
             throws Exception {
         if (nodes.size() <= 0) {
             System.out.println("Text for an empty stack?");
@@ -338,7 +340,8 @@ public class AEXMLParser
         public ExpName() {
         }
 
-        public String toString() {
+        @Override
+		public String toString() {
             return id + " (" + size + "): " + name + " (" + date + ")";
         }
     }
@@ -353,7 +356,8 @@ public class AEXMLParser
         tree.addTreeSelectionListener(new TreeSelectionListener() {
             private int switches = 0;
 
-            public void valueChanged(TreeSelectionEvent e) {
+            @Override
+			public void valueChanged(TreeSelectionEvent e) {
                 AEXMLNodeInfo info = (AEXMLNodeInfo) ((DefaultMutableTreeNode) e.getPath().getLastPathComponent()).getUserObject();
 
                 splitter.setBottomComponent(new JScrollPane(info.getTable()));

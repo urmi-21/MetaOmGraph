@@ -34,7 +34,7 @@ import javax.swing.JComboBox;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
@@ -90,6 +90,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					DifferentialExpFrame frame = new DifferentialExpFrame();
@@ -147,6 +148,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 
 		JButton btnOk = new JButton("Ok");
 		btnOk.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				// check if two lists (sets) are disjoint
 				List<String> grp1 = getAllRows(tableGrp1);
@@ -218,7 +220,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 					id = id.trim();
 					if (myProject.diffExpNameExists(id)) {
 						while (myProject.diffExpNameExists(id)) {
-							id = (String) JOptionPane.showInputDialog(MetaOmGraph.getDesktop(),
+							id = JOptionPane.showInputDialog(MetaOmGraph.getDesktop(),
 									"A previous analysis exists with the same name. Please enter a different name for this analysis",
 									"Save differential expression results", 2);
 							if (id == null) {
@@ -277,6 +279,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 		JPanel topbtnPnl2 = new JPanel(new FlowLayout());
 		JButton sendLeft = new JButton("<<");
 		sendLeft.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				moveSelectedtoLeft();
 			}
@@ -302,6 +305,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 
 		JButton btnAdd2 = new JButton("Add");
 		btnAdd2.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				List<String> queryRes = showSearchMetadataPanel();
 				if (queryRes == null || queryRes.size() < 1) {
@@ -315,6 +319,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 		btnPnl2.add(btnAdd2);
 		JButton btnRem2 = new JButton("Remove");
 		btnRem2.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				removeSelectedRows(tableGrp2);
 			}
@@ -322,6 +327,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 		btnPnl2.add(btnRem2);
 		JButton btnSearch2 = new JButton("Search");
 		btnSearch2.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				// search in list by metadatata
 				List<String> queryRes = showSearchMetadataPanel();
@@ -348,6 +354,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 		JPanel topbtnPnl1 = new JPanel(new FlowLayout());
 		JButton sendRight = new JButton(">>");
 		sendRight.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				moveSelectedtoRight();
 			}
@@ -373,6 +380,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 
 		JButton btnAdd1 = new JButton("Add");
 		btnAdd1.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				List<String> queryRes = showSearchMetadataPanel();
 				if (queryRes == null || queryRes.size() < 1) {
@@ -387,6 +395,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 		btnPnl1.add(btnAdd1);
 		JButton btnRem1 = new JButton("Remove");
 		btnRem1.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				removeSelectedRows(tableGrp1);
 
@@ -395,6 +404,7 @@ public class DifferentialExpFrame extends JInternalFrame {
 		btnPnl1.add(btnRem1);
 		JButton btnSearch1 = new JButton("Search");
 		btnSearch1.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				// search in list by metadatata
 				List<String> queryRes = showSearchMetadataPanel();
@@ -425,10 +435,12 @@ public class DifferentialExpFrame extends JInternalFrame {
 
 	private JTable initTableModel() {
 		JTable table = new JTable() {
+			@Override
 			public boolean getScrollableTracksViewportWidth() {
 				return getPreferredSize().width < getParent().getWidth();
 			}
 
+			@Override
 			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
 				Component c = super.prepareRenderer(renderer, row, column);
 

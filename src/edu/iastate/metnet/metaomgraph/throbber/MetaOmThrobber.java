@@ -3,7 +3,6 @@ package edu.iastate.metnet.metaomgraph.throbber;
 import edu.iastate.metnet.metaomgraph.ui.MetNetLAF;
 
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,7 +29,8 @@ public class MetaOmThrobber
 
         JButton button = new JButton("Start/Stop");
         button.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            @Override
+			public void actionPerformed(ActionEvent e) {
                 if (isAnimating()) {
                     throbber.stop();
                 } else {
@@ -51,15 +51,18 @@ public class MetaOmThrobber
         this.frame = frame;
     }
 
-    public int getThrobberWidth() {
+    @Override
+	public int getThrobberWidth() {
         return 20;
     }
 
-    public int getThrobberHeight() {
+    @Override
+	public int getThrobberHeight() {
         return 20;
     }
 
-    protected void drawThrobber(Graphics2D g2d) {
+    @Override
+	protected void drawThrobber(Graphics2D g2d) {
         frame = ((frame + 0.5D) % frameCount);
         g2d.setBackground(getBackground());
         g2d.clearRect(0, 0, getThrobberWidth(), getThrobberHeight());

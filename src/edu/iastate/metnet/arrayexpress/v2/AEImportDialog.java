@@ -1,6 +1,5 @@
 package edu.iastate.metnet.arrayexpress.v2;
 
-import edu.iastate.metnet.metaomgraph.FilterableTableModel;
 import edu.iastate.metnet.metaomgraph.ui.ClearableTextField;
 import edu.iastate.metnet.metaomgraph.ui.NoneditableTableModel;
 import edu.iastate.metnet.metaomgraph.ui.UpdatingSortableFilterableTable;
@@ -19,7 +18,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -40,11 +38,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
-import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.TableModel;
 
 
 public class AEImportDialog
@@ -134,7 +130,8 @@ public class AEImportDialog
             private Color[] myColors = {new Color(215, 25, 28), new Color(253, 174, 97),
                     new Color(255, 255, 191), new Color(166, 217, 106), new Color(26, 150, 65)};
 
-            protected Color colorForRow(int row) {
+            @Override
+			protected Color colorForRow(int row) {
                 if ((expList == null) || (row < 0) || (row >= expList.size())) {
                     return super.colorForRow(row);
                 }
@@ -149,7 +146,8 @@ public class AEImportDialog
         expTable.setSelectionMode(2);
         infoPane = new JScrollPane();
         expTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent arg0) {
+            @Override
+			public void valueChanged(ListSelectionEvent arg0) {
                 if (expTable.getSelectedRowCount() <= 0) {
                     return;
                 }
@@ -161,7 +159,8 @@ public class AEImportDialog
         });
         AEXMLParser.setProgressComponent(expTable);
         expTable.addKeyListener(new KeyAdapter() {
-            public void keyTyped(KeyEvent e) {
+            @Override
+			public void keyTyped(KeyEvent e) {
                 if ((e.getKeyCode() == 10) || (e.getKeyCode() == 32) || (e.getKeyChar() == ' ')) {
                     int[] rows = expTable.getSelectedRows();
                     int cols = expTable.getColumnCount();
@@ -188,7 +187,8 @@ public class AEImportDialog
         JPanel optionPanel = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         AbstractAction searchAction = new AbstractAction("Search") {
-            public void actionPerformed(ActionEvent arg0) {
+            @Override
+			public void actionPerformed(ActionEvent arg0) {
                 AEImportDialog.this.updateExpTable();
             }
 
@@ -232,13 +232,15 @@ public class AEImportDialog
         add(optionPanel, "North");
 
         JButton okButton = new JButton(new AbstractAction("OK") {
-            public void actionPerformed(ActionEvent arg0) {
+            @Override
+			public void actionPerformed(ActionEvent arg0) {
                 canceled = false;
                 dispose();
             }
         });
         JButton cancelButton = new JButton(new AbstractAction("Cancel") {
-            public void actionPerformed(ActionEvent e) {
+            @Override
+			public void actionPerformed(ActionEvent e) {
                 canceled = true;
                 dispose();
             }
@@ -278,7 +280,8 @@ public class AEImportDialog
     }
 
 
-    public void setVisible(boolean b) {
+    @Override
+	public void setVisible(boolean b) {
         if (b) canceled = true;
         super.setVisible(b);
     }
@@ -333,7 +336,8 @@ public class AEImportDialog
         private ExpUpdateThread() {
         }
 
-        public void run() {
+        @Override
+		public void run() {
             String acc = "A-AFFY-2";
             if (arrayBox != null) {
                 AEImportDialog.ArrayInfo info = (AEImportDialog.ArrayInfo) arrayBox.getSelectedItem();
@@ -437,7 +441,8 @@ public class AEImportDialog
         public ArrayInfo() {
         }
 
-        public String toString() {
+        @Override
+		public String toString() {
             return name;
         }
     }

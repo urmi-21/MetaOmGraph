@@ -11,7 +11,6 @@ import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,8 +18,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -79,6 +76,7 @@ public class Metadata {
 
 			// JOptionPane.showMessageDialog(null, "run start");
 			new Thread() {
+				@Override
 				public void run() {
 					try {
 						MetadataUpdater.update(oldMetadataIn, newMetadataOut);
@@ -566,6 +564,7 @@ public class Metadata {
 			this.exact = exact;
 		}
 
+		@Override
 		public SimpleXMLElement toXML() {
 			SimpleXMLElement result = new SimpleXMLElement(getXMLElementName()).setAttribute("exact",
 					exact ? "true" : "false");
@@ -576,6 +575,7 @@ public class Metadata {
 			return result;
 		}
 
+		@Override
 		public MetadataQuery fromXML(SimpleXMLElement source) {
 			exact = "true".equals(source.getAttributeValue("exact"));
 			for (int i = 0; i < source.getChildCount(); i++) {
@@ -657,6 +657,7 @@ public class Metadata {
 		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(),
 				"Finding Replicates", "Searching Metadata for Replicates", 0L, metadataRoot.getChildCount(), true);
 		new Thread() {
+			@Override
 			public void run() {
 				int groupIndex = 1;
 				ArrayList<ArrayList<SimpleXMLElement>> sampleGroups = getSampleGroups();
@@ -699,6 +700,7 @@ public class Metadata {
 		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(),
 				"Finding Replicates", "Searching Metadata for Replicates", 0L, metadataRoot.getChildCount(), true);
 		new Thread() {
+			@Override
 			public void run() {
 				int groupIndex = 1;
 				//get list of groups
