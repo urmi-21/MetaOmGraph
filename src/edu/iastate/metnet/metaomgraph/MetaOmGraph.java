@@ -139,7 +139,6 @@ import edu.stanford.ejalbert.exceptionhandler.BrowserLauncherErrorHandler;
  *
  */
 
-
 public class MetaOmGraph implements ActionListener {
 
 	// default colors
