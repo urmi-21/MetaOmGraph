@@ -17,9 +17,9 @@ git clone https://github.com/urmi-21/MetaOmGraph.git
 ```
 
 ## Dependencies
-* All dependencies are handeled through Maven
+* All dependencies are handeled through Maven (see [pom.xml](https://github.com/urmi-21/MetaOmGraph/blob/tomvn/pom.xml))
 * Download `l2fprod-common-all.jar` from [here](http://www.java2s.com/Code/Jar/l/Downloadl2fprodcommonalljar.htm) and add to build path
-* Add src/libs/* to the build path
+* Add src/libs/CustomBrowserLauncher.jar to the build path
 
 ## Accessing the code
 Eclipse IDE is suggested to open the MetaOmGraph project.
