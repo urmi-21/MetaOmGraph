@@ -15,6 +15,8 @@ To download the code please clone MetaOmGraph's repository using the command:
 ```
 git clone https://github.com/urmi-21/MetaOmGraph.git
 ```
+## Accessing the code
+Eclipse IDE is suggested to open the MetaOmGraph project.
 
 ## Dependencies
 * Install Java version 8 from [here](https://www.oracle.com/technetwork/java/javase/downloads/index.html). After installing add JDK 8 to MOG project in eclipse.
@@ -23,8 +25,7 @@ See this [link](https://stackoverflow.com/questions/13635563/setting-jdk-in-ecli
 * Download `l2fprod-common-all.jar` from [here](http://www.java2s.com/Code/Jar/l/Downloadl2fprodcommonalljar.htm) and add to build path
 * Add src/libs/CustomBrowserLauncher.jar to the build path
 
-## Accessing the code
-Eclipse IDE is suggested to open the MetaOmGraph project.
+
 
 ## Running
 The main class is _MetaOmGraph_. Run the _MetaOmGraph.java_ project to start MetaOmGraph.
