@@ -496,7 +496,7 @@ public class MetaOmGraph implements ActionListener {
 	private static JMenu fileMenu;
 
 	/** Items on the File menu */
-	private static JMenuItem newProjectItem, newSOFTItem, newMetabolomicsItem, newArrayExpressItem, openProjectItem,
+	private static JMenuItem newProjectItem, newSOFTItem, newMetabolomicsItem, openProjectItem,
 			saveProjectItem, saveProjectAsItem, quitItem, mergeItem;
 
 	private static JMenu newProjectMenu;
@@ -767,16 +767,19 @@ public class MetaOmGraph implements ActionListener {
 		newMetabolomicsItem.setMnemonic(KeyEvent.VK_M);
 		newMetabolomicsItem.setToolTipText(
 				"Create a new MetaOm project from the metabolomics database at http://plantmetabolomics.org");
-		newArrayExpressItem = new JMenuItem("From ArrayExpress...");
+		
+		/*
+		 * Removed this newArrayExpressItem = new JMenuItem("From ArrayExpress...");
 		newArrayExpressItem.setActionCommand(NEW_PROJECT_ARRAYEXPRESS_COMMAND);
 		newArrayExpressItem.addActionListener(myself);
 		newArrayExpressItem.setMnemonic(KeyEvent.VK_A);
 		newArrayExpressItem.setToolTipText("Create a new MetaOm project from the ArrayExpress database");
-		newProjectMenu.add(newProjectItem);
 		// urmi remove unused menu
 		// newProjectMenu.add(newSOFTItem);
 		// newProjectMenu.add(newMetabolomicsItem);
 		newProjectMenu.add(newArrayExpressItem);
+		*/
+		newProjectMenu.add(newProjectItem);
 
 		openProjectItem = new JMenuItem("Open Project...");
 		openProjectItem.setActionCommand(OPEN_COMMAND);

@@ -1,6 +1,7 @@
 MOG 1.8.1 Release date: TBD
 Convert to maven project
 Remove unwanted packages
+Removed arrayexpress projects
 Refactor 
 
 MOG 1.8.0 Release date: 10/28/2019
