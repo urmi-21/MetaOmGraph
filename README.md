@@ -1,6 +1,5 @@
 [![publication](https://img.shields.io/badge/publication-NAR-blue)](https://academic.oup.com/nar/advance-article/doi/10.1093/nar/gkz1209/5709708?guestAccessKey=db072c1a-c4a2-4671-995b-ab99d9f348b5)
-
-![GitHub Downloads](https://img.shields.io/github/downloads/urmi-21/MetaOmGraph/total?style=flat-square)
+![GitHub All Releases](https://img.shields.io/github/downloads/urmi-21/MetaOmGraph/total?label=GitHub%20downloads&style=flat-square)
 
 # MetaOmGraph
 
