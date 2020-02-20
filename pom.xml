@@ -4,7 +4,10 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>metaomgraph4</groupId>
 	<artifactId>metaomgraph4</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+	<version>1.8.1</version>
+
+
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<resources>
@@ -25,8 +28,23 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>edu.iastate.metnet.metaomgraph.MetaOmGraph</mainClass>
+						</manifest>
+					</archive>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+				</configuration>
+			</plugin>
 		</plugins>
+
 	</build>
+
 	<dependencies>
 		<dependency>
 			<groupId>com.apple</groupId>
@@ -98,5 +116,16 @@
 			<artifactId>javax.activation</artifactId>
 			<version>1.2.0</version>
 		</dependency>
+		<dependency>
+			<groupId>edu.iastate.metnet</groupId>
+			<artifactId>custombrowserlauncher</artifactId>
+			<version>0.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.l2fprod</groupId>
+			<artifactId>l2fprod-common-all</artifactId>
+			<version>0.1</version>
+		</dependency>
 	</dependencies>
+
 </project>

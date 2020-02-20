@@ -1,9 +1,9 @@
-MOG 1.8.1 Release date: TBD
+MOG 1.8.1 Release date: 02/20/2020
 Convert to maven project
 Remove unwanted packages
 Removed arrayexpress projects
 Fix bug; showed incorrect number of metadata file rows.
-Make OpenJDK compatible
+Fix import metadata freeze on systems using java 13
 Refactor 
 
 MOG 1.8.0 Release date: 10/28/2019
