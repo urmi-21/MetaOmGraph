@@ -726,10 +726,12 @@ public class MetaOmGraph implements ActionListener {
 		initThemes();
 		setCurrentTheme("light");
 		mainWindow = new JFrame("MetaOmGraph");
-
+		
+		//urmi
+		///////////////enable debug mode//////////////////
 		ExceptionHandler.getInstance(mainWindow).setUseBuffer(useBuffer);
 		// set setUseBuffer(false) to print to console
-		// ExceptionHandler.getInstance(mainWindow).setUseBuffer(false);
+		//ExceptionHandler.getInstance(mainWindow).setUseBuffer(false);
 		Thread.setDefaultUncaughtExceptionHandler(ExceptionHandler.getInstance(mainWindow));
 		desktop = new JDesktopPane();
 		desktop.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
