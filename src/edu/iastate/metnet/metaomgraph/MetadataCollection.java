@@ -186,6 +186,7 @@ public class MetadataCollection {
 						return;
 					}
 					
+					nCount++; //increment count; this counts the header line
 
 				} else {
 
@@ -206,12 +207,12 @@ public class MetadataCollection {
 						// System.out.println("headers:"+Arrays.toString(headers));
 						// System.out.println("rows:"+Arrays.toString(row));
 						JOptionPane.showMessageDialog(null,
-								"Metadata validation failed at line:" + (nCount + 1)
+								"Metadata validation failed at line:" + (nCount)
 										+ ". MOG will skip this. Please check file delimiters at this line.",
 								"Error", JOptionPane.ERROR_MESSAGE);
 						//JOptionPane.showMessageDialog(null, thisLine);
 						totalFails++;
-						nCount++;
+						
 						continue;
 						// return;
 
@@ -229,8 +230,9 @@ public class MetadataCollection {
 					doc.putAll(metadataMap);
 					docList.add(doc);
 					// mogCollection.insert(doc);
+					nCount++; //increment line count
 				}
-				nCount++;
+				
 			}
 
 			// insert in mogcollection
@@ -238,11 +240,8 @@ public class MetadataCollection {
 			Document[] docArr = new Document[docList.size()];
 			docArr = docList.toArray(docArr);
 			mogCollection.insert(docArr);
-			/*
-			 * for(Document d: docList) { System.out.println(g++); mogCollection.insert }
-			 */
 
-			numRows = nCount + 1;
+			numRows = nCount - 1;
 
 			if (in != null)
 				in.close();
