@@ -68,6 +68,7 @@ import org.jdom.JDOMException;
 import com.apple.eawt.Application;
 import com.l2fprod.common.swing.JTipOfTheDay;
 
+
 //import com.l2fprod.common.swing.*;
 
 import edu.iastate.metnet.arrayexpress.v2.AEImportDialog;
