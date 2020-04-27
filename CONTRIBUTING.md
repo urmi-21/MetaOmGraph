@@ -23,7 +23,7 @@ Eclipse IDE is suggested to open the MetaOmGraph project.
 See this [link](https://stackoverflow.com/questions/13635563/setting-jdk-in-eclipse) for help.
 * All dependencies are handeled through Maven (see [pom.xml](https://github.com/urmi-21/MetaOmGraph/blob/master/pom.xml))
 * Download `l2fprod-common-all.jar` from [here](http://www.java2s.com/Code/Jar/l/Downloadl2fprodcommonalljar.htm)
-* Add [src/lib/CustomBrowserLauncher.jar](https://github.com/urmi-21/MetaOmGraph/tree/master/src/lib) and `l2fprod-common-all.jar` locally maven by running:
+* Add [src/lib/CustomBrowserLauncher.jar](https://github.com/urmi-21/MetaOmGraph/tree/master/src/lib) and `l2fprod-common-all.jar` locally to maven by running:
 ```
 mvn install:install-file -Dfile='l2fprod-common-all.jar' -DgroupId='com.l2fprod' -DartifactId='l2fprod-common-all' -Dversion='0.1' -Dpackaging=jar -DgeneratePom=true
 
