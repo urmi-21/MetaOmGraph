@@ -36,5 +36,8 @@ mvn install:install-file -Dfile='CustomBrowserLauncher.jar' -DgroupId='edu.iasta
 ## Running
 The main class is _MetaOmGraph_. Run the _MetaOmGraph.java_ project to start MetaOmGraph.
 
+## Exporting runnable JAR
+From Eclipse, run `maven build`. The `.jar` file will be compiled and stored in the `MetaOmGraph/target` directory.
+
 ## Getting help
 Please contact the developers through [email](http://metnetweb.gdcb.iastate.edu/MetNet_MetaOmGraph_download.php) if any help is required regarding setting up MetaOmGraph.
