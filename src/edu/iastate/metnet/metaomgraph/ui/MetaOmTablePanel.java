@@ -34,6 +34,8 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.apache.commons.math3.distribution.PoissonDistribution;
+import org.apache.commons.math3.random.RandomGenerator;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -82,6 +84,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	public static final String GRAPH_BOXPLOT_COMMAND = "make boxplot";
 	public static final String GRAPH_BOXPLOT_COLS_COMMAND = "col boxplot";
 	public static final String MAKE_HISTOGRAM_COMMAND = "create histogram";
+	
+	// sumanth
+	private static final String COMPUTE_MEAN_COMMAND = "calculate mean";
+	
 	// private static int _N = MetaOmGraph.getNumPermutations();
 	// private static int _T = MetaOmGraph.getNumThreads();
 	private JButton reportButton;
@@ -177,6 +183,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	private ClearableTextField filterField;
 	private Throbber throbber;
 	private CorrelationValue[] lastCorrelation;
+	
+	// sumanth
+	private JMenuItem meanItem;
 
 	JMenu plotRMenu;
 
@@ -332,6 +341,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		viewCorrStats = new JMenuItem("View correlation details");
 		viewCorrStats.setActionCommand("viewmetaform");
 		viewCorrStats.addActionListener(this);
+		
+		// sumanth
+		meanItem = new JMenuItem("Mean");
+		meanItem.setActionCommand(COMPUTE_MEAN_COMMAND);
+		meanItem.addActionListener(this);
 
 		JPopupMenu analyzePopupMenu = new JPopupMenu();
 		// urmi Add menu and sub menu
@@ -496,6 +510,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		analyzePopupMenu.addSeparator();
 		analyzePopupMenu.add(saveCorrelationItem);
 		analyzePopupMenu.add(removeCorrelationMenu);
+		
+		// sumanth
+		analyzePopupMenu.addSeparator();
+		analyzePopupMenu.add(meanItem);
+		
 
 		// analyzePopupMenu.add(pairwisePearsonItem);
 		// analyzePopupMenu.add(pairwiseSpearmanItem);
@@ -3401,9 +3420,47 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			return;
 
 		}
+		
+		// sumanth
+		if(COMPUTE_MEAN_COMMAND.equals(e.getActionCommand())) {
+			// generate a radom number for mean of poisson distribution.
+			Random randomMeanGenerator = new Random(); 
+			int randMean = randomMeanGenerator.nextInt(1000);
+			final int numSamples = 1000;
+			// Get the poisson distribution values.
+			ArrayList<Integer> randomPoissonList = GeneratePoissonDistribution(randMean, numSamples);
+			
+			ComputeMean computeMean = new ComputeMean(randomPoissonList);
+	
+			String outStr = "The mean of 1000 randomly generated poisson values: " + computeMean.GetMean();
+			JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), outStr, "Computed Mean", JOptionPane.INFORMATION_MESSAGE);
+			
+			// Using JDialog
+			/*JDialog meanDialog = new JDialog(MetaOmGraph.getMainWindow(), "Computed Mean", true);
+			JLabel meanLable = new JLabel(outStr);
+			meanDialog.add(meanLable);
+			meanDialog.setSize(400, 400);
+			meanDialog.setVisible(true);*/
+	
+		}
 
 	}
 
+	// sumanth
+	private ArrayList<Integer> GeneratePoissonDistribution(int mean, int numSamples){
+		// Create a poisson distribution with the mean
+		PoissonDistribution poissonDist = new PoissonDistribution(mean);
+		
+		// generate the samples
+		int pD[] = poissonDist.sample(numSamples);
+
+		// convert int[] to arraylist.
+		List<Integer> poissonList = Arrays.stream(pD).boxed().collect(Collectors.toList());
+		ArrayList<Integer> poissonArrList = new ArrayList<Integer>(poissonList);
+		
+		return poissonArrList;
+	}
+	
 	private Map<String, Collection<Integer>> createSplitIndex() {
 		Map<String, Collection<Integer>> splitIndex;
 		// show metadata categories
