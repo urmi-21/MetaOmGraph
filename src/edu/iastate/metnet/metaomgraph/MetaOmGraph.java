@@ -673,9 +673,11 @@ public class MetaOmGraph implements ActionListener {
 		recentProjects = new Vector<File>();
 
 		File homeDir = new File(System.getProperty("user.home"));
+		
 		File prefsFile = new File(homeDir, "metaomgraph.prefs");
 		if ((prefsFile.exists()) && (prefsFile.canRead())) {
 			try {
+			
 				FileInputStream fis = new FileInputStream(prefsFile);
 				ObjectInputStream in = new ObjectInputStream(fis);
 

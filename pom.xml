@@ -22,14 +22,30 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.7.0</version>
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<mainClass>edu.iastate.metnet.metaomgraph.MetaOmGraph</mainClass>
+						</manifest>
+					</archive>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
 				</configuration>
 			</plugin>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
 				<configuration>
 					<archive>
 						<manifest>
@@ -120,12 +136,18 @@
 			<groupId>edu.iastate.metnet</groupId>
 			<artifactId>custombrowserlauncher</artifactId>
 			<version>0.0.1</version>
+			<scope>system</scope>
+			<systemPath>C:/Users/lenovo/.m2/repository/edu/iastate/metnet/custombrowserlauncher/0.0.1/CustomBrowserLauncher.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>com.l2fprod</groupId>
 			<artifactId>l2fprod-common-all</artifactId>
 			<version>0.1</version>
+			<scope>system</scope>
+			<systemPath>D:/Harsha/java_wksp/MetaOmGraph/l2fprod-common-all.jar</systemPath>
 		</dependency>
+
+
 	</dependencies>
 
 </project>
