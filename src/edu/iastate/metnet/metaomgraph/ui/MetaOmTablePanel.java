@@ -34,6 +34,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.apache.commons.math3.distribution.PoissonDistribution;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -122,7 +123,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	private JMenuItem mutualInformationItemPairwise;
 	private JMenuItem relatednessItem;
 	private JMenuItem relatednessPairwise;
-
+	
+	//added as task
+	private JMenuItem meanItem;
+	
 	private JMenuItem spearmanItem;
 	// urmi
 	private JMenuItem spearmanItem2;
@@ -342,7 +346,13 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		JMenu diffcorrMenu = new JMenu("Differntial Correlation");
 		JMenu informationMenu = new JMenu("Mutual Information");
 		JMenu distMenu = new JMenu("Distance");
-
+		
+		//added as a task
+		meanItem = new JMenuItem("Mean");
+		meanItem.setActionCommand("compute mean");
+		meanItem.addActionListener(this);
+		analyzePopupMenu.add(meanItem);
+		
 		//////////////////////////
 		pearsonItem = new JMenuItem("Pearson Correlation(No pval)");
 		pearsonItem.setActionCommand("pearson correlation");
@@ -1820,6 +1830,18 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			launchAraportThaleMine();
 			return;
 		}
+		
+		//added as a task
+		if ("compute mean".equals(e.getActionCommand())){
+			ArrayList<Integer> poissonList = new ArrayList<Integer>();
+			PoissonDistribution poissonDistribution = new PoissonDistribution(1000); 
+			for (int i = 0; i < 1000; i ++){
+				poissonList.add(poissonDistribution.sample());
+				}
+			ComputeMean.calcMean(poissonList);
+			JOptionPane.showMessageDialog(null, "Mean: " + ComputeMean.calcMean(poissonList));
+		} 
+		
 		if (("pearson correlation".equals(e.getActionCommand()))
 				|| ("pearson correlationP".equals(e.getActionCommand()))
 				|| ("FEMcorrelationP".equals(e.getActionCommand())) || ("REMcorrelationP".equals(e.getActionCommand()))
