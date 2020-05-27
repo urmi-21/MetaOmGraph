@@ -23,6 +23,13 @@ jobs:
       
     - name: Download l2f-prod jar file
       run: curl -O http://www.java2s.com/Code/JarDownload/l2fprod/l2fprod-common-all.jar.zip
+   
+    - name: list downloaded file
+      run: dir
+      
+    - name: working directory
+      run: cd
+    
     - name: Install l2f-prod dependency
       run: mvn install:install-file -Dfile=l2fprod-common-all.jar.zip -DgroupId=com.l2fprod -DartifactId=l2fprod-common-all -Dversion=0.1 -Dpackaging=jar -DgeneratePom=true
     
