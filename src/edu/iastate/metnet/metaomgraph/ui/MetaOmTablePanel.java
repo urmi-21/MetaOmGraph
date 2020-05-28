@@ -91,7 +91,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	public static final String GRAPH_BOXPLOT_COMMAND = "make boxplot";
 	public static final String GRAPH_BOXPLOT_COLS_COMMAND = "col boxplot";
 	public static final String MAKE_HISTOGRAM_COMMAND = "create histogram";
+<<<<<<< HEAD
 
+=======
+	public static final String CALCULATE_MEAN_COMMAND = "calculate mean";
+>>>>>>> b34768a152fdc2048789f57648d4aa01f4e5d0bd
 	// private static int _N = MetaOmGraph.getNumPermutations();
 	// private static int _T = MetaOmGraph.getNumThreads();
 	private JButton reportButton;
@@ -144,7 +148,12 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	private JMenuItem weightedManhattanItem;
 	private JMenuItem saveCorrelationItem;
 	
+<<<<<<< HEAD
 
+=======
+	//Added by Harsha
+	private JMenuItem meanItem;
+>>>>>>> b34768a152fdc2048789f57648d4aa01f4e5d0bd
 	// urmi
 	private JMenuItem diffCorrelation;
 	private JMenuItem diffCorrelationWizard;
@@ -434,6 +443,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		saveCorrelationItem = new JMenuItem("Keep Previous Correlation");
 		saveCorrelationItem.setActionCommand("save correlation");
 		saveCorrelationItem.addActionListener(this);
+		meanItem = new JMenuItem("Mean");
+		meanItem.setActionCommand("calculate mean");
+		meanItem.addActionListener(this);
 
 		// urmi
 
@@ -507,6 +519,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		analyzePopupMenu.add(viewCorrStats);
 		analyzePopupMenu.addSeparator();
 		analyzePopupMenu.add(saveCorrelationItem);
+		analyzePopupMenu.add(meanItem);
 		analyzePopupMenu.add(removeCorrelationMenu);
 
 		// analyzePopupMenu.add(pairwisePearsonItem);
@@ -3441,6 +3454,19 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 		}
 		
+<<<<<<< HEAD
+=======
+		else if (CALCULATE_MEAN_COMMAND.equals(e.getActionCommand())) {
+			
+			ComputeMean cm = new ComputeMean();
+			List<Integer> poissonData = getPoissonRandomData();
+			
+			int result = cm.getMean(poissonData);
+			JOptionPane.showMessageDialog(null, "Mean of 1000 Poisson distributed (mu=120) random numbers   =  "+result, "mean",
+					JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
+>>>>>>> b34768a152fdc2048789f57648d4aa01f4e5d0bd
 
 	}
 
@@ -4242,6 +4268,20 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 	}
 	
+<<<<<<< HEAD
 
+=======
+	
+	private List<Integer> getPoissonRandomData(){
+		RandomDataGenerator rdg = new RandomDataGenerator();
+		List<Integer> poissonData = new ArrayList<Integer>();
+		
+		for(int i=0;i<1000;i++) {
+			poissonData.add((int)rdg.nextPoisson(120.0));
+		}
+		
+		return poissonData;
+	}
+>>>>>>> b34768a152fdc2048789f57648d4aa01f4e5d0bd
 
 }
