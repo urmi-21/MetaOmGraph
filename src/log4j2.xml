@@ -4,16 +4,15 @@
 		<File name="FileAppender"
 			fileName="..\MOG_SupportingData\logs\reproducibility_log-${date:yyyyMMddHHmmssSSS}.log"
 			immediateFlush="true" append="true">
-			<PatternLayout pattern="%replace{%msg}{\n?\u2028}{ } %replace{%rException}{n?\u2028}{ }%n" />
-			<!--  <JsonLayout complete="true" compact="false" objectMessageAsJsonObject="true">
-				
-			</JsonLayout>-->
+			<PatternLayout
+				pattern="%replace{%msg}{\n?\u2028}{ } %replace{%rException}{n?\u2028}{ }%n" />
 		</File>
 	</Appenders>
 	<Loggers>
-	<Logger name="REPRODUCIBILITY_LOG" level="TRACE" additivity="false">
-	
-	</Logger>
+		<Logger name="REPRODUCIBILITY_LOG" level="TRACE"
+			additivity="false">
+
+		</Logger>
 		<Root level="debug">
 			<AppenderRef ref="FileAppender" />
 		</Root>
