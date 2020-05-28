@@ -15,26 +15,19 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
     - name: Set up JDK 1.8
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
                
-    - name: working directory
-      run: cd..
-    
-    - name: list downloaded file
-      run: dir
-    
     - name: Download l2f-prod jar file
       run: curl -O http://www.java2s.com/Code/JarDownload/l2fprod/l2fprod-common-all.jar.zip
     
     - name: Install l2f-prod dependency
-      run: mvn install:install-file -Dfile=l2fprod-common-all.jar.zip -DgroupId=com.l2fprod -DartifactId=l2fprod-common-all -Dversion=0.1 -Dpackaging=jar -DgeneratePom=true
+      run: mvn install:install-file `-Dfile=l2fprod-common-all.jar.zip `-DgroupId=com.l2fprod `-DartifactId=l2fprod-common-all `-Dversion=0.1 `-Dpackaging=jar `-DgeneratePom=true
     
     - name: Install CustomBrowserLauncher dependency
-      run: mvn install:install-file -Dfile=src/lib/CustomBrowserLauncher.jar -DgroupId=edu.iastate.metnet -DartifactId=custombrowserlauncher -Dversion=0.0.1 -Dpackaging=jar -DgeneratePom=true
+      run: mvn install:install-file `-Dfile=src/lib/CustomBrowserLauncher.jar `-DgroupId=edu.iastate.metnet `-DartifactId=custombrowserlauncher `-Dversion=0.0.1 `-Dpackaging=jar `-DgeneratePom=true
       
     - name: Build with Maven
       run: mvn -B package --file pom.xml
