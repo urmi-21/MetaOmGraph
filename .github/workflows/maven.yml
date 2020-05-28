@@ -1,7 +1,4 @@
-# This workflow will build a Java project with Maven
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
-
-name: Java CI with Maven
+name: Maven CI
 
 on:
   push:
@@ -32,7 +29,7 @@ jobs:
       run: curl -O http://www.java2s.com/Code/JarDownload/l2fprod/l2fprod-common-all.jar.zip
      
     - name: Extracting jar file
-      run: jar -xf l2fprod-common-all.jar.zip
+      run: tar -xf l2fprod-common-all.jar.zip
     
     - name: Installing l2f-prod-common-all dependency
       run: mvn install:install-file `-Dfile=l2fprod-common-all.jar `-DgroupId=com.l2fprod `-DartifactId=l2fprod-common-all `-Dversion=0.1 `-Dpackaging=jar `-DgeneratePom=true
