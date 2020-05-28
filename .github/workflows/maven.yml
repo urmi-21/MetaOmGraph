@@ -20,17 +20,24 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-               
-    - name: Download l2f-prod jar file
+        
+    - name: Cache Maven packages
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2               
+    
+    - name: Downloading l2f-prod-common-all zip file
       run: curl -O http://www.java2s.com/Code/JarDownload/l2fprod/l2fprod-common-all.jar.zip
      
     - name: Extracting jar file
       run: jar -xf l2fprod-common-all.jar.zip
     
-    - name: Install l2f-prod dependency
+    - name: Installing l2f-prod-common-all dependency
       run: mvn install:install-file `-Dfile=l2fprod-common-all.jar `-DgroupId=com.l2fprod `-DartifactId=l2fprod-common-all `-Dversion=0.1 `-Dpackaging=jar `-DgeneratePom=true
     
-    - name: Install CustomBrowserLauncher dependency
+    - name: Installing CustomBrowserLauncher dependency
       run: mvn install:install-file `-Dfile=src/lib/CustomBrowserLauncher.jar `-DgroupId=edu.iastate.metnet `-DartifactId=custombrowserlauncher `-Dversion=0.0.1 `-Dpackaging=jar `-DgeneratePom=true
       
     - name: Build with Maven
