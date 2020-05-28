@@ -20,15 +20,15 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-      
-    - name: Download l2f-prod jar file
-      run: curl -O http://www.java2s.com/Code/JarDownload/l2fprod/l2fprod-common-all.jar.zip
-   
+               
+    - name: working directory
+      run: cd..
+    
     - name: list downloaded file
       run: dir
-      
-    - name: working directory
-      run: cd
+    
+    - name: Download l2f-prod jar file
+      run: curl -O http://www.java2s.com/Code/JarDownload/l2fprod/l2fprod-common-all.jar.zip
     
     - name: Install l2f-prod dependency
       run: mvn install:install-file -Dfile=l2fprod-common-all.jar.zip -DgroupId=com.l2fprod -DartifactId=l2fprod-common-all -Dversion=0.1 -Dpackaging=jar -DgeneratePom=true
