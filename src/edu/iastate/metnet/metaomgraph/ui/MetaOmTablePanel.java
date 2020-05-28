@@ -10,6 +10,7 @@ import edu.iastate.metnet.metaomgraph.chart.HistogramChart;
 import edu.iastate.metnet.metaomgraph.chart.MakeChartWithR;
 import edu.iastate.metnet.metaomgraph.chart.MetaOmChartPanel;
 import edu.iastate.metnet.metaomgraph.chart.ScatterPlotChart;
+import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.throbber.MetaOmThrobber;
 import edu.iastate.metnet.metaomgraph.throbber.MultiFrameImageThrobber;
 import edu.iastate.metnet.metaomgraph.throbber.Throbber;
@@ -34,6 +35,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.apache.commons.math3.random.RandomDataGenerator;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -44,14 +46,21 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class MetaOmTablePanel extends JPanel implements ActionListener, ListSelectionListener, ChangeListener {
 
+	/*Harsha- Added logger */
+	
+	private static final Logger logger = MetaOmGraph.logger;
+	
 	public static final String GRAPH_LIST_COMMAND = "graph list";
 	public static final String GRAPH_SELECTED_COMMAND = "graph selected";
 	public static final String GRAPH_FILTERED_COMMAND = "graph filter";
@@ -82,6 +91,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	public static final String GRAPH_BOXPLOT_COMMAND = "make boxplot";
 	public static final String GRAPH_BOXPLOT_COLS_COMMAND = "col boxplot";
 	public static final String MAKE_HISTOGRAM_COMMAND = "create histogram";
+
 	// private static int _N = MetaOmGraph.getNumPermutations();
 	// private static int _T = MetaOmGraph.getNumThreads();
 	private JButton reportButton;
@@ -133,6 +143,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	private JMenuItem weightedEuclideanItem;
 	private JMenuItem weightedManhattanItem;
 	private JMenuItem saveCorrelationItem;
+	
+
 	// urmi
 	private JMenuItem diffCorrelation;
 	private JMenuItem diffCorrelationWizard;
@@ -1040,6 +1052,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	}
 
 	public void graphSelectedRows() {
+		ActionProperties lineChartAction = new ActionProperties("line-chart",Arrays.toString(getSelectedRowsInList()),null,"true",new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+		lineChartAction.logActionProperties(logger);
+	
 		new MetaOmChartPanel(getSelectedRowsInList(), myProject.getDefaultXAxis(), myProject.getDefaultYAxis(),
 				myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject)
 						.createInternalFrame();
@@ -1047,11 +1062,17 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 	public void makeBoxPlot() {
 		int[] selected = getSelectedRowsInList();
+		
+		ActionProperties boxPlotAction = new ActionProperties("box-plot",Arrays.toString(selected),null,"true",new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+		
 		if (selected.length < 1) {
 			JOptionPane.showMessageDialog(null, "Please select one or more rows and try again.",
 					"Invalid number of rows selected", JOptionPane.ERROR_MESSAGE);
+			boxPlotAction.setResult("Error: Invalid number of rows selected.Please select one or more rows and try again.");
+			boxPlotAction.logActionProperties(logger);
 			return;
 		}
+		
 
 		// get data for box plot as hasmap
 		HashMap<Integer, double[]> plotData = new HashMap<>();
@@ -1087,21 +1108,30 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				} catch (Exception e) {
 					JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
 							JOptionPane.ERROR_MESSAGE);
-
+					boxPlotAction.setResult("Error: Error occured while reading data!!!");
 					e.printStackTrace();
 					return;
 				}
 			}
 		});
 
+		boxPlotAction.logActionProperties(logger);
+		
 		return;
 	}
 
 	public void graphPairs() {
 		int[] selected = getSelectedRowsInList();
+		
+		ActionProperties scatterPlotAction = new ActionProperties("scatter-plot",Arrays.toString(selected),null,"true",new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+		
+		
 		if (selected.length < 2) {
 			JOptionPane.showMessageDialog(null, "Please select two or more rows and try again to plot a scatterplot.",
 					"Invalid number of rows selected", JOptionPane.ERROR_MESSAGE);
+			
+			scatterPlotAction.setResult("Error: Invalid number of rows selected.Please select two or more rows and try again to plot a scatterplot.");
+			scatterPlotAction.logActionProperties(logger);
 			return;
 		}
 
@@ -1124,12 +1154,15 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
 							JOptionPane.ERROR_MESSAGE);
 
+					scatterPlotAction.setResult("Error: Error occured while reading data!!!");
 					e.printStackTrace();
 					return;
 				}
 			}
 		});
 
+		scatterPlotAction.logActionProperties(logger);
+		
 		return;
 	}
 
@@ -1546,6 +1579,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			return;
 		}
 		if ("create histogram".equals(e.getActionCommand())) {
+			
+			ActionProperties histogramAction = new ActionProperties("histogram",Arrays.toString(getSelectedRowsInList()),null,"true",new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+			
+			
 			EventQueue.invokeLater(new Runnable() {
 				@Override
 				public void run() {
@@ -1566,12 +1603,14 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					} catch (Exception e) {
 						JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
 								JOptionPane.ERROR_MESSAGE);
-
+						histogramAction.setResult("Error: Error occured while reading data!!!");
+						histogramAction.logActionProperties(logger);
 						e.printStackTrace();
 						return;
 					}
 				}
 			});
+			histogramAction.logActionProperties(logger);
 			return;
 		}
 		if ("create heatmap".equals(e.getActionCommand())) {
@@ -3401,6 +3440,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			return;
 
 		}
+		
 
 	}
 
@@ -4201,5 +4241,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		plotRMenu.add(runOtherScript);
 
 	}
+	
+
 
 }

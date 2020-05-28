@@ -2,6 +2,8 @@
 package edu.iastate.metnet.metaomgraph;
 
 import edu.iastate.metnet.metaomgraph.chart.NewCustomSortDialog;
+import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
+import edu.iastate.metnet.metaomgraph.logging.Parameters;
 import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
 import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel;
 import edu.iastate.metnet.metaomgraph.ui.MetadataEditor;
@@ -28,11 +30,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 //import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -66,8 +70,14 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+import org.apache.logging.log4j.Logger;
 
 public class MetaOmProject {
+	
+	/*Harsha- Added logger */
+	
+	private static final Logger logger = MetaOmGraph.logger;
+	
 	public static final String COMPLETE_LIST = "Complete List";
 	public static final String LIST_CREATE_CAUSE = "create list";
 	public static final String LIST_DELETE_CAUSE = "delete list";
@@ -1383,6 +1393,7 @@ public class MetaOmProject {
 				return false;
 			}
 		}
+		
 		return (allsWell) && (projectFileFound);
 	}
 

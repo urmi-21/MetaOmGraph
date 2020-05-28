@@ -26,10 +26,13 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
@@ -60,6 +63,8 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.ColorUIResource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //import org.biomage.examples.GetToDataExample;
 import org.jdom.JDOMException;
@@ -76,6 +81,9 @@ import edu.iastate.metnet.arrayexpress.v2.AEProjectMaker;
 import edu.iastate.metnet.metaomgraph.AnnotationImporter.Annotation;
 import edu.iastate.metnet.metaomgraph.MetaOmTips.MetaOmShowTipsChoice;
 import edu.iastate.metnet.metaomgraph.chart.MetaOmChartPanel;
+import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
+import edu.iastate.metnet.metaomgraph.logging.GeneralProperties;
+import edu.iastate.metnet.metaomgraph.logging.Parameters;
 import edu.iastate.metnet.metaomgraph.ui.AboutFrame;
 import edu.iastate.metnet.metaomgraph.ui.AboutFrame4;
 import edu.iastate.metnet.metaomgraph.ui.ClickableLabel;
@@ -118,6 +126,10 @@ public class MetaOmGraph implements ActionListener {
 	 * private static Color chartBackgroundColor = null; private static Color
 	 * plotBackgroundColor = null;
 	 */
+	
+	/*Harsha- Added logger */
+	
+	public static final Logger logger = LogManager.getLogger(MetaOmGraph.class);
 
 	public static Color getTableColor1() {
 		return currentTheme.getTableColor1();
@@ -673,9 +685,11 @@ public class MetaOmGraph implements ActionListener {
 		recentProjects = new Vector<File>();
 
 		File homeDir = new File(System.getProperty("user.home"));
+		
 		File prefsFile = new File(homeDir, "metaomgraph.prefs");
 		if ((prefsFile.exists()) && (prefsFile.canRead())) {
 			try {
+			
 				FileInputStream fis = new FileInputStream(prefsFile);
 				ObjectInputStream in = new ObjectInputStream(fis);
 
@@ -1503,6 +1517,19 @@ public class MetaOmGraph implements ActionListener {
 		System.setProperty("swing.aatext", "true");
 
 		System.setProperty("sun.java2d.renderer.doChecks", "true");
+		
+		/*Harsha's Code for reproducibility logging */
+		
+		GeneralProperties sessionProperties = new GeneralProperties();
+		sessionProperties.setMogVersion("1.8");
+		sessionProperties.setJavaVersion(System.getProperty("java.version"));
+		sessionProperties.setOS(System.getProperty("os.name"));
+		sessionProperties.setCPU(System.getenv("PROCESSOR_IDENTIFIER")+", architecture: "+System.getenv("PROCESSOR_ARCHITECTURE")+", numProcessors: "+System.getenv("NUMBER_OF_PROCESSORS"));
+		sessionProperties.setMemory(String.valueOf(Runtime.getRuntime().totalMemory()));
+		sessionProperties.setSessionID(String.valueOf(Instant.now().toEpochMilli()));
+		sessionProperties.setStartTimestamp(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+		sessionProperties.logGeneralProperties(logger);
+		
 
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -1953,6 +1980,7 @@ public class MetaOmGraph implements ActionListener {
 					activeProject.initColTypes();
 
 				}
+				
 
 			} else {
 				// No need to report errors since MetaOmProject does it for
@@ -2034,6 +2062,13 @@ public class MetaOmGraph implements ActionListener {
 					@Override
 					public void run() {
 						activeProject = new MetaOmProject(source);
+						
+						//Harsha - reproducibility log
+						ArrayList<Parameters> openProjectParameters = new ArrayList<Parameters>();
+						openProjectParameters.add(new Parameters("FilePath",source.getAbsolutePath()));
+						openProjectParameters.add(new Parameters("Dimensions",String.valueOf(activeProject.getDataColumnCount())));
+						ActionProperties openProjectAction = new ActionProperties("open-project",null,openProjectParameters,"true",new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+						openProjectAction.logActionProperties(logger);
 					}
 				});
 			} catch (InvocationTargetException | InterruptedException e) {
@@ -2109,6 +2144,7 @@ public class MetaOmGraph implements ActionListener {
 		}
 		activeProjectFile = source;
 		projectOpened();
+		
 		return true;
 	}
 
@@ -2713,7 +2749,7 @@ public class MetaOmGraph implements ActionListener {
 				return;
 			}
 			new OpenProjectWorker(source).start();
-
+			
 			return;
 		}
 
