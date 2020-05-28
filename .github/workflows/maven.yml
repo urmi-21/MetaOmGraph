@@ -23,9 +23,12 @@ jobs:
                
     - name: Download l2f-prod jar file
       run: curl -O http://www.java2s.com/Code/JarDownload/l2fprod/l2fprod-common-all.jar.zip
+     
+    - name: Extracting jar file
+      run: jar -xf l2fprod-common-all.jar.zip
     
     - name: Install l2f-prod dependency
-      run: mvn install:install-file `-Dfile=l2fprod-common-all.jar.zip `-DgroupId=com.l2fprod `-DartifactId=l2fprod-common-all `-Dversion=0.1 `-Dpackaging=jar `-DgeneratePom=true
+      run: mvn install:install-file `-Dfile=l2fprod-common-all.jar `-DgroupId=com.l2fprod `-DartifactId=l2fprod-common-all `-Dversion=0.1 `-Dpackaging=jar `-DgeneratePom=true
     
     - name: Install CustomBrowserLauncher dependency
       run: mvn install:install-file `-Dfile=src/lib/CustomBrowserLauncher.jar `-DgroupId=edu.iastate.metnet `-DartifactId=custombrowserlauncher `-Dversion=0.0.1 `-Dpackaging=jar `-DgeneratePom=true
