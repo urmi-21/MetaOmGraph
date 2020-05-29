@@ -13,8 +13,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        #os: [macos-latest, windows-latest, ubuntu-18.04]
-        os: [windows-latest]
+        os: [macos-latest, windows-latest, ubuntu-latest]
+        #os: [windows-latest]
 
     steps:
     - uses: actions/checkout@v2
@@ -37,9 +37,19 @@ jobs:
       run: unzip l2fprod-common-all.jar.zip
     
     - name: Installing l2f-prod-common-all dependency
+      if: ${{ matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest' }}
+      run: mvn install:install-file -Dfile=l2fprod-common-all.jar -DgroupId=com.l2fprod -DartifactId=l2fprod-common-all -Dversion=0.1 -Dpackaging=jar -DgeneratePom=true
+    
+    - name: Installing l2f-prod-common-all dependency windows
+      if: ${{ matrix.os == 'windows-latest' }}
       run: mvn install:install-file `-Dfile=l2fprod-common-all.jar `-DgroupId=com.l2fprod `-DartifactId=l2fprod-common-all `-Dversion=0.1 `-Dpackaging=jar `-DgeneratePom=true
     
     - name: Installing CustomBrowserLauncher dependency
+      if: ${{ matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest' }}
+      run: mvn install:install-file -Dfile=src/lib/CustomBrowserLauncher.jar -DgroupId=edu.iastate.metnet -DartifactId=custombrowserlauncher -Dversion=0.0.1 -Dpackaging=jar -DgeneratePom=true
+      
+    - name: Installing CustomBrowserLauncher dependency windows
+      if: ${{ matrix.os == 'windows-latest'}}
       run: mvn install:install-file `-Dfile=src/lib/CustomBrowserLauncher.jar `-DgroupId=edu.iastate.metnet `-DartifactId=custombrowserlauncher `-Dversion=0.0.1 `-Dpackaging=jar `-DgeneratePom=true
       
     - name: Build with Maven
