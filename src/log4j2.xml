@@ -4,8 +4,7 @@
 		<File name="FileAppender"
 			fileName="..\MOG_SupportingData\logs\reproducibility_log-${date:yyyyMMddHHmmssSSS}.log"
 			immediateFlush="true" append="true">
-			<PatternLayout
-				pattern="%replace{%msg}{\n?\u2028}{ } %replace{%rException}{n?\u2028}{ }%n" />
+			<PatternLayout pattern="%m%n" />
 		</File>
 	</Appenders>
 	<Loggers>

@@ -1,7 +1,17 @@
 package edu.iastate.metnet.metaomgraph.logging;
 
 import java.util.Date;
+
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
+
+/**
+ * 
+ * @author Harsha
+ *
+ *This class is a bean class for general machine properties (Memory, CPU, OS etc) that are to be logged to the reproducibility log
+ *
+ */
 
 public class GeneralProperties {
 
@@ -58,15 +68,8 @@ public class GeneralProperties {
 	
 	public void logGeneralProperties(Logger logger) {
 		
-		logger.info("{");
-		logger.info("\"mogVersion\":\""+mogVersion+"\",");
-		logger.info("\"javaVersion\":\""+javaVersion+"\",");
-		logger.info("\"OS\":\""+OS+"\",");
-		logger.info("\"CPU\":\""+CPU+"\",");
-		logger.info("\"memory\":\""+memory+"\",");
-		logger.info("\"sessionID\":\""+sessionID+"\",");
-		logger.info("\"startTimestamp\":\""+startTimestamp+"\"");
-		logger.info("}");
+		logger.printf(Level.INFO,new JSONMessage(this).getFormattedMessage());
+		
 		
 	}
 }
