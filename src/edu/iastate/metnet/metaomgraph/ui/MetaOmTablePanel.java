@@ -1052,7 +1052,14 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	}
 
 	public void graphSelectedRows() {
-		ActionProperties lineChartAction = new ActionProperties("line-chart",Arrays.toString(getSelectedRowsInList()),null,"true",new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+		
+		HashMap<String,Object> dataMap = new HashMap<String,Object>();
+		dataMap.put("selectedRows", getSelectedRowsInList());
+		
+		HashMap<String,Object> result = new HashMap<String,Object>();
+		result.put("result", "OK");
+		
+		ActionProperties lineChartAction = new ActionProperties("line-chart",null,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 		lineChartAction.logActionProperties(logger);
 	
 		new MetaOmChartPanel(getSelectedRowsInList(), myProject.getDefaultXAxis(), myProject.getDefaultYAxis(),
@@ -1063,12 +1070,19 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	public void makeBoxPlot() {
 		int[] selected = getSelectedRowsInList();
 		
-		ActionProperties boxPlotAction = new ActionProperties("box-plot",Arrays.toString(selected),null,"true",new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+		HashMap<String,Object> dataMap = new HashMap<String,Object>();
+		dataMap.put("selectedRows", selected);
+		
+		HashMap<String,Object> result = new HashMap<String,Object>();
+		result.put("result", "OK");
+		
+		ActionProperties boxPlotAction = new ActionProperties("box-plot",null,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 		
 		if (selected.length < 1) {
 			JOptionPane.showMessageDialog(null, "Please select one or more rows and try again.",
 					"Invalid number of rows selected", JOptionPane.ERROR_MESSAGE);
-			boxPlotAction.setResult("Error: Invalid number of rows selected.Please select one or more rows and try again.");
+			result.put("result", "Error");
+			result.put("resultComments", "Invalid number of rows selected.Please select one or more rows and try again.");
 			boxPlotAction.logActionProperties(logger);
 			return;
 		}
@@ -1108,7 +1122,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				} catch (Exception e) {
 					JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
 							JOptionPane.ERROR_MESSAGE);
-					boxPlotAction.setResult("Error: Error occured while reading data!!!");
+					result.put("result","Error");
+					result.put("resultComments", "Error occured while reading data!!!");
 					e.printStackTrace();
 					return;
 				}
@@ -1123,14 +1138,21 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	public void graphPairs() {
 		int[] selected = getSelectedRowsInList();
 		
-		ActionProperties scatterPlotAction = new ActionProperties("scatter-plot",Arrays.toString(selected),null,"true",new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+		HashMap<String,Object> dataMap = new HashMap<String,Object>();
+		dataMap.put("selectedRows", selected);
+		
+		HashMap<String,Object> result = new HashMap<String,Object>();
+		result.put("result", "OK");
+		
+		ActionProperties scatterPlotAction = new ActionProperties("scatter-plot",null,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 		
 		
 		if (selected.length < 2) {
 			JOptionPane.showMessageDialog(null, "Please select two or more rows and try again to plot a scatterplot.",
 					"Invalid number of rows selected", JOptionPane.ERROR_MESSAGE);
 			
-			scatterPlotAction.setResult("Error: Invalid number of rows selected.Please select two or more rows and try again to plot a scatterplot.");
+			result.put("result","Error");
+			result.put("resultComments","Invalid number of rows selected.Please select two or more rows and try again to plot a scatterplot.");
 			scatterPlotAction.logActionProperties(logger);
 			return;
 		}
@@ -1154,7 +1176,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
 							JOptionPane.ERROR_MESSAGE);
 
-					scatterPlotAction.setResult("Error: Error occured while reading data!!!");
+					result.put("result","Error");
+					result.put("resultComments", "Error occured while reading data!!!");
 					e.printStackTrace();
 					return;
 				}
@@ -1580,7 +1603,13 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 		if ("create histogram".equals(e.getActionCommand())) {
 			
-			ActionProperties histogramAction = new ActionProperties("histogram",Arrays.toString(getSelectedRowsInList()),null,"true",new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+			HashMap<String,Object> dataMap = new HashMap<String,Object>();
+			dataMap.put("selectedRows", getSelectedRowsInList());
+			
+			HashMap<String,Object> result = new HashMap<String,Object>();
+			result.put("result", "OK");
+			
+			ActionProperties histogramAction = new ActionProperties("histogram",null,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 			
 			
 			EventQueue.invokeLater(new Runnable() {
@@ -1603,7 +1632,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					} catch (Exception e) {
 						JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
 								JOptionPane.ERROR_MESSAGE);
-						histogramAction.setResult("Error: Error occured while reading data!!!");
+						result.put("result","Error");
+						result.put("resultComments", "Error occured while reading data!!!");
 						histogramAction.logActionProperties(logger);
 						e.printStackTrace();
 						return;

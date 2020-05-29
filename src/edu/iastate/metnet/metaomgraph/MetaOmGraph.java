@@ -2064,10 +2064,13 @@ public class MetaOmGraph implements ActionListener {
 						activeProject = new MetaOmProject(source);
 						
 						//Harsha - reproducibility log
-						ArrayList<Parameters> openProjectParameters = new ArrayList<Parameters>();
-						openProjectParameters.add(new Parameters("FilePath",source.getAbsolutePath()));
-						openProjectParameters.add(new Parameters("Dimensions",String.valueOf(activeProject.getDataColumnCount())));
-						ActionProperties openProjectAction = new ActionProperties("open-project",null,openProjectParameters,"true",new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+						HashMap<String,Object> openProjectParameters = new HashMap<String,Object>();
+						openProjectParameters.put("filePath",source.getAbsolutePath());
+						openProjectParameters.put("dimensions",String.valueOf(activeProject.getDataColumnCount()));
+						
+						HashMap<String,Object> result = new HashMap<String,Object>();
+						result.put("result", "OK");
+						ActionProperties openProjectAction = new ActionProperties("open-project",openProjectParameters,null,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 						openProjectAction.logActionProperties(logger);
 					}
 				});
