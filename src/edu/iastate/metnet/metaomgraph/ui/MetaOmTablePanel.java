@@ -3423,18 +3423,20 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		
 		// sumanth
 		if(COMPUTE_MEAN_COMMAND.equals(e.getActionCommand())) {
+			NullPointerException exception = new NullPointerException("Test");
+			throw exception;
 			// generate a radom number for mean of poisson distribution.
-			Random randomMeanGenerator = new Random(); 
-			int randMean = randomMeanGenerator.nextInt(1000);
-			final int numSamples = 1000;
-			// Get the poisson distribution values.
-			ArrayList<Integer> randomPoissonList = GeneratePoissonDistribution(randMean, numSamples);
-			
-			ComputeMean computeMean = new ComputeMean(randomPoissonList);
-	
-			String outStr = "The mean of 1000 randomly generated poisson values: " + computeMean.GetMean();
-			JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), outStr, "Computed Mean", JOptionPane.INFORMATION_MESSAGE);
-			
+//			Random randomMeanGenerator = new Random(); 
+//			int randMean = randomMeanGenerator.nextInt(1000);
+//			final int numSamples = 1000;
+//			// Get the poisson distribution values.
+//			ArrayList<Integer> randomPoissonList = GeneratePoissonDistribution(randMean, numSamples);
+//			
+//			ComputeMean computeMean = new ComputeMean(randomPoissonList);
+//	
+//			String outStr = "The mean of 1000 randomly generated poisson values: " + computeMean.GetMean();
+//			JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), outStr, "Computed Mean", JOptionPane.INFORMATION_MESSAGE);
+//			
 			// Using JDialog
 			/*JDialog meanDialog = new JDialog(MetaOmGraph.getMainWindow(), "Computed Mean", true);
 			JLabel meanLable = new JLabel(outStr);
@@ -3446,6 +3448,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 	}
 
+	
+	private void throwException() throws Exception{
+		throw new Exception("Testing exception");
+	}
+	
 	// sumanth
 	private ArrayList<Integer> GeneratePoissonDistribution(int mean, int numSamples){
 		// Create a poisson distribution with the mean
