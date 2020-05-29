@@ -37,7 +37,7 @@ jobs:
       run: unzip l2fprod-common-all.jar.zip
     
     - name: Installing l2f-prod-common-all dependency
-      run: mvn install:install-file `-Dfile=l2fprod-common-all.jar `-DgroupId=com.l2fprod `-DartifactId=l2fprod-common-all `-Dversion=0.1 `-Dpackaging=jar `-DgeneratePom=true
+      run: mvn install:install-file -Dfile=l2fprod-common-all.jar -DgroupId=com.l2fprod -DartifactId=l2fprod-common-all -Dversion=0.1 -Dpackaging=jar -DgeneratePom=true
     
     - name: Installing CustomBrowserLauncher dependency
       run: mvn install:install-file `-Dfile=src/lib/CustomBrowserLauncher.jar `-DgroupId=edu.iastate.metnet `-DartifactId=custombrowserlauncher `-Dversion=0.0.1 `-Dpackaging=jar `-DgeneratePom=true
