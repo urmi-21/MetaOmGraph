@@ -39,7 +39,7 @@ jobs:
     - name: Installing l2f-prod-common-all dependency
       if: ${{ matrix.os == 'ubuntu-latest' && matrix.os == 'macos-latest' }}
       run: mvn install:install-file -Dfile=l2fprod-common-all.jar -DgroupId=com.l2fprod -DartifactId=l2fprod-common-all -Dversion=0.1 -Dpackaging=jar -DgeneratePom=true
-      
+    - name: win1
       if: ${{ matrix.os == 'windows-latest' }}
       run: mvn install:install-file `-Dfile=l2fprod-common-all.jar `-DgroupId=com.l2fprod `-DartifactId=l2fprod-common-all `-Dversion=0.1 `-Dpackaging=jar `-DgeneratePom=true
     
