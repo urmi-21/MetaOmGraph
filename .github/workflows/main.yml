@@ -33,7 +33,7 @@ jobs:
       run: curl -O http://www.java2s.com/Code/JarDownload/l2fprod/l2fprod-common-all.jar.zip
      
     - name: Extracting jar file
-      run: tar -xf l2fprod-common-all.jar.zip
+      run: unzip l2fprod-common-all.jar.zip
     
     - name: Installing l2f-prod-common-all dependency
       run: mvn install:install-file `-Dfile=l2fprod-common-all.jar `-DgroupId=com.l2fprod `-DartifactId=l2fprod-common-all `-Dversion=0.1 `-Dpackaging=jar `-DgeneratePom=true
