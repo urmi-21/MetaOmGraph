@@ -2,10 +2,14 @@ package edu.iastate.metnet.metaomgraph.ui;
 
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
+import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Vector;
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
@@ -13,10 +17,17 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.apache.logging.log4j.Logger;
+
 
 public class CreateListFrame
         extends JInternalFrame
         implements ActionListener, ChangeListener {
+	
+	/*Harsha- Added logger */
+	
+	private static final Logger logger = MetaOmGraph.logger;
+	
     public static final String OK_COMMAND = "OK";
     public static final String CANCEL_COMMAND = "Cancel";
     public static final String IMPORT_COMMAND = "Import";
@@ -127,11 +138,16 @@ public class CreateListFrame
         if ("OK".equals(e.getActionCommand())) {
             Object[][] activeValues = dtp.getActiveValues();
             int[] result = new int[activeValues.length];
+            
+            
+    		
             for (int i = 0; i < result.length; i++)
                 result[i] = ((Integer) activeValues[i][0]).intValue();
             if (myProject.addGeneList(listName, result, true)) {
                 dispose();
             }
+            
+    		
             return;
         }
         if ("Cancel".equals(e.getActionCommand())) {
