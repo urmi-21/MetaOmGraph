@@ -719,6 +719,15 @@ public class MetaOmProject {
 			return false;
 		}
 		setChanged(false);
+		
+		//Harsha - reproducibility log
+		HashMap<String,Object> saveProjectParameters = new HashMap<String,Object>();
+		saveProjectParameters.put("saveFilePath",destination.getAbsolutePath());
+		
+		HashMap<String,Object> result = new HashMap<String,Object>();
+		result.put("result", "OK");
+		ActionProperties saveProjectAction = new ActionProperties("save-project-as",saveProjectParameters,null,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+		saveProjectAction.logActionProperties(logger);
 
 		return true;
 	}
@@ -1851,6 +1860,18 @@ public class MetaOmProject {
 		if (notify) {
 			fireStateChanged("create list");
 		}
+		
+		//Harsha - reproducibility log
+        HashMap<String,Object> dataMap = new HashMap<String,Object>();
+		dataMap.put("createdListName", listName);
+		dataMap.put("numElementsInList", entries.length);
+		HashMap<String,Object> resultLog = new HashMap<String,Object>();
+		resultLog.put("result", "OK");
+		
+		ActionProperties createListAction = new ActionProperties("create-list",null,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+
+		createListAction.logActionProperties(logger);
+		
 		return true;
 	}
 
@@ -1954,6 +1975,16 @@ public class MetaOmProject {
 		geneLists.remove(name);
 		setChanged(true);
 		fireStateChanged("delete list");
+		
+		//Harsha - reproducibility log
+        HashMap<String,Object> dataMap = new HashMap<String,Object>();
+		dataMap.put("deletedListName", name);
+		HashMap<String,Object> resultLog = new HashMap<String,Object>();
+		resultLog.put("result", "OK");
+		
+		ActionProperties deleteListAction = new ActionProperties("delete-list",null,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+
+		deleteListAction.logActionProperties(logger);
 	}
 
 	public int getInfoColumnCount() {

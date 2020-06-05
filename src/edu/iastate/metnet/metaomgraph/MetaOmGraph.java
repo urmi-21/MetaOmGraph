@@ -2015,6 +2015,15 @@ public class MetaOmGraph implements ActionListener {
 					 * getActiveProject().getDataColumnCount() + " samples)");
 					 */
 					fixTitle();
+					
+					//Harsha - reproducibility log
+					HashMap<String,Object> saveProjectParameters = new HashMap<String,Object>();
+					saveProjectParameters.put("mogFilePath",destination.getAbsolutePath());
+					
+					HashMap<String,Object> result = new HashMap<String,Object>();
+					result.put("result", "OK");
+					ActionProperties saveProjectAction = new ActionProperties("save-as-project",saveProjectParameters,null,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+					saveProjectAction.logActionProperties(logger);
 
 				}
 				addRecentProject(activeProjectFile);
@@ -2065,7 +2074,7 @@ public class MetaOmGraph implements ActionListener {
 						
 						//Harsha - reproducibility log
 						HashMap<String,Object> openProjectParameters = new HashMap<String,Object>();
-						openProjectParameters.put("filePath",source.getAbsolutePath());
+						openProjectParameters.put("mogFilePath",source.getAbsolutePath());
 						openProjectParameters.put("dimensions",String.valueOf(activeProject.getDataColumnCount()));
 						
 						HashMap<String,Object> result = new HashMap<String,Object>();
@@ -2164,6 +2173,14 @@ public class MetaOmGraph implements ActionListener {
 		if ((activeProject != null) && (activeProject.isChanged()))
 			if (!promptToSave())
 				return false;
+		
+		//Harsha - reproducibility log
+		HashMap<String,Object> closeProjectParameters = new HashMap<String,Object>();
+		closeProjectParameters.put("dataFilePath",activeProject.getSourceFile().getAbsolutePath());
+		closeProjectParameters.put("mogFilePath",activeProjectFile.getAbsolutePath());
+		closeProjectParameters.put("dimensions",String.valueOf(activeProject.getDataColumnCount()));
+		
+		
 		activeProject = null;
 		JInternalFrame[] closeUs = desktop.getAllFrames();
 		for (int x = 0; x < closeUs.length; x++)
@@ -2180,6 +2197,14 @@ public class MetaOmGraph implements ActionListener {
 				((JInternalFrame) (comps[x])).dispose();
 		MetaOmAnalyzer.reset();
 		// System.gc();
+		
+		//Harsha - reproducibility log
+		HashMap<String,Object> result = new HashMap<String,Object>();
+		result.put("result", "OK");
+		ActionProperties closeProjectAction = new ActionProperties("close-project",closeProjectParameters,null,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+		closeProjectAction.logActionProperties(logger);
+		
+		
 		return true;
 	}
 

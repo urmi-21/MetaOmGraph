@@ -16,7 +16,7 @@ import org.apache.logging.log4j.Logger;
  *
  */
 public class ActionProperties {
-	
+
 	private static int counter;
 	private int actionNumber;
 	private String actionCommand;
@@ -35,7 +35,14 @@ public class ActionProperties {
 		this.timestamp = timestamp;
 	}
 
+	public static int getCounter() {
+		return counter;
+	}
 
+	public static void setCounter(int counter) {
+		ActionProperties.counter = counter;
+	}
+	
 	public int getActionNumber() {
 		return actionNumber;
 	}
