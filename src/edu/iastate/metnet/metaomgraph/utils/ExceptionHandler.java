@@ -163,6 +163,7 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 		}
 	}
 	
+	// Convert map to string in Json Format.
 	private String toJsonFormat(Map<String, String> map) {
 		String json = "{\r\n" + map.entrySet().stream()
 			    .map(ent -> "\""+ ent.getKey() + "\"" + ": " + String.valueOf(ent.getValue()) + "")
@@ -170,6 +171,10 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 		return json;
 	}
 	
+	/**
+	 * Save the error log to a file.
+	 * @param errorLog
+	 */
 	private void saveErrorLogToFile(String errorLog) {
 		HashMap<String, String> fileFilters = new HashMap<String, String>();
 		fileFilters.put("Log files", "log");
@@ -186,6 +191,11 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 		}
 	}
 	
+	/**
+	 * @author sumanth
+	 * Create the git issues from error logs.
+	 * @param errorLog
+	 */
 	private void createGitIssue(String errorLog) {
 		PropertyFileReader properties = null;
 		try {
@@ -193,7 +203,8 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 		} catch (IOException e1) {
 			errorLog += "\n" + e1.getMessage();
 		}
-		String test =  properties.getProperty("gittoken");
+		
+		// get token and url from config.properties file.
 		String token = "token " + properties.getProperty("gittoken");
 		String url = properties.getProperty("gitissueUrl");
 		
@@ -357,7 +368,7 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 			public void actionPerformed(ActionEvent e) {
 				dialog.dispose();
 				StringBuffer text = new StringBuffer("MetaOmGraph Error:\n\n");
-				text.append("Email: " + emailField.getText() + "\nComments:" + commentArea.getText());
+				text.append("Email: " + emailField.getText() + "\nComments:\n" + commentArea.getText());
 				text.append("\nMOG version: " + System.getProperty("MOG.version") + "\nMOG date: "
 						+ System.getProperty("MOG.date") + "\nOS: " + MetaOmGraph.getOsName() + "\n\n");
 				
@@ -369,99 +380,102 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 				}
 								
 				createGitIssue(text.toString());
-				// String host = "mailhub.iastate.edu";
-				// String host = "localhost";
-				// String from = "metaomgraph@gmail.com";
-				// String to = "metaomgraph@gmail.com";
-
+/*
+				 String host = "mailhub.iastate.edu";
+				 String host = "localhost";
+				 String from = "metaomgraph@gmail.com";
+				 String to = "metaomgraph@gmail.com";
+				 
 				// urmi
-//				String from = ""; //"metaomgraph@gmail.com";
-//				String to = ""; //"metaomgraph@gmail.com";
-//				final String username = ""; //"metaomgraph@gmail.com";
-//				final String password = ""; // "u#SBQP2etbU5OeXCT7";
-//				Properties props2 = new Properties();
-//				props2.put("mail.smtp.auth", "true");
-//				props2.put("mail.smtp.starttls.enable", "true");
-//				props2.put("mail.smtp.host", "smtp.gmail.com");
-//				props2.put("mail.smtp.port", "587");
-//				Session session2 = Session.getInstance(props2, new javax.mail.Authenticator() {
-//					protected javax.mail.PasswordAuthentication getPasswordAuthentication() {
-//						return new javax.mail.PasswordAuthentication(username, password);
-//					}
-//				});
-//				/*
-//				 * try {
-//				 * 
-//				 * Message message = new MimeMessage(session2); message.setFrom(new
-//				 * InternetAddress("metaomgraph@gmail.com"));
-//				 * message.setRecipients(Message.RecipientType.TO,
-//				 * InternetAddress.parse("metaomgraph@gmail.com"));
-//				 * message.setSubject("Testing Subject"); message.setText("Dear Mail Crawler," +
-//				 * "\n\n No spam to my email, please!");
-//				 * 
-//				 * Transport.send(message);
-//				 * 
-//				 * System.out.println("Done");
-//				 * 
-//				 * } catch (MessagingException ex) { throw new RuntimeException(ex); }
-//				 */
-//
-//				try {
-//					// JOptionPane.showMessageDialog(null, "sending...");
-//					MimeMessage message = new MimeMessage(session2);
-//					message.setFrom(new InternetAddress(from));
-//					message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
-//					message.setSubject("Automail: MOG Error");
-//					StringBuilder messageText = new StringBuilder(text.toString() + "\n\n");
-//					if (useBuffer) {
-//						System.out.flush();
-//						messageText.append("Buffer: " + buffer.toString() + "\n\n");
-//					}
-//					messageText.append("Email: " + emailField.getText() + "\nComments:" + commentArea.getText());
-//					messageText.append("\nMOG version: " + System.getProperty("MOG.version") + "\nMOG date: "
-//							+ System.getProperty("MOG.date")+"\n OS: "+MetaOmGraph.getOsName());
-//					BodyPart messageBodyPart = new MimeBodyPart();
-//
-//					messageBodyPart.setText(messageText.toString());
-//
-//					Multipart multipart = new MimeMultipart();
-//					multipart.addBodyPart(messageBodyPart);
-//					File dest = null;
-//					if (shotBox.isSelected()) {
-//						messageBodyPart = new MimeBodyPart();
-//						Robot robot = new Robot();
-//						Frame f = MetaOmGraph.getMainWindow();
-//						Rectangle captureSize = new Rectangle(f.getX(), f.getY(), f.getWidth(), f.getHeight());
-//						BufferedImage shot = robot.createScreenCapture(captureSize);
-//						dest = File.createTempFile("mog", ".png");
-//						ImageIO.write(shot, "png", dest);
-//						DataSource source = new FileDataSource(dest);
-//						messageBodyPart.setDataHandler(new DataHandler(source));
-//						messageBodyPart.setFileName(dest.getName());
-//						multipart.addBodyPart(messageBodyPart);
-//					}
-//					
-//
-//					message.setContent(multipart);
-//
-//					// JOptionPane.showMessageDialog(null, "sending2...");
-//					Transport.send(message);
-//					// JOptionPane.showMessageDialog(null, "sending3...");
-//					if (dest != null) {
-//						dest.delete();
-//					}
-//					System.out.println("Mail sent!");
-//					// JOptionPane.showMessageDialog(null, "Mail sent!");
-//				} catch (MessagingException ex) {
-//					ex.printStackTrace();
-//				} catch (AWTException e1) {
-//					// TODO Auto-generated catch block
-//					e1.printStackTrace();
-//				} catch (IOException e1) {
-//					// TODO Auto-generated catch block
-//					e1.printStackTrace();
-//				}
+				String from = ""; //"metaomgraph@gmail.com";
+				String to = ""; //"metaomgraph@gmail.com";
+				final String username = ""; 
+				final String password = "";
+				Properties props2 = new Properties();
+				props2.put("mail.smtp.auth", "true");
+				props2.put("mail.smtp.starttls.enable", "true");
+				props2.put("mail.smtp.host", "smtp.gmail.com");
+				props2.put("mail.smtp.port", "587");
+				Session session2 = Session.getInstance(props2, new javax.mail.Authenticator() {
+					protected javax.mail.PasswordAuthentication getPasswordAuthentication() {
+						return new javax.mail.PasswordAuthentication(username, password);
+					}
+				});
+*/
+				/*
+				 * try {
+				 * 
+				 * Message message = new MimeMessage(session2); message.setFrom(new
+				 * InternetAddress("metaomgraph@gmail.com"));
+				 * message.setRecipients(Message.RecipientType.TO,
+				 * InternetAddress.parse("metaomgraph@gmail.com"));
+				 * message.setSubject("Testing Subject"); message.setText("Dear Mail Crawler," +
+				 * "\n\n No spam to my email, please!");
+				 * 
+				 * Transport.send(message);
+				 * 
+				 * System.out.println("Done");
+				 * 
+				 * } catch (MessagingException ex) { throw new RuntimeException(ex); }
+				 */
 
+/*
+				try {
+					// JOptionPane.showMessageDialog(null, "sending...");
+					MimeMessage message = new MimeMessage(session2);
+					message.setFrom(new InternetAddress(from));
+					message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+					message.setSubject("Automail: MOG Error");
+					StringBuilder messageText = new StringBuilder(text.toString() + "\n\n");
+					if (useBuffer) {
+						System.out.flush();
+						messageText.append("Buffer: " + buffer.toString() + "\n\n");
+					}
+					messageText.append("Email: " + emailField.getText() + "\nComments:" + commentArea.getText());
+					messageText.append("\nMOG version: " + System.getProperty("MOG.version") + "\nMOG date: "
+							+ System.getProperty("MOG.date")+"\n OS: "+MetaOmGraph.getOsName());
+					BodyPart messageBodyPart = new MimeBodyPart();
+
+					messageBodyPart.setText(messageText.toString());
+
+					Multipart multipart = new MimeMultipart();
+					multipart.addBodyPart(messageBodyPart);
+					File dest = null;
+					if (shotBox.isSelected()) {
+						messageBodyPart = new MimeBodyPart();
+						Robot robot = new Robot();
+						Frame f = MetaOmGraph.getMainWindow();
+						Rectangle captureSize = new Rectangle(f.getX(), f.getY(), f.getWidth(), f.getHeight());
+						BufferedImage shot = robot.createScreenCapture(captureSize);
+						dest = File.createTempFile("mog", ".png");
+						ImageIO.write(shot, "png", dest);
+						DataSource source = new FileDataSource(dest);
+						messageBodyPart.setDataHandler(new DataHandler(source));
+						messageBodyPart.setFileName(dest.getName());
+						multipart.addBodyPart(messageBodyPart);
+					}
+					
+
+					message.setContent(multipart);
+
+					// JOptionPane.showMessageDialog(null, "sending2...");
+					Transport.send(message);
+					// JOptionPane.showMessageDialog(null, "sending3...");
+					if (dest != null) {
+						dest.delete();
+					}
+					System.out.println("Mail sent!");
+					// JOptionPane.showMessageDialog(null, "Mail sent!");
+				} catch (MessagingException ex) {
+					ex.printStackTrace();
+				} catch (AWTException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} 
+*/
 			}
 		});
 		JButton cancelButton = new JButton("Cancel");
