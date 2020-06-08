@@ -33,7 +33,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +59,7 @@ import javax.mail.internet.MimeMultipart;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
@@ -179,9 +182,13 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 		HashMap<String, String> fileFilters = new HashMap<String, String>();
 		fileFilters.put("Log files", "log");
 		fileFilters.put("Text files", "txt");
+		String appendDate = new SimpleDateFormat("yyyy-MM-dd_hh:mm:ss").format(new Date());
+		String fileName = "error_" + appendDate + ".log";
 		
-		CustomFileSaveDialog saveFileDailog = new CustomFileSaveDialog("error.log", "Save error log", fileFilters);
+		CustomFileSaveDialog saveFileDailog = new CustomFileSaveDialog(fileName, "Save error log", fileFilters);
 		File savedFile = saveFileDailog.showSaveDialog();
+		if(savedFile == null)
+			return;
 		try {
 			FileWriter fileWriter = new FileWriter(savedFile);
 			fileWriter.write(errorLog);
@@ -306,15 +313,14 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 		c.fill = 1;
 		dialog.getContentPane().add(commentPane, c);
 
-		final JCheckBox shotBox = new JCheckBox("Include a screenshot of MetaOmGraph");
-		shotBox.setSelected(true);
+		final JLabel emptyLabel = new JLabel("");
 		c.gridy = 4;
 		c.gridwidth = 2;
 		c.weightx = 1.0D;
 		c.gridx = 0;
 		c.anchor = 10;
-		dialog.getContentPane().add(shotBox, c);
-
+		dialog.getContentPane().add(emptyLabel, c);
+		
 		/////////// add error message urmi
 		boolean shown = false;
 		// urmi changed to ture easy for debugging
@@ -526,8 +532,29 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 
 			}
 		});
+		
+		final JButton saveLogButton = new JButton("Save log");
+		saveLogButton.addActionListener(new ActionListener() {			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				StringBuffer text = new StringBuffer("MetaOmGraph Error:\n\n");
+				text.append("Email: " + emailField.getText() + "\nComments:\n" + commentArea.getText());
+				text.append("\nMOG version: " + System.getProperty("MOG.version") + "\nMOG date: "
+						+ System.getProperty("MOG.date") + "\nOS: " + MetaOmGraph.getOsName() + "\n\n");
+				
+				text.append("Error log:\n");
+				StackTraceElement[] trace = thrown.getStackTrace();
+				text.append(thrown.toString());
+				for (StackTraceElement ste : trace) {
+					text.append("\n" + ste);
+				}
+				saveErrorLogToFile(text.toString());
+			}
+		});
+		
 		buttonPanel.add(okButton);
 		buttonPanel.add(detailsButton);
+		buttonPanel.add(saveLogButton);
 		buttonPanel.add(cancelButton);
 		c.gridy = 5;
 		c.gridx = 0;

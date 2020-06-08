@@ -44,7 +44,7 @@ public class CustomFileSaveDialog {
 	}
 	
 	/**
-	 * Display dialog and returns the file saved by user.
+	 * Display dialog and returns the file saved by user, returns null if not able to save the file.
 	 * @return File 
 	 */
 	public File showSaveDialog() {
