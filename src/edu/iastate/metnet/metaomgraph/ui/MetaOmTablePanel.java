@@ -1978,6 +1978,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 		if ("advancefilter".equals(e.getActionCommand())) {
 
+			//Harsha - reproducibility log
+			HashMap<String,Object> dataMap = new HashMap<String,Object>();
+			HashMap<String,Object> result = new HashMap<String,Object>();
+			result.put("result", "OK");
+			
 			// show advance filter options
 			final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(
 					MetaOmGraph.getActiveProject(), true);
@@ -2019,8 +2024,12 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				allFilter += thisFilter + ";";
 			}
 
+			dataMap.put("allFilters", allFilter);
 			filterField.setText(allFilter);
 
+//			ActionProperties advancedFilterAction = new ActionProperties("advanced-filter",null,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+//			advancedFilterAction.logActionProperties(logger);
+			
 			return;
 		}
 		if (("edit list".equals(e.getActionCommand())) || ("new list".equals(e.getActionCommand()))) {
@@ -2197,6 +2206,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					// float timeElapsed = endTime - startTime;
 					// timeElapsed = (timeElapsed / (float) 1000000000.00);
 					// JOptionPane.showMessageDialog(null, "Time taken:" + timeElapsed);
+					multiSelectAction.logActionProperties(logger);
+					
 				} else if ("pearson correlationP".equals(e.getActionCommand())) {
 					// Meta-analysis model
 					// store all the meta corr results in a list of objects
@@ -2325,6 +2336,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 								myProject.setLastCorrelation(result, nameSave);
 
 							}
+							multiSelectAction.logActionProperties(logger);
 							progress.dispose();
 						}
 					};
@@ -2466,6 +2478,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 										"ShuffleWithInGrps", targetName, corrMetaResList);
 								myProject.addMetaCorrRes(nameSave, cmcObj);
 							}
+							multiSelectAction.logActionProperties(logger);
 							progress.dispose();
 						}
 					};
@@ -2581,6 +2594,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 										"ShuffleAll", targetName, corrMetaResList);
 								myProject.addMetaCorrRes(nameSave, cmcObj);
 							}
+							multiSelectAction.logActionProperties(logger);
 							progress.dispose();
 						}
 					};
@@ -2725,6 +2739,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 								myProject.setLastCorrelation(result, nameSave);
 
 							}
+							multiSelectAction.logActionProperties(logger);
 							progress.dispose();
 						}
 					};
@@ -2910,6 +2925,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 								myProject.addMetaCorrRes(nameSave, cmcObj);
 							}
 							progress.dispose();
+							multiSelectAction.logActionProperties(logger);
 							System.gc();
 						}
 					};
@@ -3120,6 +3136,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 								myProject.addMetaCorrRes(nameSave, cmcObj);
 							}
 							progress.dispose();
+							multiSelectAction.logActionProperties(logger);
 							System.gc();
 						}
 					};
@@ -3129,6 +3146,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 				else if ("spearman correlation".equals(e.getActionCommand())) {
 					MetaOmAnalyzer.doAnalysis(myProject, geneLists.getSelectedValue().toString(), target, name, 2);
+					multiSelectAction.logActionProperties(logger);
 				}
 
 				else if ("spearman correlation2".equals(e.getActionCommand())) {
@@ -3261,6 +3279,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 								myProject.addMetaCorrRes(nameSave, cmcObj);
 							}
 							progress.dispose();
+							multiSelectAction.logActionProperties(logger);
 						}
 					};
 					analyzeWorker.start();
@@ -3378,20 +3397,26 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 								myProject.addMetaCorrRes(nameSave, cmcObj);
 							}
 							progress.dispose();
+							multiSelectAction.logActionProperties(logger);
 						}
 					};
 					analyzeWorker.start();
 					progress.setVisible(true);
 				} else if ("euclidean distance".equals(e.getActionCommand())) {
 					MetaOmAnalyzer.doAnalysis(myProject, geneLists.getSelectedValue().toString(), target, name, 4);
+					multiSelectAction.logActionProperties(logger);
 				} else if ("canberra distance".equals(e.getActionCommand())) {
 					MetaOmAnalyzer.doAnalysis(myProject, geneLists.getSelectedValue().toString(), target, name, 3);
+					multiSelectAction.logActionProperties(logger);
 				} else if ("manhattan distance".equals(e.getActionCommand())) {
 					MetaOmAnalyzer.doAnalysis(myProject, geneLists.getSelectedValue().toString(), target, name, 5);
+					multiSelectAction.logActionProperties(logger);
 				} else if ("weighted euclidean distance".equals(e.getActionCommand())) {
 					MetaOmAnalyzer.doAnalysis(myProject, geneLists.getSelectedValue().toString(), target, name, 6);
+					multiSelectAction.logActionProperties(logger);
 				} else if ("weighted manhattan distance".equals(e.getActionCommand())) {
 					MetaOmAnalyzer.doAnalysis(myProject, geneLists.getSelectedValue().toString(), target, name, 7);
+					multiSelectAction.logActionProperties(logger);
 				}
 			} catch (
 
@@ -3400,17 +3425,20 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						0);
 				result.put("result", "Error");
 				result.put("resultComments", "Error reading project data");
+				multiSelectAction.logActionProperties(logger);
 				
 				ioe.printStackTrace();
 			} catch (InterruptedException e1) {
 				// TODO Auto-generated catch block
 				result.put("result", "Error");
 				result.put("resultComments", "Interrupted Exception");
+				multiSelectAction.logActionProperties(logger);
 				e1.printStackTrace();
 			} catch (ExecutionException e1) {
 				// TODO Auto-generated catch block
 				result.put("result", "Error");
 				result.put("resultComments", "Execution Exception");
+				multiSelectAction.logActionProperties(logger);
 				e1.printStackTrace();
 			}
 			
@@ -3489,6 +3517,17 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				}
 			}
 
+			//Harsha - reproducibility log
+			HashMap<String,Object> dataMap = new HashMap<String,Object>();
+			dataMap.put("identifier", result);
+			dataMap.put("selectedGene", geneLists.getSelectedValue().toString());
+			
+			HashMap<String,Object> resultLog = new HashMap<String,Object>();
+			resultLog.put("result", "OK");
+			
+			ActionProperties pairwiseCorrelationsAction = new ActionProperties(e.getActionCommand().replaceAll(" ","-"),null,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+			pairwiseCorrelationsAction.logActionProperties(logger);
+			
 			if ("pairwise pearson".equals(e.getActionCommand())) {
 				try {
 					// measure time
@@ -3682,21 +3721,41 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			// calculate r and p values using each group
 			// create 4 lists r1,pv1,r2,pv2
 			// select two corr columns and do z test
+			
+			//Harsha - reproducibility log
+			HashMap<String,Object> resultLog = new HashMap<String,Object>();
+			
 			String col1 = selectCorrColumn();
 			if (col1 == null) {
 				JOptionPane.showMessageDialog(null, "No correlation columns found!", "Error",
 						JOptionPane.ERROR_MESSAGE);
+				resultLog.put("result", "Error");
+				resultLog.put("resultLog", "No correlation columns found!");
+				
 				return;
 			}
 			int n1 = 0;
+			
+			//Harsha - reproducibility log
+			HashMap<String,Object> dataMap = new HashMap<String,Object>();
+			String selList = geneLists.getSelectedValue().toString();
+			dataMap.put("selectedList", selList);
+			dataMap.put("correlationColumn1", col1);
+			
+			
+			resultLog.put("result", "OK");
 			try {
 				n1 = Integer.parseInt((String) JOptionPane.showInputDialog(null,
 						"Please Enter the sample size for selected correlation (N1)", "Input N1",
 						JOptionPane.QUESTION_MESSAGE, null, null, String.valueOf(n1)));
+						dataMap.put("sampleSize_N1", n1);
 
 			} catch (NumberFormatException nfe) {
 				JOptionPane.showMessageDialog(null, "Invalid integer entered. Please try again.", "Error",
 						JOptionPane.ERROR_MESSAGE);
+				
+				resultLog.put("result", "Error");
+				resultLog.put("resultLog", "Invalid integer entered. Please try again.");
 				return;
 			}
 
@@ -3704,17 +3763,27 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			if (col2 == null) {
 				JOptionPane.showMessageDialog(null, "No correlation columns found!", "Error",
 						JOptionPane.ERROR_MESSAGE);
+				
+				resultLog.put("result", "Error");
+				resultLog.put("resultLog", "No correlation columns found!");
 				return;
 			}
+			
+			dataMap.put("correlationColumn2", col2);
 			int n2 = 0;
 			try {
 				n2 = Integer.parseInt((String) JOptionPane.showInputDialog(null,
 						"Please Enter the sample size for selected correlation (N2)", "Input N2",
 						JOptionPane.QUESTION_MESSAGE, null, null, String.valueOf(n2)));
+				dataMap.put("sampleSize_N2", n2);
 
 			} catch (NumberFormatException nfe) {
 				JOptionPane.showMessageDialog(null, "Invalid integer entered. Please try again.", "Error",
 						JOptionPane.ERROR_MESSAGE);
+				resultLog.put("result", "Error");
+				resultLog.put("resultLog", "Invalid integer entered. Please try again.");
+				ActionProperties existingDifferentialAction = new ActionProperties("differential-correlation-with-existing-columns",null,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				existingDifferentialAction.logActionProperties(logger);
 				return;
 			}
 
@@ -3741,23 +3810,43 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			frame.setTitle("Fold change results");
 			MetaOmGraph.getDesktop().add(frame);
 			frame.setVisible(true);
+			
+			ActionProperties existingDifferentialAction = new ActionProperties("differential-correlation-with-existing-columns",null,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+			existingDifferentialAction.logActionProperties(logger);
 
 		}
 
 		if (("NewDiffCorrelation".equals(e.getActionCommand()))) {
+			
+			//Harsha - reproducibility log
+			HashMap<String,Object> resultLog = new HashMap<String,Object>();
+			HashMap<String,Object> dataMap = new HashMap<String,Object>();
+			
 			if (myProject.getMetadataHybrid() == null) {
 				JOptionPane.showMessageDialog(null, "No metadata read", "No metadata", JOptionPane.ERROR_MESSAGE);
+				resultLog.put("result", "Error");
+				resultLog.put("resultComments", "No metadata read");
 				return;
 			}
 			if (listDisplay.getSelectedRowCount() < 1) {
 				JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Please select a row to analyze!", "Error",
 						0);
+				resultLog.put("result", "Error");
+				resultLog.put("resultComments", "Please select a row to analyze!");
+				
+				ActionProperties newDifferentialAction = new ActionProperties("new-differential-correlation",null,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				newDifferentialAction.logActionProperties(logger);
 				return;
 			}
 
 			if (listDisplay.getSelectedRowCount() > 1) {
 				JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Please select only one row to analyze!",
 						"Error", 0);
+				resultLog.put("result", "Error");
+				resultLog.put("resultComments", "Please select only one row to analyze!");
+				
+				ActionProperties newDifferentialAction = new ActionProperties("new-differential-correlation",null,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				newDifferentialAction.logActionProperties(logger);
 				return;
 			}
 
@@ -3768,15 +3857,37 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			lframe.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
 			MetaOmGraph.getDesktop().add(lframe);
 			lframe.setVisible(true);
+			
+			//Harsha - reproducibility log
+			
+			String selList = geneLists.getSelectedValue().toString();
+			dataMap.put("selectedList", selList);
+			dataMap.put("selectedGene", rowName);
+			
+			
+			resultLog.put("result", "OK");
+			
+			ActionProperties newDifferentialAction = new ActionProperties("new-differential-correlation",null,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+			newDifferentialAction.logActionProperties(logger);
+			
 			return;
 
 		}
 
 		if (("LoadDiffCorrelation".equals(e.getActionCommand()))) {
+			
+			//Harsha - reproducibility log
+			HashMap<String,Object> resultLog = new HashMap<String,Object>();
+			HashMap<String,Object> dataMap = new HashMap<String,Object>();
+			
 			String[] listOfDC = myProject.getSavedDiffCorrResNames();
 			if (listOfDC == null || listOfDC.length < 1) {
 				JOptionPane.showMessageDialog(null, "No saved results found", "No results",
 						JOptionPane.INFORMATION_MESSAGE);
+				resultLog.put("result", "Error");
+				resultLog.put("resultComments", "No saved results found");
+				ActionProperties loadDifferentialAction = new ActionProperties("load-differential-correlation",null,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				loadDifferentialAction.logActionProperties(logger);
 				return;
 			}
 			// JOptionPane.showMessageDialog(null, "saved" + Arrays.toString(listOfDE));
@@ -3799,16 +3910,35 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
 			MetaOmGraph.getDesktop().add(frame);
 			frame.setVisible(true);
+			
+			//Harsha - reproducibility log
+			
+			String selList = geneLists.getSelectedValue().toString();
+			dataMap.put("DEAnalysisChosen", chosenVal);
+			
+			
+			resultLog.put("result", "OK");
+			
+			ActionProperties loadDifferentialAction = new ActionProperties("load-differential-correlation",null,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+			loadDifferentialAction.logActionProperties(logger);
 
 			return;
 		}
 
 		if (("RemoveDiffCorrelation".equals(e.getActionCommand()))) {
 
+			//Harsha - reproducibility log
+			HashMap<String,Object> resultLog = new HashMap<String,Object>();
+			HashMap<String,Object> dataMap = new HashMap<String,Object>();
+			
 			String[] listOfDC = myProject.getSavedDiffCorrResNames();
 			if (listOfDC == null || listOfDC.length < 1) {
 				JOptionPane.showMessageDialog(null, "No saved results found", "No results",
 						JOptionPane.INFORMATION_MESSAGE);
+				resultLog.put("result", "Error");
+				resultLog.put("resultComments", "No saved results found");
+				ActionProperties removeDifferentialAction = new ActionProperties("remove-differential-correlation",null,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				removeDifferentialAction.logActionProperties(logger);
 				return;
 			}
 			// JOptionPane.showMessageDialog(null, "saved" + Arrays.toString(listOfDE));
@@ -3827,6 +3957,17 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			}
 
 			myProject.removeDiffCorrResults(chosenVal);
+			
+			//Harsha - reproducibility log
+			
+			String selList = geneLists.getSelectedValue().toString();
+			dataMap.put("DEAnalysisChosen", chosenVal);
+			
+			
+			resultLog.put("result", "OK");
+			
+			ActionProperties removeDifferentialAction = new ActionProperties("remove-differential-correlation",null,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+			removeDifferentialAction.logActionProperties(logger);
 			return;
 
 		}

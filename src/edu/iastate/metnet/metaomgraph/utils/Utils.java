@@ -25,9 +25,12 @@ import java.security.InvalidParameterException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -58,10 +61,17 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
 import org.apache.commons.math3.analysis.function.Atanh;
+import org.apache.logging.log4j.Logger;
+
 import edu.iastate.metnet.metaomgraph.GraphFileFilter;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
+import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 
 public class Utils {
+	
+	/*Harsha- Added logger */
+	private static final Logger logger = MetaOmGraph.logger;
+	
 	public static final int LOCUS = 1;
 	public static final int AFFY8K = 2;
 	public static final int AFFY25K = 3;
@@ -1136,6 +1146,14 @@ public class Utils {
 				MetaOmGraph.getMainWindow(), true);
 		if (destination == null)
 			return 1;
+		
+		HashMap<String,Object> dataMap = new HashMap<String,Object>();
+		dataMap.put("fileName", destination.getAbsolutePath());
+		
+		HashMap<String,Object> result = new HashMap<String,Object>();
+		
+		
+		
 		try {
 			FileWriter fw = new FileWriter(destination);
 			for (int col = 0; col < table.getColumnCount(); col++) {
@@ -1168,14 +1186,24 @@ public class Utils {
 			fw.close();
 			JOptionPane.showMessageDialog(null, "File saved to:" + destination.getAbsolutePath(), "File saved",
 					JOptionPane.INFORMATION_MESSAGE);
+			result.put("result", "OK");
 			status = 0;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, "Error in saving file:" + destination.getAbsolutePath(), "Error",
 					JOptionPane.ERROR_MESSAGE);
+			
+			result.put("result", "Error");
+			result.put("resultComments", "Error in saving file:" + destination.getAbsolutePath());
 			status = 1;
 		}
+		
+		//Harsha - reproducibility log
+		
+		ActionProperties saveAction = new ActionProperties("save-table-to-file",null,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+		saveAction.logActionProperties(logger);
+		
 		return status;
 	}
 
