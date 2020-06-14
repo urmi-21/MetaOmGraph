@@ -3,11 +3,7 @@ package edu.iastate.metnet.metaomgraph.utils;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.ui.CustomFileSaveDialog;
 import edu.iastate.metnet.metaomgraph.ui.CustomMessagePane;
-import edu.iastate.metnet.metaomgraph.ui.CustomMessagePane.MessageBoxButtons;
-import edu.iastate.metnet.metaomgraph.ui.CustomMessagePane.MessageBoxType;
 
-import java.awt.AWTException;
-import java.awt.Container;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Frame;
@@ -16,28 +12,22 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Robot;
-import java.awt.TrayIcon.MessageType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.net.PasswordAuthentication;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpRequest.BodyPublishers;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -48,7 +38,6 @@ import javax.activation.FileDataSource;
 import javax.imageio.ImageIO;
 import javax.mail.BodyPart;
 import javax.mail.Message;
-import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -59,16 +48,23 @@ import javax.mail.internet.MimeMultipart;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTree;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 	private Frame fp = null;
@@ -198,6 +194,15 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 		}
 	}
 	
+	private void displaySuccessMessage(String url) {
+		CustomMessagePane messageBox = new CustomMessagePane("Report error", 
+				"Error is reported to the developer.\nAn issue is created at: " + url,
+				CustomMessagePane.MessageBoxType.INFORMATION, 
+				CustomMessagePane.MessageBoxButtons.OK);
+		
+		messageBox.displayMessageBox();		
+	}
+	
 	/**
 	 * @author sumanth
 	 * Create the git issues from error logs.
@@ -222,28 +227,25 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 		
 		String jsonFormatedMap = toJsonFormat(postContentsMap);
 		
-		List<String> headers = new ArrayList<String>();
-		headers.add("Content-Type");
-		headers.add("application/json");
-		headers.add("Authorization");
-		headers.add(token);
+		CloseableHttpClient httpClient = HttpClients.createDefault();
 		
-		HttpClient client = HttpClient.newHttpClient();
-		
-		HttpRequest postRequest = HttpRequest.newBuilder()
-				.uri(URI.create(url))
-				.headers(headers.toArray(String[]::new))
-				.POST(BodyPublishers.ofString(jsonFormatedMap))
-				.build();
-		
-		HttpResponse<String> response = null;
+		HttpPost postRequest = new HttpPost(url);
+		postRequest.addHeader("Content-Type", "application/json");
+		postRequest.addHeader("Authorization", token);
 		try {
-			response = client.send(postRequest, BodyHandlers.ofString());		
-		} catch (IOException | InterruptedException e) {
-			e.printStackTrace();
+			postRequest.setEntity(new StringEntity(jsonFormatedMap));
+		} catch (UnsupportedEncodingException e1) {
+			e1.printStackTrace();
 		}
 		
-		if(response == null || response.statusCode() != 201) {
+		HttpResponse response = null;
+		try {
+			response = httpClient.execute(postRequest);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+				
+		if(response == null || response.getStatusLine().getStatusCode() != 201) {
 			CustomMessagePane messageBox = new CustomMessagePane("Report error", 
 					"Cannot report the error, please check your internet connection." + 
 					"\nDo you want to save the error log file and report it later?",
@@ -252,6 +254,32 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 			
 			if(messageBox.displayMessageBox() == CustomMessagePane.UserClickedButton.YES)
 				saveErrorLogToFile(errorLog);
+		}
+		else {
+			try {
+				BufferedReader responseReader = new BufferedReader(
+						new InputStreamReader(response.getEntity().getContent()));
+				
+				String output;
+				StringBuffer responseOutput = new StringBuffer();
+
+				while ((output = responseReader.readLine()) != null) {
+					responseOutput.append(output);
+				}
+				responseReader.close();
+				JsonObject jsonObj = JsonParser.parseString(responseOutput.toString()).getAsJsonObject();
+				String urlTemp = jsonObj.get("html_url").getAsString();
+				displaySuccessMessage(urlTemp);
+			} catch (UnsupportedOperationException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		try {
+			httpClient.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -378,7 +406,7 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 				text.append("\nMOG version: " + System.getProperty("MOG.version") + "\nMOG date: "
 						+ System.getProperty("MOG.date") + "\nOS: " + MetaOmGraph.getOsName() + "\n\n");
 				
-				text.append("Error log:\n");
+				text.append("Error log:\n```\n");
 				StackTraceElement[] trace = thrown.getStackTrace();
 				text.append(thrown.toString());
 				for (StackTraceElement ste : trace) {
