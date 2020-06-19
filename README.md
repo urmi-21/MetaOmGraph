@@ -1,5 +1,6 @@
 ![Maven CI](https://github.com/urmi-21/MetaOmGraph/workflows/Maven%20CI/badge.svg?branch=master)
 [![download](https://img.shields.io/badge/%E2%86%93-Download%20Latest%20Version-success)](http://metnetweb.gdcb.iastate.edu/downloadMOG.php)
+[![datasets](https://img.shields.io/badge/%E2%86%93-MOG%20Projects-orange)](http://metnetweb.gdcb.iastate.edu/MetNet_MetaOmGraph_download.php)
 ![GitHub All Releases](https://img.shields.io/github/downloads/urmi-21/MetaOmGraph/total?label=GitHub%20downloads&style=flat-square)
 [![publication](https://img.shields.io/badge/publication-NAR-blue)](https://academic.oup.com/nar/advance-article/doi/10.1093/nar/gkz1209/5709708?guestAccessKey=db072c1a-c4a2-4671-995b-ab99d9f348b5)
 
