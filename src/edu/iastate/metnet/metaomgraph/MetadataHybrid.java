@@ -425,7 +425,7 @@ public class MetadataHybrid {
 		List<String> colVals = new ArrayList<>();
 		String[] allfields = new String[queries.length];
 		String[] toSearch = new String[queries.length];
-		boolean[] isExact = new boolean[queries.length];
+		SearchMatchType[] matchTypes = new SearchMatchType[queries.length];
 		boolean[] matchCase = new boolean[queries.length];
 		// search using Metadatacollection object and return indices of matching data
 		// columns from knownCols
@@ -434,12 +434,12 @@ public class MetadataHybrid {
 		for (int i = 0; i < queries.length; i++) {
 			allfields[i] = queries[i].getField();
 			toSearch[i] = queries[i].getTerm();
-			isExact[i] = queries[i].isExact();
+			matchTypes[i] = queries[i].getMatchType();
 			matchCase[i] = queries[i].isCaseSensitive();
 			// JOptionPane.showMessageDialog(null, "search f:" + fields[i]);
 		}
 
-		colVals.addAll(searchByValue(allfields, toSearch, this.dataColumn, isExact, matchAll, matchCase));
+		colVals.addAll(searchByValue(allfields, toSearch, this.dataColumn, matchTypes, matchAll, matchCase));
 
 		// JOptionPane.showMessageDialog(null, "colvals:" + colVals.toString());
 		// JOptionPane.showMessageDialog(null, "knownCols:" + knownCols.toString());
@@ -493,7 +493,7 @@ public class MetadataHybrid {
 		List<String> colVals = new ArrayList<>();
 		String[] allfields = new String[queries.length];
 		String[] toSearch = new String[queries.length];
-		boolean[] isExact = new boolean[queries.length];
+		SearchMatchType[] matchTypes = new SearchMatchType[queries.length];
 		boolean[] matchCase = new boolean[queries.length];
 		// search using Metadatacollection object and return indices of matching data
 		// columns from knownCols
@@ -501,11 +501,11 @@ public class MetadataHybrid {
 		for (int i = 0; i < queries.length; i++) {
 			allfields[i] = queries[i].getField();
 			toSearch[i] = queries[i].getTerm();
-			isExact[i] = queries[i].isExact();
+			matchTypes[i] = queries[i].getMatchType();
 			matchCase[i] = queries[i].isCaseSensitive();
 		}
 
-		colVals.addAll(searchByValue(allfields, toSearch, this.dataColumn, isExact, matchAll, matchCase));
+		colVals.addAll(searchByValue(allfields, toSearch, this.dataColumn, matchTypes, matchAll, matchCase));
 
 		return colVals;
 	}
@@ -522,7 +522,7 @@ public class MetadataHybrid {
 	 *            exact match or near match?
 	 * @return values under toReturn column where field column has value toSearch
 	 */
-	public List<String> searchByValue(String[] field, String[] toSearch, String toReturn, boolean[] exact,
+	public List<String> searchByValue(String[] field, String[] toSearch, String toReturn, SearchMatchType[] matchType,
 			boolean matchAll, boolean[] matchCase) {
 		List<String> res = new ArrayList<>();
 
@@ -540,22 +540,24 @@ public class MetadataHybrid {
 			if (field[i] == "All Fields") {
 
 				// List<String> res2 = new ArrayList<>();
-				specialCaseRes.add(searchByValue(toSearch[i], toReturn, exact[i], true, matchCase[i]));
+				specialCaseRes.add(searchByValue(toSearch[i], toReturn, matchType[i], true, matchCase[i]));
 
 			} else if (field[i] == "Any Field") {
 
-				specialCaseRes.add(searchByValue(toSearch[i], toReturn, exact[i], false, matchCase[i]));
+				specialCaseRes.add(searchByValue(toSearch[i], toReturn, matchType[i], false, matchCase[i]));
 
 			} else {
-				if (exact[i]) {
-
+				if (matchType[i] == SearchMatchType.IS) {
 					// farray[i] = Filters.regex(field[i], "^" + toSearch[i] + "$");
 					filterList.add(Filters.regex(field[i], caseFlag + "^" + toSearch[i] + "$"));
 
-				} else {
-
+				} else if(matchType[i] == SearchMatchType.CONTAINS) {
 					filterList.add(Filters.regex(field[i], caseFlag + toSearch[i]));
-
+				} else {
+					// exactly not
+					filterList.add(Filters.regex(field[i], caseFlag + "^(?!" + toSearch[i] + "$).*$"));
+					// not like
+					//filterList.add(Filters.regex(field[i], caseFlag + "^((?!" + toSearch[i] + ").)*$"));
 				}
 			}
 		}
@@ -603,10 +605,10 @@ public class MetadataHybrid {
 		return res;
 	}
 
-	public List<String> searchByValue(String field, String toSearch, String toReturn, boolean exact, boolean matchAll,
+	public List<String> searchByValue(String field, String toSearch, String toReturn, SearchMatchType matchType, boolean matchAll,
 			boolean matchCase) {
-		return searchByValue(new String[] { field }, new String[] { toSearch }, toReturn, new boolean[] { exact },
-				matchAll, new boolean[] { matchCase });
+		return searchByValue(new String[] { field }, new String[] { toSearch }, toReturn, 
+				new SearchMatchType[] { matchType }, matchAll, new boolean[] { matchCase });
 
 	}
 
@@ -621,10 +623,10 @@ public class MetadataHybrid {
 	 * @param matchCase
 	 * @return
 	 */
-	public List<String> searchByValue(String toSearch, String toReturn, boolean exact, boolean matchAll,
+	public List<String> searchByValue(String toSearch, String toReturn, SearchMatchType matchType, boolean matchAll,
 			boolean matchCase) {
 		List<String> res = new ArrayList<>();
-		res = this.mogCollection.getDatabyAttributes(toSearch, toReturn, exact, true, matchAll, matchCase);
+		res = this.mogCollection.getDatabyAttributes(toSearch, toReturn, matchType, true, matchAll, matchCase);
 		return res;
 
 	}
