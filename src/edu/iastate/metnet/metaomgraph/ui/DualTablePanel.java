@@ -4,6 +4,7 @@ import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
+import edu.iastate.metnet.metaomgraph.SearchMatchType;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -221,7 +222,7 @@ public class DualTablePanel extends JPanel implements ActionListener {
 			for (int i = 0; i < queries.length; i++) {
 
 				matchingRows.addAll(
-						getMatchingRow(queries[i].getField(), queries[i].getTerm(), inactiveTable, queries[i].isExact()));
+						getMatchingRow(queries[i].getField(), queries[i].getTerm(), inactiveTable, queries[i].getMatchType()));
 			}
 
 		} else {
@@ -229,7 +230,7 @@ public class DualTablePanel extends JPanel implements ActionListener {
 			for (int i = 0; i < queries.length; i++) {
 				java.util.List<Integer> temp = new ArrayList<>();
 				temp.addAll(
-						getMatchingRow(queries[i].getField(), queries[i].getTerm(), inactiveTable, queries[i].isExact()));
+						getMatchingRow(queries[i].getField(), queries[i].getTerm(), inactiveTable, queries[i].getMatchType()));
 				tempList.add(temp);
 			}
 
@@ -261,7 +262,7 @@ public class DualTablePanel extends JPanel implements ActionListener {
 		
 	}
 
-	private java.util.List<Integer> getMatchingRow(String colName, String val, JTable tab, boolean exact) {
+	private java.util.List<Integer> getMatchingRow(String colName, String val, JTable tab, SearchMatchType matchType) {
 		java.util.List<Integer> res = new ArrayList<>();
 
 		// special case
@@ -277,13 +278,18 @@ public class DualTablePanel extends JPanel implements ActionListener {
 					if (tab.getModel().getValueAt(i, j) != null) {
 						valAtij = tab.getModel().getValueAt(i, j).toString();
 					}
-					if (exact) {
+					if (matchType == SearchMatchType.IS) {
 						if (!valAtij.equals(val)) {
 							breakFlag = true;
 							break;
 						}
-					} else {
+					} else if(matchType == SearchMatchType.CONTAINS){
 						if (!valAtij.contains(val)) {
+							breakFlag = true;
+							break;
+						}
+					} else {
+						if(valAtij.equals(val)) {
 							breakFlag = true;
 							break;
 						}
@@ -305,17 +311,22 @@ public class DualTablePanel extends JPanel implements ActionListener {
 					if (tab.getModel().getValueAt(i, j) != null) {
 						valAtij = tab.getModel().getValueAt(i, j).toString();
 					}
-					if (exact) {
+					if (matchType == SearchMatchType.IS) {
 						if (valAtij.equals(val)) {
 							foundFlag = true;
 							break;
 						}
-					} else {
+					} else if(matchType == SearchMatchType.CONTAINS){
 						if (valAtij.contains(val)) {
 							// JOptionPane.showMessageDialog(null, "col" + j + ":" + tab.getColumnName(j) +
 							// " row:" + i);
 							// JOptionPane.showMessageDialog(null, "mval:" + tab.getModel().getValueAt(i,
 							// j).toString());
+							foundFlag = true;
+							break;
+						}
+					} else {
+						if (!valAtij.equals(val)) {
 							foundFlag = true;
 							break;
 						}
@@ -335,12 +346,16 @@ public class DualTablePanel extends JPanel implements ActionListener {
 				if (tab.getModel().getValueAt(i, colIndex) != null) {
 					valAtij = tab.getModel().getValueAt(i, colIndex).toString();
 				}
-				if (exact) {
+				if (matchType == SearchMatchType.IS) {
 					if (valAtij.equals(val)) {
 						res.add(i);
 					}
-				} else {
+				} else if(matchType == SearchMatchType.CONTAINS){
 					if (valAtij.contains(val)) {
+						res.add(i);
+					}
+				} else {
+					if (!valAtij.equals(val)) {
 						res.add(i);
 					}
 				}
@@ -371,7 +386,7 @@ public class DualTablePanel extends JPanel implements ActionListener {
 			for (int i = 0; i < queries.length; i++) {
 
 				matchingRows.addAll(
-						getMatchingRow(queries[i].getField(), queries[i].getTerm(), activeTable, queries[i].isExact()));
+						getMatchingRow(queries[i].getField(), queries[i].getTerm(), activeTable, queries[i].getMatchType()));
 			}
 
 		} else {
@@ -379,7 +394,7 @@ public class DualTablePanel extends JPanel implements ActionListener {
 			for (int i = 0; i < queries.length; i++) {
 				java.util.List<Integer> temp = new ArrayList<>();
 				temp.addAll(
-						getMatchingRow(queries[i].getField(), queries[i].getTerm(), activeTable, queries[i].isExact()));
+						getMatchingRow(queries[i].getField(), queries[i].getTerm(), activeTable, queries[i].getMatchType()));
 				tempList.add(temp);
 			}
 

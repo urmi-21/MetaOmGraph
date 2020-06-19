@@ -691,16 +691,17 @@ public class MetadataCollection {
 		}
 	}
 
-	public List<String> getDatabyAttributes(String toSearch, String searchCol, String targetCol, boolean exact,
-			boolean uniqueFlag, boolean caseFlag) {
+	public List<String> getDatabyAttributes(String toSearch, String searchCol, String targetCol,
+			SearchMatchType matchType, boolean uniqueFlag, boolean caseFlag) {
 		// create filter
 		Filter fa = null;
-		if (exact) {
+		if (matchType == SearchMatchType.IS) {
 			fa = Filters.regex(searchCol, caseFlag + "^" + toSearch + "$");
-		} else {
+		} else if (matchType == SearchMatchType.CONTAINS){
 			fa = Filters.regex(searchCol, caseFlag + toSearch);
+		} else {
+			fa = Filters.regex(searchCol, caseFlag + "^(?!" + toSearch + "$).*$");
 		}
-
 		return getDatabyAttributes(fa, targetCol, uniqueFlag);
 	}
 
@@ -720,7 +721,7 @@ public class MetadataCollection {
 	 *            match all fields i.e AND operation
 	 * @return
 	 */
-	public List<String> getDatabyAttributes(String toSearch, String targetCol, boolean exact, boolean uniqueFlag,
+	public List<String> getDatabyAttributes(String toSearch, String targetCol, SearchMatchType matchType, boolean uniqueFlag,
 			boolean AND, boolean matchCase) {
 		if (Arrays.asList(headers).contains(targetCol)) {
 			List<Document> output = null;
@@ -733,11 +734,15 @@ public class MetadataCollection {
 			// create a filter over all cols
 			Filter[] fa = new Filter[this.getHeaders().length];
 			for (int i = 0; i < fa.length; i++) {
-
-				if (exact) {
+				if (matchType == SearchMatchType.IS) {
 					fa[i] = Filters.regex(this.getHeaders()[i], caseFlag + "^" + toSearch + "$");
-				} else {
+				} else if(matchType == SearchMatchType.CONTAINS){
 					fa[i] = Filters.regex(this.getHeaders()[i], caseFlag + toSearch);
+				} else {
+					// exactly not
+					fa[i] = Filters.regex(this.getHeaders()[i], caseFlag + "^(?!" + toSearch + "$).*$");
+					// not like
+					//fa[i] = Filters.regex(this.getHeaders()[i], caseFlag + "^(?!" + toSearch + ").*$");
 				}
 			}
 			if (AND) {
@@ -1047,7 +1052,8 @@ class MetadataCollectionTest {
 			long startTime = System.currentTimeMillis();
 			for (int i = 0; i < N; i++) {
 				String valExpected = mogColl
-						.getDatabyAttributes(dc.get(i), mogColl.getDatacol(), true, true, false, true).get(0);
+						.getDatabyAttributes(dc.get(i), mogColl.getDatacol(), 
+								SearchMatchType.IS, true, false, true).get(0);
 				if (!dc.get(i).equals(valExpected)) {
 					System.out.println("1Failed..." + valExpected);
 				}

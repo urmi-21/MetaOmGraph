@@ -10,6 +10,7 @@ import javax.swing.border.EmptyBorder;
 
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetadataHybrid;
+import edu.iastate.metnet.metaomgraph.SearchMatchType;
 
 import javax.swing.JLabel;
 import javax.swing.JComboBox;
@@ -72,16 +73,17 @@ public class SimpleSearchDialog extends JDialog {
 						String toSearch = txtToSearch.getText();
 						String field = comboBox.getSelectedItem().toString();
 						boolean exact = chckbxNewCheckBox.isSelected();
+						SearchMatchType matchType = exact ? SearchMatchType.IS : SearchMatchType.CONTAINS;
 						boolean matchCase=chckbxMatchCase.isSelected();
 						if (field.equals("All Fields")) {
 							//set field to data column. will use this to highlight results
 							field=obj.getDataColName();
-							res = obj.searchByValue(toSearch, field, exact, true,matchCase);
+							res = obj.searchByValue(toSearch, field, matchType, true,matchCase);
 						} else if (field.equals("Any Field")) {
 							field=obj.getDataColName();
-							res = obj.searchByValue(toSearch, field, exact, false,matchCase);
+							res = obj.searchByValue(toSearch, field, matchType, false,matchCase);
 						} else {
-							res = obj.searchByValue(field, toSearch, field, exact, true,matchCase);
+							res = obj.searchByValue(field, toSearch, field, matchType, true,matchCase);
 						}
 						dispose();
 					}
