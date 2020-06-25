@@ -3,10 +3,10 @@ package edu.iastate.metnet.metaomgraph.ui;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
@@ -21,7 +21,7 @@ import edu.iastate.metnet.metaomgraph.MetadataCollection;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-public class MetadataHearderEdit extends JFrame {
+public class MetadataHearderEdit extends JDialog {
 
 	private JPanel contentPane;
 	private JTable table;
@@ -57,6 +57,7 @@ public class MetadataHearderEdit extends JFrame {
 		this.parent=p;
 		this.mobj=obj;
 		this.headers=headervals;
+		setModal(true);
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
