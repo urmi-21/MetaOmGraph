@@ -46,7 +46,7 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyVetoException;
 import java.awt.event.ActionEvent;
 
-public class MetadataFilter extends JFrame {
+public class MetadataFilter extends JDialog {
 
 	private JPanel contentPane;
 	private JTable table;
@@ -111,6 +111,7 @@ public class MetadataFilter extends JFrame {
 		// TODO Auto-generated constructor stub
 		this.delete = val;
 		this.chartPanel=thisChartPanel;
+		setModal(true);
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		this.mogColl = metadataCollection;
