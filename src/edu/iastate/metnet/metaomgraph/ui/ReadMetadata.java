@@ -3,7 +3,6 @@ package edu.iastate.metnet.metaomgraph.ui;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JMenuBar;
@@ -17,6 +16,7 @@ import java.awt.FlowLayout;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
@@ -49,7 +49,7 @@ import java.awt.ComponentOrientation;
 import javax.swing.DefaultComboBoxModel;
 import java.awt.Dimension;
 
-public class ReadMetadata extends JFrame {
+public class ReadMetadata extends JDialog {
 
 	private JPanel contentPane;
 	private JTextField textField;
@@ -136,6 +136,7 @@ public class ReadMetadata extends JFrame {
 	 */
 	public ReadMetadata() {
 		this.toFront();
+		setModal(true);
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		comboBox_1 = new JComboBox();

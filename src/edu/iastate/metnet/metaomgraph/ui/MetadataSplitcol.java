@@ -3,7 +3,6 @@ package edu.iastate.metnet.metaomgraph.ui;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.ColorUIResource;
@@ -16,10 +15,10 @@ import edu.iastate.metnet.metaomgraph.MetadataCollection;
 
 import javax.swing.JLabel;
 import java.awt.FlowLayout;
-import javax.swing.SpringLayout;
 import javax.swing.WindowConstants;
 import javax.swing.JSplitPane;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JTextField;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -31,7 +30,6 @@ import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JScrollPane;
@@ -42,7 +40,7 @@ import javax.swing.JMenu;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-public class MetadataSplitcol extends JFrame {
+public class MetadataSplitcol extends JDialog {
 
 	private JPanel contentPane;
 	private JTextField textField;
@@ -102,6 +100,7 @@ public class MetadataSplitcol extends JFrame {
 		if (this.obj != null) {
 			headers = this.obj.getHeaders();
 		}
+		setModal(true);
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 
