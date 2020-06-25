@@ -5,6 +5,7 @@ import edu.iastate.metnet.metaomgraph.HashtableSavePanel;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.Metadata;
+import edu.iastate.metnet.metaomgraph.SearchMatchType;
 import edu.iastate.metnet.metaomgraph.utils.qdxml.SimpleXMLElement;
 import edu.iastate.metnet.metaomgraph.utils.qdxml.SimpleXMLizable;
 
@@ -242,18 +243,18 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 		private JCheckBox matchCasebox;
 
 		public SearchTermPanel() {
-			this("Any field", false, "",false);
+			this("Any field", SearchMatchType.CONTAINS, "",false);
 		}
 
 		public SearchTermPanel(Metadata.MetadataQuery myQuery) {
-			this(myQuery.getField(), myQuery.isExact(), myQuery.getTerm(),myQuery.isCaseSensitive());
+			this(myQuery.getField(), myQuery.getMatchType(), myQuery.getTerm(),myQuery.isCaseSensitive());
 		}
 
-		public SearchTermPanel(String field, boolean exact, String term,boolean matchCase) {
+		public SearchTermPanel(String field, SearchMatchType matchType, String term,boolean matchCase) {
 			fieldBox = new JComboBox(fieldBoxTerms);
 			fieldBox.setSelectedItem(field);
-			matchBox = new JComboBox(new String[] { "contains", "is" });
-			matchBox.setSelectedIndex(exact ? 1 : 0);
+			matchBox = new JComboBox(new String[] { "contains", "is", "not" });
+			matchBox.setSelectedIndex(matchType.ordinal());
 			searchTermField = new JTextField(term);
 			searchTermField.setColumns(20);
 			matchCasebox = new JCheckBox("Match case");
@@ -288,17 +289,14 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 
 			return fieldBox.getSelectedItem().toString().trim();
 		}
-
-		public boolean exactMatch() {
-			return matchBox.getSelectedItem().toString().equals("is");
-		}
 		
 		public boolean matchCase() {
 			return matchCasebox.isSelected();
 		}
-
-		public String getMatchType() {
-			return matchBox.getSelectedItem().toString();
+		
+		public SearchMatchType getMatchType() {
+			String test = matchBox.getSelectedItem().toString();
+			return SearchMatchType.valueOf(matchBox.getSelectedItem().toString().toUpperCase());
 		}
 
 		public String getSearchTerm() {
@@ -309,7 +307,7 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 			Metadata.MetadataQuery result = new Metadata.MetadataQuery();
 			result.setField(getField());
 			result.setTerm(getSearchTerm());
-			result.setExact(exactMatch());
+			result.setMatchType(getMatchType());
 			result.setCaseSensitive(matchCase());
 			return result;
 		}

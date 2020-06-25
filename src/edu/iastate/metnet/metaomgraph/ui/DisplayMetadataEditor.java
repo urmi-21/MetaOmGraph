@@ -22,6 +22,7 @@ import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.DropMode;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -44,7 +45,7 @@ import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
 import edu.iastate.metnet.metaomgraph.MetadataTreeStructure;
 
-public class DisplayMetadataEditor extends JFrame implements ActionListener {
+public class DisplayMetadataEditor extends JDialog implements ActionListener {
 
 	private JTree tree = null;
 	private List<String> headers;
@@ -60,6 +61,7 @@ public class DisplayMetadataEditor extends JFrame implements ActionListener {
 	public DisplayMetadataEditor() {
 		// TODO Auto-generated constructor stub
 		//treeStruct = MetaOmGraph.getActiveProject().returntree();
+		setModal(true);
 		this.tree = treeStruct.getTree();
 		this.headers = treeStruct.getList();
 		mogColl = MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataCollection();
