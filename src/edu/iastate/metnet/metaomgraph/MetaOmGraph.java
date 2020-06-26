@@ -76,9 +76,23 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.ColorUIResource;
+
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
+import org.apache.logging.log4j.ThreadContext;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.FileAppender;
+import org.apache.logging.log4j.core.config.AppenderRef;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.config.builder.api.AppenderComponentBuilder;
+import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilder;
+import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilderFactory;
+import org.apache.logging.log4j.core.config.builder.api.RootLoggerComponentBuilder;
+import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
 //import org.biomage.examples.GetToDataExample;
 import org.jdom.JDOMException;
 
@@ -143,7 +157,14 @@ public class MetaOmGraph implements ActionListener {
 
 	/*Harsha- Added logger */
 
-	public static final Logger logger = LogManager.getLogger(MetaOmGraph.class);
+	public static Logger logger;
+	public static Appender appender;
+	
+	private static ReproducibilityDashboardPanel rdp;
+	
+	private static ActionProperties openProjectAction;
+	
+	private static int currentProjectActionId;
 
 	public static Color getTableColor1() {
 		return currentTheme.getTableColor1();
@@ -277,6 +298,9 @@ public class MetaOmGraph implements ActionListener {
 		return currentmogThemeName;
 	}
 
+	public static int getCurrentProjectActionId() {
+		return currentProjectActionId;
+	}
 	public static MOGColorThemes getCurrentTheme() {
 		return mogThemes.get(getCurrentThemeName());
 	}
@@ -685,6 +709,9 @@ public class MetaOmGraph implements ActionListener {
 		init(false);
 	}
 
+	public static JToggleButton getReproducibilityLogMenu() {
+		return ReproducibilityLogMenu;
+	}
 	/**
 	 * Creates a set of variables for the start up process. Sets up and configures
 	 * the main window and desktop Creates the menu bar with corresponding elements.
@@ -1412,7 +1439,7 @@ public class MetaOmGraph implements ActionListener {
 
 		//Harsha - reproducibility log menu
 
-		ReproducibilityLogMenu = new JToggleButton("logging in progress...");
+		ReproducibilityLogMenu = new JToggleButton("History");
 		ReproducibilityLogMenu.setForeground(Color.BLUE);
 		ReproducibilityLogMenu.addItemListener(new ItemListener() {
 
@@ -1432,9 +1459,9 @@ public class MetaOmGraph implements ActionListener {
 					return;
 				}
 
-				ReproducibilityDashboardFrame =  new JInternalFrame("Reproducibility Logging Dashboard");
+				ReproducibilityDashboardFrame =  new JInternalFrame("Logging Dashboard");
 
-				ReproducibilityDashboardPanel rdp = new ReproducibilityDashboardPanel();
+				rdp = new ReproducibilityDashboardPanel(myself);
 				ReproducibilityDashboardFrame.add(rdp);
 				desktop.add(ReproducibilityDashboardFrame);
 
@@ -1448,12 +1475,19 @@ public class MetaOmGraph implements ActionListener {
 				GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
 				Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
 
-				int x = (int) rect.getMaxX() - 350;
-				int y = 0;
-				ReproducibilityDashboardFrame.setSize(400, (int)rect.getMaxY()-300);
-				ReproducibilityDashboardFrame.setLocation((ReproducibilityLogMenu.getX()+ReproducibilityLogMenu.getWidth())-400, y);
+//				int x = (int) rect.getMaxX() - 350;
+//				int y = 0;
+				ReproducibilityDashboardFrame.setSize(500, (int)rect.getMaxY()-200);
+				ReproducibilityDashboardFrame.setLocation((ReproducibilityLogMenu.getX()+ReproducibilityLogMenu.getWidth())-500, 0);
 				
-				ReproducibilityDashboardFrame.show();             
+				ReproducibilityDashboardFrame.show();     
+				
+//				Integer [] a = new Integer[4];
+//				a[0] = -1;
+//				a[1] = -1;
+//				a[2] = -1;
+//				a[3] = -1;
+//				rdp.addActionToLogTree(openProjectAction,a);
 
 			}
 
@@ -1585,7 +1619,7 @@ public class MetaOmGraph implements ActionListener {
 
 		// begin with the interactive portion of the program
 		/////////////////////////////////////////////////////////////////////////////
-
+		
 		ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
 		System.setProperty("apple.laf.useScreenMenuBar", "true");
 		System.setProperty("apple.laf.menu.about.name", "MetaOmGraph");
@@ -1595,18 +1629,6 @@ public class MetaOmGraph implements ActionListener {
 		System.setProperty("swing.aatext", "true");
 
 		System.setProperty("sun.java2d.renderer.doChecks", "true");
-
-		/*Harsha's Code for reproducibility logging */
-
-		GeneralProperties sessionProperties = new GeneralProperties();
-		sessionProperties.setMogVersion(VERSION);
-		sessionProperties.setJavaVersion(System.getProperty("java.version"));
-		sessionProperties.setOS(System.getProperty("os.name"));
-		sessionProperties.setCPU(System.getenv("PROCESSOR_IDENTIFIER")+", architecture: "+System.getenv("PROCESSOR_ARCHITECTURE")+", numProcessors: "+System.getenv("NUMBER_OF_PROCESSORS"));
-		sessionProperties.setMemory(String.valueOf(Runtime.getRuntime().totalMemory()));
-		sessionProperties.setSessionID(String.valueOf(Instant.now().toEpochMilli()));
-		sessionProperties.setStartTimestamp(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-		sessionProperties.logGeneralProperties(logger);
 
 
 		try {
@@ -2150,17 +2172,48 @@ public class MetaOmGraph implements ActionListener {
 				EventQueue.invokeAndWait(new Runnable() {
 					@Override
 					public void run() {
+						
+						String projFileName = source.getAbsolutePath();
 						activeProject = new MetaOmProject(source);
 
+						String projectName = projFileName.substring(projFileName.lastIndexOf(File.separator)+1,projFileName.lastIndexOf('.'));
+						String currDate = new SimpleDateFormat("yyyy-MM-dd_HHmmss").format(new Date());
+						String logFilePath = projFileName.substring(0,projFileName.lastIndexOf(File.separator))+"\\logs\\"+projectName+"_"+currDate+".log";
+						
+						logger = updateLogger(logFilePath);
 						//Harsha - reproducibility log
+						try {
+							
+						GeneralProperties sessionProperties = new GeneralProperties();
+						sessionProperties.setMogVersion(VERSION);
+						sessionProperties.setJavaVersion(System.getProperty("java.version"));
+						sessionProperties.setOS(System.getProperty("os.name"));
+						sessionProperties.setCPU(System.getenv("PROCESSOR_IDENTIFIER")+", architecture: "+System.getenv("PROCESSOR_ARCHITECTURE")+", numProcessors: "+System.getenv("NUMBER_OF_PROCESSORS"));
+						sessionProperties.setMemory(String.valueOf(Runtime.getRuntime().totalMemory()));
+						sessionProperties.setSessionID(String.valueOf(Instant.now().toEpochMilli()));
+						sessionProperties.setStartTimestamp(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+						sessionProperties.logGeneralProperties(logger);
+						}
+						catch(Exception e) {
+							
+						}
+						
+						
 						HashMap<String,Object> openProjectParameters = new HashMap<String,Object>();
 						openProjectParameters.put("mogFilePath",source.getAbsolutePath());
 						openProjectParameters.put("dimensions",String.valueOf(activeProject.getDataColumnCount()));
+						openProjectParameters.put("parent",-1);
+						openProjectParameters.put("logfilename", logFilePath);
+						openProjectParameters.put("projectName", projectName);
 
 						HashMap<String,Object> result = new HashMap<String,Object>();
 						result.put("result", "OK");
-						ActionProperties openProjectAction = new ActionProperties("open-project",openProjectParameters,null,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+						openProjectAction = new ActionProperties("open-project [ "+projectName+" ]",openProjectParameters,null,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 						openProjectAction.logActionProperties(logger);
+						
+						currentProjectActionId = openProjectAction.getActionNumber();
+					
+						
 					}
 				});
 			} catch (InvocationTargetException | InterruptedException e) {
@@ -2237,6 +2290,7 @@ public class MetaOmGraph implements ActionListener {
 		activeProjectFile = source;
 		projectOpened();
 
+		
 		return true;
 	}
 
@@ -2256,11 +2310,15 @@ public class MetaOmGraph implements ActionListener {
 
 		//Harsha - reproducibility log
 		HashMap<String,Object> closeProjectParameters = new HashMap<String,Object>();
+		try {
 		closeProjectParameters.put("dataFilePath",activeProject.getSourceFile().getAbsolutePath());
 		closeProjectParameters.put("mogFilePath",activeProjectFile.getAbsolutePath());
 		closeProjectParameters.put("dimensions",String.valueOf(activeProject.getDataColumnCount()));
-
-
+		closeProjectParameters.put("parent", -1);
+		}
+		catch(Exception e) {
+			
+		}
 		activeProject = null;
 		JInternalFrame[] closeUs = desktop.getAllFrames();
 		for (int x = 0; x < closeUs.length; x++)
@@ -2279,11 +2337,13 @@ public class MetaOmGraph implements ActionListener {
 		// System.gc();
 
 		//Harsha - reproducibility log
+		
 		HashMap<String,Object> result = new HashMap<String,Object>();
 		result.put("result", "OK");
 		ActionProperties closeProjectAction = new ActionProperties("close-project",closeProjectParameters,null,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 		closeProjectAction.logActionProperties(logger);
 
+		currentProjectActionId = closeProjectAction.getActionNumber();
 
 		return true;
 	}
@@ -3765,5 +3825,31 @@ public class MetaOmGraph implements ActionListener {
 			}
 		}
 	}
+	
+	
+	static Logger updateLogger(String file_name){
+		LoggerContext context = (LoggerContext) LogManager.getContext(false);
+		Configuration configuration = context.getConfiguration();
+		  //  Layout<? extends Serializable> old_layout = configuration.getAppender(appender_name).getLayout();
+
+		    //delete old appender/logger
+		if(appender != null && appender.isStarted()) {
+		    appender.stop();
+		    configuration.removeLogger("reproducibilityLogger");
+		}
+		    //create new appender/logger
+		    LoggerConfig loggerConfig = new LoggerConfig("reproducibilityLogger", Level.DEBUG, false);
+		    appender = FileAppender.createAppender(file_name, "false", "false", "File", "true","false", "false", "4000", null, null, "false", null, configuration);
+		    appender.start();
+		    configuration.addAppender(appender);
+		    loggerConfig.addAppender(appender, Level.DEBUG, null);
+		    configuration.addLogger("reproducibilityLogger", loggerConfig);
+
+		    context.updateLoggers();
+		    
+		    Logger l = context.getLogger("reproducibilityLogger");
+		    
+		    return l;
+		}
 
 }

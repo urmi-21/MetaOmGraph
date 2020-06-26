@@ -84,7 +84,7 @@ public class SimilarityDisplayFrame extends JInternalFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// save to file
-				Utils.saveJTabletofile(table);
+				Utils.saveJTabletofile(table,"Similarity Display");
 			}
 		});
 		mnFile.add(mntmExport);

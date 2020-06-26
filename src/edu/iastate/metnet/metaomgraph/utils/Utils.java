@@ -61,17 +61,19 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
 import org.apache.commons.math3.analysis.function.Atanh;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import edu.iastate.metnet.metaomgraph.GraphFileFilter;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
+import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel;
 
 public class Utils {
-	
+
 	/*Harsha- Added logger */
 	private static final Logger logger = MetaOmGraph.logger;
-	
+
 	public static final int LOCUS = 1;
 	public static final int AFFY8K = 2;
 	public static final int AFFY25K = 3;
@@ -1128,8 +1130,8 @@ public class Utils {
 	 * @param table
 	 * @return
 	 */
-	public static int saveJTabletofile(JTable table) {
-		return saveJTabletofile(table, "\t");
+	public static int saveJTabletofile(JTable table, String section) {
+		return saveJTabletofile(table, "\t", section);
 	}
 
 	/**
@@ -1139,21 +1141,25 @@ public class Utils {
 	 *            delimiter
 	 * @return
 	 */
-	public static int saveJTabletofile(JTable table, String delim) {
+	public static int saveJTabletofile(JTable table, String delim, String section) {
 		int status = 1; // 0 success; 1 fail
 		// export file as tab delimited .txt
 		final File destination = Utils.chooseFileToSave(new GraphFileFilter(GraphFileFilter.TEXT), "txt",
 				MetaOmGraph.getMainWindow(), true);
 		if (destination == null)
 			return 1;
-		
+
+		//Harsha - reproducibility log
+		HashMap<String,Object> actionMap = new HashMap<String,Object>();
+		actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+		actionMap.put("section", section);
 		HashMap<String,Object> dataMap = new HashMap<String,Object>();
 		dataMap.put("fileName", destination.getAbsolutePath());
-		
+
 		HashMap<String,Object> result = new HashMap<String,Object>();
-		
-		
-		
+
+
+
 		try {
 			FileWriter fw = new FileWriter(destination);
 			for (int col = 0; col < table.getColumnCount(); col++) {
@@ -1193,17 +1199,17 @@ public class Utils {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, "Error in saving file:" + destination.getAbsolutePath(), "Error",
 					JOptionPane.ERROR_MESSAGE);
-			
+
 			result.put("result", "Error");
 			result.put("resultComments", "Error in saving file:" + destination.getAbsolutePath());
 			status = 1;
 		}
-		
+
 		//Harsha - reproducibility log
-		
-		ActionProperties saveAction = new ActionProperties("save-table-to-file",null,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+
+		ActionProperties saveAction = new ActionProperties("save-table-to-file",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 		saveAction.logActionProperties(logger);
-		
+
 		return status;
 	}
 
@@ -1352,7 +1358,7 @@ public class Utils {
 	public static String removeSpecialChars(String s) {
 
 		String[] special = { "/", "\\", "+", "[", "^", "$", ".", "|", "?", "*", "(", ")", "{", "}", "-", "&", "%", "!",
-				";" };
+		";" };
 		// remove spaces
 		String res = s.replaceAll("\\s+", "");
 		try {
@@ -1405,8 +1411,8 @@ public class Utils {
 		}
 
 	}
-	
-	
+
+
 
 	public static void main(String args[]) {
 		String s = "a b/c  $%^a  a*.";

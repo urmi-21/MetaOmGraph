@@ -6,6 +6,11 @@
 			immediateFlush="true" append="true">
 			<PatternLayout pattern="%m%n" />
 		</File>
+		<!--  <File name="FileAppender"
+			fileName="${my.log}"
+			immediateFlush="true" append="true">
+			<PatternLayout pattern="%m%n" />
+		</File>-->
 	</Appenders>
 	<Loggers>
 		<Logger name="REPRODUCIBILITY_LOG" level="TRACE"

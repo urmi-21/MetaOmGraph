@@ -149,7 +149,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 		mntmExportToFile.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Utils.saveJTabletofile(table);
+				Utils.saveJTabletofile(table, "Diff Correlation Table");
 			}
 		});
 		mnFile.add(mntmExportToFile);

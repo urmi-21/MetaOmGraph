@@ -1,0 +1,162 @@
+{
+  "mogVersion": "1.8.1",
+  "javaVersion": "1.8.0_181",
+  "OS": "Windows 7",
+  "CPU": "Intel64 Family 6 Model 37 Stepping 5, GenuineIntel, architecture: AMD64, numProcessors: 4",
+  "memory": "125304832",
+  "sessionID": "1591974170920",
+  "startTimestamp": "2020-06-12 10:02:50.920 CDT"
+}
+,
+{
+  "actionNumber": 1,
+  "actionCommand": "open-project",
+  "actionParameters": {
+    "mogFilePath": "D:\\Harsha\\java_wksp\\MetaOmGraph\\MOG_SupportingData\\mog1.mog",
+    "dimensions": "1"
+  },
+  "otherParameters": {
+    "result": "OK"
+  },
+  "timestamp": "2020-06-12 10:02:51.421 CDT"
+}
+,
+{
+  "actionNumber": 2,
+  "actionCommand": "close-project",
+  "actionParameters": {
+    "mogFilePath": "D:\\Harsha\\java_wksp\\MetaOmGraph\\MOG_SupportingData\\mog1.mog",
+    "dataFilePath": "D:\\Harsha\\java_wksp\\MetaOmGraph\\MOG_SupportingData\\AdditionalFile1 SamplePearsoncorrelations.csv",
+    "dimensions": "1"
+  },
+  "otherParameters": {
+    "result": "OK"
+  },
+  "timestamp": "2020-06-12 10:03:53.808 CDT"
+}
+{
+  "mogVersion": "1.8.1",
+  "javaVersion": "1.8.0_181",
+  "OS": "Windows 7",
+  "CPU": "Intel64 Family 6 Model 37 Stepping 5, GenuineIntel, architecture: AMD64, numProcessors: 4",
+  "memory": "138412032",
+  "sessionID": "1591974264081",
+  "startTimestamp": "2020-06-12 10:04:24.081 CDT"
+}
+,
+{
+  "actionNumber": 1,
+  "actionCommand": "open-project",
+  "actionParameters": {
+    "mogFilePath": "D:\\Harsha\\java_wksp\\MetaOmGraph\\MOG_SupportingData\\mog1.mog",
+    "dimensions": "1"
+  },
+  "otherParameters": {
+    "result": "OK"
+  },
+  "timestamp": "2020-06-12 10:04:24.447 CDT"
+}
+,
+{
+  "actionNumber": 2,
+  "actionCommand": "line-chart",
+  "dataParameters": {
+    "selectedList": "Complete List",
+    "selectedGenes": {
+      "1046": "GTEX-11DXX-1526-SM-5H115",
+      "1005": "GTEX-11DXX-1526-SM-5H115",
+      "1037": "GTEX-11DXX-1526-SM-5H115"
+    }
+  },
+  "otherParameters": {
+    "result": "OK",
+    "userComments": ""
+  },
+  "timestamp": "2020-06-12 10:04:35.856 CDT"
+}
+,
+{
+  "actionNumber": 3,
+  "actionCommand": "close-project",
+  "actionParameters": {
+    "mogFilePath": "D:\\Harsha\\java_wksp\\MetaOmGraph\\MOG_SupportingData\\mog1.mog",
+    "dataFilePath": "D:\\Harsha\\java_wksp\\MetaOmGraph\\MOG_SupportingData\\AdditionalFile1 SamplePearsoncorrelations.csv",
+    "dimensions": "1"
+  },
+  "otherParameters": {
+    "result": "OK"
+  },
+  "timestamp": "2020-06-12 10:05:33.738 CDT"
+}
+{
+  "mogVersion": "1.8.1",
+  "javaVersion": "1.8.0_181",
+  "OS": "Windows 7",
+  "CPU": "Intel64 Family 6 Model 37 Stepping 5, GenuineIntel, architecture: AMD64, numProcessors: 4",
+  "memory": "127401984",
+  "sessionID": "1591974342474",
+  "startTimestamp": "2020-06-12 10:05:42.474 CDT"
+}
+,
+{
+  "actionNumber": 1,
+  "actionCommand": "open-project",
+  "actionParameters": {
+    "mogFilePath": "D:\\Harsha\\java_wksp\\MetaOmGraph\\MOG_SupportingData\\mog1.mog",
+    "dimensions": "1"
+  },
+  "otherParameters": {
+    "result": "OK"
+  },
+  "timestamp": "2020-06-12 10:05:42.822 CDT"
+}
+,
+{
+  "actionNumber": 2,
+  "actionCommand": "close-project",
+  "actionParameters": {
+    "mogFilePath": "D:\\Harsha\\java_wksp\\MetaOmGraph\\MOG_SupportingData\\mog1.mog",
+    "dataFilePath": "D:\\Harsha\\java_wksp\\MetaOmGraph\\MOG_SupportingData\\AdditionalFile1 SamplePearsoncorrelations.csv",
+    "dimensions": "1"
+  },
+  "otherParameters": {
+    "result": "OK"
+  },
+  "timestamp": "2020-06-12 10:07:25.632 CDT"
+}
+{
+  "mogVersion": "1.8.1",
+  "javaVersion": "1.8.0_181",
+  "OS": "Windows 7",
+  "CPU": "Intel64 Family 6 Model 37 Stepping 5, GenuineIntel, architecture: AMD64, numProcessors: 4",
+  "memory": "138412032",
+  "sessionID": "1591974565244",
+  "startTimestamp": "2020-06-12 10:09:25.244 CDT"
+}
+,
+{
+  "actionNumber": 1,
+  "actionCommand": "open-project",
+  "actionParameters": {
+    "mogFilePath": "D:\\Harsha\\java_wksp\\MetaOmGraph\\MOG_SupportingData\\mog1.mog",
+    "dimensions": "1"
+  },
+  "otherParameters": {
+    "result": "OK"
+  },
+  "timestamp": "2020-06-12 10:09:25.595 CDT"
+}
+,
+{
+  "actionNumber": 2,
+  "actionCommand": "close-project",
+  "actionParameters": {
+    "mogFilePath": "D:\\Harsha\\java_wksp\\MetaOmGraph\\MOG_SupportingData\\mog1.mog",
+    "dataFilePath": "D:\\Harsha\\java_wksp\\MetaOmGraph\\MOG_SupportingData\\AdditionalFile1 SamplePearsoncorrelations.csv",
+    "dimensions": "1"
+  },
+  "otherParameters": {
+    "result": "OK"
+  },
+  "timestamp": "2020-06-12 10:10:09.345 CDT"
+}
