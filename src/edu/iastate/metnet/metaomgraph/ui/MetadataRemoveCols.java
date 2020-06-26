@@ -20,20 +20,29 @@ import java.awt.Font;
 import java.awt.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Vector;
 
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
+import org.apache.logging.log4j.Logger;
+
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
+import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
 import java.awt.event.ActionEvent;
 
 public class MetadataRemoveCols extends JFrame {
 
+	/*Harsha- Added logger */
+	private static final Logger logger = MetaOmGraph.logger;
+	
 	private JPanel contentPane;
 	private JTable table;
 	int datacolIndex = 0;
@@ -295,6 +304,28 @@ public class MetadataRemoveCols extends JFrame {
 					MetaOmGraph.getActiveProject().getMetadataHybrid().setCurrentHeaders(newHeaders);
 				}
 				getThisframe().dispose();
+				
+				
+				//Harsha - reproducibility log
+				HashMap<String,Object> actionMap = new HashMap<String,Object>();
+				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+				actionMap.put("section", "Sample Metadata Table");
+				HashMap<String,Object> dataMap = new HashMap<String,Object>();
+				
+				java.util.List<String> remlist = new ArrayList<>();
+				for (int i = 0; i < toKeep.length; i++) {
+					if (!toKeep[i]) {
+						remlist.add(headervals[i]);
+					}
+				}
+				
+				dataMap.put("removedColumns", remlist);
+				dataMap.put("remainingColumns", p.getHeaders());
+				HashMap<String,Object> resultLog = new HashMap<String,Object>();
+				resultLog.put("result", "OK");
+
+				ActionProperties removeColumnsAction = new ActionProperties("remove-table-columns",actionMap,null,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				removeColumnsAction.logActionProperties(logger);
 			}
 		});
 

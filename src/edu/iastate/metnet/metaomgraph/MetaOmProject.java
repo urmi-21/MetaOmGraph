@@ -9,6 +9,7 @@ import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel;
 import edu.iastate.metnet.metaomgraph.ui.MetadataEditor;
 import edu.iastate.metnet.metaomgraph.ui.ParseTableTree;
 import edu.iastate.metnet.metaomgraph.ui.ReadMetadata;
+import edu.iastate.metnet.metaomgraph.ui.ReproducibilityDashboardPanel;
 import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
 import edu.iastate.metnet.metaomgraph.utils.MetNetUtils;
 import edu.iastate.metnet.metaomgraph.utils.MetadataUpdater;
@@ -70,6 +71,7 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class MetaOmProject {
@@ -721,8 +723,11 @@ public class MetaOmProject {
 		setChanged(false);
 		
 		//Harsha - reproducibility log
+		
 		HashMap<String,Object> saveProjectParameters = new HashMap<String,Object>();
 		saveProjectParameters.put("saveFilePath",destination.getAbsolutePath());
+		//saveProjectParameters.put("parent",MetaOmGraph.getCurrentProjectActionId());
+
 		
 		HashMap<String,Object> result = new HashMap<String,Object>();
 		result.put("result", "OK");
@@ -1862,13 +1867,16 @@ public class MetaOmProject {
 		}
 		
 		//Harsha - reproducibility log
+		HashMap<String,Object> actionMap = new HashMap<String,Object>();
+		//actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+		
         HashMap<String,Object> dataMap = new HashMap<String,Object>();
 		dataMap.put("createdListName", listName);
 		dataMap.put("numElementsInList", entries.length);
 		HashMap<String,Object> resultLog = new HashMap<String,Object>();
 		resultLog.put("result", "OK");
 		
-		ActionProperties createListAction = new ActionProperties("create-list",null,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+		ActionProperties createListAction = new ActionProperties("create-list",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 
 		createListAction.logActionProperties(logger);
 		
@@ -1977,12 +1985,15 @@ public class MetaOmProject {
 		fireStateChanged("delete list");
 		
 		//Harsha - reproducibility log
+		HashMap<String,Object> actionMap = new HashMap<String,Object>();
+		//actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+
         HashMap<String,Object> dataMap = new HashMap<String,Object>();
 		dataMap.put("deletedListName", name);
 		HashMap<String,Object> resultLog = new HashMap<String,Object>();
 		resultLog.put("result", "OK");
 		
-		ActionProperties deleteListAction = new ActionProperties("delete-list",null,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+		ActionProperties deleteListAction = new ActionProperties("delete-list",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 
 		deleteListAction.logActionProperties(logger);
 	}

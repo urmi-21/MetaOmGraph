@@ -8,7 +8,9 @@ import java.awt.Font;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,6 +40,8 @@ import javax.swing.tree.TreePath;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.text.DefaultCaret;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
@@ -51,6 +55,7 @@ import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
 import edu.iastate.metnet.metaomgraph.MetadataHybrid;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
+import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 import javax.swing.JLabel;
@@ -70,6 +75,10 @@ import javax.swing.JMenuItem;
  */
 
 public class MetadataTreeDisplayPanel extends JPanel {
+
+	/*Harsha- Added logger */
+	private static final Logger logger = MetaOmGraph.logger;
+
 	private JTable table;
 	private JTree tree;
 	private JSplitPane splitPane;
@@ -131,7 +140,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 		this.dataColname = mdhobj.getDataColName();
 		// initialize table
 		table = new JTable();
-		
+
 		table.setAutoCreateRowSorter(true);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setPreferredScrollableViewportSize(table.getPreferredSize());
@@ -149,7 +158,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 			}
 		};
 		table.setModel(model);
-		
+
 		// set alternate colors to table
 		table.setDefaultRenderer(Object.class, new TableCellRenderer() {
 			//private DefaultTableCellRenderer DEFAULT_RENDERER = new DefaultTableCellRenderer();
@@ -188,7 +197,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 		});
 		// table.getColumnModel().getColumn(0).setPreferredWidth(150);
 		// table.getColumnModel().getColumn(1).setPreferredWidth(800);
-		
+
 		// table.setForeground(Color.white);
 
 		// this.XMLroot = XMLroot;
@@ -224,9 +233,39 @@ public class MetadataTreeDisplayPanel extends JPanel {
 				res.setRootElement(xmlRootclone);
 				String resDoc = outter.outputString(res);
 
+				//Harsha - reproducibility log
+				HashMap<String,Object> actionMap = new HashMap<String,Object>();
+				HashMap<String,Object> dataMap = new HashMap<String,Object>();
+				HashMap<String,Object> resultLog = new HashMap<String,Object>();
+
 				try (PrintWriter out = new PrintWriter(file.getAbsolutePath())) {
 					out.println(resDoc);
+
+					actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+					dataMap.put("filePath",file.getAbsolutePath());
+					dataMap.put("section","Sample Metadata Tree");
+					resultLog.put("result", "OK");
+
+					ActionProperties exportXMLAction = new ActionProperties("export-xml",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+					exportXMLAction.logActionProperties(logger);
 				} catch (FileNotFoundException e) {
+
+					actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+					dataMap.put("section","Sample Metadata Tree");
+					resultLog.put("result", "Error");
+					resultLog.put("result", "File not found");
+
+					ActionProperties exportXMLAction = new ActionProperties("export-xml",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+					exportXMLAction.logActionProperties(logger);
+				}
+				catch(Exception e) {
+					actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+					dataMap.put("section","Sample Metadata Tree");
+					resultLog.put("result", "Error");
+					resultLog.put("result", "Other Exception");
+
+					ActionProperties exportXMLAction = new ActionProperties("export-xml",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+					exportXMLAction.logActionProperties(logger);
 				}
 
 			}
@@ -240,11 +279,32 @@ public class MetadataTreeDisplayPanel extends JPanel {
 		mntmSearch.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				List<String> result = getQueryResults("Metadata Search");
+				QueryResults qr = getQueryResults("Metadata Search");
+				List<String> result = qr.getFresults();
+				MetadataQuery[] queries = qr.getFqueries();
+				
+				//Harsha - reproducibility log
+				HashMap<String,Object> actionMap = new HashMap<String,Object>();
+				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+				actionMap.put("section", "Sample Metadata Tree");
+				
+				HashMap<String,Object> dataMap = new HashMap<String,Object>();
+				dataMap.put("queries",queries);
+				dataMap.put("numHits", result.size());
+				HashMap<String,Object> resultLog = new HashMap<String,Object>();
+				resultLog.put("result", "OK");
+				
 				if (result == null || result.size() < 1 || result.get(0).equals("NULL")) {
 					JOptionPane.showMessageDialog(null, "No hits found", "No hits", JOptionPane.INFORMATION_MESSAGE);
+					resultLog.put("result", "Error");
+					resultLog.put("resultComments", "No hits found");
+					ActionProperties searchMetadataTreeAction = new ActionProperties("search-metadata-tree",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+					searchMetadataTreeAction.logActionProperties(logger);
 					return;
 				}
+				
+				ActionProperties searchMetadataTreeAction = new ActionProperties("search-metadata-tree",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				searchMetadataTreeAction.logActionProperties(logger);
 
 				expandNodes(result);
 
@@ -257,6 +317,17 @@ public class MetadataTreeDisplayPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				toHighlightNodes = new ArrayList<>();
+
+				//Harsha - reproducibility log
+				HashMap<String,Object> actionMap = new HashMap<String,Object>();
+				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+				actionMap.put("section", "Sample Metadata Tree");
+
+				HashMap<String,Object> resultLog = new HashMap<String,Object>();
+				resultLog.put("result", "OK");
+
+				ActionProperties clearSearchMetadataTreeAction = new ActionProperties("clear-search-metadata-tree",actionMap,null,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				clearSearchMetadataTreeAction.logActionProperties(logger);
 			}
 		});
 		mnSearch_1.add(mntmClearLastSearch);
@@ -270,9 +341,27 @@ public class MetadataTreeDisplayPanel extends JPanel {
 		mntmByMetadata.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				List<String> result = getQueryResults("Filter by Metadata");
+				QueryResults qr = getQueryResults("Filter by Metadata"); 
+				List<String> result = qr.getFresults();
+				MetadataQuery[] queries = qr.getFqueries();
+				
+				//Harsha - reproducibility log
+				HashMap<String,Object> actionMap = new HashMap<String,Object>();
+				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+				actionMap.put("section", "Sample Metadata Tree");
+				HashMap<String,Object> dataMap = new HashMap<String,Object>();
+				dataMap.put("queries",queries);
+				
+				dataMap.put("numHits", result.size());
+				HashMap<String,Object> resultLog = new HashMap<String,Object>();
+				resultLog.put("result", "OK");
+				
 				if (result == null || result.size() < 1 || result.get(0).equals("NULL")) {
 					JOptionPane.showMessageDialog(null, "No hits found", "No hits", JOptionPane.INFORMATION_MESSAGE);
+					resultLog.put("result", "Error");
+					resultLog.put("resultComments", "No hits found");
+					ActionProperties filterMetadataTreeAction = new ActionProperties("filter-metadata-tree",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+					filterMetadataTreeAction.logActionProperties(logger);
 					return;
 				}
 
@@ -295,6 +384,17 @@ public class MetadataTreeDisplayPanel extends JPanel {
 					List<String> result2 = obj.invertSelectedDataCols(result);
 					filterXMLRoot(result2);
 				}
+				
+				if (option == JOptionPane.YES_OPTION) {
+					dataMap.put("keepOrRemove", "remove");
+				}
+				else if (option == JOptionPane.NO_OPTION) {
+					dataMap.put("keepOrRemove", "keep");
+				}
+				
+				ActionProperties filterMetadataTreeAction = new ActionProperties("filter-metadata-tree",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				filterMetadataTreeAction.logActionProperties(logger);
+				
 			}
 		});
 		mnFilter.add(mntmByMetadata);
@@ -306,6 +406,16 @@ public class MetadataTreeDisplayPanel extends JPanel {
 				// update excluded included
 				obj.resetRowFilter();
 				updateTree();
+				
+				//Harsha - reproducibility log
+				HashMap<String,Object> actionMap = new HashMap<String,Object>();
+				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+				actionMap.put("section", "Sample Metadata Tree");
+				HashMap<String,Object> resultLog = new HashMap<String,Object>();
+				resultLog.put("result", "OK");
+				
+				ActionProperties resetTreeAction = new ActionProperties("reset-metadata-tree",actionMap,null,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				resetTreeAction.logActionProperties(logger);
 			}
 		});
 		mnFilter.add(mntmReset);
@@ -318,15 +428,31 @@ public class MetadataTreeDisplayPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// get current selected node
+				
+				//Harsha - reproducibility log
+				HashMap<String,Object> actionMap = new HashMap<String,Object>();
+				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+				actionMap.put("section", "Sample Metadata Tree");
+				HashMap<String,Object> resultLog = new HashMap<String,Object>();
+				resultLog.put("result", "OK");
+				
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
 				if (node == null) {
 					JOptionPane.showMessageDialog(null, "No node selected", "Please selcet a node",
 							JOptionPane.ERROR_MESSAGE);
+					
+					resultLog.put("result", "Error");
+					resultLog.put("resultComments", "No node selected.Please selcet a node");
+					ActionProperties resetTreeAction = new ActionProperties("switch-to-table",actionMap,null,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+					resetTreeAction.logActionProperties(logger);
 					return;
 				}
 
 				// search anyfield in the metadata table that matched node name and highlight it
 				MetaOmGraph.getActiveTable().selecTabRow(node.toString());
+				
+				ActionProperties resetTreeAction = new ActionProperties("switch-to-table",actionMap,null,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				resetTreeAction.logActionProperties(logger);
 
 			}
 		});
@@ -782,7 +908,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 	 * 
 	 * @return
 	 */
-	public List<String> getQueryResults(String title) {
+	public QueryResults getQueryResults(String title) {
 		final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(
 				MetaOmGraph.getActiveProject(), false);
 		final MetadataQuery[] queries;
@@ -816,7 +942,8 @@ public class MetadataTreeDisplayPanel extends JPanel {
 
 		}.start();
 
-		return result;
+		QueryResults searchResult = new QueryResults(result,queries);
+		return searchResult;
 
 	}
 
@@ -873,22 +1000,48 @@ public class MetadataTreeDisplayPanel extends JPanel {
 			setLineWrap(true);
 			setWrapStyleWord(true);
 			DefaultCaret caret = (DefaultCaret) getCaret();
-		    caret.setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
+			caret.setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
 		}
 
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
 				int row, int column) {
-			
+
 			setText(value.toString());
 			setSize(table.getColumnModel().getColumn(column).getWidth(), getPreferredSize().height);
 			setFont(new Font("Tahoma", 0, 11));
 			if (table.getRowHeight(row) != getPreferredSize().height) {
 				table.setRowHeight(row, getPreferredSize().height);
 			}
-						
+
 			return this;
 		}
 	}
 
+}
+
+class QueryResults{
+	private List<String> fresults;
+	private MetadataQuery[] fqueries;
+	
+	
+	public QueryResults(List<String> fresults, MetadataQuery[] fqueries) {
+		super();
+		this.fresults = fresults;
+		this.fqueries = fqueries;
+	}
+	public List<String> getFresults() {
+		return fresults;
+	}
+	public void setFresults(List<String> fresults) {
+		this.fresults = fresults;
+	}
+	public MetadataQuery[] getFqueries() {
+		return fqueries;
+	}
+	public void setFqueries(MetadataQuery[] fqueries) {
+		this.fqueries = fqueries;
+	}
+	
+	
 }

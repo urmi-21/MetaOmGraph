@@ -145,7 +145,7 @@ public class logFCResultsFrame extends JInternalFrame {
 		mntmSave.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Utils.saveJTabletofile(table);
+				Utils.saveJTabletofile(table, "LogFCResults Frame");
 			}
 		});
 		mnFile.add(mntmSave);

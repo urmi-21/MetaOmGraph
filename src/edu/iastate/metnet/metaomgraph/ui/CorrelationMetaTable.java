@@ -182,7 +182,7 @@ public class CorrelationMetaTable extends JInternalFrame {
 		mntmSaveTable.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Utils.saveJTabletofile(table);
+				Utils.saveJTabletofile(table, "Correlation Metadata Table");
 			}
 		});
 		mnFile.add(mntmSaveTable);

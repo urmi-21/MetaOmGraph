@@ -2,6 +2,7 @@ package edu.iastate.metnet.metaomgraph;
 
 import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.ui.NoneditableTableModel;
+import edu.iastate.metnet.metaomgraph.ui.ReproducibilityDashboardPanel;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,6 +28,7 @@ import javax.swing.table.TableModel;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class FilterableTableModel extends AbstractTableModel implements DocumentListener, TableModelListener {
@@ -192,6 +194,10 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 		fireTableChanged(new TableModelEvent(this));
 		
 		//Harsha - Reproducibility log
+		
+		HashMap<String,Object> actionMap = new HashMap<String,Object>();
+		actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+		
 		HashMap<String,Object> dataMap = new HashMap<String,Object>();
 		
 		dataMap.put("filterStrings", values);
@@ -200,7 +206,7 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 		HashMap<String,Object> result = new HashMap<String,Object>();
 		result.put("result", "OK");
 		
-		ActionProperties filterAction = new ActionProperties("filter",null,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+		ActionProperties filterAction = new ActionProperties("filter",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 		filterAction.logActionProperties(logger);
 		
 	}
