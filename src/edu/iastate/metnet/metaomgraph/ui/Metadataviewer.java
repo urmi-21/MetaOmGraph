@@ -14,6 +14,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -41,7 +42,7 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 //this class is used to display the tabular metadata
-public class Metadataviewer extends JFrame implements ActionListener {
+public class Metadataviewer extends JDialog implements ActionListener {
 
 	private List<Document> metadata = null;
 	private String[] headers = null;
@@ -55,6 +56,7 @@ public class Metadataviewer extends JFrame implements ActionListener {
 		// TODO Auto-generated constructor stub
 		// metadataColl = MetaOmGraph.getActiveProject().returnCollection();
 		this.setLayout(new BorderLayout());
+		this.setModal(true);
 		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		this.setTitle("Metadata Viewer Main");
 		this.setJMenuBar(createmenubar());
@@ -73,6 +75,7 @@ public class Metadataviewer extends JFrame implements ActionListener {
 	//this is called inside MOG
 	public Metadataviewer(String title) {
 		// TODO Auto-generated constructor stub
+		this.setModal(true);
 		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		this.setTitle("Metadata Viewer");
 		this.setJMenuBar(createmenubar());
