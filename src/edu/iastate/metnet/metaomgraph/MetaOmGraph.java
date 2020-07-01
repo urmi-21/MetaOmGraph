@@ -2817,6 +2817,8 @@ public class MetaOmGraph implements ActionListener {
 			}
 			FileFilter xmlFilter = Utils.createFileFilter("xml", "XML Files");
 			final File dest = Utils.chooseFileToSave(xmlFilter, "xml", MetaOmGraph.getMainWindow(), true);
+			if(dest == null)
+				return;
 			new AnimatedSwingWorker("Exporting...", true) {
 
 				@Override
