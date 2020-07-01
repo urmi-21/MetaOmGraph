@@ -14,13 +14,12 @@ import javax.swing.JOptionPane;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import java.awt.Font;
-import java.awt.List;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Vector;
 
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
@@ -32,7 +31,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-public class MetadataRemoveCols extends JFrame {
+public class MetadataRemoveCols extends JDialog {
 
 	private JPanel contentPane;
 	private JTable table;
@@ -64,6 +63,7 @@ public class MetadataRemoveCols extends JFrame {
 	 * Create the frame.
 	 */
 	public MetadataRemoveCols(String[] headervals, MetadataCollection obj, ReadMetadata p) {
+		setModal(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();

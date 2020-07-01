@@ -3,53 +3,35 @@ package edu.iastate.metnet.metaomgraph.ui;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import java.awt.Color;
 import javax.swing.JLabel;
-import java.awt.SystemColor;
 import java.awt.Font;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
-import java.awt.Window.Type;
 import java.awt.Toolkit;
 import javax.swing.JSplitPane;
 import java.awt.FlowLayout;
-import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
 import javax.swing.JList;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.MatteBorder;
-import java.awt.Cursor;
-import javax.swing.DebugGraphics;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.DropMode;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import java.awt.ComponentOrientation;
-import java.awt.Component;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
 import java.awt.Point;
-import java.awt.GridLayout;
-import java.awt.Image;
 
-import javax.swing.JComboBox;
-import javax.swing.border.LineBorder;
-import javax.swing.AbstractListModel;
-import javax.swing.BorderFactory;
+import javax.swing.JDialog;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -64,19 +46,14 @@ import javax.swing.JTable;
 import java.awt.Dimension;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionListener;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextField;
 import javax.swing.JCheckBox;
 
-public class MetadataImportWizard extends JFrame {
+public class MetadataImportWizard extends JDialog {
 
 	private JPanel contentPane;
 	private JTable table;
@@ -157,6 +134,7 @@ public class MetadataImportWizard extends JFrame {
 				.getImage(MetadataImportWizard.class.getResource("/resource/MetaOmicon16.png")));
 		setTitle("Metadata Table to Tree");
 		// setAlwaysOnTop(true);
+		setModal(true);
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 702, 482);
 		// remove or keep unused cols
