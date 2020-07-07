@@ -1013,7 +1013,14 @@ public class MetadataCollection {
 	public List<String> getAllDataCols() {
 		return getDatabyAttributes(null, dataCol, true);
 	}
+	
+	public List<String> getRemoveCols() {
+		return removeCols;
+	}
 
+	public void setRemoveCols(List<String> removeCols) {
+		this.removeCols = removeCols;
+	}
 }
 
 class MetadataCollectionTest {
