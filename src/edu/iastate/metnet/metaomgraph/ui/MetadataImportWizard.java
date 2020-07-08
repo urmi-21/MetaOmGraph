@@ -299,6 +299,9 @@ public class MetadataImportWizard extends JDialog {
 					}
 					removedCols.addAll(remainingCols);
 				}
+				else {
+					obj.setRemoveCols(remainingCols);
+				}
 
 				new AnimatedSwingWorker("Working...", true) {
 
