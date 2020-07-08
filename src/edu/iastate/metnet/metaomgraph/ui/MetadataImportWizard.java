@@ -194,10 +194,16 @@ public class MetadataImportWizard extends JDialog {
 		panel.setBackground(Color.DARK_GRAY);
 		contentPane.add(panel, BorderLayout.SOUTH);
 
+		JButton finish = new JButton("Finish");
+		finish.setFont(new Font("Times New Roman", Font.PLAIN, 13));
+		finish.setForeground(Color.BLACK);
+		finish.setEnabled(false);
+		
 		JButton btnBack = new JButton("Back");
 		btnBack.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				finish.setEnabled(false);
 				ReadMetadata ob = new ReadMetadata(obj, obj.getdelimiter());
 				ob.setVisible(true);
 				dispose();
@@ -258,7 +264,7 @@ public class MetadataImportWizard extends JDialog {
 		btnImport.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-
+				finish.setEnabled(false);
 				if (obj == null || tree == null) {
 					JOptionPane.showMessageDialog(null, "Please create a tree , then click Next.", "Error",
 							JOptionPane.ERROR_MESSAGE);
@@ -327,6 +333,14 @@ public class MetadataImportWizard extends JDialog {
 					public void finished() {
 						JOptionPane.showMessageDialog(null, "Metadata has been loaded into MetaOmGraph", "Done",
 								JOptionPane.INFORMATION_MESSAGE);
+						finish.setEnabled(true);
+						finish.addActionListener(new ActionListener() {
+							@Override
+							public void actionPerformed(ActionEvent arg0) {
+								dispose();
+							}
+						});
+
 						// sometimes shows error
 						// dispose();
 					}
@@ -339,6 +353,7 @@ public class MetadataImportWizard extends JDialog {
 		btnImport.setForeground(Color.BLACK);
 		// btnImport.setBackground(Color.GRAY);
 		panel.add(btnImport);
+		panel.add(finish);
 
 		JPanel panel_1 = new JPanel();
 		contentPane.add(panel_1, BorderLayout.NORTH);
@@ -393,6 +408,7 @@ public class MetadataImportWizard extends JDialog {
 						org.jdom.Document resCopy = res;
 						tree_1.setModel(ob.createPreviewTreeModel(resCopy, treePreviewSize));
 						btnImport.setEnabled(true);
+						finish.setEnabled(false);
 						return null;
 					}
 
