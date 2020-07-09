@@ -3,9 +3,7 @@ package edu.iastate.metnet.metaomgraph.utils;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dialog;
-import java.awt.Dimension;
 import java.awt.FileDialog;
-import java.awt.FontMetrics;
 import java.awt.Frame;
 import java.awt.Paint;
 import java.awt.event.ActionEvent;
@@ -20,13 +18,11 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.PrintStream;
 import java.security.InvalidParameterException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
@@ -51,13 +47,21 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.table.TableCellRenderer;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
 import org.apache.commons.math3.analysis.function.Atanh;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import edu.iastate.metnet.metaomgraph.GraphFileFilter;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 
@@ -1121,6 +1125,61 @@ public class Utils {
 	public static int saveJTabletofile(JTable table) {
 		return saveJTabletofile(table, "\t");
 	}
+	
+	/**
+	 * @author sumanth save jtable to excel workbook
+	 * @param table
+	 * @return
+	 */
+	public static int saveJTableToExcel(JTable table) {
+		final File destination = Utils.chooseFileToSave(new FileNameExtensionFilter("Excel Workbook (*.xlsx)", "xlsx"),
+				"xlsx",
+				MetaOmGraph.getMainWindow(), true);
+		if(destination == null)
+			return 0;
+		
+		XSSFWorkbook workBook = new XSSFWorkbook();
+		XSSFSheet sheet = workBook.createSheet("MetaOmGraph data");
+		XSSFRow row = sheet.createRow(0);
+		XSSFCell cell = null;
+		
+		// set column name colors and font.
+		XSSFFont headerFont = workBook.createFont();
+		headerFont.setColor(IndexedColors.BLACK.index);
+		XSSFCellStyle headerCellStyle = sheet.getWorkbook().createCellStyle();
+		headerCellStyle.setFillForegroundColor(IndexedColors.GOLD.index);
+		headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		headerCellStyle.setFont(headerFont);
+		
+		for(int colIndex = 0; colIndex < table.getColumnCount(); colIndex++) {	
+			cell = row.createCell(colIndex);
+			cell.setCellStyle(headerCellStyle);
+			cell.setCellValue(table.getColumnName(colIndex));
+		}
+		
+		for(int rowIndex = 0; rowIndex < table.getRowCount(); rowIndex++) {
+			row = sheet.createRow(rowIndex + 1);
+			for(int colIndex = 0; colIndex < table.getColumnCount(); colIndex++) {
+				cell = row.createCell(colIndex);
+				cell.setCellValue((String)table.getValueAt(rowIndex, colIndex));
+			}
+		}
+		FileOutputStream out;
+		try {
+			out = new FileOutputStream(destination);
+			workBook.write(out);
+		    out.close();
+		    workBook.close();
+		    JOptionPane.showMessageDialog(null, "File saved to: " + destination.getAbsolutePath(), "File saved",
+					JOptionPane.INFORMATION_MESSAGE);
+		    return 0;
+		} catch (IOException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Error in saving file: " + destination.getAbsolutePath(), "Error",
+					JOptionPane.ERROR_MESSAGE);
+			return 1;
+		}
+	}
 
 	/**
 	 * 
@@ -1166,13 +1225,13 @@ public class Utils {
 				// fw.write(thisLine);
 			}
 			fw.close();
-			JOptionPane.showMessageDialog(null, "File saved to:" + destination.getAbsolutePath(), "File saved",
+			JOptionPane.showMessageDialog(null, "File saved to: " + destination.getAbsolutePath(), "File saved",
 					JOptionPane.INFORMATION_MESSAGE);
 			status = 0;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(null, "Error in saving file:" + destination.getAbsolutePath(), "Error",
+			JOptionPane.showMessageDialog(null, "Error in saving file: " + destination.getAbsolutePath(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 			status = 1;
 		}
