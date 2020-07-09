@@ -122,14 +122,23 @@ public class MetadataTableDisplayPanel extends JPanel {
 		JMenu mnFile = new JMenu("File");
 		menuBar.add(mnFile);
 
-		JMenuItem mntmExport = new JMenuItem("Export");
-		mntmExport.addActionListener(new ActionListener() {
+		JMenuItem exportToTextItem = new JMenuItem("Export to text file");
+		exportToTextItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				Utils.saveJTabletofile(table);
 			}
 		});
-		mnFile.add(mntmExport);
+				
+		JMenuItem exportToExcelItem = new JMenuItem("Export to excel workbook");
+		exportToExcelItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				Utils.saveJTableToExcel(table);
+			}
+		});
+		mnFile.add(exportToTextItem);
+		mnFile.add(exportToExcelItem);
 
 		JMenuItem mntmNewProjectWith = new JMenuItem("New Project With Selected");
 

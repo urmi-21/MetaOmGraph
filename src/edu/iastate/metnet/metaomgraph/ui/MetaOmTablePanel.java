@@ -87,7 +87,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	private JButton reportButton;
 	private JButton listFromFilterButton;
 	// urmi
-	private JButton saveMainTableButton;
+	private MenuButton saveMainTableButton;
 	private MenuButton plotButton;
 	private JMenuItem plotListItem;
 
@@ -531,9 +531,21 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		dataToolbar.add(analyzeMenuButton);
 
 		dataToolbar.add(new Separator());
-		saveMainTableButton = new JButton(theme.getExcel());
-		saveMainTableButton.setActionCommand("savemaintab");
-		saveMainTableButton.addActionListener(this);
+		
+		saveMainTableButton = new MenuButton(theme.getExcel(), null);
+		saveMainTableButton.setToolTipText("Export table to txt or excel file");
+			
+		JPopupMenu exportMenu = new JPopupMenu();
+		JMenuItem exportToTextItem = new JMenuItem("Export to text file");
+		exportToTextItem.setActionCommand("ExportToText");
+		exportToTextItem.addActionListener(this);
+		exportMenu.add(exportToTextItem);
+		JMenuItem exportToExcelItem = new JMenuItem("Export to excel workbook");
+		exportToExcelItem.setActionCommand("ExportToExcel");
+		exportToExcelItem.addActionListener(this);
+		exportMenu.add(exportToExcelItem);
+		
+		saveMainTableButton.setMenu(exportMenu);
 		dataToolbar.add(saveMainTableButton);
 
 		reportButton = new JButton("Finding samples", theme.getReport());
@@ -1736,12 +1748,17 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			makeListFromFilter();
 			return;
 		}
+		
+		if("ExportToExcel".equals(e.getActionCommand())) {
+			Utils.saveJTableToExcel(listDisplay);
+			return;
+		}
 
-		if ("savemaintab".equals(e.getActionCommand())) {
-
+		if ("ExportToText".equals(e.getActionCommand())) {
 			Utils.saveJTabletofile(listDisplay);
 			return;
 		}
+		
 		if ("advancefilter".equals(e.getActionCommand())) {
 
 			// show advance filter options
