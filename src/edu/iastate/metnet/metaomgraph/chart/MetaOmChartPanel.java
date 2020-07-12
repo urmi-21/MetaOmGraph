@@ -36,9 +36,12 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.plaf.ColorUIResource;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
@@ -1129,6 +1132,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 		myParent = new MetaOmFrame(frameTitle);
 		myParent.putClientProperty("JInternalFrame.frameType", "normal");
 		myParent.getContentPane().add(this, BorderLayout.CENTER);
+		
 		int width = MetaOmGraph.getMainWindow().getWidth();
 		int height = MetaOmGraph.getMainWindow().getHeight();
 		myParent.setSize(width - 200, height - 200);
@@ -1143,6 +1147,60 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 		glassPane = new JPanel(null);
 		myParent.setGlassPane(glassPane);
 		glassPane.setOpaque(false);
+		
+		// if (infoPopup != null) {
+		// myParent.addInternalFrameListener(infoPopup);
+		// myParent.addComponentListener(infoPopup);
+		// }
+		myParent.setName("plotwindow.php");
+		myParent.show();
+
+		// urmi
+		// set exception listener
+		if (this.myParent == null) {
+			JOptionPane.showMessageDialog(null, "setting exception listener: NULL");
+		}
+		ExceptionHandler.getInstance(this.myParent).setUseBuffer(true);
+		Thread.setDefaultUncaughtExceptionHandler(ExceptionHandler.getInstance(this.myParent));
+	}
+	
+	
+	/**
+	 * Playback overridden method
+	 * Constructs and displays an internal frame on the MetaOmGraph desktop
+	 * containing this chart panel.
+	 */
+	public void createInternalFrame(boolean playback) {
+		if (myChartPanel == null)
+			return;
+		// System.out.println("Making it!");
+		String frameTitle = "Playback - "+ xaxisLabel + " vs " + yaxisLabel + " Plot";
+
+		myParent = new MetaOmFrame(frameTitle);
+		myParent.putClientProperty("JInternalFrame.frameType", "normal");
+		myParent.getContentPane().add(this, BorderLayout.CENTER);
+		
+		int width = MetaOmGraph.getMainWindow().getWidth();
+		int height = MetaOmGraph.getMainWindow().getHeight();
+		myParent.setSize(width - 200, height - 200);
+		myParent.setLocation((width - myParent.getWidth()) / 2, (height - myParent.getHeight()) / 2);
+		myParent.setClosable(true);
+		myParent.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		myParent.setResizable(true);
+		myParent.setIconifiable(true);
+		myParent.setMaximizable(true);
+		myParent.setFrameIcon(new ImageIcon(getClass().getResource("/resource/MetaOmicon16.png")));
+		myParent.getRootPane().setWindowDecorationStyle(3);
+		UIManager.put("InternalFrame.activeTitleBackground", new ColorUIResource(new Color(208,150,175)));
+		UIManager.put("InternalFrame.inactiveTitleBackground", new ColorUIResource(new Color(208,150,175)));
+		javax.swing.plaf.basic.BasicInternalFrameUI ui = 
+		    new javax.swing.plaf.basic.BasicInternalFrameUI(myParent); 
+		myParent.setUI(ui);
+		MetaOmGraph.getDesktop().add(myParent);
+		glassPane = new JPanel(null);
+		myParent.setGlassPane(glassPane);
+		glassPane.setOpaque(false);
+		
 		// if (infoPopup != null) {
 		// myParent.addInternalFrameListener(infoPopup);
 		// myParent.addComponentListener(infoPopup);

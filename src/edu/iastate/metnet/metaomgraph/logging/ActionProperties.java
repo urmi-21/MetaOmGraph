@@ -1,5 +1,7 @@
 package edu.iastate.metnet.metaomgraph.logging;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -7,6 +9,9 @@ import java.util.Map;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
+
+import edu.iastate.metnet.metaomgraph.MetaOmGraph;
+import edu.iastate.metnet.metaomgraph.ui.ReproducibilityDashboardPanel;
 
 /**
  * 
@@ -16,6 +21,8 @@ import org.apache.logging.log4j.Logger;
  *
  */
 public class ActionProperties {
+
+	private static final Logger logger = MetaOmGraph.logger;
 
 	private static int counter;
 	private int actionNumber;
@@ -42,7 +49,7 @@ public class ActionProperties {
 	public static void setCounter(int counter) {
 		ActionProperties.counter = counter;
 	}
-	
+
 	public int getActionNumber() {
 		return actionNumber;
 	}
@@ -91,11 +98,28 @@ public class ActionProperties {
 		this.timestamp = timestamp;
 	}
 
-	public void logActionProperties(Logger logger) {
+	public void logActionProperties(Logger logger2) {
 		counter++;
 		this.actionNumber=counter;
-		logger.info(",");
+		if(!this.getActionCommand().equalsIgnoreCase("general-properties")) {
+			logger.info(",");
+		}
 		logger.printf(Level.INFO,new JSONMessage(this).getFormattedMessage());
+
+		ReproducibilityDashboardPanel rdp = null;
+		try {
+			rdp = MetaOmGraph.getReproducibilityDashboardPanel();
+
+			if(rdp != null) {
+				rdp.populateCurrentSessionTree(this);
+			}
+		}
+		catch(Exception e) {
+			StringWriter sw = new StringWriter();
+			e.printStackTrace(new PrintWriter(sw));
+			String exceptionAsString = sw.toString();
+			rdp.printDialog(exceptionAsString);
+		}
 	}
 
 }

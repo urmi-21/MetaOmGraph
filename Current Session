@@ -1,0 +1,54 @@
+
+  {
+    "actionNumber": 1,
+    "actionCommand": "general-properties",
+    "actionParameters": {
+      "parent": -1.0,
+      "section": "All"
+    },
+    "dataParameters": {
+      "Mog Version": "1.8.1",
+      "OS Name": "Windows 7",
+      "Memory": "108527616",
+      "Start Timestamp": "2020-07-10 11:12:10.678 CDT",
+      "Java Version": "1.8.0_181",
+      "CPU": "Intel64 Family 6 Model 37 Stepping 5, GenuineIntel, architecture: AMD64, numProcessors: 4",
+      "Session ID": "1594397530678"
+    },
+    "otherParameters": {
+      "result": "OK"
+    },
+    "timestamp": "2020-07-10 11:12:10.682 CDT"
+  },
+  {
+    "actionNumber": 2,
+    "actionCommand": "open-project [ mog1 ]",
+    "actionParameters": {
+      "parent": -1.0
+    },
+    "dataParameters": {
+      "mogFilePath": "D:\\Harsha\\java_wksp\\MetaOmGraph\\MOG_SupportingData\\mog1.mog",
+      "logfilename": "D:\\Harsha\\java_wksp\\MetaOmGraph\\MOG_SupportingData\\logs\\mog1_2020-07-10_111209.log",
+      "projectName": "mog1",
+      "dimensions": "1"
+    },
+    "otherParameters": {
+      "result": "OK",
+      "favorite": "true"
+    },
+    "timestamp": "2020-07-10 11:12:10.744 CDT"
+  },
+  {
+    "actionNumber": 3,
+    "actionCommand": "close-project",
+    "actionParameters": {
+      "parent": -1,
+      "mogFilePath": "D:\\Harsha\\java_wksp\\MetaOmGraph\\MOG_SupportingData\\mog1.mog",
+      "dataFilePath": "D:\\Harsha\\java_wksp\\MetaOmGraph\\MOG_SupportingData\\AdditionalFile1 SamplePearsoncorrelations.csv",
+      "dimensions": "1"
+    },
+    "otherParameters": {
+      "result": "OK"
+    },
+    "timestamp": "2020-07-10 11:19:19.002 CDT"
+  }
