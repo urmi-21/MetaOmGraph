@@ -6,9 +6,12 @@ import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.JInternalFrame;
@@ -23,6 +26,9 @@ import javax.swing.JMenu;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
+
+import org.apache.logging.log4j.Logger;
+
 import edu.iastate.metnet.metaomgraph.AdjustPval;
 import edu.iastate.metnet.metaomgraph.DecimalFormatRenderer;
 import edu.iastate.metnet.metaomgraph.DifferentialExpResults;
@@ -33,6 +39,7 @@ import edu.iastate.metnet.metaomgraph.chart.HistogramChart;
 import edu.iastate.metnet.metaomgraph.chart.MetaOmChartPanel;
 import edu.iastate.metnet.metaomgraph.chart.ScatterPlotChart;
 import edu.iastate.metnet.metaomgraph.chart.VolcanoPlot;
+import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 import javax.swing.JMenuItem;
@@ -42,6 +49,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 public class logFCResultsFrame extends JInternalFrame {
+	/*Harsha- Added logger */
+
+	private static final Logger logger = MetaOmGraph.logger;
 	private JTable table;
 	private List<String> featureNames;
 	private List<Double> mean1;
@@ -171,7 +181,32 @@ public class logFCResultsFrame extends JInternalFrame {
 					return;
 				}
 
-				if (myProject.addGeneList(listName, rowIndices, true)) {
+				if (myProject.addGeneList(listName, rowIndices, true, false)) {
+					
+					try {
+						//Harsha - reproducibility log
+						HashMap<String,Object> actionMap = new HashMap<String,Object>();
+						actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+						actionMap.put("section", "Feature Metadata");
+
+						HashMap<String,Object> dataMap = new HashMap<String,Object>();
+						dataMap.put("Exported List Name", listName);
+						dataMap.put("List Elements Count", rowIndices.length);
+						Map<Integer,String> selectedItems = new HashMap<Integer,String>();
+
+						for(int rowNum: rowIndices) {
+							selectedItems.put(rowNum, myProject.getDefaultRowNames(rowNum));
+						}
+						dataMap.put("Selected Rows", selectedItems);
+						HashMap<String,Object> resultLog = new HashMap<String,Object>();
+						resultLog.put("result", "OK");
+
+						ActionProperties mergeListAction = new ActionProperties("export-list",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+						mergeListAction.logActionProperties(logger);
+					}
+					catch(Exception e1) {
+
+					}
 					JOptionPane.showMessageDialog(logFCResultsFrame.this, "List" + listName + " added", "List added",
 							JOptionPane.INFORMATION_MESSAGE);
 				}

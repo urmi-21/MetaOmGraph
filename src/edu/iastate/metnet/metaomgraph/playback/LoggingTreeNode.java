@@ -1,13 +1,15 @@
-package edu.iastate.metnet.metaomgraph.logging;
+package edu.iastate.metnet.metaomgraph.playback;
 
 public class LoggingTreeNode {
 
 	private String nodeName;
+	private String commandName;
 	private int nodeNumber;
 	
-	public LoggingTreeNode(String nodeName, int nodeNumber) {
+	public LoggingTreeNode(String nodeName, String commandName, int nodeNumber) {
 		super();
 		this.nodeName = nodeName;
+		this.commandName = commandName;
 		this.nodeNumber = nodeNumber;
 	}
 
@@ -25,6 +27,14 @@ public class LoggingTreeNode {
 
 	public void setNodeNumber(int nodeNumber) {
 		this.nodeNumber = nodeNumber;
+	}
+
+	public String getCommandName() {
+		return commandName;
+	}
+
+	public void setCommandName(String commandName) {
+		this.commandName = commandName;
 	}
 
 	@Override
