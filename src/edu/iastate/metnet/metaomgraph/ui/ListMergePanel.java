@@ -39,7 +39,6 @@ public class ListMergePanel extends JPanel {
 	private JCheckBox[] listBoxes;
 	private JTextField nameField;
 
-	private static final Logger logger = MetaOmGraph.logger;
 
 	public ListMergePanel(MetaOmProject project) {
 		myProject = project;
@@ -200,7 +199,7 @@ public class ListMergePanel extends JPanel {
 						resultLog.put("result", "OK");
 
 						ActionProperties mergeListAction = new ActionProperties("merge-lists",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-						mergeListAction.logActionProperties(logger);
+						mergeListAction.logActionProperties();
 					}
 					catch(Exception e1) {
 

@@ -76,9 +76,6 @@ import javax.swing.JMenuItem;
 
 public class MetadataTreeDisplayPanel extends JPanel {
 
-	/*Harsha- Added logger */
-	private static final Logger logger = MetaOmGraph.logger;
-
 	private JTable table;
 	private JTree tree;
 	private JSplitPane splitPane;
@@ -247,7 +244,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 					resultLog.put("result", "OK");
 
 					ActionProperties exportXMLAction = new ActionProperties("export-xml",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-					exportXMLAction.logActionProperties(logger);
+					exportXMLAction.logActionProperties();
 				} catch (FileNotFoundException e) {
 
 					actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
@@ -256,7 +253,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 					resultLog.put("result", "File not found");
 
 					ActionProperties exportXMLAction = new ActionProperties("export-xml",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-					exportXMLAction.logActionProperties(logger);
+					exportXMLAction.logActionProperties();
 				}
 				catch(Exception e) {
 					actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
@@ -265,7 +262,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 					resultLog.put("result", "Other Exception");
 
 					ActionProperties exportXMLAction = new ActionProperties("export-xml",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-					exportXMLAction.logActionProperties(logger);
+					exportXMLAction.logActionProperties();
 				}
 
 			}
@@ -299,12 +296,12 @@ public class MetadataTreeDisplayPanel extends JPanel {
 					resultLog.put("result", "Error");
 					resultLog.put("resultComments", "No hits found");
 					ActionProperties searchMetadataTreeAction = new ActionProperties("search-metadata-tree",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-					searchMetadataTreeAction.logActionProperties(logger);
+					searchMetadataTreeAction.logActionProperties();
 					return;
 				}
 				
 				ActionProperties searchMetadataTreeAction = new ActionProperties("search-metadata-tree",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				searchMetadataTreeAction.logActionProperties(logger);
+				searchMetadataTreeAction.logActionProperties();
 
 				expandNodes(result);
 
@@ -327,7 +324,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 				resultLog.put("result", "OK");
 
 				ActionProperties clearSearchMetadataTreeAction = new ActionProperties("clear-search-metadata-tree",actionMap,null,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				clearSearchMetadataTreeAction.logActionProperties(logger);
+				clearSearchMetadataTreeAction.logActionProperties();
 			}
 		});
 		mnSearch_1.add(mntmClearLastSearch);
@@ -361,7 +358,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 					resultLog.put("result", "Error");
 					resultLog.put("resultComments", "No hits found");
 					ActionProperties filterMetadataTreeAction = new ActionProperties("filter-metadata-tree",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-					filterMetadataTreeAction.logActionProperties(logger);
+					filterMetadataTreeAction.logActionProperties();
 					return;
 				}
 
@@ -393,7 +390,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 				}
 				
 				ActionProperties filterMetadataTreeAction = new ActionProperties("filter-metadata-tree",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				filterMetadataTreeAction.logActionProperties(logger);
+				filterMetadataTreeAction.logActionProperties();
 				
 			}
 		});
@@ -415,7 +412,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 				resultLog.put("result", "OK");
 				
 				ActionProperties resetTreeAction = new ActionProperties("reset-metadata-tree",actionMap,null,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				resetTreeAction.logActionProperties(logger);
+				resetTreeAction.logActionProperties();
 			}
 		});
 		mnFilter.add(mntmReset);
@@ -444,7 +441,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 					resultLog.put("result", "Error");
 					resultLog.put("resultComments", "No node selected.Please selcet a node");
 					ActionProperties resetTreeAction = new ActionProperties("switch-to-table",actionMap,null,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-					resetTreeAction.logActionProperties(logger);
+					resetTreeAction.logActionProperties();
 					return;
 				}
 
@@ -452,7 +449,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 				MetaOmGraph.getActiveTable().selecTabRow(node.toString());
 				
 				ActionProperties resetTreeAction = new ActionProperties("switch-to-table",actionMap,null,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				resetTreeAction.logActionProperties(logger);
+				resetTreeAction.logActionProperties();
 
 			}
 		});

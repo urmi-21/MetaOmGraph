@@ -72,9 +72,6 @@ import java.awt.event.ActionEvent;
 
 public class MetadataTableDisplayPanel extends JPanel {
 	
-	/*Harsha- Added logger */
-	private static final Logger logger = MetaOmGraph.logger;
-
 	private JTable table;
 	private MetadataCollection obj;
 	private List<Document> metadata;
@@ -223,7 +220,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 				resultLog.put("result", "OK");
 
 				ActionProperties searchMetadataTableAction = new ActionProperties("search-metadata-table",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				searchMetadataTableAction.logActionProperties(logger);
+				searchMetadataTableAction.logActionProperties();
 				
 				// JOptionPane.showMessageDialog(null, "toH:"+toHighlight.toString());
 
@@ -247,7 +244,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 				resultLog.put("result", "OK");
 
 				ActionProperties searchMetadataTableAction = new ActionProperties("clear-last-search",actionMap,null,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				searchMetadataTableAction.logActionProperties(logger);
+				searchMetadataTableAction.logActionProperties();
 
 			}
 		});
@@ -297,7 +294,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 				resultLog.put("result", "OK");
 
 				ActionProperties filterSelectedRowsAction = new ActionProperties("filter-selected-rows",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				filterSelectedRowsAction.logActionProperties(logger);
+				filterSelectedRowsAction.logActionProperties();
 
 			}
 		});
@@ -341,7 +338,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 				resultLog.put("result", "OK");
 
 				ActionProperties filterLastSearchAction = new ActionProperties("filter-last-search",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				filterLastSearchAction.logActionProperties(logger);
+				filterLastSearchAction.logActionProperties();
 			}
 		});
 		mnByRow.add(mntmFilterLastSearched);
@@ -388,7 +385,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 				resultLog.put("result", "OK");
 
 				ActionProperties resetRowsAction = new ActionProperties("reset-metadata-table-rows",actionMap,null,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				resetRowsAction.logActionProperties(logger);
+				resetRowsAction.logActionProperties();
 			}
 		});
 		mnByRow.add(mntmReset_1);
@@ -624,7 +621,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 				resultLog.put("result", "OK");
 
 				ActionProperties barChartMetadataTableAction = new ActionProperties("barchart-metadata-table",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				barChartMetadataTableAction.logActionProperties(logger);
+				barChartMetadataTableAction.logActionProperties();
 				return;
 			}
 		});
@@ -698,7 +695,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 				resultLog.put("result", "OK");
 
 				ActionProperties boxplotMetadataTableAction = new ActionProperties("boxplot-metadata-table",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				boxplotMetadataTableAction.logActionProperties(logger);
+				boxplotMetadataTableAction.logActionProperties();
 			}
 		});
 		mntmAsSeries.addActionListener(new ActionListener() {
@@ -765,7 +762,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 				resultLog.put("result", "OK");
 
 				ActionProperties searchMetadataTableAction = new ActionProperties("switch-to-tree",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				searchMetadataTableAction.logActionProperties(logger);
+				searchMetadataTableAction.logActionProperties();
 				
 				// int
 				// thisInd=MetaOmGraph.getActiveProject().getMetadataHybrid().getColIndexbyName(thisSname);
@@ -815,7 +812,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 										resultLog.put("resultComments","Please select at least two rows" );
 
 										ActionProperties cosineSimilarityAction = new ActionProperties("cosine-similarity-metadata-table",actionMap,null,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-										cosineSimilarityAction.logActionProperties(logger);
+										cosineSimilarityAction.logActionProperties();
 										return;
 									}
 									/**
@@ -860,7 +857,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 				resultLog.put("result", "OK");
 				
 				ActionProperties cosineSimilarityAction = new ActionProperties("cosine-similarity-metadata-table",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				cosineSimilarityAction.logActionProperties(logger);
+				cosineSimilarityAction.logActionProperties();
 			}
 		});
 		mnAnalyze.add(mntmCosineSililarity);
@@ -902,7 +899,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 										resultLog.put("resultComments","Please select at least two rows" );
 
 										ActionProperties pearsonCorrelationAction = new ActionProperties("pearson-correlation-metadata-table",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-										pearsonCorrelationAction.logActionProperties(logger);
+										pearsonCorrelationAction.logActionProperties();
 										return;
 									}
 									HashMap<Integer, double[]> databyCols = getDataForSelectedDataCols();
@@ -945,7 +942,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 				resultLog.put("result", "OK");
 
 				ActionProperties pearsonCorrelationAction = new ActionProperties("pearson-correlation-metadata-table",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				pearsonCorrelationAction.logActionProperties(logger);
+				pearsonCorrelationAction.logActionProperties();
 			}
 		});
 		mnAnalyze.add(mntmPearsonCorrelation);
@@ -986,7 +983,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 										resultLog.put("resultComments","Please select at least two rows" );
 
 										ActionProperties spearmanCorrelationAction = new ActionProperties("spearman-correlation-metadata-table",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-										spearmanCorrelationAction.logActionProperties(logger);
+										spearmanCorrelationAction.logActionProperties();
 										return;
 									}
 									HashMap<Integer, double[]> databyCols = getDataForSelectedDataCols();
@@ -1029,7 +1026,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 				resultLog.put("result", "OK");
 				
 				ActionProperties spearmanCorrelationAction = new ActionProperties("spearman-correlation-metadata-table",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				spearmanCorrelationAction.logActionProperties(logger);
+				spearmanCorrelationAction.logActionProperties();
 			}
 		});
 		mnAnalyze.add(mntmSpearmanCorrelation);

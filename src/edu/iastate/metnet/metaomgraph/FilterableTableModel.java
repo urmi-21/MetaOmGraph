@@ -33,9 +33,6 @@ import org.apache.logging.log4j.Logger;
 
 public class FilterableTableModel extends AbstractTableModel implements DocumentListener, TableModelListener {
 	
-	/*Harsha- Added logger */
-	private static final Logger logger = MetaOmGraph.logger;
-	
 	private TableModel model;
 	private Object[][] filteredData;
 	private TreeMap<Integer, Integer> rowMap;
@@ -207,7 +204,7 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 		result.put("result", "OK");
 		
 		ActionProperties filterAction = new ActionProperties("filter",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-		filterAction.logActionProperties(logger);
+		filterAction.logActionProperties();
 		
 	}
 
