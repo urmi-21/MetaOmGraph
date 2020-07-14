@@ -49,9 +49,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 public class logFCResultsFrame extends JInternalFrame {
-	/*Harsha- Added logger */
 
-	private static final Logger logger = MetaOmGraph.logger;
 	private JTable table;
 	private List<String> featureNames;
 	private List<Double> mean1;
@@ -202,7 +200,7 @@ public class logFCResultsFrame extends JInternalFrame {
 						resultLog.put("result", "OK");
 
 						ActionProperties mergeListAction = new ActionProperties("export-list",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-						mergeListAction.logActionProperties(logger);
+						mergeListAction.logActionProperties();
 					}
 					catch(Exception e1) {
 

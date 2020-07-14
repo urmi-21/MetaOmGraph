@@ -22,7 +22,7 @@ import edu.iastate.metnet.metaomgraph.ui.ReproducibilityDashboardPanel;
  */
 public class ActionProperties {
 
-	private static final Logger logger = MetaOmGraph.logger;
+	private static Logger logger = MetaOmGraph.logger;
 
 	private static int counter;
 	private int actionNumber;
@@ -98,28 +98,34 @@ public class ActionProperties {
 		this.timestamp = timestamp;
 	}
 
-	public void logActionProperties(Logger logger2) {
-		counter++;
-		this.actionNumber=counter;
-		if(!this.getActionCommand().equalsIgnoreCase("general-properties")) {
-			logger.info(",");
-		}
-		logger.printf(Level.INFO,new JSONMessage(this).getFormattedMessage());
+	public void logActionProperties() {
 
-		ReproducibilityDashboardPanel rdp = null;
-		try {
-			rdp = MetaOmGraph.getReproducibilityDashboardPanel();
+		if(MetaOmGraph.getLoggingRequired()) {
+			counter++;
+			this.actionNumber=counter;
+			logger = MetaOmGraph.getLogger();
+			if(!this.getActionCommand().equalsIgnoreCase("general-properties")) {
+				logger.info(",");
+			}
+			
+			logger.printf(Level.INFO,new JSONMessage(this).getFormattedMessage());
 
-			if(rdp != null) {
-				rdp.populateCurrentSessionTree(this);
+			ReproducibilityDashboardPanel rdp = null;
+			try {
+				rdp = MetaOmGraph.getReproducibilityDashboardPanel();
+
+				if(rdp != null) {
+					rdp.populateCurrentSessionTree(this);
+				}
+			}
+			catch(Exception e) {
+				StringWriter sw = new StringWriter();
+				e.printStackTrace(new PrintWriter(sw));
+				String exceptionAsString = sw.toString();
+				rdp.printDialog(exceptionAsString);
 			}
 		}
-		catch(Exception e) {
-			StringWriter sw = new StringWriter();
-			e.printStackTrace(new PrintWriter(sw));
-			String exceptionAsString = sw.toString();
-			rdp.printDialog(exceptionAsString);
-		}
 	}
+
 
 }

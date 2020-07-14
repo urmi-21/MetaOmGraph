@@ -23,10 +23,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.AbstractCellEditor;
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -40,6 +43,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.JTree;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -65,7 +69,7 @@ import edu.iastate.metnet.metaomgraph.playback.PlaybackTabData;
 
 public class ReproducibilityDashboardPanel extends JPanel {
 
-	/*Harsha- Added logger */
+	/* Harsha- Added logger */
 
 	private static final Logger logger = MetaOmGraph.logger;
 
@@ -80,8 +84,8 @@ public class ReproducibilityDashboardPanel extends JPanel {
 	private JRadioButton rdbtnNewRadioButton_1;
 	private JRadioButton rdbtnPermanentlySwitchedOff;
 	private MetaOmGraph project;
-	private HashMap<Integer,DefaultMutableTreeNode> treeStructure;
-	private HashMap<Integer,PlaybackTabData> allTabsInfo;
+	private HashMap<Integer, DefaultMutableTreeNode> treeStructure;
+	private HashMap<Integer, PlaybackTabData> allTabsInfo;
 	private PlaybackAction playbackAction;
 	private JTree playTree;
 	private JTable table;
@@ -93,17 +97,16 @@ public class ReproducibilityDashboardPanel extends JPanel {
 
 		project = myself;
 
-		treeStructure = new HashMap<Integer,DefaultMutableTreeNode>();
-		allTabsInfo = new HashMap<Integer,PlaybackTabData>();
+		treeStructure = new HashMap<Integer, DefaultMutableTreeNode>();
+		allTabsInfo = new HashMap<Integer, PlaybackTabData>();
 		playbackAction = new PlaybackAction();
-		currentSessionActionNumber=0;
-
+		currentSessionActionNumber = 0;
 
 		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[]{280, 261, 0};
-		gridBagLayout.rowHeights = new int[]{47, 20, 0, 40, 33, 13, 0, 90, 13, 0};
-		gridBagLayout.columnWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
-		gridBagLayout.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, Double.MIN_VALUE};
+		gridBagLayout.columnWidths = new int[] { 280, 261, 0 };
+		gridBagLayout.rowHeights = new int[] { 47, 20, 0, 40, 33, 13, 0, 90, 13, 0 };
+		gridBagLayout.columnWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
+		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, Double.MIN_VALUE };
 		setLayout(gridBagLayout);
 
 		panel_1 = new JPanel();
@@ -131,16 +134,34 @@ public class ReproducibilityDashboardPanel extends JPanel {
 		rdbtnPermanentlySwitchedOff = new JRadioButton("permanently switched off");
 		panel_1.add(rdbtnPermanentlySwitchedOff);
 
+		if (MetaOmGraph.getPermanentLogging() == false) {
+			rdbtnNewRadioButton.setSelected(false);
+			rdbtnNewRadioButton_1.setSelected(false);
+			rdbtnPermanentlySwitchedOff.setSelected(true);
+		}
 		rdbtnNewRadioButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//MetaOmGraph.getReproducibilityLogMenu().setText("logging on");
+
 				MetaOmGraph.getReproducibilityLogMenu().setForeground(Color.BLUE);
-				LoggerContext context = (LoggerContext) LogManager.getContext(false);
-				Configuration configuration = context.getConfiguration();
-				LoggerConfig loggerConfig = configuration.getLoggerConfig("reproducibilityLogger"); 
-				loggerConfig.setLevel(Level.DEBUG);
-				context.updateLoggers();
+				MetaOmGraph.setLoggingRequired(true);
+				MetaOmGraph.setPermanentLogging(true);
+				try {
+
+					if (logger != null) {
+						LoggerContext context = (LoggerContext) LogManager.getContext(false);
+						Configuration configuration = context.getConfiguration();
+						LoggerConfig loggerConfig = configuration.getLoggerConfig("reproducibilityLogger");
+						loggerConfig.setLevel(Level.DEBUG);
+						context.updateLoggers();
+					}
+
+				} catch (Exception e3) {
+					StringWriter sw = new StringWriter();
+					e3.printStackTrace(new PrintWriter(sw));
+					String exceptionAsString = sw.toString();
+					printDialog(exceptionAsString);
+				}
 
 			}
 		});
@@ -148,14 +169,19 @@ public class ReproducibilityDashboardPanel extends JPanel {
 		rdbtnNewRadioButton_1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//	        	 MetaOmGraph.getReproducibilityLogMenu().setText("logging off");
-				//	        	 MetaOmGraph.getReproducibilityLogMenu().setForeground(Color.BLACK);
+
 				MetaOmGraph.getReproducibilityLogMenu().setForeground(Color.BLACK);
-				LoggerContext context = (LoggerContext) LogManager.getContext(false);
-				Configuration configuration = context.getConfiguration();
-				LoggerConfig loggerConfig = configuration.getLoggerConfig("reproducibilityLogger"); 
-				loggerConfig.setLevel(Level.OFF);
-				context.updateLoggers();
+				MetaOmGraph.setLoggingRequired(false);
+				MetaOmGraph.setPermanentLogging(true);
+				try {
+					LoggerContext context = (LoggerContext) LogManager.getContext(false);
+					Configuration configuration = context.getConfiguration();
+					LoggerConfig loggerConfig = configuration.getLoggerConfig("reproducibilityLogger");
+					loggerConfig.setLevel(Level.OFF);
+					context.updateLoggers();
+				} catch (Exception e3) {
+
+				}
 
 			}
 		});
@@ -163,17 +189,24 @@ public class ReproducibilityDashboardPanel extends JPanel {
 		rdbtnPermanentlySwitchedOff.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//	        	 MetaOmGraph.getReproducibilityLogMenu().setText("logging off");
-				//	        	 MetaOmGraph.getReproducibilityLogMenu().setForeground(Color.BLACK);
+				MetaOmGraph.getReproducibilityLogMenu().setForeground(Color.BLACK);
+				MetaOmGraph.setLoggingRequired(false);
+				MetaOmGraph.setPermanentLogging(false);
+				try {
+					LoggerContext context = (LoggerContext) LogManager.getContext(false);
+					Configuration configuration = context.getConfiguration();
+					LoggerConfig loggerConfig = configuration.getLoggerConfig("reproducibilityLogger");
+					loggerConfig.setLevel(Level.OFF);
+					context.updateLoggers();
+				} catch (Exception e3) {
 
+				}
 			}
 		});
 
 		G.add(rdbtnNewRadioButton);
 		G.add(rdbtnNewRadioButton_1);
 		G.add(rdbtnPermanentlySwitchedOff);
-
-
 
 		separator_1 = new JSeparator();
 		GridBagConstraints gbc_separator_1 = new GridBagConstraints();
@@ -183,7 +216,6 @@ public class ReproducibilityDashboardPanel extends JPanel {
 		gbc_separator_1.gridx = 0;
 		gbc_separator_1.gridy = 1;
 		add(separator_1, gbc_separator_1);
-
 
 		panel = new JPanel();
 		FlowLayout flowLayout = (FlowLayout) panel.getLayout();
@@ -206,19 +238,19 @@ public class ReproducibilityDashboardPanel extends JPanel {
 
 				JFileChooser jfc = new JFileChooser();
 				jfc.setDialogTitle("open previous session log");
-				jfc.setCurrentDirectory(myself.getActiveProject().getSourceFile());
-				int retValue = jfc.showOpenDialog(myself.getMainWindow());
+				jfc.setCurrentDirectory(MetaOmGraph.getActiveProject().getSourceFile());
+				int retValue = jfc.showOpenDialog(MetaOmGraph.getMainWindow());
 
-				if(retValue == JFileChooser.APPROVE_OPTION) {
+				if (retValue == JFileChooser.APPROVE_OPTION) {
 					File file = jfc.getSelectedFile();
 
 					JTree sessionTree = new JTree();
 					JTable sessionTable = new JTable();
 
+					HashMap<Integer, DefaultMutableTreeNode> treeStruct = new HashMap<Integer, DefaultMutableTreeNode>();
 
-					HashMap<Integer,DefaultMutableTreeNode> treeStruct = new HashMap<Integer,DefaultMutableTreeNode> ();
-
-					int tabNo = createNewTabAndPopulate(sessionTree,sessionTable,file.getName(),true,file.getAbsolutePath());
+					int tabNo = createNewTabAndPopulate(sessionTree, sessionTable, file.getName(), true,
+							file.getAbsolutePath());
 					readLogAndPopulateTree(file, sessionTree, tabNo, treeStruct);
 					tabbedPane.setSelectedIndex(tabNo);
 
@@ -234,12 +266,12 @@ public class ReproducibilityDashboardPanel extends JPanel {
 
 				int tabNo = tabbedPane.getSelectedIndex();
 
-				//DefaultMutableTreeNode node = (DefaultMutableTreeNode)
-					//	allTabsInfo.get(tabNo).getTabTree().getLastSelectedPathComponent();
-				
+				// DefaultMutableTreeNode node = (DefaultMutableTreeNode)
+				// allTabsInfo.get(tabNo).getTabTree().getLastSelectedPathComponent();
+
 				JTree selectedTree = allTabsInfo.get(tabNo).getTabTree();
-				DefaultTreeModel model = (DefaultTreeModel) selectedTree.getModel();
-				TreePath [] allPaths = selectedTree.getSelectionPaths();
+
+				TreePath[] allPaths = selectedTree.getSelectionPaths();
 
 				for (TreePath path : allPaths) {
 					DefaultMutableTreeNode node2 = (DefaultMutableTreeNode) path.getLastPathComponent();
@@ -248,26 +280,22 @@ public class ReproducibilityDashboardPanel extends JPanel {
 
 					ActionProperties playedAction = allTabsInfo.get(tabNo).getActionObjects().get(ltn.getNodeNumber());
 
-					if(ltn.getCommandName().equalsIgnoreCase("line-chart")) {
-						playbackAction.playChart(playedAction,"line-chart");
+					if (ltn.getCommandName().equalsIgnoreCase("line-chart")) {
+						playbackAction.playChart(playedAction, "line-chart");
 
+					} else if (ltn.getCommandName().equalsIgnoreCase("scatter-plot")) {
+						playbackAction.playChart(playedAction, "scatter-plot");
+					} else if (ltn.getCommandName().equalsIgnoreCase("box-plot")) {
+						playbackAction.playChart(playedAction, "box-plot");
+					} else if (ltn.getCommandName().equalsIgnoreCase("histogram")) {
+						playbackAction.playChart(playedAction, "histogram");
 					}
-					else if(ltn.getCommandName().equalsIgnoreCase("scatter-plot")) {
-						playbackAction.playChart(playedAction,"scatter-plot");
-					}
-					else if(ltn.getCommandName().equalsIgnoreCase("box-plot")) {
-						playbackAction.playChart(playedAction,"box-plot");
-					}
-					else if(ltn.getCommandName().equalsIgnoreCase("histogram")) {
-						playbackAction.playChart(playedAction,"histogram");
-					}
-					
+
 				}
-//				if (node == null)
-//					return;
+				// if (node == null)
+				// return;
 
-				//Object nodeInfo = node.getUserObject();
-				
+				// Object nodeInfo = node.getUserObject();
 
 			}
 		});
@@ -275,8 +303,9 @@ public class ReproducibilityDashboardPanel extends JPanel {
 		panel.add(btnNewButton_1);
 
 		btnNewButton_3 = new JButton();
-		btnNewButton_3.setIcon(new ImageIcon(project.getClass().getResource("/resource/loggingicons/smallorangestar.png")));
-		btnNewButton_3.setMargin(new Insets(2,5,2,5));
+		btnNewButton_3
+				.setIcon(new ImageIcon(project.getClass().getResource("/resource/loggingicons/smallorangestar.png")));
+		btnNewButton_3.setMargin(new Insets(2, 5, 2, 5));
 		btnNewButton_3.setToolTipText("Add to Favorites");
 
 		btnNewButton_3.addActionListener(new ActionListener() {
@@ -285,16 +314,15 @@ public class ReproducibilityDashboardPanel extends JPanel {
 				int tabNo = tabbedPane.getSelectedIndex();
 				JTree selectedTree = allTabsInfo.get(tabNo).getTabTree();
 				DefaultTreeModel model = (DefaultTreeModel) selectedTree.getModel();
-				TreePath [] allPaths = selectedTree.getSelectionPaths();
+				TreePath[] allPaths = selectedTree.getSelectionPaths();
 
 				PlaybackTabData currentTabData = allTabsInfo.get(tabNo);
 				String logFileName = currentTabData.getLogFileName();
 
-				BufferedWriter out= null;
+				BufferedWriter out = null;
 				try {
-					if(tabNo != 0) {
-						out = new BufferedWriter( 
-								new FileWriter(logFileName,true));
+					if (tabNo != 0) {
+						out = new BufferedWriter(new FileWriter(logFileName, true));
 					}
 
 					for (TreePath path : allPaths) {
@@ -304,44 +332,168 @@ public class ReproducibilityDashboardPanel extends JPanel {
 						Object nodeObj = node.getUserObject();
 						LoggingTreeNode logNode = (LoggingTreeNode) nodeObj;
 
+						ActionProperties likedAction = allTabsInfo.get(tabNo).getActionObjects().get(ltn.getNodeNumber());
 						try {
-							if(allTabsInfo.get(tabNo).getActionObjects().get(ltn.getNodeNumber()).getOtherParameters().get("favorite").equals("true")) {
-								allTabsInfo.get(tabNo).getActionObjects().get(ltn.getNodeNumber()).getOtherParameters().put("favorite", "false");
-								node.setUserObject(new LoggingTreeNode(logNode.getCommandName(),logNode.getCommandName(),logNode.getNodeNumber()));
+							if (likedAction.getOtherParameters().get("favorite").equals("true")) {
+								
+								
+								likedAction.getOtherParameters().put("favorite", "false");
+								
+								if(isActionChart(likedAction.getActionCommand())) {
+									if (likedAction.getDataParameters().get("Selected Features") instanceof LinkedTreeMap<?, ?>) {
+										
+										LinkedTreeMap<String, Object> features = (LinkedTreeMap<String, Object>) likedAction
+												.getDataParameters().get("Selected Features");
+										
+										node.setUserObject(new LoggingTreeNode(logNode.getCommandName()+ " ["
+												+ (String) features.entrySet().iterator().next().getValue() + "]"
+												,
+												logNode.getCommandName(), logNode.getNodeNumber()));
+									}
+									else {
+										
+										HashMap<String, Object> features = (HashMap<String, Object>) likedAction
+												.getDataParameters().get("Selected Features");
+										
+										node.setUserObject(new LoggingTreeNode(logNode.getCommandName()+ " ["
+												+ (String) features.entrySet().iterator().next().getValue() + "]"
+												,
+												logNode.getCommandName(), logNode.getNodeNumber()));
+										
+									}
+									
+								}
+								else {
+									
+									node.setUserObject(new LoggingTreeNode(logNode.getCommandName(),
+											logNode.getCommandName(), logNode.getNodeNumber()));
+								}
+								
 								model.reload();
 								expandAllNodes(selectedTree);
-							}
-							else if(allTabsInfo.get(tabNo).getActionObjects().get(ltn.getNodeNumber()).getOtherParameters().get("favorite").equals("false")) {
-								allTabsInfo.get(tabNo).getActionObjects().get(ltn.getNodeNumber()).getOtherParameters().put("favorite", "true");
-								node.setUserObject(new LoggingTreeNode("<html><p>"+logNode.getCommandName()+"   &nbsp;<img src=\"file:///C:/Users/lenovo/Pictures/tinyorangestar.png\" style=\"display:none\" ></p></html>",logNode.getCommandName(),logNode.getNodeNumber()));
+							} else if (likedAction.getOtherParameters().get("favorite").equals("false")) {
+								likedAction.getOtherParameters().put("favorite", "true");
+								
+								if(isActionChart(likedAction.getActionCommand())) {
+									
+									if (likedAction.getDataParameters().get("Selected Features") instanceof LinkedTreeMap<?, ?>) {
+										LinkedTreeMap<String, Object> features = (LinkedTreeMap<String, Object>) likedAction
+												.getDataParameters().get("Selected Features");
+										
+										node.setUserObject(new LoggingTreeNode("<html><p>" + logNode.getCommandName()+ " ["
+												+ (String) features.entrySet().iterator().next().getValue() + "]"
+												
+										+ "   &nbsp;<img src=\"file:src/resource/loggingicons/tinyorangestar.png\" style=\"display:none\" ></p></html>",
+										logNode.getCommandName(), logNode.getNodeNumber()));
+									}
+									else {
+										
+										HashMap<String, Object> features = (HashMap<String, Object>) likedAction
+												.getDataParameters().get("Selected Features");
+										
+										node.setUserObject(new LoggingTreeNode("<html><p>" + logNode.getCommandName()+ " ["
+												+ (String) features.entrySet().iterator().next().getValue() + "]"
+												
+										+ "   &nbsp;<img src=\"file:src/resource/loggingicons/tinyorangestar.png\" style=\"display:none\" ></p></html>",
+										logNode.getCommandName(), logNode.getNodeNumber()));
+										
+									}
+									
+								}
+								else {
+									node.setUserObject(new LoggingTreeNode("<html><p>" + logNode.getCommandName()
+									+ "   &nbsp;<img src=\"file:src/resource/loggingicons/tinyorangestar.png\" style=\"display:none\" ></p></html>",
+									logNode.getCommandName(), logNode.getNodeNumber()));
+								}
+								
+								
 								model.reload();
 								expandAllNodes(selectedTree);
-							}
-							else {
-								allTabsInfo.get(tabNo).getActionObjects().get(ltn.getNodeNumber()).getOtherParameters().put("favorite", "true");
-								node.setUserObject(new LoggingTreeNode("<html><p>"+logNode.getCommandName()+"   &nbsp;<img src=\"file:///C:/Users/lenovo/Pictures/tinyorangestar.png\" style=\"display:none\" ></p></html>",logNode.getCommandName(),logNode.getNodeNumber()));
+							} else {
+								likedAction.getOtherParameters().put("favorite", "true");
+								
+								if(isActionChart(likedAction.getActionCommand())) {
+									
+									if (likedAction.getDataParameters().get("Selected Features") instanceof LinkedTreeMap<?, ?>) {
+										
+										LinkedTreeMap<String, Object> features = (LinkedTreeMap<String, Object>) likedAction
+												.getDataParameters().get("Selected Features");
+										
+										node.setUserObject(new LoggingTreeNode("<html><p>" + logNode.getCommandName()+ " ["
+												+ (String) features.entrySet().iterator().next().getValue() + "]"
+												
+										+ "   &nbsp;<img src=\"file:src/resource/loggingicons/tinyorangestar.png\" style=\"display:none\" ></p></html>",
+										logNode.getCommandName(), logNode.getNodeNumber()));
+									}
+									else {
+										
+										HashMap<String, Object> features = (HashMap<String, Object>) likedAction
+												.getDataParameters().get("Selected Features");
+										
+										node.setUserObject(new LoggingTreeNode("<html><p>" + logNode.getCommandName()+ " ["
+												+ (String) features.entrySet().iterator().next().getValue() + "]"
+												
+										+ "   &nbsp;<img src=\"file:src/resource/loggingicons/tinyorangestar.png\" style=\"display:none\" ></p></html>",
+										logNode.getCommandName(), logNode.getNodeNumber()));
+									}
+									
+								}
+								else {
+									node.setUserObject(new LoggingTreeNode("<html><p>" + logNode.getCommandName()
+									+ "   &nbsp;<img src=\"file:src/resource/loggingicons/tinyorangestar.png\" style=\"display:none\" ></p></html>",
+									logNode.getCommandName(), logNode.getNodeNumber()));
+								}
 								model.reload();
 								expandAllNodes(selectedTree);
 
 							}
-						}
-						catch(Exception e) {
-							allTabsInfo.get(tabNo).getActionObjects().get(ltn.getNodeNumber()).getOtherParameters().put("favorite", "true");
-							node.setUserObject(new LoggingTreeNode("<html><p>"+logNode.getCommandName()+"   &nbsp;<img src=\"file:///C:/Users/lenovo/Pictures/tinyorangestar.png\" style=\"display:none\" ></p></html>",logNode.getCommandName(),logNode.getNodeNumber()));
+						} catch (Exception e) {
+							
+							likedAction.getOtherParameters().put("favorite", "true");
+							
+							if(isActionChart(likedAction.getActionCommand())) {
+								
+								if (likedAction.getDataParameters().get("Selected Features") instanceof LinkedTreeMap<?, ?>) {
+									
+									LinkedTreeMap<String, Object> features = (LinkedTreeMap<String, Object>) likedAction
+											.getDataParameters().get("Selected Features");
+									
+									node.setUserObject(new LoggingTreeNode("<html><p>" + logNode.getCommandName()+ " ["
+											+ (String) features.entrySet().iterator().next().getValue() + "]"
+											
+									+ "   &nbsp;<img src=\"file:src/resource/loggingicons/tinyorangestar.png\" style=\"display:none\" ></p></html>",
+									logNode.getCommandName(), logNode.getNodeNumber()));
+								}
+								else {
+									
+									HashMap<String, Object> features = (HashMap<String, Object>) likedAction
+											.getDataParameters().get("Selected Features");
+									
+									node.setUserObject(new LoggingTreeNode("<html><p>" + logNode.getCommandName()+ " ["
+											+ (String) features.entrySet().iterator().next().getValue() + "]"
+											
+									+ "   &nbsp;<img src=\"file:src/resource/loggingicons/tinyorangestar.png\" style=\"display:none\" ></p></html>",
+									logNode.getCommandName(), logNode.getNodeNumber()));
+								}
+								
+							}
+							else {
+								node.setUserObject(new LoggingTreeNode("<html><p>" + logNode.getCommandName()
+								+ "   &nbsp;<img src=\"file:src/resource/loggingicons/tinyorangestar.png\" style=\"display:none\" ></p></html>",
+								logNode.getCommandName(), logNode.getNodeNumber()));
+							}
 							model.reload();
 							expandAllNodes(selectedTree);
 						}
 
-						if(tabNo != 0)
+						if (tabNo != 0)
 							autoSaveLog(tabNo);
 
 					}
 
-				}
-				catch (IOException e) { 
-					System.out.println("exception occoured" + e); 
-				} 
-				finally {
+				} catch (IOException e) {
+					System.out.println("exception occoured" + e);
+				} finally {
 					try {
 						out.close();
 					} catch (IOException e) {
@@ -353,93 +505,110 @@ public class ReproducibilityDashboardPanel extends JPanel {
 		});
 		panel.add(btnNewButton_3);
 
-
-
 		playTree = new JTree();
 		table = new JTable();
 
-		int tabNo = createNewTabAndPopulate(playTree,table,"Current Session",false,getCurrentLoggerFileName());
-		File currentLog = new File(getCurrentLoggerFileName());
+		int tabNo = createNewTabAndPopulate(playTree, table, "Current Session", false, getCurrentLoggerFileName());
+		File currentLog;
+		if (getCurrentLoggerFileName() == "") {
+			currentLog = null;
+		} else {
+			currentLog = new File(getCurrentLoggerFileName());
+		}
+
 		readLogAndPopulateTree(currentLog, playTree, tabNo, treeStructure);
-		currentSessionActionNumber = allTabsInfo.get(0).getActionObjects().size()-1;
+		currentSessionActionNumber = allTabsInfo.get(0).getActionObjects().size() - 1;
 
-
-		commentButton = new JButton();  
-		commentButton.setText("Submit"); 
+		commentButton = new JButton();
+		commentButton.setText("Submit");
 		commentButton.setVisible(true);
 
 	}
 
-
-
-
-
-	public void addActionToLogTree(ActionProperties action, int actionNumber, JTree tree, HashMap<Integer,DefaultMutableTreeNode> treeStruct) {
+	public void addActionToLogTree(ActionProperties action, int actionNumber, JTree tree,
+			HashMap<Integer, DefaultMutableTreeNode> treeStruct) {
 
 		try {
 			DefaultTreeModel dtm = (DefaultTreeModel) tree.getModel();
 
-			if(!action.getActionCommand().equalsIgnoreCase("general-properties")) {
+			if (!action.getActionCommand().equalsIgnoreCase("general-properties")) {
 
 				DefaultMutableTreeNode root = (DefaultMutableTreeNode) dtm.getRoot();
-				//DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(new LoggingTreeNode("<html><p>"+action.getActionCommand()+"<img src=\"file:///C:/Users/lenovo/Pictures/tinyorangestar.png\" style=\"display:none\" ></p></html>",actionNumber));
 
 				DefaultMutableTreeNode newNode = null;
 				try {
-					if(action.getOtherParameters().get("favorite").equals("true")) {
-						if(action.getActionCommand().equalsIgnoreCase("line-chart")||action.getActionCommand().equalsIgnoreCase("bar-chart")||action.getActionCommand().equalsIgnoreCase("histogram")||action.getActionCommand().equalsIgnoreCase("scatter-plot")||action.getActionCommand().equalsIgnoreCase("box-plot")||action.getActionCommand().equalsIgnoreCase("line-chart-default-grouping")||action.getActionCommand().equalsIgnoreCase("line-chart-choose-grouping")) {
-							LinkedTreeMap<String,Object> features = (LinkedTreeMap<String,Object>)action.getDataParameters().get("Selected Features");
-							newNode = new DefaultMutableTreeNode(new LoggingTreeNode("<html><p>"+action.getActionCommand()+" ["+(String)features.entrySet().iterator().next().getValue()+"]"+"   &nbsp;<img src=\"file:///C:/Users/lenovo/Pictures/tinyorangestar.png\" style=\"display:none\" ></p></html>",action.getActionCommand(),actionNumber));
+					if (action.getOtherParameters().get("favorite").equals("true")) {
+						if (isActionChart(action.getActionCommand())) {
+							LinkedTreeMap<String, Object> features = (LinkedTreeMap<String, Object>) action
+									.getDataParameters().get("Selected Features");
+							newNode = new DefaultMutableTreeNode(new LoggingTreeNode("<html><p>"
+									+ action.getActionCommand() + " ["
+									+ (String) features.entrySet().iterator().next().getValue() + "]"
+									+ "   &nbsp;<img src=\"file:src/resource/loggingicons/tinyorangestar.png\" style=\"display:none\" ></p></html>",
+									action.getActionCommand(), actionNumber));
+						} else {
+							newNode = new DefaultMutableTreeNode(new LoggingTreeNode("<html><p>"
+									+ action.getActionCommand()
+									+ "   &nbsp;<img src=\"file:src/resource/loggingicons/tinyorangestar.png\" style=\"display:none\" ></p></html>",
+									action.getActionCommand(), actionNumber));
 						}
-						else {
-							newNode = new DefaultMutableTreeNode(new LoggingTreeNode("<html><p>"+action.getActionCommand()+"   &nbsp;<img src=\"file:///C:/Users/lenovo/Pictures/tinyorangestar.png\" style=\"display:none\" ></p></html>",action.getActionCommand(),actionNumber));
+					} else {
+						if (isActionChart(action.getActionCommand())) {
+							LinkedTreeMap<String, Object> features = (LinkedTreeMap<String, Object>) action
+									.getDataParameters().get("Selected Features");
+							newNode = new DefaultMutableTreeNode(
+									new LoggingTreeNode(
+											action.getActionCommand() + " ["
+													+ features.entrySet().iterator().next().getValue() + "]",
+											action.getActionCommand(), actionNumber));
+						} else {
+							newNode = new DefaultMutableTreeNode(new LoggingTreeNode(action.getActionCommand(),
+									action.getActionCommand(), actionNumber));
 						}
 					}
-					else {
-						if(action.getActionCommand().equalsIgnoreCase("line-chart")||action.getActionCommand().equalsIgnoreCase("bar-chart")||action.getActionCommand().equalsIgnoreCase("histogram")||action.getActionCommand().equalsIgnoreCase("scatter-plot")||action.getActionCommand().equalsIgnoreCase("box-plot")||action.getActionCommand().equalsIgnoreCase("line-chart-default-grouping")||action.getActionCommand().equalsIgnoreCase("line-chart-choose-grouping")) {
-							LinkedTreeMap<String,Object> features = (LinkedTreeMap<String,Object>)action.getDataParameters().get("Selected Features");
-							newNode = new DefaultMutableTreeNode(new LoggingTreeNode(action.getActionCommand()+" ["+features.entrySet().iterator().next().getValue()+"]",action.getActionCommand(),actionNumber));
+				} catch (Exception e) {
+
+					if (isActionChart(action.getActionCommand())) {
+						if (action.getDataParameters().get("Selected Features") instanceof LinkedTreeMap<?, ?>) {
+							LinkedTreeMap<String, Object> features = (LinkedTreeMap<String, Object>) action
+									.getDataParameters().get("Selected Features");
+							newNode = new DefaultMutableTreeNode(
+									new LoggingTreeNode(
+											action.getActionCommand() + " ["
+													+ features.entrySet().iterator().next().getValue() + "]",
+											action.getActionCommand(), actionNumber));
+						} else {
+							HashMap<String, Object> features = (HashMap<String, Object>) action.getDataParameters()
+									.get("Selected Features");
+							newNode = new DefaultMutableTreeNode(
+									new LoggingTreeNode(
+											action.getActionCommand() + " ["
+													+ features.entrySet().iterator().next().getValue() + "]",
+											action.getActionCommand(), actionNumber));
 						}
-						else {
-							newNode = new DefaultMutableTreeNode(new LoggingTreeNode(action.getActionCommand(),action.getActionCommand(),actionNumber));
-						}
-					}
-				}
-				catch(Exception e) {
-					
-					if(action.getActionCommand().equalsIgnoreCase("line-chart")||action.getActionCommand().equalsIgnoreCase("bar-chart")||action.getActionCommand().equalsIgnoreCase("histogram")||action.getActionCommand().equalsIgnoreCase("scatter-plot")||action.getActionCommand().equalsIgnoreCase("box-plot")||action.getActionCommand().equalsIgnoreCase("line-chart-default-grouping")||action.getActionCommand().equalsIgnoreCase("line-chart-choose-grouping")) {
-						if(action.getDataParameters().get("Selected Features") instanceof LinkedTreeMap<?,?>) {
-							LinkedTreeMap<String,Object> features = (LinkedTreeMap<String,Object>)action.getDataParameters().get("Selected Features");
-							newNode = new DefaultMutableTreeNode(new LoggingTreeNode(action.getActionCommand()+" ["+features.entrySet().iterator().next().getValue()+"]",action.getActionCommand(),actionNumber));
-						}
-						else {
-							HashMap<String,Object> features = (HashMap<String,Object>)action.getDataParameters().get("Selected Features");
-							newNode = new DefaultMutableTreeNode(new LoggingTreeNode(action.getActionCommand()+" ["+features.entrySet().iterator().next().getValue()+"]",action.getActionCommand(),actionNumber));
-						}
-						
-					}
-					else {
-						newNode = new DefaultMutableTreeNode(new LoggingTreeNode(action.getActionCommand(),action.getActionCommand(),actionNumber));
+
+					} else {
+						newNode = new DefaultMutableTreeNode(new LoggingTreeNode(action.getActionCommand(),
+								action.getActionCommand(), actionNumber));
 					}
 				}
 
 				Integer parent = (int) Double.parseDouble(action.getActionParameters().get("parent").toString());
 
-				if(parent == -1) {
-					dtm.insertNodeInto(newNode, root, root.getChildCount());	
-				}
-				else {
+				if (parent == -1) {
+					dtm.insertNodeInto(newNode, root, root.getChildCount());
+				} else {
 					DefaultMutableTreeNode parentNode = treeStruct.get(parent);
 					dtm.insertNodeInto(newNode, parentNode, parentNode.getChildCount());
 				}
 
-				treeStruct.put(action.getActionNumber(),newNode);
+				treeStruct.put(action.getActionNumber(), newNode);
 			}
 			dtm.reload();
+			tree.setRootVisible(false);
 			expandAllNodes(tree);
 
-		}
-		catch(Exception e) {
+		} catch (Exception e) {
 			StringWriter sw = new StringWriter();
 			e.printStackTrace(new PrintWriter(sw));
 			String exceptionAsString = sw.toString();
@@ -447,27 +616,22 @@ public class ReproducibilityDashboardPanel extends JPanel {
 		}
 	}
 
-
-
-
-
-	public void readLogAndPopulateTree(File logFile, JTree tree, int tabNo, HashMap<Integer,DefaultMutableTreeNode> treeStruct) {
+	public void readLogAndPopulateTree(File logFile, JTree tree, int tabNo,
+			HashMap<Integer, DefaultMutableTreeNode> treeStruct) {
 
 		try {
 			Gson gson = new Gson();
 			String jsonLog = "";
 			try {
-				jsonLog = new String( Files.readAllBytes(logFile.toPath()));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				jsonLog = new String(Files.readAllBytes(logFile.toPath()));
+			} catch (Exception e) {
+				jsonLog = "";
 			}
 
 			tree.removeAll();
-			tree.setModel(new DefaultTreeModel( new DefaultMutableTreeNode("")));
+			tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("")));
 
-			String listOfActions = "["+jsonLog+"]";
-
+			String listOfActions = "[" + jsonLog + "]";
 
 			ActionProperties[] actionsFromGSON = gson.fromJson(listOfActions, ActionProperties[].class);
 
@@ -477,13 +641,12 @@ public class ReproducibilityDashboardPanel extends JPanel {
 
 			allTabsInfo.get(tabNo).setTreeStructure(treeStruct);
 
-			for(int action=1; action<actionsFromGSON.length; action++) {
+			for (int action = 1; action < actionsFromGSON.length; action++) {
 
-				addActionToLogTree(actionsFromGSON[action],action,tree, treeStruct);
+				addActionToLogTree(actionsFromGSON[action], action, tree, treeStruct);
 
 			}
-		}
-		catch(Exception e) {
+		} catch (Exception e) {
 			StringWriter sw = new StringWriter();
 			e.printStackTrace(new PrintWriter(sw));
 			String exceptionAsString = sw.toString();
@@ -491,24 +654,18 @@ public class ReproducibilityDashboardPanel extends JPanel {
 		}
 	}
 
-
-
-
 	public void populateCurrentSessionTree(ActionProperties action) {
 		currentSessionActionNumber++;
 
 		allTabsInfo.get(0).getActionObjects().add(action);
 		addActionToLogTree(action, currentSessionActionNumber, playTree, treeStructure);
 
-
 	}
 
+	public int createNewTabAndPopulate(JTree playTree, JTable table, String tabName, boolean isClosable,
+			String logFileName) {
 
-
-
-	public int createNewTabAndPopulate(JTree playTree, JTable table, String tabName, boolean isClosable, String logFileName) {
-
-		if(tabbedPane == null) {
+		if (tabbedPane == null) {
 			tabbedPane = new ClosableTabbedPane();
 			GridBagConstraints gbc_tabbedPane = new GridBagConstraints();
 			gbc_tabbedPane.gridwidth = 2;
@@ -521,10 +678,9 @@ public class ReproducibilityDashboardPanel extends JPanel {
 		JSplitPane splitPane = new JSplitPane();
 		splitPane.setResizeWeight(0.36);
 
-		if(isClosable) {
+		if (isClosable) {
 			tabbedPane.addTab(tabName, null, splitPane, null);
-		}
-		else {
+		} else {
 			tabbedPane.addNonClosableTab(tabName, null, splitPane, null);
 		}
 
@@ -535,135 +691,133 @@ public class ReproducibilityDashboardPanel extends JPanel {
 		JScrollPane scrollPane_2 = new JScrollPane();
 		splitPane.setRightComponent(scrollPane_2);
 
-		//table = new JTable();
-		table.setModel(new DefaultTableModel(
-				new Object[][] {
-					{null, null}
-				},
-				new String[] {
-						"Property", "Value"
-				}
-				));
+		// table = new JTable();
+		table.setModel(new DefaultTableModel(new Object[][] { { null, null } }, new String[] { "Property", "Value" }));
 		scrollPane_2.setViewportView(table);
 		Icon closedIcon = new ImageIcon(project.getClass().getResource("/resource/loggingicons/chart.png"));
 		Icon openIcon = new ImageIcon(project.getClass().getResource("/resource/loggingicons/chart.png"));
 		Icon leafIcon = new ImageIcon(project.getClass().getResource("/resource/loggingicons/chart.png"));
 
-		int tabNo = tabbedPane.getTabCount()-1;
+		int tabNo = tabbedPane.getTabCount() - 1;
 		PlaybackTabData newPlaybackTab = new PlaybackTabData();
 		newPlaybackTab.setLogFileName(logFileName);
 		newPlaybackTab.setTabNumber(tabNo);
 		newPlaybackTab.setTabTree(playTree);
 		newPlaybackTab.setTabTable(table);
 
-		allTabsInfo.put(tabbedPane.getTabCount()-1, newPlaybackTab);
+		allTabsInfo.put(tabbedPane.getTabCount() - 1, newPlaybackTab);
 
 		playTree.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent me) {
 
 				try {
-					ActionProperties[] actionObj = new ActionProperties[allTabsInfo.get(tabNo).getActionObjects().size()];
+					ActionProperties[] actionObj = new ActionProperties[allTabsInfo.get(tabNo).getActionObjects()
+							.size()];
 					try {
 						actionObj = allTabsInfo.get(tabNo).getActionObjects().toArray(actionObj);
-					}
-					catch(Exception e) {
+					} catch (Exception e) {
 						StringWriter sw = new StringWriter();
 						e.printStackTrace(new PrintWriter(sw));
 						String exceptionAsString = sw.toString();
 						printDialog(exceptionAsString);
 					}
 
-					DefaultMutableTreeNode node = (DefaultMutableTreeNode)
-							playTree.getLastSelectedPathComponent();
+					DefaultMutableTreeNode node = (DefaultMutableTreeNode) playTree.getLastSelectedPathComponent();
 
 					if (node == null)
-						//Nothing is selected.     
+						// Nothing is selected.
 						return;
 
 					Object nodeInfo = node.getUserObject();
 
 					LoggingTreeNode ltn = (LoggingTreeNode) nodeInfo;
 
+					ArrayList<Object[]> tableList = new ArrayList<Object[]>();
 
+					Object[] commentsObj = new Object[2];
+					commentsObj[0] = "<html><b>Comments</b></html>";
 
-					Object [][] tableObj = new Object[100][2];
-
-					tableObj[0][0] = "<html><b>Comments</b></html>";
 					try {
-						tableObj[0][1] = allTabsInfo.get(tabNo).getActionObjects().get(ltn.getNodeNumber()).getOtherParameters().get("comments");
+						commentsObj[1] = allTabsInfo.get(tabNo).getActionObjects().get(ltn.getNodeNumber())
+								.getOtherParameters().get("comments");
+					} catch (Exception e) {
+						commentsObj[1] = "";
 					}
-					catch(Exception e) {
-						tableObj[0][1] = "";
-					}
 
-					int num1 = 1;
+					tableList.add(commentsObj);
 
-					if(actionObj[ltn.getNodeNumber()].getDataParameters()!= null && actionObj[ltn.getNodeNumber()].getDataParameters().size() > 0) {
-						//tableObj[num+1][0] = "<html><b>Data Parameters</b></html>";
+					
 
-						for (Map.Entry<String,Object> entry : actionObj[ltn.getNodeNumber()].getDataParameters().entrySet()) {
-							tableObj[num1][0]=entry.getKey();
+					if (actionObj[ltn.getNodeNumber()].getDataParameters() != null
+							&& actionObj[ltn.getNodeNumber()].getDataParameters().size() > 0) {
 
-							if (entry.getValue() instanceof List<?>){
+						for (Map.Entry<String, Object> entry : actionObj[ltn.getNodeNumber()].getDataParameters()
+								.entrySet()) {
+							Object[] num1Obj = new Object[2];
+							num1Obj[0] = entry.getKey();
+							num1Obj[1] = "";
+							if (entry.getValue() instanceof List<?>) {
 								List<String> actionList = (List<String>) entry.getValue();
-								for(int i=0;i<actionList.size();i++) {
-									tableObj[num1][1]=actionList.get(i);
-									num1++;
+								for (int i = 0; i < actionList.size(); i++) {
+									num1Obj[1] += actionList.get(i) + "\n";
+
 								}
-							}
-							else if (entry.getValue() instanceof Map<?,?>){
-								Map<?,?> actionMap = (Map<?,?>) entry.getValue();
-								for(Map.Entry<?, ?> entry1 : actionMap.entrySet()) {
-									tableObj[num1][1] = entry1.getValue();
-									num1++;
+							} else if (entry.getValue() instanceof Map<?, ?>) {
+								Map<?, ?> actionMap = (Map<?, ?>) entry.getValue();
+								for (Map.Entry<?, ?> entry1 : actionMap.entrySet()) {
+									num1Obj[1] += entry1.getValue() + "\n";
+									
 								}
-							}
-							else if(entry.getValue() instanceof String[]) {
-								String [] actionArray = (String[]) entry.getValue();
-								for(int i=0;i<actionArray.length;i++) {
-									tableObj[num1][1]=actionArray[i];
-									num1++;
+							} else if (entry.getValue() instanceof String[]) {
+								String[] actionArray = (String[]) entry.getValue();
+								for (int i = 0; i < actionArray.length; i++) {
+									num1Obj[1] += actionArray[i] + "\n";
+									
 								}
+							} else {
+								num1Obj[1] = entry.getValue();
+								
 							}
-							else {
-								tableObj[num1][1]=entry.getValue();
-								num1++;
-							}
+
+							tableList.add(num1Obj);
 						}
 					}
 
-					tableObj[num1+1][0] = "<html><b>Timestamp</b></html>";
-					tableObj[num1+1][1] = actionObj[ltn.getNodeNumber()].getTimestamp();
+					Object[] num1p1 = new Object[2];
+					num1p1[0] = "<html><b>Timestamp</b></html>";
+					num1p1[1] = actionObj[ltn.getNodeNumber()].getTimestamp();
+					tableList.add(num1p1);
 
-					table.setModel(new DefaultTableModel(
-							tableObj,
-							new String[] {
-									"Parameter", "Value"
-							}
-							){
+					Object[] tableListObj = (Object[]) tableList.toArray();
+					int objLen = tableListObj.length;
+					Object[][] exactLengthObj = new Object[objLen][2];
+
+					for (int j = 0; j < objLen; j++) {
+						exactLengthObj[j] = (Object[]) tableListObj[j];
+					}
+
+					table.setModel(new DefaultTableModel(exactLengthObj, new String[] { "Parameter", "Value" }) {
 						@Override
 						public void setValueAt(Object aValue, int row, int column) {
 							// Here update DB with a SwingWorker and the new provided value
 							super.setValueAt(aValue, row, column);
-							if(row == 0 && column == 1) {
+							if (row == 0 && column == 1) {
 								try {
 
-									int rowlen = (aValue.toString().length()/13)*25;
-									if(rowlen > 0) {
+									int rowlen = (aValue.toString().length() / 13) * 25;
+									if (rowlen > 0) {
 
 										table.setRowHeight(0, rowlen);
-									}
-									else {
+									} else {
 										table.setRowHeight(0, 20);
 									}
 
+									allTabsInfo.get(tabNo).getActionObjects().get(ltn.getNodeNumber())
+											.getOtherParameters().put("comments", aValue);
 
-									allTabsInfo.get(tabNo).getActionObjects().get(ltn.getNodeNumber()).getOtherParameters().put("comments", aValue);
-
-									if(tabNo != 0)
+									if (tabNo != 0)
 										autoSaveLog(tabNo);
-								}
-								catch(Exception e) {
+								} catch (Exception e) {
 									StringWriter sw = new StringWriter();
 									e.printStackTrace(new PrintWriter(sw));
 									String exceptionAsString = sw.toString();
@@ -675,35 +829,36 @@ public class ReproducibilityDashboardPanel extends JPanel {
 						}
 					});
 
-					table.getColumnModel().getColumn(1).setCellRenderer(new TextTableRenderer());
+					table.getColumnModel().getColumn(1).setCellRenderer(new MultilineTableRenderer());
+					table.getColumnModel().getColumn(1).setCellEditor(new MultilineTableCellEditor());
 
+					for (int i = 0; i < exactLengthObj.length; i++) {
 
-					for(int i=0;i<tableObj.length;i++) {
-
-
-
-						if(tableObj[i][1] != null) {
-							String col1 = tableObj[i][1].toString();
-							int rowlen = (col1.length()/13)*25;
-							if(rowlen > 0) {
+						if (exactLengthObj[i][1] != null) {
+							String col1 = exactLengthObj[i][1].toString();
+							int numEnters = 0;
+							for (int x = 0; x < col1.length(); x++) {
+								if (col1.charAt(x) == '\n' || col1.charAt(x) == '\r') {
+									numEnters++;
+								}
+							}
+							int rowlen = (col1.length() / 10) * 25;
+							rowlen += numEnters;
+							if (rowlen > 0) {
 
 								table.setRowHeight(i, rowlen);
-							}
-							else {
+							} else {
 								table.setRowHeight(i, 20);
 							}
 
 						}
 					}
 
-					//table.setShowHorizontalLines(false);
+					// table.setShowHorizontalLines(false);
 					table.setColumnSelectionAllowed(true);
 					table.setRowSelectionAllowed(true);
 
-
-
-				}
-				catch(Exception e) {
+				} catch (Exception e) {
 					StringWriter sw = new StringWriter();
 					e.printStackTrace(new PrintWriter(sw));
 					String exceptionAsString = sw.toString();
@@ -721,8 +876,6 @@ public class ReproducibilityDashboardPanel extends JPanel {
 		return tabNo;
 	}
 
-
-
 	public void printDialog(String msg) {
 		JDialog jd = new JDialog();
 		JTextPane jt = new JTextPane();
@@ -734,23 +887,25 @@ public class ReproducibilityDashboardPanel extends JPanel {
 	}
 
 	public String getCurrentLoggerFileName() {
-		org.apache.logging.log4j.core.Logger loggerImpl = (org.apache.logging.log4j.core.Logger) logger;
-		Appender appender = loggerImpl.getAppenders().get("reproducibilityAppender");
+		if (logger != null) {
+			org.apache.logging.log4j.core.Logger loggerImpl = (org.apache.logging.log4j.core.Logger) logger;
+			Appender appender = loggerImpl.getAppenders().get("reproducibilityAppender");
 
-		return ((FileAppender) appender).getFileName();
+			return ((FileAppender) appender).getFileName();
+		} else {
+			return "";
+		}
 	}
 
 	public void expandAllNodes(JTree tree) {
 		int j = tree.getRowCount();
 		int i = 0;
-		while(i < j) {
+		while (i < j) {
 			tree.expandRow(i);
 			i += 1;
 			j = tree.getRowCount();
 		}
 	}
-
-
 
 	public void autoSaveLog(int tabNo) {
 
@@ -760,29 +915,28 @@ public class ReproducibilityDashboardPanel extends JPanel {
 			String logFileName = currentTabData.getLogFileName();
 
 			Gson gson = new GsonBuilder().setPrettyPrinting().create();
-			ArrayList<ActionProperties> ap  = new ArrayList<ActionProperties>();
+			ArrayList<ActionProperties> ap = new ArrayList<ActionProperties>();
 
-			for(ActionProperties act : allTabsInfo.get(tabNo).getActionObjects()) {
-				if(act!=null) {
+			for (ActionProperties act : allTabsInfo.get(tabNo).getActionObjects()) {
+				if (act != null) {
 					ap.add(act);
 				}
 			}
 
 			ActionProperties[] apArray = ap.toArray(new ActionProperties[ap.size()]);
 
-			fw = new FileWriter(logFileName,false);
+			fw = new FileWriter(logFileName, false);
 			String outputJson = gson.toJson(apArray);
-			String output = outputJson.substring(1, outputJson.length()-2);
+			String output = outputJson.substring(1, outputJson.length() - 2);
+			output = output.replaceAll("a", "yeahhhh");
 			fw.write(output);
 
-		}
-		catch(Exception e2) {
+		} catch (Exception e2) {
 			StringWriter sw = new StringWriter();
 			e2.printStackTrace(new PrintWriter(sw));
 			String exceptionAsString = sw.toString();
 			printDialog(exceptionAsString);
-		}
-		finally {
+		} finally {
 			try {
 				fw.close();
 			} catch (IOException e) {
@@ -795,22 +949,36 @@ public class ReproducibilityDashboardPanel extends JPanel {
 			}
 		}
 
-
+	}
+	
+	public boolean isActionChart(String actionCommand) {
+		
+		if (actionCommand.equalsIgnoreCase("line-chart")
+				|| actionCommand.equalsIgnoreCase("bar-chart")
+				|| actionCommand.equalsIgnoreCase("histogram")
+				|| actionCommand.equalsIgnoreCase("scatter-plot")
+				|| actionCommand.equalsIgnoreCase("box-plot")
+				|| actionCommand.equalsIgnoreCase("line-chart-default-grouping")
+				|| actionCommand.equalsIgnoreCase("line-chart-choose-grouping")) {
+			
+			return true;
+			
+		}
+		else {
+			return false;
+		}
 	}
 }
 
-
-
-class TextTableRenderer extends JTextArea implements TableCellRenderer {
-	public TextTableRenderer() {
+class MultilineTableRenderer extends JTextArea implements TableCellRenderer {
+	public MultilineTableRenderer() {
 		setOpaque(true);
 		setLineWrap(true);
 		setWrapStyleWord(true);
 	}
 
-	public Component getTableCellRendererComponent(JTable table,
-			Object value, boolean isSelected, boolean hasFocus, int row,
-			int column) {
+	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+			int row, int column) {
 
 		if (isSelected) {
 			setForeground(Color.WHITE);
@@ -820,9 +988,24 @@ class TextTableRenderer extends JTextArea implements TableCellRenderer {
 			setBackground(table.getBackground());
 		}
 
-		setText((value == null)
-				? ""
-						: value.toString());
+		setText((value == null) ? "" : value.toString());
 		return this;
+	}
+}
+
+class MultilineTableCellEditor extends AbstractCellEditor implements TableCellEditor {
+
+	JComponent component = new JTextArea();
+
+	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int rowIndex,
+			int vColIndex) {
+
+		((JTextArea) component).setText((String) value);
+
+		return component;
+	}
+
+	public Object getCellEditorValue() {
+		return ((JTextArea) component).getText();
 	}
 }

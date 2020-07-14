@@ -69,9 +69,6 @@ import org.apache.logging.log4j.Logger;
 
 public class NewProjectDialog extends JDialog implements ActionListener, ItemListener {
 
-	/*Harsha- Added logger */
-	private static final Logger logger = MetaOmGraph.logger;
-	
 	private JSpinner infoColumnSpinner;
 
 	private ButtonGroup delimiterGroup, blanksGroup;
@@ -672,7 +669,7 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 		resultMap.put("userComments", "");
 		
 		ActionProperties createProjectAction = new ActionProperties("create-project",actionMap,dataMap,resultMap,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-		createProjectAction.logActionProperties(logger);
+		createProjectAction.logActionProperties();
 	}
 
 	// action for OK button

@@ -40,9 +40,6 @@ import java.awt.event.ActionEvent;
 
 public class MetadataRemoveCols extends JFrame {
 
-	/*Harsha- Added logger */
-	private static final Logger logger = MetaOmGraph.logger;
-	
 	private JPanel contentPane;
 	private JTable table;
 	int datacolIndex = 0;
@@ -325,7 +322,7 @@ public class MetadataRemoveCols extends JFrame {
 				resultLog.put("result", "OK");
 
 				ActionProperties removeColumnsAction = new ActionProperties("remove-table-columns",actionMap,null,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				removeColumnsAction.logActionProperties(logger);
+				removeColumnsAction.logActionProperties();
 			}
 		});
 

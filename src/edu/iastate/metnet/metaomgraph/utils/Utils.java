@@ -71,9 +71,6 @@ import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel;
 
 public class Utils {
 
-	/*Harsha- Added logger */
-	private static final Logger logger = MetaOmGraph.logger;
-
 	public static final int LOCUS = 1;
 	public static final int AFFY8K = 2;
 	public static final int AFFY25K = 3;
@@ -1208,7 +1205,7 @@ public class Utils {
 		//Harsha - reproducibility log
 
 		ActionProperties saveAction = new ActionProperties("save-table-to-file",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-		saveAction.logActionProperties(logger);
+		saveAction.logActionProperties();
 
 		return status;
 	}

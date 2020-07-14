@@ -52,9 +52,6 @@ import javax.swing.event.MenuEvent;
 
 public class DiffCorrResultsTable extends JInternalFrame {
 	
-	/*Harsha- Added logger */
-
-	private static final Logger logger = MetaOmGraph.logger;
 	private JTable table;
 	private List<String> featureNames;
 	private List<Double> corrVals1;
@@ -204,7 +201,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 						resultLog.put("result", "OK");
 
 						ActionProperties mergeListAction = new ActionProperties("export-to-list",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-						mergeListAction.logActionProperties(logger);
+						mergeListAction.logActionProperties();
 					}
 					catch(Exception e1) {
 

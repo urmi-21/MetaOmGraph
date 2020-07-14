@@ -81,10 +81,6 @@ import org.apache.logging.log4j.Logger;
 
 public class MetaOmProject {
 
-	/*Harsha- Added logger */
-
-	private static final Logger logger = MetaOmGraph.logger;
-
 	public static final String COMPLETE_LIST = "Complete List";
 	public static final String LIST_CREATE_CAUSE = "create list";
 	public static final String LIST_DELETE_CAUSE = "delete list";
@@ -737,7 +733,7 @@ public class MetaOmProject {
 		HashMap<String,Object> result = new HashMap<String,Object>();
 		result.put("result", "OK");
 		ActionProperties saveProjectAction = new ActionProperties("save-project-as",saveProjectParameters,null,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-		saveProjectAction.logActionProperties(logger);
+		saveProjectAction.logActionProperties();
 
 		return true;
 	}
@@ -1892,7 +1888,7 @@ public class MetaOmProject {
 			ActionProperties createListAction = new ActionProperties("create-list",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 
 			if(logRequired) {
-				createListAction.logActionProperties(logger);
+				createListAction.logActionProperties();
 			}
 		}
 		catch(Exception e) {
@@ -1961,7 +1957,7 @@ public class MetaOmProject {
 			resultLog.put("result", "OK");
 
 			ActionProperties createListAction = new ActionProperties("rename-list",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-			createListAction.logActionProperties(logger);
+			createListAction.logActionProperties();
 		}
 		catch(Exception e) {
 
@@ -2051,7 +2047,7 @@ public class MetaOmProject {
 			resultLog.put("result", "OK");
 
 			ActionProperties deleteListAction = new ActionProperties("delete-list",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-			deleteListAction.logActionProperties(logger);
+			deleteListAction.logActionProperties();
 		}
 		catch(Exception e) {
 
@@ -3495,7 +3491,7 @@ public class MetaOmProject {
 					resultLog.put("result", "OK");
 
 					ActionProperties createListAction = new ActionProperties("import-lists",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-					createListAction.logActionProperties(logger);
+					createListAction.logActionProperties();
 				}
 				catch(Exception e) {
 

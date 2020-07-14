@@ -26,9 +26,6 @@ public class CreateListFrame
 extends JInternalFrame
 implements ActionListener, ChangeListener {
 
-	/*Harsha- Added logger */
-
-	private static final Logger logger = MetaOmGraph.logger;
 
 	public static final String OK_COMMAND = "OK";
 	public static final String CANCEL_COMMAND = "Cancel";
@@ -169,7 +166,7 @@ implements ActionListener, ChangeListener {
 						resultLog.put("result", "OK");
 
 						ActionProperties createListAction = new ActionProperties("edit-list",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-						createListAction.logActionProperties(logger);
+						createListAction.logActionProperties();
 					}
 					catch(Exception e1) {
 

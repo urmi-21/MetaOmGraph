@@ -53,9 +53,6 @@ import javax.swing.JMenuItem;
 
 public class SearchByExpressionFrame extends JInternalFrame {
 
-	/*Harsha- Added logger */
-	private static final Logger logger = MetaOmGraph.logger;
-
 	private JTextField textField;
 	private JTextField textField_1;
 	private JComboBox comboBox;
@@ -532,7 +529,7 @@ public class SearchByExpressionFrame extends JInternalFrame {
 			resultLog.put("result", "Error");
 			resultLog.put("resultComments", "Please check min and max values");
 			ActionProperties searchByExprAction = new ActionProperties("search-by-expression",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-			searchByExprAction.logActionProperties(logger);
+			searchByExprAction.logActionProperties();
 			
 			return;
 		}
@@ -544,7 +541,7 @@ public class SearchByExpressionFrame extends JInternalFrame {
 			resultLog.put("result", "Error");
 			resultLog.put("resultComments", "Please select rows to search.");
 			ActionProperties searchByExprAction = new ActionProperties("search-by-expression",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-			searchByExprAction.logActionProperties(logger);
+			searchByExprAction.logActionProperties();
 			return;
 		}
 		List<List<String>> res = new ArrayList<>();
@@ -578,7 +575,7 @@ public class SearchByExpressionFrame extends JInternalFrame {
 				dataMap.put("selectedRows", selRows);
 				resultLog.put("result", "OK");
 				ActionProperties launchEnsembl = new ActionProperties("search-by-expression",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				launchEnsembl.logActionProperties(logger);
+				launchEnsembl.logActionProperties();
 
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -605,7 +602,7 @@ public class SearchByExpressionFrame extends JInternalFrame {
 				dataMap.put("selectedRows", selected);
 				resultLog.put("result", "OK");
 				ActionProperties launchEnsembl = new ActionProperties("search-by-expression",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				launchEnsembl.logActionProperties(logger);
+				launchEnsembl.logActionProperties();
 				
 			} catch (IOException e) {
 				e.printStackTrace();
