@@ -8,7 +8,6 @@ import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel;
 import edu.iastate.metnet.metaomgraph.ui.MetadataEditor;
 import edu.iastate.metnet.metaomgraph.ui.ParseTableTree;
 import edu.iastate.metnet.metaomgraph.ui.ReadMetadata;
-import edu.iastate.metnet.metaomgraph.ui.ReproducibilityDashboardPanel;
 import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
 import edu.iastate.metnet.metaomgraph.utils.MetNetUtils;
 import edu.iastate.metnet.metaomgraph.utils.MetadataUpdater;
@@ -30,8 +29,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,11 +53,8 @@ import java.util.Vector;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.JTextPane;
 import javax.swing.JTree;
 //import javax.swing.SwingUtilities;
 //import javax.swing.UIManager;
@@ -76,11 +70,8 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class MetaOmProject {
-
 	public static final String COMPLETE_LIST = "Complete List";
 	public static final String LIST_CREATE_CAUSE = "create list";
 	public static final String LIST_DELETE_CAUSE = "delete list";
@@ -724,7 +715,7 @@ public class MetaOmProject {
 		setChanged(false);
 
 		//Harsha - reproducibility log
-
+		try{
 		HashMap<String,Object> saveProjectParameters = new HashMap<String,Object>();
 		saveProjectParameters.put("saveFilePath",destination.getAbsolutePath());
 		//saveProjectParameters.put("parent",MetaOmGraph.getCurrentProjectActionId());
@@ -734,7 +725,9 @@ public class MetaOmProject {
 		result.put("result", "OK");
 		ActionProperties saveProjectAction = new ActionProperties("save-project-as",saveProjectParameters,null,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 		saveProjectAction.logActionProperties();
-
+		}
+		catch(Exception e){
+		}
 		return true;
 	}
 
@@ -1028,23 +1021,23 @@ public class MetaOmProject {
 						} else if (thisElementName.equals("threads")) {
 							MetaOmGraph.setNumThreads(Integer.parseInt(thisElement.getAttributeValue("value")));
 						} /*
-						 * else if (thisElementName.equals("rpath")) { if
-						 * (thisElement.getAttributeValue("default").equals("false")) {
-						 * MetaOmGraph.defaultRpath = false;
-						 * MetaOmGraph.setUserRPath(thisElement.getAttributeValue("value")); } else {
-						 * MetaOmGraph.defaultRpath = true; } } else if
-						 * (thisElementName.equals("pathtorfiles")) {
-						 * MetaOmGraph.setpathtoRscrips(thisElement.getAttributeValue("value")); }
-						 */ else if (thisElementName.equals("hyperlinksCols")) {
-							 // these values will be passed to MetadataTableDisplayPanel once the object is
-							 // created
-							 MetaOmGraph._SRR = Integer.parseInt(thisElement.getAttributeValue("srrColumn"));
-							 MetaOmGraph._SRP = Integer.parseInt(thisElement.getAttributeValue("srpColumn"));
-							 MetaOmGraph._SRX = Integer.parseInt(thisElement.getAttributeValue("srxColumn"));
-							 MetaOmGraph._SRS = Integer.parseInt(thisElement.getAttributeValue("srsColumn"));
-							 MetaOmGraph._GSE = Integer.parseInt(thisElement.getAttributeValue("gseColumn"));
-							 MetaOmGraph._GSM = Integer.parseInt(thisElement.getAttributeValue("gsmColumn"));
-						 }
+							 * else if (thisElementName.equals("rpath")) { if
+							 * (thisElement.getAttributeValue("default").equals("false")) {
+							 * MetaOmGraph.defaultRpath = false;
+							 * MetaOmGraph.setUserRPath(thisElement.getAttributeValue("value")); } else {
+							 * MetaOmGraph.defaultRpath = true; } } else if
+							 * (thisElementName.equals("pathtorfiles")) {
+							 * MetaOmGraph.setpathtoRscrips(thisElement.getAttributeValue("value")); }
+							 */ else if (thisElementName.equals("hyperlinksCols")) {
+							// these values will be passed to MetadataTableDisplayPanel once the object is
+							// created
+							MetaOmGraph._SRR = Integer.parseInt(thisElement.getAttributeValue("srrColumn"));
+							MetaOmGraph._SRP = Integer.parseInt(thisElement.getAttributeValue("srpColumn"));
+							MetaOmGraph._SRX = Integer.parseInt(thisElement.getAttributeValue("srxColumn"));
+							MetaOmGraph._SRS = Integer.parseInt(thisElement.getAttributeValue("srsColumn"));
+							MetaOmGraph._GSE = Integer.parseInt(thisElement.getAttributeValue("gseColumn"));
+							MetaOmGraph._GSM = Integer.parseInt(thisElement.getAttributeValue("gsmColumn"));
+						}
 					}
 
 					paramsFound = true;
@@ -1339,7 +1332,7 @@ public class MetaOmProject {
 							pvList = CalculateDiffCorr.computePVals(zsList);
 						}
 
-
+												
 						DifferentialCorrResults thisOb = new DifferentialCorrResults(flistname, featureName, featureInd,
 								namesgrp1, namesgrp2, g1name, g2name, method, rowNames, corrgrp1, corrgrp2, zv1List,
 								zv2List, diffList, zsList, pvList, datatransform, id);
@@ -1408,7 +1401,6 @@ public class MetaOmProject {
 				return false;
 			}
 		}
-
 		return (allsWell) && (projectFileFound);
 	}
 
@@ -1721,7 +1713,7 @@ public class MetaOmProject {
 
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "The file " + projectFile.getName()
-			+ " does not appear to be a valid " + "MetaOmGraph project file!");
+					+ " does not appear to be a valid " + "MetaOmGraph project file!");
 			return false;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -1731,7 +1723,7 @@ public class MetaOmProject {
 		} catch (NullPointerException e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "The file " + projectFile.getName()
-			+ " is either not a MetaOmGraph project " + "file, or it is missing required data.");
+					+ " is either not a MetaOmGraph project " + "file, or it is missing required data.");
 			return false;
 		}
 		return true;
@@ -2673,7 +2665,7 @@ public class MetaOmProject {
 	public boolean loadMetadataHybrid(MetadataCollection ob, Element XMLroot, TreeMap<Integer, Element> tm,
 			String dataCol, String[] mdheaders, JTree treeStructure, TreeMap<String, List<Integer>> defaultrepsMap,
 			String defaultrepscol, List<String> missingDC, List<String> extraDC, List<String> removedCols)
-					throws IOException {
+			throws IOException {
 		if (source == null) {
 			// metadataH = new MetadataHybrid();
 			// if null there is no metadata
@@ -3475,7 +3467,7 @@ public class MetaOmProject {
 				for (Integer thisRow : rowsToAdd) {
 					rows[(index++)] = thisRow.intValue();
 				}
-
+				addGeneList(name, rows, false,false);
 
 				try {
 					//Harsha - reproducibility log
@@ -3497,7 +3489,7 @@ public class MetaOmProject {
 
 				}
 
-				addGeneList(name, rows, false,false);
+				
 			}
 			fireStateChanged("create list");
 		} catch (Exception e) {
@@ -3564,7 +3556,7 @@ public class MetaOmProject {
 						JOptionPane.showMessageDialog(null, "Error...:" + col);
 						JOptionPane.showMessageDialog(null, "data col:" + col);
 						JOptionPane.showMessageDialog(null, "data col name:" + MetaOmGraph.getActiveProject()
-						.getMetadata().getNodeForCol(col).getAttributeValue("name"));
+								.getMetadata().getNodeForCol(col).getAttributeValue("name"));
 						JOptionPane.showMessageDialog(null, "data col int val:" + col.intValue());
 					}
 

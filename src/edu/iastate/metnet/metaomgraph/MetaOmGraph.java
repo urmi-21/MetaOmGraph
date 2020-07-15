@@ -42,14 +42,12 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeSet;
 import java.util.Vector;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
@@ -57,20 +55,14 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JSplitPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
-import javax.swing.ListSelectionModel;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
@@ -80,30 +72,21 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.ColorUIResource;
-
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.appender.FileAppender;
-import org.apache.logging.log4j.core.config.AppenderRef;
 import org.apache.logging.log4j.core.config.Configuration;
-import org.apache.logging.log4j.core.config.Configurator;
 import org.apache.logging.log4j.core.config.LoggerConfig;
-import org.apache.logging.log4j.core.config.builder.api.AppenderComponentBuilder;
-import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilder;
-import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilderFactory;
-import org.apache.logging.log4j.core.config.builder.api.RootLoggerComponentBuilder;
-import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
 //import org.biomage.examples.GetToDataExample;
 import org.jdom.JDOMException;
 
 
 import com.apple.eawt.Application;
 import com.l2fprod.common.swing.JTipOfTheDay;
-import com.l2fprod.common.swing.UserPreferences;
+
 
 //import com.l2fprod.common.swing.*;
 
@@ -113,7 +96,6 @@ import edu.iastate.metnet.metaomgraph.AnnotationImporter.Annotation;
 import edu.iastate.metnet.metaomgraph.MetaOmTips.MetaOmShowTipsChoice;
 import edu.iastate.metnet.metaomgraph.chart.MetaOmChartPanel;
 import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
-import edu.iastate.metnet.metaomgraph.logging.GeneralProperties;
 import edu.iastate.metnet.metaomgraph.ui.AboutFrame;
 import edu.iastate.metnet.metaomgraph.ui.AboutFrame4;
 import edu.iastate.metnet.metaomgraph.ui.ClickableLabel;
@@ -290,7 +272,7 @@ public class MetaOmGraph implements ActionListener {
 			mogThemes.remove(name);
 		}
 	}
-
+	
 
 	public static HashMap<String, MOGColorThemes> getAllThemes() {
 		return mogThemes;
@@ -565,9 +547,6 @@ public class MetaOmGraph implements ActionListener {
 	/** Internal frame which displays a table of the active project's entries */
 	private static JInternalFrame projectTableFrame;
 
-	/** Split pane which displays the actions logged and provides the previous session replay option*/
-	private static JInternalFrame replayFrame;
-
 	/** The table panel that appears whenever a project is open */
 	private static MetaOmTablePanel activeTablePanel;
 
@@ -582,7 +561,7 @@ public class MetaOmGraph implements ActionListener {
 
 	/** Items on the File menu */
 	private static JMenuItem newProjectItem, newSOFTItem, newMetabolomicsItem, openProjectItem,
-	saveProjectItem, saveProjectAsItem, quitItem, mergeItem;
+			saveProjectItem, saveProjectAsItem, quitItem, mergeItem;
 
 	private static JMenu newProjectMenu;
 
@@ -633,7 +612,7 @@ public class MetaOmGraph implements ActionListener {
 	private static JMenuItem closeProjectItem, loadInfoItem, projectPropertiesItem, excludeSamplesItem;
 	// urmi
 	private static JMenuItem openMDColTypes, openInfoColTypes, openMetadataStructureItem, metadataViewerItem,
-	loadInfoItem2, loadTree;
+			loadInfoItem2, loadTree;
 
 	private static JCheckBoxMenuItem logDataItem;
 
@@ -642,8 +621,8 @@ public class MetaOmGraph implements ActionListener {
 
 	/** Items on the Import Annotations menu */
 	private static JMenuItem importHumanItem, importMouseItem, importSoybeanItem, importRatItem, importYeastItem,
-	importBarleyItem, importRiceItem, importCustomItem, import133plus2Item, importArabidopsisItem,
-	importYeast2Item, importZebrafishItem;
+			importBarleyItem, importRiceItem, importCustomItem, import133plus2Item, importArabidopsisItem,
+			importYeast2Item, importZebrafishItem;
 
 	private static JMenu importRatMenu;
 
@@ -768,11 +747,9 @@ public class MetaOmGraph implements ActionListener {
 		recentProjects = new Vector<File>();
 
 		File homeDir = new File(System.getProperty("user.home"));
-
 		File prefsFile = new File(homeDir, "metaomgraph.prefs");
 		if ((prefsFile.exists()) && (prefsFile.canRead())) {
 			try {
-
 				FileInputStream fis = new FileInputStream(prefsFile);
 				ObjectInputStream in = new ObjectInputStream(fis);
 
@@ -836,7 +813,7 @@ public class MetaOmGraph implements ActionListener {
 		initThemes();
 		setCurrentTheme("light");
 		mainWindow = new JFrame("MetaOmGraph");
-
+		
 		//urmi
 		///////////////enable debug mode//////////////////
 		ExceptionHandler.getInstance(mainWindow).setUseBuffer(useBuffer);
@@ -880,7 +857,7 @@ public class MetaOmGraph implements ActionListener {
 		newMetabolomicsItem.setMnemonic(KeyEvent.VK_M);
 		newMetabolomicsItem.setToolTipText(
 				"Create a new MetaOm project from the metabolomics database at http://plantmetabolomics.org");
-
+		
 		/*
 		 * Removed this newArrayExpressItem = new JMenuItem("From ArrayExpress...");
 		newArrayExpressItem.setActionCommand(NEW_PROJECT_ARRAYEXPRESS_COMMAND);
@@ -891,7 +868,7 @@ public class MetaOmGraph implements ActionListener {
 		// newProjectMenu.add(newSOFTItem);
 		// newProjectMenu.add(newMetabolomicsItem);
 		newProjectMenu.add(newArrayExpressItem);
-		 */
+		*/
 		newProjectMenu.add(newProjectItem);
 
 		openProjectItem = new JMenuItem("Open Project...");
@@ -933,13 +910,13 @@ public class MetaOmGraph implements ActionListener {
 		quitItem.setToolTipText("Exit this program");
 		quitItem.setAccelerator(
 				KeyStroke.getKeyStroke(KeyEvent.VK_Q, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-
+		
 		closeProjectItem = new JMenuItem("Close project");
 		closeProjectItem.setMnemonic(KeyEvent.VK_C);
 		closeProjectItem.setActionCommand(CLOSE_PROJECT_COMMAND);
 		closeProjectItem.addActionListener(myself);
 		closeProjectItem.setToolTipText("Close all windows related to the active project");
-
+		
 		fileMenu.add(newProjectMenu);
 		fileMenu.add(openProjectItem);
 		fileMenu.add(closeProjectItem);
@@ -954,7 +931,7 @@ public class MetaOmGraph implements ActionListener {
 		projectMenu = new JMenu("Edit");
 		projectMenu.setMnemonic(KeyEvent.VK_P);
 		projectMenu.setEnabled(false);
-
+		
 		// closeProjectItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W,
 		// Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 		//projectMenu.add(closeProjectItem); //urmi moved close project to file menu
@@ -1310,7 +1287,6 @@ public class MetaOmGraph implements ActionListener {
 		diffExpMenu.add(removeDiffExpResults);
 
 		toolsMenu.add(diffExpMenu);
-
 		///////////// end tool menu//////////////////
 
 		cascadeItem = new JMenuItem("Arrange Windows");
@@ -1544,7 +1520,6 @@ public class MetaOmGraph implements ActionListener {
 
 		// Menu bar created
 
-
 		setMenuIcons();
 
 		modalMaker = new SimpleModalMaker();
@@ -1676,7 +1651,6 @@ public class MetaOmGraph implements ActionListener {
 
 		System.setProperty("sun.java2d.renderer.doChecks", "true");
 
-
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			System.setProperty("sun.awt.noerasebackground", "true");
@@ -1761,7 +1735,6 @@ public class MetaOmGraph implements ActionListener {
 
 				out.close();
 				fos.close();
-
 			} catch (IOException e) {
 				JOptionPane.showMessageDialog(getMainWindow(), "Unable to write to preferences file.", "Error",
 						JOptionPane.ERROR_MESSAGE);
@@ -1834,8 +1807,6 @@ public class MetaOmGraph implements ActionListener {
 		projectTableFrame.setSize(800, 600);
 		projectTableFrame.show();
 		projectTableFrame.setName("projectdata.php");
-
-
 		activeTablePanel.setExtInfoDividerPos(.5);
 		saveProjectAsItem.setEnabled(true);
 		saveProjectItem.setEnabled(true);
@@ -1977,7 +1948,6 @@ public class MetaOmGraph implements ActionListener {
 			this.ignoreConsecutiveDelimiters = ignoreConsecutiveDelimiters;
 			this.blankValue = blankValue;
 			this.includeMetNet = includeMetNet;
-			
 		}
 
 		/**
@@ -2072,7 +2042,7 @@ public class MetaOmGraph implements ActionListener {
 				} else if (!activeProject.isUniqueDataCols()) {
 					JOptionPane.showMessageDialog(getMainWindow(),
 							source.getName()
-							+ " contains duplicate column names for data columns.\nPlease check your file.",
+									+ " contains duplicate column names for data columns.\nPlease check your file.",
 							"Error", JOptionPane.ERROR_MESSAGE);
 					activeProject = null;
 					closeProject();
@@ -2156,7 +2126,6 @@ public class MetaOmGraph implements ActionListener {
 					activeProject.initColTypes();
 
 				}
-
 
 			} else {
 				// No need to report errors since MetaOmProject does it for
@@ -2246,10 +2215,9 @@ public class MetaOmGraph implements ActionListener {
 				EventQueue.invokeAndWait(new Runnable() {
 					@Override
 					public void run() {
-
-						String projFileName = source.getAbsolutePath();
 						activeProject = new MetaOmProject(source);
-
+						try{
+						String projFileName = source.getAbsolutePath();
 						String projectName = projFileName.substring(projFileName.lastIndexOf(File.separator)+1,projFileName.lastIndexOf('.'));
 						String currDate = new SimpleDateFormat("yyyy-MM-dd_HHmmss").format(new Date());
 						String logFilePath = projFileName.substring(0,projFileName.lastIndexOf(File.separator))+"\\logs\\"+projectName+"_"+currDate+".log";
@@ -2266,7 +2234,9 @@ public class MetaOmGraph implements ActionListener {
 
 
 						currentProjectActionId = openProjectAction.getActionNumber();
-
+						}
+						catch(Exception e){
+						}
 
 					}
 				});
@@ -2306,10 +2276,10 @@ public class MetaOmGraph implements ActionListener {
 
 			} else {
 				JOptionPane
-				.showMessageDialog(MetaOmGraph.getMainWindow(),
-						"There was a problem reading " + source.getName()
-						+ ".  Make sure it's a valid MetaOmGraph file.",
-						"Error", JOptionPane.ERROR_MESSAGE);
+						.showMessageDialog(MetaOmGraph.getMainWindow(),
+								"There was a problem reading " + source.getName()
+										+ ".  Make sure it's a valid MetaOmGraph file.",
+								"Error", JOptionPane.ERROR_MESSAGE);
 				activeProject = null;
 				closeProject();
 				desktop.validate();
@@ -2343,8 +2313,6 @@ public class MetaOmGraph implements ActionListener {
 		}
 		activeProjectFile = source;
 		projectOpened();
-
-
 		return true;
 	}
 
@@ -3082,6 +3050,8 @@ public class MetaOmGraph implements ActionListener {
 			}
 			FileFilter xmlFilter = Utils.createFileFilter("xml", "XML Files");
 			final File dest = Utils.chooseFileToSave(xmlFilter, "xml", MetaOmGraph.getMainWindow(), true);
+			if(dest == null)
+				return;
 			new AnimatedSwingWorker("Exporting...", true) {
 
 				@Override
@@ -3149,8 +3119,8 @@ public class MetaOmGraph implements ActionListener {
 			//			}
 			return;
 		}
-
-
+		
+		
 		/* urmi: this function is not used
 		if (IMPORT_METNET3_LISTS_COMMAND.equals(e.getActionCommand())) {
 			final MetNet3ListImportPanel importer;
@@ -3408,7 +3378,7 @@ public class MetaOmGraph implements ActionListener {
 				getDesktop().getAllFrames()[index].setSelected(true);
 			} catch (
 
-					Exception ex) {
+			Exception ex) {
 				ex.printStackTrace();
 				return;
 			}
@@ -3735,7 +3705,7 @@ public class MetaOmGraph implements ActionListener {
 
 				} catch (
 
-						IOException ioe) {
+				IOException ioe) {
 					ioe.printStackTrace();
 				}
 
@@ -3934,7 +3904,6 @@ public class MetaOmGraph implements ActionListener {
 							npd.getRowArray(), npd.getColArray(), npd.getExtendedInfoFile(),
 							npd.getIgnoreConsecutiveDelimiters(), npd.getBlankValue(), npd.csvFlag,
 							npd.getMetadataDelimiter()).start();
-
 				} else {
 					if (welcomeDialog != null)
 						welcomeDialog.setVisible(true);
@@ -3990,8 +3959,8 @@ public class MetaOmGraph implements ActionListener {
 						"A newer version of MOG is available for download. We highly recommend using the latest version.\nYour version: "
 								+ getVersion() + "\nLatest version: " + ob.getLatestVersionOnline(),
 
-								"New version available!", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
-								options, options[0]);
+						"New version available!", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+						options, options[0]);
 			} catch (HeadlessException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -4006,7 +3975,7 @@ public class MetaOmGraph implements ActionListener {
 				// open metnet download
 				try {
 					java.awt.Desktop.getDesktop()
-					.browse(new URI("http://metnetweb.gdcb.iastate.edu/MetNet_MetaOmGraph.htm"));
+							.browse(new URI("http://metnetweb.gdcb.iastate.edu/MetNet_MetaOmGraph.htm"));
 					shutdown();
 				} catch (IOException | URISyntaxException e1) {
 					// TODO Auto-generated catch block
@@ -4088,10 +4057,6 @@ public class MetaOmGraph implements ActionListener {
 			generalPropertiesAction.logActionProperties();
 		}
 		catch(Exception e) {
-			StringWriter sw = new StringWriter();
-			e.printStackTrace(new PrintWriter(sw));
-			String exceptionAsString = sw.toString();
-			logger.info(exceptionAsString);
 		}
 	}
 
@@ -4106,8 +4071,8 @@ public class MetaOmGraph implements ActionListener {
 			dataMap.put("Project Name", projectName);
 			dataMap.put("Mog FilePath",source.getAbsolutePath());
 			dataMap.put("Dimensions",String.valueOf(activeProject.getDataColumnCount()));
-			dataMap.put("Row Count", activeProject.getRowCount());
-			dataMap.put("Excluded count",MetaOmAnalyzer.getExcludeCount());
+			dataMap.put("Row Count", String.valueOf(activeProject.getRowCount()));
+			dataMap.put("Excluded count",String.valueOf(MetaOmAnalyzer.getExcludeCount()));
 			dataMap.put("Logfile Name", getCurrentLogFilePath());
 
 			HashMap<String,Object> result = new HashMap<String,Object>();
@@ -4132,8 +4097,8 @@ public class MetaOmGraph implements ActionListener {
 			dataMap.put("Data File", dataFileName);
 			dataMap.put("Metadata File",metadataFileName);
 			dataMap.put("Number of Samples",String.valueOf(activeProject.getDataColumnCount()));
-			dataMap.put("Row Count", activeProject.getRowCount());
-			dataMap.put("Excluded count",MetaOmAnalyzer.getExcludeCount());
+			dataMap.put("Row Count", String.valueOf(activeProject.getRowCount()));
+			dataMap.put("Excluded count",String.valueOf(MetaOmAnalyzer.getExcludeCount()));
 
 			HashMap<String,Object> result = new HashMap<String,Object>();
 			result.put("result", "OK");
@@ -4143,10 +4108,6 @@ public class MetaOmGraph implements ActionListener {
 			return newProjectAction.getActionNumber();
 		}
 		catch(Exception e) {
-			StringWriter sw = new StringWriter();
-			e.printStackTrace(new PrintWriter(sw));
-			String exceptionAsString = sw.toString();
-			logger.info(exceptionAsString);
 			return -1;
 		}
 

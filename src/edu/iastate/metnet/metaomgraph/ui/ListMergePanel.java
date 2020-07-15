@@ -4,13 +4,10 @@ import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
-
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,15 +27,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.JTextPane;
-
-import org.apache.logging.log4j.Logger;
 
 public class ListMergePanel extends JPanel {
 	private MetaOmProject myProject;
 	private JCheckBox[] listBoxes;
 	private JTextField nameField;
-
 
 	public ListMergePanel(MetaOmProject project) {
 		myProject = project;
@@ -101,7 +94,7 @@ public class ListMergePanel extends JPanel {
 		int j = (arrayOfInteger1 = selected).length;
 		for (int i = 0; i < j; i++) {
 			int listNum = arrayOfInteger1[i].intValue();
-
+			
 			//String listName = myProject.getGeneListNames()[listNum];
 			//fix correct name
 			String listName=listBoxes[listNum].getText();
@@ -124,7 +117,7 @@ public class ListMergePanel extends JPanel {
 			Set<Integer> resultSet = new HashSet<Integer>(result);
 			return resultSet.toArray(new Integer[0]);
 		}
-
+		
 		//find intersection of all lists in allRows
 		result=Utils.getListIntersection(allRows);
 		return result.toArray(new Integer[0]);
@@ -167,12 +160,12 @@ public class ListMergePanel extends JPanel {
 					return;
 				}
 				Integer[] merged = mergePanel.getMergedList(intersect.isSelected());
-
+				
 				if(merged.length<1) {
 					JOptionPane.showMessageDialog(null, "No items to put in new list. List can't be created", "List can't be created", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
-
+				
 				int[] intMerged = new int[merged.length];
 				for (int i = 0; i < intMerged.length; i++) {
 					intMerged[i] = merged[i].intValue();

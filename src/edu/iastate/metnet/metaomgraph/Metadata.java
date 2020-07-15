@@ -292,26 +292,26 @@ public class Metadata {
 	}
 
 	public Integer[] search(String term) {
-		return search(null, term, false);
+		return search(null, term, SearchMatchType.CONTAINS);
 	}
 
-	public Integer[] search(String field, String term, boolean exact) {
-		return search(new String[] { field }, new String[] { term }, new boolean[] { exact }, true);
+	public Integer[] search(String field, String term, SearchMatchType matchType) {
+		return search(new String[] { field }, new String[] { term }, new SearchMatchType[] { matchType }, true);
 	}
 
-	public Integer[] search(String[] fields, String[] terms, boolean[] exacts, boolean matchAll) {
+	public Integer[] search(String[] fields, String[] terms, SearchMatchType[] matchTypes, boolean matchAll) {
 		MetadataQuery[] queries = new MetadataQuery[terms.length];
 		for (int i = 0; i < queries.length; i++) {
 			String term = terms[i];
 			String field = null;
-			boolean exact = false;
+			SearchMatchType matchType = SearchMatchType.CONTAINS;
 			if (i < fields.length) {
 				field = fields[i];
 			}
-			if (i < exacts.length) {
-				exact = exacts[i];
+			if (i < matchTypes.length) {
+				matchType = matchTypes[i];
 			}
-			queries[i] = new MetadataQuery(field, term, exact,false);
+			queries[i] = new MetadataQuery(field, term, matchType,false);
 		}
 		return search(queries, matchAll);
 	}
@@ -517,17 +517,17 @@ public class Metadata {
 
 		private String term;
 
-		private boolean exact;
+		private SearchMatchType matchType;
 		
 		private boolean matchCase;
 
 		public MetadataQuery() {
 		}
 
-		public MetadataQuery(String field, String term, boolean exact,boolean matchCase) {
+		public MetadataQuery(String field, String term, SearchMatchType matchType,boolean matchCase) {
 			this.field = field;
 			this.term = term.trim();
-			this.exact = exact;
+			this.matchType = matchType;
 			this.matchCase=matchCase;
 		}
 
@@ -547,8 +547,12 @@ public class Metadata {
 			this.term = term;
 		}
 
-		public boolean isExact() {
-			return exact;
+		public SearchMatchType getMatchType() {
+			return matchType;
+		}
+		
+		public void setMatchType(SearchMatchType matchType) {
+			this.matchType = matchType;
 		}
 		
 		//urmi
@@ -560,14 +564,10 @@ public class Metadata {
 			matchCase=flag;
 		}
 
-		public void setExact(boolean exact) {
-			this.exact = exact;
-		}
-
 		@Override
 		public SimpleXMLElement toXML() {
-			SimpleXMLElement result = new SimpleXMLElement(getXMLElementName()).setAttribute("exact",
-					exact ? "true" : "false");
+			SimpleXMLElement result = new SimpleXMLElement(getXMLElementName()).setAttribute("matchType",
+					matchType.toString());
 			if (field != null) {
 				result.add(new SimpleXMLElement("field").setText(field));
 			}
@@ -577,7 +577,7 @@ public class Metadata {
 
 		@Override
 		public MetadataQuery fromXML(SimpleXMLElement source) {
-			exact = "true".equals(source.getAttributeValue("exact"));
+			matchType = SearchMatchType.valueOf(source.getAttributeValue("matchType").toUpperCase());
 			for (int i = 0; i < source.getChildCount(); i++) {
 				SimpleXMLElement child = source.getChildAt(i);
 				if ("field".equals(child.getName())) {
@@ -599,12 +599,18 @@ public class Metadata {
 			String thisField = getField();
 			if ((thisField == null) || ("".equals(thisField)) || (thisField.equalsIgnoreCase(field))) {
 				String term = getTerm();
-				if (isExact()) {
+				if (getMatchType() == SearchMatchType.IS) {
 					if (value.equalsIgnoreCase(term)) {
 						return true;
 					}
-				} else if (value.toLowerCase().contains(term.toLowerCase())) {
-					return true;
+				} else if (getMatchType() == SearchMatchType.CONTAINS) {
+					if (value.toLowerCase().contains(term.toLowerCase()))
+						return true;
+				}
+				else {
+					if (!value.equalsIgnoreCase(term)) {
+						return true;
+					}
 				}
 			}
 

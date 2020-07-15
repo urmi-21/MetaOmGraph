@@ -157,10 +157,7 @@ public class ReproducibilityDashboardPanel extends JPanel {
 					}
 
 				} catch (Exception e3) {
-					StringWriter sw = new StringWriter();
-					e3.printStackTrace(new PrintWriter(sw));
-					String exceptionAsString = sw.toString();
-					printDialog(exceptionAsString);
+					
 				}
 
 			}
@@ -495,10 +492,11 @@ public class ReproducibilityDashboardPanel extends JPanel {
 					System.out.println("exception occoured" + e);
 				} finally {
 					try {
+						if(tabNo!=0 && out!=null) {
 						out.close();
+						}
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						
 					}
 				}
 			}
@@ -609,10 +607,7 @@ public class ReproducibilityDashboardPanel extends JPanel {
 			expandAllNodes(tree);
 
 		} catch (Exception e) {
-			StringWriter sw = new StringWriter();
-			e.printStackTrace(new PrintWriter(sw));
-			String exceptionAsString = sw.toString();
-			printDialog(exceptionAsString);
+			
 		}
 	}
 
@@ -647,10 +642,7 @@ public class ReproducibilityDashboardPanel extends JPanel {
 
 			}
 		} catch (Exception e) {
-			StringWriter sw = new StringWriter();
-			e.printStackTrace(new PrintWriter(sw));
-			String exceptionAsString = sw.toString();
-			printDialog(exceptionAsString);
+			
 		}
 	}
 
@@ -716,10 +708,7 @@ public class ReproducibilityDashboardPanel extends JPanel {
 					try {
 						actionObj = allTabsInfo.get(tabNo).getActionObjects().toArray(actionObj);
 					} catch (Exception e) {
-						StringWriter sw = new StringWriter();
-						e.printStackTrace(new PrintWriter(sw));
-						String exceptionAsString = sw.toString();
-						printDialog(exceptionAsString);
+						
 					}
 
 					DefaultMutableTreeNode node = (DefaultMutableTreeNode) playTree.getLastSelectedPathComponent();
@@ -759,23 +748,23 @@ public class ReproducibilityDashboardPanel extends JPanel {
 							if (entry.getValue() instanceof List<?>) {
 								List<String> actionList = (List<String>) entry.getValue();
 								for (int i = 0; i < actionList.size(); i++) {
-									num1Obj[1] += actionList.get(i) + "\n";
+									num1Obj[1] += String.valueOf(actionList.get(i)) + "\n";
 
 								}
 							} else if (entry.getValue() instanceof Map<?, ?>) {
 								Map<?, ?> actionMap = (Map<?, ?>) entry.getValue();
 								for (Map.Entry<?, ?> entry1 : actionMap.entrySet()) {
-									num1Obj[1] += entry1.getValue() + "\n";
+									num1Obj[1] += String.valueOf(entry1.getValue()) + "\n";
 									
 								}
 							} else if (entry.getValue() instanceof String[]) {
 								String[] actionArray = (String[]) entry.getValue();
 								for (int i = 0; i < actionArray.length; i++) {
-									num1Obj[1] += actionArray[i] + "\n";
+									num1Obj[1] += String.valueOf(actionArray[i]) + "\n";
 									
 								}
 							} else {
-								num1Obj[1] = entry.getValue();
+								num1Obj[1] = String.valueOf(entry.getValue());
 								
 							}
 
@@ -785,7 +774,7 @@ public class ReproducibilityDashboardPanel extends JPanel {
 
 					Object[] num1p1 = new Object[2];
 					num1p1[0] = "<html><b>Timestamp</b></html>";
-					num1p1[1] = actionObj[ltn.getNodeNumber()].getTimestamp();
+					num1p1[1] = String.valueOf(actionObj[ltn.getNodeNumber()].getTimestamp());
 					tableList.add(num1p1);
 
 					Object[] tableListObj = (Object[]) tableList.toArray();
@@ -804,9 +793,16 @@ public class ReproducibilityDashboardPanel extends JPanel {
 							if (row == 0 && column == 1) {
 								try {
 
+									int numEnters = 0;
+									for (int x = 0; x < aValue.toString().length(); x++) {
+										if (aValue.toString().charAt(x) == '\n' || aValue.toString().charAt(x) == '\r') {
+											numEnters++;
+										}
+									}
+									
 									int rowlen = (aValue.toString().length() / 13) * 25;
+									rowlen += numEnters*25;
 									if (rowlen > 0) {
-
 										table.setRowHeight(0, rowlen);
 									} else {
 										table.setRowHeight(0, 20);
@@ -818,10 +814,7 @@ public class ReproducibilityDashboardPanel extends JPanel {
 									if (tabNo != 0)
 										autoSaveLog(tabNo);
 								} catch (Exception e) {
-									StringWriter sw = new StringWriter();
-									e.printStackTrace(new PrintWriter(sw));
-									String exceptionAsString = sw.toString();
-									printDialog(exceptionAsString);
+	
 								}
 
 							}
@@ -843,7 +836,7 @@ public class ReproducibilityDashboardPanel extends JPanel {
 								}
 							}
 							int rowlen = (col1.length() / 10) * 25;
-							rowlen += numEnters;
+							rowlen += numEnters*25;
 							if (rowlen > 0) {
 
 								table.setRowHeight(i, rowlen);
@@ -859,10 +852,7 @@ public class ReproducibilityDashboardPanel extends JPanel {
 					table.setRowSelectionAllowed(true);
 
 				} catch (Exception e) {
-					StringWriter sw = new StringWriter();
-					e.printStackTrace(new PrintWriter(sw));
-					String exceptionAsString = sw.toString();
-					printDialog(exceptionAsString);
+				
 				}
 			}
 		});
@@ -928,24 +918,19 @@ public class ReproducibilityDashboardPanel extends JPanel {
 			fw = new FileWriter(logFileName, false);
 			String outputJson = gson.toJson(apArray);
 			String output = outputJson.substring(1, outputJson.length() - 2);
-			output = output.replaceAll("a", "yeahhhh");
+			//output = output.replaceAll("\r", "");
 			fw.write(output);
 
 		} catch (Exception e2) {
-			StringWriter sw = new StringWriter();
-			e2.printStackTrace(new PrintWriter(sw));
-			String exceptionAsString = sw.toString();
-			printDialog(exceptionAsString);
+			
 		} finally {
 			try {
+				if(fw!=null) {
 				fw.close();
+				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
-				StringWriter sw = new StringWriter();
-				e.printStackTrace(new PrintWriter(sw));
-				String exceptionAsString = sw.toString();
-				printDialog(exceptionAsString);
+				
 			}
 		}
 
