@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.ButtonGroup;
@@ -34,12 +35,13 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFPalette;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.xssf.usermodel.DefaultIndexedColorMap;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 // new testing by mhhur
 import org.apache.poi.ss.usermodel.*;
@@ -52,7 +54,9 @@ import org.jfree.data.xy.XYDataset;
 public class ChartDataExporter extends JInternalFrame implements ActionListener {
     private static final double SCALE = 36.57142857142857D;
     private static final int[] ATGS_COL_WIDTHS = {300, 70, 70, 80, 95, 100, 90, 100, 80, 100, 70, 70, 70, 70};
-    private static final short[] HSSF_COLORS = {46, 44, 44, 31, 31, 31, 42, 52, 46, 43, 47, 47, 47, 47};
+    //private static final short[] HSSF_COLORS = {46, 44, 44, 31, 31, 31, 42, 52, 46, 43, 47, 47, 47, 47};
+    private static final short[] XSSF_COLORS = {0, 1, 1, 2, 2, 2, 3, 4, 0, 5, 6, 6, 6, 6};
+    private static HashMap<Integer, XSSFColor> colorMap = new HashMap<Integer, XSSFColor>();
     private MetaOmChartPanel myChartPanel;
     private JTable seriesTable;
     private ButtonGroup includeGroup;
@@ -225,24 +229,34 @@ public class ChartDataExporter extends JInternalFrame implements ActionListener 
             }
         }
 
+        XSSFWorkbook wb = new XSSFWorkbook();
 
-        HSSFWorkbook wb = new HSSFWorkbook();
-        HSSFSheet sheet = wb.createSheet("MetaOmGraph data");
+        //HSSFWorkbook wb = new HSSFWorkbook();
+        XSSFSheet sheet = wb.createSheet("MetaOmGraph data");
 
         if (colorCodeBox.isSelected()) {
-            HSSFPalette pal = wb.getCustomPalette();
-            pal.setColorAtIndex((short) 46, (byte) -23, (byte) -45, (byte) -15);
-            pal.setColorAtIndex((short) 44, (byte) -122, (byte) -92, (byte) -23);
-            pal.setColorAtIndex((short) 31, (byte) -65, (byte) -33, (byte) -1);
-            pal.setColorAtIndex((short) 42, (byte) -50, (byte) -22, (byte) -40);
-            pal.setColorAtIndex((short) 52, (byte) -9, (byte) -60, (byte) 77);
-            pal.setColorAtIndex((short) 43, (byte) -1, (byte) -1, (byte) -100);
-            pal.setColorAtIndex((short) 47, (byte) -10, (byte) -52, (byte) -99);
+            DefaultIndexedColorMap defaultMap = new DefaultIndexedColorMap();
+            colorMap.put(0, new XSSFColor(new java.awt.Color(233, 211, 241), defaultMap));
+            colorMap.put(1, new XSSFColor(new java.awt.Color(134, 164, 233), defaultMap));
+            colorMap.put(2, new XSSFColor(new java.awt.Color(191, 223, 255), defaultMap));
+            colorMap.put(3, new XSSFColor(new java.awt.Color(206, 234, 216), defaultMap));
+            colorMap.put(4, new XSSFColor(new java.awt.Color(247, 196, 77), defaultMap));
+            colorMap.put(5, new XSSFColor(new java.awt.Color(255, 255, 156), defaultMap));
+            colorMap.put(6, new XSSFColor(new java.awt.Color(246, 204, 157), defaultMap));
+        	
+//            HSSFPalette pal = wb.getCustomPalette();
+//            pal.setColorAtIndex((short) 46, (byte) -23, (byte) -45, (byte) -15);
+//            pal.setColorAtIndex((short) 44, (byte) -122, (byte) -92, (byte) -23);
+//            pal.setColorAtIndex((short) 31, (byte) -65, (byte) -33, (byte) -1);
+//            pal.setColorAtIndex((short) 42, (byte) -50, (byte) -22, (byte) -40);
+//            pal.setColorAtIndex((short) 52, (byte) -9, (byte) -60, (byte) 77);
+//            pal.setColorAtIndex((short) 43, (byte) -1, (byte) -1, (byte) -100);
+//            pal.setColorAtIndex((short) 47, (byte) -10, (byte) -52, (byte) -99);
         }
 
-        HSSFCellStyle cs = wb.createCellStyle();
+        XSSFCellStyle cs = wb.createCellStyle();
         for (int rowIndex = 0; rowIndex < result.length; rowIndex++) {
-            HSSFRow row = sheet.createRow(rowIndex);
+            XSSFRow row = sheet.createRow(rowIndex);
             row.createCell((short) 0).setCellValue((String) result[rowIndex][0]);
 
             cs.setVerticalAlignment(VerticalAlignment.CENTER);
@@ -251,12 +265,13 @@ public class ChartDataExporter extends JInternalFrame implements ActionListener 
             if ((atgsData != null) && (atgsData[rowIndex] != null)) {
                 cs = wb.createCellStyle();
                 for (int i = 0; i < atgsData[rowIndex].length; i++) {
-                    HSSFCell atgsCell = row.createCell((short) (i + 1));
+                    XSSFCell atgsCell = row.createCell((short) (i + 1));
 
                     cs.setWrapText(true);
                     cs.setVerticalAlignment(VerticalAlignment.CENTER);
                     if (colorCodeBox.isSelected()) {
-                        cs.setFillForegroundColor(HSSF_COLORS[i]);
+                        int key = XSSF_COLORS[i];
+                        cs.setFillForegroundColor(colorMap.get(key));
                         cs.setFillPattern(FillPatternType.SOLID_FOREGROUND); //setFillPattern((short) 1);
                         cs.setBorderBottom(BorderStyle.THIN);//cs.setBorderBottom((short) 1);
                         cs.setBorderTop(BorderStyle.THIN);//cs.setBorderTop((short) 1);
@@ -288,14 +303,14 @@ public class ChartDataExporter extends JInternalFrame implements ActionListener 
 
             cs = wb.createCellStyle();
             for (int y = 0; y < keyCount; y++) {
-                HSSFRow row = sheet.getRow(result.length + y);
+                XSSFRow row = sheet.getRow(result.length + y);
                 String thisKey = metadataKeys.get(y);
                 for (int x = 0; x < metadata.length; x++) {
                     Object thisValue = metadata[x].get(thisKey);
                     String stringValue;
                     if (thisValue == null)  stringValue = "";
                     else stringValue = thisKey + ": " + thisValue;
-                    HSSFCell cell = row.createCell((short) (x + offset));
+                    XSSFCell cell = row.createCell((short) (x + offset));
 
                     cs.setWrapText(true);
                     cs.setVerticalAlignment(VerticalAlignment.CENTER);//cs.setVerticalAlignment((short) 1);
@@ -372,12 +387,12 @@ public class ChartDataExporter extends JInternalFrame implements ActionListener 
             }
             int finalColumns = columns.length;
             if (atgsBox.isSelected()) finalColumns += 14;
-            if (finalColumns > 255) {
-                JOptionPane.showMessageDialog(getParent(), "An Excel file cannot contain more than 255 columns.\nPlease select a smaller range.", "Range too large", 0);
+            if (finalColumns > 16384) {
+                JOptionPane.showMessageDialog(getParent(), "An Excel file cannot contain more than 16384 columns.\nPlease select a smaller range.", "Range too large", 0);
                 return;
             }
-            FileFilter filter = Utils.createFileFilter("xls", "Excel spreadsheet");
-            final File destination = Utils.chooseFileToSave(filter, "xls", MetaOmGraph.getMainWindow(), true);
+            FileFilter filter = Utils.createFileFilter("xlsx", "Excel spreadsheet");
+            final File destination = Utils.chooseFileToSave(filter, "xlsx", MetaOmGraph.getMainWindow(), true);
             if (destination == null) return;
 
             new AnimatedSwingWorker("Exporting...") {

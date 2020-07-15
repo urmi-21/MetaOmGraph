@@ -35,7 +35,6 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-import org.apache.commons.math3.random.RandomDataGenerator;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -87,13 +86,12 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	public static final String GRAPH_BOXPLOT_COMMAND = "make boxplot";
 	public static final String GRAPH_BOXPLOT_COLS_COMMAND = "col boxplot";
 	public static final String MAKE_HISTOGRAM_COMMAND = "create histogram";
-
 	// private static int _N = MetaOmGraph.getNumPermutations();
 	// private static int _T = MetaOmGraph.getNumThreads();
 	private JButton reportButton;
 	private JButton listFromFilterButton;
 	// urmi
-	private JButton saveMainTableButton;
+	private MenuButton saveMainTableButton;
 	private MenuButton plotButton;
 	private JMenuItem plotListItem;
 
@@ -139,8 +137,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	private JMenuItem weightedEuclideanItem;
 	private JMenuItem weightedManhattanItem;
 	private JMenuItem saveCorrelationItem;
-
-
 	// urmi
 	private JMenuItem diffCorrelation;
 	private JMenuItem diffCorrelationWizard;
@@ -542,9 +538,21 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		dataToolbar.add(analyzeMenuButton);
 
 		dataToolbar.add(new Separator());
-		saveMainTableButton = new JButton(theme.getExcel());
-		saveMainTableButton.setActionCommand("savemaintab");
-		saveMainTableButton.addActionListener(this);
+		
+		saveMainTableButton = new MenuButton(theme.getExcel(), null);
+		saveMainTableButton.setToolTipText("Export table to txt or excel file");
+			
+		JPopupMenu exportMenu = new JPopupMenu();
+		JMenuItem exportToTextItem = new JMenuItem("Export to text file");
+		exportToTextItem.setActionCommand("ExportToText");
+		exportToTextItem.addActionListener(this);
+		exportMenu.add(exportToTextItem);
+		JMenuItem exportToExcelItem = new JMenuItem("Export to excel workbook");
+		exportToExcelItem.setActionCommand("ExportToExcel");
+		exportToExcelItem.addActionListener(this);
+		exportMenu.add(exportToExcelItem);
+		
+		saveMainTableButton.setMenu(exportMenu);
 		dataToolbar.add(saveMainTableButton);
 
 		reportButton = new JButton("Finding samples", theme.getReport());
@@ -733,7 +741,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	}
 
 	public void selectList(String listName) {
-
 		geneLists.setSelectedValue(listName, true);
 	}
 
@@ -779,7 +786,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 	@Override
 	public void valueChanged(ListSelectionEvent event) {
-
 		int[] oldWidths = new int[listDisplay.getColumnCount()];
 		for (int x = 0; x < oldWidths.length; x++)
 			oldWidths[x] = listDisplay.getColumnModel().getColumn(x).getPreferredWidth();
@@ -884,6 +890,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 
 		//Harsha - reproducibility log
+		try{
 		HashMap<String,Object> actionMap = new HashMap<String,Object>();
 		actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
 
@@ -895,6 +902,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 		ActionProperties launchEnsembl = new ActionProperties(cmd,actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 		launchEnsembl.logActionProperties();
+		}
+		catch(Exception exp){
+		}
 
 	}
 
@@ -939,6 +949,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 
 		//Harsha - reproducibility log
+		try{
 		HashMap<String,Object> actionMap = new HashMap<String,Object>();
 		actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
 
@@ -950,6 +961,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 		ActionProperties launchRefSeqAction = new ActionProperties("launch-ref-seq",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 		launchRefSeqAction.logActionProperties();
+		}
+		catch(Exception exp){
+		}
 
 	}
 
@@ -986,6 +1000,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 
 		//Harsha - reproducibility log
+		try{
 		HashMap<String,Object> actionMap = new HashMap<String,Object>();
 		actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
 
@@ -997,7 +1012,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 		ActionProperties launchGeneCardsAction = new ActionProperties("launch-gene-cards",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 		launchGeneCardsAction.logActionProperties();
-
+		}
+		catch(Exception exp){
+		}
 	}
 
 	public void launchAtGeneSearch() {
@@ -1205,19 +1222,28 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		HashMap<String,Object> result = new HashMap<String,Object>();
 		
 		try {
+			
+		MetadataHybrid mdhObj = MetaOmGraph.getActiveProject().getMetadataHybrid();
+		MetadataCollection mcol = null;
+		if(mdhObj != null) {
+		 mcol = mdhObj.getMetadataCollection();
+		}
 		actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
 		actionMap.put("section", "Feature Metadata");
 		
 		String selList = geneLists.getSelectedValue().toString();
 		dataMap.put("Selected List", selList);
 		dataMap.put("Selected Features", getSelectedGeneNames());
+		if(mcol != null) {
+		dataMap.put("Included Samples", mcol.getIncluded());
+		}
 		dataMap.put("Data Transformation", MetaOmGraph.getInstance().getTransform());
-		dataMap.put("Default XAxis", myProject.getDefaultXAxis());
-		dataMap.put("Default YAxis", myProject.getDefaultYAxis());
-		dataMap.put("Default Chart Title", myProject.getDefaultTitle());
-		dataMap.put("Color 1", myProject.getColor1());
-		dataMap.put("Color 2", myProject.getColor2());
+		dataMap.put("XAxis", myProject.getDefaultXAxis());
+		dataMap.put("YAxis", myProject.getDefaultYAxis());
+		dataMap.put("Chart Title", myProject.getDefaultTitle());
 		
+		result.put("Color 1", myProject.getColor1());
+		result.put("Color 2", myProject.getColor2());
 		result.put("result", "OK");
 		result.put("userComments", "");
 
@@ -1247,22 +1273,30 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		HashMap<String,Object> result= new HashMap<String,Object>();
 		HashMap<String,Object> actionMap = new HashMap<String,Object>();
 		HashMap<String,Object> dataMap = new HashMap<String,Object>();
+		MetadataHybrid mdhObj = MetaOmGraph.getActiveProject().getMetadataHybrid();
+		MetadataCollection mcol = null;
+		if(mdhObj != null) {
+			mcol = mdhObj.getMetadataCollection();
+		}
+		
 		try {
 		actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
-
+		actionMap.put("section", "Feature Metadata");
+		
 		String selList = geneLists.getSelectedValue().toString();
 		dataMap.put("Selected List", selList);
 		dataMap.put("Selected Features", getSelectedGeneNames());
+		if(mcol != null) {
+			dataMap.put("Included Samples", mcol.getIncluded());
+		}
 		dataMap.put("Data Transformation", MetaOmGraph.getInstance().getTransform());
-		dataMap.put("Default XAxis", myProject.getDefaultXAxis());
-		dataMap.put("Default YAxis", myProject.getDefaultYAxis());
-		dataMap.put("Default Chart Title", myProject.getDefaultTitle());
-		dataMap.put("Color 1", myProject.getColor1());
-		dataMap.put("Color 2", myProject.getColor2());
+		dataMap.put("XAxis", myProject.getDefaultXAxis());
+		dataMap.put("YAxis", myProject.getDefaultYAxis());
+		dataMap.put("Chart Title", myProject.getDefaultTitle());
 		
-		
+		result.put("Color 1", myProject.getColor1());
+		result.put("Color 2", myProject.getColor2());
 		result.put("result", "OK");
-		result.put("userComments","");
 		}
 		catch(Exception e) {
 			
@@ -1287,6 +1321,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					f.setSize(1000, 700);
 					f.setVisible(true);
 					f.toFront();
+					
+					histogramAction.logActionProperties();
+						
 
 				} catch (Exception e) {
 					JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
@@ -1301,12 +1338,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			}
 		});
 		
-		try {
-		histogramAction.logActionProperties();
-		}
-		catch(Exception e) {
-			
-		}
+		
 		return;
 		
 	}
@@ -1348,6 +1380,12 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	public void makeBoxPlot() {
 		int[] selected = getSelectedRowsInList();
 
+		MetadataHybrid mdhObj = MetaOmGraph.getActiveProject().getMetadataHybrid();
+		MetadataCollection mcol = null;
+		if(mdhObj != null) {
+			mcol = mdhObj.getMetadataCollection();
+		}
+		
 		HashMap<String,Object> actionMap = new HashMap<String,Object>();
 		HashMap<String,Object> dataMap = new HashMap<String,Object>();
 		HashMap<String,Object> result = new HashMap<String,Object>();
@@ -1359,16 +1397,17 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		String selList = geneLists.getSelectedValue().toString();
 		dataMap.put("Selected List", selList);
 		dataMap.put("Selected Features", getSelectedGeneNames());
+		if(mcol != null) {
+		dataMap.put("Included Samples", mcol.getIncluded());
+		}
 		dataMap.put("Data Transformation", MetaOmGraph.getInstance().getTransform());
-		dataMap.put("Default XAxis", myProject.getDefaultXAxis());
-		dataMap.put("Default YAxis", myProject.getDefaultYAxis());
-		dataMap.put("Default Chart Title", myProject.getDefaultTitle());
-		dataMap.put("Color 1", myProject.getColor1());
-		dataMap.put("Color 2", myProject.getColor2());
+		dataMap.put("XAxis", myProject.getDefaultXAxis());
+		dataMap.put("YAxis", myProject.getDefaultYAxis());
+		dataMap.put("Chart Title", myProject.getDefaultTitle());
 		
-		
+		result.put("Color 1", myProject.getColor1());
+		result.put("Color 2", myProject.getColor2());
 		result.put("result", "OK");
-		result.put("userComments", "");
 		}
 		catch(Exception e1) {
 			
@@ -1509,6 +1548,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		HashMap<String,Object> dataMap = new HashMap<String,Object>();
 		HashMap<String,Object> result = new HashMap<String,Object>();
 		
+		MetadataHybrid mdhObj = MetaOmGraph.getActiveProject().getMetadataHybrid();
+		MetadataCollection mcol = null;
+		if(mdhObj != null) {
+			mcol = mdhObj.getMetadataCollection();
+		}
 		try {
 		actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
 		actionMap.put("section", "Feature Metadata");
@@ -1516,16 +1560,17 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		String selList = geneLists.getSelectedValue().toString();
 		dataMap.put("Selected List", selList);
 		dataMap.put("Selected Features", getSelectedGeneNames());
+		if(mcol != null) {
+			dataMap.put("Included Samples", mcol.getIncluded());
+		}
 		dataMap.put("Data Transformation", MetaOmGraph.getInstance().getTransform());
-		dataMap.put("Default XAxis", myProject.getDefaultXAxis());
-		dataMap.put("Default YAxis", myProject.getDefaultYAxis());
-		dataMap.put("Default Chart Title", myProject.getDefaultTitle());
-		dataMap.put("Color 1", myProject.getColor1());
-		dataMap.put("Color 2", myProject.getColor2());
+		dataMap.put("XAxis", myProject.getDefaultXAxis());
+		dataMap.put("YAxis", myProject.getDefaultYAxis());
+		dataMap.put("Chart Title", myProject.getDefaultTitle());
 		
-		
+		result.put("Color 1", myProject.getColor1());
+		result.put("Color 2", myProject.getColor2());
 		result.put("result", "OK");
-		result.put("userComments", "");
 		}
 		catch(Exception e1) {
 			
@@ -1639,19 +1684,27 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		HashMap<String,Object> actionMap = new HashMap<String,Object>();
 		HashMap<String,Object> dataMap = new HashMap<String,Object>();
 		HashMap<String,Object> result = new HashMap<String,Object>();
+		MetadataHybrid mdhObj = MetaOmGraph.getActiveProject().getMetadataHybrid();
+		MetadataCollection mcol = null;
+		if(mdhObj != null) {
+			mcol = mdhObj.getMetadataCollection();
+		}
 		
 		try {
 		actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
 		actionMap.put("section", "Feature Metadata");
 		
-		dataMap.put("Selected Features", "Entire");
 		dataMap.put("Data Transformation", MetaOmGraph.getInstance().getTransform());
-		dataMap.put("Default XAxis", myProject.getDefaultXAxis());
-		dataMap.put("Default YAxis", myProject.getDefaultYAxis());
-		dataMap.put("Default Chart Title", myProject.getDefaultTitle());
-		dataMap.put("Color 1", myProject.getColor1());
-		dataMap.put("Color 2", myProject.getColor2());
+		dataMap.put("Selected Features", "All "+String.valueOf(MetaOmGraph.getActiveProject().getRowCount())+" Features");
+		if(mcol != null) {
+		dataMap.put("Included Samples", mcol.getIncluded());
+		}
+		dataMap.put("XAxis", myProject.getDefaultXAxis());
+		dataMap.put("YAxis", myProject.getDefaultYAxis());
+		dataMap.put("Chart Title", myProject.getDefaultTitle());
 		
+		result.put("Color 1", myProject.getColor1());
+		result.put("Color 2", myProject.getColor2());
 		result.put("result", "OK");
 
 		ActionProperties entireDataGraphAction = new ActionProperties("entire-data-graph",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
@@ -1666,12 +1719,24 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		int[] trueRows = getAllTrueRows();
 
 		HashMap<String,Object> actionMap = new HashMap<String,Object>();
+		MetadataHybrid mdhObj = MetaOmGraph.getActiveProject().getMetadataHybrid();
+		MetadataCollection mcol = null;
+		if(mdhObj != null) {
+		 mcol = mdhObj.getMetadataCollection();
+		}
+		
 		actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
-		actionMap.put("section", "All");
+		actionMap.put("section", "Feature Metadata");
 		
 		HashMap<String,Object> dataMap = new HashMap<String,Object>();
 
 		HashMap<String,Object> result = new HashMap<String,Object>();
+		dataMap.put("XAxis", myProject.getDefaultXAxis());
+		dataMap.put("YAxis", myProject.getDefaultYAxis());
+		dataMap.put("Chart Title", myProject.getDefaultTitle());
+		
+		result.put("Color 1", myProject.getColor1());
+		result.put("Color 2", myProject.getColor2());
 		result.put("result", "OK");
 
 		dataMap.put("filtered-graph-type", "general");
@@ -1681,8 +1746,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject)
 			.createInternalFrame();
 
-			dataMap.put("selectedRows", trueRows);
-			actionMap.put("filtered-graph-type", "complete");
+			dataMap.put("Selected Features", "Entire Complete List");
 
 
 		} else {
@@ -1696,9 +1760,12 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject)
 			.createInternalFrame();
 
-			dataMap.put("selectedRows", selected);
+			dataMap.put("Selected Features", selected);
 		}
 
+		if(mcol != null) {
+			dataMap.put("Included Samples", mcol.getIncluded());
+		}
 		ActionProperties filteredGraphAction = new ActionProperties("filtered-graph",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 
 		filteredGraphAction.logActionProperties();
@@ -1716,8 +1783,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	public String getSelectedGeneName() {
 		if (listDisplay.getSelectedRow() != -1) {
 			return myProject.getRowNames()[myProject
-			                               .getGeneListRowNumbers(geneLists.getSelectedValue().toString())[getTrueSelectedRow()]][myProject
-			                                                                                                                      .getDefaultColumn()].toString();
+					.getGeneListRowNumbers(geneLists.getSelectedValue().toString())[getTrueSelectedRow()]][myProject
+							.getDefaultColumn()].toString();
 		}
 		return null;
 	}
@@ -1922,7 +1989,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		if ("delete list".equals(e.getActionCommand())) {
 			int result = JOptionPane.showConfirmDialog(MetaOmGraph.getMainWindow(),
 					"Are you sure you want to delete the selected lists '" + geneLists.getSelectedValue().toString()
-					+ "'?",
+							+ "'?",
 					"Confirm", 0, 3);
 			if (result == 0)
 				deleteSelectedList();
@@ -2007,6 +2074,12 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 			//Harsha - reproducibility log
 
+			MetadataHybrid mdhObj = MetaOmGraph.getActiveProject().getMetadataHybrid();
+			MetadataCollection mcol = null;
+			if(mdhObj != null) {
+				mcol = mdhObj.getMetadataCollection();
+			}
+			
 			HashMap<String,Object> actionMap = new HashMap<String,Object>();
 			HashMap<String,Object> dataMap = new HashMap<String,Object>();
 			HashMap<String,Object> resultLog = new HashMap<String,Object>();
@@ -2018,16 +2091,17 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			String selList = geneLists.getSelectedValue().toString();
 			dataMap.put("Selected List", selList);
 			dataMap.put("Selected Features", getSelectedGeneNames());
+			if(mcol != null) {
+				dataMap.put("Included Samples", mcol.getIncluded());
+			}
 			dataMap.put("Data Transformation", MetaOmGraph.getInstance().getTransform());
-			dataMap.put("Default XAxis", myProject.getDefaultXAxis());
-			dataMap.put("Default YAxis", myProject.getDefaultYAxis());
-			dataMap.put("Default Chart Title", myProject.getDefaultTitle());
-			dataMap.put("Color 1", myProject.getColor1());
-			dataMap.put("Color 2", myProject.getColor2());
-
+			dataMap.put("XAxis", myProject.getDefaultXAxis());
+			dataMap.put("YAxis", myProject.getDefaultYAxis());
+			dataMap.put("Chart Title", myProject.getDefaultTitle());
 			
+			resultLog.put("Color 1", myProject.getColor1());
+			resultLog.put("Color 2", myProject.getColor2());
 			resultLog.put("result", "OK");
-			resultLog.put("userComments", "");
 			}
 			catch(Exception e2) {
 				
@@ -2111,6 +2185,12 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			HashMap<String,Object> dataMap = new HashMap<String,Object>();
 			HashMap<String,Object> resultLog = new HashMap<String,Object>();
 			
+			MetadataHybrid mdhObj = MetaOmGraph.getActiveProject().getMetadataHybrid();
+			MetadataCollection mcol = null;
+			if(mdhObj != null) {
+				mcol = mdhObj.getMetadataCollection();
+			}
+			
 			try {
 			actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
 			actionMap.put("section", "Feature Metadata");
@@ -2118,14 +2198,16 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			String selList = geneLists.getSelectedValue().toString();
 			dataMap.put("Selected List", selList);
 			dataMap.put("Selected Features", getSelectedGeneNames());
+			if(mcol != null) {
+				dataMap.put("Included Samples", mcol.getIncluded());
+			}
 			dataMap.put("Data Transformation", MetaOmGraph.getInstance().getTransform());
-			dataMap.put("Default XAxis", myProject.getDefaultXAxis());
-			dataMap.put("Default YAxis", myProject.getDefaultYAxis());
-			dataMap.put("Default Chart Title", myProject.getDefaultTitle());
-			dataMap.put("Color 1", myProject.getColor1());
-			dataMap.put("Color 2", myProject.getColor2());
+			dataMap.put("XAxis", myProject.getDefaultXAxis());
+			dataMap.put("YAxis", myProject.getDefaultYAxis());
+			dataMap.put("Chart Title", myProject.getDefaultTitle());
 			
-			
+			resultLog.put("Color 1", myProject.getColor1());
+			resultLog.put("Color 2", myProject.getColor2());
 			resultLog.put("result", "OK");
 			resultLog.put("userComments", "");
 			}
@@ -2368,10 +2450,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 			HashMap<String,Object> actionMap = new HashMap<String,Object>();
 			actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+			actionMap.put("section", "Feature Metadata");
 
 			HashMap<String,Object> dataMap = new HashMap<String,Object>();
 			String selList = geneLists.getSelectedValue().toString();
-			dataMap.put("selectedList", selList);
+			dataMap.put("Selected List", selList);
 
 			HashMap<String,Object> result = new HashMap<String,Object>();
 			result.put("result", "OK");
@@ -2387,7 +2470,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						if (metaCorrRes == null || metaCorrRes.size() < 1) {
 							JOptionPane.showMessageDialog(null, "No correlations found...");
 
-							result.put("result", "Error");
 							result.put("resultComments", "No correlations found...");
 							ActionProperties viewCorrelationsAction = new ActionProperties("view-correlations",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 							viewCorrelationsAction.logActionProperties();
@@ -2399,6 +2481,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 								MetaOmGraph.getMainWindow().getHeight() / 2);
 						MetaOmGraph.getDesktop().add(frame);
 						frame.setSelected(true);
+						dataMap.put("Correlations", metaCorrRes);
 						ActionProperties viewCorrelationsAction = new ActionProperties("view-correlations",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 						viewCorrelationsAction.logActionProperties();
 					} catch (Exception e) {
@@ -2407,8 +2490,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				}
 			});
 
-			ActionProperties viewCorrelationsAction = new ActionProperties("view-correlations",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-			viewCorrelationsAction.logActionProperties();
 
 			return;
 		}
@@ -2420,12 +2501,17 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			makeListFromFilter();
 			return;
 		}
-
-		if ("savemaintab".equals(e.getActionCommand())) {
-
-			Utils.saveJTabletofile(listDisplay, "Feature Metadata");
+		
+		if("ExportToExcel".equals(e.getActionCommand())) {
+			Utils.saveJTableToExcel(listDisplay);
 			return;
 		}
+
+		if ("ExportToText".equals(e.getActionCommand())) {
+			Utils.saveJTabletofile(listDisplay,"Feature Metadata");
+			return;
+		}
+		
 		if ("advancefilter".equals(e.getActionCommand())) {
 
 			//Harsha - reproducibility log
@@ -2529,17 +2615,19 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				|| ("manhattan distance".equals(e.getActionCommand()))
 				|| ("weighted euclidean distance".equals(e.getActionCommand()))
 				|| ("weighted manhattan distance".equals(e.getActionCommand()))) {
-
-
+			
+			
+			
 			//Harsha - reproducibility log
 			HashMap<String,Object> actionMap = new HashMap<String,Object>();
 			actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+			actionMap.put("section","Feature Metadata");
 
 			HashMap<String,Object> dataMap = new HashMap<String,Object>();
 			String selList = geneLists.getSelectedValue().toString();
-			dataMap.put("selectedList", selList);
-			dataMap.put("selectedGenes", getSelectedGeneNames());
-			dataMap.put("transformationData", MetaOmGraph.getInstance().getTransform());
+			dataMap.put("Selected List", selList);
+			dataMap.put("Selected Features", getSelectedGeneNames());
+			dataMap.put("Data Transformation", MetaOmGraph.getInstance().getTransform());
 			
 			HashMap<String,Object> result = new HashMap<String,Object>();
 
@@ -2547,11 +2635,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Please select a row to analyze!", "Error",
 						0);
 
-				result.put("result", "Error");
-				result.put("resultComments", "Please select a row to analyze!");
-
-				ActionProperties multiSelectAction = new ActionProperties(e.getActionCommand().replaceAll(" ", "-"),actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				multiSelectAction.logActionProperties();
 
 				return;
 			}
@@ -2560,11 +2643,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Please select only one row to analyze!",
 						"Error", 0);
 
-				result.put("result", "Error");
-				result.put("resultComments", "Please select only one row to analyze!");
-
-				ActionProperties multiSelectAction = new ActionProperties(e.getActionCommand().replaceAll(" ", "-"),actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				multiSelectAction.logActionProperties();
 
 				return;
 			}
@@ -2580,7 +2658,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			 */
 			if (myProject.hasLastCorrelation()) {
 
-				keepLastCorrelation();
+				keepLastCorrelation(false);
 			}
 
 			String methodName = "";
@@ -2643,11 +2721,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			//Harsha - Reproducibility log
 
 
-			dataMap.put("correlationName", name);
-			dataMap.put("targetName", targetName);
+			dataMap.put("Correlation Name", name);
+			dataMap.put("Target Name", targetName);
 			result.put("result", "OK");
 
-			ActionProperties multiSelectAction = new ActionProperties(e.getActionCommand().replaceAll(" ", "-"),actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+			ActionProperties multiSelectAction = new ActionProperties(methodName.replaceAll(" ", "-"),actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 
 
 
@@ -2719,14 +2797,16 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 										if (n == JOptionPane.YES_OPTION) {
 											// random model
 											temp = ob.doComputation(true);
+											dataMap.put("Model", "Random effects Model");
 										} else {
 											// fixed model
 											temp = ob.doComputation(false);
+											dataMap.put("Model", "Fixed effects Model");
 										}
 										// CorrelationMeta temp = ob.doComputation(remFlag);
 										// target gene name to correlation meta object
 										String thisgeneName = myProject.getRowName(entries[j])[myProject
-										                                                       .getDefaultColumn()].toString();
+												.getDefaultColumn()].toString();
 										// JOptionPane.showMessageDialog(null, "this gene name:"+thisgeneName);
 										// add gene name in corrmeta obj
 										temp.settargetName(thisgeneName);
@@ -2778,6 +2858,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 								} else {
 									corrModel = "Fixed effects model";
 								}
+								dataMap.put("Model", corrModel);
 								CorrelationMetaCollection cmcObj = new CorrelationMetaCollection(nameSave, 0, corrModel,
 										targetName, corrMetaResList);
 								myProject.addMetaCorrRes(nameSave, cmcObj);
@@ -2884,7 +2965,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 										double thisrVal = 0;
 										CorrelationMeta temp = new CorrelationMeta(pv[0], pv[1]);
 										String thisgeneName = myProject.getRowName(entries[j])[myProject
-										                                                       .getDefaultColumn()].toString();
+												.getDefaultColumn()].toString();
 										temp.settargetName(thisgeneName);
 										corrMetaResList.add(temp);
 										// JOptionPane.showMessageDialog(null, "P val for row:"+j+" is:"+pv);
@@ -2996,7 +3077,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 										double thisrVal = 0;
 										CorrelationMeta temp = new CorrelationMeta(pv[0], pv[1]);
 										String thisgeneName = myProject.getRowName(entries[j])[myProject
-										                                                       .getDefaultColumn()].toString();
+												.getDefaultColumn()].toString();
 										temp.settargetName(thisgeneName);
 										corrMetaResList.add(temp);
 
@@ -3254,11 +3335,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					// int _N = 100;
 					List<double[][]> shuffList = new ArrayList<>();
 					shuffList.add(targetwtMat); // shuffle _N time to create a list of
-					// shuffledlists
+												// shuffledlists
 					List<Integer> indices = IntStream.range(0, targetwtMat[0].length).boxed()
 							.collect(Collectors.toList());// indices of
-					// columns
-					// 0..num_Cols
+															// columns
+															// 0..num_Cols
 					for (int i = 0; i < _N; i++) {
 						// create _N shuffled mat and add to list
 						java.util.Collections.shuffle(indices);
@@ -3682,7 +3763,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 										// double thisrVal = 0;
 										CorrelationMeta temp = new CorrelationMeta(pv[0], pv[1]);
 										String thisgeneName = myProject.getRowName(entries[j])[myProject
-										                                                       .getDefaultColumn()].toString();
+												.getDefaultColumn()].toString();
 										temp.settargetName(thisgeneName);
 										corrMetaResList.add(temp);
 										// JOptionPane.showMessageDialog(null, "P val for row:"+j+" is:"+pv);
@@ -3797,7 +3878,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 										// double thisrVal = 0;
 										CorrelationMeta temp = new CorrelationMeta(pv[0], pv[1]);
 										String thisgeneName = myProject.getRowName(entries[j])[myProject
-										                                                       .getDefaultColumn()].toString();
+												.getDefaultColumn()].toString();
 										temp.settargetName(thisgeneName);
 										corrMetaResList.add(temp);
 
@@ -3875,7 +3956,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				}
 			} catch (
 
-					IOException ioe) {
+			IOException ioe) {
 				JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Error reading project data", "IOException",
 						0);
 				result.put("result", "Error");
@@ -3898,15 +3979,14 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			}
 
 
-			multiSelectAction.logActionProperties();
+			//multiSelectAction.logActionProperties();
 			return;
 		}
 		if ("save correlation".equals(e.getActionCommand())) {
-			keepLastCorrelation();
+			keepLastCorrelation(true);
 			return;
 		}
 		if ("remove correlation".equals(e.getActionCommand())) {
-
 			if (!(e.getSource() instanceof JMenuItem))
 				return;
 
@@ -4456,7 +4536,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 		}
 
-
 	}
 
 	private Map<String, Collection<Integer>> createSplitIndex() {
@@ -4733,6 +4812,62 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		filterModel.applyFilter(value);
 	}
 
+//	public String getActualCommand(String actionCommand) {
+//		if ("pearson correlation".equals(actionCommand)) {
+//			return "pearson-correlation";
+//		}
+//		else if("pearson correlationP".equals(actionCommand)) {
+//			
+//		}
+//		else if("FEMcorrelationP".equals(actionCommand)) {
+//			
+//		}
+//		else if("REMcorrelationP".equals(actionCommand)) {
+//			
+//		}
+//		else if("pearson correlation2".equals(actionCommand)) {
+//			
+//		}
+//		else if("pearson correlation3".equals(actionCommand)) {
+//			
+//		}
+//		else if("mutualInformation".equals(actionCommand)) {
+//			
+//		}
+//		else if("mutualInformation2".equals(actionCommand)) {
+//			
+//		}
+//		else if("mutualInformation3".equals(actionCommand)) {
+//			
+//		}
+//		else if("spearman correlation".equals(actionCommand)) {
+//			
+//		}
+//		else if("spearman correlation2".equals(actionCommand)) {
+//			
+//		}
+//		else if("spearman correlation3".equals(actionCommand)) {
+//			
+//		}
+//		else if("euclidean distance".equals(actionCommand)) {
+//			
+//		}
+//		else if("canberra distance".equals(actionCommand)) {
+//			
+//		}
+//		else if("manhattan distance".equals(actionCommand)) {
+//			
+//		}
+//		else if("weighted euclidean distance".equals(actionCommand)) {
+//			
+//		}
+//		else if("weighted manhattan distance".equals(actionCommand)) {
+//			
+//		}
+//		else {
+//			
+//		}
+//	}
 	/*
 	 * private class MyComparator implements Comparator { private MyComparator() { }
 	 * 
@@ -4791,7 +4926,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			listFromFilterButton.setEnabled((success) && (!filterField.getText().trim().equals("")));
 			plotFilterItem.setEnabled((success) && (!filterField.getText().trim().equals("")));
 			Utils.setSearchFieldColors(filterField, success);
-
 		}
 	}
 
@@ -4805,7 +4939,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		System.out.println("Appended!");
 	}
 
-	public boolean keepLastCorrelation() {
+	public boolean keepLastCorrelation(boolean log) {
 
 		HashMap<String,Object> actionMap = new HashMap<String,Object>();
 		actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
@@ -4821,10 +4955,12 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			result.put("result", "Error");
 			result.put("resultComments", "No last correlation to save");
 			throw new NullPointerException("No last correlation to save");
-
 		}
 		myProject.keepLastCorrelation();
-		lastCorrelationAction.logActionProperties();
+		
+		if(log) {
+			lastCorrelationAction.logActionProperties();
+		}
 		return true;
 	}
 
@@ -5187,6 +5323,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					HashMap<String,Object> actionMap = new HashMap<String,Object>();
 					HashMap<String,Object> dataMap = new HashMap<String,Object>();
 					HashMap<String,Object> result = new HashMap<String,Object>();
+					MetadataHybrid mdhObj = MetaOmGraph.getActiveProject().getMetadataHybrid();
+					MetadataCollection mcol = null;
+					if(mdhObj != null) {
+						mcol = mdhObj.getMetadataCollection();
+					}
 					
 					try {
 					actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
@@ -5194,18 +5335,19 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					
 					String selList = geneLists.getSelectedValue().toString();
 					dataMap.put("Selected List", selList);
-					dataMap.put("Selected Features", "Entire");
+					dataMap.put("Selected Features", "All "+MetaOmGraph.getActiveProject().getRowCount()+" Features");
+					if(mcol != null) {
+						dataMap.put("Included Samples", mcol.getIncluded());
+					}
 					dataMap.put("Data Transformation", MetaOmGraph.getInstance().getTransform());
-					dataMap.put("Default XAxis", myProject.getDefaultXAxis());
-					dataMap.put("Default YAxis", myProject.getDefaultYAxis());
-					dataMap.put("Default Chart Title", myProject.getDefaultTitle());
-					dataMap.put("Color 1", myProject.getColor1());
-					dataMap.put("Color 2", myProject.getColor2());
-					dataMap.put("correlationColumn", col_val);
+					dataMap.put("XAxis", myProject.getDefaultXAxis());
+					dataMap.put("YAxis", myProject.getDefaultYAxis());
+					dataMap.put("Chart Title", myProject.getDefaultTitle());
+					dataMap.put("Correlation Column", col_val);
 					
-					
+					result.put("Color 1", myProject.getColor1());
+					result.put("Color 2", myProject.getColor2());
 					result.put("result", "OK");
-					result.put("userComments", "");
 
 					ActionProperties correlationHistogramAction = new ActionProperties("correlation-histogram",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 					correlationHistogramAction.logActionProperties();
@@ -5227,21 +5369,28 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					HashMap<String,Object> actionMap = new HashMap<String,Object>();
 					HashMap<String,Object> dataMap = new HashMap<String,Object>();
 					HashMap<String,Object> result = new HashMap<String,Object>();
+					MetadataHybrid mdhObj = MetaOmGraph.getActiveProject().getMetadataHybrid();
+					MetadataCollection mcol = null;
+					if(mdhObj != null) {
+						 mcol = mdhObj.getMetadataCollection();
+					}
 					
 					try {
 					actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
 					actionMap.put("section", "Feature Metadata");
 					
 					String selList = geneLists.getSelectedValue().toString();
-					dataMap.put("selectedList", selList);
-					dataMap.put("selectedGenes", getSelectedGeneNames());
-					dataMap.put("correlationColumn", col_val);
+					dataMap.put("Selected List", selList);
+					dataMap.put("Selected Features", getSelectedGeneNames());
+					if(mcol != null) {
+					dataMap.put("Included Samples", mcol.getIncluded());
+					}
+					dataMap.put("Correlation Column", col_val);
 
-					dataMap.put("transformationData", MetaOmGraph.getInstance().getTransform());
+					dataMap.put("Data Transformation", MetaOmGraph.getInstance().getTransform());
 		
 					result.put("result", "Error");
 					result.put("resultComments", "Error occured while reading data!!!");
-					result.put("userComments", "");
 
 					ActionProperties correlationHistogramAction = new ActionProperties("correlation-histogram",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 					correlationHistogramAction.logActionProperties();
@@ -5288,6 +5437,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		HashMap<String,Object> actionMap = new HashMap<String,Object>();
 		HashMap<String,Object> dataMap = new HashMap<String,Object>();
 		HashMap<String,Object> result = new HashMap<String,Object>();
+		MetadataHybrid mdhObj = MetaOmGraph.getActiveProject().getMetadataHybrid();
+		MetadataCollection mcol = null;
+		if(mdhObj != null) {
+			mcol = mdhObj.getMetadataCollection();
+		}
 		
 		try {
 		actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
@@ -5297,14 +5451,16 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		dataMap.put("Selected Column", colValue);
 		dataMap.put("Selected List", selList);
 		dataMap.put("Selected Features", getSelectedGeneNames());
+		if(mcol != null) {
+		dataMap.put("Included Samples", mcol.getIncluded());
+		}
 		dataMap.put("Data Transformation", MetaOmGraph.getInstance().getTransform());
-		dataMap.put("Default XAxis", myProject.getDefaultXAxis());
-		dataMap.put("Default YAxis", myProject.getDefaultYAxis());
-		dataMap.put("Default Chart Title", myProject.getDefaultTitle());
-		dataMap.put("Color 1", myProject.getColor1());
-		dataMap.put("Color 2", myProject.getColor2());
+		dataMap.put("XAxis", myProject.getDefaultXAxis());
+		dataMap.put("YAxis", myProject.getDefaultYAxis());
+		dataMap.put("Chart Title", myProject.getDefaultTitle());
 		
-		
+		result.put("Color 1", myProject.getColor1());
+		result.put("Color 2", myProject.getColor2());
 		result.put("result", "OK");
 		result.put("userComments", "");
 
@@ -5394,7 +5550,5 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		plotRMenu.add(runOtherScript);
 
 	}
-
-
 
 }

@@ -101,28 +101,30 @@ public class ActionProperties {
 	public void logActionProperties() {
 
 		if(MetaOmGraph.getLoggingRequired()) {
-			counter++;
-			this.actionNumber=counter;
-			logger = MetaOmGraph.getLogger();
-			if(!this.getActionCommand().equalsIgnoreCase("general-properties")) {
-				logger.info(",");
-			}
-			
-			logger.printf(Level.INFO,new JSONMessage(this).getFormattedMessage());
-
-			ReproducibilityDashboardPanel rdp = null;
 			try {
-				rdp = MetaOmGraph.getReproducibilityDashboardPanel();
+				counter++;
+				this.actionNumber=counter;
+				logger = MetaOmGraph.getLogger();
+				if(!this.getActionCommand().equalsIgnoreCase("general-properties")) {
+					logger.info(",");
+				}
 
-				if(rdp != null) {
-					rdp.populateCurrentSessionTree(this);
+				logger.printf(Level.INFO,new JSONMessage(this).getFormattedMessage());
+
+				ReproducibilityDashboardPanel rdp = null;
+				try {
+					rdp = MetaOmGraph.getReproducibilityDashboardPanel();
+
+					if(rdp != null) {
+						rdp.populateCurrentSessionTree(this);
+					}
+				}
+				catch(Exception e) {
+
 				}
 			}
-			catch(Exception e) {
-				StringWriter sw = new StringWriter();
-				e.printStackTrace(new PrintWriter(sw));
-				String exceptionAsString = sw.toString();
-				rdp.printDialog(exceptionAsString);
+			catch(Exception ex) {
+
 			}
 		}
 	}
