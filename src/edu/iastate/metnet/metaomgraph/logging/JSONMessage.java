@@ -8,6 +8,12 @@ import org.apache.logging.log4j.message.Message;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+/**
+ * 
+ * @author Harsha
+ *
+ * Class to format the logging string as JSON
+ */
 public class JSONMessage implements Message {
 
 	private static final long serialVersionUID = 1L;

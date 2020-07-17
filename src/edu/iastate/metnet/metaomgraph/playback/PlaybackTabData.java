@@ -10,13 +10,19 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 
+/**
+ * 
+ * @author Harsha
+ *
+ * This is a bean class to store all the related information of a tab in the Reproducibility Dashboard Panel
+ */
 public class PlaybackTabData {
 
 	private int tabNumber;
 	private String logFileName;
 	private HashMap<Integer,DefaultMutableTreeNode> treeStructure;
 	private ArrayList<ActionProperties> actionObjects;
-	private JTree tabTree;
+	private  JTree tabTree;
 	private JTable tabTable;
 	private JTable includedSamplesTable;
 	private JTable excludedSamplesTable;

@@ -1,5 +1,11 @@
 package edu.iastate.metnet.metaomgraph.playback;
 
+/**
+ * 
+ * @author Harsha
+ *
+ * This is the bean class for play tree node
+ */
 public class LoggingTreeNode {
 
 	private String nodeName;

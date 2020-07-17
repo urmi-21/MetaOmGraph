@@ -268,6 +268,7 @@ public class MetadataRemoveCols extends JDialog {
 
 				// get data from table
 				DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
+				ArrayList<String> deletedColumns = new ArrayList<String>();
 				int j = 0;
 				for (int i = 0; i < allHeaders.length; i++) {
 					if (i == datacolIndex) {
@@ -279,6 +280,7 @@ public class MetadataRemoveCols extends JDialog {
 						j++;
 					} else {
 						toKeep[i] = false;
+						deletedColumns.add(tablemodel.getValueAt(j, 1).toString());
 						j++;
 					}
 				}
@@ -294,6 +296,20 @@ public class MetadataRemoveCols extends JDialog {
 					p.updateTable(true);
 					p.updateHeaders();
 					MetaOmGraph.getActiveProject().getMetadataHybrid().setCurrentHeaders(obj.getHeaders());
+					
+					//Harsha - reproducibility log
+					HashMap<String,Object> actionMap = new HashMap<String,Object>();
+					actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+					actionMap.put("section", "Sample Metadata Table");
+
+					HashMap<String,Object> dataMap = new HashMap<String,Object>();
+					dataMap.put("Deleted Columns",deletedColumns);
+					
+					HashMap<String,Object> resultLog = new HashMap<String,Object>();
+					resultLog.put("result", "OK");
+
+					ActionProperties deleteMetadataColumnsAction = new ActionProperties("delete-metadata-columns",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+					deleteMetadataColumnsAction.logActionProperties();
 
 				} else {
 					String[] newHeaders = removeExcluded(toKeep, allHeaders);
@@ -301,6 +317,20 @@ public class MetadataRemoveCols extends JDialog {
 					p.updateTable(true);
 					p.updateHeaders();
 					MetaOmGraph.getActiveProject().getMetadataHybrid().setCurrentHeaders(newHeaders);
+					
+					//Harsha - reproducibility log
+					HashMap<String,Object> actionMap = new HashMap<String,Object>();
+					actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+					actionMap.put("section", "Sample Metadata Table");
+
+					HashMap<String,Object> dataMap = new HashMap<String,Object>();
+					dataMap.put("Filtered Columns",deletedColumns);
+					
+					HashMap<String,Object> resultLog = new HashMap<String,Object>();
+					resultLog.put("result", "OK");
+
+					ActionProperties filterMetadataColumnsAction = new ActionProperties("filter-metadata-columns",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+					filterMetadataColumnsAction.logActionProperties();
 				}
 				getThisframe().dispose();
 				

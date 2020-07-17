@@ -239,7 +239,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 					out.println(resDoc);
 
 					actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
-					dataMap.put("filePath",file.getAbsolutePath());
+					dataMap.put("File Path",file.getAbsolutePath());
 					dataMap.put("section","Sample Metadata Tree");
 					resultLog.put("result", "OK");
 

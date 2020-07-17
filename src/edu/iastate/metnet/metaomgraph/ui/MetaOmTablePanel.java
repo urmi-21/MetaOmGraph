@@ -1238,6 +1238,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			result.put("Color 1", myProject.getColor1());
 			result.put("Color 2", myProject.getColor2());
 			result.put("Sample Action", MetaOmGraph.getCurrentSamplesActionId());
+			result.put("Playable", "true");
 			result.put("result", "OK");
 
 			ActionProperties lineChartAction = new ActionProperties("line-chart",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
@@ -1305,6 +1306,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			result.put("Color 1", myProject.getColor1());
 			result.put("Color 2", myProject.getColor2());
 			result.put("Sample Action", MetaOmGraph.getCurrentSamplesActionId());
+			result.put("Playable", "true");
 			result.put("result", "OK");
 		}
 		catch(Exception e) {
@@ -1441,6 +1443,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			result.put("Color 1", myProject.getColor1());
 			result.put("Color 2", myProject.getColor2());
 			result.put("Sample Action", MetaOmGraph.getCurrentSamplesActionId());
+			result.put("Playable", "true");
 			result.put("result", "OK");
 		}
 		catch(Exception e1) {
@@ -1627,6 +1630,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			result.put("Color 1", myProject.getColor1());
 			result.put("Color 2", myProject.getColor2());
 			result.put("Sample Action", MetaOmGraph.getCurrentSamplesActionId());
+			result.put("Playable", "true");
 			result.put("result", "OK");
 		}
 		catch(Exception e1) {
@@ -1872,6 +1876,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			resultLog.put("Color 1", myProject.getColor1());
 			resultLog.put("Color 2", myProject.getColor2());
 			resultLog.put("Sample Action", MetaOmGraph.getCurrentSamplesActionId());
+			resultLog.put("Playable", "true");
 			resultLog.put("result", "OK");
 		}
 		catch(Exception e2) {
@@ -2042,6 +2047,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			resultLog.put("Color 1", myProject.getColor1());
 			resultLog.put("Color 2", myProject.getColor2());
 			resultLog.put("Sample Action", MetaOmGraph.getCurrentSamplesActionId());
+			resultLog.put("Playable", "true");
 			resultLog.put("result", "OK");
 		}
 		catch(Exception e1) {

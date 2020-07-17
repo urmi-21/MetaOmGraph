@@ -1,18 +1,18 @@
 package edu.iastate.metnet.metaomgraph.playback;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-
-import javax.swing.JDialog;
-import javax.swing.JTextPane;
-
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel;
 
+/**
+ * 
+ * @author Harsha
+ * 
+ * Wrapper class containing all the methods required to play actions in the Playback Panel 
+ *
+ */
 public class PlaybackAction {
 
 	public void playChart(ActionProperties chartAction, String chartName, HashSet<String> includedSamples, HashSet<String> excludedSamples) {

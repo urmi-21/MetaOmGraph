@@ -98,6 +98,11 @@ public class ActionProperties {
 		this.timestamp = timestamp;
 	}
 
+	
+	/*
+	 * This method logs the actions to the log file in a JSON Format and also populates the current session tree of the
+	 * Reproducibility Dashboard Panel if it is open.
+	 */
 	public void logActionProperties() {
 
 		if(MetaOmGraph.getLoggingRequired()) {
