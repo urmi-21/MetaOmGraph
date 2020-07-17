@@ -296,13 +296,21 @@ public class MetadataTableDisplayPanel extends JPanel {
 					filterSelectedRows(true);
 				}
 				
+				int[] selected = table.getSelectedRows();
+				List<String>selectedNames = new ArrayList<String>();
+				DefaultTableModel model = (DefaultTableModel) table.getModel();
+				for (int i = 0; i < selected.length; i++) {
+					selectedNames.add(model.getValueAt(table.convertRowIndexToModel(selected[i]),
+							table.getColumn(obj.getDatacol()).getModelIndex()).toString());
+				}
+				
 				//Harsha - reproducibility log
 				HashMap<String,Object> actionMap = new HashMap<String,Object>();
 				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
 				actionMap.put("section", "Sample Metadata Table");
 
-				
-				dataMap.put("columns",selectColumn());
+				dataMap.put("Selected Rows",getSelectDataColsName());
+				dataMap.put("Columns",selectColumn());
 				
 				HashMap<String,Object> resultLog = new HashMap<String,Object>();
 				resultLog.put("result", "OK");
@@ -628,8 +636,11 @@ public class MetadataTableDisplayPanel extends JPanel {
 				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
 				actionMap.put("section", "Sample Metadata Table");
 
+				
 				HashMap<String,Object> dataMap = new HashMap<String,Object>();
-				dataMap.put("columns",selectColumn());
+				dataMap.put("Column",selectColumn());
+				dataMap.put("Selected Samples",getSelectDataColsName());
+				
 				
 				HashMap<String,Object> resultLog = new HashMap<String,Object>();
 				resultLog.put("result", "OK");
@@ -944,8 +955,6 @@ public class MetadataTableDisplayPanel extends JPanel {
 										resultLog.put("result", "Error");
 										resultLog.put("resultComments","Please select at least two rows" );
 
-										ActionProperties pearsonCorrelationAction = new ActionProperties("pearson-correlation-metadata-table",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-										pearsonCorrelationAction.logActionProperties();
 										return;
 									}
 									HashMap<Integer, double[]> databyCols = getDataForSelectedDataCols();
@@ -970,6 +979,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 												frameob.setTitle("Pearson's correlation for runs");
 												MetaOmGraph.getDesktop().add(frameob);
 												frameob.setVisible(true);
+												resultLog.put("result", "OK");
 											} catch (Exception e) {
 												e.printStackTrace();
 											}
@@ -978,6 +988,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 								} catch (IOException | InterruptedException | ExecutionException e1) {
 									// TODO Auto-generated catch block
 									e1.printStackTrace();
+									resultLog.put("result", "Error");
 								}
 							}
 						});
@@ -985,7 +996,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 					}
 				}.start();
 				
-				resultLog.put("result", "OK");
+				
 
 				ActionProperties pearsonCorrelationAction = new ActionProperties("pearson-correlation-metadata-table",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 				pearsonCorrelationAction.logActionProperties();
@@ -1036,8 +1047,6 @@ public class MetadataTableDisplayPanel extends JPanel {
 										resultLog.put("result", "Error");
 										resultLog.put("resultComments","Please select at least two rows" );
 
-										ActionProperties spearmanCorrelationAction = new ActionProperties("spearman-correlation-metadata-table",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-										spearmanCorrelationAction.logActionProperties();
 										return;
 									}
 									HashMap<Integer, double[]> databyCols = getDataForSelectedDataCols();
@@ -1062,14 +1071,18 @@ public class MetadataTableDisplayPanel extends JPanel {
 												frameob.setTitle("Spearman correlation for runs");
 												MetaOmGraph.getDesktop().add(frameob);
 												frameob.setVisible(true);
+												resultLog.put("result", "OK");
+												
 											} catch (Exception e) {
 												e.printStackTrace();
+												resultLog.put("result", "Error");
 											}
 										}
 									});
 								} catch (IOException | InterruptedException | ExecutionException e1) {
 									// TODO Auto-generated catch block
 									e1.printStackTrace();
+									resultLog.put("result", "Error");
 								}
 							}
 						});
@@ -1077,7 +1090,6 @@ public class MetadataTableDisplayPanel extends JPanel {
 					}
 				}.start();
 
-				resultLog.put("result", "OK");
 				
 				ActionProperties spearmanCorrelationAction = new ActionProperties("spearman-correlation-metadata-table",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 				spearmanCorrelationAction.logActionProperties();

@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -159,12 +160,30 @@ public class MetadataFilter extends JDialog {
 					}
 					updateIncludedlist();
 					//add rows to removedMD list
+					Set<String> rowsDeleted = new HashSet<String>(mogColl.getExcluded());
+					
 					MetaOmGraph.getActiveProject().getMetadataHybrid().addExcludedMDRows(mogColl.getExcluded());
 					//add these to list of missing as these will be deleted from the project
 					MetaOmGraph.getActiveProject().getMetadataHybrid().addMissingMDRows(mogColl.getExcluded());
 					removeExcludedRows();
 					
 					((DefaultTableModel) table_1.getModel()).setRowCount(0);
+					
+					//Harsha - reproducibility log
+					HashMap<String,Object> actionMap = new HashMap<String,Object>();
+					actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+					actionMap.put("section", "Sample Metadata Table");
+
+					HashMap<String,Object> dataMap = new HashMap<String,Object>();
+					dataMap.put("Deleted Rows",rowsDeleted);
+					
+					HashMap<String,Object> resultLog = new HashMap<String,Object>();
+					resultLog.put("result", "OK");
+
+					ActionProperties filterSelectedRowsAction = new ActionProperties("delete-metadata-rows",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+					filterSelectedRowsAction.logActionProperties();
+					
+					
 					
 				} else {
 					updateIncludedlist();

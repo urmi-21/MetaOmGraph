@@ -1478,12 +1478,12 @@ public class MetaOmGraph implements ActionListener {
 		playbackMenu.addActionListener(myself);
 
 		mainMenuBar.add(helpMenu);
-		
-//		if(Utils.isMac()) {
+
+		if(Utils.isMac()) {
 			historyMenu.add(playbackMenu);
 			mainMenuBar.add(historyMenu);
-//		}
-		
+		}
+
 
 		//Harsha - reproducibility log menu
 
@@ -1504,7 +1504,7 @@ public class MetaOmGraph implements ActionListener {
 					ReproducibilityDashboardFrame.setVisible(true);
 					return;
 				}
-				
+
 				createReproducibilityLoggingFrame();
 
 			}
@@ -2164,7 +2164,7 @@ public class MetaOmGraph implements ActionListener {
 					HashMap<String,Object> result = new HashMap<String,Object>();
 					result.put("result", "OK");
 					ActionProperties saveProjectAction = new ActionProperties("save-as-project",saveProjectParameters,null,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-					saveProjectAction.logActionProperties();
+					//saveProjectAction.logActionProperties();
 
 				}
 				addRecentProject(activeProjectFile);
@@ -2357,9 +2357,11 @@ public class MetaOmGraph implements ActionListener {
 		//Harsha - reproducibility log
 
 		try {
+			HashMap<String,Object> dataMap = new HashMap<String,Object>();
 			HashMap<String,Object> result = new HashMap<String,Object>();
+			dataMap.put("Command", "Close current project");
 			result.put("result", "OK");
-			ActionProperties closeProjectAction = new ActionProperties("close-project",closeProjectParameters,null,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+			ActionProperties closeProjectAction = new ActionProperties("close-project",closeProjectParameters,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 			closeProjectAction.logActionProperties();
 
 			currentProjectActionId = closeProjectAction.getActionNumber();
@@ -2570,6 +2572,21 @@ public class MetaOmGraph implements ActionListener {
 											delim);
 									readMetadataframe.setVisible(true);
 									readMetadataframe.toFront();
+									
+									//Harsha - reproducibility log
+									HashMap<String,Object> actionMap = new HashMap<String,Object>();
+									actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+									actionMap.put("section", "Sample Metadata Table");
+
+									HashMap<String,Object> dataMap = new HashMap<String,Object>();
+									dataMap.put("Metadata File",source.getAbsolutePath());
+									
+									HashMap<String,Object> resultLog = new HashMap<String,Object>();
+									resultLog.put("result", "OK");
+
+									ActionProperties importMetadataAction = new ActionProperties("import-metadata",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+									importMetadataAction.logActionProperties();
+									
 								} catch (Exception e) {
 									e.printStackTrace();
 								}
@@ -2741,6 +2758,9 @@ public class MetaOmGraph implements ActionListener {
 		if (PLAYBACK_COMMAND.equals(e.getActionCommand())) {
 			if(ReproducibilityDashboardFrame == null) {
 				createReproducibilityLoggingFrame();
+				if(ReproducibilityDashboardFrame!= null) {
+					ReproducibilityDashboardFrame.setClosable(true);
+				}
 			}
 		}
 
@@ -4044,8 +4064,12 @@ public class MetaOmGraph implements ActionListener {
 	}
 
 	
+	/**
+	 * This method initializes the Playback Dashboard Internal frame
+	 */
+
 	public static void createReproducibilityLoggingFrame() {
-		
+
 		ReproducibilityDashboardFrame =  new JInternalFrame("Playback");
 
 		UIManager.put("InternalFrame.activeTitleBackground", new ColorUIResource(new Color(240,128,128)));
@@ -4074,9 +4098,14 @@ public class MetaOmGraph implements ActionListener {
 		ReproducibilityDashboardFrame.setLocation((ReproducibilityLogMenu.getX()+ReproducibilityLogMenu.getWidth())-550, 0);
 
 		ReproducibilityDashboardFrame.show();     
-		
+
 	}
 
+	
+	/**
+	 * This method is used to update the logging file name for each open-project action
+	 * It will ensure that each project's action will be written to its own project directory's log folder
+	 */
 	public static Logger updateLogger(String file_name){
 		LoggerContext context = (LoggerContext) LogManager.getContext(false);
 		Configuration configuration = context.getConfiguration();
@@ -4103,12 +4132,14 @@ public class MetaOmGraph implements ActionListener {
 		return l;
 	}
 
+	
+	/**
+	 * This method is used to stop logging to the log file
+	 */
 	public static void stopLogger() {
 		LoggerContext context = (LoggerContext) LogManager.getContext(false);
 		Configuration configuration = context.getConfiguration();
-		//  Layout<? extends Serializable> old_layout = configuration.getAppender(appender_name).getLayout();
 
-		//delete old appender/logger
 		if(appender != null && appender.isStarted()) {
 			appender.stop();
 			configuration.removeLogger("reproducibilityLogger");
@@ -4117,6 +4148,9 @@ public class MetaOmGraph implements ActionListener {
 	}
 
 
+	/**
+	 * This method is used to log the General system properties, project properties and samples
+	 */
 	public static void logGeneralProperties() {
 		try {
 
@@ -4134,8 +4168,7 @@ public class MetaOmGraph implements ActionListener {
 			dataMap.put("CPU",(System.getenv("PROCESSOR_IDENTIFIER")+", architecture: "+System.getenv("PROCESSOR_ARCHITECTURE")+", numProcessors: "+System.getenv("NUMBER_OF_PROCESSORS")));
 			dataMap.put("Memory", String.valueOf(Runtime.getRuntime().totalMemory()));
 			dataMap.put("Session ID", String.valueOf(Instant.now().toEpochMilli()));
-			//			dataMap.put("Current Theme", getCurrentTheme());
-			//			dataMap.put("R Path", getdefaulrRPath());
+
 			MetadataHybrid mdhObj = MetaOmGraph.getActiveProject().getMetadataHybrid();
 			MetadataCollection mcol = null;
 			if(mdhObj != null) {
@@ -4160,6 +4193,9 @@ public class MetaOmGraph implements ActionListener {
 	}
 
 
+	/**
+	 * This method is used to log the open-project action
+	 */
 	public static void logOpenProject(String projectName, File source) {
 
 		try {
@@ -4185,7 +4221,10 @@ public class MetaOmGraph implements ActionListener {
 
 	}
 
-
+	
+	/**
+	 * This method is used to log when a new project is opened
+	 */
 	public static int logNewProject(String dataFileName, String metadataFileName) {
 
 		try {
