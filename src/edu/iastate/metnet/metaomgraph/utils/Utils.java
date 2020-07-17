@@ -3,9 +3,7 @@ package edu.iastate.metnet.metaomgraph.utils;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dialog;
-import java.awt.Dimension;
 import java.awt.FileDialog;
-import java.awt.FontMetrics;
 import java.awt.Frame;
 import java.awt.Paint;
 import java.awt.event.ActionEvent;
@@ -20,7 +18,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.PrintStream;
 import java.security.InvalidParameterException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -57,13 +54,13 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
 import org.apache.commons.math3.analysis.function.Atanh;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -1213,6 +1210,7 @@ public class Utils {
 			return 1;
 		}
 	}
+	
 
 	/**
 	 * 

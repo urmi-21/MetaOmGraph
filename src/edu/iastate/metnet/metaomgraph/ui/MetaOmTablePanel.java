@@ -539,9 +539,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		dataToolbar.add(analyzeMenuButton);
 
 		dataToolbar.add(new Separator());
-
+		
 		saveMainTableButton = new MenuButton(theme.getExcel(), null);
 		saveMainTableButton.setToolTipText("Export table to txt or excel file");
+			
 
 		JPopupMenu exportMenu = new JPopupMenu();
 		JMenuItem exportToTextItem = new JMenuItem("Export to text file");
@@ -552,7 +553,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		exportToExcelItem.setActionCommand("ExportToExcel");
 		exportToExcelItem.addActionListener(this);
 		exportMenu.add(exportToExcelItem);
-
+		
 		saveMainTableButton.setMenu(exportMenu);
 		dataToolbar.add(saveMainTableButton);
 
@@ -2725,6 +2726,12 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			makeListFromFilter();
 			return;
 		}
+		
+		if("ExportToExcel".equals(e.getActionCommand())) {
+			Utils.saveJTableToExcel(listDisplay);
+			return;
+		}
+
 
 		if("ExportToExcel".equals(e.getActionCommand())) {
 			Utils.saveJTableToExcel(listDisplay);
