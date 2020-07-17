@@ -321,7 +321,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 					public void run() {
 						try {// get data for selected rows
 
-							ScatterPlotChart f = new ScatterPlotChart(rowIndices, 0, myProject);
+							ScatterPlotChart f = new ScatterPlotChart(rowIndices, 0, myProject,false);
 							MetaOmGraph.getDesktop().add(f);
 							f.setDefaultCloseOperation(2);
 							f.setClosable(true);
@@ -378,7 +378,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 					public void run() {
 						try {// get data for selected rows
 
-							BoxPlot f = new BoxPlot(plotData, 0, myProject);
+							BoxPlot f = new BoxPlot(plotData, 0, myProject,false);
 							MetaOmGraph.getDesktop().add(f);
 							f.setDefaultCloseOperation(2);
 							f.setClosable(true);
@@ -419,7 +419,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 							}
 							// number of bins
 							int nBins = myProject.getIncludedDataColumnCount() / 10;
-							HistogramChart f = new HistogramChart(selected, nBins, myProject, 1, null);
+							HistogramChart f = new HistogramChart(selected, nBins, myProject, 1, null, false);
 							MetaOmGraph.getDesktop().add(f);
 							f.setDefaultCloseOperation(2);
 							f.setClosable(true);
@@ -688,7 +688,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 			public void run() {
 				try {// get data for selected rows
 					int nBins = 10;
-					HistogramChart f = new HistogramChart(null, nBins, null, 2, data);
+					HistogramChart f = new HistogramChart(null, nBins, null, 2, data, false);
 					f.setTitle(columnName + " histogram");
 					MetaOmGraph.getDesktop().add(f);
 					f.setDefaultCloseOperation(2);

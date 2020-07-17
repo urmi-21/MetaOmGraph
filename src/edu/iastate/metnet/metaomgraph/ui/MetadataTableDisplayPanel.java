@@ -43,6 +43,7 @@ import edu.iastate.metnet.metaomgraph.ComputeRunsSimilarity;
 import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
+import edu.iastate.metnet.metaomgraph.MetadataHybrid;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.chart.BarChart;
 import edu.iastate.metnet.metaomgraph.chart.BoxPlot;
@@ -222,7 +223,11 @@ public class MetadataTableDisplayPanel extends JPanel {
 				actionMap.put("section", "Sample Metadata Table");
 
 				HashMap<String,Object> dataMap = new HashMap<String,Object>();
-				dataMap.put("queries",queries);
+				List<String> mq = new ArrayList();
+				for(MetadataQuery q: queries) {
+					mq.add(q.toString());
+				}
+				dataMap.put("Queries",mq);
 				dataMap.put("numHits", result.size());
 				
 				HashMap<String,Object> resultLog = new HashMap<String,Object>();
@@ -661,7 +666,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 										@Override
 										public void run() {
 											try {// get data for selected rows
-												BoxPlot f = new BoxPlot(databyCols, 1, MetaOmGraph.getActiveProject());
+												BoxPlot f = new BoxPlot(databyCols, 1, MetaOmGraph.getActiveProject(),false);
 												MetaOmGraph.getDesktop().add(f);
 												f.setDefaultCloseOperation(2);
 												f.setClosable(true);
@@ -698,7 +703,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 				actionMap.put("section", "Sample Metadata Table");
 
 				HashMap<String,Object> dataMap = new HashMap<String,Object>();
-				dataMap.put("data",getSelectDataColsName());
+				dataMap.put("Selected Samples",getSelectDataColsName());
 				
 				HashMap<String,Object> resultLog = new HashMap<String,Object>();
 				resultLog.put("result", "OK");
@@ -736,6 +741,21 @@ public class MetadataTableDisplayPanel extends JPanel {
 						return null;
 					}
 				}.start();
+				
+				
+				//Harsha - reproducibility log
+				HashMap<String,Object> actionMap = new HashMap<String,Object>();
+				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+				actionMap.put("section", "Sample Metadata Table");
+
+				HashMap<String,Object> dataMap = new HashMap<String,Object>();
+				dataMap.put("Selected Samples",getSelectDataColsName());
+				
+				HashMap<String,Object> resultLog = new HashMap<String,Object>();
+				resultLog.put("result", "OK");
+
+				ActionProperties linechartMetadataTableAction = new ActionProperties("linechart-metadata-table",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				linechartMetadataTableAction.logActionProperties();
 
 			}
 		});
@@ -799,7 +819,16 @@ public class MetadataTableDisplayPanel extends JPanel {
 				actionMap.put("section", "Sample Metadata Table");
 				
 				HashMap<String,Object> dataMap = new HashMap<String,Object>();
-				dataMap.put("selectedGenes",table.getSelectedRows());
+				
+				int [] selectedInd = table.getSelectedRows();
+				List<String>selectedNames = new ArrayList<String>();
+				DefaultTableModel model = (DefaultTableModel) table.getModel();
+				for (int i = 0; i < selectedInd.length; i++) {
+					selectedNames.add(model.getValueAt(table.convertRowIndexToModel(selectedInd[i]),
+							table.getColumn(obj.getDatacol()).getModelIndex()).toString());
+				}
+				
+				dataMap.put("Selected Sample Metadata",selectedNames);
 				
 				HashMap<String,Object> resultLog = new HashMap<String,Object>();
 				
@@ -886,7 +915,15 @@ public class MetadataTableDisplayPanel extends JPanel {
 				actionMap.put("section", "Sample Metadata Table");
 				
 				HashMap<String,Object> dataMap = new HashMap<String,Object>();
-				dataMap.put("selectedGenes",table.getSelectedRows());
+				int [] selectedInd = table.getSelectedRows();
+				List<String>selectedNames = new ArrayList<String>();
+				DefaultTableModel model = (DefaultTableModel) table.getModel();
+				for (int i = 0; i < selectedInd.length; i++) {
+					selectedNames.add(model.getValueAt(table.convertRowIndexToModel(selectedInd[i]),
+							table.getColumn(obj.getDatacol()).getModelIndex()).toString());
+				}
+				
+				dataMap.put("Selected Sample Metadata",selectedNames);
 				
 				HashMap<String,Object> resultLog = new HashMap<String,Object>();
 				
@@ -970,7 +1007,15 @@ public class MetadataTableDisplayPanel extends JPanel {
 				actionMap.put("section", "Sample Metadata Table");
 				
 				HashMap<String,Object> dataMap = new HashMap<String,Object>();
-				dataMap.put("selectedGenes",table.getSelectedRows());
+				int [] selectedInd = table.getSelectedRows();
+				List<String>selectedNames = new ArrayList<String>();
+				DefaultTableModel model = (DefaultTableModel) table.getModel();
+				for (int i = 0; i < selectedInd.length; i++) {
+					selectedNames.add(model.getValueAt(table.convertRowIndexToModel(selectedInd[i]),
+							table.getColumn(obj.getDatacol()).getModelIndex()).toString());
+				}
+				
+				dataMap.put("Selected Sample Metadata",selectedNames);
 				
 				HashMap<String,Object> resultLog = new HashMap<String,Object>();
 				
@@ -1469,6 +1514,41 @@ public class MetadataTableDisplayPanel extends JPanel {
 		removeFromtoHighlight(removedList);
 		updateTable();
 		MetaOmGraph.getActiveTable().updateMetadataTree();
+		
+		HashMap<String,Object> actionMap = new HashMap<String,Object>();
+		HashMap<String,Object> dataMap = new HashMap<String,Object>();
+		HashMap<String,Object> result = new HashMap<String,Object>();
+		
+		try {
+			
+		actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+		actionMap.put("section", "Feature Metadata");
+		
+		
+		MetadataHybrid mhyb = MetaOmGraph.getActiveProject().getMetadataHybrid();
+		if(mhyb !=null) {
+			MetadataCollection mcol = mhyb.getMetadataCollection();
+			if(mcol!= null) {
+				dataMap.put("Data Column", mcol.getDatacol());
+				result.put("Included Samples", mcol.getIncluded());
+				result.put("Excluded Samples", mcol.getExcluded());
+			}
+		}
+		else {
+			result.put("Included Samples", null);
+			result.put("Excluded Samples", null);
+		}
+
+		result.put("result", "OK");
+
+		ActionProperties sampleFilterAction = new ActionProperties("sample-advance-filter",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+		sampleFilterAction.logActionProperties();
+		
+		MetaOmGraph.setCurrentSamplesActionId(sampleFilterAction.getActionNumber());
+		}
+		catch(Exception e1) {
+			
+		}
 	}
 
 	public void filterHighlightedRows(boolean invert) {
@@ -1518,6 +1598,41 @@ public class MetadataTableDisplayPanel extends JPanel {
 		toHighlight.put(0, null);
 		table.repaint();
 		highlightedRows = null;
+		
+		HashMap<String,Object> actionMap = new HashMap<String,Object>();
+		HashMap<String,Object> dataMap = new HashMap<String,Object>();
+		HashMap<String,Object> result = new HashMap<String,Object>();
+		
+		try {
+			
+		actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+		actionMap.put("section", "Feature Metadata");
+		
+		
+		MetadataHybrid mhyb = MetaOmGraph.getActiveProject().getMetadataHybrid();
+		if(mhyb !=null) {
+			MetadataCollection mcol = mhyb.getMetadataCollection();
+			if(mcol!= null) {
+				dataMap.put("Data Column", mcol.getDatacol());
+				result.put("Included Samples", mcol.getIncluded());
+				result.put("Excluded Samples", mcol.getExcluded());
+			}
+		}
+		else {
+			result.put("Included Samples", null);
+			result.put("Excluded Samples", null);
+		}
+
+		result.put("result", "OK");
+
+		ActionProperties sampleFilterAction = new ActionProperties("sample-advance-filter",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+		sampleFilterAction.logActionProperties();
+		
+		MetaOmGraph.setCurrentSamplesActionId(sampleFilterAction.getActionNumber());
+		}
+		catch(Exception e1) {
+			
+		}
 	}
 
 	public void filterRows(List<String> s) {
@@ -1539,6 +1654,41 @@ public class MetadataTableDisplayPanel extends JPanel {
 		obj.setIncluded(inc);
 		// update exclude list
 		MetaOmAnalyzer.updateExcluded(exc);
+		
+		HashMap<String,Object> actionMap = new HashMap<String,Object>();
+		HashMap<String,Object> dataMap = new HashMap<String,Object>();
+		HashMap<String,Object> result = new HashMap<String,Object>();
+		
+		try {
+			
+		actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+		actionMap.put("section", "Feature Metadata");
+		
+		
+		MetadataHybrid mhyb = MetaOmGraph.getActiveProject().getMetadataHybrid();
+		if(mhyb !=null) {
+			MetadataCollection mcol = mhyb.getMetadataCollection();
+			if(mcol!= null) {
+				dataMap.put("Data Column", mcol.getDatacol());
+				result.put("Included Samples", mcol.getIncluded());
+				result.put("Excluded Samples", mcol.getExcluded());
+			}
+		}
+		else {
+			result.put("Included Samples", null);
+			result.put("Excluded Samples", null);
+		}
+
+		result.put("result", "OK");
+
+		ActionProperties sampleFilterAction = new ActionProperties("sample-advance-filter",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+		sampleFilterAction.logActionProperties();
+		
+		MetaOmGraph.setCurrentSamplesActionId(sampleFilterAction.getActionNumber());
+		}
+		catch(Exception e1) {
+			
+		}
 	}
 
 	public void displaySimilarityTable(HashMap<String, Double> res) {

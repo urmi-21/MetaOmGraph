@@ -178,7 +178,7 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 	 * Create the frame.
 	 */
 	// plot type 0 for features 1 for samples
-	public BoxPlot(HashMap<Integer, double[]> plotData, int pType, MetaOmProject mp) {
+	public BoxPlot(HashMap<Integer, double[]> plotData, int pType, MetaOmProject mp, boolean isPlayback) {
 
 		this.plotData = plotData;
 		this.plotType = pType;
@@ -298,6 +298,9 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 		setIconifiable(true);
 		setClosable(true);
 		String chartTitle = "Box Plot:" + String.join(",", rowNames);
+		if(isPlayback) {
+			chartTitle = "Playback - Box Plot:" + String.join(",", rowNames);
+		}
 		this.setTitle(chartTitle);
 	}
 

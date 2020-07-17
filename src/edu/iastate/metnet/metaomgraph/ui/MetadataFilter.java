@@ -18,7 +18,9 @@ import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
+import edu.iastate.metnet.metaomgraph.MetadataHybrid;
 import edu.iastate.metnet.metaomgraph.chart.MetaOmChartPanel;
+import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 
 import javax.swing.JMenuBar;
@@ -28,8 +30,10 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -44,6 +48,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import java.awt.event.ActionListener;
 import java.beans.PropertyVetoException;
+import java.text.SimpleDateFormat;
 import java.awt.event.ActionEvent;
 
 public class MetadataFilter extends JDialog {
@@ -663,6 +668,40 @@ public class MetadataFilter extends JDialog {
 	public void updateIncludedlist() {
 		mogColl.setIncluded(getTablerows(table));
 		mogColl.setExcluded(getTablerows(table_1));
+		
+		HashMap<String,Object> actionMap = new HashMap<String,Object>();
+		HashMap<String,Object> dataMap = new HashMap<String,Object>();
+		HashMap<String,Object> result = new HashMap<String,Object>();
+		
+		try {
+			
+		actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+		actionMap.put("section", "Feature Metadata");
+		
+		MetadataHybrid mhyb = MetaOmGraph.getActiveProject().getMetadataHybrid();
+		if(mhyb !=null) {
+			MetadataCollection mcol = mhyb.getMetadataCollection();
+			if(mcol!= null) {
+				dataMap.put("Data Column", mcol.getDatacol());
+				result.put("Included Samples", mcol.getIncluded());
+				result.put("Excluded Samples", mcol.getExcluded());
+			}
+		}
+		else {
+			result.put("Included Samples", null);
+			result.put("Excluded Samples", null);
+		}
+
+		result.put("result", "OK");
+
+		ActionProperties sampleFilterAction = new ActionProperties("sample-advance-filter",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+		sampleFilterAction.logActionProperties();
+		
+		MetaOmGraph.setCurrentSamplesActionId(sampleFilterAction.getActionNumber());
+		}
+		catch(Exception e1) {
+			
+		}
 	}
 
 	public void removeExcludedRows() {
@@ -677,6 +716,16 @@ public class MetadataFilter extends JDialog {
 		}
 		return res;
 	}
+	
+	Map<Integer,String> getTableRowInfo(JTable tab) {
+		Map<Integer,String> res = new HashMap<Integer,String>();
+		DefaultTableModel model = (DefaultTableModel) tab.getModel();
+		for (int c = 0; c < model.getRowCount(); c++) {
+			res.put(c,model.getValueAt(c, 0).toString());
+		}
+		return res;
+	}
+	
 
 	public void setDelete(boolean val) {
 		this.delete = val;

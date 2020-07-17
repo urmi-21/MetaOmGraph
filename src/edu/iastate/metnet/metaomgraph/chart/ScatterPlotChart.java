@@ -136,7 +136,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 			public void run() {
 				try {
 
-					ScatterPlotChart frame = new ScatterPlotChart(null, 0, null);
+					ScatterPlotChart frame = new ScatterPlotChart(null, 0, null,false);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -148,7 +148,7 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 	/**
 	 * Create the frame.
 	 */
-	public ScatterPlotChart(int[] selected, int xind, MetaOmProject mp) {
+	public ScatterPlotChart(int[] selected, int xind, MetaOmProject mp, boolean isPlayback) {
 
 		this.selected = selected;
 		// init rownames
@@ -267,6 +267,9 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 		setIconifiable(true);
 		setClosable(true);
 		String chartTitle = "Scatter Plot:" + String.join(",", rowNames);
+		if(isPlayback) {
+			chartTitle = "Playback - Scatter Plot:" + String.join(",", rowNames);
+		}
 		this.setTitle(chartTitle);
 	}
 
