@@ -18,6 +18,9 @@ public class PlaybackTabData {
 	private ArrayList<ActionProperties> actionObjects;
 	private JTree tabTree;
 	private JTable tabTable;
+	private JTable includedSamplesTable;
+	private JTable excludedSamplesTable;
+	private JTable featuresTable;
 	
 	public int getTabNumber() {
 		return tabNumber;
@@ -54,6 +57,24 @@ public class PlaybackTabData {
 	}
 	public void setTabTable(JTable tabTable) {
 		this.tabTable = tabTable;
+	}
+	public JTable getIncludedSamplesTable() {
+		return includedSamplesTable;
+	}
+	public void setIncludedSamplesTable(JTable includedSamplesTable) {
+		this.includedSamplesTable = includedSamplesTable;
+	}
+	public JTable getExcludedSamplesTable() {
+		return excludedSamplesTable;
+	}
+	public void setExcludedSamplesTable(JTable excludedSamplesTable) {
+		this.excludedSamplesTable = excludedSamplesTable;
+	}
+	public JTable getFeaturesTable() {
+		return featuresTable;
+	}
+	public void setFeaturesTable(JTable featuresTable) {
+		this.featuresTable = featuresTable;
 	}
 	
 	

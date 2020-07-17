@@ -6,9 +6,12 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,6 +48,7 @@ import edu.iastate.metnet.metaomgraph.CalculateLogFC;
 import edu.iastate.metnet.metaomgraph.DifferentialExpResults;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
+import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 
 import javax.swing.ScrollPaneConstants;
 import java.awt.event.ActionListener;
@@ -256,6 +260,38 @@ public class DifferentialExpFrame extends JInternalFrame {
 				// float timeElapsed = endTime - startTime;
 				// timeElapsed = (timeElapsed / (float) 1000000000.00);
 				// JOptionPane.showMessageDialog(null, "Time taken:" + timeElapsed);
+				
+				
+				
+				//Harsha - reproducibility log
+				
+				HashMap<String,Object> actionMap = new HashMap<String,Object>();
+				HashMap<String,Object> dataMap = new HashMap<String,Object>();
+				HashMap<String,Object> result = new HashMap<String,Object>();
+				
+				try {
+					
+				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+				actionMap.put("section", "All");
+				
+				dataMap.put("Selected Feature List", selectedFeatureList);
+				dataMap.put("Selected Method", selectedMethod);
+				dataMap.put("Group 1 Name", txtGroup1.getText());
+				dataMap.put("Group 2 Name", txtGroup2.getText());
+				dataMap.put("Group 1 List", grp1);
+				dataMap.put("Group 2 List", grp2);
+				dataMap.put("Save Results", chckbxSaveResultsWith.isSelected());
+				dataMap.put("Analysis Name", id);
+
+				result.put("result", "OK");
+
+				ActionProperties deaAction = new ActionProperties("differential-expression-analysis",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				deaAction.logActionProperties();
+				
+				}
+				catch(Exception e1) {
+					
+				}
 
 			}
 		});

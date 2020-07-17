@@ -138,7 +138,7 @@ public class SimilarityDisplayFrame extends JInternalFrame {
 							if(nBins<10) {
 								nBins=10;
 							}
-							HistogramChart f = new HistogramChart(null, nBins, null, 2, data);
+							HistogramChart f = new HistogramChart(null, nBins, null, 2, data, false);
 							MetaOmGraph.getDesktop().add(f);
 							f.setDefaultCloseOperation(2);
 							f.setClosable(true);

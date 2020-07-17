@@ -1177,7 +1177,18 @@ public class Utils {
 				cell.setCellValue((String)table.getValueAt(rowIndex, colIndex));
 			}
 		}
+		
+		//Harsha - reproducibility log
+				HashMap<String,Object> actionMap = new HashMap<String,Object>();
+				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+				HashMap<String,Object> dataMap = new HashMap<String,Object>();
+				dataMap.put("File Name", destination.getAbsolutePath());
+
+				HashMap<String,Object> result = new HashMap<String,Object>();
+				
+				
 		FileOutputStream out;
+
 		try {
 			out = new FileOutputStream(destination);
 			workBook.write(out);
@@ -1185,11 +1196,20 @@ public class Utils {
 		    workBook.close();
 		    JOptionPane.showMessageDialog(null, "File saved to: " + destination.getAbsolutePath(), "File saved",
 					JOptionPane.INFORMATION_MESSAGE);
+		    
+		    result.put("result", "OK");
+		    ActionProperties saveAction = new ActionProperties("save-table-to-excel",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+			saveAction.logActionProperties();
+			
 		    return 0;
 		} catch (IOException e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, "Error in saving file: " + destination.getAbsolutePath(), "Error",
 					JOptionPane.ERROR_MESSAGE);
+			result.put("result", "Error");
+			result.put("resultComments", "Error in saving file:" + destination.getAbsolutePath());
+			ActionProperties saveAction = new ActionProperties("save-table-to-excel",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+			saveAction.logActionProperties();
 			return 1;
 		}
 	}
@@ -1212,9 +1232,9 @@ public class Utils {
 		//Harsha - reproducibility log
 		HashMap<String,Object> actionMap = new HashMap<String,Object>();
 		actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
-		actionMap.put("section", section);
 		HashMap<String,Object> dataMap = new HashMap<String,Object>();
-		dataMap.put("fileName", destination.getAbsolutePath());
+		dataMap.put("section", section);
+		dataMap.put("File Name", destination.getAbsolutePath());
 
 		HashMap<String,Object> result = new HashMap<String,Object>();
 

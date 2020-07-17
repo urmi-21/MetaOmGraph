@@ -286,7 +286,11 @@ public class MetadataTreeDisplayPanel extends JPanel {
 				actionMap.put("section", "Sample Metadata Tree");
 				
 				HashMap<String,Object> dataMap = new HashMap<String,Object>();
-				dataMap.put("queries",queries);
+				List<String> mq = new ArrayList();
+				for(MetadataQuery q: queries) {
+					mq.add(q.toString());
+				}
+				dataMap.put("Queries",mq);
 				dataMap.put("numHits", result.size());
 				HashMap<String,Object> resultLog = new HashMap<String,Object>();
 				resultLog.put("result", "OK");
@@ -347,7 +351,11 @@ public class MetadataTreeDisplayPanel extends JPanel {
 				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
 				actionMap.put("section", "Sample Metadata Tree");
 				HashMap<String,Object> dataMap = new HashMap<String,Object>();
-				dataMap.put("queries",queries);
+				List<String> mq = new ArrayList();
+				for(MetadataQuery q: queries) {
+					mq.add(q.toString());
+				}
+				dataMap.put("Queries",mq);
 				
 				dataMap.put("numHits", result.size());
 				HashMap<String,Object> resultLog = new HashMap<String,Object>();
@@ -810,6 +818,41 @@ public class MetadataTreeDisplayPanel extends JPanel {
 		obj.setExcluded(exc);
 		obj.setIncluded(inc);
 		updateTree();
+		
+		HashMap<String,Object> actionMap = new HashMap<String,Object>();
+		HashMap<String,Object> dataMap = new HashMap<String,Object>();
+		HashMap<String,Object> result = new HashMap<String,Object>();
+		
+		try {
+			
+		actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+		actionMap.put("section", "Feature Metadata");
+		
+		
+		MetadataHybrid mhyb = MetaOmGraph.getActiveProject().getMetadataHybrid();
+		if(mhyb !=null) {
+			MetadataCollection mcol = mhyb.getMetadataCollection();
+			if(mcol!= null) {
+				dataMap.put("Data Column", mcol.getDatacol());
+				result.put("Included Samples", mcol.getIncluded());
+				result.put("Excluded Samples", mcol.getExcluded());
+			}
+		}
+		else {
+			result.put("Included Samples", null);
+			result.put("Excluded Samples", null);
+		}
+
+		result.put("result", "OK");
+
+		ActionProperties sampleFilterAction = new ActionProperties("sample-advance-filter",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+		sampleFilterAction.logActionProperties();
+		
+		MetaOmGraph.setCurrentSamplesActionId(sampleFilterAction.getActionNumber());
+		}
+		catch(Exception e1) {
+			
+		}
 
 	}
 

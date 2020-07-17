@@ -237,7 +237,7 @@ public class CorrelationMetaTable extends JInternalFrame {
 					public void run() {
 						try {// get data for selected rows
 
-							ScatterPlotChart f = new ScatterPlotChart(rowIndices, 0, myProject);
+							ScatterPlotChart f = new ScatterPlotChart(rowIndices, 0, myProject,false);
 							MetaOmGraph.getDesktop().add(f);
 							f.setDefaultCloseOperation(2);
 							f.setClosable(true);
@@ -280,7 +280,7 @@ public class CorrelationMetaTable extends JInternalFrame {
 					public void run() {
 						try {// get data for selected rows
 							int nBins = 10;
-							HistogramChart f = new HistogramChart(null, nBins, null, 2, pdata);
+							HistogramChart f = new HistogramChart(null, nBins, null, 2, pdata, false);
 							MetaOmGraph.getDesktop().add(f);
 							f.setDefaultCloseOperation(2);
 							f.setClosable(true);
@@ -320,7 +320,7 @@ public class CorrelationMetaTable extends JInternalFrame {
 					public void run() {
 						try {// get data for selected rows
 							int nBins = 10;
-							HistogramChart f = new HistogramChart(null, nBins, null, 2, pdata);
+							HistogramChart f = new HistogramChart(null, nBins, null, 2, pdata, false);
 							MetaOmGraph.getDesktop().add(f);
 							f.setDefaultCloseOperation(2);
 							f.setClosable(true);
