@@ -18,7 +18,6 @@ import javax.swing.JDialog;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import java.awt.Font;
-import java.awt.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
