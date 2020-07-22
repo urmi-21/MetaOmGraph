@@ -13,8 +13,21 @@ import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 /**
  * 
  * @author Harsha
- *
- * This is a bean class to store all the related information of a tab in the Reproducibility Dashboard Panel
+ * <br/>
+ *<p>
+ * This is a bean class to store all the related information of a tab of the Reproducibility Dashboard Panel.
+ * </p>
+ * <h3>Variables :</h3>
+ * <p>
+ * <b>1. tabNumber -</b>  number of the tab
+ * <b>2. logFileName -</b> log file name that will be used to populate the tab's play tree and Display table
+ * <b>3. treeStructure -</b> the structure of the play tree of this tab
+ * <b>4. actionObjects -</b> the list of action objects that will be populated in the play tree
+ * <b>5. tabTree -</b> the JTree instance of the play tree for this tab
+ * <b>6. tabTable -</b> the Action Display Table JTable instance for this tab
+ * <b>7. includedSamplesTable -</b> the included samples table instance
+ * <b>8. excludedSamplesTable -</b> the excluded samples table instance
+ * </p>
  */
 public class PlaybackTabData {
 
