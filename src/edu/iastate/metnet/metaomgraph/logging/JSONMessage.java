@@ -12,7 +12,7 @@ import com.google.gson.GsonBuilder;
  * 
  * @author Harsha
  *
- * Class to format the logging string as JSON
+ * Class to format the logging string as JSON. It uses GSON internally to write objects as JSON.
  */
 public class JSONMessage implements Message {
 

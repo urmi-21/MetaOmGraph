@@ -75,8 +75,70 @@ import edu.iastate.metnet.metaomgraph.playback.PlaybackTabData;
  * 
  * @author Harsha
  *
+ * <br/>
  * This is the UI class for the Dashboard panel showing the real-time logging actions and allows re-play functionality 
  * for certain actions.
+ * <br/>
+ * <h2>Description</h2>
+ * <p>
+ * In this class, we construct the Reproducibility Dashboard Panel, the Frame, which pops up when the "History" button on the
+ * top right corner of the MOG is clicked. Below is the overview of the basic parts of this panel and their functionalities:
+ * </p>
+ * <br/>
+ * <p>
+ * <b>1. Panel containing radio buttons 'on','off' and 'permanently switched off' :</b> This panel has the three radio buttons, which 
+ * allow us to either keep the logging happening (on), or stop it for the current session (off), or else switch it off permanently
+ * (permanently switched off) so that no log file is created for the MOG sessions. The 'on' and 'off' buttons work by disabling the
+ * appender of Log4J2, so that even if actions occur, the appender will not write anything to the log. However, the 'permanently
+ * switched off' operation will store a value in the .prefs file after the current session is closed, and load it back from the file
+ * when a new session is opened.
+ * <br/>
+ * <b>2. Open previous session button :</b> This button opens up the file chooser dialog wherein, users have to choose a previously 
+ * written log file. Once the file is chosen, GSON parser is used to parse the JSON formatted file and create a list of 
+ * ActionProperties objects. These objects are populated in a separate tab having a play tree and the table.
+ * <br/>
+ * <b>3. Play button :</b> The play button is used to execute the selected actions in the play tree. The user can select multiple 
+ * actions and play them all together. For this release, the play functionality has been extended to charts present in the "plot" 
+ * section. The actions that can be played will be displayed in red color in the play tree.
+ * <br/>
+ * <b>4. Favorite button :</b>  The favorite button, when pressed, will mark the selected actions in the play tree with a golden star. 
+ * This would indicate that the particular actions are important. 
+ * <br/>
+ * <b>5. Log tabs : </b> Below the three buttons, we have a tabbedPane (ClosableTabbedPane tabbedPane) which will initially consist of
+ * a non-closable tab for the current session's logging which gets refreshed in real-time while we perform actions in MOG. In case the
+ * user opens a previous log session, a new tab would be created and populated with the historically logged actions. Each tab has the
+ * same design and format, i.e, a play tree on the left split pane and a JTable which shows the details of the clicked actions on the
+ * right pane.
+ * <br/>
+ * <b>6. Play Tree : </b> This is a tree structure of all the actions that were taken in the particular session. For each session (be
+ * it current or historical), there is a play tree on the left split pane of the respective session's tab. Each action element in the
+ * log has a property called "parent" in its actionParameters. This will help us create a hierarchical structure of the play tree. The
+ * idea is that the action A which are dependent on another action B is added as the child of the parent B. Hence, A's "parent" 
+ * property would have B's action number. (For eg: All the actions performed on a project are dependent on "open-project" action) The 
+ * task of identifying and writing the parent of an action happens during the action creation. It is the duty of the programmer to 
+ * identify the parent action number and add it to the child's "parent" property. In this class however, we are concerned on how to 
+ * populate the actions in a hierarchical fashion. This is achieved by reading the "parent" property of each action and adding it as a
+ * leaf node of the action number given by "parent". Since the log file is written in a sequential order of actions, a parent action 
+ * always preceeds a child action, making things easier.
+ * <br/>
+ * <b>7. Action Display Table : </b> On the right hand side of each play tree, there is a table having two columns, "Property" and 
+ * "Value".This table displays all the key value pairs present in the dataParameters section of the selected action. Since all the log 
+ * information is already loaded into a variable having a list of action, on click of any action on the play tree, we just populate the
+ * table with the dataParameters of that particular action. We do not read the file for every action selection on the play tree.
+ * <br/>
+ * <b>8. Samples Table : </b> Below the log tabs section, we have the section where the samples used for the current action are logged.
+ * The reason for going with a separate table for the included and excluded samples is that the samples size is usually very large
+ * (about 7000+ samples), and logging them to the Action Display table would overwhelm the table which has other important properties.
+ * Also, in the future, we can extend the functionalities of this Samples table to have interesting features like selection of samples
+ * on the tree by selecting rows etc. 
+ * <br/>
+ * <b>9. Comments : </b> For each action element, the users can provide their comments in the Action Display Table's "Comment" section.
+ * For historical logs, the comments are autosaved to the respective log file at the same time.  But, for the current session, the
+ * comments and the favorites are saved once we close the current MOG session ( Quit MOG or Open a new project/Create new project)
+ * 
+ * 
+ * </p>
+ * <br/>
  * 
  */
 public class ReproducibilityDashboardPanel extends JPanel {
@@ -89,14 +151,6 @@ public class ReproducibilityDashboardPanel extends JPanel {
 	private static final String FAVORITE_ICON_PATH = "/resource/loggingicons/smallorangestar.png";
 	private static final String CHART_ICON_PATH = "/resource/loggingicons/chart.png";
 	private static final String GENERAL_PROPERTIES_COMMAND = "general-properties";
-	private static final String LINE_CHART_COMMAND = "line-chart";
-	private static final String SCATTER_PLOT_COMMAND = "scatter-plot";
-	private static final String BOX_PLOT_COMMAND = "box-plot";
-	private static final String HISTOGRAM_COMMAND = "histogram";
-	private static final String LINE_CHART_DEFAULT_GROUPING_COMMAND = "line-chart-default-grouping";
-	private static final String LINE_CHART_CHOOSE_GROUPING_COMMAND = "line-chart-choose-grouping";
-	private static final String BAR_CHART_COMMAND = "bar-chart";
-	private static final String CORRELATION_HISTOGRAM_COMMAND = "correlation-histogram";
 	private static final String SAMPLE_ACTION_PROPERTY = "Sample Action";
 	private static final String DATA_COLUMN_PROPERTY = "Data Column";
 	private static final String INCLUDED_SAMPLES_PROPERTY = "Included Samples";
@@ -135,7 +189,39 @@ public class ReproducibilityDashboardPanel extends JPanel {
 
 
 
-	/** Dashboard Constructor */
+	/** <h3>Dashboard Constructor</h3>
+	 * <p>
+	 * The Reproducibility Dashboard Panel constructor takes the current MetaOmGraph instance as a parameter. It initializes all the
+	 * required UI components and global variables like:
+	 * <br/>
+	 * <b>treeStructure</b> - A variable of type HashMap(Integer, DefaultMutableTreeNode) and stores each node of the current session's
+	 * play tree. The key attribute is an integer storing the node number of the tree, and the value is a DefaultMutableTreeNode object that
+	 * contains the display name, command and actionNumber of the particular action
+	 * <br/>
+	 * <b>allTabsInfo</b> - A variable of type HashMap(Integer,PlaybackTabData), this variable contains key value pairs of tab number and 
+	 * the related PlaybackTabData object for each of the opened tabs (including the current session tab). PlaybackTabData objects contains the
+	 * complete set of details required to populate a tab, including the Play tree, Action Data Table, Sample tables objects, tree structure
+	 * object, and an arraylist of the action objects. Hence, we can get all the details of all tabs by using this global variable.
+	 * <br/>
+	 * <b>playbackAction</b> - It is an object of PlaybackAction class. The PlaybackAction class contains all the functionality required to
+	 * play an action element. This global variable instance will allow us to call the play functionality anywhere in the program.
+	 * <br/>
+	 * <b>includedSamplesTable, excludedSamples Table</b> - These are the two JTable objects that represent the Sample Tables. They are
+	 * initialized in the constructor ( with alternate colored theme ) and populated only when an action is clicked upon in the play tree.
+	 * <br/>
+	 * <b>samplesPane</b> - The ClosableTabbedPane for the Samples Table
+	 * <br/>
+	 * <b>currentSessionActionNumber</b> - When a user opens the Reproducibility Dashboard Panel for the first time, the play tree must be
+	 * updated with all the actions that have already happened in the current session. This variable is loaded from the current session's log
+	 * file, and used to populate the tree. This is necessary because sometimes, the action number in the log file may not begin with a 0.
+	 * <br/>
+	 * <b>rdbtnOn, rdbtnOff and rdbtnPermanentlySwitchedOff </b>- This constructor initializes all three radio buttons, and also provides the
+	 * ActionPerformed method for the functionality when a radio button selection action is performed.
+	 * <br/>
+	 * The constructor also provides functionality for the click of playButton, openPreviousSessionButton and addToFavoritesButton.
+	 * 
+	 * 
+	 * */
 	public ReproducibilityDashboardPanel(MetaOmGraph myself) {
 
 
@@ -333,81 +419,10 @@ public class ReproducibilityDashboardPanel extends JPanel {
 			public void actionPerformed(ActionEvent arg0) {
 
 				int tabNo = tabbedPane.getSelectedIndex();
-
 				JTree selectedTree = allTabsInfo.get(tabNo).getTabTree();
-
 				TreePath[] allPaths = selectedTree.getSelectionPaths();
 
-				for (TreePath path : allPaths) {
-					DefaultMutableTreeNode node2 = (DefaultMutableTreeNode) path.getLastPathComponent();
-					Object nodeObj = node2.getUserObject();
-					LoggingTreeNode ltn = (LoggingTreeNode) nodeObj;
-
-					ActionProperties playedAction = allTabsInfo.get(tabNo).getActionObjects().get(ltn.getNodeNumber());
-
-
-					if(playedAction.getOtherParameters().get(PLAYABLE_PROPERTY)!=null) {
-
-						String isPlayable = (String)playedAction.getOtherParameters().get("Playable");
-						if(isPlayable.equals("true"))
-						{
-							int samplesActionId = 1;
-							if(playedAction.getOtherParameters().get(SAMPLE_ACTION_PROPERTY) instanceof Double) {
-								double temp = (double) playedAction.getOtherParameters().get(SAMPLE_ACTION_PROPERTY);
-								samplesActionId = (int)temp;
-							}
-							else {
-								samplesActionId = (int)playedAction.getOtherParameters().get(SAMPLE_ACTION_PROPERTY);
-							}
-
-							HashSet<String> includedSamples = new HashSet<String>();
-							HashSet<String> excludedSamples = new HashSet<String>();
-
-							for(int i=0;i<allTabsInfo.get(tabNo).getActionObjects().size();i++) {
-
-								if(allTabsInfo.get(tabNo).getActionObjects().get(i).getActionNumber() == samplesActionId) {
-
-									ActionProperties sampleAction = allTabsInfo.get(tabNo).getActionObjects().get(i);
-
-									if(sampleAction.getOtherParameters().get(INCLUDED_SAMPLES_PROPERTY) instanceof List<?>) {
-										includedSamples = new HashSet<String>((List<String>)sampleAction.getOtherParameters().get(INCLUDED_SAMPLES_PROPERTY));
-									}
-									else if(sampleAction.getOtherParameters().get(INCLUDED_SAMPLES_PROPERTY) instanceof HashSet<?>) {
-										includedSamples = (HashSet<String>)sampleAction.getOtherParameters().get(INCLUDED_SAMPLES_PROPERTY);
-									}
-
-									if(sampleAction.getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY) instanceof List<?>) {
-										excludedSamples = new HashSet<String>((List<String>)sampleAction.getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY));
-									}
-									else if(sampleAction.getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY) instanceof HashSet<?>) {
-										excludedSamples = (HashSet<String>)sampleAction.getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY);
-									}
-
-								}
-							}
-
-
-							if (ltn.getCommandName().equalsIgnoreCase(LINE_CHART_COMMAND)) {
-								playbackAction.playChart(playedAction, LINE_CHART_COMMAND, includedSamples, excludedSamples);
-							} else if (ltn.getCommandName().equalsIgnoreCase(SCATTER_PLOT_COMMAND)) {
-								playbackAction.playChart(playedAction, SCATTER_PLOT_COMMAND, includedSamples, excludedSamples);
-							} else if (ltn.getCommandName().equalsIgnoreCase(BOX_PLOT_COMMAND)) {
-								playbackAction.playChart(playedAction, BOX_PLOT_COMMAND, includedSamples, excludedSamples);
-							} else if (ltn.getCommandName().equalsIgnoreCase(HISTOGRAM_COMMAND)) {
-								playbackAction.playChart(playedAction, HISTOGRAM_COMMAND, includedSamples, excludedSamples);
-							} else if (ltn.getCommandName().equalsIgnoreCase(LINE_CHART_DEFAULT_GROUPING_COMMAND)) {
-								playbackAction.playChart(playedAction, LINE_CHART_DEFAULT_GROUPING_COMMAND, includedSamples, excludedSamples);
-							} else if (ltn.getCommandName().equalsIgnoreCase(LINE_CHART_CHOOSE_GROUPING_COMMAND)) {
-								playbackAction.playChart(playedAction, LINE_CHART_CHOOSE_GROUPING_COMMAND, includedSamples, excludedSamples);
-							} else if (ltn.getCommandName().equalsIgnoreCase(BAR_CHART_COMMAND)) {
-								playbackAction.playChart(playedAction, BAR_CHART_COMMAND, includedSamples, excludedSamples);
-							} else if (ltn.getCommandName().equalsIgnoreCase(CORRELATION_HISTOGRAM_COMMAND)) {
-								playbackAction.playChart(playedAction, CORRELATION_HISTOGRAM_COMMAND, includedSamples, excludedSamples);
-							}
-
-						}
-					}
-				}
+				playbackAction.playActions(tabNo, selectedTree, allPaths, allTabsInfo);
 
 			}
 		});
@@ -428,192 +443,8 @@ public class ReproducibilityDashboardPanel extends JPanel {
 				DefaultTreeModel model = (DefaultTreeModel) selectedTree.getModel();
 				TreePath[] allPaths = selectedTree.getSelectionPaths();
 
-				PlaybackTabData currentTabData = allTabsInfo.get(tabNo);
-				String logFileName = currentTabData.getLogFileName();
-
-				BufferedWriter out = null;
-				try {
-					if (tabNo != 0) {
-						out = new BufferedWriter(new FileWriter(logFileName, true));
-					}
-
-					for (TreePath path : allPaths) {
-						DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
-						Object nodeInfo = node.getUserObject();
-						LoggingTreeNode ltn = (LoggingTreeNode) nodeInfo;
-						Object nodeObj = node.getUserObject();
-						LoggingTreeNode logNode = (LoggingTreeNode) nodeObj;
-
-						ActionProperties likedAction = allTabsInfo.get(tabNo).getActionObjects().get(ltn.getNodeNumber());
-						try {
-							if (likedAction.getOtherParameters().get(FAVORITE_PROPERTY).equals("true")) {
-
-
-								likedAction.getOtherParameters().put(FAVORITE_PROPERTY, "false");
-
-								if(likedAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) != null) {
-									if (likedAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) instanceof LinkedTreeMap<?, ?>) {
-
-										LinkedTreeMap<String, Object> features = (LinkedTreeMap<String, Object>) likedAction
-												.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
-
-										node.setUserObject(new LoggingTreeNode(logNode.getCommandName()+ " ["
-												+ (String) features.entrySet().iterator().next().getValue() + "]"
-												,
-												logNode.getCommandName(), logNode.getNodeNumber()));
-									}
-									else {
-
-										HashMap<String, Object> features = (HashMap<String, Object>) likedAction
-												.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
-
-										node.setUserObject(new LoggingTreeNode(logNode.getCommandName()+ " ["
-												+ (String) features.entrySet().iterator().next().getValue() + "]"
-												,
-												logNode.getCommandName(), logNode.getNodeNumber()));
-
-									}
-
-								}
-								else {
-
-									node.setUserObject(new LoggingTreeNode(logNode.getCommandName(),
-											logNode.getCommandName(), logNode.getNodeNumber()));
-								}
-
-								model.reload();
-								expandAllNodes(selectedTree);
-							} else if (likedAction.getOtherParameters().get(FAVORITE_PROPERTY).equals("false")) {
-								likedAction.getOtherParameters().put(FAVORITE_PROPERTY, "true");
-
-								if(likedAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) != null) {
-
-									if (likedAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) instanceof LinkedTreeMap<?, ?>) {
-										LinkedTreeMap<String, Object> features = (LinkedTreeMap<String, Object>) likedAction
-												.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
-
-										node.setUserObject(new LoggingTreeNode("<html><p>" + logNode.getCommandName()+ " ["
-												+ (String) features.entrySet().iterator().next().getValue() + "]"
-
-										+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
-										logNode.getCommandName(), logNode.getNodeNumber()));
-									}
-									else {
-
-										HashMap<String, Object> features = (HashMap<String, Object>) likedAction
-												.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
-
-										node.setUserObject(new LoggingTreeNode("<html><p>" + logNode.getCommandName()+ " ["
-												+ (String) features.entrySet().iterator().next().getValue() + "]"
-
-										+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
-										logNode.getCommandName(), logNode.getNodeNumber()));
-
-									}
-
-								}
-								else {
-									node.setUserObject(new LoggingTreeNode("<html><p>" + logNode.getCommandName()
-									+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
-									logNode.getCommandName(), logNode.getNodeNumber()));
-								}
-
-
-								model.reload();
-								expandAllNodes(selectedTree);
-							} else {
-								likedAction.getOtherParameters().put(FAVORITE_PROPERTY, "true");
-
-								if(likedAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) != null) {
-
-									if (likedAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) instanceof LinkedTreeMap<?, ?>) {
-
-										LinkedTreeMap<String, Object> features = (LinkedTreeMap<String, Object>) likedAction
-												.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
-
-										node.setUserObject(new LoggingTreeNode("<html><p>" + logNode.getCommandName()+ " ["
-												+ (String) features.entrySet().iterator().next().getValue() + "]"
-
-										+ "   &nbsp; <font color=orange>&#9733;</font></p></html>",
-										logNode.getCommandName(), logNode.getNodeNumber()));
-									}
-									else {
-
-										HashMap<String, Object> features = (HashMap<String, Object>) likedAction
-												.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
-
-										node.setUserObject(new LoggingTreeNode("<html><p>" + logNode.getCommandName()+ " ["
-												+ (String) features.entrySet().iterator().next().getValue() + "]"
-
-										+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
-										logNode.getCommandName(), logNode.getNodeNumber()));
-									}
-
-								}
-								else {
-									node.setUserObject(new LoggingTreeNode("<html><p>" + logNode.getCommandName()
-									+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
-									logNode.getCommandName(), logNode.getNodeNumber()));
-								}
-								model.reload();
-								expandAllNodes(selectedTree);
-
-							}
-						} catch (Exception e) {
-
-							likedAction.getOtherParameters().put(FAVORITE_PROPERTY, "true");
-
-							if(likedAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) != null) {
-
-								if (likedAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) instanceof LinkedTreeMap<?, ?>) {
-
-									LinkedTreeMap<String, Object> features = (LinkedTreeMap<String, Object>) likedAction
-											.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
-
-									node.setUserObject(new LoggingTreeNode("<html><p>" + logNode.getCommandName()+ " ["
-											+ (String) features.entrySet().iterator().next().getValue() + "]"
-
-									+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
-									logNode.getCommandName(), logNode.getNodeNumber()));
-								}
-								else {
-
-									HashMap<String, Object> features = (HashMap<String, Object>) likedAction
-											.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
-
-									node.setUserObject(new LoggingTreeNode("<html><p>" + logNode.getCommandName()+ " ["
-											+ (String) features.entrySet().iterator().next().getValue() + "]"
-
-									+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
-									logNode.getCommandName(), logNode.getNodeNumber()));
-								}
-
-							}
-							else {
-								node.setUserObject(new LoggingTreeNode("<html><p>" + logNode.getCommandName()
-								+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
-								logNode.getCommandName(), logNode.getNodeNumber()));
-							}
-							model.reload();
-							expandAllNodes(selectedTree);
-						}
-
-						if (tabNo != 0)
-							autoSaveLog(tabNo);
-
-					}
-
-				} catch (IOException e) {
-
-				} finally {
-					try {
-						if(tabNo!=0 && out!=null) {
-							out.close();
-						}
-					} catch (IOException e) {
-
-					}
-				}
+				
+				markActionsAsFavorite(tabNo, selectedTree, model, allPaths);
 			}
 		});
 		panel.add(addToFavoritesButton);
@@ -651,14 +482,30 @@ public class ReproducibilityDashboardPanel extends JPanel {
 
 
 	/**
+	 * <p>
 	 * This method adds an action object to the play tree (JTree) of a given tab in a hierarchical manner
+	 * </p>
+	 * <p>
+	 * While adding the action object to the play tree, the method checks whether it's Playable property is set to true or not. If yes, then
+	 * the color of the node will be written in red color. If the action has Selected Features property, then the first element in the list of
+	 * Selected Features is written in square brackets []. And if the action is also a favorite action, a star is appended at the end of the 
+	 * node text.
+	 * </p>
+	 * <p>
+	 * Once the node is inserted to the tree, the tree is reloaded and expanded.
+	 * </p>
 	 */
 	public void addActionToLogTree(ActionProperties action, int actionNumber, JTree tree,
 			HashMap<Integer, DefaultMutableTreeNode> treeStruct) {
 
 		try {
 			DefaultTreeModel dtm = (DefaultTreeModel) tree.getModel();
-
+			String actionCommandString = action.getActionCommand();
+			
+			if(action.getOtherParameters().get("Playable") != null) {
+				actionCommandString = "<font color=red>"+(String) action.getActionCommand()+"</font>";
+			}
+			
 			if (!action.getActionCommand().equalsIgnoreCase(GENERAL_PROPERTIES_COMMAND)) {
 
 				DefaultMutableTreeNode root = (DefaultMutableTreeNode) dtm.getRoot();
@@ -670,13 +517,13 @@ public class ReproducibilityDashboardPanel extends JPanel {
 							LinkedTreeMap<String, Object> features = (LinkedTreeMap<String, Object>) action
 									.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
 							newNode = new DefaultMutableTreeNode(new LoggingTreeNode("<html><p>"
-									+ action.getActionCommand() + " ["
+									+ actionCommandString + " ["
 									+ (String) features.entrySet().iterator().next().getValue() + "]"
 									+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
 									action.getActionCommand(), actionNumber));
 						} else {
 							newNode = new DefaultMutableTreeNode(new LoggingTreeNode("<html><p>"
-									+ action.getActionCommand()
+									+ actionCommandString
 									+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
 									action.getActionCommand(), actionNumber));
 						}
@@ -686,11 +533,11 @@ public class ReproducibilityDashboardPanel extends JPanel {
 									.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
 							newNode = new DefaultMutableTreeNode(
 									new LoggingTreeNode(
-											action.getActionCommand() + " ["
-													+ features.entrySet().iterator().next().getValue() + "]",
+											"<html><p>"+actionCommandString + " ["
+													+ features.entrySet().iterator().next().getValue() + "]</p></html>",
 													action.getActionCommand(), actionNumber));
 						} else {
-							newNode = new DefaultMutableTreeNode(new LoggingTreeNode(action.getActionCommand(),
+							newNode = new DefaultMutableTreeNode(new LoggingTreeNode("<html><p>"+actionCommandString+"</p></html>",
 									action.getActionCommand(), actionNumber));
 						}
 					}
@@ -702,27 +549,27 @@ public class ReproducibilityDashboardPanel extends JPanel {
 									.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
 							newNode = new DefaultMutableTreeNode(
 									new LoggingTreeNode(
-											action.getActionCommand() + " ["
-													+ features.entrySet().iterator().next().getValue() + "]",
+											"<html><p>"+actionCommandString + " ["
+													+ features.entrySet().iterator().next().getValue() + "]</p></html>",
 													action.getActionCommand(), actionNumber));
 						} else if(action.getDataParameters().get(SELECTED_FEATURES_PROPERTY) instanceof HashMap<?, ?>){
 							HashMap<String, Object> features = (HashMap<String, Object>) action.getDataParameters()
 									.get(SELECTED_FEATURES_PROPERTY);
 							newNode = new DefaultMutableTreeNode(
 									new LoggingTreeNode(
-											action.getActionCommand() + " ["
-													+ features.entrySet().iterator().next().getValue() + "]",
+											"<html><p>"+actionCommandString + " ["
+													+ features.entrySet().iterator().next().getValue() + "]</p></html>",
 													action.getActionCommand(), actionNumber));
 						}
 						else {
 							newNode = new DefaultMutableTreeNode(
 									new LoggingTreeNode(
-											action.getActionCommand() ,
+											"<html><p>"+actionCommandString+"</p></html>" ,
 											action.getActionCommand(), actionNumber));
 						}
 
 					} else {
-						newNode = new DefaultMutableTreeNode(new LoggingTreeNode(action.getActionCommand(),
+						newNode = new DefaultMutableTreeNode(new LoggingTreeNode("<html><p>"+actionCommandString+"</p></html>",
 								action.getActionCommand(), actionNumber));
 					}
 				}
@@ -751,8 +598,19 @@ public class ReproducibilityDashboardPanel extends JPanel {
 
 
 	/**
-	 * This method reads the log file for historical sessions, converts it to a GSON object and then calls the method
+	 * <p>
+	 * This method reads the log file for historical and current sessions, converts it to a GSON object and then calls the method
 	 * to add each action to the play tree
+	 * </p>
+	 * <br/>
+	 * <p>
+	 * The method takes the log file, tree, tab number, and the tree structure as the parameters. It then proceeds to read the log file using
+	 * GSON and create the list of ActionProperties variable. Then, it calls addActionToLogTree on each action element to add it to the tree.
+	 * </p>
+	 * <br/>
+	 * <p>
+	 * Since this is a generic method, it is used while loading all the tabs while loading the tree.
+	 * </p>
 	 */
 	public void readLogAndPopulateTree(File logFile, JTree tree, int tabNo,
 			HashMap<Integer, DefaultMutableTreeNode> treeStruct) {
@@ -793,7 +651,16 @@ public class ReproducibilityDashboardPanel extends JPanel {
 
 
 	/**
-	 * This method is used to add the current session's actions to the play tree
+	 * <p>
+	 * This method is used to add the current session's actions in real-time to the tree.
+	 * </p>
+	 * <br/>
+	 * <p>
+	 * When a user opens a historical log, or opens the Reproducibility Dashboard Panel for the first time, the previous method 
+	 * readLogAndPopulateTree is used to populate the tree. But, when an action needs to be populated to the tree in real-time, then, this
+	 * method is used.
+	 * </p>
+	 *
 	 */
 
 	public void populateCurrentSessionTree(ActionProperties action) {
@@ -807,8 +674,22 @@ public class ReproducibilityDashboardPanel extends JPanel {
 
 
 	/**
+	 * <p>
 	 * This method creates a new tab when a historical/ current log session is opened and calls appropriate methods to populate the
 	 * play tree and the table (on mouse click of play tree actions)
+	 * </p>
+	 * <br/>
+	 * <p>
+	 * This is the first method called after the play tree of a tab is loaded and the other information of new tab has to be created and loaded
+	 * (be it current session tab or historical tab ). Sequentially, this method creates a new tabbedPane if it does not exist, adds the 
+	 * splitPane to the new tab, creates and adds a table to the right panel of the split pane, creates and adds the sample tables, adds the
+	 * populated playtree to the left panel of the split pane, and then adds a mouseclick listener for each node in the play tree, so that when
+	 * any node on the tree is clicked, the dataParameters of the action element clicked will be populated to the table. Since there are many 
+	 * different types of variables that could be added to the dataParameters, the method uses formatting techniques to add lists, maps, sets
+	 * and other generic objects to the same cell using carriage returns etc. Also, if the action has Samples too, they would be populated in
+	 * the corresponding Included Samples and Excluded Samples tables.
+	 * </p>
+	 * 
 	 */
 
 	public int createNewTabAndPopulate(JTree playTree, JTable table, String tabName, boolean isClosable,
@@ -1141,6 +1022,217 @@ public class ReproducibilityDashboardPanel extends JPanel {
 		}
 	}
 
+	
+	/**
+	 * <p>
+	 * This method adds a set of actions as favorites and also makes the play tree display a golden star beside the name of the action
+	 * </p>
+	 * <br/>
+	 * <p>
+	 * The method takes the tab number, tree selected, the tree model and the list of action tree paths selected as inputs. Then, based on 
+	 * whether the action selected is already a favorite or not, it adds or removes the golden star. Once the star is added/removed, the 
+	 * method proceeds to make the "favorite" property as true/false and autosave it to the corresponding log file for future reference. The
+	 * tree nodes are expanded once the changes are done to the tree.
+	 * </p>
+	 * 
+	 */
+	public void markActionsAsFavorite(int tabNo, JTree selectedTree, DefaultTreeModel model, TreePath[] allPaths) {
+		
+		PlaybackTabData currentTabData = allTabsInfo.get(tabNo);
+		String logFileName = currentTabData.getLogFileName();
+
+		BufferedWriter out = null;
+		
+		try {
+			if (tabNo != 0) {
+				out = new BufferedWriter(new FileWriter(logFileName, true));
+			}
+
+			for (TreePath path : allPaths) {
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+				Object nodeInfo = node.getUserObject();
+				LoggingTreeNode ltn = (LoggingTreeNode) nodeInfo;
+				Object nodeObj = node.getUserObject();
+				LoggingTreeNode logNode = (LoggingTreeNode) nodeObj;
+
+				ActionProperties likedAction = allTabsInfo.get(tabNo).getActionObjects().get(ltn.getNodeNumber());
+				
+				String actionCommandString = likedAction.getActionCommand();
+				
+				if(likedAction.getOtherParameters().get("Playable") != null) {
+					actionCommandString = "<font color=red>"+(String) likedAction.getActionCommand()+"</font>";
+				}
+				
+				try {
+					if (likedAction.getOtherParameters().get(FAVORITE_PROPERTY).equals("true")) {
+
+
+						likedAction.getOtherParameters().put(FAVORITE_PROPERTY, "false");
+
+						if(likedAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) != null) {
+							if (likedAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) instanceof LinkedTreeMap<?, ?>) {
+
+								LinkedTreeMap<String, Object> features = (LinkedTreeMap<String, Object>) likedAction
+										.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
+
+								node.setUserObject(new LoggingTreeNode("<html><p>"+actionCommandString+ " ["
+										+ (String) features.entrySet().iterator().next().getValue() + "]</html></p>"
+										,
+										logNode.getCommandName(), logNode.getNodeNumber()));
+							}
+							else {
+
+								HashMap<String, Object> features = (HashMap<String, Object>) likedAction
+										.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
+
+								node.setUserObject(new LoggingTreeNode("<html><p>"+actionCommandString+ " ["
+										+ (String) features.entrySet().iterator().next().getValue() + "]</html></p>"
+										,
+										logNode.getCommandName(), logNode.getNodeNumber()));
+
+							}
+
+						}
+						else {
+
+							node.setUserObject(new LoggingTreeNode(logNode.getCommandName(),
+									logNode.getCommandName(), logNode.getNodeNumber()));
+						}
+
+						model.reload();
+						expandAllNodes(selectedTree);
+					} else if (likedAction.getOtherParameters().get(FAVORITE_PROPERTY).equals("false")) {
+						likedAction.getOtherParameters().put(FAVORITE_PROPERTY, "true");
+
+						if(likedAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) != null) {
+
+							if (likedAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) instanceof LinkedTreeMap<?, ?>) {
+								LinkedTreeMap<String, Object> features = (LinkedTreeMap<String, Object>) likedAction
+										.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
+
+								node.setUserObject(new LoggingTreeNode("<html><p>" + actionCommandString+ " ["
+										+ (String) features.entrySet().iterator().next().getValue() + "]"
+
+								+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
+								logNode.getCommandName(), logNode.getNodeNumber()));
+							}
+							else {
+
+								HashMap<String, Object> features = (HashMap<String, Object>) likedAction
+										.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
+
+								node.setUserObject(new LoggingTreeNode("<html><p>" + actionCommandString+ " ["
+										+ (String) features.entrySet().iterator().next().getValue() + "]"
+
+								+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
+								logNode.getCommandName(), logNode.getNodeNumber()));
+
+							}
+
+						}
+						else {
+							node.setUserObject(new LoggingTreeNode("<html><p>" + actionCommandString
+							+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
+							logNode.getCommandName(), logNode.getNodeNumber()));
+						}
+
+
+						model.reload();
+						expandAllNodes(selectedTree);
+					} else {
+						likedAction.getOtherParameters().put(FAVORITE_PROPERTY, "true");
+
+						if(likedAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) != null) {
+
+							if (likedAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) instanceof LinkedTreeMap<?, ?>) {
+
+								LinkedTreeMap<String, Object> features = (LinkedTreeMap<String, Object>) likedAction
+										.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
+
+								node.setUserObject(new LoggingTreeNode("<html><p>" + actionCommandString+ " ["
+										+ (String) features.entrySet().iterator().next().getValue() + "]"
+
+								+ "   &nbsp; <font color=orange>&#9733;</font></p></html>",
+								logNode.getCommandName(), logNode.getNodeNumber()));
+							}
+							else {
+
+								HashMap<String, Object> features = (HashMap<String, Object>) likedAction
+										.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
+
+								node.setUserObject(new LoggingTreeNode("<html><p>" + actionCommandString+ " ["
+										+ (String) features.entrySet().iterator().next().getValue() + "]"
+
+								+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
+								logNode.getCommandName(), logNode.getNodeNumber()));
+							}
+
+						}
+						else {
+							node.setUserObject(new LoggingTreeNode("<html><p>" + actionCommandString
+							+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
+							logNode.getCommandName(), logNode.getNodeNumber()));
+						}
+						model.reload();
+						expandAllNodes(selectedTree);
+
+					}
+				} catch (Exception e) {
+
+					likedAction.getOtherParameters().put(FAVORITE_PROPERTY, "true");
+
+					if(likedAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) != null) {
+
+						if (likedAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) instanceof LinkedTreeMap<?, ?>) {
+
+							LinkedTreeMap<String, Object> features = (LinkedTreeMap<String, Object>) likedAction
+									.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
+
+							node.setUserObject(new LoggingTreeNode("<html><p>" + actionCommandString+ " ["
+									+ (String) features.entrySet().iterator().next().getValue() + "]"
+
+							+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
+							logNode.getCommandName(), logNode.getNodeNumber()));
+						}
+						else {
+
+							HashMap<String, Object> features = (HashMap<String, Object>) likedAction
+									.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
+
+							node.setUserObject(new LoggingTreeNode("<html><p>" + actionCommandString+ " ["
+									+ (String) features.entrySet().iterator().next().getValue() + "]"
+
+							+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
+							logNode.getCommandName(), logNode.getNodeNumber()));
+						}
+
+					}
+					else {
+						node.setUserObject(new LoggingTreeNode("<html><p>" + actionCommandString
+						+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
+						logNode.getCommandName(), logNode.getNodeNumber()));
+					}
+					model.reload();
+					expandAllNodes(selectedTree);
+				}
+
+				if (tabNo != 0)
+					autoSaveLog(tabNo);
+
+			}
+
+		} catch (IOException e) {
+
+		} finally {
+			try {
+				if(tabNo!=0 && out!=null) {
+					out.close();
+				}
+			} catch (IOException e) {
+
+			}
+		}
+	}
 
 	/**
 	 * This method is used to auto save the historical/current session log when users type in comments or hit add to favorite

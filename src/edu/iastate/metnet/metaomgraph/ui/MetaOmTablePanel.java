@@ -1255,7 +1255,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	}
 
 
-	//Playback method
+	/**
+	 * This is the playback method for line-chart action. It takes the selected row ids, included and excluded samples as the input, and 
+	 * produces the line-chart plot with those parameters, mimicking the historically produced line-chart.
+	 */
 	public void graphSelectedRows(int [] selectedRows, HashSet<String> includedSamples, HashSet<String> excludedSamples ) {
 
 		MetadataHybrid mhyb = MetaOmGraph.getActiveProject().getMetadataHybrid();
@@ -1357,7 +1360,12 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	
 
 
-	//Playback method
+	/**
+	 * This is the playback method for histogram action. It takes the selected row ids, included and excluded samples as the input, and 
+	 * produces the histogram with those parameters, mimicking the historically produced histogram.
+	 * Before triggering the plot, the MOGs samples are temporarily reset to the included samples of the historical action, so that the plot
+	 * considers them as the samples.
+	 */
 	public void createHistogram(int[] selected, HashSet<String> includedSamples, HashSet<String> excludedSamples) {
 
 		EventQueue.invokeLater(new Runnable() {
@@ -1521,7 +1529,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	}
 
 
-	//Playback method
+	/**
+	 * This is the playback method for box-plot action. It takes the selected row ids, included and excluded samples as the input, and 
+	 * produces the box-plot with those parameters, mimicking the historically produced box-plot.
+	 */
 	public void makeBoxPlot(int[] selected, HashSet<String> includedSamples, HashSet<String> excludedSamples) {
 
 		if (selected.length < 1) {
@@ -1699,7 +1710,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 
 
-	//Playback method
+	/**
+	 * This is the playback method for scatter-plot action. It takes the selected row ids, included and excluded samples as the input, and 
+	 * produces the scatter-plot with those parameters, mimicking the historically produced scatter-plot.
+	 * Before triggering the plot, the MOGs samples are temporarily reset to the included samples of the historical action.
+	 */
 	public void graphPairs(int[] selected, HashSet<String> includedSamples, HashSet<String> excludedSamples) {
 
 
@@ -1954,7 +1969,12 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	}
 	
 	
-	//Playback method
+	/**
+	 * This is the playback method for line-chart-default-grouping action. It takes the selected row ids, included and excluded samples as the input, and 
+	 * produces the line-chart-default-grouping with those parameters, mimicking the historically produced line-chart-default-grouping.
+	 * Before triggering the plot, the MOGs samples are temporarily reset to the included samples of the historical action, so that the plot
+	 * considers them as the samples.
+	 */
 	
 	public void plotLineChartDefaultGrouping(int[] selectedRows, HashSet<String> includedSamples, HashSet<String> excludedSamples) {
 
@@ -1973,23 +1993,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		String[] sampleNames = null;
 		String[] groupNames = null;
 
-		TreeMap<String, List<Integer>> repsMapDefault = myProject.getMetadataHybrid().getDefaultRepsMap();
-		for (int thisRow : selected) {
-			ReplicateGroups result = new ReplicateGroups(repsMapDefault, thisRow);
-			myVals.add(result.getValues());
-			myStddevs.add(result.getStdDev());
-			repCounts.add(result.getRepCounts());
-			sampleNames = result.getSampnames();
-			groupNames = result.getGroupnames();
-			if (sampleNames.length == 0) {
-				JOptionPane.showMessageDialog(this, "There are no sample names!");
-
-				return;
-			}
-		}
-
-		// plot
-		
 		MetadataHybrid mhyb = MetaOmGraph.getActiveProject().getMetadataHybrid();
 		if(mhyb !=null) {
 			MetadataCollection mcol = mhyb.getMetadataCollection();
@@ -2003,15 +2006,30 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				MetaOmAnalyzer.updateExcluded(excludedSamples);
 				MetaOmGraph.getActiveTable().updateMetadataTable();
 				MetaOmGraph.getActiveTable().updateMetadataTree();
-				
-				
+
+				TreeMap<String, List<Integer>> repsMapDefault = myProject.getMetadataHybrid().getDefaultRepsMap();
+				for (int thisRow : selected) {
+					ReplicateGroups result = new ReplicateGroups(repsMapDefault, thisRow);
+					myVals.add(result.getValues());
+					myStddevs.add(result.getStdDev());
+					repCounts.add(result.getRepCounts());
+					sampleNames = result.getSampnames();
+					groupNames = result.getGroupnames();
+					if (sampleNames.length == 0) {
+						JOptionPane.showMessageDialog(this, "There are no sample names!");
+
+						return;
+					}
+				}
+
+				// plot
 				MetaOmChartPanel ob = new MetaOmChartPanel(selected, "Groups", myProject.getDefaultYAxis(),
-				myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject, myVals,
-				myStddevs, repCounts, groupNames, sampleNames, true, repsMapDefault);
+						myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject, myVals,
+						myStddevs, repCounts, groupNames, sampleNames, true, repsMapDefault);
 
 				ob.createInternalFrame(true);
-		
-		
+
+
 				mcol.setIncluded(currentProjectIncludedSamples);
 				mcol.setExcluded(currentProjectExcludedSamples);
 				MetaOmAnalyzer.updateExcluded(currentProjectExcludedSamples);
@@ -2021,7 +2039,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 
 		return;
-	
+
 	}
 	
 	
@@ -2135,9 +2153,14 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	
 	}
 	
-	
+	/**
+	 * This is the playback method for line-chart-choose-grouping action. It takes the selected row ids, included and excluded samples as the input, and 
+	 * produces the line-chart-choose-grouping with those parameters, mimicking the historically produced line-chart-choose-grouping.
+	 * Before triggering the plot, the MOGs samples are temporarily reset to the included samples of the historical action, so that the plot
+	 * considers them as the samples.
+	 */
 	public void plotLineChartChooseGrouping(int [] selectedRows, String groupChosen, HashSet<String> includedSamples, HashSet<String> excludedSamples) {
-		
+
 		// if no reps find reps
 		if (myProject.getMetadataHybrid() == null) {
 			JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "No data to calculate rep information...");
@@ -2147,12 +2170,12 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		// show jdialog to show all metadata attributes
 		String[] headers = myProject.getMetadataHybrid().getMetadataHeaders(true);
 		String input = groupChosen;
-		
+
 		if (input == null || input.length() < 1) {
 			return;
 		}
-		TreeMap<String, List<Integer>> repsMap = myProject.getMetadataHybrid().buildRepsMap(input);
 		
+
 		// plot reps
 		int[] selected = selectedRows;
 
@@ -2161,23 +2184,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		ArrayList<int[]> repCounts = new ArrayList();
 		String[] sampleNames = null;
 		String[] groupNames = null;
-		for (int thisRow : selected) {
-			ReplicateGroups result = new ReplicateGroups(repsMap, thisRow);
-			if (result.getErrorStatus()) {
-				return;
-			}
-			myVals.add(result.getValues());
-			myStddevs.add(result.getStdDev());
-			repCounts.add(result.getRepCounts());
-			sampleNames = result.getSampnames();
-			groupNames = result.getGroupnames();
-			if (sampleNames.length == 0) {
-				JOptionPane.showMessageDialog(this, "There are no sample names!");
 
-				return;
-			}
-		}
-		
 		MetadataHybrid mhyb = MetaOmGraph.getActiveProject().getMetadataHybrid();
 		if(mhyb !=null) {
 			MetadataCollection mcol = mhyb.getMetadataCollection();
@@ -2192,23 +2199,43 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				MetaOmGraph.getActiveTable().updateMetadataTable();
 				MetaOmGraph.getActiveTable().updateMetadataTree();
 				
+				TreeMap<String, List<Integer>> repsMap = myProject.getMetadataHybrid().buildRepsMap(input);
+				for (int thisRow : selected) {
+					ReplicateGroups result = new ReplicateGroups(repsMap, thisRow);
+					if (result.getErrorStatus()) {
+						return;
+					}
+					myVals.add(result.getValues());
+					myStddevs.add(result.getStdDev());
+					repCounts.add(result.getRepCounts());
+					sampleNames = result.getSampnames();
+					groupNames = result.getGroupnames();
+					if (sampleNames.length == 0) {
+						JOptionPane.showMessageDialog(this, "There are no sample names!");
+
+						return;
+					}
+				}
+
+
+
 				MetaOmChartPanel ob = new MetaOmChartPanel(selected, "Groups", myProject.getDefaultYAxis(),
-				myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject, myVals,
-				myStddevs, repCounts, groupNames, sampleNames, true, repsMap);
+						myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject, myVals,
+						myStddevs, repCounts, groupNames, sampleNames, true, repsMap);
 				ob.createInternalFrame(true);
-		
-		
-				
+
+
+
 				mcol.setIncluded(currentProjectIncludedSamples);
 				mcol.setExcluded(currentProjectExcludedSamples);
 				MetaOmAnalyzer.updateExcluded(currentProjectExcludedSamples);
 				MetaOmGraph.getActiveTable().updateMetadataTable();
 				MetaOmGraph.getActiveTable().updateMetadataTree();
-			
+
 			}
 		}
 		return;
-	
+
 	}
 
 	public void deleteSelectedList() {
@@ -5575,6 +5602,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						result.put("Color 1", myProject.getColor1());
 						result.put("Color 2", myProject.getColor2());
 						result.put("Sample Action", MetaOmGraph.getCurrentSamplesActionId());
+						result.put("Playable", "true");
 						result.put("result", "OK");
 
 						ActionProperties correlationHistogramAction = new ActionProperties("correlation-histogram",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
@@ -5600,7 +5628,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	}
 	
 	
-	//Playback
+	/**
+	 * This is the playback method for correlation-histogram action. It takes the column value as the input, and 
+	 * produces the correlation-histogram with those parameters, mimicking the historically produced correlation-histogram.
+	 */
 	public void plotCorrHist(String col_val, boolean playback) {
 
 		if (col_val == null || col_val.length() < 1) {
@@ -5699,6 +5730,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			result.put("Color 1", myProject.getColor1());
 			result.put("Color 2", myProject.getColor2());
 			result.put("Sample Action", MetaOmGraph.getCurrentSamplesActionId());
+			result.put("Playable", "true");
 			result.put("result", "OK");
 
 
@@ -5715,8 +5747,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	
 	
 	
-	//Playback method
-	
+	/**
+	 * This is the playback method for bar-chart action. It takes the column value as the input, and 
+	 * produces the bar-chart with those parameters, mimicking the historically produced bar-chart.
+	 */
 	public void plotBarChart(String colValue, boolean playback) {
 
 		if (colValue == null) {
