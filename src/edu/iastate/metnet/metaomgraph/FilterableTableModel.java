@@ -1,12 +1,15 @@
 package edu.iastate.metnet.metaomgraph;
 
 import edu.iastate.metnet.metaomgraph.ui.NoneditableTableModel;
-
+import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.security.InvalidParameterException;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -23,7 +26,9 @@ import javax.swing.table.TableModel;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
+
 public class FilterableTableModel extends AbstractTableModel implements DocumentListener, TableModelListener {
+
 	private TableModel model;
 	private Object[][] filteredData;
 	private TreeMap<Integer, Integer> rowMap;
@@ -180,6 +185,27 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 		filterToRows(hits);
 		manualFilter = false;
 		fireTableChanged(new TableModelEvent(this));
+
+		//Harsha - Reproducibility log
+		try {
+			HashMap<String,Object> actionMap = new HashMap<String,Object>();
+			actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+
+			HashMap<String,Object> dataMap = new HashMap<String,Object>();
+
+			dataMap.put("Filter Strings", values);
+			dataMap.put("Num Hits", hits.size());
+
+			HashMap<String,Object> result = new HashMap<String,Object>();
+			result.put("result", "OK");
+
+			ActionProperties filterAction = new ActionProperties("filter",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+			filterAction.logActionProperties();
+		}
+		catch(Exception e) {
+
+		}
+
 	}
 
 	public synchronized void filterToRows(int[] rows) {

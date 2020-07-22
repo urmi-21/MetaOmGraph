@@ -6,9 +6,12 @@ import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.JComboBox;
@@ -28,6 +31,7 @@ import javax.swing.table.TableCellRenderer;
 import org.apache.commons.math3.analysis.function.Atan;
 import org.apache.commons.math3.analysis.function.Atanh;
 import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.logging.log4j.Logger;
 
 import edu.iastate.metnet.metaomgraph.AdjustPval;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
@@ -36,6 +40,7 @@ import edu.iastate.metnet.metaomgraph.chart.BoxPlot;
 import edu.iastate.metnet.metaomgraph.chart.HistogramChart;
 import edu.iastate.metnet.metaomgraph.chart.MetaOmChartPanel;
 import edu.iastate.metnet.metaomgraph.chart.ScatterPlotChart;
+import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.DecimalFormatRenderer;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import javax.swing.JMenu;
@@ -46,6 +51,7 @@ import javax.swing.event.MenuListener;
 import javax.swing.event.MenuEvent;
 
 public class DiffCorrResultsTable extends JInternalFrame {
+	
 	private JTable table;
 	private List<String> featureNames;
 	private List<Double> corrVals1;
@@ -149,7 +155,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 		mntmExportToFile.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Utils.saveJTabletofile(table);
+				Utils.saveJTabletofile(table, "Diff Correlation Table");
 			}
 		});
 		mnFile.add(mntmExportToFile);
@@ -175,7 +181,32 @@ public class DiffCorrResultsTable extends JInternalFrame {
 					return;
 				}
 
-				if (myProject.addGeneList(listName, rowIndices, true)) {
+				if (myProject.addGeneList(listName, rowIndices, true, false)) {
+					
+					try {
+						//Harsha - reproducibility log
+						HashMap<String,Object> actionMap = new HashMap<String,Object>();
+						actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+
+						HashMap<String,Object> dataMap = new HashMap<String,Object>();
+						dataMap.put("Exported List Name", listName);
+						dataMap.put("List Elements Count", rowIndices.length);
+						Map<Integer,String> selectedItems = new HashMap<Integer,String>();
+
+						for(int rowNum: rowIndices) {
+							selectedItems.put(rowNum, myProject.getDefaultRowNames(rowNum));
+						}
+						dataMap.put("Selected Rows", selectedItems);
+						HashMap<String,Object> resultLog = new HashMap<String,Object>();
+						resultLog.put("result", "OK");
+
+						ActionProperties mergeListAction = new ActionProperties("export-to-list",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+						mergeListAction.logActionProperties();
+					}
+					catch(Exception e1) {
+
+					}
+					
 					JOptionPane.showMessageDialog(DiffCorrResultsTable.this, "List" + listName + " added", "List added",
 							JOptionPane.INFORMATION_MESSAGE);
 				}
@@ -290,7 +321,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 					public void run() {
 						try {// get data for selected rows
 
-							ScatterPlotChart f = new ScatterPlotChart(rowIndices, 0, myProject);
+							ScatterPlotChart f = new ScatterPlotChart(rowIndices, 0, myProject,false);
 							MetaOmGraph.getDesktop().add(f);
 							f.setDefaultCloseOperation(2);
 							f.setClosable(true);
@@ -347,7 +378,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 					public void run() {
 						try {// get data for selected rows
 
-							BoxPlot f = new BoxPlot(plotData, 0, myProject);
+							BoxPlot f = new BoxPlot(plotData, 0, myProject,false);
 							MetaOmGraph.getDesktop().add(f);
 							f.setDefaultCloseOperation(2);
 							f.setClosable(true);
@@ -388,7 +419,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 							}
 							// number of bins
 							int nBins = myProject.getIncludedDataColumnCount() / 10;
-							HistogramChart f = new HistogramChart(selected, nBins, myProject, 1, null);
+							HistogramChart f = new HistogramChart(selected, nBins, myProject, 1, null, false);
 							MetaOmGraph.getDesktop().add(f);
 							f.setDefaultCloseOperation(2);
 							f.setClosable(true);
@@ -657,7 +688,7 @@ public class DiffCorrResultsTable extends JInternalFrame {
 			public void run() {
 				try {// get data for selected rows
 					int nBins = 10;
-					HistogramChart f = new HistogramChart(null, nBins, null, 2, data);
+					HistogramChart f = new HistogramChart(null, nBins, null, 2, data, false);
 					f.setTitle(columnName + " histogram");
 					MetaOmGraph.getDesktop().add(f);
 					f.setDefaultCloseOperation(2);

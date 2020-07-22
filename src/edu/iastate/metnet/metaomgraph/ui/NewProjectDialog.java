@@ -23,8 +23,11 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
@@ -59,8 +62,10 @@ import edu.iastate.metnet.metaomgraph.GraphFileFilter;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
 import edu.iastate.metnet.metaomgraph.RandomAccessFile;
+import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.utils.MetNetUtils;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
+import org.apache.logging.log4j.Logger;
 
 public class NewProjectDialog extends JDialog implements ActionListener, ItemListener {
 
@@ -488,14 +493,21 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 
 	// action for OK button
 	public void doOK() {
+		
+		HashMap<String,Object> resultMap = new HashMap<String,Object>();
+		
 		if (sourceField.getText().equals("")) {
 			JOptionPane.showMessageDialog(this, "You must choose a source data file!", "Error",
 					JOptionPane.ERROR_MESSAGE);
+			resultMap.put("result", "Error");
+			resultMap.put("resultComments", "You must choose a source data file!");
 			return;
 		}
 		if ((infoColumnSpinner.getValue() == null) || (((Integer) infoColumnSpinner.getValue()).intValue() < 0)) {
 			JOptionPane.showMessageDialog(this, "You must enter the number of information columns!", "Error",
 					JOptionPane.ERROR_MESSAGE);
+			resultMap.put("result", "Error");
+			resultMap.put("resultComments", "You must enter the number of information columns!");
 			return;
 		}
 		Enumeration enumer = delimiterGroup.getElements();
@@ -525,6 +537,8 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 		File source = new File(sourceField.getText());
 		if (!source.exists()) {
 			JOptionPane.showMessageDialog(this, "Invalid source file!", "Error", JOptionPane.ERROR_MESSAGE);
+			resultMap.put("result", "Error");
+			resultMap.put("resultComments", "Invalid source file!");
 			return;
 		}
 		dispose();
@@ -553,6 +567,7 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 						"It looks like you've imported some " + "gene IDs.\nWould you "
 								+ "like to automatically add additional " + "gene information as well?",
 						"Gene IDs detected", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+				
 				makeLocus = (result == JOptionPane.YES_OPTION);
 			}
 			if (makeLocus) {
@@ -630,6 +645,31 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 		if (!infoField2.getText().equals("")) {
 			csvFlag = 1;
 		}
+		
+		
+		HashMap<String,Object> actionMap = new HashMap<String,Object>();
+		actionMap.put("parent",-1);
+		
+		HashMap<String,Object> dataMap = new HashMap<String,Object>();
+		dataMap.put("dataFile", sourceField.getText());
+		dataMap.put("metaDataFile", infoField2.getText());
+		dataMap.put("numInfoCols", (Integer) infoColumnSpinner.getValue());
+		dataMap.put("dataFileDelimiter", delimiter);
+		dataMap.put("metaDataDelimiter", metadatadelimiter);
+		dataMap.put("containsBlankValues", allowBlanksBox.isSelected());
+		dataMap.put("replaceBlanks", replaceBlanksButton.isSelected());
+		
+		if(allowBlanksBox.isSelected()) {
+			dataMap.put("ignoreBlanks", ignoreBlanksButton.isSelected());
+			if(ignoreBlanksButton.isSelected()==false)
+				dataMap.put("treatBlanksAs", blankValueField.getText());
+		}
+		
+		resultMap.put("result", "OK");
+		resultMap.put("userComments", "");
+		
+		ActionProperties createProjectAction = new ActionProperties("create-project",actionMap,dataMap,resultMap,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+		createProjectAction.logActionProperties();
 	}
 
 	// action for OK button

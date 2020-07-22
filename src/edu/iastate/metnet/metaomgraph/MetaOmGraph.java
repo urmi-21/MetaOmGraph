@@ -6,12 +6,18 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Event;
 import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.HeadlessException;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.SplashScreen;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -23,19 +29,25 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.Vector;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
+import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
@@ -50,6 +62,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
@@ -60,7 +73,14 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.ColorUIResource;
-
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.FileAppender;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 //import org.biomage.examples.GetToDataExample;
 import org.jdom.JDOMException;
 
@@ -76,6 +96,7 @@ import edu.iastate.metnet.arrayexpress.v2.AEProjectMaker;
 import edu.iastate.metnet.metaomgraph.AnnotationImporter.Annotation;
 import edu.iastate.metnet.metaomgraph.MetaOmTips.MetaOmShowTipsChoice;
 import edu.iastate.metnet.metaomgraph.chart.MetaOmChartPanel;
+import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.ui.AboutFrame;
 import edu.iastate.metnet.metaomgraph.ui.AboutFrame4;
 import edu.iastate.metnet.metaomgraph.ui.ClickableLabel;
@@ -88,6 +109,7 @@ import edu.iastate.metnet.metaomgraph.ui.Metadataviewer;
 import edu.iastate.metnet.metaomgraph.ui.NewProjectDialog;
 import edu.iastate.metnet.metaomgraph.ui.ProjectPropertiesPanel;
 import edu.iastate.metnet.metaomgraph.ui.ReadMetadata;
+import edu.iastate.metnet.metaomgraph.ui.ReproducibilityDashboardPanel;
 import edu.iastate.metnet.metaomgraph.ui.SearchByExpressionFrame;
 import edu.iastate.metnet.metaomgraph.ui.SetColTypes;
 import edu.iastate.metnet.metaomgraph.ui.WelcomePanel;
@@ -118,6 +140,53 @@ public class MetaOmGraph implements ActionListener {
 	 * private static Color chartBackgroundColor = null; private static Color
 	 * plotBackgroundColor = null;
 	 */
+
+	/*Harsha- Added logger */
+	public static Logger logger;
+	public static Appender appender;
+	private static ReproducibilityDashboardPanel rdp;
+	private static ActionProperties openProjectAction;
+	private static int currentProjectActionId;
+	private static String currentLogFilePath;
+	private static boolean loggingRequired;
+	private static boolean permanentLogging;
+	private static int currentSamplesActionId;
+	private static JInternalFrame ReproducibilityDashboardFrame;
+
+
+	public static Logger getLogger() {
+		return logger;
+	}
+	public static void setLogger(Logger l) {
+		logger = l;
+	}
+	public static boolean getLoggingRequired() {
+		return loggingRequired;
+	}
+	public static void setLoggingRequired(boolean lr) {
+		loggingRequired = lr;
+	}
+	public static boolean getPermanentLogging() {
+		return permanentLogging;
+	}
+	public static void setPermanentLogging(boolean pl) {
+		permanentLogging = pl;
+	}
+	public static String getCurrentLogFilePath() {
+		return currentLogFilePath;
+	}
+	public static void setCurrentLogFilePath(String log) {
+		currentLogFilePath = log;
+	}
+	public static int getCurrentSamplesActionId() {
+		return currentSamplesActionId;
+	}
+	public static void setCurrentSamplesActionId(int sampId) {
+		currentSamplesActionId = sampId;
+	}
+	public static ReproducibilityDashboardPanel getReproducibilityDashboardPanel() {
+		return rdp;
+	}
 
 	public static Color getTableColor1() {
 		return currentTheme.getTableColor1();
@@ -212,7 +281,7 @@ public class MetaOmGraph implements ActionListener {
 			mogThemes.remove(name);
 		}
 	}
-	
+
 
 	public static HashMap<String, MOGColorThemes> getAllThemes() {
 		return mogThemes;
@@ -251,6 +320,9 @@ public class MetaOmGraph implements ActionListener {
 		return currentmogThemeName;
 	}
 
+	public static int getCurrentProjectActionId() {
+		return currentProjectActionId;
+	}
 	public static MOGColorThemes getCurrentTheme() {
 		return mogThemes.get(getCurrentThemeName());
 	}
@@ -425,6 +497,7 @@ public class MetaOmGraph implements ActionListener {
 	public static final String PROPERTIES_COMMAND = "project properties";
 
 	public static final String ABOUT_COMMAND = "show about window";
+	public static final String PLAYBACK_COMMAND = "playback command";
 
 	public static final String RECENT_PROJECT_COMMAND = "open a recent project";
 
@@ -498,7 +571,7 @@ public class MetaOmGraph implements ActionListener {
 
 	/** Items on the File menu */
 	private static JMenuItem newProjectItem, newSOFTItem, newMetabolomicsItem, openProjectItem,
-			saveProjectItem, saveProjectAsItem, quitItem, mergeItem;
+	saveProjectItem, saveProjectAsItem, quitItem, mergeItem;
 
 	private static JMenu newProjectMenu;
 
@@ -511,6 +584,10 @@ public class MetaOmGraph implements ActionListener {
 
 	/** The Project menu */
 	private static JMenu projectMenu;
+
+
+	/** Reproducibility log menu */
+	private static JToggleButton ReproducibilityLogMenu;
 
 	// tools menu urmi
 	private static JMenu toolsMenu;
@@ -545,7 +622,7 @@ public class MetaOmGraph implements ActionListener {
 	private static JMenuItem closeProjectItem, loadInfoItem, projectPropertiesItem, excludeSamplesItem;
 	// urmi
 	private static JMenuItem openMDColTypes, openInfoColTypes, openMetadataStructureItem, metadataViewerItem,
-			loadInfoItem2, loadTree;
+	loadInfoItem2, loadTree;
 
 	private static JCheckBoxMenuItem logDataItem;
 
@@ -554,8 +631,8 @@ public class MetaOmGraph implements ActionListener {
 
 	/** Items on the Import Annotations menu */
 	private static JMenuItem importHumanItem, importMouseItem, importSoybeanItem, importRatItem, importYeastItem,
-			importBarleyItem, importRiceItem, importCustomItem, import133plus2Item, importArabidopsisItem,
-			importYeast2Item, importZebrafishItem;
+	importBarleyItem, importRiceItem, importCustomItem, import133plus2Item, importArabidopsisItem,
+	importYeast2Item, importZebrafishItem;
 
 	private static JMenu importRatMenu;
 
@@ -584,6 +661,9 @@ public class MetaOmGraph implements ActionListener {
 
 	/** The Help menu */
 	private static JMenu helpMenu;
+
+	/** The History menu */
+	private static JMenu historyMenu;
 
 	/** Items on the Help menu */
 	private static JMenuItem checkUpdateitem, overviewItem, contextItem, tipsItem, aboutItem, contactItem;
@@ -652,6 +732,13 @@ public class MetaOmGraph implements ActionListener {
 		init(false);
 	}
 
+	public static JToggleButton getReproducibilityLogMenu() {
+		return ReproducibilityLogMenu;
+	}
+
+	public static MetaOmTablePanel getActiveTablePanel() {
+		return activeTablePanel;
+	}
 	/**
 	 * Creates a set of variables for the start up process. Sets up and configures
 	 * the main window and desktop Creates the menu bar with corresponding elements.
@@ -706,9 +793,22 @@ public class MetaOmGraph implements ActionListener {
 						initThemes();
 						setCurrentTheme("light");
 					}
+
+					//UserPreferences up = new UserPreferences(recentProjects,showTips,lastThemeName);
 				} catch (Exception ex) {
 					initThemes();
 					setCurrentTheme("light");
+				}
+
+				//setting loggingRequired parameter for reproducibility logging
+				try {
+					boolean lr = (boolean)in.readObject();
+					MetaOmGraph.setLoggingRequired(lr);
+					MetaOmGraph.setPermanentLogging(lr);
+
+				}
+				catch(Exception ex2) {
+					MetaOmGraph.setLoggingRequired(true);
 				}
 
 				in.close();
@@ -726,7 +826,7 @@ public class MetaOmGraph implements ActionListener {
 		initThemes();
 		setCurrentTheme("light");
 		mainWindow = new JFrame("MetaOmGraph");
-		
+
 		//urmi
 		///////////////enable debug mode//////////////////
 		ExceptionHandler.getInstance(mainWindow).setUseBuffer(useBuffer);
@@ -770,7 +870,7 @@ public class MetaOmGraph implements ActionListener {
 		newMetabolomicsItem.setMnemonic(KeyEvent.VK_M);
 		newMetabolomicsItem.setToolTipText(
 				"Create a new MetaOm project from the metabolomics database at http://plantmetabolomics.org");
-		
+
 		/*
 		 * Removed this newArrayExpressItem = new JMenuItem("From ArrayExpress...");
 		newArrayExpressItem.setActionCommand(NEW_PROJECT_ARRAYEXPRESS_COMMAND);
@@ -781,7 +881,7 @@ public class MetaOmGraph implements ActionListener {
 		// newProjectMenu.add(newSOFTItem);
 		// newProjectMenu.add(newMetabolomicsItem);
 		newProjectMenu.add(newArrayExpressItem);
-		*/
+		 */
 		newProjectMenu.add(newProjectItem);
 
 		openProjectItem = new JMenuItem("Open Project...");
@@ -823,13 +923,13 @@ public class MetaOmGraph implements ActionListener {
 		quitItem.setToolTipText("Exit this program");
 		quitItem.setAccelerator(
 				KeyStroke.getKeyStroke(KeyEvent.VK_Q, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-		
+
 		closeProjectItem = new JMenuItem("Close project");
 		closeProjectItem.setMnemonic(KeyEvent.VK_C);
 		closeProjectItem.setActionCommand(CLOSE_PROJECT_COMMAND);
 		closeProjectItem.addActionListener(myself);
 		closeProjectItem.setToolTipText("Close all windows related to the active project");
-		
+
 		fileMenu.add(newProjectMenu);
 		fileMenu.add(openProjectItem);
 		fileMenu.add(closeProjectItem);
@@ -844,7 +944,7 @@ public class MetaOmGraph implements ActionListener {
 		projectMenu = new JMenu("Edit");
 		projectMenu.setMnemonic(KeyEvent.VK_P);
 		projectMenu.setEnabled(false);
-		
+
 		// closeProjectItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W,
 		// Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 		//projectMenu.add(closeProjectItem); //urmi moved close project to file menu
@@ -1370,7 +1470,50 @@ public class MetaOmGraph implements ActionListener {
 		aboutItem.setActionCommand(ABOUT_COMMAND);
 		aboutItem.addActionListener(myself);
 		helpMenu.add(aboutItem);
+
+		historyMenu = new JMenu("History");
+		JMenuItem playbackMenu = new JMenuItem("Playback Dashboard");
+		playbackMenu.setMnemonic(KeyEvent.VK_A);
+		playbackMenu.setActionCommand(PLAYBACK_COMMAND);
+		playbackMenu.addActionListener(myself);
+
 		mainMenuBar.add(helpMenu);
+
+		if(Utils.isMac()) {
+			historyMenu.add(playbackMenu);
+			mainMenuBar.add(historyMenu);
+		}
+
+
+		//Harsha - reproducibility log menu
+
+		ReproducibilityLogMenu = new JToggleButton("History");
+		ReproducibilityLogMenu.setForeground(Color.BLUE);
+		ReproducibilityLogMenu.addItemListener(new ItemListener() {
+
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+
+				if ((ReproducibilityDashboardFrame != null) && (ReproducibilityDashboardFrame.isVisible())) {
+					//frame.toFront();
+					ReproducibilityDashboardFrame.setVisible(false);
+					return;
+				}
+				else if ((ReproducibilityDashboardFrame != null) && (!ReproducibilityDashboardFrame.isVisible()) && (!ReproducibilityDashboardFrame.isClosed())) {
+
+					ReproducibilityDashboardFrame.setVisible(true);
+					return;
+				}
+
+				createReproducibilityLoggingFrame();
+
+			}
+
+		});
+
+		mainMenuBar.add(Box.createHorizontalGlue());
+		mainMenuBar.add(ReproducibilityLogMenu);
+
 		// Menu bar created
 
 		setMenuIcons();
@@ -1582,6 +1725,9 @@ public class MetaOmGraph implements ActionListener {
 
 				out.writeObject(currentmogThemeName);
 				out.writeObject(mogThemes);
+
+				//writing reproducibility logging required parameter
+				out.writeObject(permanentLogging);
 
 				out.close();
 				fos.close();
@@ -1892,7 +2038,7 @@ public class MetaOmGraph implements ActionListener {
 				} else if (!activeProject.isUniqueDataCols()) {
 					JOptionPane.showMessageDialog(getMainWindow(),
 							source.getName()
-									+ " contains duplicate column names for data columns.\nPlease check your file.",
+							+ " contains duplicate column names for data columns.\nPlease check your file.",
 							"Error", JOptionPane.ERROR_MESSAGE);
 					activeProject = null;
 					closeProject();
@@ -1938,6 +2084,29 @@ public class MetaOmGraph implements ActionListener {
 				// urmi
 				fixTitle();
 				projectOpened();
+
+
+				try {
+					String projFileName = source.getAbsolutePath();
+
+					String projectName = projFileName.substring(projFileName.lastIndexOf(File.separator)+1,projFileName.lastIndexOf('.'));
+					String currDate = new SimpleDateFormat("yyyy-MM-dd_HHmmss").format(new Date());
+					String logFilePath = projFileName.substring(0,projFileName.lastIndexOf(File.separator))+File.separator+"logs"+File.separator+projectName+"_"+currDate+".log";
+
+
+					logger = updateLogger(logFilePath);
+					setCurrentLogFilePath(logFilePath);
+
+					setLoggingRequired(true);
+					setPermanentLogging(true);
+					logGeneralProperties();
+					int newProjectId = logNewProject(source.getAbsolutePath(),extInfoFile.getAbsolutePath());
+
+					currentProjectActionId = newProjectId;
+				}
+				catch(Exception e) {
+
+				}
 
 				// if metadata is being read wait for the metadata read window to show up other
 				// wise just proceed with the data file to the main table
@@ -1988,6 +2157,15 @@ public class MetaOmGraph implements ActionListener {
 					 */
 					fixTitle();
 
+					//Harsha - reproducibility log
+					HashMap<String,Object> saveProjectParameters = new HashMap<String,Object>();
+					saveProjectParameters.put("mogFilePath",destination.getAbsolutePath());
+
+					HashMap<String,Object> result = new HashMap<String,Object>();
+					result.put("result", "OK");
+					ActionProperties saveProjectAction = new ActionProperties("save-as-project",saveProjectParameters,null,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+					//saveProjectAction.logActionProperties();
+
 				}
 				addRecentProject(activeProjectFile);
 				return null;
@@ -2034,6 +2212,28 @@ public class MetaOmGraph implements ActionListener {
 					@Override
 					public void run() {
 						activeProject = new MetaOmProject(source);
+						try{
+							String projFileName = source.getAbsolutePath();
+							String projectName = projFileName.substring(projFileName.lastIndexOf(File.separator)+1,projFileName.lastIndexOf('.'));
+							String currDate = new SimpleDateFormat("yyyy-MM-dd_HHmmss").format(new Date());
+							String logFilePath = projFileName.substring(0,projFileName.lastIndexOf(File.separator))+File.separator+"logs"+File.separator+projectName+"_"+currDate+".log";
+
+							if(getLoggingRequired()) {
+								logger = updateLogger(logFilePath);
+
+							}
+
+							setCurrentLogFilePath(logFilePath);
+
+							logGeneralProperties();
+							logOpenProject(projectName,source);
+
+
+							currentProjectActionId = openProjectAction.getActionNumber();
+						}
+						catch(Exception e){
+						}
+
 					}
 				});
 			} catch (InvocationTargetException | InterruptedException e) {
@@ -2072,10 +2272,10 @@ public class MetaOmGraph implements ActionListener {
 
 			} else {
 				JOptionPane
-						.showMessageDialog(MetaOmGraph.getMainWindow(),
-								"There was a problem reading " + source.getName()
-										+ ".  Make sure it's a valid MetaOmGraph file.",
-								"Error", JOptionPane.ERROR_MESSAGE);
+				.showMessageDialog(MetaOmGraph.getMainWindow(),
+						"There was a problem reading " + source.getName()
+						+ ".  Make sure it's a valid MetaOmGraph file.",
+						"Error", JOptionPane.ERROR_MESSAGE);
 				activeProject = null;
 				closeProject();
 				desktop.validate();
@@ -2125,6 +2325,18 @@ public class MetaOmGraph implements ActionListener {
 		if ((activeProject != null) && (activeProject.isChanged()))
 			if (!promptToSave())
 				return false;
+
+		//Harsha - reproducibility log
+		HashMap<String,Object> closeProjectParameters = new HashMap<String,Object>();
+		try {
+			closeProjectParameters.put("dataFilePath",activeProject.getSourceFile().getAbsolutePath());
+			closeProjectParameters.put("mogFilePath",activeProjectFile.getAbsolutePath());
+			closeProjectParameters.put("dimensions",String.valueOf(activeProject.getDataColumnCount()));
+			closeProjectParameters.put("parent", -1);
+		}
+		catch(Exception e) {
+
+		}
 		activeProject = null;
 		JInternalFrame[] closeUs = desktop.getAllFrames();
 		for (int x = 0; x < closeUs.length; x++)
@@ -2141,6 +2353,25 @@ public class MetaOmGraph implements ActionListener {
 				((JInternalFrame) (comps[x])).dispose();
 		MetaOmAnalyzer.reset();
 		// System.gc();
+
+		//Harsha - reproducibility log
+
+		try {
+			HashMap<String,Object> dataMap = new HashMap<String,Object>();
+			HashMap<String,Object> result = new HashMap<String,Object>();
+			dataMap.put("Command", "Close current project");
+			result.put("result", "OK");
+			ActionProperties closeProjectAction = new ActionProperties("close-project",closeProjectParameters,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+			closeProjectAction.logActionProperties();
+
+			currentProjectActionId = closeProjectAction.getActionNumber();
+			stopLogger();
+			getReproducibilityDashboardPanel().autoSaveLog(0);
+		}
+		catch(Exception e) {
+
+		}
+
 		return true;
 	}
 
@@ -2341,6 +2572,21 @@ public class MetaOmGraph implements ActionListener {
 											delim);
 									readMetadataframe.setVisible(true);
 									readMetadataframe.toFront();
+									
+									//Harsha - reproducibility log
+									HashMap<String,Object> actionMap = new HashMap<String,Object>();
+									actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+									actionMap.put("section", "Sample Metadata Table");
+
+									HashMap<String,Object> dataMap = new HashMap<String,Object>();
+									dataMap.put("Metadata File",source.getAbsolutePath());
+									
+									HashMap<String,Object> resultLog = new HashMap<String,Object>();
+									resultLog.put("result", "OK");
+
+									ActionProperties importMetadataAction = new ActionProperties("import-metadata",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+									importMetadataAction.logActionProperties();
+									
 								} catch (Exception e) {
 									e.printStackTrace();
 								}
@@ -2507,6 +2753,15 @@ public class MetaOmGraph implements ActionListener {
 
 			}
 			return;
+		}
+
+		if (PLAYBACK_COMMAND.equals(e.getActionCommand())) {
+			if(ReproducibilityDashboardFrame == null) {
+				createReproducibilityLoggingFrame();
+				if(ReproducibilityDashboardFrame!= null) {
+					ReproducibilityDashboardFrame.setClosable(true);
+				}
+			}
 		}
 
 		if (MERGE_COMMAND.equals(e.getActionCommand())) {
@@ -2827,6 +3082,26 @@ public class MetaOmGraph implements ActionListener {
 					return null;
 				}
 			}.start();
+
+			try {
+				//Harsha - reproducibility log
+				HashMap<String,Object> actionMap = new HashMap<String,Object>();
+				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+				actionMap.put("section", "Feature Metadata");
+
+				HashMap<String,Object> dataMap = new HashMap<String,Object>();
+				dataMap.put("UniqueID Column", (String)result);
+				dataMap.put("Export File Name", dest.getAbsolutePath());
+
+				HashMap<String,Object> resultLog = new HashMap<String,Object>();
+				resultLog.put("result", "OK");
+
+				ActionProperties createListAction = new ActionProperties("export-lists",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				createListAction.logActionProperties();
+			}
+			catch(Exception e1) {
+
+			}
 			return;
 		}
 		if (EXPORT_METNET3_LISTS_COMMAND.equals(e.getActionCommand())) {
@@ -2846,10 +3121,28 @@ public class MetaOmGraph implements ActionListener {
 					return null;
 				}
 			}.start();
+
+			//			try {
+			//				//Harsha - reproducibility log
+			//				HashMap<String,Object> actionMap = new HashMap<String,Object>();
+			//				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+			//
+			//				HashMap<String,Object> dataMap = new HashMap<String,Object>();
+			//				dataMap.put("Import File Name", source.getAbsolutePath());
+			//				
+			//				HashMap<String,Object> resultLog = new HashMap<String,Object>();
+			//				resultLog.put("result", "OK");
+			//
+			//				ActionProperties createListAction = new ActionProperties("import-list",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+			//				createListAction.logActionProperties(logger);
+			//			}
+			//			catch(Exception e1) {
+			//
+			//			}
 			return;
 		}
-		
-		
+
+
 		/* urmi: this function is not used
 		if (IMPORT_METNET3_LISTS_COMMAND.equals(e.getActionCommand())) {
 			final MetNet3ListImportPanel importer;
@@ -3049,6 +3342,31 @@ public class MetaOmGraph implements ActionListener {
 			MetaOmGraph.getDesktop().add(frame);
 			frame.setVisible(true);
 
+			//Harsha - reproducibility log
+
+			HashMap<String,Object> actionMap = new HashMap<String,Object>();
+			HashMap<String,Object> dataMap = new HashMap<String,Object>();
+			HashMap<String,Object> result = new HashMap<String,Object>();
+
+			try {
+
+				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+				actionMap.put("section", "All");
+
+				dataMap.put("Chosen DEA", chosenVal);
+
+
+				result.put("result", "OK");
+
+				ActionProperties loadDeaAction = new ActionProperties("load-DEA",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				loadDeaAction.logActionProperties();
+
+			}
+			catch(Exception e1) {
+
+			}
+
+
 			return;
 		}
 
@@ -3074,6 +3392,32 @@ public class MetaOmGraph implements ActionListener {
 				return;
 			}
 			getActiveProject().removeDifferentialExpResults(chosenVal);
+
+
+			//Harsha - reproducibility log
+
+			HashMap<String,Object> actionMap = new HashMap<String,Object>();
+			HashMap<String,Object> dataMap = new HashMap<String,Object>();
+			HashMap<String,Object> result = new HashMap<String,Object>();
+
+			try {
+
+				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+				actionMap.put("section", "All");
+
+				dataMap.put("Removed DEA", chosenVal);
+
+
+				result.put("result", "OK");
+
+				ActionProperties removeDeaAction = new ActionProperties("remove-saved-DEA",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				removeDeaAction.logActionProperties();
+
+			}
+			catch(Exception e1) {
+
+			}
+
 			return;
 		}
 
@@ -3107,7 +3451,7 @@ public class MetaOmGraph implements ActionListener {
 				getDesktop().getAllFrames()[index].setSelected(true);
 			} catch (
 
-			Exception ex) {
+					Exception ex) {
 				ex.printStackTrace();
 				return;
 			}
@@ -3137,6 +3481,25 @@ public class MetaOmGraph implements ActionListener {
 			log10Item.setSelected(false);
 			sqrtItem.setSelected(false);
 			fixTitle();
+
+			try {
+				//Harsha - reproducibility log
+				HashMap<String,Object> actionMap = new HashMap<String,Object>();
+				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+				actionMap.put("section", "All");
+
+				HashMap<String,Object> dataMap = new HashMap<String,Object>();
+				dataMap.put("Transformation Name", "None");
+
+				HashMap<String,Object> resultLog = new HashMap<String,Object>();
+				resultLog.put("result", "OK");
+
+				ActionProperties changeTransformationAction = new ActionProperties("change-data-transformation",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				changeTransformationAction.logActionProperties();
+			}
+			catch(Exception e1) {
+
+			}
 			return;
 		}
 
@@ -3147,6 +3510,25 @@ public class MetaOmGraph implements ActionListener {
 			log10Item.setSelected(false);
 			sqrtItem.setSelected(false);
 			fixTitle();
+
+			try {
+				//Harsha - reproducibility log
+				HashMap<String,Object> actionMap = new HashMap<String,Object>();
+				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+				actionMap.put("section", "All");
+
+				HashMap<String,Object> dataMap = new HashMap<String,Object>();
+				dataMap.put("Transformation Name", "log2");
+
+				HashMap<String,Object> resultLog = new HashMap<String,Object>();
+				resultLog.put("result", "OK");
+
+				ActionProperties changeTransformationAction = new ActionProperties("change-data-transformation",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				changeTransformationAction.logActionProperties();
+			}
+			catch(Exception e1) {
+
+			}
 			return;
 		}
 
@@ -3157,6 +3539,25 @@ public class MetaOmGraph implements ActionListener {
 			log10Item.setSelected(true);
 			sqrtItem.setSelected(false);
 			fixTitle();
+
+			try {
+				//Harsha - reproducibility log
+				HashMap<String,Object> actionMap = new HashMap<String,Object>();
+				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+				actionMap.put("section", "All");
+
+				HashMap<String,Object> dataMap = new HashMap<String,Object>();
+				dataMap.put("Transformation Name", "log10");
+
+				HashMap<String,Object> resultLog = new HashMap<String,Object>();
+				resultLog.put("result", "OK");
+
+				ActionProperties changeTransformationAction = new ActionProperties("change-data-transformation",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				changeTransformationAction.logActionProperties();
+			}
+			catch(Exception e1) {
+
+			}
 			return;
 		}
 
@@ -3167,6 +3568,25 @@ public class MetaOmGraph implements ActionListener {
 			log10Item.setSelected(false);
 			sqrtItem.setSelected(false);
 			fixTitle();
+
+			try {
+				//Harsha - reproducibility log
+				HashMap<String,Object> actionMap = new HashMap<String,Object>();
+				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+				actionMap.put("section", "All");
+
+				HashMap<String,Object> dataMap = new HashMap<String,Object>();
+				dataMap.put("Transformation Name", "loge");
+
+				HashMap<String,Object> resultLog = new HashMap<String,Object>();
+				resultLog.put("result", "OK");
+
+				ActionProperties changeTransformationAction = new ActionProperties("change-data-transformation",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				changeTransformationAction.logActionProperties();
+			}
+			catch(Exception e1) {
+
+			}
 			return;
 		}
 
@@ -3177,6 +3597,25 @@ public class MetaOmGraph implements ActionListener {
 			log10Item.setSelected(false);
 			sqrtItem.setSelected(true);
 			fixTitle();
+
+			try {
+				//Harsha - reproducibility log
+				HashMap<String,Object> actionMap = new HashMap<String,Object>();
+				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+				actionMap.put("section", "All");
+
+				HashMap<String,Object> dataMap = new HashMap<String,Object>();
+				dataMap.put("Transformation Name", "sqrt");
+
+				HashMap<String,Object> resultLog = new HashMap<String,Object>();
+				resultLog.put("result", "OK");
+
+				ActionProperties changeTransformationAction = new ActionProperties("change-data-transformation",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				changeTransformationAction.logActionProperties();
+			}
+			catch(Exception e1) {
+
+			}
 			return;
 		}
 
@@ -3282,6 +3721,7 @@ public class MetaOmGraph implements ActionListener {
 					new ImageIcon(myself.getClass().getResource("/resource/tango/16x16/apps/help-browser.png")));
 			tipsItem.setIcon(new ImageIcon(
 					myself.getClass().getResource("/resource/tango/16x16/status/dialog-information.png")));
+			ReproducibilityLogMenu.setIcon(new ImageIcon(((new ImageIcon(myself.getClass().getResource("/resource/loggingicons/loggingicon2.png")).getImage()).getScaledInstance(14, 14, java.awt.Image.SCALE_SMOOTH))));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -3338,7 +3778,7 @@ public class MetaOmGraph implements ActionListener {
 
 				} catch (
 
-				IOException ioe) {
+						IOException ioe) {
 					ioe.printStackTrace();
 				}
 
@@ -3592,8 +4032,8 @@ public class MetaOmGraph implements ActionListener {
 						"A newer version of MOG is available for download. We highly recommend using the latest version.\nYour version: "
 								+ getVersion() + "\nLatest version: " + ob.getLatestVersionOnline(),
 
-						"New version available!", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
-						options, options[0]);
+								"New version available!", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+								options, options[0]);
 			} catch (HeadlessException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -3608,7 +4048,7 @@ public class MetaOmGraph implements ActionListener {
 				// open metnet download
 				try {
 					java.awt.Desktop.getDesktop()
-							.browse(new URI("http://metnetweb.gdcb.iastate.edu/MetNet_MetaOmGraph.htm"));
+					.browse(new URI("http://metnetweb.gdcb.iastate.edu/MetNet_MetaOmGraph.htm"));
 					shutdown();
 				} catch (IOException | URISyntaxException e1) {
 					// TODO Auto-generated catch block
@@ -3622,5 +4062,194 @@ public class MetaOmGraph implements ActionListener {
 			}
 		}
 	}
+
+	
+	/**
+	 * This method initializes the Playback Dashboard Internal frame
+	 */
+
+	public static void createReproducibilityLoggingFrame() {
+
+		ReproducibilityDashboardFrame =  new JInternalFrame("Playback");
+
+		UIManager.put("InternalFrame.activeTitleBackground", new ColorUIResource(new Color(240,128,128)));
+		UIManager.put("InternalFrame.inactiveTitleBackground", new ColorUIResource(new Color(240,128,128)));
+		UIManager.put("InternalFrame.titleFont", new Font("SansSerif", Font.BOLD,12));
+
+		javax.swing.plaf.basic.BasicInternalFrameUI ui = new javax.swing.plaf.basic.BasicInternalFrameUI(ReproducibilityDashboardFrame);
+
+		ReproducibilityDashboardFrame.setUI(ui);
+
+		rdp = new ReproducibilityDashboardPanel(myself);
+		ReproducibilityDashboardFrame.add(rdp);
+		desktop.add(ReproducibilityDashboardFrame);
+
+
+		ReproducibilityDashboardFrame.setClosable(false);
+		ReproducibilityDashboardFrame.setIconifiable(true);
+		ReproducibilityDashboardFrame.setMaximizable(false);
+		ReproducibilityDashboardFrame.setResizable(true);
+
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
+		Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
+
+		ReproducibilityDashboardFrame.setSize(550, (int)rect.getMaxY()-200);
+		ReproducibilityDashboardFrame.setLocation((ReproducibilityLogMenu.getX()+ReproducibilityLogMenu.getWidth())-550, 0);
+
+		ReproducibilityDashboardFrame.show();     
+
+	}
+
+	
+	/**
+	 * This method is used to update the logging file name for each open-project action
+	 * It will ensure that each project's action will be written to its own project directory's log folder
+	 */
+	public static Logger updateLogger(String file_name){
+		LoggerContext context = (LoggerContext) LogManager.getContext(false);
+		Configuration configuration = context.getConfiguration();
+		//  Layout<? extends Serializable> old_layout = configuration.getAppender(appender_name).getLayout();
+
+		//delete old appender/logger
+		if(appender != null && appender.isStarted()) {
+			appender.stop();
+			configuration.removeLogger("reproducibilityLogger");
+
+		}
+		//create new appender/logger
+		LoggerConfig loggerConfig = new LoggerConfig("reproducibilityLogger", Level.DEBUG, false);
+		appender = FileAppender.createAppender(file_name, "false", "false", "reproducibilityAppender", "true","false", "false", "4000", null, null, "false", null, configuration);
+		appender.start();
+		configuration.addAppender(appender);
+		loggerConfig.addAppender(appender, Level.DEBUG, null);
+		configuration.addLogger("reproducibilityLogger", loggerConfig);
+
+		context.updateLoggers();
+
+		Logger l = context.getLogger("reproducibilityLogger");
+
+		return l;
+	}
+
+	
+	/**
+	 * This method is used to stop logging to the log file
+	 */
+	public static void stopLogger() {
+		LoggerContext context = (LoggerContext) LogManager.getContext(false);
+		Configuration configuration = context.getConfiguration();
+
+		if(appender != null && appender.isStarted()) {
+			appender.stop();
+			configuration.removeLogger("reproducibilityLogger");
+
+		}
+	}
+
+
+	/**
+	 * This method is used to log the General system properties, project properties and samples
+	 */
+	public static void logGeneralProperties() {
+		try {
+
+			//Harsha - reproducibility log
+			HashMap<String,Object> actionMap = new HashMap<String,Object>();
+			HashMap<String,Object> dataMap = new HashMap<String,Object>();
+			HashMap<String,Object> result = new HashMap<String,Object>();
+
+			actionMap.put("parent",-1);
+			actionMap.put("section", "All");
+
+			dataMap.put("Mog Version",VERSION);
+			dataMap.put("Java Version",System.getProperty("java.version"));
+			dataMap.put("OS Name", System.getProperty("os.name"));
+			dataMap.put("CPU",(System.getenv("PROCESSOR_IDENTIFIER")+", architecture: "+System.getenv("PROCESSOR_ARCHITECTURE")+", numProcessors: "+System.getenv("NUMBER_OF_PROCESSORS")));
+			dataMap.put("Memory", String.valueOf(Runtime.getRuntime().totalMemory()));
+			dataMap.put("Session ID", String.valueOf(Instant.now().toEpochMilli()));
+
+			MetadataHybrid mdhObj = MetaOmGraph.getActiveProject().getMetadataHybrid();
+			MetadataCollection mcol = null;
+			if(mdhObj != null) {
+				mcol = mdhObj.getMetadataCollection();
+			}
+			if(mcol != null) {
+				result.put("Included Samples", mcol.getIncluded());
+				result.put("Excluded Samples", mcol.getExcluded());
+				dataMap.put("Data Column", mcol.getDatacol());
+			}
+			dataMap.put("Start Timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+
+			result.put("result", "OK");
+
+			ActionProperties generalPropertiesAction = new ActionProperties("general-properties",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+			generalPropertiesAction.logActionProperties();
+
+			setCurrentSamplesActionId(generalPropertiesAction.getActionNumber());
+		}
+		catch(Exception e) {
+		}
+	}
+
+
+	/**
+	 * This method is used to log the open-project action
+	 */
+	public static void logOpenProject(String projectName, File source) {
+
+		try {
+			HashMap<String,Object> openProjectParameters = new HashMap<String,Object>();
+			openProjectParameters.put("parent",-1);
+
+			HashMap<String,Object> dataMap = new HashMap<String,Object>();
+			dataMap.put("Project Name", projectName);
+			dataMap.put("Mog FilePath",source.getAbsolutePath());
+			dataMap.put("Dimensions",String.valueOf(activeProject.getDataColumnCount()));
+			dataMap.put("Row Count", String.valueOf(activeProject.getRowCount()));
+			dataMap.put("Excluded count",String.valueOf(MetaOmAnalyzer.getExcludeCount()));
+			dataMap.put("Logfile Name", getCurrentLogFilePath());
+
+			HashMap<String,Object> result = new HashMap<String,Object>();
+			result.put("result", "OK");
+			openProjectAction = new ActionProperties("open-project [ "+projectName+" ]",openProjectParameters,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+			openProjectAction.logActionProperties();
+		}
+		catch(Exception e) {
+
+		}
+
+	}
+
+	
+	/**
+	 * This method is used to log when a new project is opened
+	 */
+	public static int logNewProject(String dataFileName, String metadataFileName) {
+
+		try {
+			HashMap<String,Object> newProjectParameters = new HashMap<String,Object>();
+			newProjectParameters.put("parent",-1);
+
+			HashMap<String,Object> dataMap = new HashMap<String,Object>();
+			dataMap.put("Data File", dataFileName);
+			dataMap.put("Metadata File",metadataFileName);
+			dataMap.put("Number of Samples",String.valueOf(activeProject.getDataColumnCount()));
+			dataMap.put("Row Count", String.valueOf(activeProject.getRowCount()));
+			dataMap.put("Excluded count",String.valueOf(MetaOmAnalyzer.getExcludeCount()));
+
+			HashMap<String,Object> result = new HashMap<String,Object>();
+			result.put("result", "OK");
+			ActionProperties newProjectAction = new ActionProperties("new-project [ "+dataFileName+" ]",newProjectParameters,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+			newProjectAction.logActionProperties();
+
+			return newProjectAction.getActionNumber();
+		}
+		catch(Exception e) {
+			return -1;
+		}
+
+	}
+
 
 }

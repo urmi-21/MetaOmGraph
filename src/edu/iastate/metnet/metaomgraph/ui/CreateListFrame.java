@@ -2,16 +2,24 @@ package edu.iastate.metnet.metaomgraph.ui;
 
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
+import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 public class CreateListFrame
@@ -27,6 +35,7 @@ public class CreateListFrame
     private JButton cancelButton;
     private JButton importButton;
     private CreateListFrame myself;
+    private boolean editList=false;
 
     public CreateListFrame(MetaOmProject project) {
         this(project, null);
@@ -64,9 +73,9 @@ public class CreateListFrame
         int[] activeEntries;
         if (listName != null) {
 
-
             createButton.setText("OK");
             activeEntries = myProject.getGeneListRowNumbers(listName);
+            editList = true;
         } else {
             if ("Complete List".equals(MetaOmGraph.getActiveTable()
                     .getSelectedListName())) {
@@ -125,15 +134,54 @@ public class CreateListFrame
     @Override
 	public void actionPerformed(ActionEvent e) {
         if ("OK".equals(e.getActionCommand())) {
-            Object[][] activeValues = dtp.getActiveValues();
-            int[] result = new int[activeValues.length];
-            for (int i = 0; i < result.length; i++)
-                result[i] = ((Integer) activeValues[i][0]).intValue();
-            if (myProject.addGeneList(listName, result, true)) {
-                dispose();
-            }
-            return;
-        }
+			Object[][] activeValues = dtp.getActiveValues();
+			int[] result = new int[activeValues.length];
+
+
+
+			for (int i = 0; i < result.length; i++)
+				result[i] = ((Integer) activeValues[i][0]).intValue();
+
+			if(editList) {
+				if (myProject.addGeneList(listName, result, true, false)) {
+
+					try {
+						//Harsha - reproducibility log
+						HashMap<String,Object> actionMap = new HashMap<String,Object>();
+						actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+						actionMap.put("section", "Feature Metadata");
+
+						HashMap<String,Object> dataMap = new HashMap<String,Object>();
+						dataMap.put("List Name", listName);
+						dataMap.put("List Elements Count", result.length);
+						Map<Integer,String> selectedItems = new HashMap<Integer,String>();
+
+						for(int rowNum: result) {
+							selectedItems.put(rowNum, myProject.getDefaultRowNames(rowNum));
+						}
+						dataMap.put("Selected Rows", selectedItems);
+						HashMap<String,Object> resultLog = new HashMap<String,Object>();
+						resultLog.put("result", "OK");
+
+						ActionProperties createListAction = new ActionProperties("edit-list",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+						createListAction.logActionProperties();
+					}
+					catch(Exception e1) {
+
+					}
+
+					dispose();
+				}
+			}
+			else {
+
+				if (myProject.addGeneList(listName, result, true, true)) {	
+					dispose();
+				}
+			}
+
+			return;
+		}
         if ("Cancel".equals(e.getActionCommand())) {
             dispose();
             return;

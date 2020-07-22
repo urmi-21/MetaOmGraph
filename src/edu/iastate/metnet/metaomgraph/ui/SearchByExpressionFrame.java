@@ -22,17 +22,25 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 //import com.itextpdf.xmp.impl.Utils;
 
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
+import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
+import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -44,6 +52,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
 public class SearchByExpressionFrame extends JInternalFrame {
+
 	private JTextField textField;
 	private JTextField textField_1;
 	private JComboBox comboBox;
@@ -205,7 +214,7 @@ public class SearchByExpressionFrame extends JInternalFrame {
 		mntmExportResults.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				edu.iastate.metnet.metaomgraph.utils.Utils.saveJTabletofile(table_1);
+				edu.iastate.metnet.metaomgraph.utils.Utils.saveJTabletofile(table_1, "Search by expression");
 			}
 		});
 		mnFile.add(mntmExportResults);
@@ -497,12 +506,31 @@ public class SearchByExpressionFrame extends JInternalFrame {
 		double minVal = 0;
 		double maxVal = 0;
 		List<String> colNames = new ArrayList<>();
+		
+		//Harsha - reproducibility log
+		HashMap<String,Object> actionMap = new HashMap<String,Object>();
+		actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+
+		HashMap<String,Object> dataMap = new HashMap<String,Object>();
+		dataMap.put("searchFor",comboBox.getSelectedItem().toString());
+		
+		HashMap<String,Object> resultLog = new HashMap<String,Object>();
+		
 		try {
 			minVal = Double.parseDouble(textField.getText());
 			maxVal = Double.parseDouble(textField_1.getText());
+			
+			dataMap.put("minVal", minVal);
+			dataMap.put("maxVal", maxVal);
 		} catch (NumberFormatException nfe) {
 			JOptionPane.showMessageDialog(null, "Please check min and max values", "Values error",
 					JOptionPane.ERROR_MESSAGE);
+			
+			resultLog.put("result", "Error");
+			resultLog.put("resultComments", "Please check min and max values");
+			ActionProperties searchByExprAction = new ActionProperties("search-by-expression",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+			searchByExprAction.logActionProperties();
+			
 			return;
 		}
 		// get results for selected rows
@@ -510,10 +538,18 @@ public class SearchByExpressionFrame extends JInternalFrame {
 		if (selected == null || selected.length < 1) {
 			JOptionPane.showMessageDialog(null, "Please select rows to search.", "Please select rows",
 					JOptionPane.ERROR_MESSAGE);
+			resultLog.put("result", "Error");
+			resultLog.put("resultComments", "Please select rows to search.");
+			ActionProperties searchByExprAction = new ActionProperties("search-by-expression",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+			searchByExprAction.logActionProperties();
 			return;
 		}
 		List<List<String>> res = new ArrayList<>();
 		// search datacolumns
+
+
+		
+
 		if (searchDC) {
 			try {
 				for (int s = 0; s < selected.length; s++) {
@@ -531,6 +567,15 @@ public class SearchByExpressionFrame extends JInternalFrame {
 					}
 					res.add(temp);
 				}
+				
+				List<String> selRows = new ArrayList<String>();
+				for(int numSelected=0; numSelected<table.getSelectedRowCount();numSelected++) {
+					selRows.add((String)table.getValueAt(selected[numSelected], 0));
+				}
+				dataMap.put("selectedRows", selRows);
+				resultLog.put("result", "OK");
+				ActionProperties launchEnsembl = new ActionProperties("search-by-expression",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				launchEnsembl.logActionProperties();
 
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -553,6 +598,12 @@ public class SearchByExpressionFrame extends JInternalFrame {
 					}
 					res.add(temp);
 				}
+				
+				dataMap.put("selectedRows", selected);
+				resultLog.put("result", "OK");
+				ActionProperties launchEnsembl = new ActionProperties("search-by-expression",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				launchEnsembl.logActionProperties();
+				
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

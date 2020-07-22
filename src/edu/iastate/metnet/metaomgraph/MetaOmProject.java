@@ -2,6 +2,7 @@
 package edu.iastate.metnet.metaomgraph;
 
 import edu.iastate.metnet.metaomgraph.chart.NewCustomSortDialog;
+import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
 import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel;
 import edu.iastate.metnet.metaomgraph.ui.MetadataEditor;
@@ -28,17 +29,20 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 //import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 //import java.util.Set;
@@ -710,6 +714,20 @@ public class MetaOmProject {
 		}
 		setChanged(false);
 
+		//Harsha - reproducibility log
+		try{
+		HashMap<String,Object> saveProjectParameters = new HashMap<String,Object>();
+		saveProjectParameters.put("saveFilePath",destination.getAbsolutePath());
+		//saveProjectParameters.put("parent",MetaOmGraph.getCurrentProjectActionId());
+
+
+		HashMap<String,Object> result = new HashMap<String,Object>();
+		result.put("result", "OK");
+		ActionProperties saveProjectAction = new ActionProperties("save-project-as",saveProjectParameters,null,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+		saveProjectAction.logActionProperties();
+		}
+		catch(Exception e){
+		}
 		return true;
 	}
 
@@ -1815,7 +1833,7 @@ public class MetaOmProject {
 		return columnHeaders;
 	}
 
-	public boolean addGeneList(String name, int[] entries, boolean notify) {
+	public boolean addGeneList(String name, int[] entries, boolean notify, boolean logRequired) {
 		String listName = name;
 		if ((listName == null) || (listName.trim().equals(""))) {
 			String result = "";
@@ -1840,6 +1858,45 @@ public class MetaOmProject {
 		if (notify) {
 			fireStateChanged("create list");
 		}
+
+		try {
+			//Harsha - reproducibility log
+			HashMap<String,Object> actionMap = new HashMap<String,Object>();
+			actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+			actionMap.put("section", "Feature Metadata");
+
+			HashMap<String,Object> dataMap = new HashMap<String,Object>();
+			dataMap.put("Created List Name", listName);
+			dataMap.put("List Elements Count", entries.length);
+			Map<Integer,String> selectedItems = new HashMap<Integer,String>();
+
+			for(int rowNum: entries) {
+				selectedItems.put(rowNum, getDefaultRowNames(rowNum));
+			}
+			dataMap.put("Selected Rows", selectedItems);
+			HashMap<String,Object> resultLog = new HashMap<String,Object>();
+			resultLog.put("result", "OK");
+
+			ActionProperties createListAction = new ActionProperties("create-list",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+
+			if(logRequired) {
+				createListAction.logActionProperties();
+			}
+		}
+		catch(Exception e) {
+
+			//			StringWriter sw = new StringWriter();
+			//            e.printStackTrace(new PrintWriter(sw));
+			//            String exceptionAsString = sw.toString();
+			//			JDialog jd = new JDialog();
+			//			JTextPane jt = new JTextPane();
+			//			jt.setText(exceptionAsString);
+			//			jt.setBounds(10, 10, 300, 100);
+			//			jd.getContentPane().add(jt);
+			//			jd.setBounds(100, 100, 500, 200);
+			//			jd.setVisible(true);
+		}
+
 		return true;
 	}
 
@@ -1871,6 +1928,32 @@ public class MetaOmProject {
 		geneLists.put(listName, entries);
 		setChanged(true);
 		fireStateChanged("rename list");
+
+
+		try {
+			//Harsha - reproducibility log
+			HashMap<String,Object> actionMap = new HashMap<String,Object>();
+			actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+
+			HashMap<String,Object> dataMap = new HashMap<String,Object>();
+			dataMap.put("Old List Name", oldName);
+			dataMap.put("New List Name", listName);
+			dataMap.put("List Elements Count", entries.length);
+			Map<Integer,String> selectedItems = new HashMap<Integer,String>();
+
+			for(int rowNum: entries) {
+				selectedItems.put(rowNum, getDefaultRowNames(rowNum));
+			}
+			dataMap.put("Selected Rows", selectedItems);
+			HashMap<String,Object> resultLog = new HashMap<String,Object>();
+			resultLog.put("result", "OK");
+
+			ActionProperties createListAction = new ActionProperties("rename-list",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+			createListAction.logActionProperties();
+		}
+		catch(Exception e) {
+
+		}
 		return true;
 	}
 
@@ -1916,7 +1999,7 @@ public class MetaOmProject {
 	}
 
 	public boolean addGeneList(int[] entries) {
-		return addGeneList(null, entries, true);
+		return addGeneList(null, entries, true,true);
 	}
 
 	public boolean addGeneList(Collection<Integer> entries) {
@@ -1936,13 +2019,31 @@ public class MetaOmProject {
 			int addMe = ((Integer) localIterator.next()).intValue();
 			result[(addHere++)] = addMe;
 		}
-		return addGeneList(name, result, true);
+		return addGeneList(name, result, true, true);
 	}
 
 	public void deleteGeneList(String name) {
 		geneLists.remove(name);
 		setChanged(true);
 		fireStateChanged("delete list");
+
+
+		//Harsha - reproducibility log
+		try {
+			HashMap<String,Object> actionMap = new HashMap<String,Object>();
+			actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+
+			HashMap<String,Object> dataMap = new HashMap<String,Object>();
+			dataMap.put("deletedListName", name);
+			HashMap<String,Object> resultLog = new HashMap<String,Object>();
+			resultLog.put("result", "OK");
+
+			ActionProperties deleteListAction = new ActionProperties("delete-list",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+			deleteListAction.logActionProperties();
+		}
+		catch(Exception e) {
+
+		}
 	}
 
 	public int getInfoColumnCount() {
@@ -3366,7 +3467,29 @@ public class MetaOmProject {
 				for (Integer thisRow : rowsToAdd) {
 					rows[(index++)] = thisRow.intValue();
 				}
-				addGeneList(name, rows, false);
+				addGeneList(name, rows, false,false);
+
+				try {
+					//Harsha - reproducibility log
+					HashMap<String,Object> actionMap = new HashMap<String,Object>();
+					actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+
+					HashMap<String,Object> dataMap = new HashMap<String,Object>();
+					dataMap.put("Source File", source.getAbsolutePath());
+					dataMap.put("Created List Name", name);
+					dataMap.put("List Elements Count", rows.length);
+					
+					HashMap<String,Object> resultLog = new HashMap<String,Object>();
+					resultLog.put("result", "OK");
+
+					ActionProperties createListAction = new ActionProperties("import-lists",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+					createListAction.logActionProperties();
+				}
+				catch(Exception e) {
+
+				}
+
+				
 			}
 			fireStateChanged("create list");
 		} catch (Exception e) {

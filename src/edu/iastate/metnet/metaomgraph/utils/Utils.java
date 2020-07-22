@@ -22,8 +22,12 @@ import java.security.InvalidParameterException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -47,12 +51,16 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.TableColumn;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
 import org.apache.commons.math3.analysis.function.Atanh;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -64,6 +72,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import edu.iastate.metnet.metaomgraph.GraphFileFilter;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
+import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
+import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel;
 
 public class Utils {
 	public static final int LOCUS = 1;
@@ -1122,8 +1132,8 @@ public class Utils {
 	 * @param table
 	 * @return
 	 */
-	public static int saveJTabletofile(JTable table) {
-		return saveJTabletofile(table, "\t");
+	public static int saveJTabletofile(JTable table, String section) {
+		return saveJTabletofile(table, "\t", section);
 	}
 	
 	/**
@@ -1164,7 +1174,18 @@ public class Utils {
 				cell.setCellValue((String)table.getValueAt(rowIndex, colIndex));
 			}
 		}
+		
+		//Harsha - reproducibility log
+				HashMap<String,Object> actionMap = new HashMap<String,Object>();
+				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+				HashMap<String,Object> dataMap = new HashMap<String,Object>();
+				dataMap.put("File Name", destination.getAbsolutePath());
+
+				HashMap<String,Object> result = new HashMap<String,Object>();
+				
+				
 		FileOutputStream out;
+
 		try {
 			out = new FileOutputStream(destination);
 			workBook.write(out);
@@ -1172,14 +1193,24 @@ public class Utils {
 		    workBook.close();
 		    JOptionPane.showMessageDialog(null, "File saved to: " + destination.getAbsolutePath(), "File saved",
 					JOptionPane.INFORMATION_MESSAGE);
+		    
+		    result.put("result", "OK");
+		    ActionProperties saveAction = new ActionProperties("save-table-to-excel",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+			saveAction.logActionProperties();
+			
 		    return 0;
 		} catch (IOException e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, "Error in saving file: " + destination.getAbsolutePath(), "Error",
 					JOptionPane.ERROR_MESSAGE);
+			result.put("result", "Error");
+			result.put("resultComments", "Error in saving file:" + destination.getAbsolutePath());
+			ActionProperties saveAction = new ActionProperties("save-table-to-excel",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+			saveAction.logActionProperties();
 			return 1;
 		}
 	}
+	
 
 	/**
 	 * 
@@ -1188,13 +1219,25 @@ public class Utils {
 	 *            delimiter
 	 * @return
 	 */
-	public static int saveJTabletofile(JTable table, String delim) {
+	public static int saveJTabletofile(JTable table, String delim, String section) {
 		int status = 1; // 0 success; 1 fail
 		// export file as tab delimited .txt
 		final File destination = Utils.chooseFileToSave(new GraphFileFilter(GraphFileFilter.TEXT), "txt",
 				MetaOmGraph.getMainWindow(), true);
 		if (destination == null)
 			return 1;
+
+		//Harsha - reproducibility log
+		HashMap<String,Object> actionMap = new HashMap<String,Object>();
+		actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+		HashMap<String,Object> dataMap = new HashMap<String,Object>();
+		dataMap.put("section", section);
+		dataMap.put("File Name", destination.getAbsolutePath());
+
+		HashMap<String,Object> result = new HashMap<String,Object>();
+
+
+
 		try {
 			FileWriter fw = new FileWriter(destination);
 			for (int col = 0; col < table.getColumnCount(); col++) {
@@ -1227,14 +1270,24 @@ public class Utils {
 			fw.close();
 			JOptionPane.showMessageDialog(null, "File saved to: " + destination.getAbsolutePath(), "File saved",
 					JOptionPane.INFORMATION_MESSAGE);
+			result.put("result", "OK");
 			status = 0;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, "Error in saving file: " + destination.getAbsolutePath(), "Error",
 					JOptionPane.ERROR_MESSAGE);
+
+			result.put("result", "Error");
+			result.put("resultComments", "Error in saving file:" + destination.getAbsolutePath());
 			status = 1;
 		}
+
+		//Harsha - reproducibility log
+
+		ActionProperties saveAction = new ActionProperties("save-table-to-file",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+		saveAction.logActionProperties();
+
 		return status;
 	}
 
