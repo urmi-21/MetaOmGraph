@@ -20,15 +20,22 @@ import javax.swing.JTable;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Vector;
 
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
+import org.apache.logging.log4j.Logger;
+
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
+import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
 import java.awt.event.ActionEvent;
 
 public class MetadataRemoveCols extends JDialog {
@@ -260,6 +267,7 @@ public class MetadataRemoveCols extends JDialog {
 
 				// get data from table
 				DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
+				ArrayList<String> deletedColumns = new ArrayList<String>();
 				int j = 0;
 				for (int i = 0; i < allHeaders.length; i++) {
 					if (i == datacolIndex) {
@@ -271,6 +279,7 @@ public class MetadataRemoveCols extends JDialog {
 						j++;
 					} else {
 						toKeep[i] = false;
+						deletedColumns.add(tablemodel.getValueAt(j, 1).toString());
 						j++;
 					}
 				}
@@ -286,6 +295,20 @@ public class MetadataRemoveCols extends JDialog {
 					p.updateTable(true);
 					p.updateHeaders();
 					MetaOmGraph.getActiveProject().getMetadataHybrid().setCurrentHeaders(obj.getHeaders());
+					
+					//Harsha - reproducibility log
+					HashMap<String,Object> actionMap = new HashMap<String,Object>();
+					actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+					actionMap.put("section", "Sample Metadata Table");
+
+					HashMap<String,Object> dataMap = new HashMap<String,Object>();
+					dataMap.put("Deleted Columns",deletedColumns);
+					
+					HashMap<String,Object> resultLog = new HashMap<String,Object>();
+					resultLog.put("result", "OK");
+
+					ActionProperties deleteMetadataColumnsAction = new ActionProperties("delete-metadata-columns",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+					deleteMetadataColumnsAction.logActionProperties();
 
 				} else {
 					String[] newHeaders = removeExcluded(toKeep, allHeaders);
@@ -293,8 +316,44 @@ public class MetadataRemoveCols extends JDialog {
 					p.updateTable(true);
 					p.updateHeaders();
 					MetaOmGraph.getActiveProject().getMetadataHybrid().setCurrentHeaders(newHeaders);
+					
+					//Harsha - reproducibility log
+					HashMap<String,Object> actionMap = new HashMap<String,Object>();
+					actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+					actionMap.put("section", "Sample Metadata Table");
+
+					HashMap<String,Object> dataMap = new HashMap<String,Object>();
+					dataMap.put("Filtered Columns",deletedColumns);
+					
+					HashMap<String,Object> resultLog = new HashMap<String,Object>();
+					resultLog.put("result", "OK");
+
+					ActionProperties filterMetadataColumnsAction = new ActionProperties("filter-metadata-columns",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+					filterMetadataColumnsAction.logActionProperties();
 				}
 				getThisframe().dispose();
+				
+				
+				//Harsha - reproducibility log
+				HashMap<String,Object> actionMap = new HashMap<String,Object>();
+				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+				actionMap.put("section", "Sample Metadata Table");
+				HashMap<String,Object> dataMap = new HashMap<String,Object>();
+				
+				java.util.List<String> remlist = new ArrayList<>();
+				for (int i = 0; i < toKeep.length; i++) {
+					if (!toKeep[i]) {
+						remlist.add(headervals[i]);
+					}
+				}
+				
+				dataMap.put("removedColumns", remlist);
+				dataMap.put("remainingColumns", p.getHeaders());
+				HashMap<String,Object> resultLog = new HashMap<String,Object>();
+				resultLog.put("result", "OK");
+
+				ActionProperties removeColumnsAction = new ActionProperties("remove-table-columns",actionMap,null,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				removeColumnsAction.logActionProperties();
 			}
 		});
 

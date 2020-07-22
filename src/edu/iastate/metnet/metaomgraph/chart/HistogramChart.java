@@ -118,7 +118,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 			@Override
 			public void run() {
 				try {
-					HistogramChart frame = new HistogramChart(null, 1, null, 2, null);
+					HistogramChart frame = new HistogramChart(null, 1, null, 2, null,false);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -130,7 +130,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 	/**
 	 * Create the frame.
 	 */
-	public HistogramChart(int[] selected, int bins, MetaOmProject mp, int htype, double[] data) {
+	public HistogramChart(int[] selected, int bins, MetaOmProject mp, int htype, double[] data, boolean isPlayback) {
 		// create a copy of excluded
 		boolean[] excluded = MetaOmAnalyzer.getExclude();
 		if (excluded != null) {
@@ -277,6 +277,9 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		setIconifiable(true);
 		setClosable(true);
 		String chartTitle = "Histogram Plot:" + String.join(",", rowNames);
+		if(isPlayback) {
+			chartTitle = "Playback - Histogram Plot:" + String.join(",", rowNames);
+		}
 		this.setTitle(chartTitle);
 
 	}

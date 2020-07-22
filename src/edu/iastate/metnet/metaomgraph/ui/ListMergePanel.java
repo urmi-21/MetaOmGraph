@@ -1,16 +1,21 @@
 package edu.iastate.metnet.metaomgraph.ui;
 
+import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
+import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
-
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
@@ -61,7 +66,24 @@ public class ListMergePanel extends JPanel {
 		return result.toArray(new Integer[0]);
 	}
 
-	
+	public String[] getSelectedListNames() {
+		ArrayList<String> result = new ArrayList<String>();
+
+		for (int i = 0; i < listBoxes.length; i++) {
+			if (listBoxes[i].isSelected()) {
+				result.add((String)listBoxes[i].getText());
+			}
+		}
+		
+		String [] selListNames = new String [result.size()];
+		
+		for(int j=0;j<result.size();j++) {
+			selListNames[j] = result.get(j);
+		}
+		return selListNames;
+	}
+
+
 
 	public Integer[] getMergedList(boolean intersect) {
 		List<Integer> result = new ArrayList<>();
@@ -119,7 +141,10 @@ public class ListMergePanel extends JPanel {
 		JButton okButton = new JButton(new AbstractAction("OK") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				
+				try {
 				Integer[] selected = mergePanel.getSelectedLists();
+				String [] selectedListNames = mergePanel.getSelectedListNames();
 				if (selected.length <= 1) {
 					StringBuilder text = new StringBuilder(selected.length + " list");
 					if (selected.length == 0) {
@@ -145,10 +170,41 @@ public class ListMergePanel extends JPanel {
 				for (int i = 0; i < intMerged.length; i++) {
 					intMerged[i] = merged[i].intValue();
 				}
-				if (mergePanel.myProject.addGeneList(listName, intMerged, true)) {
+				if (mergePanel.myProject.addGeneList(listName, intMerged, true, false)) {
+
+					try {
+						//Harsha - reproducibility log
+						HashMap<String,Object> actionMap = new HashMap<String,Object>();
+						actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+						actionMap.put("section", "Feature Metadata");
+
+						HashMap<String,Object> dataMap = new HashMap<String,Object>();
+						dataMap.put("Merged List Name", listName);
+						dataMap.put("Lists Merged", selectedListNames);
+						dataMap.put("List Elements Count", intMerged.length);
+						Map<Integer,String> selectedItems = new HashMap<Integer,String>();
+
+						for(int rowNum: intMerged) {
+							selectedItems.put(rowNum, mergePanel.myProject.getDefaultRowNames(rowNum));
+						}
+						dataMap.put("Selected Rows", selectedItems);
+						HashMap<String,Object> resultLog = new HashMap<String,Object>();
+						resultLog.put("result", "OK");
+
+						ActionProperties mergeListAction = new ActionProperties("merge-lists",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+						mergeListAction.logActionProperties();
+					}
+					catch(Exception e1) {
+
+					}
+
 					dialog.dispose();
 				}
 
+				}
+				catch(Exception ee) {
+					
+				}
 			}
 		});
 		JButton cancelButton = new JButton(new AbstractAction("Cancel") {

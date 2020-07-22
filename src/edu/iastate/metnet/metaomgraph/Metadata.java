@@ -620,6 +620,14 @@ public class Metadata {
 		public static String getXMLElementName() {
 			return "query";
 		}
+
+		@Override
+		public String toString() {
+			return "MetadataQuery [field=" + field + ", term=" + term + ", matchType=" + matchType + ", matchCase="
+					+ matchCase + "]";
+		}
+		
+		
 	}
 
 	public ArrayList<ArrayList<SimpleXMLElement>> getSampleGroups(SimpleXMLElement root) {
