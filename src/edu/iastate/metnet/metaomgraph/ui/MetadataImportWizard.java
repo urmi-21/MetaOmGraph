@@ -211,7 +211,7 @@ public class MetadataImportWizard extends JDialog {
 		});
 		panel.add(btnBack);
 
-		JButton btnResetTree = new JButton("Reset Tree");
+		JButton btnResetTree = new JButton("Empty Tree");
 		btnResetTree.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {

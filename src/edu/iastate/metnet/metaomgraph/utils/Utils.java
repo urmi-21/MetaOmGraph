@@ -74,6 +74,7 @@ import edu.iastate.metnet.metaomgraph.GraphFileFilter;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel;
+import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
 
 public class Utils {
 	public static final int LOCUS = 1;
@@ -1149,31 +1150,53 @@ public class Utils {
 			return 0;
 		
 		XSSFWorkbook workBook = new XSSFWorkbook();
-		XSSFSheet sheet = workBook.createSheet("MetaOmGraph data");
-		XSSFRow row = sheet.createRow(0);
-		XSSFCell cell = null;
 		
-		// set column name colors and font.
-		XSSFFont headerFont = workBook.createFont();
-		headerFont.setColor(IndexedColors.BLACK.index);
-		XSSFCellStyle headerCellStyle = sheet.getWorkbook().createCellStyle();
-		headerCellStyle.setFillForegroundColor(IndexedColors.GOLD.index);
-		headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-		headerCellStyle.setFont(headerFont);
-		
-		for(int colIndex = 0; colIndex < table.getColumnCount(); colIndex++) {	
-			cell = row.createCell(colIndex);
-			cell.setCellStyle(headerCellStyle);
-			cell.setCellValue(table.getColumnName(colIndex));
-		}
-		
-		for(int rowIndex = 0; rowIndex < table.getRowCount(); rowIndex++) {
-			row = sheet.createRow(rowIndex + 1);
-			for(int colIndex = 0; colIndex < table.getColumnCount(); colIndex++) {
-				cell = row.createCell(colIndex);
-				cell.setCellValue((String)table.getValueAt(rowIndex, colIndex));
+		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(), "Working",
+				"Creating file", 0L, table.getRowCount(), true);
+		new Thread() {
+			@Override
+			public void run() {
+				XSSFSheet sheet = workBook.createSheet("MetaOmGraph data");
+				XSSFRow row = sheet.createRow(0);
+				XSSFCell cell = null;
+
+				// set column name colors and font.
+				XSSFFont headerFont = workBook.createFont();
+				headerFont.setColor(IndexedColors.BLACK.index);
+				XSSFCellStyle headerCellStyle = sheet.getWorkbook().createCellStyle();
+				headerCellStyle.setFillForegroundColor(IndexedColors.GOLD.index);
+				headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+				headerCellStyle.setFont(headerFont);
+
+				for(int colIndex = 0; colIndex < table.getColumnCount(); colIndex++) {
+					cell = row.createCell(colIndex);
+					cell.setCellStyle(headerCellStyle);
+					cell.setCellValue(table.getColumnName(colIndex));
+				}
+
+				for(int rowIndex = 0; rowIndex < table.getRowCount(); rowIndex++) {
+					row = sheet.createRow(rowIndex + 1);
+					for(int colIndex = 0; colIndex < table.getColumnCount(); colIndex++) {
+						cell = row.createCell(colIndex);
+						String value = "";
+						try {
+							value = (String)table.getValueAt(rowIndex, colIndex);
+						}
+						catch(Exception e){
+							value = table.getValueAt(rowIndex, colIndex).toString();
+						}
+						cell.setCellValue(value);
+					}
+					progress.setProgress(rowIndex);
+				}
+				progress.dispose();
 			}
+		}.start();
+		progress.setVisible(true);
+		if (progress.isCanceled()) {
+			return 1;
 		}
+			
 		
 		//Harsha - reproducibility log
 				HashMap<String,Object> actionMap = new HashMap<String,Object>();

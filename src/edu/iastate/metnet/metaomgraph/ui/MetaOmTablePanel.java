@@ -549,7 +549,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		exportToTextItem.setActionCommand("ExportToText");
 		exportToTextItem.addActionListener(this);
 		exportMenu.add(exportToTextItem);
-		JMenuItem exportToExcelItem = new JMenuItem("Export to excel workbook");
+		JMenuItem exportToExcelItem = new JMenuItem("Export to xlsx");
 		exportToExcelItem.setActionCommand("ExportToExcel");
 		exportToExcelItem.addActionListener(this);
 		exportMenu.add(exportToExcelItem);
