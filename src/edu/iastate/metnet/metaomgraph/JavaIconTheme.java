@@ -29,6 +29,7 @@ public class JavaIconTheme implements IconTheme {
 	private ImageIcon sort;
 	private ImageIcon excel;
 	private ImageIcon report;
+	private ImageIcon groupBy;
 	// urmi
 	private ImageIcon palette;
 
@@ -86,6 +87,8 @@ public class JavaIconTheme implements IconTheme {
 	private String excelPath = "/resource/customicon/excel16.gif";
 
 	private String reportPath = "/resource/javaicon/History16.gif";
+	
+	private String groupByPath = "/resource/customicon/categorizeIcon16.png";
 
 	@Override
 	public ImageIcon getProperties() {
@@ -331,5 +334,12 @@ public class JavaIconTheme implements IconTheme {
 	public ImageIcon getOpts() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	public ImageIcon getGroupBy() {
+		if(groupBy == null) {
+			groupBy = new ImageIcon(getClass().getResource(groupByPath));
+		}
+		return groupBy;
 	}
 }
