@@ -30,6 +30,7 @@ public class SilkIconTheme implements IconTheme {
     private ImageIcon excel;
     private ImageIcon report;
     private ImageIcon palette;
+    private ImageIcon groupBy;
     
     private String defaultZoomPath = "/resource/silkicon/zoom.png";
 
@@ -85,6 +86,8 @@ public class SilkIconTheme implements IconTheme {
     private String excelPath = "/resource/customicon/excel16.gif";
 
     private String reportPath = "/resource/silkicon/newspaper.png";
+    
+    private String groupByPath = "/resource/customicon/categorizeIcon16.png";
 
     @Override
 	public ImageIcon getProperties() {
@@ -332,5 +335,12 @@ public class SilkIconTheme implements IconTheme {
 	public ImageIcon getOpts() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	public ImageIcon getGroupBy() {
+		if(groupBy == null) {
+			groupBy = new ImageIcon(getClass().getResource(groupByPath));
+		}
+		return groupBy;
 	}
 }
