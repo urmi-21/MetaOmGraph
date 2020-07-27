@@ -109,6 +109,8 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 	String splitCol;
 	Map<String, Collection<Integer>> splitIndex;
 	HashMap<String, String> seriesNameToKeyMap;
+	
+	private boolean isNormalized;
 
 	/**
 	 * Launch the application.
@@ -169,6 +171,11 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		btnNewButton_1.setActionCommand("chooseBins");
 		btnNewButton_1.addActionListener(this);
 		panel_1.add(btnNewButton_1);
+		
+		JButton normalizeButton = new JButton("Normalize by total count");
+		normalizeButton.setActionCommand("normalizeByCount");
+		normalizeButton.addActionListener(this);
+		panel_1.add(normalizeButton);
 
 		scrollPane = new JScrollPane();
 		getContentPane().add(scrollPane, BorderLayout.CENTER);
@@ -200,6 +207,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 			} else if (histType == 2) {
 				dataset = createHistDataset(plotData);
 			}
+			
 			chartPanel = makeHistogram();
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(null, "ERRRRRRRRRRRRRR");
@@ -290,6 +298,8 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 			alphaSlider.setValue((int) (initAlpha * 10F));
 		}
 		// chart
+		JOptionPane.showMessageDialog(null, "X Value = "+dataset.getXValue(1, 2)+"  ,  Y Value = "+dataset.getYValue(1, 2)+" , series count = "+dataset.getSeriesCount());
+		
 		myChart = ChartFactory.createHistogram("Histogram", "Value", "Count", dataset, PlotOrientation.VERTICAL, true,
 				true, false);
 		XYPlot plot = (XYPlot) myChart.getPlot();
@@ -359,11 +369,23 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		String thisName = "";
 		if (splitIndex == null || splitCol == null || splitCol.length() < 1) {
 
+			
 			for (int i = 0; i < selected.length; i++) {
 				double[] dataY = myProject.getIncludedData(selected[i], excludedCopy);
 				thisName = myProject.getRowName(selected[i])[myProject.getDefaultColumn()].toString();
+
+				if(isNormalized) {
+					double dataYSum = 0.0;
+					for(int j=0;j<dataY.length;j++) {
+						dataYSum += dataY[j];
+					}
+					for(int j=0;j<dataY.length;j++) {
+						dataY[j] /= dataYSum;
+					}
+				}
 				dataset.addSeries(thisName, dataY, _bins);
 
+				
 			}
 
 		} else {
@@ -452,6 +474,18 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 			updateChart();
 
 		}
+		
+		if ("normalizeByCount".equals(e.getActionCommand())) {
+			
+			if(isNormalized==false)
+				isNormalized=true;
+			else
+				isNormalized=false;
+			
+			updateChart();
+
+		}
+		
 
 		if ("legend".equals(e.getActionCommand())) {
 			// TODO

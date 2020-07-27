@@ -56,6 +56,7 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -112,6 +113,8 @@ import edu.iastate.metnet.metaomgraph.ui.ReadMetadata;
 import edu.iastate.metnet.metaomgraph.ui.ReproducibilityDashboardPanel;
 import edu.iastate.metnet.metaomgraph.ui.SearchByExpressionFrame;
 import edu.iastate.metnet.metaomgraph.ui.SetColTypes;
+import edu.iastate.metnet.metaomgraph.ui.TaskbarInternalFrame;
+import edu.iastate.metnet.metaomgraph.ui.TaskbarPanel;
 import edu.iastate.metnet.metaomgraph.ui.WelcomePanel;
 import edu.iastate.metnet.metaomgraph.ui.WelcomePanelWin10;
 import edu.iastate.metnet.metaomgraph.ui.logFCResultsFrame;
@@ -152,7 +155,7 @@ public class MetaOmGraph implements ActionListener {
 	private static boolean permanentLogging;
 	private static int currentSamplesActionId;
 	private static JInternalFrame ReproducibilityDashboardFrame;
-
+	private static TaskbarPanel taskBar;
 
 	public static Logger getLogger() {
 		return logger;
@@ -186,6 +189,10 @@ public class MetaOmGraph implements ActionListener {
 	}
 	public static ReproducibilityDashboardPanel getReproducibilityDashboardPanel() {
 		return rdp;
+	}
+	
+	public static TaskbarPanel getTaskBar() {
+		return taskBar;
 	}
 
 	public static Color getTableColor1() {
@@ -555,7 +562,7 @@ public class MetaOmGraph implements ActionListener {
 	private static File activeProjectFile;
 
 	/** Internal frame which displays a table of the active project's entries */
-	private static JInternalFrame projectTableFrame;
+	private static TaskbarInternalFrame projectTableFrame;
 
 	/** The table panel that appears whenever a project is open */
 	private static MetaOmTablePanel activeTablePanel;
@@ -1577,6 +1584,11 @@ public class MetaOmGraph implements ActionListener {
 			e1.printStackTrace();
 		}
 
+		
+		taskBar = new TaskbarPanel();
+		mainWindow.getContentPane().add(taskBar, BorderLayout.SOUTH);
+		 
+		
 	}
 
 	/*
@@ -1789,7 +1801,10 @@ public class MetaOmGraph implements ActionListener {
 			welcomeDialog = null;
 		}
 		// getActiveProject().showMeansDialog();
-		projectTableFrame = new JInternalFrame("Project Data");
+		projectTableFrame = new TaskbarInternalFrame("Project Data");
+		FrameModel fm = new FrameModel("Project Data",1);
+		projectTableFrame.setModel(fm);
+		
 		projectTableFrame.putClientProperty("JInternalFrame.frameType", "normal");
 		activeTablePanel = new MetaOmTablePanel(getActiveProject());
 		activeProject.addChangeListener(activeTablePanel);
