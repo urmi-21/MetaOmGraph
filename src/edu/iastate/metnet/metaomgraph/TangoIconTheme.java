@@ -33,6 +33,7 @@ public class TangoIconTheme implements IconTheme {
     private ImageIcon metadata;
     private ImageIcon palette;
     private ImageIcon opts;
+    private ImageIcon groupBy;
     
     private String dir = "/resource/tango/16x16/";
 
@@ -93,6 +94,8 @@ public class TangoIconTheme implements IconTheme {
     private String reportPath = dir + "mimetypes/text-x-generic.png";
 
     private String metadataPath = dir + "status/dialog-information.png";
+    
+    private String groupByPath = "/resource/customicon/categorizeIcon16.png";
     
     public TangoIconTheme() {
     }
@@ -343,6 +346,13 @@ public class TangoIconTheme implements IconTheme {
         return metadata;
     }
 
+    public ImageIcon getGroupBy() {
+		if(groupBy == null) {
+			groupBy = new ImageIcon(getClass().getResource(groupByPath));
+		}
+		return groupBy;
+	}
+    
     public static void main(String[] args) {
         java.lang.reflect.Method[] methods = SilkIconTheme.class.getDeclaredMethods();
         IconTheme theme = new SilkIconTheme();

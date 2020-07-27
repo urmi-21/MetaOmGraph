@@ -137,7 +137,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 			}
 		});
 				
-		JMenuItem exportToExcelItem = new JMenuItem("Export to excel workbook");
+		JMenuItem exportToExcelItem = new JMenuItem("Export to xlsx");
 		exportToExcelItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {

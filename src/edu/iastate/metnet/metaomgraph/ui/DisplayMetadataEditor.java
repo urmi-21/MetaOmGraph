@@ -79,8 +79,8 @@ public class DisplayMetadataEditor extends JDialog implements ActionListener {
 		save.setActionCommand("save");
 		buttonPanel.add(save);
 		reset = new JButton();
-		reset.setName("Reset Tree");
-		reset.setText("Reset Tree");
+		reset.setName("Empty Tree");
+		reset.setText("Empty Tree");
 		reset.addActionListener(this);
 		reset.setActionCommand("reset");
 		buttonPanel.add(reset);
