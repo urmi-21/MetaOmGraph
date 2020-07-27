@@ -60,4 +60,6 @@ public interface IconTheme {
     ImageIcon getPalette();
     
     ImageIcon getOpts();
+    
+    ImageIcon getGroupBy();
 }
