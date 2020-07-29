@@ -577,7 +577,16 @@ public class Metadata {
 
 		@Override
 		public MetadataQuery fromXML(SimpleXMLElement source) {
-			matchType = SearchMatchType.valueOf(source.getAttributeValue("matchType").toUpperCase());
+			matchType = SearchMatchType.CONTAINS;
+			try {
+				matchType = SearchMatchType.valueOf(source.getAttributeValue("matchType").toUpperCase());
+			}
+			// to make compatible with older versions of mog.
+			catch(NullPointerException e) {
+				boolean isExact = "true".equals(source.getAttributeValue("exact"));
+				if(isExact)
+					matchType = SearchMatchType.IS;
+			}
 			for (int i = 0; i < source.getChildCount(); i++) {
 				SimpleXMLElement child = source.getChildAt(i);
 				if ("field".equals(child.getName())) {
