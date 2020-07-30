@@ -42,6 +42,7 @@ import edu.iastate.metnet.metaomgraph.chart.MetaOmChartPanel;
 import edu.iastate.metnet.metaomgraph.chart.ScatterPlotChart;
 import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.DecimalFormatRenderer;
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -50,7 +51,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.event.MenuEvent;
 
-public class DiffCorrResultsTable extends JInternalFrame {
+public class DiffCorrResultsTable extends TaskbarInternalFrame {
 	
 	private JTable table;
 	private List<String> featureNames;
@@ -491,6 +492,8 @@ public class DiffCorrResultsTable extends JInternalFrame {
 		setIconifiable(true);
 		setClosable(true);
 
+		FrameModel diffCorrResultsFrameModel = new FrameModel("Differential Correlation","Differential Correlation Results ["+featureNames.get(0)+"] ("+featureNames.size()+" features)",10);
+		setModel(diffCorrResultsFrameModel);
 	}
 
 	private void initTableModel() {

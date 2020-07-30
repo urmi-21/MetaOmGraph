@@ -57,10 +57,12 @@ import org.jfree.chart.title.LegendTitle;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.IconTheme;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
+import edu.iastate.metnet.metaomgraph.ui.TaskbarInternalFrame;
 import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
@@ -71,7 +73,7 @@ import edu.iastate.metnet.metaomgraph.utils.Utils;
  * @author mrbai
  *
  */
-public class BarChart extends JInternalFrame implements ChartMouseListener, ActionListener {
+public class BarChart extends TaskbarInternalFrame implements ChartMouseListener, ActionListener {
 
 	// hasmap mapping feature num to expression data or datacol to sample depending
 	// on the box plot
@@ -140,7 +142,7 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 	public BarChart(MetaOmProject mp, String dataName, List<String> data, int type) {
 
 		// this.plotData = plotData;
-
+		super();
 		myProject = mp;
 		this.plotType = type;
 		this.dataName = dataName;
@@ -247,7 +249,9 @@ public class BarChart extends JInternalFrame implements ChartMouseListener, Acti
 		setMaximizable(true);
 		setIconifiable(true);
 		setClosable(true);
-		// String chartTitle = "Bar Chart:" + String.join(",", rowNames);
+		//String chartTitle = "Bar Chart:" + String.join(",", rowNames);
+		FrameModel barChartFrameModel = new FrameModel("Bar Chart","Bar Chart ["+dataName+"]",4);
+		setModel(barChartFrameModel);
 		// this.setTitle(chartTitle);
 	}
 

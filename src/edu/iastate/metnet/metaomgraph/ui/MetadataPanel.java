@@ -517,6 +517,7 @@ public class MetadataPanel extends JPanel {
                 } else {
                     f = new JInternalFrame("Associate Metadata", true, true, true, true);
                     f.putClientProperty("JInternalFrame.frameType", "normal");
+                    
                     f.getContentPane().add(new JScrollPane(myTable), BorderLayout.CENTER);
                     f.setSize(500, 500);
                     MetaOmGraph.getDesktop().add(f);

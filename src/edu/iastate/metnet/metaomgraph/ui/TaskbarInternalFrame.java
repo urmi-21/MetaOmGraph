@@ -11,6 +11,9 @@ public class TaskbarInternalFrame extends JInternalFrame{
 	
 	private FrameModel model;
 
+	public TaskbarInternalFrame() {
+		this("");
+	}
 	public TaskbarInternalFrame(String title) {
 		
 		super(title);
@@ -26,6 +29,10 @@ public class TaskbarInternalFrame extends JInternalFrame{
             	MetaOmGraph.getTaskBar().removeFromTaskbar(currentFrame);
             }
             
+            @Override
+            public void internalFrameIconified(InternalFrameEvent e) {
+                getDesktopIcon().setVisible(false);;
+            }
             
         });
 	

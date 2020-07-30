@@ -17,9 +17,10 @@ import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 
-public class AboutFrame extends JInternalFrame {
+public class AboutFrame extends TaskbarInternalFrame {
 	JPanel polyPanel;
 	JPanel background;
 
@@ -130,6 +131,10 @@ public class AboutFrame extends JInternalFrame {
 		};
 		polyPanel.addMouseListener(ml);
 		setTitle("About MetaOmGraph");
+		
+		FrameModel aboutFrameModel = new FrameModel("About","About MetaOmGraph",0);
+		setModel(aboutFrameModel);
+		
 		pack();
 
 	}

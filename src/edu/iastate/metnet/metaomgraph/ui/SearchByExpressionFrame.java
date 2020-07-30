@@ -28,6 +28,7 @@ import org.apache.logging.log4j.Logger;
 //import com.itextpdf.xmp.impl.Utils;
 
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
@@ -51,7 +52,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-public class SearchByExpressionFrame extends JInternalFrame {
+public class SearchByExpressionFrame extends TaskbarInternalFrame {
 
 	private JTextField textField;
 	private JTextField textField_1;
@@ -218,6 +219,9 @@ public class SearchByExpressionFrame extends JInternalFrame {
 			}
 		});
 		mnFile.add(mntmExportResults);
+		
+		FrameModel searchByExpFrameModel = new FrameModel("Search By Expression","Search By Expression",16);
+		setModel(searchByExpFrameModel);
 	}
 
 	public void initFrame() {

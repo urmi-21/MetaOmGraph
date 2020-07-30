@@ -1802,7 +1802,7 @@ public class MetaOmGraph implements ActionListener {
 		}
 		// getActiveProject().showMeansDialog();
 		projectTableFrame = new TaskbarInternalFrame("Project Data");
-		FrameModel fm = new FrameModel("Project Data",1);
+		FrameModel fm = new FrameModel("Project Data","Project Data",1);
 		projectTableFrame.setModel(fm);
 		
 		projectTableFrame.putClientProperty("JInternalFrame.frameType", "normal");

@@ -25,6 +25,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.GraphFileFilter;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.chart.HistogramChart;
@@ -36,7 +37,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.awt.event.ActionEvent;
 
-public class SimilarityDisplayFrame extends JInternalFrame {
+public class SimilarityDisplayFrame extends TaskbarInternalFrame {
 
 	private HashMap<String, Double> data;
 	private String metricName;
@@ -186,6 +187,9 @@ public class SimilarityDisplayFrame extends JInternalFrame {
 		setMaximizable(true);
 		setIconifiable(true);
 		setClosable(true);
+		
+		FrameModel similarityFrameModel = new FrameModel("Similarity","Similarity Display ("+mName+")",13);
+		setModel(similarityFrameModel);
 	}
 
 	private void initTableMatrix() {

@@ -1,7 +1,9 @@
 package edu.iastate.metnet.metaomgraph.chart;
 
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.ui.NoneditableTableModel;
+import edu.iastate.metnet.metaomgraph.ui.TaskbarInternalFrame;
 
 import java.awt.BasicStroke;
 import java.awt.event.ActionEvent;
@@ -53,8 +55,11 @@ public class ChartAnnotator implements ChartMouseListener, ChartProgressListener
 	}
 
 	public void manageAnnotations() {
-		JInternalFrame f = new JInternalFrame("Annotation Manager");
+		TaskbarInternalFrame f = new TaskbarInternalFrame("Annotation Manager");
 		f.putClientProperty("JInternalFrame.frameType", "normal");
+		
+		FrameModel annotationFrameModel = new FrameModel("Annotation Manager","Annotation Manager",20);
+		f.setModel(annotationFrameModel);
 		
 		JButton removeButton = new JButton("Remove selected");
 		JButton clearButton = new JButton("Clear all");

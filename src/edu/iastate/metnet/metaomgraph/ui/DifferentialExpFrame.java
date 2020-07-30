@@ -46,6 +46,7 @@ import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.MetadataHybrid;
 import edu.iastate.metnet.metaomgraph.CalculateLogFC;
 import edu.iastate.metnet.metaomgraph.DifferentialExpResults;
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
@@ -55,7 +56,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JCheckBox;
 
-public class DifferentialExpFrame extends JInternalFrame {
+public class DifferentialExpFrame extends TaskbarInternalFrame {
 
 	private JComboBox comboBox;
 	private JComboBox comboBox_1;
@@ -467,6 +468,8 @@ public class DifferentialExpFrame extends JInternalFrame {
 		setIconifiable(true);
 		setClosable(true);
 
+		FrameModel diffExpFrameModel = new FrameModel("DEA","Differential Expression Analysis",12);
+		setModel(diffExpFrameModel);
 	}
 
 	private JTable initTableModel() {

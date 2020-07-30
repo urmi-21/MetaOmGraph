@@ -153,8 +153,6 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 	public ScatterPlotChart(int[] selected, int xind, MetaOmProject mp, boolean isPlayback) {
 
 		super("Scatter Plot");
-		FrameModel scatterPlotFrameModel = new FrameModel("Scatter Plot",3);
-		this.setModel(scatterPlotFrameModel);
 		
 		this.selected = selected;
 		// init rownames
@@ -277,6 +275,9 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 			chartTitle = "Playback - Scatter Plot:" + String.join(",", rowNames);
 		}
 		this.setTitle(chartTitle);
+		
+		FrameModel scatterPlotFrameModel = new FrameModel("Scatter Plot",chartTitle,3);
+		this.setModel(scatterPlotFrameModel);
 	}
 
 	public ChartPanel makeScatterPlot() throws IOException {

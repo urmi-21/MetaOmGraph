@@ -12,6 +12,7 @@ import javax.swing.JOptionPane;
 import java.awt.GridLayout;
 import javax.swing.JTextField;
 
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import net.miginfocom.swing.MigLayout;
 
@@ -22,7 +23,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.awt.event.ActionEvent;
 
-public class SetRPaths extends JInternalFrame {
+public class SetRPaths extends TaskbarInternalFrame {
 	private JTextField textField_1;
 	private JTextField textField_2;
 	private JButton browseRPath;
@@ -162,6 +163,9 @@ public class SetRPaths extends JInternalFrame {
 		setMaximizable(true);
 		setIconifiable(true);
 		setClosable(true);
+		
+		FrameModel setRPathFrameModel = new FrameModel("Set R Paths","Set R Paths",14);
+		setModel(setRPathFrameModel);
 
 	}
 
