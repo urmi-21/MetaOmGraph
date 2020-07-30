@@ -2,9 +2,11 @@ package edu.iastate.metnet.metaomgraph.chart;
 
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.AtGeneSearch;
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.Metadata;
 import edu.iastate.metnet.metaomgraph.ui.NoneditableTableModel;
+import edu.iastate.metnet.metaomgraph.ui.TaskbarInternalFrame;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 import java.awt.GridBagConstraints;
@@ -51,7 +53,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.data.xy.XYDataset;
 
-public class ChartDataExporter extends JInternalFrame implements ActionListener {
+public class ChartDataExporter extends TaskbarInternalFrame implements ActionListener {
     private static final double SCALE = 36.57142857142857D;
     private static final int[] ATGS_COL_WIDTHS = {300, 70, 70, 80, 95, 100, 90, 100, 80, 100, 70, 70, 70, 70};
     //private static final short[] HSSF_COLORS = {46, 44, 44, 31, 31, 31, 42, 52, 46, 43, 47, 47, 47, 47};
@@ -180,6 +182,9 @@ public class ChartDataExporter extends JInternalFrame implements ActionListener 
         });
         rangePickButton.setEnabled(false);
         rangeField.setEnabled(false);
+        
+        FrameModel exportChartDataFrameModel = new FrameModel("Export Chart Data",mcp.getName(),2);
+		setModel(exportChartDataFrameModel);
     }
 
     private void doExport(int[] columns, int[] series, File destination) {

@@ -2433,6 +2433,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			clf.setIconifiable(true);
 			clf.setClosable(true);
 			clf.setTitle("Create New List");
+			
+			FrameModel createListFrameModel = new FrameModel("List","Create List",25);
+			clf.setModel(createListFrameModel);
+			
 			MetaOmGraph.getDesktop().add(clf);
 			clf.setVisible(true);
 			return;
@@ -2445,6 +2449,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			clf.setIconifiable(true);
 			clf.setClosable(true);
 			clf.setTitle("Edit List");
+			
+			FrameModel editListFrameModel = new FrameModel("List","Edit List",25);
+			clf.setModel(editListFrameModel);
+			
 			MetaOmGraph.getDesktop().add(clf);
 			clf.setVisible(true);
 			return;
@@ -2838,6 +2846,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			clf.setIconifiable(true);
 			clf.setClosable(true);
 			clf.setTitle("Edit List");
+			
+			FrameModel editListFrameModel = new FrameModel("List","Edit List",25);
+			clf.setModel(editListFrameModel);
+			
 			MetaOmGraph.getDesktop().add(clf);
 			clf.setVisible(true);
 		}

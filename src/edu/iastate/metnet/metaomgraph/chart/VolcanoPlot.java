@@ -46,12 +46,15 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.IconTheme;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
+import edu.iastate.metnet.metaomgraph.ui.TaskbarInternalFrame;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
-public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, ActionListener {
+public class VolcanoPlot extends TaskbarInternalFrame implements ChartMouseListener, ActionListener {
 
 	/**
 	 * Launch the application.
@@ -229,6 +232,9 @@ public class VolcanoPlot extends JInternalFrame implements ChartMouseListener, A
 		String chartTitle = "Volcano Plot:";
 		this.setTitle(chartTitle);
 
+		String taskName = "Volcano Plot ["+featureNames.get(0)+"] ("+featureNames.size()+" features selected)";
+		FrameModel volcanoPlotFrameModel = new FrameModel("Volcano Plot",taskName,7);
+		setModel(volcanoPlotFrameModel);
 	}
 
 	public ChartPanel makeVolcanoPlot() throws IOException {

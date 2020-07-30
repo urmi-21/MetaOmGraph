@@ -46,6 +46,7 @@ import edu.iastate.metnet.metaomgraph.MetadataHybrid;
 import edu.iastate.metnet.metaomgraph.CalculateLogFC;
 import edu.iastate.metnet.metaomgraph.DifferentialCorrResults;
 import edu.iastate.metnet.metaomgraph.DifferentialExpResults;
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 
@@ -54,7 +55,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JCheckBox;
 
-public class DifferentialCorrFrame extends JInternalFrame {
+public class DifferentialCorrFrame extends TaskbarInternalFrame {
 
 	// private JComboBox comboBox;
 	private JLabel selectedFeature;
@@ -435,6 +436,8 @@ public class DifferentialCorrFrame extends JInternalFrame {
 		setIconifiable(true);
 		setClosable(true);
 
+		FrameModel diffCorrFrameModel = new FrameModel("Differential Correlation","Differential Correlation ("+geneList+")",11);
+		setModel(diffCorrFrameModel);
 	}
 
 	private JTable initTableModel() {

@@ -7,11 +7,15 @@ import java.awt.Paint;
 import javax.swing.JInternalFrame;
 import org.jcolorbrewer.ColorBrewer;
 import org.jcolorbrewer.ui.ColorPaletteChooserDialog;
+
+import edu.iastate.metnet.metaomgraph.FrameModel;
+import edu.iastate.metnet.metaomgraph.ui.TaskbarInternalFrame;
+
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import javax.swing.JButton;
 
-public class JColorbrewerChooser extends JInternalFrame {
+public class JColorbrewerChooser extends TaskbarInternalFrame {
 
 	/**
 	 * Launch the application.
@@ -53,7 +57,8 @@ public class JColorbrewerChooser extends JInternalFrame {
 		panel_2.add(dialog);
 		getContentPane().add(panel_2, BorderLayout.CENTER);
 		
-		
+		FrameModel colorBrewerFrameModel = new FrameModel("Color","Color Brewer",8);
+		setModel(colorBrewerFrameModel);
 	}
 
 	/**

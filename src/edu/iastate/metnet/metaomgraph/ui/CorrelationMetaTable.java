@@ -29,6 +29,7 @@ import edu.iastate.metnet.metaomgraph.AdjustPval;
 import edu.iastate.metnet.metaomgraph.CorrelationMeta;
 import edu.iastate.metnet.metaomgraph.CorrelationMetaCollection;
 import edu.iastate.metnet.metaomgraph.DecimalFormatRenderer;
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.IconTheme;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
@@ -53,7 +54,7 @@ import java.awt.event.ActionEvent;
 import java.awt.Point;
 import javax.swing.JSeparator;
 
-public class CorrelationMetaTable extends JInternalFrame {
+public class CorrelationMetaTable extends TaskbarInternalFrame {
 	private JTable table;
 	private HashMap<String, CorrelationMetaCollection> metaCorrRes;
 	private JScrollPane scrollPane;
@@ -116,6 +117,9 @@ public class CorrelationMetaTable extends JInternalFrame {
 		this.metaCorrRes = metaCorrRes;
 		setBounds(100, 100, 450, 300);
 
+		FrameModel CorrelationMetaFrameModel = new FrameModel("Correlation","Metadata Correlation",9);
+		setModel(CorrelationMetaFrameModel);
+		
 		JPanel panel = new JPanel();
 		getContentPane().add(panel, BorderLayout.NORTH);
 		panel.setLayout(new BorderLayout(0, 0));

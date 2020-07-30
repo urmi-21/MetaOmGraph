@@ -23,7 +23,7 @@ import org.apache.logging.log4j.Logger;
 
 
 public class CreateListFrame
-        extends JInternalFrame
+        extends TaskbarInternalFrame
         implements ActionListener, ChangeListener {
     public static final String OK_COMMAND = "OK";
     public static final String CANCEL_COMMAND = "Cancel";
@@ -129,6 +129,8 @@ public class CreateListFrame
         getContentPane().add(dtp, "Center");
         getContentPane().add(buttonPanel, "Last");
         setDefaultCloseOperation(2);
+        
+        
     }
 
     @Override
@@ -169,14 +171,16 @@ public class CreateListFrame
 					catch(Exception e1) {
 
 					}
-
+					
 					dispose();
+					MetaOmGraph.getTaskBar().removeFromTaskbar(this);
 				}
 			}
 			else {
 
 				if (myProject.addGeneList(listName, result, true, true)) {	
 					dispose();
+					MetaOmGraph.getTaskBar().removeFromTaskbar(this);
 				}
 			}
 
@@ -184,6 +188,7 @@ public class CreateListFrame
 		}
         if ("Cancel".equals(e.getActionCommand())) {
             dispose();
+            MetaOmGraph.getTaskBar().removeFromTaskbar(this);
             return;
         }
         if ("Import".equals(e.getActionCommand())) {

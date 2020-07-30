@@ -45,17 +45,19 @@ import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.title.LegendTitle;
 import org.jfree.data.statistics.HistogramDataset;
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.IconTheme;
 import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
+import edu.iastate.metnet.metaomgraph.ui.TaskbarInternalFrame;
 import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 
-public class HistogramChart extends JInternalFrame implements ChartMouseListener, ActionListener {
+public class HistogramChart extends TaskbarInternalFrame implements ChartMouseListener, ActionListener {
 
 	// 1 for data rows, 2 for plotting a hist from double[]
 	private int histType;
@@ -289,6 +291,9 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 			chartTitle = "Playback - Histogram Plot:" + String.join(",", rowNames);
 		}
 		this.setTitle(chartTitle);
+		
+		FrameModel histogramFrameModel = new FrameModel("Histogram",chartTitle,6);
+		setModel(histogramFrameModel);
 
 	}
 

@@ -32,6 +32,7 @@ import org.apache.logging.log4j.Logger;
 import edu.iastate.metnet.metaomgraph.AdjustPval;
 import edu.iastate.metnet.metaomgraph.DecimalFormatRenderer;
 import edu.iastate.metnet.metaomgraph.DifferentialExpResults;
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.chart.BoxPlot;
@@ -48,7 +49,7 @@ import javax.swing.JOptionPane;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-public class logFCResultsFrame extends JInternalFrame {
+public class logFCResultsFrame extends TaskbarInternalFrame {
 
 	private JTable table;
 	private List<String> featureNames;
@@ -523,6 +524,8 @@ public class logFCResultsFrame extends JInternalFrame {
 		setIconifiable(true);
 		setClosable(true);
 
+		FrameModel logFCResultsFrameModel = new FrameModel("DEA","DEA Results ["+featureNames.get(0)+"] ("+featureNames.size()+"features)",17);
+		setModel(logFCResultsFrameModel);
 	}
 
 	private void makeVolcano() {

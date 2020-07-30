@@ -11,6 +11,8 @@ import javax.swing.JLabel;
 import java.awt.FlowLayout;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
+
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetadataHybrid;
 import edu.iastate.metnet.metaomgraph.SearchMatchType;
@@ -23,7 +25,7 @@ import java.util.List;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
 
-public class SimpleSearchFrame extends JInternalFrame {
+public class SimpleSearchFrame extends TaskbarInternalFrame {
 	private JTextField txtToSearch;
 	private JPanel panel;
 	private JLabel lblSimpleSearch;
@@ -159,6 +161,9 @@ public class SimpleSearchFrame extends JInternalFrame {
 		// pack();
 		// setVisible(true);
 		setSize(600, 200);
+		
+		FrameModel lineChartFrameModel = new FrameModel("Search","Simple Search",13);
+		setModel(lineChartFrameModel);
 	}
 	
 	public SimpleSearchFrame() {
