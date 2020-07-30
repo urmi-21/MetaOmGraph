@@ -40,6 +40,7 @@ public class MetaOmApplicationListener implements ApplicationListener {
 
     @Override
 	public void handleQuit(ApplicationEvent arg0) {
+    	MetaOmGraph.shutdown();
     }
 
     @Override
