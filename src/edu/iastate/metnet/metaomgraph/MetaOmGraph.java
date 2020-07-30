@@ -771,7 +771,8 @@ public class MetaOmGraph implements ActionListener {
 				// JOptionPane.showMessageDialog(null, "Lastpath:"+lastF.getAbsolutePath());
 				recentProjects = (Vector<File>) in.readObject();
 				// JOptionPane.showMessageDialog(null, recentProjects.toString());
-				Utils.setLastDir(recentProjects.get(0));
+				if(recentProjects.size() > 0)
+					Utils.setLastDir(recentProjects.get(0));
 				showTips = (MetaOmShowTipsChoice) in.readObject();
 				currentTip = (Integer) in.readObject();
 				try {
