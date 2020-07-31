@@ -306,7 +306,7 @@ public class HistogramChart extends TaskbarInternalFrame implements ChartMouseLi
 		// chart
 
 		if(isNormalized) {
-			myChart = ChartFactory.createHistogram("Normalized Histogram", "Value", "Count", dataset, PlotOrientation.VERTICAL, true,
+			myChart = ChartFactory.createHistogram("Density Histogram", "Value", "Count", dataset, PlotOrientation.VERTICAL, true,
 					true, false);
 		}
 		else {
