@@ -84,6 +84,7 @@ public class HistogramChart extends TaskbarInternalFrame implements ChartMouseLi
 	private JButton defaultZoom;
 	private JButton changePalette;
 	private JButton splitDataset;
+	private JButton normalizeButton;
 
 	private LegendTitle myLegend;
 	private JToggleButton toggleLegend;
@@ -111,7 +112,7 @@ public class HistogramChart extends TaskbarInternalFrame implements ChartMouseLi
 	String splitCol;
 	Map<String, Collection<Integer>> splitIndex;
 	HashMap<String, String> seriesNameToKeyMap;
-	
+
 	private boolean isNormalized;
 
 	/**
@@ -173,8 +174,8 @@ public class HistogramChart extends TaskbarInternalFrame implements ChartMouseLi
 		btnNewButton_1.setActionCommand("chooseBins");
 		btnNewButton_1.addActionListener(this);
 		panel_1.add(btnNewButton_1);
-		
-		JButton normalizeButton = new JButton("Normalize by total count");
+
+		normalizeButton = new JButton("Normalize by total count");
 		normalizeButton.setActionCommand("normalizeByCount");
 		normalizeButton.addActionListener(this);
 		panel_1.add(normalizeButton);
@@ -209,7 +210,7 @@ public class HistogramChart extends TaskbarInternalFrame implements ChartMouseLi
 			} else if (histType == 2) {
 				dataset = createHistDataset(plotData);
 			}
-			
+
 			chartPanel = makeHistogram();
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(null, "ERRRRRRRRRRRRRR");
@@ -291,7 +292,7 @@ public class HistogramChart extends TaskbarInternalFrame implements ChartMouseLi
 			chartTitle = "Playback - Histogram Plot:" + String.join(",", rowNames);
 		}
 		this.setTitle(chartTitle);
-		
+
 		FrameModel histogramFrameModel = new FrameModel("Histogram",chartTitle,6);
 		setModel(histogramFrameModel);
 
@@ -303,10 +304,16 @@ public class HistogramChart extends TaskbarInternalFrame implements ChartMouseLi
 			alphaSlider.setValue((int) (initAlpha * 10F));
 		}
 		// chart
-		JOptionPane.showMessageDialog(null, "X Value = "+dataset.getXValue(1, 2)+"  ,  Y Value = "+dataset.getYValue(1, 2)+" , series count = "+dataset.getSeriesCount());
-		
-		myChart = ChartFactory.createHistogram("Histogram", "Value", "Count", dataset, PlotOrientation.VERTICAL, true,
-				true, false);
+
+		if(isNormalized) {
+			myChart = ChartFactory.createHistogram("Normalized Histogram", "Value", "Count", dataset, PlotOrientation.VERTICAL, true,
+					true, false);
+		}
+		else {
+			myChart = ChartFactory.createHistogram("Histogram", "Value", "Count", dataset, PlotOrientation.VERTICAL, true,
+					true, false);
+		}
+
 		XYPlot plot = (XYPlot) myChart.getPlot();
 
 		// save legend
@@ -371,26 +378,21 @@ public class HistogramChart extends TaskbarInternalFrame implements ChartMouseLi
 	private HistogramDataset createHistDataset() throws IOException {
 
 		HistogramDataset dataset = new HistogramDataset();
+
+		if(isNormalized) {
+			dataset = new NormalizedHistogramDataset();
+		}
 		String thisName = "";
 		if (splitIndex == null || splitCol == null || splitCol.length() < 1) {
 
-			
+
 			for (int i = 0; i < selected.length; i++) {
 				double[] dataY = myProject.getIncludedData(selected[i], excludedCopy);
 				thisName = myProject.getRowName(selected[i])[myProject.getDefaultColumn()].toString();
 
-				if(isNormalized) {
-					double dataYSum = 0.0;
-					for(int j=0;j<dataY.length;j++) {
-						dataYSum += dataY[j];
-					}
-					for(int j=0;j<dataY.length;j++) {
-						dataY[j] /= dataYSum;
-					}
-				}
+
 				dataset.addSeries(thisName, dataY, _bins);
 
-				
 			}
 
 		} else {
@@ -479,18 +481,18 @@ public class HistogramChart extends TaskbarInternalFrame implements ChartMouseLi
 			updateChart();
 
 		}
-		
+
 		if ("normalizeByCount".equals(e.getActionCommand())) {
-			
+
 			if(isNormalized==false)
 				isNormalized=true;
 			else
 				isNormalized=false;
-			
+
 			updateChart();
 
 		}
-		
+
 
 		if ("legend".equals(e.getActionCommand())) {
 			// TODO
@@ -752,18 +754,18 @@ public class HistogramChart extends TaskbarInternalFrame implements ChartMouseLi
 
 		if (event.getTrigger()
 				.getClickCount() == 1) {/*
-										 * if (event.getEntity() instanceof LegendItemEntity) { Comparable seriesKey =
-										 * ((LegendItemEntity) event.getEntity()).getSeriesKey(); int index =
-										 * myChart.getXYPlot().getDataset().indexOf(seriesKey);
-										 * JOptionPane.showMessageDialog(null, "ToFront" +
-										 * myChart.getXYPlot().getDatasetRenderingOrder().toString() + ":" +
-										 * seriesKey.toString() + "," + dataset.getDomainOrder().toString());
-										 * bringToFront(seriesKey.toString());
-										 * 
-										 * return; } else if (event.getEntity() instanceof XYItemEntity) {
-										 * 
-										 * return; }
-										 */
+				 * if (event.getEntity() instanceof LegendItemEntity) { Comparable seriesKey =
+				 * ((LegendItemEntity) event.getEntity()).getSeriesKey(); int index =
+				 * myChart.getXYPlot().getDataset().indexOf(seriesKey);
+				 * JOptionPane.showMessageDialog(null, "ToFront" +
+				 * myChart.getXYPlot().getDatasetRenderingOrder().toString() + ":" +
+				 * seriesKey.toString() + "," + dataset.getDomainOrder().toString());
+				 * bringToFront(seriesKey.toString());
+				 * 
+				 * return; } else if (event.getEntity() instanceof XYItemEntity) {
+				 * 
+				 * return; }
+				 */
 		}
 
 	}
@@ -808,9 +810,23 @@ public class HistogramChart extends TaskbarInternalFrame implements ChartMouseLi
 			// Create dataset
 			if (histType == 1) {
 				dataset = createHistDataset();
+
 			} else if (histType == 2) {
 				dataset = createHistDataset(plotData);
+
 			}
+
+			if(isNormalized) {
+				if(normalizeButton != null) {
+					normalizeButton.setText("Denormalize Histogram");
+				}
+			}
+			else {
+				if(normalizeButton != null) {
+					normalizeButton.setText("Normalize by total count");
+				}
+			}
+
 			this.chartPanel = makeHistogram();
 			scrollPane.setViewportView(chartPanel);
 			properties.addActionListener(chartPanel);
