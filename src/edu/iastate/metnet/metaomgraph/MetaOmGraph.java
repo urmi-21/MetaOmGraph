@@ -63,6 +63,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.ToolTipManager;
@@ -101,6 +102,7 @@ import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.ui.AboutFrame;
 import edu.iastate.metnet.metaomgraph.ui.AboutFrame4;
 import edu.iastate.metnet.metaomgraph.ui.ClickableLabel;
+import edu.iastate.metnet.metaomgraph.ui.DEAColumnSelectFrame;
 import edu.iastate.metnet.metaomgraph.ui.DifferentialExpFrame;
 import edu.iastate.metnet.metaomgraph.ui.ListMergePanel;
 import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel;
@@ -113,6 +115,7 @@ import edu.iastate.metnet.metaomgraph.ui.ReadMetadata;
 import edu.iastate.metnet.metaomgraph.ui.ReproducibilityDashboardPanel;
 import edu.iastate.metnet.metaomgraph.ui.SearchByExpressionFrame;
 import edu.iastate.metnet.metaomgraph.ui.SetColTypes;
+import edu.iastate.metnet.metaomgraph.ui.StatisticalResultsFrame;
 import edu.iastate.metnet.metaomgraph.ui.TaskbarInternalFrame;
 import edu.iastate.metnet.metaomgraph.ui.TaskbarPanel;
 import edu.iastate.metnet.metaomgraph.ui.WelcomePanel;
@@ -156,7 +159,15 @@ public class MetaOmGraph implements ActionListener {
 	private static int currentSamplesActionId;
 	private static JInternalFrame ReproducibilityDashboardFrame;
 	private static TaskbarPanel taskBar;
+	private static StatisticalResultsFrame DEAResultsFrame;
+	
 
+	public static StatisticalResultsFrame getDEAResultsFrame() {
+		return DEAResultsFrame;
+	}
+	public static void setDEAResultsFrame(StatisticalResultsFrame dEAResultsFrame) {
+		DEAResultsFrame = dEAResultsFrame;
+	}
 	public static Logger getLogger() {
 		return logger;
 	}
@@ -688,7 +699,7 @@ public class MetaOmGraph implements ActionListener {
 	private static SimpleModalMaker modalMaker;
 
 	/** A frame that displays the properties for the active project */
-	private static JInternalFrame propertiesFrame;
+	private static TaskbarInternalFrame propertiesFrame;
 
 	/** A frame that displays About information */
 	private static AboutFrame aboutFrame;
@@ -2736,12 +2747,17 @@ public class MetaOmGraph implements ActionListener {
 			}
 
 			ProjectPropertiesPanel ppp = new ProjectPropertiesPanel(getActiveProject());
-			propertiesFrame = new JInternalFrame("Properties", true, true, true, true);
+			propertiesFrame = new TaskbarInternalFrame("Properties");
+			FrameModel propertiesFrameModel = new FrameModel("Properties", "Properties", 33);
+			propertiesFrame.setModel(propertiesFrameModel);
 			propertiesFrame.putClientProperty("JInternalFrame.frameType", "normal");
 			propertiesFrame.getContentPane().add(ppp, BorderLayout.CENTER);
 			propertiesFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 			propertiesFrame.pack();
 			propertiesFrame.setSize(400, 400);
+			propertiesFrame.setClosable(true);
+			propertiesFrame.setMaximizable(true);
+			propertiesFrame.setIconifiable(true);
 			MetaOmGraph.getDesktop().add(propertiesFrame);
 			propertiesFrame.setVisible(true);
 			propertiesFrame.setName("projectproperties.php");
@@ -3354,9 +3370,47 @@ public class MetaOmGraph implements ActionListener {
 			logFCResultsFrame frame = null;
 			frame = new logFCResultsFrame(diffExpObj, getActiveProject());
 			frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
-			frame.setTitle("DE results");
-			MetaOmGraph.getDesktop().add(frame);
-			frame.setVisible(true);
+			
+			if(diffExpObj != null) {
+				
+				//Get Feature metadata rows
+				List<String> rowNames = diffExpObj.getRowNames();
+				int[] rowIndices = new int[rowNames.size()];
+				int i=0;
+				for(String row : rowNames) {
+					rowIndices[i] = MetaOmGraph.activeProject.getRowIndexbyName(row,true);
+					i++;
+				}
+				
+				Object[][] myRowNames = MetaOmGraph.activeProject.getRowNames(rowIndices);	
+				String [] colNames = MetaOmGraph.activeProject.getInfoColumnNames();
+				
+				frame.setFeatureMetadataColumnData(myRowNames);
+				frame.setFeatureMetadataColumnNames(colNames);
+				frame.updateTable();
+				
+				
+				DEAColumnSelectFrame deaColSelect = new DEAColumnSelectFrame(frame,rowIndices);
+				MetaOmGraph.getDesktop().add(deaColSelect);
+			}
+			
+			if(getDEAResultsFrame()!=null && !getDEAResultsFrame().isClosed()) {
+				getDEAResultsFrame().addTabToFrame(frame, diffExpObj.getID());
+				getDEAResultsFrame().moveToFront();
+			}
+			else {
+				setDEAResultsFrame(new StatisticalResultsFrame());
+				getDEAResultsFrame().addTabToFrame(frame, diffExpObj.getID());
+				getDEAResultsFrame().setTitle("DE results");
+				MetaOmGraph.getDesktop().add(getDEAResultsFrame());
+				frame.setVisible(true);
+				getDEAResultsFrame().setVisible(true);
+				getDEAResultsFrame().moveToFront();
+				frame.setEnabled(true);
+			}
+			
+			//frame.setTitle("DE results");
+			
 
 			//Harsha - reproducibility log
 

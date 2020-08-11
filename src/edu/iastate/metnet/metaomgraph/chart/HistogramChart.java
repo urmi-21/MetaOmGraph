@@ -306,11 +306,11 @@ public class HistogramChart extends TaskbarInternalFrame implements ChartMouseLi
 		// chart
 
 		if(isNormalized) {
-			myChart = ChartFactory.createHistogram("Density Histogram", "Value", "Count", dataset, PlotOrientation.VERTICAL, true,
+			myChart = ChartFactory.createHistogram("Density Histogram", MetaOmGraph.getActiveProject().getDataColumnCount()+" samples; ", "Count", dataset, PlotOrientation.VERTICAL, true,
 					true, false);
 		}
 		else {
-			myChart = ChartFactory.createHistogram("Histogram", "Value", "Count", dataset, PlotOrientation.VERTICAL, true,
+			myChart = ChartFactory.createHistogram("Histogram", MetaOmGraph.getActiveProject().getDataColumnCount()+" samples; ", "Count", dataset, PlotOrientation.VERTICAL, true,
 					true, false);
 		}
 
@@ -818,12 +818,12 @@ public class HistogramChart extends TaskbarInternalFrame implements ChartMouseLi
 
 			if(isNormalized) {
 				if(normalizeButton != null) {
-					normalizeButton.setText("Denormalize Histogram");
+					normalizeButton.setText("Frequency Histogram");
 				}
 			}
 			else {
 				if(normalizeButton != null) {
-					normalizeButton.setText("Normalize by total count");
+					normalizeButton.setText("Density Histogram");
 				}
 			}
 

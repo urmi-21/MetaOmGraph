@@ -1,5 +1,6 @@
 package edu.iastate.metnet.metaomgraph;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.text.DecimalFormat;
 
