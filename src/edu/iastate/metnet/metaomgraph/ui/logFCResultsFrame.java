@@ -1,6 +1,7 @@
 package edu.iastate.metnet.metaomgraph.ui;
 
 import java.awt.EventQueue;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
@@ -20,16 +21,19 @@ import java.awt.Color;
 import java.awt.Component;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
 import org.apache.logging.log4j.Logger;
 
 import edu.iastate.metnet.metaomgraph.AdjustPval;
+import edu.iastate.metnet.metaomgraph.DEAHeaderRenderer;
 import edu.iastate.metnet.metaomgraph.DecimalFormatRenderer;
 import edu.iastate.metnet.metaomgraph.DifferentialExpResults;
 import edu.iastate.metnet.metaomgraph.FrameModel;
@@ -49,7 +53,7 @@ import javax.swing.JOptionPane;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-public class logFCResultsFrame extends TaskbarInternalFrame {
+public class logFCResultsFrame extends JPanel {
 
 	private JTable table;
 	private List<String> featureNames;
@@ -65,6 +69,10 @@ public class logFCResultsFrame extends TaskbarInternalFrame {
 	String name2;
 	String methodName;
 	String pvAdjMethod;
+	logFCResultsFrame currentPanel;
+	
+	private Object[][] featureMetadataColumnData;
+	private String[] featureMetadataColumnNames;
 
 	double pvThresh = 2;
 
@@ -77,6 +85,24 @@ public class logFCResultsFrame extends TaskbarInternalFrame {
 	private Color BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
 	private Color HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
 	private Color HYPERLINKCOLOR = MetaOmGraph.getTableHyperlinkColor();
+
+	
+	
+	public Object[][] getFeatureMetadataColumnData() {
+		return featureMetadataColumnData;
+	}
+
+	public void setFeatureMetadataColumnData(Object[][] featureMetadataColumnData) {
+		this.featureMetadataColumnData = featureMetadataColumnData;
+	}
+
+	public String[] getFeatureMetadataColumnNames() {
+		return featureMetadataColumnNames;
+	}
+
+	public void setFeatureMetadataColumnNames(String[] featureMetadataColumnNames) {
+		this.featureMetadataColumnNames = featureMetadataColumnNames;
+	}
 
 	/**
 	 * Launch the application.
@@ -120,6 +146,8 @@ public class logFCResultsFrame extends TaskbarInternalFrame {
 		testPvals = pv;
 		ftestRatiovals = ftestratio;
 		ftestPvals = ftestpv;
+		
+		currentPanel = this;
 		// compute adjusted pv
 		if (testPvals != null) {
 			testadjutestPvals = AdjustPval.computeAdjPV(testPvals, pvAdjMethod);
@@ -129,23 +157,24 @@ public class logFCResultsFrame extends TaskbarInternalFrame {
 			ftestadjutestPvals = AdjustPval.computeAdjPV(ftestPvals, pvAdjMethod);
 		}
 
-		setBounds(100, 100, 450, 300);
-		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-
-		getContentPane().setLayout(new BorderLayout(0, 0));
+//		setBounds(100, 100, 450, 300);
+//		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		
+        setLayout(new BorderLayout(0, 0));
 
 		JPanel panel = new JPanel();
-		getContentPane().add(panel, BorderLayout.NORTH);
+		add(panel, BorderLayout.NORTH);
 
 		JPanel panel_1 = new JPanel();
-		getContentPane().add(panel_1, BorderLayout.SOUTH);
+		add(panel_1, BorderLayout.SOUTH);
 
 		initTableModel();
 		updateTable();
-		getContentPane().add(new JScrollPane(table), BorderLayout.CENTER);
+		add(new JScrollPane(table), BorderLayout.CENTER);
 
 		JMenuBar menuBar = new JMenuBar();
-		setJMenuBar(menuBar);
+		panel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		panel.add(menuBar);
 
 		JMenu mnFile = new JMenu("File");
 		menuBar.add(mnFile);
@@ -278,6 +307,25 @@ public class logFCResultsFrame extends TaskbarInternalFrame {
 			}
 		});
 		mnEdit.add(mntmPvalueCorrection);
+		
+		JMenuItem mntmSelFeatureCols = new JMenuItem("Select Feature Info Cols");
+		mntmSelFeatureCols.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				int[] rowIndices = new int[featureNames.size()];
+				int i=0;
+				for(String row : featureNames) {
+					rowIndices[i] = MetaOmGraph.activeProject.getRowIndexbyName(row,true);
+					i++;
+				}
+				
+				DEAColumnSelectFrame deaColSelect = new DEAColumnSelectFrame(currentPanel,rowIndices);
+				MetaOmGraph.getDesktop().add(deaColSelect);
+			}
+		});
+		mnEdit.add(mntmSelFeatureCols);
 
 		JMenu mnPlot = new JMenu("Plot");
 		menuBar.add(mnPlot);
@@ -515,17 +563,15 @@ public class logFCResultsFrame extends TaskbarInternalFrame {
 		});
 		mnPlot.add(mntmHistogramcolumn);
 
-		// frame properties
-		this.setClosable(true);
+		
 		// pack();
-		putClientProperty("JInternalFrame.frameType", "normal");
-		setResizable(true);
-		setMaximizable(true);
-		setIconifiable(true);
-		setClosable(true);
+		
+//		setResizable(true);
+//		setMaximizable(true);
+//		setIconifiable(true);
+//		setClosable(true);
 
-		FrameModel logFCResultsFrameModel = new FrameModel("DEA","DEA Results ["+featureNames.get(0)+"] ("+featureNames.size()+"features)",17);
-		setModel(logFCResultsFrameModel);
+		
 	}
 
 	private void makeVolcano() {
@@ -634,7 +680,7 @@ public class logFCResultsFrame extends TaskbarInternalFrame {
 		table.setModel(model);
 	}
 
-	private void updateTable() {
+	public void updateTable() {
 
 		DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
 
@@ -654,6 +700,12 @@ public class logFCResultsFrame extends TaskbarInternalFrame {
 			}
 			tablemodel.addColumn(methodName + " pval");
 			tablemodel.addColumn("Adj pval");
+		}
+		
+		if(featureMetadataColumnNames!=null) {
+			for(String col : featureMetadataColumnNames) {
+				tablemodel.addColumn(col);
+			}
 		}
 		// for each row add each coloumn
 		for (int i = 0; i < featureNames.size(); i++) {
@@ -675,6 +727,12 @@ public class logFCResultsFrame extends TaskbarInternalFrame {
 				temp.add(testPvals.get(i));
 				temp.add(testadjutestPvals.get(i));
 			}
+			
+			if(featureMetadataColumnData!=null) {
+				for(int j=0;j<featureMetadataColumnData[i].length;j++) {
+					temp.add(featureMetadataColumnData[i][j]);
+				}
+			}
 			// add ith row in table
 			tablemodel.addRow(temp);
 		}
@@ -685,9 +743,39 @@ public class logFCResultsFrame extends TaskbarInternalFrame {
 		table.setFillsViewportHeight(true);
 		table.getTableHeader().setFont(new Font("Garamond", Font.BOLD, 14));
 		// set decimal formatter to all cols except first
-		for (int i = 1; i < table.getColumnCount(); i++) {
-			table.getColumnModel().getColumn(i).setCellRenderer(new DecimalFormatRenderer());
+		int colCount = 0;
+		if(featureMetadataColumnNames!=null) {
+			colCount = table.getColumnCount()-featureMetadataColumnNames.length;
 		}
+		else {
+			colCount = table.getColumnCount();
+		}
+		
+		DecimalFormatRenderer dfr = new DecimalFormatRenderer();
+		 DEAHeaderRenderer customHeaderCellRenderer = 
+                 new DEAHeaderRenderer(Color.white,
+                                        Color.red,
+                                        new Font("Consolas",Font.BOLD,14),
+                                        BorderFactory.createEtchedBorder(),
+                                        true);
+		 
+		for (int i = 1; i < colCount; i++) {
+			table.getColumnModel().getColumn(i).setCellRenderer(dfr);
+			table.getColumnModel().getColumn(i).setHeaderRenderer(customHeaderCellRenderer);
+		}
+		
+		 DEAHeaderRenderer featureMetadataHeaderCellRenderer = 
+                 new DEAHeaderRenderer(Color.white,
+                                        Color.BLUE,
+                                        new Font("Consolas",Font.BOLD,14),
+                                        BorderFactory.createEtchedBorder(),
+                                        true);
+		 
+		for(int i=colCount;i<table.getColumnCount();i++) {
+			table.getColumnModel().getColumn(i).setCellRenderer(new DefaultTableCellRenderer());
+			table.getColumnModel().getColumn(i).setHeaderRenderer(featureMetadataHeaderCellRenderer);
+		}
+
 
 	}
 

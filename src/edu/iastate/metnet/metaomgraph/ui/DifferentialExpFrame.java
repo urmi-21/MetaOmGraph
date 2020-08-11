@@ -29,11 +29,13 @@ import javax.swing.JLabel;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JButton;
 import javax.swing.AbstractListModel;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
@@ -252,9 +254,47 @@ public class DifferentialExpFrame extends TaskbarInternalFrame {
 				logFCResultsFrame frame = null;
 				frame = new logFCResultsFrame(diffExpObj, myProject);
 				frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
-				frame.setTitle("DE results");
-				MetaOmGraph.getDesktop().add(frame);
-				frame.setVisible(true);
+				//frame.setTitle("DE results");
+				
+				
+				//Get Feature metadata rows
+				List<String> rowNames = diffExpObj.getRowNames();
+				int[] rowIndices = new int[rowNames.size()];
+				int i=0;
+				for(String row : rowNames) {
+					rowIndices[i] = MetaOmGraph.activeProject.getRowIndexbyName(row,true);
+					i++;
+				}
+				
+				Object[][] myRowNames = MetaOmGraph.activeProject.getRowNames(rowIndices);	
+				String [] colNames = MetaOmGraph.activeProject.getInfoColumnNames();
+				
+				frame.setFeatureMetadataColumnData(myRowNames);
+				frame.setFeatureMetadataColumnNames(colNames);
+				frame.updateTable();
+				
+				
+				DEAColumnSelectFrame deaColSelect = new DEAColumnSelectFrame(frame,rowIndices);
+				MetaOmGraph.getDesktop().add(deaColSelect);
+
+				if(MetaOmGraph.getDEAResultsFrame()!=null && !MetaOmGraph.getDEAResultsFrame().isClosed()) {
+					MetaOmGraph.getDEAResultsFrame().addTabToFrame(frame, diffExpObj.getID());
+					MetaOmGraph.getDEAResultsFrame().setTitle("DE results");
+					MetaOmGraph.getDEAResultsFrame().moveToFront();
+					frame.setEnabled(true);
+				}
+				else {
+					MetaOmGraph.setDEAResultsFrame(new StatisticalResultsFrame());
+					MetaOmGraph.getDEAResultsFrame().addTabToFrame(frame, diffExpObj.getID());
+					MetaOmGraph.getDesktop().add(MetaOmGraph.getDEAResultsFrame());
+					MetaOmGraph.getDEAResultsFrame().setTitle("DE results");
+					MetaOmGraph.getDEAResultsFrame().setVisible(true);
+					MetaOmGraph.getDEAResultsFrame().moveToFront();
+					frame.setEnabled(true);
+				}
+				
+				
+				
 
 				// long endTime = System.nanoTime();
 				// get difference of two nanoTime values
