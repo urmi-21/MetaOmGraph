@@ -2381,7 +2381,7 @@ public class MetadataTableDisplayPanel extends JPanel
 			return;
 		}
 		if ("rename list".equals(e.getActionCommand())) {
-			MetaOmGraph.getActiveProject().renameGeneList((String) sampleDataList.getSelectedValue(), null);
+			MetaOmGraph.getActiveProject().renameSampleDataList((String) sampleDataList.getSelectedValue(), null);
 			return;
 		}
 		if ("delete list".equals(e.getActionCommand())) {

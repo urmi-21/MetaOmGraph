@@ -680,10 +680,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		sizeColumnsToFit();
 		sorter.setSortingStatus(myProject.getDefaultColumn(), 1);
 	}
-
-	@Override
-	public void stateChanged(ChangeEvent event) {
-		int selectedList = geneLists.getSelectedIndex();
+	
+	private void updateList() {
 		String[] listNames = myProject.getGeneListNames();
 		Arrays.sort(listNames, new ListNameComparator());
 		geneLists = new JList(listNames);
@@ -704,9 +702,16 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				}
 			}
 		});
+	}
+
+	@Override
+	public void stateChanged(ChangeEvent event) {
 		if ("delete list".equals(event.getSource())) {
+			updateList();
 			geneLists.setSelectedIndex(0);
-		} else if("create list".equals(event.getSource())){
+		} else if("create list".equals(event.getSource()) || "rename list".equals(event.getSource())){
+			int selectedList = geneLists.getSelectedIndex();
+			updateList();
 			geneLists.setSelectedIndex(selectedList);
 		}
 		valueChanged(null);
