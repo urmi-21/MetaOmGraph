@@ -1987,6 +1987,7 @@ public class MetaOmProject {
 			}
 			if (result == null)
 				return false;
+			newName = result;
 		}
 		ArrayList<String> values = sampleDataLists.get(oldName);
 		sampleDataLists.remove(oldName);
@@ -2158,6 +2159,15 @@ public class MetaOmProject {
 			result[(addHere++)] = addMe;
 		}
 		return addGeneList(name, result, true, true);
+	}
+	
+	/*
+	 * delete a list from the sample data list.
+	 */
+	public void deleteSampleDataList(String name) {
+		sampleDataLists.remove(name);
+		setChanged(true);
+		fireStateChanged("delete sample data list");
 	}
 
 	public void deleteGeneList(String name) {

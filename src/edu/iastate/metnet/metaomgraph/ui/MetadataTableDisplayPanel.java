@@ -179,7 +179,15 @@ public class MetadataTableDisplayPanel extends JPanel
 		sampleDataList.addMouseMotionListener(new MouseMotionAdapter() {
 			@Override
 			public void mouseMoved(MouseEvent e) {
-				// TODO
+				JList l = (JList) e.getSource();
+				ListModel m = l.getModel();
+				int index = l.locationToIndex(e.getPoint());
+				if (index > -1) {
+					// create tooltip
+					String thisListName = m.getElementAt(index).toString();
+					int numElements = MetaOmGraph.getActiveProject().getSampleDataListRowNames(thisListName).size();
+					l.setToolTipText(thisListName + ":" + numElements + " Elements");
+				}
 			}
 		});
 	}
@@ -1647,22 +1655,20 @@ public class MetadataTableDisplayPanel extends JPanel
 	
 	// get rows that are not selected.
 	private ArrayList<String> getUnSelectedRows(){
-		int rowCnt = table.getRowCount();
+		List<String> allRows = obj.getAllDataCols();
+		List<String> selectedRowsList = new ArrayList<String>();
 		int[] selectedRows = table.getSelectedColumns();
-		int[] allRows = IntStream.range(0, rowCnt).toArray();
-		List<Integer> selectedRowsList = Arrays.stream(selectedRows).boxed().collect(Collectors.toList());
-		List<Integer> allRowsList = Arrays.stream(allRows).boxed().collect(Collectors.toList());
-		
-		allRowsList.removeAll(selectedRowsList);
+		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		for(int index = 0; index < selectedRows.length; index++) {
+			String rowDataColName = model.getValueAt(table.convertRowIndexToModel(selectedRows[index]),
+					table.getColumn(obj.getDatacol()).getModelIndex()).toString();
+			selectedRowsList.add(rowDataColName);
+		}		
+		allRows.removeAll(selectedRowsList);
 		
 		ArrayList<String> notSelectedRowNames = new ArrayList<String>();
-		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		notSelectedRowNames.addAll(allRows);
 		
-		for(int rowIndex = 0; rowIndex < allRowsList.size(); rowIndex++) {
-			String rowDataColName = model.getValueAt(table.convertRowIndexToModel(allRowsList.get(rowIndex)),
-					table.getColumn(obj.getDatacol()).getModelIndex()).toString();
-			notSelectedRowNames.add(rowDataColName);
-		}
 		return notSelectedRowNames;
 	}
 
@@ -2348,36 +2354,41 @@ public class MetadataTableDisplayPanel extends JPanel
 		f2.toFront();
 	}
 
+	private void createSampleListFrame(String title, boolean edit) {
+		SampleMetaDataListFrame sampleListFrame = null;
+		if(edit) {
+			sampleListFrame = new SampleMetaDataListFrame(obj, (String) sampleDataList.getSelectedValue(),
+					getSelectedRows(), getUnSelectedRows());
+		}
+		else {
+			sampleListFrame = new SampleMetaDataListFrame(obj, getSelectedRows(), getUnSelectedRows());
+		}
+		sampleListFrame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
+		sampleListFrame.setResizable(true);
+		sampleListFrame.setMaximizable(true);
+		sampleListFrame.setIconifiable(true);
+		sampleListFrame.setClosable(true);
+		sampleListFrame.setTitle(title);
+		MetaOmGraph.getDesktop().add(sampleListFrame);
+		sampleListFrame.setVisible(true);
+	}
+	
+	private void deleteSelectedList() {
+		List selected = sampleDataList.getSelectedValuesList();
+
+		for (Object s : selected) {
+			MetaOmGraph.getActiveProject().deleteSampleDataList(s.toString());
+		}
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if ("new list".equals(e.getActionCommand())) {
-			SampleMetaDataListFrame sampleListFrame = 
-					new SampleMetaDataListFrame(obj,
-							getSelectedRows(), getUnSelectedRows());
-
-			sampleListFrame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
-			sampleListFrame.setResizable(true);
-			sampleListFrame.setMaximizable(true);
-			sampleListFrame.setIconifiable(true);
-			sampleListFrame.setClosable(true);
-			sampleListFrame.setTitle("Create New List");
-			MetaOmGraph.getDesktop().add(sampleListFrame);
-			sampleListFrame.setVisible(true);
+			createSampleListFrame("Create New List", false);
 			return;
 		}
 		if ("edit list".equals(e.getActionCommand())) {
-			SampleMetaDataListFrame sampleListFrame = 
-					new SampleMetaDataListFrame(obj, (String) sampleDataList.getSelectedValue(),
-							getSelectedRows(), getUnSelectedRows());
-
-			sampleListFrame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
-			sampleListFrame.setResizable(true);
-			sampleListFrame.setMaximizable(true);
-			sampleListFrame.setIconifiable(true);
-			sampleListFrame.setClosable(true);
-			sampleListFrame.setTitle("Edit List");
-			MetaOmGraph.getDesktop().add(sampleListFrame);
-			sampleListFrame.setVisible(true);
+			createSampleListFrame("Edit List", true);
 			return;
 		}
 		if ("rename list".equals(e.getActionCommand())) {
@@ -2385,15 +2396,18 @@ public class MetadataTableDisplayPanel extends JPanel
 			return;
 		}
 		if ("delete list".equals(e.getActionCommand())) {
-			//TODO
+			int result = JOptionPane.showConfirmDialog(MetaOmGraph.getMainWindow(),
+					"Are you sure you want to delete the selected lists '" + sampleDataList.getSelectedValue().toString()
+					+ "'?",
+					"Confirm", 0, 3);
+			if (result == 0)
+				deleteSelectedList();
 			return;
 		}
 		
 	}
-
-	@Override
-	public void stateChanged(ChangeEvent e) {
-		int selectedListIndex = sampleDataList.getSelectedIndex();
+	
+	private void updateLists() {
 		String[] listNames = MetaOmGraph.getActiveProject().getSampleDataListNames();
 		Arrays.sort(listNames, new ListNameComparator());
 		sampleDataList = new JList(listNames);
@@ -2403,12 +2417,29 @@ public class MetadataTableDisplayPanel extends JPanel
 		sampleDataList.addMouseMotionListener(new MouseMotionAdapter() {
 			@Override
 			public void mouseMoved(MouseEvent e) {
-				// TODO
+				JList l = (JList) e.getSource();
+				ListModel m = l.getModel();
+				int index = l.locationToIndex(e.getPoint());
+				if (index > -1) {
+					// create tooltip
+					String thisListName = m.getElementAt(index).toString();
+					int numElements = MetaOmGraph.getActiveProject().getSampleDataListRowNames(thisListName).size();
+					l.setToolTipText(thisListName + ":" + numElements + " Elements");
+				}
 			}
 		});
-		
-		if("create sample data list".equals(e.getSource())) {
+	}
+
+	@Override
+	public void stateChanged(ChangeEvent e) {		
+		if("create sample data list".equals(e.getSource())|| "rename sample data list".equals(e.getSource())) {
+			int selectedListIndex = sampleDataList.getSelectedIndex();
+			updateLists();
 			sampleDataList.setSelectedIndex(selectedListIndex);
+		}
+		else if("delete sample data list".equals(e.getSource())) {
+			updateLists();
+			sampleDataList.setSelectedIndex(0);
 		}
 		sampleDataListScrollPane.setViewportView(sampleDataList);
 	}
