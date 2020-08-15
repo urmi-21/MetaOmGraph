@@ -258,9 +258,46 @@ public class DifferentialCorrFrame extends TaskbarInternalFrame {
 						diffcorrresOB.getDiffZVals(), diffcorrresOB.getzScores(), diffcorrresOB.getpValues(),
 						myProject);
 				frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
-				frame.setTitle("Differential Correlation Results");
-				MetaOmGraph.getDesktop().add(frame);
-				frame.setVisible(true);
+				
+				
+				if(diffcorrresOB != null) {
+					
+					//Get Feature metadata rows
+					List<String> rowNames = diffcorrresOB.getFeatureNames();
+					int[] rowIndices = new int[rowNames.size()];
+					int i=0;
+					for(String row : rowNames) {
+						rowIndices[i] = MetaOmGraph.activeProject.getRowIndexbyName(row,true);
+						i++;
+					}
+					
+					Object[][] myRowNames = MetaOmGraph.activeProject.getRowNames(rowIndices);	
+					String [] colNames = MetaOmGraph.activeProject.getInfoColumnNames();
+					
+					frame.setFeatureMetadataColumnData(myRowNames);
+					frame.setFeatureMetadataColumnNames(colNames);
+					frame.updateTable();
+					
+					
+				}
+				
+				if(MetaOmGraph.getDCResultsFrame()!=null && !MetaOmGraph.getDCResultsFrame().isClosed()) {
+					MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, id);
+					MetaOmGraph.getDCResultsFrame().addTabListToFrame(frame.getGeneLists(), id);
+					MetaOmGraph.getDCResultsFrame().moveToFront();
+				}
+				else {
+					MetaOmGraph.setDCResultsFrame(new StatisticalResultsFrame("Differential Correlation","Differential Correlation Results ["+diffcorrresOB.getFeatureNames().get(0)+"] ("+diffcorrresOB.getFeatureNames().size()+" features)"));
+					MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, id);
+					MetaOmGraph.getDCResultsFrame().addTabListToFrame(frame.getGeneLists(), id);
+					MetaOmGraph.getDCResultsFrame().setTitle("Differential Correlation Results");
+					MetaOmGraph.getDesktop().add(MetaOmGraph.getDCResultsFrame());
+					frame.setVisible(true);
+					MetaOmGraph.getDCResultsFrame().setVisible(true);
+					MetaOmGraph.getDCResultsFrame().moveToFront();
+					frame.setEnabled(true);
+				}
+				
 
 			}
 		});
