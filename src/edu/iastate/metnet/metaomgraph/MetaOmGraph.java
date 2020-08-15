@@ -160,6 +160,7 @@ public class MetaOmGraph implements ActionListener {
 	private static JInternalFrame ReproducibilityDashboardFrame;
 	private static TaskbarPanel taskBar;
 	private static StatisticalResultsFrame DEAResultsFrame;
+	private static StatisticalResultsFrame DCResultsFrame;
 	
 
 	public static StatisticalResultsFrame getDEAResultsFrame() {
@@ -167,6 +168,12 @@ public class MetaOmGraph implements ActionListener {
 	}
 	public static void setDEAResultsFrame(StatisticalResultsFrame dEAResultsFrame) {
 		DEAResultsFrame = dEAResultsFrame;
+	}
+	public static StatisticalResultsFrame getDCResultsFrame() {
+		return DCResultsFrame;
+	}
+	public static void setDCResultsFrame(StatisticalResultsFrame dCResultsFrame) {
+		DCResultsFrame = dCResultsFrame;
 	}
 	public static Logger getLogger() {
 		return logger;
@@ -3389,18 +3396,17 @@ public class MetaOmGraph implements ActionListener {
 				frame.setFeatureMetadataColumnNames(colNames);
 				frame.updateTable();
 				
-				
-				DEAColumnSelectFrame deaColSelect = new DEAColumnSelectFrame(frame,rowIndices);
-				MetaOmGraph.getDesktop().add(deaColSelect);
 			}
 			
 			if(getDEAResultsFrame()!=null && !getDEAResultsFrame().isClosed()) {
 				getDEAResultsFrame().addTabToFrame(frame, diffExpObj.getID());
+				getDEAResultsFrame().addTabListToFrame(frame.getGeneLists(), diffExpObj.getID());
 				getDEAResultsFrame().moveToFront();
 			}
 			else {
-				setDEAResultsFrame(new StatisticalResultsFrame());
+				setDEAResultsFrame(new StatisticalResultsFrame("DEA","DEA Results"));
 				getDEAResultsFrame().addTabToFrame(frame, diffExpObj.getID());
+				getDEAResultsFrame().addTabListToFrame(frame.getGeneLists(), diffExpObj.getID());
 				getDEAResultsFrame().setTitle("DE results");
 				MetaOmGraph.getDesktop().add(getDEAResultsFrame());
 				frame.setVisible(true);

@@ -273,19 +273,18 @@ public class DifferentialExpFrame extends TaskbarInternalFrame {
 				frame.setFeatureMetadataColumnNames(colNames);
 				frame.updateTable();
 				
-				
-				DEAColumnSelectFrame deaColSelect = new DEAColumnSelectFrame(frame,rowIndices);
-				MetaOmGraph.getDesktop().add(deaColSelect);
 
 				if(MetaOmGraph.getDEAResultsFrame()!=null && !MetaOmGraph.getDEAResultsFrame().isClosed()) {
 					MetaOmGraph.getDEAResultsFrame().addTabToFrame(frame, diffExpObj.getID());
+					MetaOmGraph.getDEAResultsFrame().addTabListToFrame(frame.getGeneLists(), diffExpObj.getID());
 					MetaOmGraph.getDEAResultsFrame().setTitle("DE results");
 					MetaOmGraph.getDEAResultsFrame().moveToFront();
 					frame.setEnabled(true);
 				}
 				else {
-					MetaOmGraph.setDEAResultsFrame(new StatisticalResultsFrame());
+					MetaOmGraph.setDEAResultsFrame(new StatisticalResultsFrame("DEA","DEA Results"));
 					MetaOmGraph.getDEAResultsFrame().addTabToFrame(frame, diffExpObj.getID());
+					MetaOmGraph.getDEAResultsFrame().addTabListToFrame(frame.getGeneLists(), diffExpObj.getID());
 					MetaOmGraph.getDesktop().add(MetaOmGraph.getDEAResultsFrame());
 					MetaOmGraph.getDEAResultsFrame().setTitle("DE results");
 					MetaOmGraph.getDEAResultsFrame().setVisible(true);

@@ -1,21 +1,32 @@
 package edu.iastate.metnet.metaomgraph.ui;
 
 import java.awt.BorderLayout;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import javax.swing.JList;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 
 import edu.iastate.metnet.metaomgraph.FrameModel;
+import edu.iastate.metnet.metaomgraph.MetaOmGraph;
+import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel.ListNameComparator;
 
 public class StatisticalResultsFrame extends TaskbarInternalFrame {
 
 	private ClosableTabbedPane resultTab;
+	private List<JList> allTabsInfo;
 	
 	
-	public StatisticalResultsFrame() {
+	public StatisticalResultsFrame(String taskbarName, String frameName) {
 		
-		setBounds(100, 100, 750, 700);
+		allTabsInfo = new ArrayList<JList>();
+		setBounds(100, 100, 800, 600);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		
 		getContentPane().setLayout(new BorderLayout(0, 0));
@@ -23,7 +34,7 @@ public class StatisticalResultsFrame extends TaskbarInternalFrame {
 		resultTab = new ClosableTabbedPane();
 		add(resultTab);
 		
-		FrameModel DEAResultsFrameModel = new FrameModel("DEA","DEA Results",17);
+		FrameModel DEAResultsFrameModel = new FrameModel(taskbarName,frameName,17);
 		setModel(DEAResultsFrameModel);
 		putClientProperty("JInternalFrame.frameType", "normal");
 		
@@ -38,9 +49,28 @@ public class StatisticalResultsFrame extends TaskbarInternalFrame {
 		
 		if(resultTab != null && resultTab.getTabCount()==0) {
 			resultTab.addNonClosableTab(tabName,null, panel, tabName);
+			
 		}
 		else {
 			resultTab.addTab(tabName,null, panel, tabName);
+		}
+	}
+	
+	public void addTabListToFrame(JList list, String tabName) {
+		allTabsInfo.add(list);
+	}
+	
+	public void refreshAllTabsLists() {
+		if(allTabsInfo!=null) {
+			for (JList temp : allTabsInfo) {
+				if(temp != null) {
+				String[] listNames2 = MetaOmGraph.getActiveProject().getGeneListNames();
+				Arrays.sort(listNames2, MetaOmGraph.getActiveTablePanel().new ListNameComparator());
+				temp.setListData(listNames2);
+				temp.updateUI();
+				}
+			}
+			
 		}
 	}
 }
