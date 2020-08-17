@@ -2,37 +2,106 @@ package edu.iastate.metnet.metaomgraph.chart;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.WindowConstants;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.DefaultFormatterFactory;
 
 import org.jfree.chart.ChartPanel;
 
 import edu.iastate.metnet.metaomgraph.ComponentToImage;
-import edu.iastate.metnet.metaomgraph.GraphFileFilter;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
-public class ChartActions {
+public class ChartActions{
+	
+	// create the radiobutton panel to select save image as either png or svg file
+	private static void createRadioButtonPanel(ChartPanel cpanel) {
+		JDialog dialog = new JDialog();
+		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		dialog.setModal(true);
+		dialog.setTitle("Save as");
+		dialog.setLocationRelativeTo(MetaOmGraph.getDesktop());
+		
+		JLabel label = new JLabel("Save as:");
+		JRadioButton pngButton = new JRadioButton("PNG");
+		JRadioButton svgButton = new JRadioButton("SVG");
+		
+		pngButton.setSelected(true);
+		ButtonGroup group = new ButtonGroup();
+		group.add(pngButton);
+		group.add(svgButton);
+		
+		JButton okButton = new JButton("Ok");
+		JButton cancelButton = new JButton("Cancel");
+		
+		dialog.setLayout(new GridBagLayout());
+		GridBagConstraints constraints = new GridBagConstraints();
+		constraints.gridx = 0;
+		constraints.gridy = 0;
+		constraints.anchor = GridBagConstraints.CENTER;
+		constraints.insets = new Insets(10, 10, 10, 10);
+		
+		dialog.add(label, constraints);
+		constraints.gridy = 1;
+		dialog.add(pngButton, constraints);
+		constraints.gridx = 1;
+		dialog.add(svgButton, constraints);
+		
+		constraints.gridx = 0;
+		constraints.gridy = 2;
+		dialog.add(okButton, constraints);
+		constraints.gridx = 1;
+		dialog.add(cancelButton, constraints);
+		
+		okButton.addActionListener(new ActionListener() {		
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(pngButton.isSelected()) {
+					createFileSaveWindow("png", cpanel);
+				}
+				else if(svgButton.isSelected()) {
+					createFileSaveWindow("svg", cpanel);
+				}
+				dialog.dispose();
+			}
+		});
+		
+		cancelButton.addActionListener(new ActionListener() {	
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				dialog.dispose();				
+			}
+		});
+		dialog.pack();
+		dialog.setVisible(true);
+	}
 
-	public static void exportChart(ChartPanel cpanel) {
-
-		File destination = null;
+	private static void createFileSaveWindow(String fileType, ChartPanel cpanel) {
+	    File destination = null;
+	    JFormattedTextField widthField;
+		JFormattedTextField heightField;
 		JFileChooser chooseDialog = new JFileChooser(Utils.getLastDir());
-		final String[] fileExtensions = new String[] { "png", "svg" };
 		chooseDialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		chooseDialog.setFileFilter(new GraphFileFilter(GraphFileFilter.PNGSVG));
+		chooseDialog.setFileFilter(new FileNameExtensionFilter(fileType.toUpperCase(), "."+fileType));
 		JPanel sizer = new JPanel();
-		JFormattedTextField widthField, heightField;
+		
 		JFormattedTextField.AbstractFormatter af = new JFormattedTextField.AbstractFormatter() {
-
 			@Override
 			public Object stringToValue(String text) throws ParseException {
 				try {
@@ -53,7 +122,6 @@ public class ChartActions {
 				}
 				return null;
 			}
-
 		};
 		widthField = new JFormattedTextField(new DefaultFormatterFactory(af), new Integer(cpanel.getWidth()));
 		heightField = new JFormattedTextField(new DefaultFormatterFactory(af), new Integer(cpanel.getHeight()));
@@ -78,14 +146,9 @@ public class ChartActions {
 		sizer.add(heightField, c);
 		c.gridx = 2;
 		sizer.add(new JLabel("pixels"), c);
-		c.gridy = 3;
-		sizer.add(new JLabel("Please use extention .svg to save as svg"), c);
+
 		chooseDialog.setAccessory(sizer);
 		int returnVal = JFileChooser.APPROVE_OPTION;
-		/*
-		 * Continually show a file chooser until user selects a valid location, or
-		 * cancels.
-		 */
 		boolean ready = false;
 		while (!ready) {
 			while (((destination == null)) && (returnVal != JFileChooser.CANCEL_OPTION)) {
@@ -98,11 +161,8 @@ public class ChartActions {
 			// Check if file exists, prompt to overwrite if it
 			// does
 			String filename = destination.getAbsolutePath();
-			// append extention .png by default if svg is not specified
-			if (!filename.substring(filename.length() - 4).equals(".svg")) {
-				filename += ".png";
-				destination = new File(filename);
-			}
+			filename += "." + fileType;
+			destination = new File(filename);
 			if (destination.exists()) {
 				int overwrite = JOptionPane.showConfirmDialog(MetaOmGraph.getMainWindow(),
 						filename + " already exists.  Overwrite?", "Overwrite File", JOptionPane.YES_NO_CANCEL_OPTION,
@@ -125,7 +185,7 @@ public class ChartActions {
 		cpanel.setMaximumDrawHeight(newHeight);
 		try {
 			// check which extension was provided with file name
-			if (trueDest.getName().substring(trueDest.getName().length() - 4).equals(".svg")) {
+			if (fileType == "svg") {
 				ComponentToImage.saveAsSVG(cpanel.getChart(), newWidth, newHeight, trueDest);
 			} else {
 
@@ -136,8 +196,10 @@ public class ChartActions {
 			ioe.printStackTrace();
 		}
 		cpanel.setMaximumDrawWidth(oldDrawWidth);
-		cpanel.setMaximumDrawHeight(oldDrawHeight);
-
+		cpanel.setMaximumDrawHeight(oldDrawHeight);	
 	}
-
+		
+	public static void exportChart(ChartPanel cpanel) {
+		createRadioButtonPanel(cpanel);
+	}
 }
