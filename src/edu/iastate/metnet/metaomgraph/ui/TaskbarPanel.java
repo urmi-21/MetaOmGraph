@@ -13,9 +13,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyVetoException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -85,6 +88,12 @@ public class TaskbarPanel extends JPanel{
 		
 		reloadTaskbar();
 		
+	}
+	
+	public void removeAllTabsFromTaskbar() {
+		
+		taskbarData.clear();
+		menuBar.removeAll();
 	}
 	
 	public void reloadTaskbar() {

@@ -7,6 +7,7 @@ import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -19,11 +20,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
 import javax.swing.JList;
 
 import java.awt.BorderLayout;
@@ -40,6 +43,8 @@ import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
+import javax.swing.Timer;
+import javax.swing.JToolBar.Separator;
 import javax.swing.border.Border;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -55,22 +60,31 @@ import edu.iastate.metnet.metaomgraph.DEAHeaderRenderer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.TableSorter;
+import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.chart.BoxPlot;
 import edu.iastate.metnet.metaomgraph.chart.HistogramChart;
 import edu.iastate.metnet.metaomgraph.chart.MetaOmChartPanel;
 import edu.iastate.metnet.metaomgraph.chart.ScatterPlotChart;
 import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
+import edu.iastate.metnet.metaomgraph.throbber.MetaOmThrobber;
+import edu.iastate.metnet.metaomgraph.throbber.MultiFrameImageThrobber;
+import edu.iastate.metnet.metaomgraph.throbber.Throbber;
 import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel.ListNameComparator;
 import edu.iastate.metnet.metaomgraph.DecimalFormatRenderer;
 import edu.iastate.metnet.metaomgraph.FilterableTableModel;
 import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.IconTheme;
+import edu.iastate.metnet.metaomgraph.utils.NaturalOrderComparator;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.ActionEvent;
 import javax.swing.event.MenuListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.MenuEvent;
@@ -96,6 +110,14 @@ public class DiffCorrResultsTable extends JPanel {
 	private List<Double> pVals;
 	private List<Double> adjpVals;
 	private MetaOmProject myProject;
+	private FilterableTableModel filterModel;
+	private ClearableTextField filterField;
+	private JButton listFromFilterButton;
+	private JButton advFilterButton;
+	private Throbber throbber;
+	private TableSorter sorter;
+	private DiffCorrResultsTable currentObj;
+	private NoneditableTableModel mainModel;
 
 	private int n1;
 	private int n2;
@@ -103,9 +125,11 @@ public class DiffCorrResultsTable extends JPanel {
 	String pvAdjMethod;
 	DiffCorrResultsTable currentPanel;
 
+	private Object[][] featureMetadataAllData;
+	private Object[][] masterFeatureMetadataAllData;
 	private Object[][] featureMetadataColumnData;
 	private String[] featureMetadataColumnNames;
-
+	private List<String> allColumnNames;
 	private Object[][] currentTableData;
 	private LinkedHashMap<String,Object[]> currentTableDataMap;
 	/**
@@ -121,6 +145,10 @@ public class DiffCorrResultsTable extends JPanel {
 
 	public JList getGeneLists() {
 		return geneLists;
+	}
+	
+	public String getSelectedList() {
+		return geneLists.getSelectedValue().toString();
 	}
 	public Object[][] getCurrentTableData() {
 		return currentTableData;
@@ -145,6 +173,22 @@ public class DiffCorrResultsTable extends JPanel {
 	public void setFeatureMetadataColumnNames(String[] featureMetadataColumnNames) {
 		this.featureMetadataColumnNames = featureMetadataColumnNames;
 	}
+	
+	public Object[][] getFeatureMetadataAllData() {
+		return featureMetadataAllData;
+	}
+	public void setFeatureMetadataAllData(Object[][] featureMetadataAllData) {
+		this.featureMetadataAllData = featureMetadataAllData;
+	}
+	
+	public Object[][] getMasterFeatureMetadataAllData() {
+		return masterFeatureMetadataAllData;
+	}
+
+	public void setMasterFeatureMetadataAllData(Object[][] masterFeatureMetadataAllData) {
+		this.masterFeatureMetadataAllData = masterFeatureMetadataAllData;
+	}
+
 	/**
 	 * Launch the application.
 	 */
@@ -179,6 +223,7 @@ public class DiffCorrResultsTable extends JPanel {
 		this.n2 = grp2Size;
 		this.corrVals1 = corrVals1;
 		this.corrVals2 = corrVals2;
+		currentObj = this;
 
 		zVals1 = zvals1;
 		zVals2 = zvals2;
@@ -198,8 +243,17 @@ public class DiffCorrResultsTable extends JPanel {
 		listPanel = new JPanel(new BorderLayout());
 
 		String[] listNames = myProject.getGeneListNames();
+		String [] listNames2 = new String[listNames.length+1];
+		
 		Arrays.sort(listNames, MetaOmGraph.getActiveTablePanel().new ListNameComparator());
-		geneLists = new JList(listNames);
+		int i=0;
+		listNames2[0] = "Current Result";
+		for(i=1;i<=listNames.length;i++) {
+			listNames2[i] = listNames[i-1];
+		}
+		
+		
+		geneLists = new JList(listNames2);
 		geneLists.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		geneLists.setSelectedIndex(0);
 
@@ -231,7 +285,7 @@ public class DiffCorrResultsTable extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				CreateListFrame clf = new CreateListFrame(myProject, (String) geneLists.getSelectedValue());
+				CreateListFrameDC clf = new CreateListFrameDC(myProject, (String) geneLists.getSelectedValue(), currentObj);
 				clf.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
 				clf.setResizable(true);
 				clf.setMaximizable(true);
@@ -267,7 +321,7 @@ public class DiffCorrResultsTable extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				CreateListFrame clf = new CreateListFrame(myProject);
+				CreateListFrameDC clf = new CreateListFrameDC(myProject,null,currentObj);
 
 				clf.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
 				clf.setResizable(true);
@@ -309,19 +363,33 @@ public class DiffCorrResultsTable extends JPanel {
 			public void valueChanged(ListSelectionEvent arg0) {
 				if (!arg0.getValueIsAdjusting()) {
 
-					if(geneLists.getSelectedValue() == "Complete List") {
+					if(geneLists.getSelectedValue() == "Current Result") {
 						updateTableRows(getCurrentTableData());
+						listDeleteButton.setEnabled(false);
+						listEditButton.setEnabled(false);
+						listRenameButton.setEnabled(false);
 					}
 					else {
+						
+						if(geneLists.getSelectedValue() == "Complete List") {
+							listDeleteButton.setEnabled(false);
+							listEditButton.setEnabled(false);
+							listRenameButton.setEnabled(false);
+						}
+						else {
+							listDeleteButton.setEnabled(true);
+							listEditButton.setEnabled(true);
+							listRenameButton.setEnabled(true);
+						}
 						int[] entries = myProject.getGeneListRowNumbers((String)geneLists.getSelectedValue());
 						String[] defaultRowNames = myProject.getDefaultRowNames(entries);
 						if(defaultRowNames != null) {
-							Arrays.sort(defaultRowNames);
+							//Arrays.sort(defaultRowNames,new NaturalOrderComparator<String>(true));
 							Object[][] selectionData = new Object[entries.length][getCurrentTableData().length];
 
-
 							for(int i=0; i<defaultRowNames.length; i++) {
-								selectionData[i] = currentTableDataMap.get(defaultRowNames[i]);
+								selectionData[i] = currentTableDataMap.get((String)defaultRowNames[i]);
+								
 							}
 
 							if(defaultRowNames.length == 0) {
@@ -354,7 +422,7 @@ public class DiffCorrResultsTable extends JPanel {
 				JList l = (JList) e.getSource();
 				ListModel m = l.getModel();
 				int index = l.locationToIndex(e.getPoint());
-				if (index > -1) {
+				if (index > 0) {
 					// create tooltip
 					String thisListName = m.getElementAt(index).toString();
 					int numElements = myProject.getGeneListRowNumbers(thisListName).length;
@@ -518,7 +586,7 @@ public class DiffCorrResultsTable extends JPanel {
 		mnEdit.add(mntmPvalueCorrection);
 
 		
-		JMenuItem mntmSelFeatureCols = new JMenuItem("Select Feature Info Cols");
+		JMenuItem mntmSelFeatureCols = new JMenuItem("Select Feature Metadata Cols");
 		mntmSelFeatureCols.addActionListener(new ActionListener() {
 
 			@Override
@@ -746,20 +814,125 @@ public class DiffCorrResultsTable extends JPanel {
 		});
 		mnPlot.add(mntmHistogramcolumn);
 
-		// frame properties
-		//		this.setClosable(true);
-		//		setTitle("Differential Correlation Results");
-		//		putClientProperty("JInternalFrame.frameType", "normal");
-		//		setResizable(true);
-		//		setMaximizable(true);
-		//		setIconifiable(true);
-		//		setClosable(true);
+		
+		
+		
+		
+		
+		JPanel searchPanel = new JPanel(new BorderLayout());
+		searchPanel.add(new JLabel("Filter:"), "Before");
+		filterField = new ClearableTextField();
+		filterField.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == 27) {
+					filterModel.clearFilter();
+					filterField.setText("");
+				}
+			}
+		});
+		filterField.getDocument().addDocumentListener(new FilterFieldListener());
+		filterField.setDefaultText("Use semicolon (;) for multiple filters");
+		filterField.setColumns(20);
+		searchPanel.add(filterField, "Center");
 
-		//		FrameModel diffCorrResultsFrameModel = new FrameModel("Differential Correlation","Differential Correlation Results ["+featureNames.get(0)+"] ("+featureNames.size()+" features)",10);
-		//		setModel(diffCorrResultsFrameModel);
+		try {
+			BufferedImage source = ImageIO
+					.read(getClass().getResourceAsStream("/resource/tango/22x22/animations/process-working.png"));
+			throbber = new MultiFrameImageThrobber(source, 4, 8);
+		} catch (IOException e1) {
+			throbber = new MetaOmThrobber();
+		}
+		searchPanel.add(throbber, "After");
+		listFromFilterButton = new JButton(theme.getListSave());
+		listFromFilterButton.setActionCommand("list from filter");
+		
+		listFromFilterButton.setEnabled(false);
+		listFromFilterButton.setToolTipText("Export the results of the current filter to a new list");
+		dataToolbar.add(new Separator());
+		dataToolbar.add(searchPanel);
+		dataToolbar.add(listFromFilterButton);
+
+		// add advance filter button
+		// s
+		advFilterButton = new JButton("Advance filter");
+		advFilterButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				
+
+
+				//Harsha - reproducibility log
+				HashMap<String,Object> dataMap = new HashMap<String,Object>();
+				HashMap<String,Object> result = new HashMap<String,Object>();
+				result.put("result", "OK");
+
+				// show advance filter options
+				final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(
+						MetaOmGraph.getActiveProject(), true);
+				final MetadataQuery[] queries;
+				queries = tsp.showSearchDialog();
+				// boolean matchCase=tsp.matchCase();
+				boolean matchAll = tsp.matchAll();
+				if (tsp.getQueryCount() <= 0) {
+					// System.out.println("Search dialog cancelled");
+					// User didn't enter any queries
+					return;
+				}
+
+				String[] headers = myProject.getInfoColumnNames();
+				List<String> headersList = Arrays.asList(headers);
+
+				// JOptionPane.showMessageDialog(null, "h:"+headersList);
+
+				// convert queries to filter string
+				String allFilter = "";
+				for (int i = 0; i < queries.length; i++) {
+
+					String thisFilter = "";
+					String thisField = queries[i].getField();
+					boolean thismatchCase = queries[i].isCaseSensitive();
+					String thisTerm = queries[i].getTerm();
+					// JOptionPane.showMessageDialog(null,"F:" + queries[i].getField() + " T:" +
+					// queries[i].getTerm() + " isE:" + queries[i].isExact()+ "mC:"+thismatchCase);
+					if (thismatchCase) {
+						thisTerm += "--C";
+					}
+					if (thisField.equals("Any Field") || thisField.equals("All Fields")) {
+						thisFilter = thisTerm;
+					} else {
+						int thisCol = headersList.indexOf(thisField);
+						thisFilter = thisTerm + ":::" + String.valueOf(thisCol);
+					}
+
+					allFilter += thisFilter + ";";
+				}
+
+				dataMap.put("allFilters", allFilter);
+				filterField.setText(allFilter);
+
+				//			ActionProperties advancedFilterAction = new ActionProperties("advanced-filter",null,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				//			advancedFilterAction.logActionProperties();
+
+				return;
+			
+			}
+		});
+		
+		advFilterButton.setToolTipText("Filter/search the table with multiple queries");
+		dataToolbar.add(advFilterButton);
+		
+		
+		panel_1.add(dataToolbar);
+		
+		
+		
 	}
 
 	private void initTableModel() {
+		
 		table = new StripedTable() {
 			@Override
 			public boolean getScrollableTracksViewportWidth() {
@@ -842,29 +1015,27 @@ public class DiffCorrResultsTable extends JPanel {
 	}
 
 	public void updateTable() {
-
-		DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
-		tablemodel.setRowCount(0);
-		tablemodel.setColumnCount(0);
+		
 		// add data
-		tablemodel.addColumn("Name");
-		tablemodel.addColumn("r1");
-		tablemodel.addColumn("r2");
-		tablemodel.addColumn("z1");
-		tablemodel.addColumn("z2");
-		tablemodel.addColumn("z1-z2");
-		tablemodel.addColumn("zScore");
-		tablemodel.addColumn("p-value");
-		tablemodel.addColumn("Adj p-value");
+		allColumnNames = new ArrayList<String>();
+		
+		allColumnNames.add("Name");
+		allColumnNames.add("r1");
+		allColumnNames.add("r2");
+		allColumnNames.add("z1");
+		allColumnNames.add("z2");
+		allColumnNames.add("z1-z2");
+		allColumnNames.add("zScore");
+		allColumnNames.add("p-value");
+		allColumnNames.add("Adj p-value");
 
 		if(featureMetadataColumnNames!=null) {
 			for(String col : featureMetadataColumnNames) {
-				tablemodel.addColumn(col);
+				allColumnNames.add(col);
 			}
 		}
 
-
-		currentTableData = new Object[featureNames.size()][tablemodel.getColumnCount()];
+		currentTableData = new Object[featureNames.size()][allColumnNames.size()];
 		currentTableDataMap = new LinkedHashMap<String,Object[]>();
 
 		// for each row add each coloumn
@@ -895,23 +1066,73 @@ public class DiffCorrResultsTable extends JPanel {
 
 			currentTableData[i] = temp.toArray();
 
-			// add ith row in table
-			tablemodel.addRow(temp);
 
 		}
 
-		Arrays.sort(currentTableData, new Comparator<Object[]>() {
-			@Override
-			public int compare(final Object[] entry1, final Object[] entry2) {
-				final String time1 = (String)entry1[0];
-				final String time2 = (String)entry2[0];
-				return time1.compareToIgnoreCase(time2);
-			}
-		});
+		String[] colNames = new String[allColumnNames.size()];
+		int x=0;
+		for(String s : allColumnNames) {
+			colNames[x] = s;
+			x++;
+		}
+		mainModel = new NoneditableTableModel(currentTableData,colNames);
+		filterModel = new FilterableTableModel(mainModel);
+		sorter = new TableSorter(filterModel);
+		
+		table.setModel(sorter);
+
 
 		for (int i = 0; i < featureNames.size(); i++) {
 			currentTableDataMap.put((String)currentTableData[i][0], currentTableData[i]);
 		}
+		
+		
+		if(featureMetadataAllData != null && masterFeatureMetadataAllData != null) {
+			
+			
+			for(int j = 0; j < featureMetadataAllData.length; j++) {
+				 
+				if( !currentTableDataMap.containsKey(masterFeatureMetadataAllData[j][MetaOmGraph.activeProject.getDefaultColumn()])) {
+					
+					Object [] row = new Object[featureMetadataAllData[j].length+9];
+					
+					row[0] = (String)masterFeatureMetadataAllData[j][MetaOmGraph.activeProject.getDefaultColumn()];
+					for(int k = 1; k < 9; k++) {
+						row[k] = 0;
+					}
+					for(int l = 9; l < featureMetadataAllData[j].length+9; l++) {
+						row[l] = featureMetadataAllData[j][l-9];
+					}
+					
+					currentTableDataMap.put((String)masterFeatureMetadataAllData[j][MetaOmGraph.activeProject.getDefaultColumn()], row);
+				}
+			}
+		}
+		
+		formatTable();
+	}
+
+
+	public void updateTableRows(Object [][] rows) {
+
+		String[] colNames = new String[allColumnNames.size()];
+		int x=0;
+		for(String s : allColumnNames) {
+			colNames[x] = s;
+			x++;
+		}
+		
+		mainModel = new NoneditableTableModel(rows,colNames);
+		filterModel = new FilterableTableModel(mainModel);
+		sorter = new TableSorter(filterModel);
+		
+		table.setModel(sorter);
+		formatTable();
+
+	}
+	
+	
+	public void formatTable() {
 
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setAutoCreateRowSorter(true);
@@ -956,24 +1177,28 @@ public class DiffCorrResultsTable extends JPanel {
 
 	}
 
-
-	public void updateTableRows(Object [][] rows) {
-
-		DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
-		tablemodel.setRowCount(0);
-
-		for (int i = 0; i < rows.length; i++) {
-			tablemodel.addRow(rows[i]);
+	
+	public int[] getSelectedRowsIndices() {
+		
+		int [] currentTableSelRows = table.getSelectedRows();
+		List<String> selectedGeneNames = new ArrayList<String>();
+		for(int i=0; i< currentTableSelRows.length; i++) {
+			selectedGeneNames.add((String)table.getValueAt(currentTableSelRows[i], 0));
 		}
-
+		
+		return myProject.getRowIndexbyName(selectedGeneNames, true);
 	}
 
-
-	public void updateList() {
-		String[] listNames2 = myProject.getGeneListNames();
-		Arrays.sort(listNames2, MetaOmGraph.getActiveTablePanel().new ListNameComparator());
-		geneLists.setListData(listNames2);
-		geneLists.updateUI();
+	public void printMessage(String msg) {
+		
+		JDialog jd = new JDialog();
+		JTextPane jt = new JTextPane();
+		jt.setText(msg);
+		jt.setBounds(10, 10, 300, 100);
+		jd.getContentPane().add(jt);
+		jd.setBounds(100, 100, 500, 200);
+		jd.setVisible(true);
+		
 	}
 
 	/**
@@ -1057,5 +1282,65 @@ public class DiffCorrResultsTable extends JPanel {
 		return;
 
 	}
+	
+	
+	
+//	private void makeListFromFilter() {
+//		String filterText = filterField.getText();
+//		int[] entries = new int[table.getRowCount()];
+//		for (int x = 0; x < entries.length; x++) {
+//			entries[x] = getTrueRow(x);
+//		}
+//
+//		myProject.addGeneList(filterText, entries, true, false);
+//	}
+
+	
+	
+	private class FilterFieldListener implements DocumentListener, ActionListener {
+		Timer t;
+
+		public FilterFieldListener() {
+			t = new Timer(300, this);
+			t.setRepeats(false);
+		}
+
+		public void doChange() {
+			t.restart();
+			if (!Throbber.isAnimating()) {
+				throbber.start();
+			}
+			if (filterField.getText().trim().equals("")) {
+				listFromFilterButton.setEnabled(false);
+			}
+		}
+
+		@Override
+		public void insertUpdate(DocumentEvent e) {
+			doChange();
+		}
+
+		@Override
+		public void removeUpdate(DocumentEvent e) {
+			doChange();
+		}
+
+		@Override
+		public void changedUpdate(DocumentEvent e) {
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			filterModel.applyFilter(filterField.getText().trim());
+			throbber.stop();
+			boolean success = filterModel.getRowCount() != 0;
+			listFromFilterButton.setEnabled((success) && (!filterField.getText().trim().equals("")));
+			//plotFilterItem.setEnabled((success) && (!filterField.getText().trim().equals("")));
+			Utils.setSearchFieldColors(filterField, success);
+		}
+	}
+	
 
 }
+
+
