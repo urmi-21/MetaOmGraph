@@ -65,9 +65,11 @@ public class DEAColumnSelectFrame extends TaskbarInternalFrame{
 				int[] selectedFeatureMetadataCols = jList.getSelectedIndices();
 				
 				Object [][] allRows = MetaOmGraph.activeProject.getRowNames(rowIndices);
+				Object [][] totalRows = MetaOmGraph.activeProject.getRowNames();
 				String [] allColNames = MetaOmGraph.activeProject.getInfoColumnNames();
 				
 				Object [][] newRows = new Object[rowIndices.length][selectedFeatureMetadataCols.length];
+				Object [][] newTotalRows = new Object[totalRows.length][selectedFeatureMetadataCols.length];
 				String [] newColNames = new String[selectedFeatureMetadataCols.length];
 				
 				for(int i=0;i<selectedFeatureMetadataCols.length;i++) {
@@ -76,10 +78,14 @@ public class DEAColumnSelectFrame extends TaskbarInternalFrame{
 					for(int j=0;j<rowIndices.length;j++) {
 						newRows[j][i] = allRows[j][selectedFeatureMetadataCols[i]];
 					}
+					for(int k=0;k<totalRows.length;k++) {
+						newTotalRows[k][i] = totalRows[k][selectedFeatureMetadataCols[i]];
+					}
 				}
 				
 				frame.setFeatureMetadataColumnData(newRows);
 				frame.setFeatureMetadataColumnNames(newColNames);
+				frame.setFeatureMetadataAllData(newTotalRows);
 				frame.updateTable();
 				
 				try {

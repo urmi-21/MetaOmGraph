@@ -251,53 +251,76 @@ public class DifferentialCorrFrame extends TaskbarInternalFrame {
 					myProject.addDiffCorrRes(diffcorrresOB.getID(), diffcorrresOB);
 				}
 
-				// display result using DiffCorrResultsTable
-				DiffCorrResultsTable frame = new DiffCorrResultsTable(diffcorrresOB.getFeatureNames(),
-						diffcorrresOB.getGrp1Size(), diffcorrresOB.getGrp2Size(), diffcorrresOB.getCorrGrp1(),
-						diffcorrresOB.getCorrGrp2(), diffcorrresOB.getzVals(1), diffcorrresOB.getzVals(2),
-						diffcorrresOB.getDiffZVals(), diffcorrresOB.getzScores(), diffcorrresOB.getpValues(),
-						myProject);
-				frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
-				
-				
-				if(diffcorrresOB != null) {
-					
-					//Get Feature metadata rows
-					List<String> rowNames = diffcorrresOB.getFeatureNames();
-					int[] rowIndices = new int[rowNames.size()];
-					int i=0;
-					for(String row : rowNames) {
-						rowIndices[i] = MetaOmGraph.activeProject.getRowIndexbyName(row,true);
-						i++;
+
+				final String id_f = id;
+
+				new AnimatedSwingWorker("Working...", true) {
+					@Override
+					public Object construct() {
+						EventQueue.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								try {
+									// display result using DiffCorrResultsTable
+									DiffCorrResultsTable frame = new DiffCorrResultsTable(diffcorrresOB.getFeatureNames(),
+											diffcorrresOB.getGrp1Size(), diffcorrresOB.getGrp2Size(), diffcorrresOB.getCorrGrp1(),
+											diffcorrresOB.getCorrGrp2(), diffcorrresOB.getzVals(1), diffcorrresOB.getzVals(2),
+											diffcorrresOB.getDiffZVals(), diffcorrresOB.getzScores(), diffcorrresOB.getpValues(),
+											myProject);
+									frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
+
+
+									if(diffcorrresOB != null) {
+
+										//Get Feature metadata rows
+										List<String> rowNames = diffcorrresOB.getFeatureNames();
+										int[] rowIndices = new int[rowNames.size()];
+										int i=0;
+										for(String row : rowNames) {
+											rowIndices[i] = MetaOmGraph.activeProject.getRowIndexbyName(row,true);
+											i++;
+										}
+
+										Object[][] myRowNames = MetaOmGraph.activeProject.getRowNames(rowIndices);	
+										Object[][] allRowNames = MetaOmGraph.activeProject.getRowNames();
+										String [] colNames = MetaOmGraph.activeProject.getInfoColumnNames();
+
+										frame.setFeatureMetadataColumnData(myRowNames);
+										frame.setFeatureMetadataColumnNames(colNames);
+										frame.setFeatureMetadataAllData(allRowNames);
+										frame.setMasterFeatureMetadataAllData(allRowNames);
+										frame.updateTable();
+
+
+									}
+
+									if(MetaOmGraph.getDCResultsFrame()!=null && !MetaOmGraph.getDCResultsFrame().isClosed()) {
+										MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, id_f);
+										MetaOmGraph.getDCResultsFrame().addTabListToFrame(frame.getGeneLists(), id_f);
+										MetaOmGraph.getDCResultsFrame().moveToFront();
+									}
+									else {
+										MetaOmGraph.setDCResultsFrame(new StatisticalResultsFrame("Differential Correlation","Differential Correlation Results ["+diffcorrresOB.getFeatureNames().get(0)+"] ("+diffcorrresOB.getFeatureNames().size()+" features)"));
+										MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, id_f);
+										MetaOmGraph.getDCResultsFrame().addTabListToFrame(frame.getGeneLists(), id_f);
+										MetaOmGraph.getDCResultsFrame().setTitle("Differential Correlation Results");
+										MetaOmGraph.getDesktop().add(MetaOmGraph.getDCResultsFrame());
+										frame.setVisible(true);
+										MetaOmGraph.getDCResultsFrame().setVisible(true);
+										MetaOmGraph.getDCResultsFrame().moveToFront();
+										frame.setEnabled(true);
+									}
+
+
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
+							}
+						});
+						return null;
 					}
-					
-					Object[][] myRowNames = MetaOmGraph.activeProject.getRowNames(rowIndices);	
-					String [] colNames = MetaOmGraph.activeProject.getInfoColumnNames();
-					
-					frame.setFeatureMetadataColumnData(myRowNames);
-					frame.setFeatureMetadataColumnNames(colNames);
-					frame.updateTable();
-					
-					
-				}
-				
-				if(MetaOmGraph.getDCResultsFrame()!=null && !MetaOmGraph.getDCResultsFrame().isClosed()) {
-					MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, id);
-					MetaOmGraph.getDCResultsFrame().addTabListToFrame(frame.getGeneLists(), id);
-					MetaOmGraph.getDCResultsFrame().moveToFront();
-				}
-				else {
-					MetaOmGraph.setDCResultsFrame(new StatisticalResultsFrame("Differential Correlation","Differential Correlation Results ["+diffcorrresOB.getFeatureNames().get(0)+"] ("+diffcorrresOB.getFeatureNames().size()+" features)"));
-					MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, id);
-					MetaOmGraph.getDCResultsFrame().addTabListToFrame(frame.getGeneLists(), id);
-					MetaOmGraph.getDCResultsFrame().setTitle("Differential Correlation Results");
-					MetaOmGraph.getDesktop().add(MetaOmGraph.getDCResultsFrame());
-					frame.setVisible(true);
-					MetaOmGraph.getDCResultsFrame().setVisible(true);
-					MetaOmGraph.getDCResultsFrame().moveToFront();
-					frame.setEnabled(true);
-				}
-				
+				}.start();
+
 
 			}
 		});

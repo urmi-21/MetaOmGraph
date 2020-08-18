@@ -239,98 +239,111 @@ public class DifferentialExpFrame extends TaskbarInternalFrame {
 					}
 				}
 
-				// create DifferentialExpResults object to store results in MOG
-				DifferentialExpResults diffExpObj = new DifferentialExpResults(id, comboBox_1.getSelectedIndex(),
-						txtGroup1.getText(), txtGroup2.getText(), getAllRows(tableGrp1).size(),
-						getAllRows(tableGrp2).size(), selectedFeatureList, MetaOmGraph.getInstance().getTransform(),
-						ob.getFeatureNames(), ob.getMean1(), ob.getMean2(), ob.ftestRatios(), ob.ftestPV(),
-						ob.testPV());
+				final String id_f = id;
 
-				if (chckbxSaveResultsWith.isSelected()) {
-					myProject.addDiffExpRes(diffExpObj.getID(), diffExpObj);
-				}
+				new AnimatedSwingWorker("Working...", true) {
+					@Override
+					public Object construct() {
+						EventQueue.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								try {
+									// create DifferentialExpResults object to store results in MOG
+									DifferentialExpResults diffExpObj = new DifferentialExpResults(id_f, comboBox_1.getSelectedIndex(),
+											txtGroup1.getText(), txtGroup2.getText(), getAllRows(tableGrp1).size(),
+											getAllRows(tableGrp2).size(), selectedFeatureList, MetaOmGraph.getInstance().getTransform(),
+											ob.getFeatureNames(), ob.getMean1(), ob.getMean2(), ob.ftestRatios(), ob.ftestPV(),
+											ob.testPV());
 
-				// display result using diffExpObj
-				logFCResultsFrame frame = null;
-				frame = new logFCResultsFrame(diffExpObj, myProject);
-				frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
-				//frame.setTitle("DE results");
-				
-				
-				//Get Feature metadata rows
-				List<String> rowNames = diffExpObj.getRowNames();
-				int[] rowIndices = new int[rowNames.size()];
-				int i=0;
-				for(String row : rowNames) {
-					rowIndices[i] = MetaOmGraph.activeProject.getRowIndexbyName(row,true);
-					i++;
-				}
-				
-				Object[][] myRowNames = MetaOmGraph.activeProject.getRowNames(rowIndices);	
-				String [] colNames = MetaOmGraph.activeProject.getInfoColumnNames();
-				
-				frame.setFeatureMetadataColumnData(myRowNames);
-				frame.setFeatureMetadataColumnNames(colNames);
-				frame.updateTable();
-				
+									if (chckbxSaveResultsWith.isSelected()) {
+										myProject.addDiffExpRes(diffExpObj.getID(), diffExpObj);
+									}
 
-				if(MetaOmGraph.getDEAResultsFrame()!=null && !MetaOmGraph.getDEAResultsFrame().isClosed()) {
-					MetaOmGraph.getDEAResultsFrame().addTabToFrame(frame, diffExpObj.getID());
-					MetaOmGraph.getDEAResultsFrame().addTabListToFrame(frame.getGeneLists(), diffExpObj.getID());
-					MetaOmGraph.getDEAResultsFrame().setTitle("DE results");
-					MetaOmGraph.getDEAResultsFrame().moveToFront();
-					frame.setEnabled(true);
-				}
-				else {
-					MetaOmGraph.setDEAResultsFrame(new StatisticalResultsFrame("DEA","DEA Results"));
-					MetaOmGraph.getDEAResultsFrame().addTabToFrame(frame, diffExpObj.getID());
-					MetaOmGraph.getDEAResultsFrame().addTabListToFrame(frame.getGeneLists(), diffExpObj.getID());
-					MetaOmGraph.getDesktop().add(MetaOmGraph.getDEAResultsFrame());
-					MetaOmGraph.getDEAResultsFrame().setTitle("DE results");
-					MetaOmGraph.getDEAResultsFrame().setVisible(true);
-					MetaOmGraph.getDEAResultsFrame().moveToFront();
-					frame.setEnabled(true);
-				}
-				
-				
-				
+									// display result using diffExpObj
+									logFCResultsFrame frame = null;
+									frame = new logFCResultsFrame(diffExpObj, myProject);
+									frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
+									//frame.setTitle("DE results");
 
-				// long endTime = System.nanoTime();
-				// get difference of two nanoTime values
-				// float timeElapsed = endTime - startTime;
-				// timeElapsed = (timeElapsed / (float) 1000000000.00);
-				// JOptionPane.showMessageDialog(null, "Time taken:" + timeElapsed);
-				
-				
-				
+
+									//Get Feature metadata rows
+									List<String> rowNames = diffExpObj.getRowNames();
+									int[] rowIndices = new int[rowNames.size()];
+									int i=0;
+									for(String row : rowNames) {
+										rowIndices[i] = MetaOmGraph.activeProject.getRowIndexbyName(row,true);
+										i++;
+									}
+
+									Object[][] myRowNames = MetaOmGraph.activeProject.getRowNames(rowIndices);	
+									String [] colNames = MetaOmGraph.activeProject.getInfoColumnNames();
+									Object[][] allRowNames = MetaOmGraph.activeProject.getRowNames();
+
+									frame.setFeatureMetadataColumnData(myRowNames);
+									frame.setFeatureMetadataColumnNames(colNames);
+									frame.setFeatureMetadataAllData(allRowNames);
+									frame.setMasterFeatureMetadataAllData(allRowNames);
+									frame.updateTable();
+
+
+									if(MetaOmGraph.getDEAResultsFrame()!=null && !MetaOmGraph.getDEAResultsFrame().isClosed()) {
+										MetaOmGraph.getDEAResultsFrame().addTabToFrame(frame, diffExpObj.getID());
+										MetaOmGraph.getDEAResultsFrame().addTabListToFrame(frame.getGeneLists(), diffExpObj.getID());
+										MetaOmGraph.getDEAResultsFrame().setTitle("DE results");
+										MetaOmGraph.getDEAResultsFrame().moveToFront();
+										frame.setEnabled(true);
+									}
+									else {
+										MetaOmGraph.setDEAResultsFrame(new StatisticalResultsFrame("DEA","DEA Results"));
+										MetaOmGraph.getDEAResultsFrame().addTabToFrame(frame, diffExpObj.getID());
+										MetaOmGraph.getDEAResultsFrame().addTabListToFrame(frame.getGeneLists(), diffExpObj.getID());
+										MetaOmGraph.getDesktop().add(MetaOmGraph.getDEAResultsFrame());
+										MetaOmGraph.getDEAResultsFrame().setTitle("DE results");
+										MetaOmGraph.getDEAResultsFrame().setVisible(true);
+										MetaOmGraph.getDEAResultsFrame().moveToFront();
+										frame.setEnabled(true);
+									}
+
+
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
+							}
+						});
+						return null;
+					}
+				}.start();
+
+
+
 				//Harsha - reproducibility log
-				
+
 				HashMap<String,Object> actionMap = new HashMap<String,Object>();
 				HashMap<String,Object> dataMap = new HashMap<String,Object>();
 				HashMap<String,Object> result = new HashMap<String,Object>();
-				
+
 				try {
-					
-				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
-				actionMap.put("section", "All");
-				
-				dataMap.put("Selected Feature List", selectedFeatureList);
-				dataMap.put("Selected Method", selectedMethod);
-				dataMap.put("Group 1 Name", txtGroup1.getText());
-				dataMap.put("Group 2 Name", txtGroup2.getText());
-				dataMap.put("Group 1 List", grp1);
-				dataMap.put("Group 2 List", grp2);
-				dataMap.put("Save Results", chckbxSaveResultsWith.isSelected());
-				dataMap.put("Analysis Name", id);
 
-				result.put("result", "OK");
+					actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+					actionMap.put("section", "All");
 
-				ActionProperties deaAction = new ActionProperties("differential-expression-analysis",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				deaAction.logActionProperties();
-				
+					dataMap.put("Selected Feature List", selectedFeatureList);
+					dataMap.put("Selected Method", selectedMethod);
+					dataMap.put("Group 1 Name", txtGroup1.getText());
+					dataMap.put("Group 2 Name", txtGroup2.getText());
+					dataMap.put("Group 1 List", grp1);
+					dataMap.put("Group 2 List", grp2);
+					dataMap.put("Save Results", chckbxSaveResultsWith.isSelected());
+					dataMap.put("Analysis Name", id);
+
+					result.put("result", "OK");
+
+					ActionProperties deaAction = new ActionProperties("differential-expression-analysis",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+					deaAction.logActionProperties();
+
 				}
 				catch(Exception e1) {
-					
+
 				}
 
 			}
