@@ -845,8 +845,13 @@ public class DiffCorrResultsTable extends JPanel {
 		}
 		searchPanel.add(throbber, "After");
 		listFromFilterButton = new JButton(theme.getListSave());
-		listFromFilterButton.setActionCommand("list from filter");
-		
+		listFromFilterButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				makeListFromFilter();
+			}
+		});
 		listFromFilterButton.setEnabled(false);
 		listFromFilterButton.setToolTipText("Export the results of the current filter to a new list");
 		dataToolbar.add(new Separator());
@@ -1284,16 +1289,19 @@ public class DiffCorrResultsTable extends JPanel {
 	}
 	
 	
-	
-//	private void makeListFromFilter() {
-//		String filterText = filterField.getText();
-//		int[] entries = new int[table.getRowCount()];
-//		for (int x = 0; x < entries.length; x++) {
-//			entries[x] = getTrueRow(x);
-//		}
-//
-//		myProject.addGeneList(filterText, entries, true, false);
-//	}
+	private void makeListFromFilter() {
+		String filterText = filterField.getText();
+		int filteredTableCount = table.getModel().getRowCount();
+		
+		List<String> selectedGeneNames = new ArrayList<String>();
+		for(int i=0; i< filteredTableCount; i++) {
+			selectedGeneNames.add((String)table.getValueAt(i, 0));
+		}
+		
+		int[] entries = myProject.getRowIndexbyName(selectedGeneNames, true);
+		
+		myProject.addGeneList(filterText, entries, true, false);
+	}
 
 	
 	

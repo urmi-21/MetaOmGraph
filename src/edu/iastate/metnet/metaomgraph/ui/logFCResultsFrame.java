@@ -32,6 +32,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -174,7 +175,7 @@ public class logFCResultsFrame extends JPanel {
 	public void setFeatureMetadataAllData(Object[][] featureMetadataAllData) {
 		this.featureMetadataAllData = featureMetadataAllData;
 	}
-	
+
 	public Object[][] getMasterFeatureMetadataAllData() {
 		return masterFeatureMetadataAllData;
 	}
@@ -246,16 +247,16 @@ public class logFCResultsFrame extends JPanel {
 
 		String[] listNames = myProject.getGeneListNames();
 		String [] listNames2 = new String[listNames.length+1];
-		
+
 		Arrays.sort(listNames, MetaOmGraph.getActiveTablePanel().new ListNameComparator());
-		
+
 		int i=0;
 		listNames2[0] = "Current Result";
 		for(i=1;i<=listNames.length;i++) {
 			listNames2[i] = listNames[i-1];
 		}
-		
-		
+
+
 		geneLists = new JList(listNames2);
 		geneLists.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		geneLists.setSelectedIndex(0);
@@ -371,46 +372,58 @@ public class logFCResultsFrame extends JPanel {
 						listDeleteButton.setEnabled(false);
 						listEditButton.setEnabled(false);
 						listRenameButton.setEnabled(false);
+
 					}
 					else {
-						
+
 						if(geneLists.getSelectedValue() == "Complete List") {
 							listDeleteButton.setEnabled(false);
 							listEditButton.setEnabled(false);
 							listRenameButton.setEnabled(false);
+
+							Object[][] completeListData = new Object[currentTableData.length][currentTableData[0].length];
+							int i=0;
+							for (Map.Entry<String, Object[]> entry : currentTableDataMap.entrySet()) {
+								Object[] value = entry.getValue();
+								completeListData[i] = value;
+								i++;
+							}
+
+							updateTableRows(completeListData);
 						}
 						else {
 							listDeleteButton.setEnabled(true);
 							listEditButton.setEnabled(true);
 							listRenameButton.setEnabled(true);
-						}
-						int[] entries = myProject.getGeneListRowNumbers((String)geneLists.getSelectedValue());
-						String[] defaultRowNames = myProject.getDefaultRowNames(entries);
-						if(defaultRowNames != null) {
-							//Arrays.sort(defaultRowNames,new NaturalOrderComparator<String>(true));
-							Object[][] selectionData = new Object[entries.length][getCurrentTableData().length];
 
-							for(int i=0; i<defaultRowNames.length; i++) {
-								selectionData[i] = currentTableDataMap.get((String)defaultRowNames[i]);
-								
-							}
+							int[] entries = myProject.getGeneListRowNumbers((String)geneLists.getSelectedValue());
+							String[] defaultRowNames = myProject.getDefaultRowNames(entries);
+							if(defaultRowNames != null) {
+								//Arrays.sort(defaultRowNames,new NaturalOrderComparator<String>(true));
+								Object[][] selectionData = new Object[entries.length][getCurrentTableData().length];
 
-							if(defaultRowNames.length == 0) {
-								
-								Map.Entry<String,Object[]> entry = currentTableDataMap.entrySet().iterator().next();
-								 String key = entry.getKey();
-								 Object[] value = entry.getValue();
-								 Object[] dummy = new Object[value.length];
-								 for(int j=0;j<value.length;j++) {
-									 dummy[j] = 0;
-								 }
-								 Object[][] dummy2 = new Object[1][value.length];
-								 dummy2[0] = dummy;
-								 
-								 updateTableRows(dummy2);
-							}
-							else {
-								updateTableRows(selectionData);
+								for(int i=0; i<defaultRowNames.length; i++) {
+									selectionData[i] = currentTableDataMap.get((String)defaultRowNames[i]);
+
+								}
+
+								if(defaultRowNames.length == 0) {
+
+									Map.Entry<String,Object[]> entry = currentTableDataMap.entrySet().iterator().next();
+									String key = entry.getKey();
+									Object[] value = entry.getValue();
+									Object[] dummy = new Object[value.length];
+									for(int j=0;j<value.length;j++) {
+										dummy[j] = 0;
+									}
+									Object[][] dummy2 = new Object[1][value.length];
+									dummy2[0] = dummy;
+
+									updateTableRows(dummy2);
+								}
+								else {
+									updateTableRows(selectionData);
+								}
 							}
 						}
 					}
@@ -851,10 +864,10 @@ public class logFCResultsFrame extends JPanel {
 		mnPlot.add(mntmHistogramcolumn);
 
 
-		
-		
-		
-		
+
+
+
+
 		JPanel searchPanel = new JPanel(new BorderLayout());
 		searchPanel.add(new JLabel("Filter:"), "Before");
 		filterField = new ClearableTextField();
@@ -869,7 +882,7 @@ public class logFCResultsFrame extends JPanel {
 		});
 		filterField.getDocument().addDocumentListener(new FilterFieldListener());
 		filterField.setDefaultText("Use semicolon (;) for multiple filters");
-		filterField.setColumns(20);
+		filterField.setColumns(40);
 		searchPanel.add(filterField, "Center");
 
 		try {
@@ -881,8 +894,12 @@ public class logFCResultsFrame extends JPanel {
 		}
 		searchPanel.add(throbber, "After");
 		listFromFilterButton = new JButton(theme.getListSave());
-		listFromFilterButton.setActionCommand("list from filter");
-		
+		listFromFilterButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				makeListFromFilter();
+			}
+		});
 		listFromFilterButton.setEnabled(false);
 		listFromFilterButton.setToolTipText("Export the results of the current filter to a new list");
 		dataToolbar.add(new Separator());
@@ -893,11 +910,11 @@ public class logFCResultsFrame extends JPanel {
 		// s
 		advFilterButton = new JButton("Advance filter");
 		advFilterButton.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				
+
 
 
 				//Harsha - reproducibility log
@@ -953,17 +970,18 @@ public class logFCResultsFrame extends JPanel {
 				//			advancedFilterAction.logActionProperties();
 
 				return;
-			
+
 			}
 		});
-		
+
 		advFilterButton.setToolTipText("Filter/search the table with multiple queries");
+		dataToolbar.add(Box.createHorizontalGlue());
 		dataToolbar.add(advFilterButton);
-		
-		
+
+
 		panel_1.add(dataToolbar);
-		
-		
+
+
 
 	}
 
@@ -1077,7 +1095,7 @@ public class logFCResultsFrame extends JPanel {
 
 		// add data
 		allColumnNames = new ArrayList<String>();
-		
+
 		allColumnNames.add("Name");
 		allColumnNames.add("Mean(log(" + name1 + "))");
 		allColumnNames.add("Mean(log(" + name2 + "))");
@@ -1132,7 +1150,7 @@ public class logFCResultsFrame extends JPanel {
 
 		}
 
-		
+
 		String[] colNames = new String[allColumnNames.size()];
 		int x=0;
 		for(String s : allColumnNames) {
@@ -1142,17 +1160,17 @@ public class logFCResultsFrame extends JPanel {
 		mainModel = new NoneditableTableModel(currentTableData,colNames);
 		filterModel = new FilterableTableModel(mainModel);
 		sorter = new TableSorter(filterModel);
-		
+
 		table.setModel(sorter);
-		
+
 
 		for (int i = 0; i < featureNames.size(); i++) {
 			currentTableDataMap.put((String)currentTableData[i][0], currentTableData[i]);
 		}
 
-		
+
 		if(featureMetadataAllData != null && masterFeatureMetadataAllData != null) {
-			
+
 			int defaultColCount = 4;
 			if (testPvals != null) {
 				defaultColCount += 2;
@@ -1160,13 +1178,13 @@ public class logFCResultsFrame extends JPanel {
 					defaultColCount += 3;
 				}
 			}
-			
+
 			for(int j = 0; j < featureMetadataAllData.length; j++) {
-				 
+
 				if( !currentTableDataMap.containsKey(masterFeatureMetadataAllData[j][MetaOmGraph.activeProject.getDefaultColumn()])) {
-					
+
 					Object [] row = new Object[featureMetadataAllData[j].length+defaultColCount];
-					
+
 					row[0] = (String)masterFeatureMetadataAllData[j][MetaOmGraph.activeProject.getDefaultColumn()];
 					for(int k = 1; k < defaultColCount; k++) {
 						row[k] = 0;
@@ -1174,12 +1192,12 @@ public class logFCResultsFrame extends JPanel {
 					for(int l = defaultColCount; l < featureMetadataAllData[j].length+defaultColCount; l++) {
 						row[l] = featureMetadataAllData[j][l-defaultColCount];
 					}
-					
+
 					currentTableDataMap.put((String)masterFeatureMetadataAllData[j][MetaOmGraph.activeProject.getDefaultColumn()], row);
 				}
 			}
 		}
-		
+
 		formatTable();
 
 	}
@@ -1194,19 +1212,19 @@ public class logFCResultsFrame extends JPanel {
 			colNames[x] = s;
 			x++;
 		}
-		
+
 		mainModel = new NoneditableTableModel(rows,colNames);
 		filterModel = new FilterableTableModel(mainModel);
 		sorter = new TableSorter(filterModel);
-		
+
 		table.setModel(sorter);
 		formatTable();
 
 	}
 
-	
+
 	public void formatTable() {
-		
+
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setAutoCreateRowSorter(true);
 		table.setPreferredScrollableViewportSize(table.getPreferredSize());
@@ -1220,7 +1238,7 @@ public class logFCResultsFrame extends JPanel {
 		else {
 			colCount = table.getColumnCount();
 		}
-		
+
 		DecimalFormatRenderer dfr = new DecimalFormatRenderer();
 		DEAHeaderRenderer customHeaderCellRenderer = 
 				new DEAHeaderRenderer(Color.white,
@@ -1249,18 +1267,18 @@ public class logFCResultsFrame extends JPanel {
 	}
 
 	public int[] getSelectedRowsIndices() {
-		
+
 		int [] currentTableSelRows = table.getSelectedRows();
 		List<String> selectedGeneNames = new ArrayList<String>();
 		for(int i=0; i< currentTableSelRows.length; i++) {
 			selectedGeneNames.add((String)table.getValueAt(currentTableSelRows[i], 0));
 		}
-		
+
 		return myProject.getRowIndexbyName(selectedGeneNames, true);
 	}
 
 	public void printMessage(String msg) {
-		
+
 		JDialog jd = new JDialog();
 		JTextPane jt = new JTextPane();
 		jt.setText(msg);
@@ -1268,7 +1286,7 @@ public class logFCResultsFrame extends JPanel {
 		jd.getContentPane().add(jt);
 		jd.setBounds(100, 100, 500, 200);
 		jd.setVisible(true);
-		
+
 	}
 
 	private int[] getSelectedRowIndices() {
@@ -1285,7 +1303,22 @@ public class logFCResultsFrame extends JPanel {
 		return rowIndices;
 	}
 
-	
+
+	private void makeListFromFilter() {
+		String filterText = filterField.getText();
+		int filteredTableCount = table.getModel().getRowCount();
+
+		List<String> selectedGeneNames = new ArrayList<String>();
+		for(int i=0; i< filteredTableCount; i++) {
+			selectedGeneNames.add((String)table.getValueAt(i, 0));
+		}
+
+		int[] entries = myProject.getRowIndexbyName(selectedGeneNames, true);
+
+		myProject.addGeneList(filterText, entries, true, false);
+	}
+
+
 	/**
 	 * Function to plot histogram of selected column
 	 * 
@@ -1328,8 +1361,8 @@ public class logFCResultsFrame extends JPanel {
 		return;
 
 	}
-	
-	
+
+
 	private class FilterFieldListener implements DocumentListener, ActionListener {
 		Timer t;
 
