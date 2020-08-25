@@ -15,19 +15,16 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JToolBar;
 import javax.swing.ListModel;
@@ -1258,11 +1255,7 @@ public class MetadataTableDisplayPanel extends JPanel
 		// toHighlight.put(0, ls);
 		// headers = obj.getHeaders();
 		table = new JTable() {
-			@Override
-			public boolean getScrollableTracksViewportWidth() {
-				return getPreferredSize().width < getParent().getWidth();
-			}
-
+			
 			@Override
 			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
 				// urmi enclose in try catch
@@ -1489,16 +1482,11 @@ public class MetadataTableDisplayPanel extends JPanel
 			public Object construct() {
 				DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
 				tablemodel.setRowCount(0);
-				tablemodel.setColumnCount(0);
-
+				
 				for(int i = 0; i < rowsInList.size(); i++) {
 					HashMap<String, String> colRowValMap = obj.getDataColumnRowMap(rowsInList.get(i));
 					String[] rowVals = new String[headers.length];
 					for(int j = 0; j < headers.length; j++) {
-						if(i == 0) {
-							tablemodel.addColumn(headers[j]);
-						}
-
 						rowVals[j] = colRowValMap.get(headers[j]);
 					}
 					tablemodel.addRow(rowVals);
@@ -1527,8 +1515,24 @@ public class MetadataTableDisplayPanel extends JPanel
 				return null;
 			}
 		}.start();
+		
+		// Update excluded and included data according to the list selected.
+		Set<String> excluded = new HashSet<String>( getExcludedRowsFromTable(rowsInList));
+		obj.setIncluded(rowsInList);
+		obj.setExcluded(excluded);
+		MetaOmAnalyzer.updateExcluded(excluded);
+		MetaOmGraph.getActiveTable().updateMetadataTree();
 	}
 
+	// get rows that are not included (Excluded).
+	private ArrayList<String> getExcludedRowsFromTable(List<String> rowsInList){
+		List<String> allRows = obj.getAllDataCols();	
+		allRows.removeAll(rowsInList);
+		ArrayList<String> excludedRowNames = new ArrayList<String>();
+		excludedRowNames.addAll(allRows);
+		return excludedRowNames;
+	}
+	
 	/**
 	 * @author urmi Update the table model after deleting cols
 	 */
@@ -2446,15 +2450,14 @@ public class MetadataTableDisplayPanel extends JPanel
 
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
+		String selectedRowName = (String) sampleDataList.getSelectedValue();
+		List<String> values = MetaOmGraph.getActiveProject().getSampleDataListRowNames(selectedRowName);
+		updateTable(values);
 		if (sampleDataList.getSelectedIndex() != 0) {
-			String selectedRowName = (String) sampleDataList.getSelectedValue();
-			List<String> values = MetaOmGraph.getActiveProject().getSampleDataListRowNames(selectedRowName);
-			updateTable(values);
 			listDeleteButton.setEnabled(true);
 			listEditButton.setEnabled(true);
 			listRenameButton.setEnabled(true);
 		} else {
-			updateTable();
 			listDeleteButton.setEnabled(false);
 			listEditButton.setEnabled(false);
 			listRenameButton.setEnabled(false);

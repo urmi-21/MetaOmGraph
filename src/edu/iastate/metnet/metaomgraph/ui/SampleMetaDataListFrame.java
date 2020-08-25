@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
@@ -179,8 +180,27 @@ public class SampleMetaDataListFrame extends JInternalFrame
 			dispose();
 		}
 		else if(IMPORT_COMMAND.equals(e.getActionCommand())) {
-			// TODO
-			dispose();
+			SampleDataImportListDialog importDialog = new SampleDataImportListDialog(metaDataCol);
+			importDialog.displayDialog();
+			String[] importData = importDialog.getResultArray();
+            if ((importData == null) || (importData.length <= 0)) {
+                return;
+            }
+            Vector<Integer> v = new Vector();
+            Object[][] inactiveValues = dtp.getInactiveValues();
+            for (int x = 0; x < importData.length; x++) {
+                for (int y = 0; y < inactiveValues.length; y++) {
+                    if (importData[x].equalsIgnoreCase((String)inactiveValues[y][0])) {
+                        v.add(y);
+                        break;
+                    }
+                }
+            }
+            int[] result = new int[v.size()];
+            for (int i = 0; i < result.length; i++)
+                result[i] = v.get(i).intValue();
+            dtp.makeActive(result);
+            return;
 		}
 	}
 
