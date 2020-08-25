@@ -921,7 +921,7 @@ public class MetadataCollection {
 	 */
 	public Document getDataColumnRow(String dataColValue) {
 		dataColValue = Utils.processStringforRegex(dataColValue);
-		dataColValue = "^" + dataColValue + "$";
+		dataColValue = "^(?i)" + dataColValue + "$";
 		Filter filter = Filters.regex(getDatacol(), dataColValue);
 		List<Document> output = mogCollection.find(filter).toList();
 		if (output.size() > 0) {
