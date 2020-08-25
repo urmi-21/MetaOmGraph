@@ -87,6 +87,21 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.ActionEvent;
 
+/**
+ * 
+ * @author Harsha
+ * 
+ * This is the frame that displays the Differential Expression Analysis results.
+ * 
+ * The frame is designed similar to the Project Data Frame, with a table displaying
+ * the resuts in the middle (table) , a menubar on top with plots and other features, a 
+ * search bar to filter the rows of the results table, a listPanel that displays all
+ * the saved lists (same list as Project Data), buttons to create, rename, edit or
+ * delete lists, Advanced Search option etc.
+ * 
+ * 
+ *
+ */
 public class logFCResultsFrame extends JPanel {
 
 	private StripedTable table;
@@ -143,6 +158,10 @@ public class logFCResultsFrame extends JPanel {
 
 	public JList getGeneLists() {
 		return geneLists;
+	}
+	
+	public List<String> getFeatureNames(){
+		return this.featureNames;
 	}
 
 	public Object[][] getCurrentTableData() {
@@ -381,7 +400,7 @@ public class logFCResultsFrame extends JPanel {
 							listEditButton.setEnabled(false);
 							listRenameButton.setEnabled(false);
 
-							Object[][] completeListData = new Object[currentTableData.length][currentTableData[0].length];
+							Object[][] completeListData = new Object[currentTableDataMap.size()][currentTableData[0].length];
 							int i=0;
 							for (Map.Entry<String, Object[]> entry : currentTableDataMap.entrySet()) {
 								Object[] value = entry.getValue();
@@ -608,21 +627,15 @@ public class logFCResultsFrame extends JPanel {
 		});
 		mnEdit.add(mntmPvalueCorrection);
 
-		JMenuItem mntmSelFeatureCols = new JMenuItem("Select Feature Info Cols");
+		JMenuItem mntmSelFeatureCols = new JMenuItem("Select Feature Metadata Cols");
 		mntmSelFeatureCols.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				int[] rowIndices = new int[featureNames.size()];
-				int i=0;
-				for(String row : featureNames) {
-					rowIndices[i] = MetaOmGraph.activeProject.getRowIndexbyName(row,true);
-					i++;
-				}
-
-				DEAColumnSelectFrame deaColSelect = new DEAColumnSelectFrame(currentPanel,rowIndices);
+				
+				DEAColumnSelectFrame deaColSelect = new DEAColumnSelectFrame(currentPanel);
 				MetaOmGraph.getDesktop().add(deaColSelect);
+				deaColSelect.moveToFront();
 			}
 		});
 		mnEdit.add(mntmSelFeatureCols);
@@ -882,7 +895,7 @@ public class logFCResultsFrame extends JPanel {
 		});
 		filterField.getDocument().addDocumentListener(new FilterFieldListener());
 		filterField.setDefaultText("Use semicolon (;) for multiple filters");
-		filterField.setColumns(40);
+		filterField.setColumns(30);
 		searchPanel.add(filterField, "Center");
 
 		try {

@@ -35,13 +35,53 @@ import javax.swing.MenuElement;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-//import edu.iastate.metnet.metaomgraph.ui.ClosableTabbedPane.CloseButtonListener;
+/**
+ * 
+ * @author Harsha
+ * 
+ * This is the UI class for the taskbar panel present at the bottom of MOG.
+ * The taskbar looks similar to "Windows OS" taskbar, with windows of the 
+ * same type stacked into groups. It uses a JPanel which is fixed at the 
+ * bottom of the JDesktopPane. It hasa JMenuBar to store the tabs of the 
+ * currently opened TaskbarInternalFrame objects. The JMenu objects act as
+ * the tabs which are visible on the bottom panel (holding the "types") and
+ * JMenuItems are the actual tabs relating to an Internal Frame.
+ * 
+ * The master data of all the currently opened frames is stored in the object
+ * LinkedHashMap<String,List<TaskbarInternalFrame>> taskbarData, the key
+ * being the "type" of the Internal Frame (LineChart, DEA etc) and the value
+ * being the list of TaskbarInternalFrame objects in each "type". For details
+ * on how to create a TaskbarInternalFrame, please check the documentation of
+ * that class.
+ * 
+ * Below are the utility methods that are defined in this class:
+ * 
+ * 1. addToTaskbar(TaskbarInternalFrame currentFrame) : This method takes a
+ * TaskbarInternalFrame object as a parameter and adds it to the respective
+ * "type" tab given in its model ( currentFrame.getModel().getFrameType() )
+ * 
+ * 2. removeFromTaskbar(TaskbarInternalFrame currentFrame) : This method 
+ * removes a given TaskbarInternalFrame object from the taskbar "type" tab. 
+ * If this object is the last one in the "type", then the "type" tab is 
+ * removed as well.
+ *
+ * 3. removeAllTabsFromTaskbar() : Removes all the tabs from the taskbar and
+ * clears the master data object.
+ * 
+ * 4. reloadTaskbar() :  This method reloads the taskbar ( removes all tabs
+ * and adds them again ). It is called from the addToTaskbar and 
+ * removeFromTaskbar methods (i.e, whenever the master data gets changed)
+ * 
+ */
 
 public class TaskbarPanel extends JPanel{
 
 	private LinkedHashMap<String,List<TaskbarInternalFrame>> taskbarData;
 	private JMenuBar menuBar;
 	
+	/**
+	 * Constructor to initialize the masterdata (taskbarData) and the JPanel
+	 */
 	public TaskbarPanel() {
 		
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -56,6 +96,19 @@ public class TaskbarPanel extends JPanel{
 		add(menuBar);
 	}
 	
+	/**
+	 * This method adds a tab to the taskbar
+	 * 
+	 * If the given TaskbarInternalFrame object has a model object with FrameType
+	 * initialized, then the object is added to the list of objects present in that
+	 * type.
+	 * 
+	 * Else if the TaskbarInternalFrame object does not have the FrameType initialized
+	 * in its model, then the object is directly added to the taskbar with its name.
+	 * 
+	 * At the end, the TaskbarPanel is reloaded to reflect the new addition
+	 * 
+	 */
 	public void addToTaskbar(TaskbarInternalFrame currentFrame) {
 		
 		if(taskbarData.get(currentFrame.getModel().getFrameType()) != null) {
@@ -72,6 +125,20 @@ public class TaskbarPanel extends JPanel{
 		
 	}
 	
+	
+	
+	/**
+	 * This method removes the given frame from the taskbar.
+	 * 
+	 * If the TaskbarInternalFrame object has the Frame Type property initialized, then
+	 * we remove the current frame from the list of frames of that frame type.
+	 * 
+	 * Else if TaskbarInternalFrame object doesn't have the Frame Type property, then
+	 * we remove the cureent frame from the master data ( as it is added directly to the
+	 * panel. )
+	 * 
+	 * At the end, the taskbar is reloaded to reflect the removal.
+	 */
 	public void removeFromTaskbar(TaskbarInternalFrame currentFrame) {
 		
 		if(taskbarData.get(currentFrame.getModel().getFrameType()) != null) {
@@ -89,13 +156,30 @@ public class TaskbarPanel extends JPanel{
 		reloadTaskbar();
 		
 	}
+
 	
+	/**
+	 * Clears the tab data from the taskbarData master data, and removes all the
+	 * JMenu objects from the menubar.
+	 */
 	public void removeAllTabsFromTaskbar() {
 		
 		taskbarData.clear();
 		menuBar.removeAll();
 	}
 	
+	
+	/**
+	 * This method first removes all the JMenus from the menuBar object.
+	 * 
+	 * Then, it iterates over the taskbarData map, and creates the JMenus (tabs) and 
+	 * the JMenuItems (individual tabs that popup when the tabs are pressed) according
+	 * to the type and frame hierarchy.
+	 * 
+	 * An actionlistener is added to each of the JMenuItems. When any JMenuItem
+	 * is pressed, it is maximized (if minimized) and moved to front.
+	 *
+	 */
 	public void reloadTaskbar() {
 		
 		menuBar.removeAll();
@@ -113,95 +197,17 @@ public class TaskbarPanel extends JPanel{
 						tabItemPanel.setLayout(new BorderLayout());
 						JLabel tabItemLabel = new JLabel(frame.getModel().getFrameName());
 						
-						JButton closeButton = new JButton("<html><b>&times;</b></html>");
-						closeButton.setMargin(new Insets(0,4,0,4));
-						
-						closeButton.setOpaque(true);
-						closeButton.setBackground(Color.ORANGE);
-						//closeButton.setBorderPainted(false);
-					
-						closeButton.addMouseListener(new MouseListener() {
-							
-							@Override
-							public void mouseClicked(MouseEvent e) {
-								// TODO Auto-generated method stub
-								try {
-									frame.setClosed(true);
-									if(menu!=null) {
-									
-									javax.swing.MenuSelectionManager.defaultManager().clearSelectedPath();
-									
-									
-									}
-								} catch (PropertyVetoException e1) {
-									// TODO Auto-generated catch block
-									e1.printStackTrace();
-								}
-							}
-							@Override
-							public void mouseEntered(MouseEvent e) {}
-							@Override
-							public void mouseExited(MouseEvent e) {}
-
-							@Override
-							public void mousePressed(MouseEvent e) {}
-
-							@Override
-							public void mouseReleased(MouseEvent e) {}
-						});
-						
 						tabItemPanel.add(tabItemLabel);
-						
-						if(frame.isClosable()) {
-						tabItemPanel.add(closeButton,BorderLayout.EAST);
-						}
+
 						UIManager.put("MenuItem.selectionForeground", Color.BLUE);
-						menuItem.add(tabItemPanel);
+						menuItem.setText(frame.getModel().getFrameName());;
 						menu.add(new JSeparator());
 						menu.add(menuItem);
 						menu.setMargin(new Insets(2, 8, 2, 8));
-						
-						menuItem.addMouseListener(new MouseListener() {
-							
-							@Override
-							public void mouseReleased(MouseEvent e) {
-								// TODO Auto-generated method stub
-								tabItemLabel.setForeground(Color.BLACK);
-								
-							}
-							
-							@Override
-							public void mousePressed(MouseEvent e) {
-								tabItemLabel.setForeground(Color.BLACK);
-								
-							}
-							
-							@Override
-							public void mouseExited(MouseEvent e) {
-								tabItemLabel.setForeground(Color.BLACK);
-							}
-							
-							@Override
-							public void mouseEntered(MouseEvent e) {
-								tabItemLabel.setForeground(Color.BLUE);
-							}
-							
-							@Override
-							public void mouseClicked(MouseEvent e) {
-								tabItemLabel.setForeground(Color.BLACK);
-								
-							}
-						});
-						
+				
 						menuItem.addActionListener(new java.awt.event.ActionListener() {
 						    public void actionPerformed(java.awt.event.ActionEvent evt) {
-						    	try {
-									frame.setSelected(true);
-								} catch (PropertyVetoException e1) {
-									// TODO Auto-generated catch block
-									e1.printStackTrace();
-								}
-						    	frame.getDesktopPane().getDesktopManager().deiconifyFrame(frame);
+
 						    	frame.getDesktopPane().getDesktopManager().maximizeFrame(frame);
 						    	frame.getDesktopPane().getDesktopManager().minimizeFrame(frame);
 						    	frame.moveToFront();
@@ -219,14 +225,4 @@ public class TaskbarPanel extends JPanel{
 	
 	}
 	
-	
-	public void printDialog(String dialog) {
-		JDialog jd = new JDialog();
-		JTextPane jt = new JTextPane();
-		jt.setText(dialog);
-		jt.setBounds(10, 10, 300, 100);
-		jd.getContentPane().add(jt);
-		jd.setBounds(100, 100, 500, 200);
-		jd.setVisible(true);
-	}
 }
