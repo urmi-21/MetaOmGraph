@@ -4672,29 +4672,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 										zVals2, diffZvals, zScores, pValues, myProject);
 								frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
 								
-								if(featureNames != null) {
-									
-									//Get Feature metadata rows
-									List<String> rowNames = featureNames;
-									int[] rowIndices = new int[rowNames.size()];
-									int i=0;
-									for(String row : rowNames) {
-										rowIndices[i] = MetaOmGraph.activeProject.getRowIndexbyName(row,true);
-										i++;
-									}
-									
-									Object[][] myRowNames = MetaOmGraph.activeProject.getRowNames(rowIndices);	
-									Object[][] allRowNames = MetaOmGraph.activeProject.getRowNames();
-									String [] colNames = MetaOmGraph.activeProject.getInfoColumnNames();
-									
-									frame.setFeatureMetadataColumnData(myRowNames);
-									frame.setFeatureMetadataColumnNames(colNames);
-									frame.setFeatureMetadataAllData(allRowNames);
-									frame.setMasterFeatureMetadataAllData(allRowNames);
-									frame.updateTable();
-									
-								}
-
 								
 								if(MetaOmGraph.getDCResultsFrame()!=null && !MetaOmGraph.getDCResultsFrame().isClosed()) {
 									MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, "Fold Change Results");
@@ -4837,37 +4814,19 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 								diffcorrresOB.getGrp1Size(), diffcorrresOB.getGrp2Size(), diffcorrresOB.getCorrGrp1(),
 										diffcorrresOB.getCorrGrp2(), diffcorrresOB.getzVals(1), diffcorrresOB.getzVals(2),
 										diffcorrresOB.getDiffZVals(), diffcorrresOB.getzScores(), diffcorrresOB.getpValues(), myProject);
-										frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
+								frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
 								
 								
-								
-								if(diffcorrresOB != null) {
-									
-									//Get Feature metadata rows
-									List<String> rowNames = diffcorrresOB.getFeatureNames();
-									int[] rowIndices = new int[rowNames.size()];
-									int i=0;
-									for(String row : rowNames) {
-										rowIndices[i] = MetaOmGraph.activeProject.getRowIndexbyName(row,true);
-										i++;
-									}
-									
-									Object[][] myRowNames = MetaOmGraph.activeProject.getRowNames(rowIndices);	
-									Object[][] allRowNames = MetaOmGraph.activeProject.getRowNames();
-									String [] colNames = MetaOmGraph.activeProject.getInfoColumnNames();
-									
-									frame.setFeatureMetadataColumnData(myRowNames);
-									frame.setFeatureMetadataColumnNames(colNames);
-									frame.setFeatureMetadataAllData(allRowNames);
-									frame.setMasterFeatureMetadataAllData(allRowNames);
-									frame.updateTable();
-									
+							
 									if(MetaOmGraph.getDCResultsFrame()!=null && !MetaOmGraph.getDCResultsFrame().isClosed()) {
 										MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, chosenVal);
 										MetaOmGraph.getDCResultsFrame().addTabListToFrame(frame.getGeneLists(), chosenVal);
 										MetaOmGraph.getDCResultsFrame().moveToFront();
 									}
 									else {
+										
+										
+										
 										MetaOmGraph.setDCResultsFrame(new StatisticalResultsFrame("Differential Correlation","Differential Correlation Results ["+diffcorrresOB.getFeatureNames().get(0)+"] ("+diffcorrresOB.getFeatureNames().size()+" features)"));
 										MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, chosenVal);
 										MetaOmGraph.getDCResultsFrame().addTabListToFrame(frame.getGeneLists(), chosenVal);
@@ -4878,10 +4837,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 										MetaOmGraph.getDCResultsFrame().moveToFront();
 										frame.setEnabled(true);
 									}
-								}
+								
 								
 							} catch (Exception e) {
-								e.printStackTrace();
+								
 							}
 						}
 					});

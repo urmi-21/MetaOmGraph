@@ -270,29 +270,6 @@ public class DifferentialCorrFrame extends TaskbarInternalFrame {
 									frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
 
 
-									if(diffcorrresOB != null) {
-
-										//Get Feature metadata rows
-										List<String> rowNames = diffcorrresOB.getFeatureNames();
-										int[] rowIndices = new int[rowNames.size()];
-										int i=0;
-										for(String row : rowNames) {
-											rowIndices[i] = MetaOmGraph.activeProject.getRowIndexbyName(row,true);
-											i++;
-										}
-
-										Object[][] myRowNames = MetaOmGraph.activeProject.getRowNames(rowIndices);	
-										Object[][] allRowNames = MetaOmGraph.activeProject.getRowNames();
-										String [] colNames = MetaOmGraph.activeProject.getInfoColumnNames();
-
-										frame.setFeatureMetadataColumnData(myRowNames);
-										frame.setFeatureMetadataColumnNames(colNames);
-										frame.setFeatureMetadataAllData(allRowNames);
-										frame.setMasterFeatureMetadataAllData(allRowNames);
-										frame.updateTable();
-
-
-									}
 
 									if(MetaOmGraph.getDCResultsFrame()!=null && !MetaOmGraph.getDCResultsFrame().isClosed()) {
 										MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, id_f);
