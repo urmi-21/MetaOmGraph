@@ -146,9 +146,6 @@ public class DCColumnSelectFrame extends TaskbarInternalFrame{
 										}
 									}
 
-									frame.setFeatureMetadataColumnData(newRows);
-									frame.setFeatureMetadataColumnNames(newColNames);
-									frame.setFeatureMetadataAllData(newTotalRows);
 									frame.updateTable();
 
 									try {
