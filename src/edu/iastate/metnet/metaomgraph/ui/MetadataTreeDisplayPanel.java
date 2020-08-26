@@ -277,6 +277,8 @@ public class MetadataTreeDisplayPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				QueryResults qr = getQueryResults("Metadata Search");
+				if(qr == null)
+					return;
 				List<String> result = qr.getFresults();
 				MetadataQuery[] queries = qr.getFqueries();
 				

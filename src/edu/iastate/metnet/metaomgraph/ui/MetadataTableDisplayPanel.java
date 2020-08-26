@@ -12,34 +12,43 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
-
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.JToolBar;
+import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
 import javax.swing.WindowConstants;
+import javax.swing.border.Border;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.dizitart.no2.Document;
 
 import edu.iastate.metnet.metaomgraph.AlphanumericComparator;
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.ComputeRunsSimilarity;
+import edu.iastate.metnet.metaomgraph.IconTheme;
 import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
@@ -51,6 +60,7 @@ import edu.iastate.metnet.metaomgraph.chart.PlotRunsasSeries;
 import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
+import javax.swing.BorderFactory;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -64,6 +74,7 @@ import javax.swing.JOptionPane;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.net.URI;
@@ -71,7 +82,8 @@ import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.awt.event.ActionEvent;
 
-public class MetadataTableDisplayPanel extends JPanel {
+public class MetadataTableDisplayPanel extends JPanel 
+	implements ActionListener, ListSelectionListener, ChangeListener{
 	
 	private JTable table;
 	private MetadataCollection obj;
@@ -95,6 +107,14 @@ public class MetadataTableDisplayPanel extends JPanel {
 	private int gseColumn = -1;
 	private int gsmColumn = -1;
 	private boolean autoDetect = false;
+	
+	//ListNames panel
+	private JList sampleDataList;
+	private JScrollPane sampleDataListScrollPane;
+	private JButton listCreateButton;
+	private JButton listEditButton;
+	private JButton listDeleteButton;
+	private JButton listRenameButton;
 
 	/**
 	 * Default Properties
@@ -109,7 +129,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 	public MetadataTableDisplayPanel() {
 		this(null);
 	}
-
+	
 	/**
 	 * Create the panel.
 	 */
@@ -118,14 +138,108 @@ public class MetadataTableDisplayPanel extends JPanel {
 		metadata = this.obj.getAllData();
 		this.headers = obj.getHeaders();
 		setLayout(new BorderLayout(0, 0));
-
+		
+		JPanel mainPanel = new JPanel();
+		add(mainPanel, BorderLayout.NORTH);
+		mainPanel.setLayout(new BorderLayout(0, 0));
+		
+		JMenuBar menuBar = initializeMenuBar();
+			
 		JPanel panel = new JPanel();
-		add(panel, BorderLayout.NORTH);
 		panel.setLayout(new BorderLayout(0, 0));
+		
+		JPanel listPanel = createListPanel();
+	
+		scrollPane = new JScrollPane();	
+		initTable();
+		scrollPane.setViewportView(table);
+		
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, listPanel, scrollPane);
+		splitPane.setDividerSize(1);	
+		panel.add(splitPane);
+		
+		mainPanel.add(menuBar, "First");
+		mainPanel.add(panel, "Center");
+		add(mainPanel, "Center");
+		
+		MetaOmGraph.getActiveProject().addChangeListener(this);
+	}
+	
+	// Create sample data list names to add to list panel
+	private void createSampleDataListNames() {
+		String[] listNames = MetaOmGraph.getActiveProject().getSampleDataListNames();
+		Arrays.sort(listNames, new ListNameComparator());
+		sampleDataList = new JList(listNames);
+		sampleDataList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		sampleDataList.setSelectedIndex(0);
+		sampleDataList.addListSelectionListener(this);
+		sampleDataList.addMouseMotionListener(new MouseMotionAdapter() {
+			@Override
+			public void mouseMoved(MouseEvent e) {
+				JList l = (JList) e.getSource();
+				ListModel m = l.getModel();
+				int index = l.locationToIndex(e.getPoint());
+				if (index > -1) {
+					// create tooltip
+					String thisListName = m.getElementAt(index).toString();
+					int numElements = MetaOmGraph.getActiveProject().getSampleDataListRowNames(thisListName).size();
+					l.setToolTipText(thisListName + ":" + numElements + " Elements");
+				}
+			}
+		});
+	}
+	
+	// Create the list panel.
+	private JPanel createListPanel() {
+		JToolBar listToolbar = new JToolBar();
+		listToolbar.setFloatable(false);
+		IconTheme theme = MetaOmGraph.getIconTheme();
+		listDeleteButton = new JButton(theme.getListDelete());
+		listDeleteButton.setActionCommand("delete list");
+		listDeleteButton.addActionListener(this);
+		listDeleteButton.setToolTipText("Delete the selected list");
+		
+		listEditButton = new JButton(theme.getListEdit());
+		listEditButton.setActionCommand("edit list");
+		listEditButton.addActionListener(this);
+		listEditButton.setToolTipText("Edit the selected list");
+		
+		listRenameButton = new JButton(theme.getListRename());
+		listRenameButton.setActionCommand("rename list");
+		listRenameButton.addActionListener(this);
+		listRenameButton.setToolTipText("Rename the selected list");
 
+		listCreateButton = new JButton(theme.getListAdd());
+		listCreateButton.addActionListener(this);
+		listCreateButton.setActionCommand("new list");
+		listCreateButton.setToolTipText("Create a new list");
+		
+		listDeleteButton.setEnabled(false);
+		listEditButton.setEnabled(false);
+		listRenameButton.setEnabled(false);
+		
+		listToolbar.add(listCreateButton);
+		listToolbar.add(listEditButton);
+		listToolbar.add(listRenameButton);
+		listToolbar.add(listDeleteButton);
+		
+		JPanel listPanel = new JPanel(new BorderLayout());
+	
+		createSampleDataListNames();
+		sampleDataListScrollPane = new JScrollPane(sampleDataList);
+		listPanel.add(listToolbar, "First");
+		listPanel.add(sampleDataListScrollPane, "Center");
+		
+		Border loweredetched = BorderFactory.createEtchedBorder();
+		listPanel.setBorder(BorderFactory.createTitledBorder(loweredetched, "Lists"));
+		listPanel.setMinimumSize(listToolbar.getPreferredSize());
+		return listPanel;
+	}
+	
+	// Initialize/Create the menu bar.
+	private JMenuBar initializeMenuBar() {
 		JMenuBar menuBar = new JMenuBar();
-		panel.add(menuBar);
-
+		
 		JMenu mnFile = new JMenu("File");
 		menuBar.add(mnFile);
 
@@ -1126,17 +1240,12 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 		JMenu mnHelp = new JMenu("Help");
 		menuBar.add(mnHelp);
-
-		scrollPane = new JScrollPane();
-
-		add(scrollPane, BorderLayout.CENTER);
-		initTable(headers);
-		scrollPane.setViewportView(table);
-		// table.repaint();
-
+		
+		return menuBar;
 	}
-
-	private void initTable(String[] headers) {
+		
+	// Create the table to display the sample meta data.
+	private void initTable() {
 		toHighlight = new HashMap<Integer, List<String>>();
 		// initialize with garbage value for alternate coloring to take effect via
 		// prepareRenderer
@@ -1146,11 +1255,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 		// toHighlight.put(0, ls);
 		// headers = obj.getHeaders();
 		table = new JTable() {
-			@Override
-			public boolean getScrollableTracksViewportWidth() {
-				return getPreferredSize().width < getParent().getWidth();
-			}
-
+			
 			@Override
 			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
 				// urmi enclose in try catch
@@ -1366,7 +1471,68 @@ public class MetadataTableDisplayPanel extends JPanel {
 	public MetadataTableDisplayPanel getThisPanel() {
 		return this;
 	}
+	
+	/**
+	 * Update sample metadata table with the rows
+	 * @param rowsInList
+	 */
+	public void updateTable(List<String> rowsInList) {
+		new AnimatedSwingWorker("Updating table", true) {
+			@Override
+			public Object construct() {
+				DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
+				tablemodel.setRowCount(0);
+				
+				for(int i = 0; i < rowsInList.size(); i++) {
+					HashMap<String, String> colRowValMap = obj.getDataColumnRowMap(rowsInList.get(i));
+					String[] rowVals = new String[headers.length];
+					for(int j = 0; j < headers.length; j++) {
+						rowVals[j] = colRowValMap.get(headers[j]);
+					}
+					tablemodel.addRow(rowVals);
+				}
 
+				// add sorter
+				TableRowSorter sorter = new TableRowSorter(tablemodel) {
+					@Override
+					public void toggleSortOrder(int column) {
+						List<? extends SortKey> sortKeys = getSortKeys();
+						if (sortKeys.size() > 0) {
+							if (sortKeys.get(0).getSortOrder() == SortOrder.DESCENDING) {
+								setSortKeys(null);
+								return;
+							}
+						}
+						super.toggleSortOrder(column);
+					}
+				};
+
+				for (int i = 0; i < table.getColumnCount(); i++) {
+					sorter.setComparator(i, new AlphanumericComparator());
+				}
+				table.setRowSorter(sorter);
+				table.repaint();
+				return null;
+			}
+		}.start();
+		
+		// Update excluded and included data according to the list selected.
+		Set<String> excluded = new HashSet<String>( getExcludedRowsFromTable(rowsInList));
+		obj.setIncluded(rowsInList);
+		obj.setExcluded(excluded);
+		MetaOmAnalyzer.updateExcluded(excluded);
+		MetaOmGraph.getActiveTable().updateMetadataTree();
+	}
+
+	// get rows that are not included (Excluded).
+	private ArrayList<String> getExcludedRowsFromTable(List<String> rowsInList){
+		List<String> allRows = obj.getAllDataCols();	
+		allRows.removeAll(rowsInList);
+		ArrayList<String> excludedRowNames = new ArrayList<String>();
+		excludedRowNames.addAll(allRows);
+		return excludedRowNames;
+	}
+	
 	/**
 	 * @author urmi Update the table model after deleting cols
 	 */
@@ -1381,13 +1547,9 @@ public class MetadataTableDisplayPanel extends JPanel {
 			public Object construct() {
 
 				DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
-				// AbstractTableModel tablemodel = (DefaultTableModel) table.getModel();
 				// clear table model
 				tablemodel.setRowCount(0);
 				tablemodel.setColumnCount(0);
-				// tablemodel.getDataVector().removeAllElements();
-				// tablemodel.fireTableDataChanged();
-				// table.repaint();
 
 				for (int i = 0; i < metadata.size(); i++) {
 					// create a temp string storing all col values for a row
@@ -1425,8 +1587,7 @@ public class MetadataTableDisplayPanel extends JPanel {
 					}
 
 				};
-				// TableRowSorter<TableModel> sorter = new
-				// TableRowSorter<TableModel>(tablemodel);
+				
 				for (int i = 0; i < table.getColumnCount(); i++) {
 					sorter.setComparator(i, new AlphanumericComparator());
 				}
@@ -1477,6 +1638,42 @@ public class MetadataTableDisplayPanel extends JPanel {
 
 	public MetadataCollection getthisCollection() {
 		return this.obj;
+	}
+	
+	/**
+	 *
+	 * @return selected rows(dataColRowName) of the table.
+	 */
+	private ArrayList<String> getSelectedRows(){
+		int[] selectedRows = table.getSelectedRows();
+		ArrayList<String> selectedRowNames = new ArrayList<String>();
+		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		
+		for(int rowIndex = 0; rowIndex < selectedRows.length; rowIndex++) {
+			String rowDataColName = model.getValueAt(table.convertRowIndexToModel(selectedRows[rowIndex]),
+					table.getColumn(obj.getDatacol()).getModelIndex()).toString();
+			selectedRowNames.add(rowDataColName);
+		}
+		return selectedRowNames;
+	}
+	
+	// get rows that are not selected.
+	private ArrayList<String> getUnSelectedRows(){
+		List<String> allRows = obj.getAllDataCols();
+		List<String> selectedRowsList = new ArrayList<String>();
+		int[] selectedRows = table.getSelectedColumns();
+		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		for(int index = 0; index < selectedRows.length; index++) {
+			String rowDataColName = model.getValueAt(table.convertRowIndexToModel(selectedRows[index]),
+					table.getColumn(obj.getDatacol()).getModelIndex()).toString();
+			selectedRowsList.add(rowDataColName);
+		}		
+		allRows.removeAll(selectedRowsList);
+		
+		ArrayList<String> notSelectedRowNames = new ArrayList<String>();
+		notSelectedRowNames.addAll(allRows);
+		
+		return notSelectedRowNames;
 	}
 
 	/**
@@ -2147,13 +2344,9 @@ public class MetadataTableDisplayPanel extends JPanel {
 	 */
 	public void plotBarChart(String colValue) {
 
-		// gert data for the selected columns
+		// get data for the selected columns
 		List<String> chartData = getSampleMetaData(colValue);
-		// add barchart
-		// ArrayList<String> list = new ArrayList<String>();
-		// list.add("Geeks");
-		// list.add("for");
-		// list.add("Geeks");
+
 		BarChart f2 = new BarChart(MetaOmGraph.getActiveProject(), colValue, chartData, 2);
 		MetaOmGraph.getDesktop().add(f2);
 		f2.setDefaultCloseOperation(2);
@@ -2164,4 +2357,134 @@ public class MetadataTableDisplayPanel extends JPanel {
 		f2.setVisible(true);
 		f2.toFront();
 	}
+
+	private void createSampleListFrame(String title, boolean edit) {
+		SampleMetaDataListFrame sampleListFrame = null;
+		if(edit) {
+			sampleListFrame = new SampleMetaDataListFrame(obj, (String) sampleDataList.getSelectedValue(),
+					getSelectedRows(), getUnSelectedRows());
+		}
+		else {
+			sampleListFrame = new SampleMetaDataListFrame(obj, getSelectedRows(), getUnSelectedRows());
+		}
+		sampleListFrame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
+		sampleListFrame.setResizable(true);
+		sampleListFrame.setMaximizable(true);
+		sampleListFrame.setIconifiable(true);
+		sampleListFrame.setClosable(true);
+		sampleListFrame.setTitle(title);
+		MetaOmGraph.getDesktop().add(sampleListFrame);
+		sampleListFrame.setVisible(true);
+	}
+	
+	private void deleteSelectedList() {
+		List selected = sampleDataList.getSelectedValuesList();
+
+		for (Object s : selected) {
+			MetaOmGraph.getActiveProject().deleteSampleDataList(s.toString());
+		}
+	}
+	
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if ("new list".equals(e.getActionCommand())) {
+			createSampleListFrame("Create New List", false);
+			return;
+		}
+		if ("edit list".equals(e.getActionCommand())) {
+			createSampleListFrame("Edit List", true);
+			return;
+		}
+		if ("rename list".equals(e.getActionCommand())) {
+			MetaOmGraph.getActiveProject().renameSampleDataList((String) sampleDataList.getSelectedValue(), null);
+			return;
+		}
+		if ("delete list".equals(e.getActionCommand())) {
+			int result = JOptionPane.showConfirmDialog(MetaOmGraph.getMainWindow(),
+					"Are you sure you want to delete the selected lists '" + sampleDataList.getSelectedValue().toString()
+					+ "'?",
+					"Confirm", 0, 3);
+			if (result == 0)
+				deleteSelectedList();
+			return;
+		}
+		
+	}
+	
+	private void updateLists() {
+		String[] listNames = MetaOmGraph.getActiveProject().getSampleDataListNames();
+		Arrays.sort(listNames, new ListNameComparator());
+		sampleDataList = new JList(listNames);
+		sampleDataList.addListSelectionListener(this);
+		sampleDataList.setSelectionMode(0);
+		
+		sampleDataList.addMouseMotionListener(new MouseMotionAdapter() {
+			@Override
+			public void mouseMoved(MouseEvent e) {
+				JList l = (JList) e.getSource();
+				ListModel m = l.getModel();
+				int index = l.locationToIndex(e.getPoint());
+				if (index > -1) {
+					// create tooltip
+					String thisListName = m.getElementAt(index).toString();
+					int numElements = MetaOmGraph.getActiveProject().getSampleDataListRowNames(thisListName).size();
+					l.setToolTipText(thisListName + ":" + numElements + " Elements");
+				}
+			}
+		});
+	}
+
+	@Override
+	public void stateChanged(ChangeEvent e) {		
+		if("create sample data list".equals(e.getSource())|| "rename sample data list".equals(e.getSource())) {
+			int selectedListIndex = sampleDataList.getSelectedIndex();
+			updateLists();
+			sampleDataList.setSelectedIndex(selectedListIndex);
+		}
+		else if("delete sample data list".equals(e.getSource())) {
+			updateLists();
+			sampleDataList.setSelectedIndex(0);
+		}
+		sampleDataListScrollPane.setViewportView(sampleDataList);
+	}
+
+	@Override
+	public void valueChanged(ListSelectionEvent e) {
+		String selectedRowName = (String) sampleDataList.getSelectedValue();
+		List<String> values = MetaOmGraph.getActiveProject().getSampleDataListRowNames(selectedRowName);
+		updateTable(values);
+		if (sampleDataList.getSelectedIndex() != 0) {
+			listDeleteButton.setEnabled(true);
+			listEditButton.setEnabled(true);
+			listRenameButton.setEnabled(true);
+		} else {
+			listDeleteButton.setEnabled(false);
+			listEditButton.setEnabled(false);
+			listRenameButton.setEnabled(false);
+		}		
+	}
+	
+	/**
+	 * Listname comparator class
+	 * @author sumanth
+	 *
+	 */
+	public class ListNameComparator implements Comparator<String> {
+		public ListNameComparator() {
+		}
+
+		@Override
+		public int compare(String o1, String o2) {
+			if ((!(o1 instanceof String)) || (!(o2 instanceof String)))
+				return 0;
+
+			if (o1.equals("Complete List"))
+				return -1;
+			if (o2.equals("Complete List"))
+				return 1;
+			return o1.toLowerCase().compareTo(o2.toLowerCase());
+		}
+	}
 }
+
+

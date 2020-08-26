@@ -85,10 +85,12 @@ public class MetaOmProject {
 	private int infoColumns;
 	private Long[] fileIndex;
 	private File source = null;
-
+	private MetadataCollection metaDataCollection = null;
+	
 	private boolean changed;
 
 	private Hashtable<String, int[]> geneLists;
+	private HashMap<String, ArrayList<String>> sampleDataLists;
 
 	private String defaultTitle;
 
@@ -606,6 +608,17 @@ public class MetaOmProject {
 				list.addContent(new Element("entry").setText(entries[x] + ""));
 			root.addContent(list);
 		}
+		
+		
+		for(Map.Entry<String, ArrayList<String>> entry: sampleDataLists.entrySet()) {
+			String listName = entry.getKey();
+			Element list = new Element("sampleDataList").setAttribute("name", listName);
+			ArrayList<String> values = entry.getValue();
+			for (int index = 0; index < values.size(); index++)
+				list.addContent(new Element("entry").setText(values.get(index) + ""));
+			root.addContent(list);
+		}
+		
 		if (savedSorts != null) {
 			enumer = savedSorts.keys();
 			while (enumer.hasMoreElements()) {
@@ -800,7 +813,6 @@ public class MetaOmProject {
 		SAXBuilder builder;
 		XMLOutputter outter;
 		JTree tree = null;
-		MetadataCollection newcollection = null;
 		List<String> excluded = null;
 		List<String> missing = null;
 		List<String> removedMDCols = null;
@@ -868,7 +880,7 @@ public class MetaOmProject {
 
 					File mdFile = new File(fpath);
 					if (mdFile.exists()) {
-						newcollection = new MetadataCollection(fpath, delim, datacol);
+						metaDataCollection = new MetadataCollection(fpath, delim, datacol);
 					} else {
 
 						// try only file name in current directory
@@ -880,7 +892,7 @@ public class MetaOmProject {
 						// JOptionPane.showMessageDialog(null, "New file path:" +
 						// mdFile.getAbsolutePath());
 						if (mdFile.exists()) {
-							newcollection = new MetadataCollection(fpath, delim, datacol);
+							metaDataCollection = new MetadataCollection(fpath, delim, datacol);
 						} else {
 							JOptionPane.showMessageDialog(null,
 									"Please locate the metadata file. Click OK. " + mdFile.getName());
@@ -889,7 +901,7 @@ public class MetaOmProject {
 							int rVal = fChooser.showOpenDialog(MetaOmGraph.getMainWindow());
 							if (rVal == JFileChooser.APPROVE_OPTION) {
 								File source = fChooser.getSelectedFile();
-								newcollection = new MetadataCollection(source.getAbsolutePath(), delim, datacol);
+								metaDataCollection = new MetadataCollection(source.getAbsolutePath(), delim, datacol);
 
 							}
 
@@ -917,7 +929,7 @@ public class MetaOmProject {
 					// String resDoc = outter.outputString(mdTreeStruc);
 					// JOptionPane.showMessageDialog(null, resDoc);
 					// call parse object
-					if (newcollection == null) {
+					if (metaDataCollection == null) {
 						// JOptionPane.showMessageDialog(null, "returning");
 						return false;
 					}
@@ -1376,13 +1388,13 @@ public class MetaOmProject {
 			// if sample metadata is present then load these information
 			try {
 
-				newcollection.removeUnusedCols(removedMDCols);
+				metaDataCollection.removeUnusedCols(removedMDCols);
 
-				newcollection.removeDataPermanently(new HashSet<>(excluded));
+				metaDataCollection.removeDataPermanently(new HashSet<>(excluded));
 
-				newcollection.addNullData(missing);
+				metaDataCollection.addNullData(missing);
 
-				ParseTableTree ob = new ParseTableTree(newcollection, tree, newcollection.getDatacol(),
+				ParseTableTree ob = new ParseTableTree(metaDataCollection, tree, metaDataCollection.getDatacol(),
 						this.getDataColumnHeaders());
 				// JOptionPane.showMessageDialog(null, "to table tree");
 				org.jdom.Document res = ob.tableToTree();
@@ -1391,7 +1403,7 @@ public class MetaOmProject {
 				// add
 				// JOptionPane.showMessageDialog(null, "Creating MDH");
 
-				loadMetadataHybrid(newcollection, res.getRootElement(), ob.getTreeMap(), newcollection.getDatacol(),
+				loadMetadataHybrid(metaDataCollection, res.getRootElement(), ob.getTreeMap(), metaDataCollection.getDatacol(),
 						ob.getMetadataHeaders(), tree, ob.getDefaultRepMap(), ob.getDefaultRepCol(), missing, excluded,
 						removedMDCols);
 
@@ -1671,6 +1683,24 @@ public class MetaOmProject {
 				}
 				geneLists.put(thisGeneList.getAttributeValue("name"), entries);
 			}
+			
+			List sampleDataListList = root.getChildren("sampleDataList");
+			iter = sampleDataListList.iterator();
+
+			sampleDataLists = new HashMap<String, ArrayList<String>>();
+			while (iter.hasNext()) {
+				Element thisSampleList = (Element) iter.next();
+				List entryList = thisSampleList.getChildren("entry");
+				String[] entries = new String[entryList.size()];
+				Iterator iter2 = entryList.iterator();
+				index = 0;
+				while (iter2.hasNext()) {
+					entries[index] = ((Element) iter2.next()).getText();
+					index++;
+				}
+				ArrayList<String> values = new ArrayList<String>(Arrays.asList(entries));
+				sampleDataLists.put(thisSampleList.getAttributeValue("name"), values);
+			}
 
 			List sortList = root.getChildren(NewCustomSortDialog.CustomSortObject.getXMLElementName());
 			iter = sortList.iterator();
@@ -1732,6 +1762,7 @@ public class MetaOmProject {
 	public boolean isChanged() {
 		return changed;
 	}
+	
 
 	public Object[][] getRowNames() {
 		if (infoColumns == 0) {
@@ -1832,7 +1863,53 @@ public class MetaOmProject {
 	public String[] getColumnHeaders() {
 		return columnHeaders;
 	}
+	
+	/**
+	 * Add sample data list.
+	 * @param name name of the sample data list.
+	 * @param entries values of the list.
+	 * @param notify notify the listeners
+	 * @param logRequired
+	 * @return
+	 */
+	public boolean addSampleDataList(String name, String[] entries, boolean notify, boolean logRequired) {
+		String listName = name;
+		if ((listName == null) || (listName.trim().equals(""))) {
+			String result = "";
+			while ((result != null) && (result.equals(""))) {
+				result = JOptionPane.showInputDialog(MetaOmGraph.getMainWindow(),
+						"Please enter a name for this sample data list", "Create new sampledata list", 2);
+				if (result != null)
+					result = result.trim();
+				if (sampleDataLists.containsKey(result)) {
+					JOptionPane.showInternalMessageDialog(null,
+							"A list with that name already exists.  Please enter a different name.",
+							"Duplicate list name", 0);
+					result = "";
+				}
+			}
+			if (result == null)
+				return false;
+			listName = result;
+		}
+		ArrayList<String> values = new ArrayList<String>(Arrays.asList(entries));
+		sampleDataLists.put(listName, values);
+		setChanged(true);
+		if (notify) {
+			fireStateChanged("create sample data list");
+		}
+		// TODO add log
+		return true;
+	}
 
+	/**
+	 * Add gene list.
+	 * @param name name of the list.
+	 * @param entries values of the list.
+	 * @param notify notify the listeners.
+	 * @param logRequired
+	 * @return
+	 */
 	public boolean addGeneList(String name, int[] entries, boolean notify, boolean logRequired) {
 		String listName = name;
 		if ((listName == null) || (listName.trim().equals(""))) {
@@ -1884,22 +1961,44 @@ public class MetaOmProject {
 			}
 		}
 		catch(Exception e) {
-
-			//			StringWriter sw = new StringWriter();
-			//            e.printStackTrace(new PrintWriter(sw));
-			//            String exceptionAsString = sw.toString();
-			//			JDialog jd = new JDialog();
-			//			JTextPane jt = new JTextPane();
-			//			jt.setText(exceptionAsString);
-			//			jt.setBounds(10, 10, 300, 100);
-			//			jd.getContentPane().add(jt);
-			//			jd.setBounds(100, 100, 500, 200);
-			//			jd.setVisible(true);
 		}
 
 		return true;
 	}
+	
+	// Rename the sample data list name.
+	public boolean renameSampleDataList(String oldName, String newName) {
+		if ((newName == null) || (newName.trim().equals(""))) {
+			String result = "";
+			while ((result != null) && (result.equals(""))) {
+				result = (String) JOptionPane.showInputDialog(MetaOmGraph.getMainWindow(),
+						"Please enter a new name for this sample data list", "Create new sample data list", 3, null, null, oldName);
+				if (result != null) {
+					result = result.trim();
+					if (result.equals(oldName))
+						return true;
+					if (sampleDataLists.containsKey(result)) {
+						JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(),
+								"A list with that name already exists.  Please enter a different name.",
+								"Duplicate list name", 0);
+						result = "";
+					}
+				}
+			}
+			if (result == null)
+				return false;
+			newName = result;
+		}
+		ArrayList<String> values = sampleDataLists.get(oldName);
+		sampleDataLists.remove(oldName);
+		sampleDataLists.put(newName, values);
+		setChanged(true);
+		fireStateChanged("rename sample data list");
+		//TODO add log.
+		return true;
+	}
 
+	// Rename the gene list name.
 	public boolean renameGeneList(String oldName, String newName) {
 		String listName = newName;
 		if ((listName == null) || (listName.trim().equals(""))) {
@@ -1956,7 +2055,28 @@ public class MetaOmProject {
 		}
 		return true;
 	}
+	
+	/**
+	 * Gets all the sample data list names.
+	 * @return all sample data lists.
+	 */
+	public String[] getSampleDataListNames() {
+		Set<String> listNames = sampleDataLists.keySet();
 
+		String[] result = new String[listNames.size() + 1];
+		result[0] = "Complete List";
+		int index = 1;
+		for(String listName : listNames) {
+			result[index] = listName;
+			index++;
+		}
+		return result;
+	}
+
+	/**
+	 * Gets all gene list names.
+	 * @return all gene lists.
+	 */
 	public String[] getGeneListNames() {
 		Enumeration enumer = geneLists.keys();
 
@@ -1969,7 +2089,26 @@ public class MetaOmProject {
 		}
 		return result;
 	}
+	
+	/**
+	 * Get the rows/values of the sample data list.
+	 * @param name name of the list.
+	 * @return list of row names for a sample data list.
+	 */
+	public List<String> getSampleDataListRowNames(String name) {
+		if (name == null)
+			return null;
+		if (name.equals("Complete List")) {
+			return metaDataCollection.getAllDataCols();
+		}
+		return sampleDataLists.get(name);
+	}
 
+	/**
+	 * Get the rows/values of the gene list.
+	 * @param name name of the list.
+	 * @return list of row indices for a gene list.
+	 */
 	public int[] getGeneListRowNumbers(String name) {
 		if (name == null)
 			return null;
@@ -2020,6 +2159,15 @@ public class MetaOmProject {
 			result[(addHere++)] = addMe;
 		}
 		return addGeneList(name, result, true, true);
+	}
+	
+	/*
+	 * delete a list from the sample data list.
+	 */
+	public void deleteSampleDataList(String name) {
+		sampleDataLists.remove(name);
+		setChanged(true);
+		fireStateChanged("delete sample data list");
 	}
 
 	public void deleteGeneList(String name) {
@@ -2637,6 +2785,7 @@ public class MetaOmProject {
 
 	public void setMogcollection(MetadataCollection obj) {
 		readMetadataframe = new ReadMetadata(obj, "");
+		metaDataCollection = obj;
 	}
 
 	public MetadataTreeStructure returntree() {
