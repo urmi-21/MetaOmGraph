@@ -133,6 +133,7 @@ public class DiffCorrResultsTable extends JPanel {
 	private Object[][] selectedAndProjectedTableData;
 	private String[] selectedAndProjectedTableColumns;
 	private Map<Integer,Integer> rowIndicesMapping;
+	private String currentSelectedList;
 	
 	
 	/**
@@ -197,10 +198,14 @@ public class DiffCorrResultsTable extends JPanel {
 	public void setRowIndicesMapping(Map<Integer, Integer> rowIndicesMapping) {
 		this.rowIndicesMapping = rowIndicesMapping;
 	}
-	
-	
-	
-	
+
+	public String getCurrentSelectedList() {
+		return currentSelectedList;
+	}
+
+	public void setCurrentSelectedList(String currentSelectedList) {
+		this.currentSelectedList = currentSelectedList;
+	}
 
 	/**
 	 * Launch the application.
@@ -368,70 +373,9 @@ public class DiffCorrResultsTable extends JPanel {
 
 			@Override
 			public void valueChanged(ListSelectionEvent arg0) {
-				if (!arg0.getValueIsAdjusting()) {
+				if (!arg0.getValueIsAdjusting() && geneLists.getSelectedValue()!=null && !geneLists.getSelectedValue().toString().equalsIgnoreCase("")) {
 
-					if(geneLists.getSelectedValue() == "Complete List") {
-						updateTableRows(getSelectedAndProjectedTableData());
-						listDeleteButton.setEnabled(false);
-						listEditButton.setEnabled(false);
-						listRenameButton.setEnabled(false);
-					}
-					else {
-
-						listDeleteButton.setEnabled(true);
-						listEditButton.setEnabled(true);
-						listRenameButton.setEnabled(true);
-
-						int[] mainTableListIndices = myProject.getGeneListRowNumbers((String)geneLists.getSelectedValue());
-						
-						List<Object[]> selectedRowsList = new ArrayList<Object[]>();
-						for(int i=0; i < mainTableListIndices.length; i++) {
-							if(rowIndicesMapping.get(mainTableListIndices[i]) != null) {
-								selectedRowsList.add(masterTableData[rowIndicesMapping.get(mainTableListIndices[i])]);
-							}
-						}
-						
-						Object[][] resultedSelectedRows = new Object[selectedRowsList.size()][masterTableData[0].length];
-						
-						int x = 0;
-						for(Object row : selectedRowsList) {
-							resultedSelectedRows[x] = (Object[]) row;
-							x++;
-						}
-						
-						setSelectedAndProjectedTableData(resultedSelectedRows);
-						
-						updateTable();
-//						String[] defaultRowNames = myProject.getDefaultRowNames(entries);
-//						if(defaultRowNames != null) {
-//							//Arrays.sort(defaultRowNames,new NaturalOrderComparator<String>(true));
-//							Object[][] selectionData = new Object[entries.length][getCurrentTableData().length];
-//
-//							for(int i=0; i<defaultRowNames.length; i++) {
-//								selectionData[i] = currentTableDataMap.get((String)defaultRowNames[i]);
-//
-//							}
-//
-//							if(defaultRowNames.length == 0) {
-//
-//								Map.Entry<String,Object[]> entry = currentTableDataMap.entrySet().iterator().next();
-//								String key = entry.getKey();
-//								Object[] value = entry.getValue();
-//								Object[] dummy = new Object[value.length];
-//								for(int j=0;j<value.length;j++) {
-//									dummy[j] = 0;
-//								}
-//								Object[][] dummy2 = new Object[1][value.length];
-//								dummy2[0] = dummy;
-//
-//								updateTableRows(dummy2);
-//							}
-//							else {
-//								updateTableRows(selectionData);
-//							}
-//						}
-
-					}
+					selectList((String)geneLists.getSelectedValue());
 
 				}
 			}
@@ -569,7 +513,95 @@ public class DiffCorrResultsTable extends JPanel {
 
 				pvThresh = pvalThresh;
 
-				updateTable();
+				
+				
+				if(featureNames != null) {
+
+					//Get Feature metadata rows
+					List<String> rowNames = featureNames;
+					int[] rowIndices = new int[rowNames.size()];
+					int j=0;
+					for(String row : rowNames) {
+						rowIndices[j] = MetaOmGraph.activeProject.getRowIndexbyName(row,true);
+						rowIndicesMapping.put(rowIndices[j], j);
+						j++;
+					}
+
+					Object[][] featureInfoRows = MetaOmGraph.activeProject.getRowNames(rowIndices);	
+					String [] featureInfoColNames = MetaOmGraph.activeProject.getInfoColumnNames();
+					
+					List allColumnNames = new ArrayList<String>();
+
+					allColumnNames.add("Name");
+					allColumnNames.add("r1");
+					allColumnNames.add("r2");
+					allColumnNames.add("z1");
+					allColumnNames.add("z2");
+					allColumnNames.add("z1-z2");
+					allColumnNames.add("zScore");
+					allColumnNames.add("p-value");
+					allColumnNames.add("Adj p-value");
+
+					if(featureInfoColNames!=null) {
+						for(String col : featureInfoColNames) {
+							allColumnNames.add(col);
+						}
+					}
+					
+					String [] masterColumns = new String[allColumnNames.size()];
+					
+					for(int i=0; i< allColumnNames.size(); i++) {
+						masterColumns[i] = (String) allColumnNames.get(i);
+					}
+
+					ArrayList<ArrayList> pValRows = new ArrayList<ArrayList>();
+					// for each row add each coloumn
+					for (int i = 0; i < featureNames.size(); i++) {
+						// create a temp string storing all col values for a row
+						ArrayList temp = new ArrayList();
+						temp.add(featureNames.get(i));
+						temp.add(corrVals1.get(i));
+						temp.add(corrVals2.get(i));
+						temp.add(zVals1.get(i));
+						temp.add(zVals2.get(i));
+						temp.add(diff.get(i));
+						temp.add(zScores.get(i));
+
+						// skip if p value is high
+						if (pVals.get(i) >= pvThresh) {
+							continue;
+						}
+						temp.add(pVals.get(i));
+
+						temp.add(adjpVals.get(i));
+
+						if(featureInfoRows!=null) {
+							for(int k=0;k<featureInfoRows[i].length;k++) {
+								temp.add(featureInfoRows[i][k]);
+							}
+						}
+
+						pValRows.add(temp);
+
+					}
+					
+					Object [][] pValLimitedData = new Object[pValRows.size()][featureInfoColNames.length+9];
+					
+					for(int i = 0 ; i < pValRows.size(); i++ ) {
+						ArrayList temp = pValRows.get(i);
+						pValLimitedData[i] = temp.toArray();
+					}
+					
+
+					setMasterTableData(pValLimitedData);
+					setMasterTableColumns(masterColumns);
+					setSelectedAndProjectedTableData(pValLimitedData);
+					setSelectedAndProjectedTableColumns(masterColumns);
+					
+					//projectColumns(Arrays.asList(getSelectedAndProjectedTableColumns()));
+
+					updateTable();
+				}
 
 				// JOptionPane.showMessageDialog(null, "Done");
 
@@ -613,8 +645,6 @@ public class DiffCorrResultsTable extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-
-
 				DCColumnSelectFrame deaColSelect = new DCColumnSelectFrame(currentPanel);
 				MetaOmGraph.getDesktop().add(deaColSelect);
 				deaColSelect.moveToFront();
@@ -1148,26 +1178,19 @@ public class DiffCorrResultsTable extends JPanel {
 
 		table.setModel(sorter);
 
-
 		formatTable();
 	}
 
 
 	
-	public void updateTableRows(Object [][] rows) {
+	public void updateTableRows(Object [][] rows, String[] cols) {
 
-		String[] colNames = new String[selectedAndProjectedTableColumns.length];
-		int x=0;
-		for(String s : selectedAndProjectedTableColumns) {
-			colNames[x] = s;
-			x++;
-		}
-
-		mainModel = new NoneditableTableModel(rows,colNames);
+		mainModel = new NoneditableTableModel(rows,cols);
 		filterModel = new FilterableTableModel(mainModel);
 		sorter = new TableSorter(filterModel);
 
 		table.setModel(sorter);
+
 		formatTable();
 
 	}
@@ -1211,7 +1234,97 @@ public class DiffCorrResultsTable extends JPanel {
 		}
 
 	}
+	
+	
+	public void selectList(String listName) {
+		
+		if(listName == "Complete List") {
+			setSelectedAndProjectedTableData(getMasterTableData());
+			setCurrentSelectedList("Complete List");
+			updateTable();
+			listDeleteButton.setEnabled(false);
+			listEditButton.setEnabled(false);
+			listRenameButton.setEnabled(false);
+		}
+		else {
+			
+			listDeleteButton.setEnabled(true);
+			listEditButton.setEnabled(true);
+			listRenameButton.setEnabled(true);
 
+			setCurrentSelectedList(listName);
+			int[] mainTableListIndices = myProject.getGeneListRowNumbers(listName);
+			
+			List<Object[]> selectedRowsList = new ArrayList<Object[]>();
+			for(int i=0; i < mainTableListIndices.length; i++) {
+				if(rowIndicesMapping.get(mainTableListIndices[i]) != null) {
+					selectedRowsList.add(selectedAndProjectedTableData[rowIndicesMapping.get(mainTableListIndices[i])]);
+				}
+			}
+			
+			Object[][] resultedSelectedRows = new Object[selectedRowsList.size()][selectedAndProjectedTableColumns.length];
+			
+			int x = 0;
+			for(Object row : selectedRowsList) {
+				resultedSelectedRows[x] = (Object[]) row;
+				x++;
+			}
+			
+			updateTableRows(resultedSelectedRows, selectedAndProjectedTableColumns);
+
+		}
+	}
+
+	
+	public void projectColumns(List<String> selectedCols) {
+		
+		String [] featureInfoColNames = MetaOmGraph.activeProject.getInfoColumnNames();
+		int [] selectedFeatureMetadataCols = new int[selectedCols.size()];
+		
+		for(int i = 0; i < selectedCols.size(); i++) {
+			for(int j = 0; j < featureInfoColNames.length ; j++) {
+				if(selectedCols.get(i).equals(featureInfoColNames[j])) {
+					selectedFeatureMetadataCols[i] = j;
+				}
+			}
+		}
+		
+		String[] originalMasterColumns = getMasterTableColumns();
+		String[] projectedMasterColumns = new String[selectedCols.size()+9];
+		
+		
+		for(int k = 0; k < 9 ; k++) {
+			projectedMasterColumns[k] = originalMasterColumns[k];
+		}
+		
+		for(int l = 0; l < selectedCols.size(); l++) {
+			projectedMasterColumns[l+9] = selectedCols.get(l);
+		}
+		
+		setSelectedAndProjectedTableColumns(projectedMasterColumns);
+		
+		
+		
+		Object[][] originalMasterData = getMasterTableData();
+		Object[][] projectedMasterData = new Object[originalMasterData.length][projectedMasterColumns.length];
+		
+		for(int a = 0; a < originalMasterData.length; a++) {
+			for(int b = 0; b < 9; b++) {
+				projectedMasterData[a][b] = originalMasterData[a][b];
+			}
+			for(int c = 0; c < selectedFeatureMetadataCols.length; c++) {
+				projectedMasterData[a][c+9] = originalMasterData[a][selectedFeatureMetadataCols[c]+9];
+			}
+		}
+		
+		setSelectedAndProjectedTableData(projectedMasterData);
+		
+		updateTable();
+		selectList(getCurrentSelectedList());
+		
+	}
+	
+	
 
 	public int[] getSelectedRowsIndices() {
 
