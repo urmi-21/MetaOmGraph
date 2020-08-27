@@ -111,42 +111,14 @@ public class DCColumnSelectFrame extends TaskbarInternalFrame{
 							public void run() {
 								try {
 
-									int[] rowIndices = new int[frame.getFeatureNames().size()];
-									int i=0;
-									for(String row : frame.getFeatureNames()) {
-										rowIndices[i] = MetaOmGraph.activeProject.getRowIndexbyName(row,true);
-										i++;
-									}
-
-
 									int [] selectedFeatureMetadataCols = jList.getSelectedRows();
-
 									List<String> selectedCols = new ArrayList<String>();
 
 									for(int j=0;j<selectedFeatureMetadataCols.length;j++) {
 										selectedCols.add((String) model.getValueAt(selectedFeatureMetadataCols[j], 0));
 									}
 
-									Object [][] allRows = MetaOmGraph.activeProject.getRowNames(rowIndices);
-									Object [][] totalRows = MetaOmGraph.activeProject.getRowNames();
-									String [] allColNames = MetaOmGraph.activeProject.getInfoColumnNames();
-
-									Object [][] newRows = new Object[rowIndices.length][selectedFeatureMetadataCols.length];
-									Object [][] newTotalRows = new Object[totalRows.length][selectedFeatureMetadataCols.length];
-									String [] newColNames = new String[selectedFeatureMetadataCols.length];
-
-									for(int l=0;l<selectedFeatureMetadataCols.length;l++) {
-										newColNames[l] = allColNames[selectedFeatureMetadataCols[l]];
-
-										for(int j=0;j<rowIndices.length;j++) {
-											newRows[j][l] = allRows[j][selectedFeatureMetadataCols[l]];
-										}
-										for(int k=0;k<totalRows.length;k++) {
-											newTotalRows[k][l] = totalRows[k][selectedFeatureMetadataCols[l]];
-										}
-									}
-
-									frame.updateTable();
+									frame.projectColumns(selectedCols);
 
 									try {
 										currentFrame.setClosed(true);

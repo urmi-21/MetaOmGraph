@@ -68,14 +68,8 @@ public class StatisticalResultsFrame extends TaskbarInternalFrame {
 				String [] listNames3 = new String[listNames2.length+1];
 				
 				Arrays.sort(listNames2, MetaOmGraph.getActiveTablePanel().new ListNameComparator());
-				int i=0;
-				listNames3[0] = "Current Result";
-				for(i=1;i<=listNames2.length;i++) {
-					listNames3[i] = listNames2[i-1];
-				}
 				
-				
-				temp.setListData(listNames3);
+				temp.setListData(listNames2);
 				temp.updateUI();
 				}
 			}
