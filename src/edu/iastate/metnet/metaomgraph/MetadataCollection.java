@@ -902,7 +902,7 @@ public class MetadataCollection {
 	 * @param dataColValue
 	 *            value of data column to search
 	 * @param targetCol
-	 *            name of column to return the calue from matched row
+	 *            name of column to return the value from matched row
 	 * @return
 	 */
 	public String getDatabyDataColumn(String dataColValue, String targetCol) {
@@ -914,9 +914,14 @@ public class MetadataCollection {
 		return res;
 	}
 
+	/**
+	 * Get the entire row Document for a given row value of the data column.
+	 * @param dataColValue
+	 * @return Document
+	 */
 	public Document getDataColumnRow(String dataColValue) {
 		dataColValue = Utils.processStringforRegex(dataColValue);
-		dataColValue = "^" + dataColValue + "$";
+		dataColValue = "^(?i)" + dataColValue + "$";
 		Filter filter = Filters.regex(getDatacol(), dataColValue);
 		List<Document> output = mogCollection.find(filter).toList();
 		if (output.size() > 0) {
@@ -924,6 +929,24 @@ public class MetadataCollection {
 		} else {
 			return null;
 		}
+	}
+	
+	/**
+	 * Return hashmap with key as column name and value as the row value for that column.
+	 * The hashmap represents a row in the sample data and the row is determined using the rowvalue 
+	 * of the data column.
+	 * @param dataColValue
+	 * @return hashmap
+	 */
+	public HashMap<String, String> getDataColumnRowMap(String dataColValue){
+		HashMap<String, String> dataColRowValMap = new HashMap<String, String>();
+		Document rowDoc = getDataColumnRow(dataColValue);
+		if(rowDoc != null) {
+			for(String header : this.headers) {
+				dataColRowValMap.put(header, (String) rowDoc.get(header));
+			}
+		} 
+		return dataColRowValMap;
 	}
 
 	/**

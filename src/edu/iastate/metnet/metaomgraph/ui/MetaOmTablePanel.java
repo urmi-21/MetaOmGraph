@@ -471,8 +471,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		scorrMenu.add(spearmanItem3);
 
 		poolcorrMenu.add(pearsonItemPool);
-		// poolcorrMenu.add(pearsonItemPoolFEM);
-		// poolcorrMenu.add(pearsonItemPoolREM);
 		corrMenu.add(pcorrMenu);
 		corrMenu.add(scorrMenu);
 		corrMenu.add(poolcorrMenu);
@@ -505,24 +503,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		analyzePopupMenu.add(saveCorrelationItem);
 		analyzePopupMenu.add(removeCorrelationMenu);
 
-		// analyzePopupMenu.add(pairwisePearsonItem);
-		// analyzePopupMenu.add(pairwiseSpearmanItem);
-
-		/*
-		 * analyzePopupMenu.add(pearsonItem); analyzePopupMenu.add(pearsonItem2);
-		 * analyzePopupMenu.add(pearsonItem3); analyzePopupMenu.add(pearsonItemPool);
-		 * analyzePopupMenu.add(mutualInformationItem);
-		 * analyzePopupMenu.add(spearmanItem); analyzePopupMenu.add(euclideanItem);
-		 * analyzePopupMenu.add(weightedEuclideanItem);
-		 * analyzePopupMenu.add(manhattanItem);
-		 * analyzePopupMenu.add(weightedManhattanItem);
-		 * 
-		 * analyzePopupMenu.add(saveCorrelationItem); analyzePopupMenu.addSeparator();
-		 * analyzePopupMenu.add(removeCorrelationMenu);
-		 * 
-		 * analyzePopupMenu.add(pairwisePearsonItem);
-		 * analyzePopupMenu.add(pairwiseSpearmanItem);
-		 */
 		analyzeMenuButton = new MenuButton("Statistical analysis", theme.getMath(), analyzePopupMenu);
 
 		analyzeMenuButton.addFocusListener(new FocusAdapter() {
@@ -700,10 +680,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		sizeColumnsToFit();
 		sorter.setSortingStatus(myProject.getDefaultColumn(), 1);
 	}
-
-	@Override
-	public void stateChanged(ChangeEvent event) {
-		int selectedList = geneLists.getSelectedIndex();
+	
+	private void updateList() {
 		String[] listNames = myProject.getGeneListNames();
 		Arrays.sort(listNames, new ListNameComparator());
 		geneLists = new JList(listNames);
@@ -725,10 +703,17 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				}
 			}
 		});
+	}
+
+	@Override
+	public void stateChanged(ChangeEvent event) {
 		if ("delete list".equals(event.getSource())) {
+			updateList();
 			geneLists.setSelectedIndex(0);
-			
-		} else {
+
+		} else if("create list".equals(event.getSource()) || "rename list".equals(event.getSource())){
+			int selectedList = geneLists.getSelectedIndex();
+			updateList();
 			geneLists.setSelectedIndex(selectedList);
 			
 		}
@@ -855,7 +840,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			ActionProperties listSelectAction = new ActionProperties("select-list",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 			if(previousListItemSelected != selList ) {
 				previousListItemSelected = selList;
-				//listSelectAction.logActionProperties();
 			}
 		}
 		catch(Exception e) {
