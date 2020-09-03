@@ -4676,6 +4676,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 								if(MetaOmGraph.getDCResultsFrame()!=null && !MetaOmGraph.getDCResultsFrame().isClosed()) {
 									MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, "Fold Change Results");
 									MetaOmGraph.getDCResultsFrame().addTabListToFrame(frame.getGeneLists(), "Fold Change Results");
+									MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager().maximizeFrame(MetaOmGraph.getDCResultsFrame());
+									MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager().minimizeFrame(MetaOmGraph.getDCResultsFrame());
 									MetaOmGraph.getDCResultsFrame().moveToFront();
 								}
 								else {
@@ -4686,6 +4688,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 									MetaOmGraph.getDesktop().add(MetaOmGraph.getDCResultsFrame());
 									frame.setVisible(true);
 									MetaOmGraph.getDCResultsFrame().setVisible(true);
+									MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager().maximizeFrame(MetaOmGraph.getDCResultsFrame());
+									MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager().minimizeFrame(MetaOmGraph.getDCResultsFrame());
 									MetaOmGraph.getDCResultsFrame().moveToFront();
 									frame.setEnabled(true);
 								}
@@ -4821,6 +4825,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 									if(MetaOmGraph.getDCResultsFrame()!=null && !MetaOmGraph.getDCResultsFrame().isClosed()) {
 										MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, chosenVal);
 										MetaOmGraph.getDCResultsFrame().addTabListToFrame(frame.getGeneLists(), chosenVal);
+										MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager().maximizeFrame(MetaOmGraph.getDCResultsFrame());
+										MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager().minimizeFrame(MetaOmGraph.getDCResultsFrame());
 										MetaOmGraph.getDCResultsFrame().moveToFront();
 									}
 									else {
@@ -4834,6 +4840,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 										MetaOmGraph.getDesktop().add(MetaOmGraph.getDCResultsFrame());
 										frame.setVisible(true);
 										MetaOmGraph.getDCResultsFrame().setVisible(true);
+										MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager().maximizeFrame(MetaOmGraph.getDCResultsFrame());
+										MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager().minimizeFrame(MetaOmGraph.getDCResultsFrame());
 										MetaOmGraph.getDCResultsFrame().moveToFront();
 										frame.setEnabled(true);
 									}

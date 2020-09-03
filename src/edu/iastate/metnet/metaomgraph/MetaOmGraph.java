@@ -3391,32 +3391,12 @@ public class MetaOmGraph implements ActionListener {
 								frame = new logFCResultsFrame(diffExpObj, getActiveProject());
 								frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
 
-								if(diffExpObj != null) {
-
-									//Get Feature metadata rows
-									List<String> rowNames = diffExpObj.getRowNames();
-									int[] rowIndices = new int[rowNames.size()];
-									int i=0;
-									for(String row : rowNames) {
-										rowIndices[i] = MetaOmGraph.activeProject.getRowIndexbyName(row,true);
-										i++;
-									}
-
-									Object[][] myRowNames = MetaOmGraph.activeProject.getRowNames(rowIndices);	
-									String [] colNames = MetaOmGraph.activeProject.getInfoColumnNames();
-									Object[][] allRowNames = MetaOmGraph.activeProject.getRowNames();
-
-									frame.setFeatureMetadataColumnData(myRowNames);
-									frame.setFeatureMetadataColumnNames(colNames);
-									frame.setFeatureMetadataAllData(allRowNames);
-									frame.setMasterFeatureMetadataAllData(allRowNames);
-									frame.updateTable();
-
-								}
 
 								if(getDEAResultsFrame()!=null && !getDEAResultsFrame().isClosed()) {
 									getDEAResultsFrame().addTabToFrame(frame, diffExpObj.getID());
 									getDEAResultsFrame().addTabListToFrame(frame.getGeneLists(), diffExpObj.getID());
+									getDEAResultsFrame().getDesktopPane().getDesktopManager().maximizeFrame(getDEAResultsFrame());
+									getDEAResultsFrame().getDesktopPane().getDesktopManager().minimizeFrame(getDEAResultsFrame());
 									getDEAResultsFrame().moveToFront();
 								}
 								else {
@@ -3427,13 +3407,27 @@ public class MetaOmGraph implements ActionListener {
 									MetaOmGraph.getDesktop().add(getDEAResultsFrame());
 									frame.setVisible(true);
 									getDEAResultsFrame().setVisible(true);
+									getDEAResultsFrame().getDesktopPane().getDesktopManager().maximizeFrame(getDEAResultsFrame());
+									getDEAResultsFrame().getDesktopPane().getDesktopManager().minimizeFrame(getDEAResultsFrame());
 									getDEAResultsFrame().moveToFront();
 									frame.setEnabled(true);
 								}
 
 
 							} catch (Exception e) {
-								e.printStackTrace();
+								
+								StringWriter sw = new StringWriter();
+								PrintWriter pw = new PrintWriter(sw);
+								e.printStackTrace(pw);
+								String sStackTrace = sw.toString();
+								
+								JDialog jd = new JDialog();
+								JTextPane jt = new JTextPane();
+								jt.setText(sStackTrace);
+								jt.setBounds(10, 10, 300, 100);
+								jd.getContentPane().add(jt);
+								jd.setBounds(100, 100, 500, 200);
+								jd.setVisible(true);
 							}
 						}
 					});

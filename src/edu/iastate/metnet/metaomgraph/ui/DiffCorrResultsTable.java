@@ -58,6 +58,7 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.logging.log4j.Logger;
 
 import edu.iastate.metnet.metaomgraph.AdjustPval;
+import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.DEAHeaderRenderer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
@@ -91,27 +92,28 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.MenuEvent;
 
-public class DiffCorrResultsTable extends JPanel {
 
-	private StripedTable table;
-	private JList geneLists;
-	private JPanel listPanel;
-	private JToolBar dataToolbar;
-	private JToolBar listToolbar;
-	private JButton listDeleteButton;
-	private JButton listEditButton;
-	private JButton listCreateButton;
-	private JButton listRenameButton;
-	private MetaOmProject myProject;
-	private FilterableTableModel filterModel;
-	private ClearableTextField filterField;
-	private JButton listFromFilterButton;
-	private JButton advFilterButton;
-	private Throbber throbber;
-	private TableSorter sorter;
+/**
+ * 
+ * @author Harsha
+ * 
+ * This is the frame that displays the Differential Correlation results.
+ * It extends the StatisticalResultsPanel, that contains the initializations for
+ * all the display and interaction components for Statistical Results.
+ * 
+ * The frame is designed similar to the Project Data Frame, with a table displaying
+ * the resuts in the middle (table) , a menubar on top with plots and other features, a 
+ * search bar to filter the rows of the results table, a listPanel that displays all
+ * the saved lists (same list as Project Data), buttons to create, rename, edit or
+ * delete lists, Advanced Search option etc.
+ * 
+ * 
+ *
+ */
+public class DiffCorrResultsTable extends StatisticalResultsPanel {
+
 	private DiffCorrResultsTable currentObj;
-	private NoneditableTableModel mainModel;
-
+	
 	private int n1;
 	private int n2;
 	private double pvThresh = 2;
@@ -128,84 +130,11 @@ public class DiffCorrResultsTable extends JPanel {
 	private List<Double> pVals;
 	private List<Double> adjpVals;
 
-	private Object[][] masterTableData;
-	private String[] masterTableColumns;
-	private Object[][] selectedAndProjectedTableData;
-	private String[] selectedAndProjectedTableColumns;
-	private Map<Integer,Integer> rowIndicesMapping;
-	private String currentSelectedList;
-	
-	
-	/**
-	 * Default Properties
-	 */
-
-	private Color SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
-	private Color BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
-	private Color BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
-	private Color HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
-	private Color HYPERLINKCOLOR = MetaOmGraph.getTableHyperlinkColor();
-
-
-	public JList getGeneLists() {
-		return geneLists;
-	}
 
 	public List<String> getFeatureNames(){
 		return this.featureNames;
 	}
 
-	public String getSelectedList() {
-		return geneLists.getSelectedValue().toString();
-	}
-
-	public Object[][] getMasterTableData() {
-		return masterTableData;
-	}
-
-	public void setMasterTableData(Object[][] masterTableData) {
-		this.masterTableData = masterTableData;
-	}
-
-	public String[] getMasterTableColumns() {
-		return masterTableColumns;
-	}
-
-	public void setMasterTableColumns(String[] masterTableColumns) {
-		this.masterTableColumns = masterTableColumns;
-	}
-
-	public Object[][] getSelectedAndProjectedTableData() {
-		return selectedAndProjectedTableData;
-	}
-
-	public void setSelectedAndProjectedTableData(Object[][] selectedAndProjectedTableData) {
-		this.selectedAndProjectedTableData = selectedAndProjectedTableData;
-	}
-
-	public String[] getSelectedAndProjectedTableColumns() {
-		return selectedAndProjectedTableColumns;
-	}
-
-	public void setSelectedAndProjectedTableColumns(String[] selectedAndProjectedTableColumns) {
-		this.selectedAndProjectedTableColumns = selectedAndProjectedTableColumns;
-	}
-
-	public Map<Integer, Integer> getRowIndicesMapping() {
-		return rowIndicesMapping;
-	}
-
-	public void setRowIndicesMapping(Map<Integer, Integer> rowIndicesMapping) {
-		this.rowIndicesMapping = rowIndicesMapping;
-	}
-
-	public String getCurrentSelectedList() {
-		return currentSelectedList;
-	}
-
-	public void setCurrentSelectedList(String currentSelectedList) {
-		this.currentSelectedList = currentSelectedList;
-	}
 
 	/**
 	 * Launch the application.
@@ -232,6 +161,25 @@ public class DiffCorrResultsTable extends JPanel {
 
 	}
 
+	
+	/**
+	 * 
+	 * @param featureNames
+	 * @param grp1Size
+	 * @param grp2Size
+	 * @param corrVals1
+	 * @param corrVals2
+	 * @param zvals1
+	 * @param zvals2
+	 * @param diffZvals
+	 * @param zscores
+	 * @param pvals
+	 * @param myProject
+	 * 
+	 * This constructor initializes the table, provides actionListeners to the lists,
+	 * menu items, list creation/updation menu items, and other action items from the
+	 * menubar
+	 */
 	public DiffCorrResultsTable(List<String> featureNames, int grp1Size, int grp2Size, List<Double> corrVals1,
 			List<Double> corrVals2, List<Double> zvals1, List<Double> zvals2, List<Double> diffZvals,
 			List<Double> zscores, List<Double> pvals, MetaOmProject myProject) {
@@ -269,6 +217,7 @@ public class DiffCorrResultsTable extends JPanel {
 		geneLists = new JList(listNames);
 		geneLists.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		geneLists.setSelectedIndex(0);
+		
 
 		dataToolbar = new JToolBar();
 		dataToolbar.setFloatable(false);
@@ -357,7 +306,9 @@ public class DiffCorrResultsTable extends JPanel {
 		listToolbar.add(listEditButton);
 		listToolbar.add(listRenameButton);
 		listToolbar.add(listDeleteButton);
-
+		listDeleteButton.setEnabled(false);
+		listEditButton.setEnabled(false);
+		listRenameButton.setEnabled(false);
 
 
 		JPanel geneListPanel = new JPanel(new BorderLayout());
@@ -387,7 +338,7 @@ public class DiffCorrResultsTable extends JPanel {
 				JList l = (JList) e.getSource();
 				ListModel m = l.getModel();
 				int index = l.locationToIndex(e.getPoint());
-				if (index > 0) {
+				if (index >= 0) {
 					// create tooltip
 					String thisListName = m.getElementAt(index).toString();
 					int numElements = myProject.getGeneListRowNumbers(thisListName).length;
@@ -496,115 +447,144 @@ public class DiffCorrResultsTable extends JPanel {
 		mntmFilter.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				double pvalThresh = 0;
-				try {
-					String input = (String) JOptionPane.showInputDialog(null, "Please Enter a value", "Input p-value",
-							JOptionPane.QUESTION_MESSAGE, null, null, String.valueOf(pvThresh));
-					if (input == null) {
-						return;
-					}
-					pvalThresh = Double.parseDouble(input);
-
-				} catch (NumberFormatException nfe) {
-					JOptionPane.showMessageDialog(null, "Invalid number entered. Please try again.", "Error",
-							JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-
-				pvThresh = pvalThresh;
-
 				
 				
-				if(featureNames != null) {
+				new AnimatedSwingWorker("Working...", true) {
+					@Override
+					public Object construct() {
+						EventQueue.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								try {
 
-					//Get Feature metadata rows
-					List<String> rowNames = featureNames;
-					int[] rowIndices = new int[rowNames.size()];
-					int j=0;
-					for(String row : rowNames) {
-						rowIndices[j] = MetaOmGraph.activeProject.getRowIndexbyName(row,true);
-						rowIndicesMapping.put(rowIndices[j], j);
-						j++;
-					}
+									double pvalThresh = 0;
+									try {
+										String input = (String) JOptionPane.showInputDialog(null, "Please Enter a value", "Input p-value",
+												JOptionPane.QUESTION_MESSAGE, null, null, String.valueOf(pvThresh));
+										if (input == null) {
+											return;
+										}
+										pvalThresh = Double.parseDouble(input);
 
-					Object[][] featureInfoRows = MetaOmGraph.activeProject.getRowNames(rowIndices);	
-					String [] featureInfoColNames = MetaOmGraph.activeProject.getInfoColumnNames();
-					
-					List allColumnNames = new ArrayList<String>();
+									} catch (NumberFormatException nfe) {
+										JOptionPane.showMessageDialog(null, "Invalid number entered. Please try again.", "Error",
+												JOptionPane.ERROR_MESSAGE);
+										return;
+									}
 
-					allColumnNames.add("Name");
-					allColumnNames.add("r1");
-					allColumnNames.add("r2");
-					allColumnNames.add("z1");
-					allColumnNames.add("z2");
-					allColumnNames.add("z1-z2");
-					allColumnNames.add("zScore");
-					allColumnNames.add("p-value");
-					allColumnNames.add("Adj p-value");
+									pvThresh = pvalThresh;
 
-					if(featureInfoColNames!=null) {
-						for(String col : featureInfoColNames) {
-							allColumnNames.add(col);
-						}
-					}
-					
-					String [] masterColumns = new String[allColumnNames.size()];
-					
-					for(int i=0; i< allColumnNames.size(); i++) {
-						masterColumns[i] = (String) allColumnNames.get(i);
-					}
+									
+									
+									if(featureNames != null) {
 
-					ArrayList<ArrayList> pValRows = new ArrayList<ArrayList>();
-					// for each row add each coloumn
-					for (int i = 0; i < featureNames.size(); i++) {
-						// create a temp string storing all col values for a row
-						ArrayList temp = new ArrayList();
-						temp.add(featureNames.get(i));
-						temp.add(corrVals1.get(i));
-						temp.add(corrVals2.get(i));
-						temp.add(zVals1.get(i));
-						temp.add(zVals2.get(i));
-						temp.add(diff.get(i));
-						temp.add(zScores.get(i));
+										//Get Feature metadata rows
+										List<String> rowNames = featureNames;
+										int[] rowIndices = MetaOmGraph.activeProject.getRowIndexbyName(rowNames, true);
+										
+										for(int j = 0; j < rowIndices.length; j++) {
+											rowIndicesMapping[rowIndices[j]] = j;
+										}
 
-						// skip if p value is high
-						if (pVals.get(i) >= pvThresh) {
-							continue;
-						}
-						temp.add(pVals.get(i));
+										Object[][] featureInfoRows = MetaOmGraph.activeProject.getRowNames(rowIndices);	
+										String [] featureInfoColNames = MetaOmGraph.activeProject.getInfoColumnNames();
+										
+										List allColumnNames = new ArrayList<String>();
 
-						temp.add(adjpVals.get(i));
+										allColumnNames.add("Name");
+										allColumnNames.add("r1");
+										allColumnNames.add("r2");
+										allColumnNames.add("z1");
+										allColumnNames.add("z2");
+										allColumnNames.add("z1-z2");
+										allColumnNames.add("zScore");
+										allColumnNames.add("p-value");
+										allColumnNames.add("Adj p-value");
 
-						if(featureInfoRows!=null) {
-							for(int k=0;k<featureInfoRows[i].length;k++) {
-								temp.add(featureInfoRows[i][k]);
+										if(featureInfoColNames!=null) {
+											for(String col : featureInfoColNames) {
+												allColumnNames.add(col);
+											}
+										}
+										
+										String [] masterColumns = new String[allColumnNames.size()];
+										
+										for(int i=0; i< allColumnNames.size(); i++) {
+											masterColumns[i] = (String) allColumnNames.get(i);
+										}
+
+										ArrayList<ArrayList> pValRows = new ArrayList<ArrayList>();
+										// for each row add each coloumn
+										for (int i = 0; i < featureNames.size(); i++) {
+											// create a temp string storing all col values for a row
+											ArrayList temp = new ArrayList();
+											temp.add(featureNames.get(i));
+											temp.add(corrVals1.get(i));
+											temp.add(corrVals2.get(i));
+											temp.add(zVals1.get(i));
+											temp.add(zVals2.get(i));
+											temp.add(diff.get(i));
+											temp.add(zScores.get(i));
+
+											// skip if p value is high
+											if (pVals.get(i) >= pvThresh) {
+												continue;
+											}
+											temp.add(pVals.get(i));
+
+											temp.add(adjpVals.get(i));
+
+											if(featureInfoRows!=null) {
+												for(int k=0;k<featureInfoRows[i].length;k++) {
+													temp.add(featureInfoRows[i][k]);
+												}
+											}
+
+											pValRows.add(temp);
+
+										}
+										
+										Object [][] pValLimitedData = new Object[pValRows.size()][featureInfoColNames.length+9];
+										
+									
+										int[] rowIndices2 = new int[pValRows.size()];
+										
+										if(pValRows.size() > 0) {
+											
+											for(int i = 0; i < rowIndicesMapping.length; i++) {
+												rowIndicesMapping[i] = -1;
+											}
+										}
+										for(int i = 0 ; i < pValRows.size(); i++ ) {
+											ArrayList temp = pValRows.get(i);
+											pValLimitedData[i] = temp.toArray();
+											rowIndices2[i] = MetaOmGraph.activeProject.getRowIndexbyName((String)pValLimitedData[i][0],true);
+											rowIndicesMapping[rowIndices2[i]] = i;
+										}
+										
+										setMasterTableData(pValLimitedData);
+										setMasterTableColumns(masterColumns);
+										setSelectedAndProjectedTableData(pValLimitedData);
+										setSelectedAndProjectedTableColumns(masterColumns);
+										
+										projectColumns(getSelectedFeatureColumns());
+
+									}
+
+									// JOptionPane.showMessageDialog(null, "Done");
+
+
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
 							}
-						}
-
-						pValRows.add(temp);
-
+						});
+						return null;
 					}
-					
-					Object [][] pValLimitedData = new Object[pValRows.size()][featureInfoColNames.length+9];
-					
-					for(int i = 0 ; i < pValRows.size(); i++ ) {
-						ArrayList temp = pValRows.get(i);
-						pValLimitedData[i] = temp.toArray();
-					}
-					
-
-					setMasterTableData(pValLimitedData);
-					setMasterTableColumns(masterColumns);
-					setSelectedAndProjectedTableData(pValLimitedData);
-					setSelectedAndProjectedTableColumns(masterColumns);
-					
-					//projectColumns(Arrays.asList(getSelectedAndProjectedTableColumns()));
-
-					updateTable();
-				}
-
-				// JOptionPane.showMessageDialog(null, "Done");
-
+				}.start();
+				
+				
+				
 			}
 		});
 		mnEdit.add(mntmFilter);
@@ -614,26 +594,140 @@ public class DiffCorrResultsTable extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 
-				// choose adjustment method
-				JPanel cboxPanel = new JPanel();
-				String[] adjMethods = AdjustPval.getMethodNames();
-				JComboBox pvadjCBox = new JComboBox<>(adjMethods);
-				cboxPanel.add(pvadjCBox);
-				int opt = JOptionPane.showConfirmDialog(null, cboxPanel, "Select categories",
-						JOptionPane.OK_CANCEL_OPTION);
-				if (opt == JOptionPane.OK_OPTION) {
-					pvAdjMethod = pvadjCBox.getSelectedItem().toString();
-				} else {
-					return;
-				}
+				
+				new AnimatedSwingWorker("Working...", true) {
+					@Override
+					public Object construct() {
+						EventQueue.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								try {
 
-				// correct p values
-				if (pVals != null) {
-					adjpVals = AdjustPval.computeAdjPV(pVals, pvAdjMethod);
-				}
+									// choose adjustment method
+									JPanel cboxPanel = new JPanel();
+									String[] adjMethods = AdjustPval.getMethodNames();
+									JComboBox pvadjCBox = new JComboBox<>(adjMethods);
+									cboxPanel.add(pvadjCBox);
+									int opt = JOptionPane.showConfirmDialog(null, cboxPanel, "Select categories",
+											JOptionPane.OK_CANCEL_OPTION);
+									if (opt == JOptionPane.OK_OPTION) {
+										pvAdjMethod = pvadjCBox.getSelectedItem().toString();
+									} else {
+										return;
+									}
 
-				// update in table
-				updateTable();
+									// correct p values
+									if (pVals != null) {
+										adjpVals = AdjustPval.computeAdjPV(pVals, pvAdjMethod);
+									}
+
+									// update in table
+									
+									if(featureNames != null) {
+
+										//Get Feature metadata rows
+										List<String> rowNames = featureNames;
+										int[] rowIndices = MetaOmGraph.activeProject.getRowIndexbyName(rowNames, true);
+										
+										for(int j = 0; j < rowIndices.length; j++) {
+											rowIndicesMapping[rowIndices[j]] = j;
+										}
+
+										Object[][] featureInfoRows = MetaOmGraph.activeProject.getRowNames(rowIndices);	
+										String [] featureInfoColNames = MetaOmGraph.activeProject.getInfoColumnNames();
+										
+										List allColumnNames = new ArrayList<String>();
+
+										allColumnNames.add("Name");
+										allColumnNames.add("r1");
+										allColumnNames.add("r2");
+										allColumnNames.add("z1");
+										allColumnNames.add("z2");
+										allColumnNames.add("z1-z2");
+										allColumnNames.add("zScore");
+										allColumnNames.add("p-value");
+										allColumnNames.add("Adj p-value");
+
+										if(featureInfoColNames!=null) {
+											for(String col : featureInfoColNames) {
+												allColumnNames.add(col);
+											}
+										}
+										
+										String [] masterColumns = new String[allColumnNames.size()];
+										
+										for(int i=0; i< allColumnNames.size(); i++) {
+											masterColumns[i] = (String) allColumnNames.get(i);
+										}
+
+										ArrayList<ArrayList> pValRows = new ArrayList<ArrayList>();
+										// for each row add each coloumn
+										for (int i = 0; i < featureNames.size(); i++) {
+											// create a temp string storing all col values for a row
+											ArrayList temp = new ArrayList();
+											temp.add(featureNames.get(i));
+											temp.add(corrVals1.get(i));
+											temp.add(corrVals2.get(i));
+											temp.add(zVals1.get(i));
+											temp.add(zVals2.get(i));
+											temp.add(diff.get(i));
+											temp.add(zScores.get(i));
+
+											// skip if p value is high
+											if (pVals.get(i) >= pvThresh) {
+												continue;
+											}
+											temp.add(pVals.get(i));
+
+											temp.add(adjpVals.get(i));
+
+											if(featureInfoRows!=null) {
+												for(int k=0;k<featureInfoRows[i].length;k++) {
+													temp.add(featureInfoRows[i][k]);
+												}
+											}
+
+											pValRows.add(temp);
+
+										}
+										
+										Object [][] pValLimitedData = new Object[pValRows.size()][featureInfoColNames.length+9];
+										
+									
+										int[] rowIndices2 = new int[pValRows.size()];
+										
+										if(pValRows.size() > 0) {
+											for(int i = 0; i < rowIndicesMapping.length; i++) {
+												rowIndicesMapping[i] = -1;
+											}
+										}
+										for(int i = 0 ; i < pValRows.size(); i++ ) {
+											ArrayList temp = pValRows.get(i);
+											pValLimitedData[i] = temp.toArray();
+											rowIndices2[i] = MetaOmGraph.activeProject.getRowIndexbyName((String)pValLimitedData[i][0],true);
+											rowIndicesMapping[rowIndices2[i]] = i;
+										}
+										
+										setMasterTableData(pValLimitedData);
+										setMasterTableColumns(masterColumns);
+										setSelectedAndProjectedTableData(pValLimitedData);
+										setSelectedAndProjectedTableColumns(masterColumns);
+										
+										projectColumns(getSelectedFeatureColumns());
+
+									}
+
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
+							}
+						});
+						return null;
+					}
+				}.start();
+				
+				
+				
 			}
 		});
 		mnEdit.add(mntmPvalueCorrection);
@@ -922,8 +1016,8 @@ public class DiffCorrResultsTable extends JPanel {
 				result.put("result", "OK");
 
 				// show advance filter options
-				final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(
-						MetaOmGraph.getActiveProject(), true);
+				final TreeSearchQueryConstructionPanelDC tsp = new TreeSearchQueryConstructionPanelDC(
+						MetaOmGraph.getActiveProject(), true, getSelectedAndProjectedTableColumns());
 				final MetadataQuery[] queries;
 				queries = tsp.showSearchDialog();
 				// boolean matchCase=tsp.matchCase();
@@ -934,8 +1028,7 @@ public class DiffCorrResultsTable extends JPanel {
 					return;
 				}
 
-				String[] headers = myProject.getInfoColumnNames();
-				List<String> headersList = Arrays.asList(headers);
+				List<String> headersList = Arrays.asList(getSelectedAndProjectedTableColumns());
 
 				// JOptionPane.showMessageDialog(null, "h:"+headersList);
 
@@ -980,19 +1073,19 @@ public class DiffCorrResultsTable extends JPanel {
 		panel_1.add(dataToolbar);
 
 		
-		rowIndicesMapping = new HashMap<Integer,Integer>();
-
+		rowIndicesMapping = new int[MetaOmGraph.activeProject.getRowCount()];
+		for(int i=0; i < rowIndicesMapping.length; i++) {
+			rowIndicesMapping[i] = -1;
+		}
 		//Combining the Diff corr columns and feature info columns into masterData before updating the table
 		if(featureNames != null) {
 
 			//Get Feature metadata rows
 			List<String> rowNames = featureNames;
-			int[] rowIndices = new int[rowNames.size()];
-			int j=0;
-			for(String row : rowNames) {
-				rowIndices[j] = MetaOmGraph.activeProject.getRowIndexbyName(row,true);
-				rowIndicesMapping.put(rowIndices[j], j);
-				j++;
+			int[] rowIndices = MetaOmGraph.activeProject.getRowIndexbyName(rowNames, true);
+			
+			for(int j = 0; j < rowIndices.length; j++) {
+				rowIndicesMapping[rowIndices[j]] = j;
 			}
 
 			Object[][] featureInfoRows = MetaOmGraph.activeProject.getRowNames(rowIndices);	
@@ -1059,6 +1152,7 @@ public class DiffCorrResultsTable extends JPanel {
 			setMasterTableColumns(masterColumns);
 			setSelectedAndProjectedTableData(masterData);
 			setSelectedAndProjectedTableColumns(masterColumns);
+			setSelectedFeatureColumns(Arrays.asList(myProject.getInfoColumnNames()));
 			
 			updateTable();
 
@@ -1067,142 +1161,24 @@ public class DiffCorrResultsTable extends JPanel {
 
 		}
 		catch(Exception e) {
-			StringWriter errors = new StringWriter();
-			e.printStackTrace(new PrintWriter(errors));
-			
-			JDialog jd = new JDialog();
-			JTextPane jt = new JTextPane();
-			jt.setText(errors.toString());
-			jt.setBounds(10, 10, 300, 100);
-			jd.getContentPane().add(jt);
-			jd.setBounds(100, 100, 500, 200);
-			jd.setVisible(true);
+			e.printStackTrace();
 		}
 
 	}
 
 	
-	
-	private void initTableModel() {
-
-		table = new StripedTable() {
-			@Override
-			public boolean getScrollableTracksViewportWidth() {
-				return getPreferredSize().width < getParent().getWidth();
-			}
-
-			@Override
-			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
-				Component c = super.prepareRenderer(renderer, row, column);
-
-				if (!isRowSelected(row)) {
-					c.setBackground(getBackground());
-					int modelRow = convertRowIndexToModel(row);
-
-					if (row % 2 == 0) {
-						c.setBackground(BCKGRNDCOLOR1);
-					} else {
-						c.setBackground(BCKGRNDCOLOR2);
-					}
-
-				} else {
-					c.setBackground(SELECTIONBCKGRND);
-				}
-
-				return c;
-			}
-
-		};
-
-		// table mouse listener
-		table.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				// only do if double click
-				if (e.getClickCount() < 2) {
-					return;
-				}
-				int row = table.convertRowIndexToModel(table.rowAtPoint(new Point(e.getX(), e.getY())));
-				int col = table.convertColumnIndexToModel(table.columnAtPoint(new Point(e.getX(), e.getY())));
-
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				int col = table.columnAtPoint(new Point(e.getX(), e.getY()));
-
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-				int col = table.columnAtPoint(new Point(e.getX(), e.getY()));
-
-			}
-		});
-		// end mouse listner
-
-		// disable colum drag
-		table.getTableHeader().setReorderingAllowed(false);
-
-		DefaultTableModel model = new DefaultTableModel() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public Class<?> getColumnClass(int column) {
-				switch (column) {
-				case 0:
-					return String.class;
-				default:
-					return Double.class;
-				}
-			}
-
-			@Override
-			public boolean isCellEditable(int row, int column) {
-				// all cells false
-				return false;
-			}
-		};
-		table.setModel(model);
-	}
-
-
-
-
-	public void updateTable() {
-
-		// add data to the model
-		mainModel = new NoneditableTableModel(getSelectedAndProjectedTableData(),getSelectedAndProjectedTableColumns());
-		filterModel = new FilterableTableModel(mainModel);
-		sorter = new TableSorter(filterModel);
-
-		table.setModel(sorter);
-
-		formatTable();
-	}
-
-
-	
-	public void updateTableRows(Object [][] rows, String[] cols) {
-
-		mainModel = new NoneditableTableModel(rows,cols);
-		filterModel = new FilterableTableModel(mainModel);
-		sorter = new TableSorter(filterModel);
-
-		table.setModel(sorter);
-
-		formatTable();
-
-	}
-
-
+	/**
+	 * Overriden method that formats the Statistical Result Panel table to show the
+	 * DEA columns in Red color and Feature metadata columns in Blue.
+	 */
+	@Override
 	public void formatTable() {
 
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setAutoCreateRowSorter(true);
 		table.setPreferredScrollableViewportSize(table.getPreferredSize());
 		table.setFillsViewportHeight(true);
-		table.getTableHeader().setFont(new Font("Garamond", Font.BOLD, 14));
+		table.getTableHeader().setFont(new Font("Garamond", Font.BOLD, 12));
 
 		int colCount = 9;
 
@@ -1236,46 +1212,11 @@ public class DiffCorrResultsTable extends JPanel {
 	}
 	
 	
-	public void selectList(String listName) {
-		
-		if(listName == "Complete List") {
-			setSelectedAndProjectedTableData(getMasterTableData());
-			setCurrentSelectedList("Complete List");
-			updateTable();
-			listDeleteButton.setEnabled(false);
-			listEditButton.setEnabled(false);
-			listRenameButton.setEnabled(false);
-		}
-		else {
-			
-			listDeleteButton.setEnabled(true);
-			listEditButton.setEnabled(true);
-			listRenameButton.setEnabled(true);
-
-			setCurrentSelectedList(listName);
-			int[] mainTableListIndices = myProject.getGeneListRowNumbers(listName);
-			
-			List<Object[]> selectedRowsList = new ArrayList<Object[]>();
-			for(int i=0; i < mainTableListIndices.length; i++) {
-				if(rowIndicesMapping.get(mainTableListIndices[i]) != null) {
-					selectedRowsList.add(selectedAndProjectedTableData[rowIndicesMapping.get(mainTableListIndices[i])]);
-				}
-			}
-			
-			Object[][] resultedSelectedRows = new Object[selectedRowsList.size()][selectedAndProjectedTableColumns.length];
-			
-			int x = 0;
-			for(Object row : selectedRowsList) {
-				resultedSelectedRows[x] = (Object[]) row;
-				x++;
-			}
-			
-			updateTableRows(resultedSelectedRows, selectedAndProjectedTableColumns);
-
-		}
-	}
-
-	
+	/**
+	 * Overriden method that projects the feature metadata columns after a user
+	 * chooses the required columns.
+	 */
+	@Override
 	public void projectColumns(List<String> selectedCols) {
 		
 		String [] featureInfoColNames = MetaOmGraph.activeProject.getInfoColumnNames();
@@ -1325,17 +1266,6 @@ public class DiffCorrResultsTable extends JPanel {
 	}
 	
 	
-
-	public int[] getSelectedRowsIndices() {
-
-		int [] currentTableSelRows = table.getSelectedRows();
-		List<String> selectedGeneNames = new ArrayList<String>();
-		for(int i=0; i< currentTableSelRows.length; i++) {
-			selectedGeneNames.add((String)table.getValueAt(currentTableSelRows[i], 0));
-		}
-
-		return myProject.getRowIndexbyName(selectedGeneNames, true);
-	}
 
 
 	public void printMessage(String msg) {
@@ -1394,6 +1324,10 @@ public class DiffCorrResultsTable extends JPanel {
 		return rowIndices;
 	}
 
+	
+	/**
+	 * Method to plot the column Histogram of the given data
+	 */
 	private void plotColumnHistogram(String columnName) {
 
 		// plot histogram of current pvalues in table
@@ -1432,65 +1366,6 @@ public class DiffCorrResultsTable extends JPanel {
 
 	}
 
-
-	private void makeListFromFilter() {
-		String filterText = filterField.getText();
-		int filteredTableCount = table.getModel().getRowCount();
-
-		List<String> selectedGeneNames = new ArrayList<String>();
-		for(int i=0; i< filteredTableCount; i++) {
-			selectedGeneNames.add((String)table.getValueAt(i, 0));
-		}
-
-		int[] entries = myProject.getRowIndexbyName(selectedGeneNames, true);
-
-		myProject.addGeneList(filterText, entries, true, false);
-	}
-
-
-
-	private class FilterFieldListener implements DocumentListener, ActionListener {
-		Timer t;
-
-		public FilterFieldListener() {
-			t = new Timer(300, this);
-			t.setRepeats(false);
-		}
-
-		public void doChange() {
-			t.restart();
-			if (!Throbber.isAnimating()) {
-				throbber.start();
-			}
-			if (filterField.getText().trim().equals("")) {
-				listFromFilterButton.setEnabled(false);
-			}
-		}
-
-		@Override
-		public void insertUpdate(DocumentEvent e) {
-			doChange();
-		}
-
-		@Override
-		public void removeUpdate(DocumentEvent e) {
-			doChange();
-		}
-
-		@Override
-		public void changedUpdate(DocumentEvent e) {
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			filterModel.applyFilter(filterField.getText().trim());
-			throbber.stop();
-			boolean success = filterModel.getRowCount() != 0;
-			listFromFilterButton.setEnabled((success) && (!filterField.getText().trim().equals("")));
-			//plotFilterItem.setEnabled((success) && (!filterField.getText().trim().equals("")));
-			Utils.setSearchFieldColors(filterField, success);
-		}
-	}
 
 
 }
