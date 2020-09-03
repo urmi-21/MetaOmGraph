@@ -154,7 +154,7 @@ public class DCColumnSelectFrame extends TaskbarInternalFrame{
 
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		pack();
-		setSize(400, 550);
+		setSize(900, 550);
 		setClosable(true);
 		setMaximizable(false);
 		setIconifiable(true);
