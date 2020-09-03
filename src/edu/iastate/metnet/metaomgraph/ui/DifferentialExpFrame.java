@@ -6,6 +6,8 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -266,30 +268,12 @@ public class DifferentialExpFrame extends TaskbarInternalFrame {
 									//frame.setTitle("DE results");
 
 
-									//Get Feature metadata rows
-									List<String> rowNames = diffExpObj.getRowNames();
-									int[] rowIndices = new int[rowNames.size()];
-									int i=0;
-									for(String row : rowNames) {
-										rowIndices[i] = MetaOmGraph.activeProject.getRowIndexbyName(row,true);
-										i++;
-									}
-
-									Object[][] myRowNames = MetaOmGraph.activeProject.getRowNames(rowIndices);	
-									String [] colNames = MetaOmGraph.activeProject.getInfoColumnNames();
-									Object[][] allRowNames = MetaOmGraph.activeProject.getRowNames();
-
-									frame.setFeatureMetadataColumnData(myRowNames);
-									frame.setFeatureMetadataColumnNames(colNames);
-									frame.setFeatureMetadataAllData(allRowNames);
-									frame.setMasterFeatureMetadataAllData(allRowNames);
-									frame.updateTable();
-
-
 									if(MetaOmGraph.getDEAResultsFrame()!=null && !MetaOmGraph.getDEAResultsFrame().isClosed()) {
 										MetaOmGraph.getDEAResultsFrame().addTabToFrame(frame, diffExpObj.getID());
 										MetaOmGraph.getDEAResultsFrame().addTabListToFrame(frame.getGeneLists(), diffExpObj.getID());
 										MetaOmGraph.getDEAResultsFrame().setTitle("DE results");
+										MetaOmGraph.getDEAResultsFrame().getDesktopPane().getDesktopManager().maximizeFrame(MetaOmGraph.getDEAResultsFrame());
+										MetaOmGraph.getDEAResultsFrame().getDesktopPane().getDesktopManager().minimizeFrame(MetaOmGraph.getDEAResultsFrame());
 										MetaOmGraph.getDEAResultsFrame().moveToFront();
 										frame.setEnabled(true);
 									}
@@ -300,13 +284,26 @@ public class DifferentialExpFrame extends TaskbarInternalFrame {
 										MetaOmGraph.getDesktop().add(MetaOmGraph.getDEAResultsFrame());
 										MetaOmGraph.getDEAResultsFrame().setTitle("DE results");
 										MetaOmGraph.getDEAResultsFrame().setVisible(true);
+										MetaOmGraph.getDEAResultsFrame().getDesktopPane().getDesktopManager().maximizeFrame(MetaOmGraph.getDEAResultsFrame());
+										MetaOmGraph.getDEAResultsFrame().getDesktopPane().getDesktopManager().minimizeFrame(MetaOmGraph.getDEAResultsFrame());
 										MetaOmGraph.getDEAResultsFrame().moveToFront();
 										frame.setEnabled(true);
 									}
 
 
 								} catch (Exception e) {
-									e.printStackTrace();
+									StringWriter sw = new StringWriter();
+									PrintWriter pw = new PrintWriter(sw);
+									e.printStackTrace(pw);
+									String sStackTrace = sw.toString();
+									
+									JDialog jd = new JDialog();
+									JTextPane jt = new JTextPane();
+									jt.setText(sStackTrace);
+									jt.setBounds(10, 10, 300, 100);
+									jd.getContentPane().add(jt);
+									jd.setBounds(100, 100, 500, 200);
+									jd.setVisible(true);
 								}
 							}
 						});

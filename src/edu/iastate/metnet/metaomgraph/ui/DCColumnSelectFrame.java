@@ -1,11 +1,14 @@
 package edu.iastate.metnet.metaomgraph.ui;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyVetoException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.BoxLayout;
@@ -47,11 +50,7 @@ public class DCColumnSelectFrame extends TaskbarInternalFrame{
 	private JButton jButton;
 	private DCColumnSelectFrame currentFrame;
 
-	private static String[] listItems = { "BLUE", "BLACK", "CYAN",
-			"GREEN", "GRAY", "RED", "WHITE" };
-	private static Color[] colors = { Color.BLUE, Color.BLACK,
-			Color.CYAN, Color.GREEN, Color.GRAY, Color.RED, Color.WHITE };
-
+	private static String[] listItems = {};
 	
 	/**
 	 * In this constructor, we initialize the Select Feature Metadata frame , add the JPanel
@@ -62,7 +61,7 @@ public class DCColumnSelectFrame extends TaskbarInternalFrame{
 	public DCColumnSelectFrame(DiffCorrResultsTable frame) {
 		super("Select Feature Metadata columns to be shown");
 		setLayout(new FlowLayout());
-		setBounds(100, 100, 700, 450);
+		setBounds(100, 100, 500, 450);
 		setSize(400,300);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -91,7 +90,7 @@ public class DCColumnSelectFrame extends TaskbarInternalFrame{
 
 
 		JScrollPane scrollPane = new JScrollPane(jList);
-		scrollPane.setSize(200,500);
+		scrollPane.setPreferredSize(new Dimension(100,400));
 		outerPanel.add(scrollPane);
 
 		scrollPane.setBorder(new EmptyBorder(0,0,10,0));
@@ -119,6 +118,7 @@ public class DCColumnSelectFrame extends TaskbarInternalFrame{
 									}
 
 									frame.projectColumns(selectedCols);
+									frame.setSelectedFeatureColumns(selectedCols);
 
 									try {
 										currentFrame.setClosed(true);
@@ -142,10 +142,7 @@ public class DCColumnSelectFrame extends TaskbarInternalFrame{
 		setModel(deaColSelectModel);
 
 		add(outerPanel);
-		setResizable(true);
-		setMaximizable(true);
-		setIconifiable(true);
-		setClosable(true);
+		setResizable(false);
 		setVisible(true);
 
 		try {
@@ -157,9 +154,9 @@ public class DCColumnSelectFrame extends TaskbarInternalFrame{
 
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		pack();
-		setSize(600, 550);
+		setSize(400, 550);
 		setClosable(true);
-		setMaximizable(true);
+		setMaximizable(false);
 		setIconifiable(true);
 		toFront();
 	}

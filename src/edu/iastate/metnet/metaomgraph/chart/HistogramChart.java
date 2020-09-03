@@ -175,7 +175,7 @@ public class HistogramChart extends TaskbarInternalFrame implements ChartMouseLi
 		btnNewButton_1.addActionListener(this);
 		panel_1.add(btnNewButton_1);
 
-		normalizeButton = new JButton("Normalize by total count");
+		normalizeButton = new JButton("Density Histogram");
 		normalizeButton.setActionCommand("normalizeByCount");
 		normalizeButton.addActionListener(this);
 		panel_1.add(normalizeButton);
@@ -306,11 +306,11 @@ public class HistogramChart extends TaskbarInternalFrame implements ChartMouseLi
 		// chart
 
 		if(isNormalized) {
-			myChart = ChartFactory.createHistogram("Density Histogram", MetaOmGraph.getActiveProject().getDataColumnCount()+" samples; ", "Count", dataset, PlotOrientation.VERTICAL, true,
+			myChart = ChartFactory.createHistogram("Density Histogram", MetaOmGraph.getActiveProject().getDefaultYAxis(), "Count", dataset, PlotOrientation.VERTICAL, true,
 					true, false);
 		}
 		else {
-			myChart = ChartFactory.createHistogram("Histogram", MetaOmGraph.getActiveProject().getDataColumnCount()+" samples; ", "Count", dataset, PlotOrientation.VERTICAL, true,
+			myChart = ChartFactory.createHistogram("Histogram", MetaOmGraph.getActiveProject().getDefaultYAxis(), "Count", dataset, PlotOrientation.VERTICAL, true,
 					true, false);
 		}
 

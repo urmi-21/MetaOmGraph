@@ -24,12 +24,14 @@ import javax.swing.ListSelectionModel;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
+import net.miginfocom.swing.MigLayout;
 
 /**
  * 
@@ -64,8 +66,9 @@ public class DEAColumnSelectFrame extends TaskbarInternalFrame{
 	 */
 	public DEAColumnSelectFrame(logFCResultsFrame frame) {
 		super("Select Feature Metadata columns to be shown");
+		
 		setLayout(new FlowLayout());
-		setBounds(100, 100, 700, 450);
+		setBounds(100, 100, 500, 450);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
 		currentFrame = this;
@@ -93,9 +96,8 @@ public class DEAColumnSelectFrame extends TaskbarInternalFrame{
 		jList.setModel(model);
 		jList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
-
 		JScrollPane scrollPane = new JScrollPane(jList);
-		scrollPane.setSize(200,500);
+		scrollPane.setPreferredSize(new Dimension(100,400));
 		outerPanel.add(scrollPane);
 		scrollPane.setBorder(new EmptyBorder(0,0,10,0));
 
@@ -113,43 +115,16 @@ public class DEAColumnSelectFrame extends TaskbarInternalFrame{
 							@Override
 							public void run() {
 								try {
-									int[] rowIndices = new int[frame.getFeatureNames().size()];
-									int p=0;
-									for(String row : frame.getFeatureNames()) {
-										rowIndices[p] = MetaOmGraph.activeProject.getRowIndexbyName(row,true);
-										p++;
-									}
 
 									int [] selectedFeatureMetadataCols = jList.getSelectedRows();
 									List<String> selectedCols = new ArrayList<String>();
 
-									for(int i=0;i<selectedFeatureMetadataCols.length;i++) {
-										selectedCols.add((String) model.getValueAt(selectedFeatureMetadataCols[i], 0));
+									for(int j=0;j<selectedFeatureMetadataCols.length;j++) {
+										selectedCols.add((String) model.getValueAt(selectedFeatureMetadataCols[j], 0));
 									}
 
-									Object [][] allRows = MetaOmGraph.activeProject.getRowNames(rowIndices);
-									Object [][] totalRows = MetaOmGraph.activeProject.getRowNames();
-									String [] allColNames = MetaOmGraph.activeProject.getInfoColumnNames();
-
-									Object [][] newRows = new Object[rowIndices.length][selectedFeatureMetadataCols.length];
-									Object [][] newTotalRows = new Object[totalRows.length][selectedFeatureMetadataCols.length];
-									String [] newColNames = new String[selectedFeatureMetadataCols.length];
-
-									for(int i=0;i<selectedFeatureMetadataCols.length;i++) {
-										newColNames[i] = allColNames[selectedFeatureMetadataCols[i]];
-
-										for(int j=0;j<rowIndices.length;j++) {
-											newRows[j][i] = allRows[j][selectedFeatureMetadataCols[i]];
-										}
-										for(int k=0;k<totalRows.length;k++) {
-											newTotalRows[k][i] = totalRows[k][selectedFeatureMetadataCols[i]];
-										}
-									}
-
-									frame.setFeatureMetadataColumnData(newRows);
-									frame.setFeatureMetadataColumnNames(newColNames);
-									frame.setFeatureMetadataAllData(newTotalRows);
-									frame.updateTable();
+									frame.projectColumns(selectedCols);
+									frame.setSelectedFeatureColumns(selectedCols);
 
 									try {
 										currentFrame.setClosed(true);
@@ -174,10 +149,7 @@ public class DEAColumnSelectFrame extends TaskbarInternalFrame{
 		setModel(deaColSelectModel);
 
 		add(outerPanel);
-		setResizable(true);
-		setMaximizable(true);
-		setIconifiable(true);
-		setClosable(true);
+		setResizable(false);
 		setVisible(true);
 
 		try {
@@ -189,9 +161,9 @@ public class DEAColumnSelectFrame extends TaskbarInternalFrame{
 
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		pack();
-		setSize(600, 550);
+		setSize(400, 550);
 		setClosable(true);
-		setMaximizable(true);
+		setMaximizable(false);
 		setIconifiable(true);
 		toFront();
 	}
