@@ -55,6 +55,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JCheckBox;
 
+/**
+ * 
+ * UI class to choose which features to use in the Differential Correlation Analysis
+ *
+ */
 public class DifferentialCorrFrame extends TaskbarInternalFrame {
 
 	// private JComboBox comboBox;
