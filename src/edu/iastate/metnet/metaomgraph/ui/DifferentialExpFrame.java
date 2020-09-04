@@ -60,6 +60,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JCheckBox;
 
+
+/**
+ * 
+ * UI class to choose which features to use in the Differential Expression Analysis
+ *
+ */
+
 public class DifferentialExpFrame extends TaskbarInternalFrame {
 
 	private JComboBox comboBox;

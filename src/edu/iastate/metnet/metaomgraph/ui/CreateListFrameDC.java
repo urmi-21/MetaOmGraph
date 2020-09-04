@@ -21,7 +21,20 @@ import javax.swing.event.ChangeListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
+/**
+ * 
+ * @author Harsha
+ * 
+ * This is the class for the Create List and Edit list feature in the 
+ * Differential Correlation frame. Users can choose the features that 
+ * can go into a list and click on 'OK' to create the list with a 
+ * particular name.
+ * 
+ * The list created will be added to the availabe lists, and will be 
+ * visible in the project data, Differential Expression and Differential
+ * correlation frames.
+ *
+ */
 public class CreateListFrameDC
         extends TaskbarInternalFrame
         implements ActionListener, ChangeListener {

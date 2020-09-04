@@ -1,5 +1,15 @@
 package edu.iastate.metnet.metaomgraph;
 
+/**
+ * 
+ * @author Harsha
+ * 
+ * This class stores the frame type, frame name and the frame number of
+ * an internal frame. The TaskbarInternalFrame class has an attribute of
+ * FrameModel type, that saves the details of the frame to be used later
+ * when populating the taskbar menu items.
+ *
+ */
 public class FrameModel{
 	
 	private String frameType;
