@@ -687,6 +687,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		geneLists = new JList(listNames);
 		geneLists.addListSelectionListener(this);
 		geneLists.setSelectionMode(0);
+		
 		// urmi
 		geneLists.addMouseMotionListener(new MouseMotionAdapter() {
 			@Override
@@ -709,10 +710,12 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		if ("delete list".equals(event.getSource())) {
 			updateList();
 			geneLists.setSelectedIndex(0);
+
 		} else if("create list".equals(event.getSource()) || "rename list".equals(event.getSource())){
 			int selectedList = geneLists.getSelectedIndex();
 			updateList();
 			geneLists.setSelectedIndex(selectedList);
+			
 		}
 		valueChanged(null);
 		if (("new correlation".equals(event.getSource())) || ("info column deleted".equals(event.getSource()))) {
@@ -725,6 +728,14 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			sorter.setSortingStatus(0, -1);
 		}
 		geneListScrollPane.setViewportView(geneLists);
+		
+		if(MetaOmGraph.getDEAResultsFrame() != null) {
+			MetaOmGraph.getDEAResultsFrame().refreshAllTabsLists();
+		}
+		if(MetaOmGraph.getDCResultsFrame() != null) {
+			MetaOmGraph.getDCResultsFrame().refreshAllTabsLists();
+		}
+		
 	}
 
 	public void selectList(String listName) {
@@ -2230,6 +2241,13 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 		// myProject.deleteGeneList(geneLists.getSelectedValue().toString());
 	}
+	
+	public void deleteSelectedList(List<String> listNames) {
+		
+		for (String s : listNames) {
+			myProject.deleteGeneList(s.toString());
+		}
+	}
 
 	public String getSelectedGeneName() {
 		if (listDisplay.getSelectedRow() != -1) {
@@ -2402,6 +2420,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				return -1;
 			if (o2.equals("Complete List"))
 				return 1;
+			if (o1.equals("Current Result"))
+				return -1;
+			if (o2.equals("Current Result"))
+				return 1;
 			return o1.toLowerCase().compareTo(o2.toLowerCase());
 		}
 	}
@@ -2417,6 +2439,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			clf.setIconifiable(true);
 			clf.setClosable(true);
 			clf.setTitle("Create New List");
+			
+			FrameModel createListFrameModel = new FrameModel("List","Create List",25);
+			clf.setModel(createListFrameModel);
+			
 			MetaOmGraph.getDesktop().add(clf);
 			clf.setVisible(true);
 			return;
@@ -2429,6 +2455,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			clf.setIconifiable(true);
 			clf.setClosable(true);
 			clf.setTitle("Edit List");
+			
+			FrameModel editListFrameModel = new FrameModel("List","Edit List",25);
+			clf.setModel(editListFrameModel);
+			
 			MetaOmGraph.getDesktop().add(clf);
 			clf.setVisible(true);
 			return;
@@ -2822,6 +2852,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			clf.setIconifiable(true);
 			clf.setClosable(true);
 			clf.setTitle("Edit List");
+			
+			FrameModel editListFrameModel = new FrameModel("List","Edit List",25);
+			clf.setModel(editListFrameModel);
+			
 			MetaOmGraph.getDesktop().add(clf);
 			clf.setVisible(true);
 		}
@@ -4606,13 +4640,57 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			List<Double> diffZvals = CalculateDiffCorr.getDiff(zVals1, zVals2);
 			List<Double> zScores = CalculateDiffCorr.computeZscores(diffZvals, n1, n2);
 			List<Double> pValues = CalculateDiffCorr.computePVals(zScores);
+			
+			final int n1_f = n1;
+			final int n2_f = n2;
+			
+			new AnimatedSwingWorker("Working...", true) {
+				@Override
+				public Object construct() {
+					EventQueue.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								
+								DiffCorrResultsTable frame = new DiffCorrResultsTable(featureNames, n1_f, n2_f, corrVals1, corrVals2, zVals1,
+										zVals2, diffZvals, zScores, pValues, myProject);
+								frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
+								
+								
+								if(MetaOmGraph.getDCResultsFrame()!=null && !MetaOmGraph.getDCResultsFrame().isClosed()) {
+									MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, "Fold Change Results");
+									MetaOmGraph.getDCResultsFrame().addTabListToFrame(frame.getGeneLists(), "Fold Change Results");
+									MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager().maximizeFrame(MetaOmGraph.getDCResultsFrame());
+									MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager().minimizeFrame(MetaOmGraph.getDCResultsFrame());
+									MetaOmGraph.getDCResultsFrame().moveToFront();
+								}
+								else {
+									MetaOmGraph.setDCResultsFrame(new StatisticalResultsFrame("Differential Correlation","Differential Correlation Results ["+featureNames.get(0)+"] ("+featureNames.size()+" features)"));
+									MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, "Fold Change Results");
+									MetaOmGraph.getDCResultsFrame().addTabListToFrame(frame.getGeneLists(), "Fold Change Results");
+									MetaOmGraph.getDCResultsFrame().setTitle("Differential Correlation Results");
+									MetaOmGraph.getDesktop().add(MetaOmGraph.getDCResultsFrame());
+									frame.setVisible(true);
+									MetaOmGraph.getDCResultsFrame().setVisible(true);
+									MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager().maximizeFrame(MetaOmGraph.getDCResultsFrame());
+									MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager().minimizeFrame(MetaOmGraph.getDCResultsFrame());
+									MetaOmGraph.getDCResultsFrame().moveToFront();
+									frame.setEnabled(true);
+								}
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					});
+					return null;
+				}
+			}.start();
 
-			DiffCorrResultsTable frame = new DiffCorrResultsTable(featureNames, n1, n2, corrVals1, corrVals2, zVals1,
-					zVals2, diffZvals, zScores, pValues, myProject);
-			frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
-			frame.setTitle("Fold change results");
-			MetaOmGraph.getDesktop().add(frame);
-			frame.setVisible(true);
+			
+			
+//			frame.setTitle("Fold change results");
+//			MetaOmGraph.getDesktop().add(frame);
+//			frame.setVisible(true);
 
 			ActionProperties existingDifferentialAction = new ActionProperties("differential-correlation-with-existing-columns",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 			existingDifferentialAction.logActionProperties();
@@ -4712,13 +4790,60 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			DifferentialCorrResults diffcorrresOB = myProject.getDiffCorrResObj(chosenVal);
 			// display result using DiffCorrResultsTable
 
-			DiffCorrResultsTable frame = new DiffCorrResultsTable(diffcorrresOB.getFeatureNames(),
-					diffcorrresOB.getGrp1Size(), diffcorrresOB.getGrp2Size(), diffcorrresOB.getCorrGrp1(),
-					diffcorrresOB.getCorrGrp2(), diffcorrresOB.getzVals(1), diffcorrresOB.getzVals(2),
-					diffcorrresOB.getDiffZVals(), diffcorrresOB.getzScores(), diffcorrresOB.getpValues(), myProject);
-			frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
-			MetaOmGraph.getDesktop().add(frame);
-			frame.setVisible(true);
+			new AnimatedSwingWorker("Working...", true) {
+				@Override
+				public Object construct() {
+					EventQueue.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								
+								DiffCorrResultsTable frame = new DiffCorrResultsTable(diffcorrresOB.getFeatureNames(),
+								diffcorrresOB.getGrp1Size(), diffcorrresOB.getGrp2Size(), diffcorrresOB.getCorrGrp1(),
+										diffcorrresOB.getCorrGrp2(), diffcorrresOB.getzVals(1), diffcorrresOB.getzVals(2),
+										diffcorrresOB.getDiffZVals(), diffcorrresOB.getzScores(), diffcorrresOB.getpValues(), myProject);
+								frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
+								
+								
+							
+									if(MetaOmGraph.getDCResultsFrame()!=null && !MetaOmGraph.getDCResultsFrame().isClosed()) {
+										MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, chosenVal);
+										MetaOmGraph.getDCResultsFrame().addTabListToFrame(frame.getGeneLists(), chosenVal);
+										MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager().maximizeFrame(MetaOmGraph.getDCResultsFrame());
+										MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager().minimizeFrame(MetaOmGraph.getDCResultsFrame());
+										MetaOmGraph.getDCResultsFrame().moveToFront();
+									}
+									else {
+										
+										
+										
+										MetaOmGraph.setDCResultsFrame(new StatisticalResultsFrame("Differential Correlation","Differential Correlation Results ["+diffcorrresOB.getFeatureNames().get(0)+"] ("+diffcorrresOB.getFeatureNames().size()+" features)"));
+										MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, chosenVal);
+										MetaOmGraph.getDCResultsFrame().addTabListToFrame(frame.getGeneLists(), chosenVal);
+										MetaOmGraph.getDCResultsFrame().setTitle("Differential Correlation Results");
+										MetaOmGraph.getDesktop().add(MetaOmGraph.getDCResultsFrame());
+										frame.setVisible(true);
+										MetaOmGraph.getDCResultsFrame().setVisible(true);
+										MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager().maximizeFrame(MetaOmGraph.getDCResultsFrame());
+										MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager().minimizeFrame(MetaOmGraph.getDCResultsFrame());
+										MetaOmGraph.getDCResultsFrame().moveToFront();
+										frame.setEnabled(true);
+									}
+								
+								
+							} catch (Exception e) {
+								
+							}
+						}
+					});
+					return null;
+				}
+			}.start();
+			
+
+			
+			
+
 
 			//Harsha - reproducibility log
 
@@ -5842,5 +5967,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		plotRMenu.add(runOtherScript);
 
 	}
+	
+	
 
 }

@@ -46,6 +46,7 @@ import edu.iastate.metnet.metaomgraph.MetadataHybrid;
 import edu.iastate.metnet.metaomgraph.CalculateLogFC;
 import edu.iastate.metnet.metaomgraph.DifferentialCorrResults;
 import edu.iastate.metnet.metaomgraph.DifferentialExpResults;
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 
@@ -54,7 +55,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JCheckBox;
 
-public class DifferentialCorrFrame extends JInternalFrame {
+/**
+ * 
+ * UI class to choose which features to use in the Differential Correlation Analysis
+ *
+ */
+public class DifferentialCorrFrame extends TaskbarInternalFrame {
 
 	// private JComboBox comboBox;
 	private JLabel selectedFeature;
@@ -250,16 +256,57 @@ public class DifferentialCorrFrame extends JInternalFrame {
 					myProject.addDiffCorrRes(diffcorrresOB.getID(), diffcorrresOB);
 				}
 
-				// display result using DiffCorrResultsTable
-				DiffCorrResultsTable frame = new DiffCorrResultsTable(diffcorrresOB.getFeatureNames(),
-						diffcorrresOB.getGrp1Size(), diffcorrresOB.getGrp2Size(), diffcorrresOB.getCorrGrp1(),
-						diffcorrresOB.getCorrGrp2(), diffcorrresOB.getzVals(1), diffcorrresOB.getzVals(2),
-						diffcorrresOB.getDiffZVals(), diffcorrresOB.getzScores(), diffcorrresOB.getpValues(),
-						myProject);
-				frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
-				frame.setTitle("Differential Correlation Results");
-				MetaOmGraph.getDesktop().add(frame);
-				frame.setVisible(true);
+
+				final String id_f = id;
+
+				new AnimatedSwingWorker("Working...", true) {
+					@Override
+					public Object construct() {
+						EventQueue.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								try {
+									// display result using DiffCorrResultsTable
+									DiffCorrResultsTable frame = new DiffCorrResultsTable(diffcorrresOB.getFeatureNames(),
+											diffcorrresOB.getGrp1Size(), diffcorrresOB.getGrp2Size(), diffcorrresOB.getCorrGrp1(),
+											diffcorrresOB.getCorrGrp2(), diffcorrresOB.getzVals(1), diffcorrresOB.getzVals(2),
+											diffcorrresOB.getDiffZVals(), diffcorrresOB.getzScores(), diffcorrresOB.getpValues(),
+											myProject);
+									frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
+
+
+
+									if(MetaOmGraph.getDCResultsFrame()!=null && !MetaOmGraph.getDCResultsFrame().isClosed()) {
+										MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, id_f);
+										MetaOmGraph.getDCResultsFrame().addTabListToFrame(frame.getGeneLists(), id_f);
+										MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager().maximizeFrame(MetaOmGraph.getDCResultsFrame());
+										MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager().minimizeFrame(MetaOmGraph.getDCResultsFrame());
+										MetaOmGraph.getDCResultsFrame().moveToFront();
+									}
+									else {
+										MetaOmGraph.setDCResultsFrame(new StatisticalResultsFrame("Differential Correlation","Differential Correlation Results ["+diffcorrresOB.getFeatureNames().get(0)+"] ("+diffcorrresOB.getFeatureNames().size()+" features)"));
+										MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, id_f);
+										MetaOmGraph.getDCResultsFrame().addTabListToFrame(frame.getGeneLists(), id_f);
+										MetaOmGraph.getDCResultsFrame().setTitle("Differential Correlation Results");
+										MetaOmGraph.getDesktop().add(MetaOmGraph.getDCResultsFrame());
+										frame.setVisible(true);
+										MetaOmGraph.getDCResultsFrame().setVisible(true);
+										MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager().maximizeFrame(MetaOmGraph.getDCResultsFrame());
+										MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager().minimizeFrame(MetaOmGraph.getDCResultsFrame());
+										MetaOmGraph.getDCResultsFrame().moveToFront();
+										frame.setEnabled(true);
+									}
+
+
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
+							}
+						});
+						return null;
+					}
+				}.start();
+
 
 			}
 		});
@@ -435,6 +482,8 @@ public class DifferentialCorrFrame extends JInternalFrame {
 		setIconifiable(true);
 		setClosable(true);
 
+		FrameModel diffCorrFrameModel = new FrameModel("Differential Correlation","Differential Correlation ("+geneList+")",11);
+		setModel(diffCorrFrameModel);
 	}
 
 	private JTable initTableModel() {

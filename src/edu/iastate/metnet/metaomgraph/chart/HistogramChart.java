@@ -45,17 +45,19 @@ import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.title.LegendTitle;
 import org.jfree.data.statistics.HistogramDataset;
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.IconTheme;
 import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
+import edu.iastate.metnet.metaomgraph.ui.TaskbarInternalFrame;
 import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 
-public class HistogramChart extends JInternalFrame implements ChartMouseListener, ActionListener {
+public class HistogramChart extends TaskbarInternalFrame implements ChartMouseListener, ActionListener {
 
 	// 1 for data rows, 2 for plotting a hist from double[]
 	private int histType;
@@ -82,6 +84,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 	private JButton defaultZoom;
 	private JButton changePalette;
 	private JButton splitDataset;
+	private JButton normalizeButton;
 
 	private LegendTitle myLegend;
 	private JToggleButton toggleLegend;
@@ -109,6 +112,8 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 	String splitCol;
 	Map<String, Collection<Integer>> splitIndex;
 	HashMap<String, String> seriesNameToKeyMap;
+
+	private boolean isNormalized;
 
 	/**
 	 * Launch the application.
@@ -170,6 +175,11 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		btnNewButton_1.addActionListener(this);
 		panel_1.add(btnNewButton_1);
 
+		normalizeButton = new JButton("Density Histogram");
+		normalizeButton.setActionCommand("normalizeByCount");
+		normalizeButton.addActionListener(this);
+		panel_1.add(normalizeButton);
+
 		scrollPane = new JScrollPane();
 		getContentPane().add(scrollPane, BorderLayout.CENTER);
 
@@ -200,6 +210,7 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 			} else if (histType == 2) {
 				dataset = createHistDataset(plotData);
 			}
+
 			chartPanel = makeHistogram();
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(null, "ERRRRRRRRRRRRRR");
@@ -282,6 +293,9 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 		}
 		this.setTitle(chartTitle);
 
+		FrameModel histogramFrameModel = new FrameModel("Histogram",chartTitle,6);
+		setModel(histogramFrameModel);
+
 	}
 
 	public ChartPanel makeHistogram() throws IOException {
@@ -290,8 +304,16 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 			alphaSlider.setValue((int) (initAlpha * 10F));
 		}
 		// chart
-		myChart = ChartFactory.createHistogram("Histogram", "Value", "Count", dataset, PlotOrientation.VERTICAL, true,
-				true, false);
+
+		if(isNormalized) {
+			myChart = ChartFactory.createHistogram("Density Histogram", MetaOmGraph.getActiveProject().getDefaultYAxis(), "Count", dataset, PlotOrientation.VERTICAL, true,
+					true, false);
+		}
+		else {
+			myChart = ChartFactory.createHistogram("Histogram", MetaOmGraph.getActiveProject().getDefaultYAxis(), "Count", dataset, PlotOrientation.VERTICAL, true,
+					true, false);
+		}
+
 		XYPlot plot = (XYPlot) myChart.getPlot();
 
 		// save legend
@@ -356,12 +378,19 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 	private HistogramDataset createHistDataset() throws IOException {
 
 		HistogramDataset dataset = new HistogramDataset();
+
+		if(isNormalized) {
+			dataset = new NormalizedHistogramDataset();
+		}
 		String thisName = "";
 		if (splitIndex == null || splitCol == null || splitCol.length() < 1) {
+
 
 			for (int i = 0; i < selected.length; i++) {
 				double[] dataY = myProject.getIncludedData(selected[i], excludedCopy);
 				thisName = myProject.getRowName(selected[i])[myProject.getDefaultColumn()].toString();
+
+
 				dataset.addSeries(thisName, dataY, _bins);
 
 			}
@@ -452,6 +481,18 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 			updateChart();
 
 		}
+
+		if ("normalizeByCount".equals(e.getActionCommand())) {
+
+			if(isNormalized==false)
+				isNormalized=true;
+			else
+				isNormalized=false;
+
+			updateChart();
+
+		}
+
 
 		if ("legend".equals(e.getActionCommand())) {
 			// TODO
@@ -713,18 +754,18 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 
 		if (event.getTrigger()
 				.getClickCount() == 1) {/*
-										 * if (event.getEntity() instanceof LegendItemEntity) { Comparable seriesKey =
-										 * ((LegendItemEntity) event.getEntity()).getSeriesKey(); int index =
-										 * myChart.getXYPlot().getDataset().indexOf(seriesKey);
-										 * JOptionPane.showMessageDialog(null, "ToFront" +
-										 * myChart.getXYPlot().getDatasetRenderingOrder().toString() + ":" +
-										 * seriesKey.toString() + "," + dataset.getDomainOrder().toString());
-										 * bringToFront(seriesKey.toString());
-										 * 
-										 * return; } else if (event.getEntity() instanceof XYItemEntity) {
-										 * 
-										 * return; }
-										 */
+				 * if (event.getEntity() instanceof LegendItemEntity) { Comparable seriesKey =
+				 * ((LegendItemEntity) event.getEntity()).getSeriesKey(); int index =
+				 * myChart.getXYPlot().getDataset().indexOf(seriesKey);
+				 * JOptionPane.showMessageDialog(null, "ToFront" +
+				 * myChart.getXYPlot().getDatasetRenderingOrder().toString() + ":" +
+				 * seriesKey.toString() + "," + dataset.getDomainOrder().toString());
+				 * bringToFront(seriesKey.toString());
+				 * 
+				 * return; } else if (event.getEntity() instanceof XYItemEntity) {
+				 * 
+				 * return; }
+				 */
 		}
 
 	}
@@ -769,9 +810,23 @@ public class HistogramChart extends JInternalFrame implements ChartMouseListener
 			// Create dataset
 			if (histType == 1) {
 				dataset = createHistDataset();
+
 			} else if (histType == 2) {
 				dataset = createHistDataset(plotData);
+
 			}
+
+			if(isNormalized) {
+				if(normalizeButton != null) {
+					normalizeButton.setText("Frequency Histogram");
+				}
+			}
+			else {
+				if(normalizeButton != null) {
+					normalizeButton.setText("Density Histogram");
+				}
+			}
+
 			this.chartPanel = makeHistogram();
 			scrollPane.setViewportView(chartPanel);
 			properties.addActionListener(chartPanel);

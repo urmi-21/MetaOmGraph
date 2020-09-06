@@ -12,6 +12,7 @@ import javax.swing.JOptionPane;
 import java.awt.GridLayout;
 import javax.swing.JTextField;
 
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import net.miginfocom.swing.MigLayout;
 
@@ -22,7 +23,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.awt.event.ActionEvent;
 
-public class SetProgramParameters extends JInternalFrame {
+public class SetProgramParameters extends TaskbarInternalFrame {
 	private JTextField textField;
 	private JComboBox<Integer> comboBox;
 	private JComboBox comboBox_1;
@@ -152,6 +153,8 @@ public class SetProgramParameters extends JInternalFrame {
 		setIconifiable(true);
 		setClosable(true);
 
+		FrameModel setProgramParamsFrameModel = new FrameModel("Set Program Params","Set Program Params",15);
+		setModel(setProgramParamsFrameModel);
 	}
 
 }

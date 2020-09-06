@@ -60,11 +60,13 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.IconTheme;
 import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
+import edu.iastate.metnet.metaomgraph.ui.TaskbarInternalFrame;
 import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import javax.swing.JScrollPane;
@@ -72,7 +74,7 @@ import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import javax.swing.SpinnerNumberModel;
 
-public class ScatterPlotChart extends JInternalFrame implements ChartMouseListener, ActionListener {
+public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouseListener, ActionListener {
 
 	private int[] selected;
 	// pivotIndex is the ith index in the selected rows which is the x axis for the
@@ -150,6 +152,8 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 	 */
 	public ScatterPlotChart(int[] selected, int xind, MetaOmProject mp, boolean isPlayback) {
 
+		super("Scatter Plot");
+		
 		this.selected = selected;
 		// init rownames
 		rowNames = mp.getDefaultRowNames(selected);
@@ -271,6 +275,9 @@ public class ScatterPlotChart extends JInternalFrame implements ChartMouseListen
 			chartTitle = "Playback - Scatter Plot:" + String.join(",", rowNames);
 		}
 		this.setTitle(chartTitle);
+		
+		FrameModel scatterPlotFrameModel = new FrameModel("Scatter Plot",chartTitle,3);
+		this.setModel(scatterPlotFrameModel);
 	}
 
 	public ChartPanel makeScatterPlot() throws IOException {

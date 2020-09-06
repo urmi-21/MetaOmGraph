@@ -56,12 +56,14 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.ToolTipManager;
@@ -100,6 +102,7 @@ import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.ui.AboutFrame;
 import edu.iastate.metnet.metaomgraph.ui.AboutFrame4;
 import edu.iastate.metnet.metaomgraph.ui.ClickableLabel;
+import edu.iastate.metnet.metaomgraph.ui.DEAColumnSelectFrame;
 import edu.iastate.metnet.metaomgraph.ui.DifferentialExpFrame;
 import edu.iastate.metnet.metaomgraph.ui.ListMergePanel;
 import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel;
@@ -112,6 +115,9 @@ import edu.iastate.metnet.metaomgraph.ui.ReadMetadata;
 import edu.iastate.metnet.metaomgraph.ui.ReproducibilityDashboardPanel;
 import edu.iastate.metnet.metaomgraph.ui.SearchByExpressionFrame;
 import edu.iastate.metnet.metaomgraph.ui.SetColTypes;
+import edu.iastate.metnet.metaomgraph.ui.StatisticalResultsFrame;
+import edu.iastate.metnet.metaomgraph.ui.TaskbarInternalFrame;
+import edu.iastate.metnet.metaomgraph.ui.TaskbarPanel;
 import edu.iastate.metnet.metaomgraph.ui.WelcomePanel;
 import edu.iastate.metnet.metaomgraph.ui.WelcomePanelWin10;
 import edu.iastate.metnet.metaomgraph.ui.logFCResultsFrame;
@@ -152,8 +158,23 @@ public class MetaOmGraph implements ActionListener {
 	private static boolean permanentLogging;
 	private static int currentSamplesActionId;
 	private static JInternalFrame ReproducibilityDashboardFrame;
+	private static TaskbarPanel taskBar;
+	private static StatisticalResultsFrame DEAResultsFrame;
+	private static StatisticalResultsFrame DCResultsFrame;
 
 
+	public static StatisticalResultsFrame getDEAResultsFrame() {
+		return DEAResultsFrame;
+	}
+	public static void setDEAResultsFrame(StatisticalResultsFrame dEAResultsFrame) {
+		DEAResultsFrame = dEAResultsFrame;
+	}
+	public static StatisticalResultsFrame getDCResultsFrame() {
+		return DCResultsFrame;
+	}
+	public static void setDCResultsFrame(StatisticalResultsFrame dCResultsFrame) {
+		DCResultsFrame = dCResultsFrame;
+	}
 	public static Logger getLogger() {
 		return logger;
 	}
@@ -186,6 +207,10 @@ public class MetaOmGraph implements ActionListener {
 	}
 	public static ReproducibilityDashboardPanel getReproducibilityDashboardPanel() {
 		return rdp;
+	}
+
+	public static TaskbarPanel getTaskBar() {
+		return taskBar;
 	}
 
 	public static Color getTableColor1() {
@@ -555,7 +580,7 @@ public class MetaOmGraph implements ActionListener {
 	private static File activeProjectFile;
 
 	/** Internal frame which displays a table of the active project's entries */
-	private static JInternalFrame projectTableFrame;
+	private static TaskbarInternalFrame projectTableFrame;
 
 	/** The table panel that appears whenever a project is open */
 	private static MetaOmTablePanel activeTablePanel;
@@ -681,7 +706,7 @@ public class MetaOmGraph implements ActionListener {
 	private static SimpleModalMaker modalMaker;
 
 	/** A frame that displays the properties for the active project */
-	private static JInternalFrame propertiesFrame;
+	private static TaskbarInternalFrame propertiesFrame;
 
 	/** A frame that displays About information */
 	private static AboutFrame aboutFrame;
@@ -1578,6 +1603,11 @@ public class MetaOmGraph implements ActionListener {
 			e1.printStackTrace();
 		}
 
+
+		taskBar = new TaskbarPanel();
+		mainWindow.getContentPane().add(taskBar, BorderLayout.SOUTH);
+
+
 	}
 
 	/*
@@ -1790,7 +1820,10 @@ public class MetaOmGraph implements ActionListener {
 			welcomeDialog = null;
 		}
 		// getActiveProject().showMeansDialog();
-		projectTableFrame = new JInternalFrame("Project Data");
+		projectTableFrame = new TaskbarInternalFrame("Project Data");
+		FrameModel fm = new FrameModel("Project Data","Project Data",1);
+		projectTableFrame.setModel(fm);
+
 		projectTableFrame.putClientProperty("JInternalFrame.frameType", "normal");
 		activeTablePanel = new MetaOmTablePanel(getActiveProject());
 		activeProject.addChangeListener(activeTablePanel);
@@ -2104,6 +2137,7 @@ public class MetaOmGraph implements ActionListener {
 					int newProjectId = logNewProject(source.getAbsolutePath(),extInfoFile.getAbsolutePath());
 
 					currentProjectActionId = newProjectId;
+
 				}
 				catch(Exception e) {
 
@@ -2231,6 +2265,7 @@ public class MetaOmGraph implements ActionListener {
 
 
 							currentProjectActionId = openProjectAction.getActionNumber();
+
 						}
 						catch(Exception e){
 						}
@@ -2352,6 +2387,7 @@ public class MetaOmGraph implements ActionListener {
 		for (int x = 0; x < comps.length; x++)
 			if (comps[x] instanceof JInternalFrame)
 				((JInternalFrame) (comps[x])).dispose();
+		taskBar.removeAllTabsFromTaskbar();
 		MetaOmAnalyzer.reset();
 		// System.gc();
 
@@ -2368,6 +2404,7 @@ public class MetaOmGraph implements ActionListener {
 			currentProjectActionId = closeProjectAction.getActionNumber();
 			stopLogger();
 			getReproducibilityDashboardPanel().autoSaveLog(0);
+
 		}
 		catch(Exception e) {
 
@@ -2573,7 +2610,7 @@ public class MetaOmGraph implements ActionListener {
 											delim);
 									readMetadataframe.setVisible(true);
 									readMetadataframe.toFront();
-									
+
 									//Harsha - reproducibility log
 									HashMap<String,Object> actionMap = new HashMap<String,Object>();
 									actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
@@ -2581,13 +2618,13 @@ public class MetaOmGraph implements ActionListener {
 
 									HashMap<String,Object> dataMap = new HashMap<String,Object>();
 									dataMap.put("Metadata File",source.getAbsolutePath());
-									
+
 									HashMap<String,Object> resultLog = new HashMap<String,Object>();
 									resultLog.put("result", "OK");
 
 									ActionProperties importMetadataAction = new ActionProperties("import-metadata",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 									importMetadataAction.logActionProperties();
-									
+
 								} catch (Exception e) {
 									e.printStackTrace();
 								}
@@ -2721,12 +2758,17 @@ public class MetaOmGraph implements ActionListener {
 			}
 
 			ProjectPropertiesPanel ppp = new ProjectPropertiesPanel(getActiveProject());
-			propertiesFrame = new JInternalFrame("Properties", true, true, true, true);
+			propertiesFrame = new TaskbarInternalFrame("Properties");
+			FrameModel propertiesFrameModel = new FrameModel("Properties", "Properties", 33);
+			propertiesFrame.setModel(propertiesFrameModel);
 			propertiesFrame.putClientProperty("JInternalFrame.frameType", "normal");
 			propertiesFrame.getContentPane().add(ppp, BorderLayout.CENTER);
 			propertiesFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 			propertiesFrame.pack();
 			propertiesFrame.setSize(400, 400);
+			propertiesFrame.setClosable(true);
+			propertiesFrame.setMaximizable(true);
+			propertiesFrame.setIconifiable(true);
 			MetaOmGraph.getDesktop().add(propertiesFrame);
 			propertiesFrame.setVisible(true);
 			propertiesFrame.setName("projectproperties.php");
@@ -3334,14 +3376,66 @@ public class MetaOmGraph implements ActionListener {
 				return;
 			}
 
+
 			// display chosen results
-			DifferentialExpResults diffExpObj = getActiveProject().getDiffExpResObj(chosenVal);
-			logFCResultsFrame frame = null;
-			frame = new logFCResultsFrame(diffExpObj, getActiveProject());
-			frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
-			frame.setTitle("DE results");
-			MetaOmGraph.getDesktop().add(frame);
-			frame.setVisible(true);
+			new AnimatedSwingWorker("Working...", true) {
+				@Override
+				public Object construct() {
+					EventQueue.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							try {
+
+								DifferentialExpResults diffExpObj = getActiveProject().getDiffExpResObj(chosenVal);
+								logFCResultsFrame frame = null;
+								frame = new logFCResultsFrame(diffExpObj, getActiveProject());
+								frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
+
+
+								if(getDEAResultsFrame()!=null && !getDEAResultsFrame().isClosed()) {
+									getDEAResultsFrame().addTabToFrame(frame, diffExpObj.getID());
+									getDEAResultsFrame().addTabListToFrame(frame.getGeneLists(), diffExpObj.getID());
+									getDEAResultsFrame().getDesktopPane().getDesktopManager().maximizeFrame(getDEAResultsFrame());
+									getDEAResultsFrame().getDesktopPane().getDesktopManager().minimizeFrame(getDEAResultsFrame());
+									getDEAResultsFrame().moveToFront();
+								}
+								else {
+									setDEAResultsFrame(new StatisticalResultsFrame("DEA","DEA Results"));
+									getDEAResultsFrame().addTabToFrame(frame, diffExpObj.getID());
+									getDEAResultsFrame().addTabListToFrame(frame.getGeneLists(), diffExpObj.getID());
+									getDEAResultsFrame().setTitle("DE results");
+									MetaOmGraph.getDesktop().add(getDEAResultsFrame());
+									frame.setVisible(true);
+									getDEAResultsFrame().setVisible(true);
+									getDEAResultsFrame().getDesktopPane().getDesktopManager().maximizeFrame(getDEAResultsFrame());
+									getDEAResultsFrame().getDesktopPane().getDesktopManager().minimizeFrame(getDEAResultsFrame());
+									getDEAResultsFrame().moveToFront();
+									frame.setEnabled(true);
+								}
+
+
+							} catch (Exception e) {
+								
+								StringWriter sw = new StringWriter();
+								PrintWriter pw = new PrintWriter(sw);
+								e.printStackTrace(pw);
+								String sStackTrace = sw.toString();
+								
+								JDialog jd = new JDialog();
+								JTextPane jt = new JTextPane();
+								jt.setText(sStackTrace);
+								jt.setBounds(10, 10, 300, 100);
+								jd.getContentPane().add(jt);
+								jd.setBounds(100, 100, 500, 200);
+								jd.setVisible(true);
+							}
+						}
+					});
+					return null;
+				}
+			}.start();
+			//frame.setTitle("DE results");
+
 
 			//Harsha - reproducibility log
 
@@ -4064,7 +4158,7 @@ public class MetaOmGraph implements ActionListener {
 		}
 	}
 
-	
+
 	/**
 	 * This method initializes the Playback Dashboard Internal frame
 	 */
@@ -4102,7 +4196,7 @@ public class MetaOmGraph implements ActionListener {
 
 	}
 
-	
+
 	/**
 	 * This method is used to update the logging file name for each open-project action
 	 * It will ensure that each project's action will be written to its own project directory's log folder
@@ -4133,7 +4227,7 @@ public class MetaOmGraph implements ActionListener {
 		return l;
 	}
 
-	
+
 	/**
 	 * This method is used to stop logging to the log file
 	 */
@@ -4222,7 +4316,7 @@ public class MetaOmGraph implements ActionListener {
 
 	}
 
-	
+
 	/**
 	 * This method is used to log when a new project is opened
 	 */

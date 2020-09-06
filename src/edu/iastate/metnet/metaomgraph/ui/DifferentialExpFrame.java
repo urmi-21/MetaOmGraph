@@ -6,6 +6,8 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,11 +31,13 @@ import javax.swing.JLabel;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JButton;
 import javax.swing.AbstractListModel;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
@@ -46,6 +50,7 @@ import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.MetadataHybrid;
 import edu.iastate.metnet.metaomgraph.CalculateLogFC;
 import edu.iastate.metnet.metaomgraph.DifferentialExpResults;
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
@@ -55,7 +60,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JCheckBox;
 
-public class DifferentialExpFrame extends JInternalFrame {
+
+/**
+ * 
+ * UI class to choose which features to use in the Differential Expression Analysis
+ *
+ */
+
+public class DifferentialExpFrame extends TaskbarInternalFrame {
 
 	private JComboBox comboBox;
 	private JComboBox comboBox_1;
@@ -236,61 +248,106 @@ public class DifferentialExpFrame extends JInternalFrame {
 					}
 				}
 
-				// create DifferentialExpResults object to store results in MOG
-				DifferentialExpResults diffExpObj = new DifferentialExpResults(id, comboBox_1.getSelectedIndex(),
-						txtGroup1.getText(), txtGroup2.getText(), getAllRows(tableGrp1).size(),
-						getAllRows(tableGrp2).size(), selectedFeatureList, MetaOmGraph.getInstance().getTransform(),
-						ob.getFeatureNames(), ob.getMean1(), ob.getMean2(), ob.ftestRatios(), ob.ftestPV(),
-						ob.testPV());
+				final String id_f = id;
 
-				if (chckbxSaveResultsWith.isSelected()) {
-					myProject.addDiffExpRes(diffExpObj.getID(), diffExpObj);
-				}
+				new AnimatedSwingWorker("Working...", true) {
+					@Override
+					public Object construct() {
+						EventQueue.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								try {
+									// create DifferentialExpResults object to store results in MOG
+									DifferentialExpResults diffExpObj = new DifferentialExpResults(id_f, comboBox_1.getSelectedIndex(),
+											txtGroup1.getText(), txtGroup2.getText(), getAllRows(tableGrp1).size(),
+											getAllRows(tableGrp2).size(), selectedFeatureList, MetaOmGraph.getInstance().getTransform(),
+											ob.getFeatureNames(), ob.getMean1(), ob.getMean2(), ob.ftestRatios(), ob.ftestPV(),
+											ob.testPV());
 
-				// display result using diffExpObj
-				logFCResultsFrame frame = null;
-				frame = new logFCResultsFrame(diffExpObj, myProject);
-				frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
-				frame.setTitle("DE results");
-				MetaOmGraph.getDesktop().add(frame);
-				frame.setVisible(true);
+									if (chckbxSaveResultsWith.isSelected()) {
+										myProject.addDiffExpRes(diffExpObj.getID(), diffExpObj);
+									}
 
-				// long endTime = System.nanoTime();
-				// get difference of two nanoTime values
-				// float timeElapsed = endTime - startTime;
-				// timeElapsed = (timeElapsed / (float) 1000000000.00);
-				// JOptionPane.showMessageDialog(null, "Time taken:" + timeElapsed);
-				
-				
-				
+									// display result using diffExpObj
+									logFCResultsFrame frame = null;
+									frame = new logFCResultsFrame(diffExpObj, myProject);
+									frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
+									//frame.setTitle("DE results");
+
+
+									if(MetaOmGraph.getDEAResultsFrame()!=null && !MetaOmGraph.getDEAResultsFrame().isClosed()) {
+										MetaOmGraph.getDEAResultsFrame().addTabToFrame(frame, diffExpObj.getID());
+										MetaOmGraph.getDEAResultsFrame().addTabListToFrame(frame.getGeneLists(), diffExpObj.getID());
+										MetaOmGraph.getDEAResultsFrame().setTitle("DE results");
+										MetaOmGraph.getDEAResultsFrame().getDesktopPane().getDesktopManager().maximizeFrame(MetaOmGraph.getDEAResultsFrame());
+										MetaOmGraph.getDEAResultsFrame().getDesktopPane().getDesktopManager().minimizeFrame(MetaOmGraph.getDEAResultsFrame());
+										MetaOmGraph.getDEAResultsFrame().moveToFront();
+										frame.setEnabled(true);
+									}
+									else {
+										MetaOmGraph.setDEAResultsFrame(new StatisticalResultsFrame("DEA","DEA Results"));
+										MetaOmGraph.getDEAResultsFrame().addTabToFrame(frame, diffExpObj.getID());
+										MetaOmGraph.getDEAResultsFrame().addTabListToFrame(frame.getGeneLists(), diffExpObj.getID());
+										MetaOmGraph.getDesktop().add(MetaOmGraph.getDEAResultsFrame());
+										MetaOmGraph.getDEAResultsFrame().setTitle("DE results");
+										MetaOmGraph.getDEAResultsFrame().setVisible(true);
+										MetaOmGraph.getDEAResultsFrame().getDesktopPane().getDesktopManager().maximizeFrame(MetaOmGraph.getDEAResultsFrame());
+										MetaOmGraph.getDEAResultsFrame().getDesktopPane().getDesktopManager().minimizeFrame(MetaOmGraph.getDEAResultsFrame());
+										MetaOmGraph.getDEAResultsFrame().moveToFront();
+										frame.setEnabled(true);
+									}
+
+
+								} catch (Exception e) {
+									StringWriter sw = new StringWriter();
+									PrintWriter pw = new PrintWriter(sw);
+									e.printStackTrace(pw);
+									String sStackTrace = sw.toString();
+									
+									JDialog jd = new JDialog();
+									JTextPane jt = new JTextPane();
+									jt.setText(sStackTrace);
+									jt.setBounds(10, 10, 300, 100);
+									jd.getContentPane().add(jt);
+									jd.setBounds(100, 100, 500, 200);
+									jd.setVisible(true);
+								}
+							}
+						});
+						return null;
+					}
+				}.start();
+
+
+
 				//Harsha - reproducibility log
-				
+
 				HashMap<String,Object> actionMap = new HashMap<String,Object>();
 				HashMap<String,Object> dataMap = new HashMap<String,Object>();
 				HashMap<String,Object> result = new HashMap<String,Object>();
-				
+
 				try {
-					
-				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
-				actionMap.put("section", "All");
-				
-				dataMap.put("Selected Feature List", selectedFeatureList);
-				dataMap.put("Selected Method", selectedMethod);
-				dataMap.put("Group 1 Name", txtGroup1.getText());
-				dataMap.put("Group 2 Name", txtGroup2.getText());
-				dataMap.put("Group 1 List", grp1);
-				dataMap.put("Group 2 List", grp2);
-				dataMap.put("Save Results", chckbxSaveResultsWith.isSelected());
-				dataMap.put("Analysis Name", id);
 
-				result.put("result", "OK");
+					actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+					actionMap.put("section", "All");
 
-				ActionProperties deaAction = new ActionProperties("differential-expression-analysis",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				deaAction.logActionProperties();
-				
+					dataMap.put("Selected Feature List", selectedFeatureList);
+					dataMap.put("Selected Method", selectedMethod);
+					dataMap.put("Group 1 Name", txtGroup1.getText());
+					dataMap.put("Group 2 Name", txtGroup2.getText());
+					dataMap.put("Group 1 List", grp1);
+					dataMap.put("Group 2 List", grp2);
+					dataMap.put("Save Results", chckbxSaveResultsWith.isSelected());
+					dataMap.put("Analysis Name", id);
+
+					result.put("result", "OK");
+
+					ActionProperties deaAction = new ActionProperties("differential-expression-analysis",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+					deaAction.logActionProperties();
+
 				}
 				catch(Exception e1) {
-					
+
 				}
 
 			}
@@ -467,6 +524,8 @@ public class DifferentialExpFrame extends JInternalFrame {
 		setIconifiable(true);
 		setClosable(true);
 
+		FrameModel diffExpFrameModel = new FrameModel("DEA","Differential Expression Analysis",12);
+		setModel(diffExpFrameModel);
 	}
 
 	private JTable initTableModel() {

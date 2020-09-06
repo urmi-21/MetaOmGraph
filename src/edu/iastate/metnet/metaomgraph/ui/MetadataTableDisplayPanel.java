@@ -48,6 +48,7 @@ import org.dizitart.no2.Document;
 import edu.iastate.metnet.metaomgraph.AlphanumericComparator;
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.ComputeRunsSimilarity;
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.IconTheme;
 import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
@@ -1906,7 +1907,7 @@ public class MetadataTableDisplayPanel extends JPanel
 
 	public void displaySimilarityTable(HashMap<String, Double> res, String nameMetric) {
 
-		JInternalFrame intFrame = new JInternalFrame("Results");
+		TaskbarInternalFrame intFrame = new TaskbarInternalFrame("Results");
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
 		// DefaultTableModel model = new DefaultTableModel();
@@ -1961,6 +1962,9 @@ public class MetadataTableDisplayPanel extends JPanel
 		intFrame.setMaximizable(true);
 		intFrame.setIconifiable(true);
 		intFrame.setClosable(true);
+		FrameModel similarityResultsFrameModel = new FrameModel("Similarity Results","Similarity Results",21);
+		intFrame.setModel(similarityResultsFrameModel);
+		
 		MetaOmGraph.getDesktop().add(intFrame);
 		intFrame.setVisible(true);
 		// intFrame.

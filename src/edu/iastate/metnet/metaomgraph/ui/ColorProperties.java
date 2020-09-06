@@ -8,6 +8,7 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.utils.MOGColorThemes;
 
@@ -27,7 +28,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.awt.event.ActionEvent;
 
-public class ColorProperties extends JInternalFrame {
+public class ColorProperties extends TaskbarInternalFrame {
 
 	private ColorChooseButton tabCol1Button;
 	private ColorChooseButton tabCol2Button;
@@ -292,6 +293,9 @@ public class ColorProperties extends JInternalFrame {
 		// gbc_plotBckButton.gridheight = 2;
 		gbc_plotBckButton.fill = GridBagConstraints.BOTH;
 		panel_1.add(plotBckButton, gbc_plotBckButton);
+		
+		FrameModel colorPropertiesFrameModel = new FrameModel("Color","Color Properties",8);
+		setModel(colorPropertiesFrameModel);
 
 	}
 
