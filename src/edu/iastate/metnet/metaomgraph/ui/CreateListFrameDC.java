@@ -21,8 +21,21 @@ import javax.swing.event.ChangeListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
-public class CreateListFrame
+/**
+ * 
+ * @author Harsha
+ * 
+ * This is the class for the Create List and Edit list feature in the 
+ * Differential Correlation frame. Users can choose the features that 
+ * can go into a list and click on 'OK' to create the list with a 
+ * particular name.
+ * 
+ * The list created will be added to the availabe lists, and will be 
+ * visible in the project data, Differential Expression and Differential
+ * correlation frames.
+ *
+ */
+public class CreateListFrameDC
         extends TaskbarInternalFrame
         implements ActionListener, ChangeListener {
     public static final String OK_COMMAND = "OK";
@@ -34,15 +47,15 @@ public class CreateListFrame
     private JButton createButton;
     private JButton cancelButton;
     private JButton importButton;
-    private CreateListFrame myself;
+    private CreateListFrameDC myself;
     private boolean editList=false;
 
-    public CreateListFrame(MetaOmProject project) {
-        this(project, null);
+    public CreateListFrameDC(MetaOmProject project) {
+        this(project, null, null);
     }
 
 
-    public CreateListFrame(MetaOmProject project, String listName) {
+    public CreateListFrameDC(MetaOmProject project, String listName, DiffCorrResultsTable DCObj) {
         myself = this;
         this.listName = listName;
         myProject = project;
@@ -77,21 +90,9 @@ public class CreateListFrame
             activeEntries = myProject.getGeneListRowNumbers(listName);
             editList = true;
         } else {
-            if ("Complete List".equals(MetaOmGraph.getActiveTable()
-                    .getSelectedListName())) {
-                activeEntries =
-                        MetaOmGraph.getActiveTable().getTrueSelectedRows();
-            } else {
-                int[] entries = myProject.getGeneListRowNumbers(
-                        MetaOmGraph.getActiveTable().getSelectedListName());
-                int[] selectedRows = MetaOmGraph.getActiveTable()
-                        .getTrueSelectedRows();
-                activeEntries = new int[selectedRows.length];
-                int x = 0;
-                for (int index : selectedRows) {
-                    activeEntries[(x++)] = entries[index];
-                }
-            }
+            
+                activeEntries = DCObj.getSelectedRowsIndices();
+                
             if (activeEntries.length > 0) {
                 createButton.setEnabled(true);
             }

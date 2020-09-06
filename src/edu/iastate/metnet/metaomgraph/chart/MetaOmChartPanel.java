@@ -73,11 +73,13 @@ import org.jfree.data.xy.XYIntervalSeriesCollection;
 import org.jfree.data.xy.XYSeries;
 
 import edu.iastate.metnet.metaomgraph.ComponentToImage;
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.ui.MetadataFilter;
 import edu.iastate.metnet.metaomgraph.ui.NoneditableTableModel;
+import edu.iastate.metnet.metaomgraph.ui.TaskbarInternalFrame;
 import edu.iastate.metnet.metaomgraph.utils.ExceptionHandler;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
@@ -162,7 +164,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 
 	private LegendTitle myLegend;
 
-	private JInternalFrame myParent;
+	private TaskbarInternalFrame myParent;
 
 	private MetaOmProject myProject;
 
@@ -1137,6 +1139,10 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 		myParent.putClientProperty("JInternalFrame.frameType", "normal");
 		myParent.getContentPane().add(this, BorderLayout.CENTER);
 		
+		String tabName = "Line Chart [ "+myProject.getRowName(selected[0])[myProject.getDefaultColumn()].toString()+" ] ("+selected.length+" features selected)";
+		FrameModel lineChartFrameModel = new FrameModel("Line Chart",tabName,2);
+		myParent.setModel(lineChartFrameModel);
+		
 		int width = MetaOmGraph.getMainWindow().getWidth();
 		int height = MetaOmGraph.getMainWindow().getHeight();
 		myParent.setSize(width - 200, height - 200);
@@ -1183,7 +1189,9 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 		myParent = new MetaOmFrame(frameTitle);
 		myParent.putClientProperty("JInternalFrame.frameType", "normal");
 		myParent.getContentPane().add(this, BorderLayout.CENTER);
-		
+		String tabName = "Line Chart [ "+myProject.getRowName(selected[0])[myProject.getDefaultColumn()].toString()+" ] ("+selected.length+" features selected)";
+		FrameModel lineChartFrameModel = new FrameModel("Line Chart",tabName,2);
+		myParent.setModel(lineChartFrameModel);
 		
 		int width = MetaOmGraph.getMainWindow().getWidth();
 		int height = MetaOmGraph.getMainWindow().getHeight();
@@ -1664,7 +1672,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 		myToolbar.refreshClusterMetadataMenu();
 	}
 
-	public class MetaOmFrame extends JInternalFrame {
+	public class MetaOmFrame extends TaskbarInternalFrame {
 		public MetaOmFrame(String title) {
 			super(title);
 

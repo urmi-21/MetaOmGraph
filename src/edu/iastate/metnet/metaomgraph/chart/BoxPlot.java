@@ -79,6 +79,7 @@ import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.statistics.BoxAndWhiskerCategoryDataset;
 import org.jfree.data.statistics.DefaultBoxAndWhiskerCategoryDataset;
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.IconTheme;
 import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
@@ -86,10 +87,11 @@ import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
 import edu.iastate.metnet.metaomgraph.ui.MenuButton;
+import edu.iastate.metnet.metaomgraph.ui.TaskbarInternalFrame;
 import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
-public class BoxPlot extends JInternalFrame implements ChartMouseListener, ActionListener {
+public class BoxPlot extends TaskbarInternalFrame implements ChartMouseListener, ActionListener {
 
 	// hasmap mapping feature num to expression data or datacol to sample depending
 	// on the box plot
@@ -350,6 +352,10 @@ public class BoxPlot extends JInternalFrame implements ChartMouseListener, Actio
 			chartTitle = "Playback - Box Plot:" + String.join(",", rowNamesIndexColNamesMap.keySet());
 		}
 		this.setTitle(chartTitle);
+		
+		FrameModel boxPlotFrameModel = new FrameModel("Box Plot",chartTitle,5);
+		setModel(boxPlotFrameModel);
+		
 	}
 
 	public ChartPanel makeBoxPlot(DefaultBoxAndWhiskerCategoryDataset dataset) throws IOException {

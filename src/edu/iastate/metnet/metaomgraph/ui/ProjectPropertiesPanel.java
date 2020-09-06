@@ -1,5 +1,6 @@
 package edu.iastate.metnet.metaomgraph.ui;
 
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.RandomAccessFile;
@@ -298,7 +299,11 @@ public class ProjectPropertiesPanel extends JPanel {
 				model = new NoneditableTableModel(myProject.getRowNames(), myProject.getInfoColumnNames());
 			} else
 				model = new NoneditableTableModel(null, new String[] { "No row information available" });
-			final JInternalFrame f = new JInternalFrame("Sample Name Manager");
+			final TaskbarInternalFrame f = new TaskbarInternalFrame("Sample Name Manager");
+			
+			FrameModel sampleNameFrameModel = new FrameModel("Sample Name Manager","Sample Name Manager",23);
+			f.setModel(sampleNameFrameModel);
+			
 			f.putClientProperty("JInternalFrame.frameType", "normal");
 			removeLastCorrelation = false;
 			myTable = new JTable(model);
@@ -480,8 +485,11 @@ public class ProjectPropertiesPanel extends JPanel {
 			for (int x = 0; x < tableData.length; x++)
 				tableData[x][0] = myProject.getDataColumnHeader(x);
 			model = new NoneditableTableModel(tableData, new String[] { "Name" });
-			final JInternalFrame f = new JInternalFrame("Column Header Manager");
+			final TaskbarInternalFrame f = new TaskbarInternalFrame("Column Header Manager");
 			f.putClientProperty("JInternalFrame.frameType", "normal");
+			
+			FrameModel columnHeaderFrameModel = new FrameModel("Column Header Manager","Column Header Manager",24);
+			f.setModel(columnHeaderFrameModel);
 			myTable = new JTable(model);
 			scrollPane = new JScrollPane(myTable);
 			JPanel operatePanel = new JPanel(new BorderLayout());

@@ -1,56 +1,113 @@
 package edu.iastate.metnet.metaomgraph.ui;
 
 import java.awt.EventQueue;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JTable;
+import javax.swing.JTextPane;
+import javax.swing.JToolBar;
+import javax.swing.ListModel;
+import javax.swing.ListSelectionModel;
+import javax.swing.Timer;
+import javax.swing.JToolBar.Separator;
+import javax.swing.border.Border;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
 import org.apache.logging.log4j.Logger;
 
 import edu.iastate.metnet.metaomgraph.AdjustPval;
+import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
+import edu.iastate.metnet.metaomgraph.DEAHeaderRenderer;
 import edu.iastate.metnet.metaomgraph.DecimalFormatRenderer;
 import edu.iastate.metnet.metaomgraph.DifferentialExpResults;
+import edu.iastate.metnet.metaomgraph.FilterableTableModel;
+import edu.iastate.metnet.metaomgraph.FrameModel;
+import edu.iastate.metnet.metaomgraph.IconTheme;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
+import edu.iastate.metnet.metaomgraph.TableSorter;
+import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.chart.BoxPlot;
 import edu.iastate.metnet.metaomgraph.chart.HistogramChart;
 import edu.iastate.metnet.metaomgraph.chart.MetaOmChartPanel;
 import edu.iastate.metnet.metaomgraph.chart.ScatterPlotChart;
 import edu.iastate.metnet.metaomgraph.chart.VolcanoPlot;
 import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
+import edu.iastate.metnet.metaomgraph.throbber.MetaOmThrobber;
+import edu.iastate.metnet.metaomgraph.throbber.MultiFrameImageThrobber;
+import edu.iastate.metnet.metaomgraph.throbber.Throbber;
+import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel.ListNameComparator;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.ActionEvent;
 
-public class logFCResultsFrame extends JInternalFrame {
+/**
+ * 
+ * @author Harsha
+ * 
+ * This is the frame that displays the Differential Expression Analysis results.
+ * It extends the StatisticalResultsPanel, that contains the initializations for
+ * all the display and interaction components for Statistical Results.
+ * 
+ * The frame is designed similar to the Project Data Frame, with a table displaying
+ * the resuts in the middle (table) , a menubar on top with plots and other features, a 
+ * search bar to filter the rows of the results table, a listPanel that displays all
+ * the saved lists (same list as Project Data), buttons to create, rename, edit or
+ * delete lists, Advanced Search option etc.
+ * 
+ * 
+ *
+ */
+public class logFCResultsFrame extends StatisticalResultsPanel {
 
-	private JTable table;
+
 	private List<String> featureNames;
 	private List<Double> mean1;
 	private List<Double> mean2;
@@ -59,24 +116,24 @@ public class logFCResultsFrame extends JInternalFrame {
 	private List<Double> ftestRatiovals;
 	private List<Double> testadjutestPvals;
 	private List<Double> ftestadjutestPvals;
-	private MetaOmProject myProject;
 	String name1;
 	String name2;
 	String methodName;
 	String pvAdjMethod;
+	logFCResultsFrame currentPanel;
+	
 
 	double pvThresh = 2;
 
-	/**
-	 * Default Properties
-	 */
 
-	private Color SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
-	private Color BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
-	private Color BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
-	private Color HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
-	private Color HYPERLINKCOLOR = MetaOmGraph.getTableHyperlinkColor();
+	public List<String> getFeatureNames(){
+		return this.featureNames;
+	}
+	public String getSelectedList() {
+		return geneLists.getSelectedValue().toString();
+	}
 
+	
 	/**
 	 * Launch the application.
 	 */
@@ -106,6 +163,24 @@ public class logFCResultsFrame extends JInternalFrame {
 				ob.getmethodName(), ob.getPVal(), ob.getfStat(), ob.getFPVal(), myProject);
 	}
 
+	
+	/**
+	 * 
+	 * @param featureNames
+	 * @param mean1
+	 * @param mean2
+	 * @param name1
+	 * @param name2
+	 * @param methodName
+	 * @param pv
+	 * @param ftestratio
+	 * @param ftestpv
+	 * @param myProject
+	 * 
+	 * This constructor initializes the table, provides actionListeners to the lists,
+	 * menu items, list creation/updation menu items, and other action items from the
+	 * menubar
+	 */
 	public logFCResultsFrame(List<String> featureNames, List<Double> mean1, List<Double> mean2, String name1,
 			String name2, String methodName, List<Double> pv, List<Double> ftestratio, List<Double> ftestpv,
 			MetaOmProject myProject) {
@@ -119,6 +194,8 @@ public class logFCResultsFrame extends JInternalFrame {
 		testPvals = pv;
 		ftestRatiovals = ftestratio;
 		ftestPvals = ftestpv;
+
+		currentPanel = this;
 		// compute adjusted pv
 		if (testPvals != null) {
 			testadjutestPvals = AdjustPval.computeAdjPV(testPvals, pvAdjMethod);
@@ -128,23 +205,180 @@ public class logFCResultsFrame extends JInternalFrame {
 			ftestadjutestPvals = AdjustPval.computeAdjPV(ftestPvals, pvAdjMethod);
 		}
 
-		setBounds(100, 100, 450, 300);
-		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		//		setBounds(100, 100, 450, 300);
+		//		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-		getContentPane().setLayout(new BorderLayout(0, 0));
+		setLayout(new BorderLayout(0, 0));
+
+
+
+		listPanel = new JPanel(new BorderLayout());
+
+		String[] listNames = myProject.getGeneListNames();
+		Arrays.sort(listNames, MetaOmGraph.getActiveTablePanel().new ListNameComparator());
+
+		geneLists = new JList(listNames);
+		
+		geneLists.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		geneLists.setSelectedIndex(0);
+		
+
+		dataToolbar = new JToolBar();
+		dataToolbar.setFloatable(false);
+		listToolbar = new JToolBar();
+		listToolbar.setFloatable(false);
+		IconTheme theme = MetaOmGraph.getIconTheme();
+		listDeleteButton = new JButton(theme.getListDelete());
+		listDeleteButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				int result = JOptionPane.showConfirmDialog(MetaOmGraph.getMainWindow(),
+						"Are you sure you want to delete the selected lists '" + geneLists.getSelectedValue().toString()
+						+ "'?",
+						"Confirm", 0, 3);
+				if (result == 0)
+					MetaOmGraph.getActiveTablePanel().deleteSelectedList((List<String>)geneLists.getSelectedValuesList());
+				return;
+			}
+		});
+		listDeleteButton.setToolTipText("Delete the selected list");
+
+		listEditButton = new JButton(theme.getListEdit());
+		listEditButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				CreateListFrameDEA clf = new CreateListFrameDEA(myProject, (String) geneLists.getSelectedValue(), currentPanel);
+				clf.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
+				clf.setResizable(true);
+				clf.setMaximizable(true);
+				clf.setIconifiable(true);
+				clf.setClosable(true);
+				clf.setTitle("Edit List");
+
+				FrameModel editListFrameModel = new FrameModel("List","Edit List",25);
+				clf.setModel(editListFrameModel);
+
+				MetaOmGraph.getDesktop().add(clf);
+				clf.setVisible(true);
+				return;
+			}
+		});
+		listEditButton.setToolTipText("Edit the selected list");
+		listRenameButton = new JButton(theme.getListRename());
+		listRenameButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				myProject.renameGeneList(geneLists.getSelectedValue() + "", null);
+				return;
+			}
+		});
+		listRenameButton.setToolTipText("Rename the selected list");
+
+		listCreateButton = new JButton(theme.getListAdd());
+		//listCreateButton.addActionListener(this);
+		listCreateButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				CreateListFrameDEA clf = new CreateListFrameDEA(myProject, null, currentPanel);
+
+				clf.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
+				clf.setResizable(true);
+				clf.setMaximizable(true);
+				clf.setIconifiable(true);
+				clf.setClosable(true);
+				clf.setTitle("Create New List");
+
+				FrameModel createListFrameModel = new FrameModel("List","Create List",25);
+				clf.setModel(createListFrameModel);
+
+				MetaOmGraph.getDesktop().add(clf);
+				clf.setVisible(true);
+				return;
+			}
+		});
+		listCreateButton.setActionCommand("new list");
+		listCreateButton.setToolTipText("Create a new list");
+		listToolbar.add(listCreateButton);
+		listToolbar.add(listEditButton);
+		listToolbar.add(listRenameButton);
+		listToolbar.add(listDeleteButton);
+		listDeleteButton.setEnabled(false);
+		listEditButton.setEnabled(false);
+		listRenameButton.setEnabled(false);
+
+
+		JPanel geneListPanel = new JPanel(new BorderLayout());
+		JScrollPane geneListScrollPane = new JScrollPane(geneLists);
+		geneListPanel.add(listToolbar, "First");
+		geneListPanel.add(geneListScrollPane, "Center");
+		Border loweredetched = BorderFactory.createEtchedBorder();
+		geneListPanel.setBorder(BorderFactory.createTitledBorder(loweredetched, "Lists"));
+		initTableModel();
+
+
+		geneLists.addListSelectionListener(new ListSelectionListener() {
+
+			@Override
+			public void valueChanged(ListSelectionEvent arg0) {
+				if (!arg0.getValueIsAdjusting() && geneLists.getSelectedValue()!=null && !geneLists.getSelectedValue().toString().equalsIgnoreCase("")) {
+
+					selectList((String)geneLists.getSelectedValue());
+
+				}
+			}
+		});
+
+		geneLists.addMouseMotionListener(new MouseMotionAdapter() {
+			@Override
+			public void mouseMoved(MouseEvent e) {
+				JList l = (JList) e.getSource();
+				ListModel m = l.getModel();
+				int index = l.locationToIndex(e.getPoint());
+				if (index >= 0) {
+					// create tooltip
+					String thisListName = m.getElementAt(index).toString();
+					int numElements = myProject.getGeneListRowNumbers(thisListName).length;
+					l.setToolTipText(thisListName + ":" + numElements + " Elements");
+				}
+			}
+		});
+
+		JScrollPane scrollPane = new JScrollPane(table);
+		scrollPane.setViewportView(table);
+		geneListPanel.setMinimumSize(listToolbar.getPreferredSize());
+		JSplitPane listSplitPane = new JSplitPane(1, true, geneListPanel, scrollPane);
+		listSplitPane.setDividerSize(1);
+		listPanel.add(dataToolbar, "First");
+		listPanel.add(listSplitPane, "Center");
 
 		JPanel panel = new JPanel();
-		getContentPane().add(panel, BorderLayout.NORTH);
+		add(panel, BorderLayout.SOUTH);
 
 		JPanel panel_1 = new JPanel();
-		getContentPane().add(panel_1, BorderLayout.SOUTH);
+		add(panel_1, BorderLayout.NORTH);
 
-		initTableModel();
-		updateTable();
-		getContentPane().add(new JScrollPane(table), BorderLayout.CENTER);
+		JPanel panel_2 = new JPanel();
+		add(panel_2, BorderLayout.CENTER);
+		panel_2.setLayout(new BorderLayout(0, 0));
+
+
+		add(listPanel);
+
+
+		table.setAutoResizeMode(0);
 
 		JMenuBar menuBar = new JMenuBar();
-		setJMenuBar(menuBar);
+		panel_1.setLayout(new FlowLayout(FlowLayout.LEFT));
+		panel_1.add(menuBar);
+
 
 		JMenu mnFile = new JMenu("File");
 		menuBar.add(mnFile);
@@ -180,7 +414,7 @@ public class logFCResultsFrame extends JInternalFrame {
 				}
 
 				if (myProject.addGeneList(listName, rowIndices, true, false)) {
-					
+
 					try {
 						//Harsha - reproducibility log
 						HashMap<String,Object> actionMap = new HashMap<String,Object>();
@@ -217,26 +451,155 @@ public class logFCResultsFrame extends JInternalFrame {
 		mntmFilter.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				double pvalThresh = 0;
-				try {
-					String input = (String) JOptionPane.showInputDialog(null, "Please Enter a value", "Input p-value",
-							JOptionPane.QUESTION_MESSAGE, null, null, String.valueOf(pvThresh));
-					if (input == null) {
-						return;
+				
+				
+				new AnimatedSwingWorker("Working...", true) {
+					@Override
+					public Object construct() {
+						EventQueue.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								try {
+
+									double pvalThresh = 0;
+									try {
+										String input = (String) JOptionPane.showInputDialog(null, "Please Enter a value", "Input p-value",
+												JOptionPane.QUESTION_MESSAGE, null, null, String.valueOf(pvThresh));
+										if (input == null) {
+											return;
+										}
+										pvalThresh = Double.parseDouble(input);
+
+									} catch (NumberFormatException nfe) {
+										JOptionPane.showMessageDialog(null, "Invalid number entered. Please try again.", "Error",
+												JOptionPane.ERROR_MESSAGE);
+										return;
+									}
+
+									pvThresh = pvalThresh;
+
+									
+									
+									if(featureNames != null) {
+
+										//Get Feature metadata rows
+										List<String> rowNames = featureNames;
+										int[] rowIndices = MetaOmGraph.activeProject.getRowIndexbyName(rowNames, true);
+										
+										for(int j = 0; j < rowIndices.length; j++) {
+											rowIndicesMapping[rowIndices[j]] = j;
+										}
+
+										Object[][] featureInfoRows = MetaOmGraph.activeProject.getRowNames(rowIndices);	
+										String [] featureInfoColNames = MetaOmGraph.activeProject.getInfoColumnNames();
+										
+										int nonFeatureColCount = 0;
+										
+										List<String> allColumnNames = new ArrayList<String>();
+										allColumnNames.add("Name");
+										allColumnNames.add("Mean(log(" + name1 + "))");
+										allColumnNames.add("Mean(log(" + name2 + "))");
+										allColumnNames.add("logFC");
+										nonFeatureColCount += 4;
+										if (testPvals != null) {
+											if (ftestRatiovals != null && ftestRatiovals.size() > 0) {
+												allColumnNames.add("F statistic");
+												allColumnNames.add("F test pval");
+												allColumnNames.add("Adj F test pval");
+												nonFeatureColCount += 3;
+											}
+											
+											allColumnNames.add(methodName + " pval");
+											allColumnNames.add("Adj pval");
+											nonFeatureColCount += 2;
+										}
+
+										if(featureInfoColNames!=null) {
+											for(String col : featureInfoColNames) {
+												allColumnNames.add(col);
+											}
+										}
+
+										String [] masterColumns = new String[allColumnNames.size()];
+										
+										for(int i=0; i< allColumnNames.size(); i++) {
+											masterColumns[i] = (String) allColumnNames.get(i);
+										}
+
+										ArrayList<ArrayList> pValRows = new ArrayList<ArrayList>();
+										// for each row add each coloumn
+										for (int i = 0; i < featureNames.size(); i++) {
+											// create a temp string storing all col values for a row
+											ArrayList temp = new ArrayList();
+											temp.add(featureNames.get(i));
+											temp.add(mean1.get(i));
+											temp.add(mean2.get(i));
+											temp.add(mean1.get(i) - mean2.get(i));
+											if (testPvals != null) {
+												if (testPvals.get(i) >= pvThresh) {
+													continue;
+												}
+												if (ftestRatiovals != null && ftestRatiovals.size() > 0) {
+													temp.add(ftestRatiovals.get(i));
+													temp.add(ftestPvals.get(i));
+													temp.add(ftestadjutestPvals.get(i));
+												}
+												temp.add(testPvals.get(i));
+												temp.add(testadjutestPvals.get(i));
+											}
+
+											if(featureInfoRows!=null) {
+												for(int k=0;k<featureInfoRows[i].length;k++) {
+													temp.add(featureInfoRows[i][k]);
+												}
+											}
+
+											pValRows.add(temp);
+
+										}
+
+										Object [][] pValLimitedData = new Object[pValRows.size()][featureInfoColNames.length+nonFeatureColCount];
+										
+										
+										int[] rowIndices2 = new int[pValRows.size()];
+										
+										if(pValRows.size() > 0) {
+											
+											for(int i = 0; i < rowIndicesMapping.length; i++) {
+												rowIndicesMapping[i] = -1;
+											}
+										}
+										for(int i = 0 ; i < pValRows.size(); i++ ) {
+											ArrayList temp = pValRows.get(i);
+											pValLimitedData[i] = temp.toArray();
+											rowIndices2[i] = MetaOmGraph.activeProject.getRowIndexbyName((String)pValLimitedData[i][0],true);
+											rowIndicesMapping[rowIndices2[i]] = i;
+										}
+										
+										setMasterTableData(pValLimitedData);
+										setMasterTableColumns(masterColumns);
+										setSelectedAndProjectedTableData(pValLimitedData);
+										setSelectedAndProjectedTableColumns(masterColumns);
+										
+										projectColumns(getSelectedFeatureColumns());
+
+									}
+
+									// JOptionPane.showMessageDialog(null, "Done");
+
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
+							}
+						});
+						return null;
 					}
-					pvalThresh = Double.parseDouble(input);
-
-				} catch (NumberFormatException nfe) {
-					JOptionPane.showMessageDialog(null, "Invalid number entered. Please try again.", "Error",
-							JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-
-				pvThresh = pvalThresh;
-
-				updateTable();
-
-				// JOptionPane.showMessageDialog(null, "Done");
+				}.start();
+				
+				
+				
+				
+				
 
 			}
 		});
@@ -246,37 +609,174 @@ public class logFCResultsFrame extends JInternalFrame {
 		mntmPvalueCorrection.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				
+				
+				new AnimatedSwingWorker("Working...", true) {
+					@Override
+					public Object construct() {
+						EventQueue.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								try {
 
-				// choose adjustment method
-				JPanel cboxPanel = new JPanel();
-				String[] adjMethods = AdjustPval.getMethodNames();
-				// get a list of multiple correction methods implemented
-				JComboBox pvadjCBox = new JComboBox<>(adjMethods);
-				cboxPanel.add(pvadjCBox);
-				int opt = JOptionPane.showConfirmDialog(null, cboxPanel, "Select categories",
-						JOptionPane.OK_CANCEL_OPTION);
-				if (opt == JOptionPane.OK_OPTION) {
-					// set selected method to the adjustment method
-					pvAdjMethod = pvadjCBox.getSelectedItem().toString();
-				} else {
-					return;
-				}
+									// choose adjustment method
+									JPanel cboxPanel = new JPanel();
+									String[] adjMethods = AdjustPval.getMethodNames();
+									JComboBox pvadjCBox = new JComboBox<>(adjMethods);
+									cboxPanel.add(pvadjCBox);
+									int opt = JOptionPane.showConfirmDialog(null, cboxPanel, "Select categories",
+											JOptionPane.OK_CANCEL_OPTION);
+									if (opt == JOptionPane.OK_OPTION) {
+										pvAdjMethod = pvadjCBox.getSelectedItem().toString();
+									} else {
+										return;
+									}
 
-				// correct p values
+									// correct p values
 
-				if (testPvals != null) {
-					testadjutestPvals = AdjustPval.computeAdjPV(testPvals, pvAdjMethod);
-				}
-				if (ftestPvals != null) {
+									if (testPvals != null) {
+										testadjutestPvals = AdjustPval.computeAdjPV(testPvals, pvAdjMethod);
+									}
+									if (ftestPvals != null) {
 
-					ftestadjutestPvals = AdjustPval.computeAdjPV(ftestPvals, pvAdjMethod);
-				}
+										ftestadjutestPvals = AdjustPval.computeAdjPV(ftestPvals, pvAdjMethod);
+									}
 
-				// update in table
-				updateTable();
+									// update in table
+									
+									if(featureNames != null) {
+
+										//Get Feature metadata rows
+										List<String> rowNames = featureNames;
+										int[] rowIndices = MetaOmGraph.activeProject.getRowIndexbyName(rowNames, true);
+										
+										for(int j = 0; j < rowIndices.length; j++) {
+											rowIndicesMapping[rowIndices[j]] = j;
+										}
+
+										Object[][] featureInfoRows = MetaOmGraph.activeProject.getRowNames(rowIndices);	
+										String [] featureInfoColNames = MetaOmGraph.activeProject.getInfoColumnNames();
+										
+										int nonFeatureColCount = 0;
+										
+										List<String> allColumnNames = new ArrayList<String>();
+										allColumnNames.add("Name");
+										allColumnNames.add("Mean(log(" + name1 + "))");
+										allColumnNames.add("Mean(log(" + name2 + "))");
+										allColumnNames.add("logFC");
+										nonFeatureColCount += 4;
+										if (testPvals != null) {
+											if (ftestRatiovals != null && ftestRatiovals.size() > 0) {
+												allColumnNames.add("F statistic");
+												allColumnNames.add("F test pval");
+												allColumnNames.add("Adj F test pval");
+												nonFeatureColCount += 3;
+											}
+											allColumnNames.add(methodName + " pval");
+											allColumnNames.add("Adj pval");
+											nonFeatureColCount += 2;
+										}
+
+										if(featureInfoColNames!=null) {
+											for(String col : featureInfoColNames) {
+												allColumnNames.add(col);
+											}
+										}
+
+										String [] masterColumns = new String[allColumnNames.size()];
+										
+										for(int i=0; i< allColumnNames.size(); i++) {
+											masterColumns[i] = (String) allColumnNames.get(i);
+										}
+
+										ArrayList<ArrayList> pValRows = new ArrayList<ArrayList>();
+										// for each row add each coloumn
+										for (int i = 0; i < featureNames.size(); i++) {
+											// create a temp string storing all col values for a row
+											ArrayList temp = new ArrayList();
+											temp.add(featureNames.get(i));
+											temp.add(mean1.get(i));
+											temp.add(mean2.get(i));
+											temp.add(mean1.get(i) - mean2.get(i));
+											if (testPvals != null) {
+												if (testPvals.get(i) >= pvThresh) {
+													continue;
+												}
+												if (ftestRatiovals != null && ftestRatiovals.size() > 0) {
+													temp.add(ftestRatiovals.get(i));
+													temp.add(ftestPvals.get(i));
+													temp.add(ftestadjutestPvals.get(i));
+												}
+												temp.add(testPvals.get(i));
+												temp.add(testadjutestPvals.get(i));
+											}
+
+											if(featureInfoRows!=null) {
+												for(int k=0;k<featureInfoRows[i].length;k++) {
+													temp.add(featureInfoRows[i][k]);
+												}
+											}
+
+											pValRows.add(temp);
+
+										}
+
+										Object [][] pValLimitedData = new Object[pValRows.size()][featureInfoColNames.length+nonFeatureColCount];
+										
+										
+										int[] rowIndices2 = new int[pValRows.size()];
+										
+										if(pValRows.size() > 0) {
+											
+											for(int i = 0; i < rowIndicesMapping.length; i++) {
+												rowIndicesMapping[i] = -1;
+											}
+										}
+										for(int i = 0 ; i < pValRows.size(); i++ ) {
+											ArrayList temp = pValRows.get(i);
+											pValLimitedData[i] = temp.toArray();
+											rowIndices2[i] = MetaOmGraph.activeProject.getRowIndexbyName((String)pValLimitedData[i][0],true);
+											rowIndicesMapping[rowIndices2[i]] = i;
+										}
+										
+										setMasterTableData(pValLimitedData);
+										setMasterTableColumns(masterColumns);
+										setSelectedAndProjectedTableData(pValLimitedData);
+										setSelectedAndProjectedTableColumns(masterColumns);
+										
+										projectColumns(getSelectedFeatureColumns());
+
+									}
+
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
+							}
+						});
+						return null;
+					}
+				}.start();
+				
+				
+				
+
+				
 			}
 		});
 		mnEdit.add(mntmPvalueCorrection);
+
+		JMenuItem mntmSelFeatureCols = new JMenuItem("Select Feature Metadata Cols");
+		mntmSelFeatureCols.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				DEAColumnSelectFrame deaColSelect = new DEAColumnSelectFrame(currentPanel);
+				MetaOmGraph.getDesktop().add(deaColSelect);
+				deaColSelect.moveToFront();
+			}
+		});
+		mnEdit.add(mntmSelFeatureCols);
 
 		JMenu mnPlot = new JMenu("Plot");
 		menuBar.add(mnPlot);
@@ -297,7 +797,7 @@ public class logFCResultsFrame extends JInternalFrame {
 				}
 				new MetaOmChartPanel(rowIndices, myProject.getDefaultXAxis(), myProject.getDefaultYAxis(),
 						myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject)
-								.createInternalFrame();
+				.createInternalFrame();
 			}
 		});
 		mnSelected.add(mntmLineChart);
@@ -514,17 +1014,222 @@ public class logFCResultsFrame extends JInternalFrame {
 		});
 		mnPlot.add(mntmHistogramcolumn);
 
-		// frame properties
-		this.setClosable(true);
-		// pack();
-		putClientProperty("JInternalFrame.frameType", "normal");
-		setResizable(true);
-		setMaximizable(true);
-		setIconifiable(true);
-		setClosable(true);
+
+
+
+
+
+		JPanel searchPanel = new JPanel(new BorderLayout());
+		searchPanel.add(new JLabel("Filter:"), "Before");
+		filterField = new ClearableTextField();
+		filterField.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == 27) {
+					filterModel.clearFilter();
+					filterField.setText("");
+				}
+			}
+		});
+		filterField.getDocument().addDocumentListener(new FilterFieldListener());
+		filterField.setDefaultText("Use semicolon (;) for multiple filters");
+		filterField.setColumns(30);
+		searchPanel.add(filterField, "Center");
+
+		try {
+			BufferedImage source = ImageIO
+					.read(getClass().getResourceAsStream("/resource/tango/22x22/animations/process-working.png"));
+			throbber = new MultiFrameImageThrobber(source, 4, 8);
+		} catch (IOException e1) {
+			throbber = new MetaOmThrobber();
+		}
+		searchPanel.add(throbber, "After");
+		listFromFilterButton = new JButton(theme.getListSave());
+		listFromFilterButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				makeListFromFilter();
+			}
+		});
+		listFromFilterButton.setEnabled(false);
+		listFromFilterButton.setToolTipText("Export the results of the current filter to a new list");
+		dataToolbar.add(new Separator());
+		dataToolbar.add(searchPanel);
+		dataToolbar.add(listFromFilterButton);
+
+		// add advance filter button
+		// s
+		advFilterButton = new JButton("Advance filter");
+		advFilterButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+
+
+
+				//Harsha - reproducibility log
+				HashMap<String,Object> dataMap = new HashMap<String,Object>();
+				HashMap<String,Object> result = new HashMap<String,Object>();
+				result.put("result", "OK");
+
+				// show advance filter options
+				final TreeSearchQueryConstructionPanelDEA tsp = new TreeSearchQueryConstructionPanelDEA(
+						MetaOmGraph.getActiveProject(), true, getSelectedAndProjectedTableColumns());
+				final MetadataQuery[] queries;
+				queries = tsp.showSearchDialog();
+				// boolean matchCase=tsp.matchCase();
+				boolean matchAll = tsp.matchAll();
+				if (tsp.getQueryCount() <= 0) {
+					// System.out.println("Search dialog cancelled");
+					// User didn't enter any queries
+					return;
+				}
+
+				List<String> headersList = Arrays.asList(getSelectedAndProjectedTableColumns());
+
+				// JOptionPane.showMessageDialog(null, "h:"+headersList);
+
+				// convert queries to filter string
+				String allFilter = "";
+				for (int i = 0; i < queries.length; i++) {
+
+					String thisFilter = "";
+					String thisField = queries[i].getField();
+					boolean thismatchCase = queries[i].isCaseSensitive();
+					String thisTerm = queries[i].getTerm();
+					// JOptionPane.showMessageDialog(null,"F:" + queries[i].getField() + " T:" +
+					// queries[i].getTerm() + " isE:" + queries[i].isExact()+ "mC:"+thismatchCase);
+					if (thismatchCase) {
+						thisTerm += "--C";
+					}
+					if (thisField.equals("Any Field") || thisField.equals("All Fields")) {
+						thisFilter = thisTerm;
+					} else {
+						int thisCol = headersList.indexOf(thisField);
+						thisFilter = thisTerm + ":::" + String.valueOf(thisCol);
+					}
+
+					allFilter += thisFilter + ";";
+				}
+
+				dataMap.put("allFilters", allFilter);
+				filterField.setText(allFilter);
+
+				//			ActionProperties advancedFilterAction = new ActionProperties("advanced-filter",null,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				//			advancedFilterAction.logActionProperties();
+
+				return;
+
+			}
+		});
+
+		advFilterButton.setToolTipText("Filter/search the table with multiple queries");
+		dataToolbar.add(Box.createHorizontalGlue());
+		dataToolbar.add(advFilterButton);
+
+
+		panel_1.add(dataToolbar);
+
+		
+		
+		//populating table
+		
+		rowIndicesMapping = new int[MetaOmGraph.activeProject.getRowCount()];
+		for(int i=0; i < rowIndicesMapping.length; i++) {
+			rowIndicesMapping[i] = -1;
+		}
+		//Combining the Diff corr columns and feature info columns into masterData before updating the table
+		if(featureNames != null) {
+
+			//Get Feature metadata rows
+			List<String> rowNames = featureNames;
+			int[] rowIndices = MetaOmGraph.activeProject.getRowIndexbyName(rowNames, true);
+			
+			for(int j = 0; j < rowIndices.length; j++) {
+				rowIndicesMapping[rowIndices[j]] = j;
+			}
+
+			Object[][] featureInfoRows = MetaOmGraph.activeProject.getRowNames(rowIndices);	
+			String [] featureInfoColNames = MetaOmGraph.activeProject.getInfoColumnNames();
+			
+			
+			List<String> allColumnNames = new ArrayList<String>();
+			allColumnNames.add("Name");
+			allColumnNames.add("Mean(log(" + name1 + "))");
+			allColumnNames.add("Mean(log(" + name2 + "))");
+			allColumnNames.add("logFC");
+			if (testPvals != null) {
+				if (ftestRatiovals != null && ftestRatiovals.size() > 0) {
+					allColumnNames.add("F statistic");
+					allColumnNames.add("F test pval");
+					allColumnNames.add("Adj F test pval");
+				}
+				allColumnNames.add(methodName + " pval");
+				allColumnNames.add("Adj pval");
+			}
+
+			if(featureInfoColNames!=null) {
+				for(String col : featureInfoColNames) {
+					allColumnNames.add(col);
+				}
+			}
+
+			Object [][] masterData = new Object[featureNames.size()][allColumnNames.size()];
+			String [] masterColumns = new String[allColumnNames.size()];
+			
+			for(int i=0; i< allColumnNames.size(); i++) {
+				masterColumns[i] = (String) allColumnNames.get(i);
+			}
+
+			// for each row add each coloumn
+			for (int i = 0; i < featureNames.size(); i++) {
+				// create a temp string storing all col values for a row
+				Vector temp = new Vector<>();
+				temp.add(featureNames.get(i));
+				temp.add(mean1.get(i));
+				temp.add(mean2.get(i));
+				temp.add(mean1.get(i) - mean2.get(i));
+				if (testPvals != null) {
+					if (testPvals.get(i) >= pvThresh) {
+						continue;
+					}
+					if (ftestRatiovals != null && ftestRatiovals.size() > 0) {
+						temp.add(ftestRatiovals.get(i));
+						temp.add(ftestPvals.get(i));
+						temp.add(ftestadjutestPvals.get(i));
+					}
+					temp.add(testPvals.get(i));
+					temp.add(testadjutestPvals.get(i));
+				}
+
+				if(featureInfoRows!=null) {
+					for(int k=0;k<featureInfoRows[i].length;k++) {
+						temp.add(featureInfoRows[i][k]);
+					}
+				}
+
+				masterData[i] = temp.toArray();
+
+			}
+
+			setMasterTableData(masterData);
+			setMasterTableColumns(masterColumns);
+			setSelectedAndProjectedTableData(masterData);
+			setSelectedAndProjectedTableColumns(masterColumns);
+			setSelectedFeatureColumns(Arrays.asList(myProject.getInfoColumnNames()));
+			
+			updateTable();
+
+		}
+
 
 	}
 
+	
+	/**
+	 * Method that creates a volcano chart from the selected rows
+	 */
 	private void makeVolcano() {
 		// create data for volcano plot object
 		List<String> featureNames = new ArrayList<>();
@@ -549,142 +1254,133 @@ public class logFCResultsFrame extends JInternalFrame {
 
 	}
 
-	private void initTableModel() {
-		table = new JTable() {
-			@Override
-			public boolean getScrollableTracksViewportWidth() {
-				return getPreferredSize().width < getParent().getWidth();
-			}
-
-			@Override
-			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
-				Component c = super.prepareRenderer(renderer, row, column);
-
-				if (!isRowSelected(row)) {
-					c.setBackground(getBackground());
-					int modelRow = convertRowIndexToModel(row);
-
-					if (row % 2 == 0) {
-						c.setBackground(BCKGRNDCOLOR1);
-					} else {
-						c.setBackground(BCKGRNDCOLOR2);
-					}
-
-				} else {
-					c.setBackground(SELECTIONBCKGRND);
-				}
-
-				return c;
-			}
-
-		};
-
-		// table mouse listener
-		table.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				// only do if double click
-				if (e.getClickCount() < 2) {
-					return;
-				}
-				int row = table.convertRowIndexToModel(table.rowAtPoint(new Point(e.getX(), e.getY())));
-				int col = table.convertColumnIndexToModel(table.columnAtPoint(new Point(e.getX(), e.getY())));
-
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				int col = table.columnAtPoint(new Point(e.getX(), e.getY()));
-
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-				int col = table.columnAtPoint(new Point(e.getX(), e.getY()));
-
-			}
-		});
-		// end mouse listner
-
-		// disable colum drag
-		table.getTableHeader().setReorderingAllowed(false);
-
-		DefaultTableModel model = new DefaultTableModel() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public Class<?> getColumnClass(int column) {
-				switch (column) {
-				case 0:
-					return String.class;
-				default:
-					return Double.class;
-				}
-			}
-
-			@Override
-			public boolean isCellEditable(int row, int column) {
-				// all cells false
-				return false;
-			}
-		};
-		table.setModel(model);
-	}
-
-	private void updateTable() {
-
-		DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
-
-		tablemodel.setRowCount(0);
-		tablemodel.setColumnCount(0);
-		// add data
-
-		tablemodel.addColumn("Name");
-		tablemodel.addColumn("Mean(log(" + name1 + "))");
-		tablemodel.addColumn("Mean(log(" + name2 + "))");
-		tablemodel.addColumn("logFC");
-		if (testPvals != null) {
-			if (ftestRatiovals != null && ftestRatiovals.size() > 0) {
-				tablemodel.addColumn("F statistic");
-				tablemodel.addColumn("F test pval");
-				tablemodel.addColumn("Adj F test pval");
-			}
-			tablemodel.addColumn(methodName + " pval");
-			tablemodel.addColumn("Adj pval");
-		}
-		// for each row add each coloumn
-		for (int i = 0; i < featureNames.size(); i++) {
-			// create a temp string storing all col values for a row
-			Vector temp = new Vector<>();
-			temp.add(featureNames.get(i));
-			temp.add(mean1.get(i));
-			temp.add(mean2.get(i));
-			temp.add(mean1.get(i) - mean2.get(i));
-			if (testPvals != null) {
-				if (testPvals.get(i) >= pvThresh) {
-					continue;
-				}
-				if (ftestRatiovals != null && ftestRatiovals.size() > 0) {
-					temp.add(ftestRatiovals.get(i));
-					temp.add(ftestPvals.get(i));
-					temp.add(ftestadjutestPvals.get(i));
-				}
-				temp.add(testPvals.get(i));
-				temp.add(testadjutestPvals.get(i));
-			}
-			// add ith row in table
-			tablemodel.addRow(temp);
-		}
+	
+	/**
+	 * Overriden method that formats the Statistical Result Panel table to show the
+	 * DEA columns in Red color and Feature metadata columns in Blue.
+	 */
+	@Override
+	public void formatTable() {
 
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setAutoCreateRowSorter(true);
 		table.setPreferredScrollableViewportSize(table.getPreferredSize());
 		table.setFillsViewportHeight(true);
-		table.getTableHeader().setFont(new Font("Garamond", Font.BOLD, 14));
+		table.getTableHeader().setFont(new Font("Garamond", Font.BOLD, 12));
 		// set decimal formatter to all cols except first
-		for (int i = 1; i < table.getColumnCount(); i++) {
-			table.getColumnModel().getColumn(i).setCellRenderer(new DecimalFormatRenderer());
+		int colCount = 6;
+		if (testPvals != null) {
+			if (ftestRatiovals != null && ftestRatiovals.size() > 0) {
+				colCount = 9;
+			}
 		}
+		else {
+			colCount = 6;
+		}
+
+		DecimalFormatRenderer dfr = new DecimalFormatRenderer();
+		DEAHeaderRenderer customHeaderCellRenderer = 
+				new DEAHeaderRenderer(Color.white,
+						Color.red,
+						new Font("Consolas",Font.BOLD,14),
+						BorderFactory.createEtchedBorder(),
+						true);
+
+		for (int i = 1; i < colCount; i++) {
+			table.getColumnModel().getColumn(i).setCellRenderer(dfr);
+			table.getColumnModel().getColumn(i).setHeaderRenderer(customHeaderCellRenderer);
+		}
+
+		DEAHeaderRenderer featureMetadataHeaderCellRenderer = 
+				new DEAHeaderRenderer(Color.white,
+						Color.BLUE,
+						new Font("Consolas",Font.BOLD,14),
+						BorderFactory.createEtchedBorder(),
+						true);
+
+		for(int i=colCount;i<table.getColumnCount();i++) {
+			table.getColumnModel().getColumn(i).setCellRenderer(new DefaultTableCellRenderer());
+			table.getColumnModel().getColumn(i).setHeaderRenderer(featureMetadataHeaderCellRenderer);
+		}
+
+	}
+	
+	
+	
+	/**
+	 * Overriden method that projects the feature metadata columns after a user
+	 * chooses the required columns.
+	 */
+	@Override
+	public void projectColumns(List<String> selectedCols) {
+		
+		String [] featureInfoColNames = MetaOmGraph.activeProject.getInfoColumnNames();
+		int [] selectedFeatureMetadataCols = new int[selectedCols.size()];
+		
+		for(int i = 0; i < selectedCols.size(); i++) {
+			for(int j = 0; j < featureInfoColNames.length ; j++) {
+				if(selectedCols.get(i).equals(featureInfoColNames[j])) {
+					selectedFeatureMetadataCols[i] = j;
+				}
+			}
+		}
+		
+		int nonFeatureColCount = 4;
+		if (testPvals != null) {
+			if (ftestRatiovals != null && ftestRatiovals.size() > 0) {
+				nonFeatureColCount += 3;
+			}
+			nonFeatureColCount += 2;
+		}
+		
+		
+		String[] originalMasterColumns = getMasterTableColumns();
+		String[] projectedMasterColumns = new String[selectedCols.size()+nonFeatureColCount];
+		
+		
+		for(int k = 0; k < nonFeatureColCount ; k++) {
+			projectedMasterColumns[k] = originalMasterColumns[k];
+		}
+		
+		for(int l = 0; l < selectedCols.size(); l++) {
+			projectedMasterColumns[l+nonFeatureColCount] = selectedCols.get(l);
+		}
+		
+		setSelectedAndProjectedTableColumns(projectedMasterColumns);
+		
+		
+		
+		Object[][] originalMasterData = getMasterTableData();
+		Object[][] projectedMasterData = new Object[originalMasterData.length][projectedMasterColumns.length];
+		
+		for(int a = 0; a < originalMasterData.length; a++) {
+			for(int b = 0; b < nonFeatureColCount; b++) {
+				projectedMasterData[a][b] = originalMasterData[a][b];
+			}
+			for(int c = 0; c < selectedFeatureMetadataCols.length; c++) {
+				projectedMasterData[a][c+nonFeatureColCount] = originalMasterData[a][selectedFeatureMetadataCols[c]+nonFeatureColCount];
+			}
+		}
+		
+		setSelectedAndProjectedTableData(projectedMasterData);
+		
+		updateTable();
+		selectList(getCurrentSelectedList());
+		
+	}
+	
+
+
+
+	public void printMessage(String msg) {
+
+		JDialog jd = new JDialog();
+		JTextPane jt = new JTextPane();
+		jt.setText(msg);
+		jt.setBounds(10, 10, 300, 100);
+		jd.getContentPane().add(jt);
+		jd.setBounds(100, 100, 500, 200);
+		jd.setVisible(true);
 
 	}
 
@@ -701,6 +1397,8 @@ public class logFCResultsFrame extends JInternalFrame {
 
 		return rowIndices;
 	}
+
+
 
 	/**
 	 * Function to plot histogram of selected column
@@ -744,5 +1442,8 @@ public class logFCResultsFrame extends JInternalFrame {
 		return;
 
 	}
+
+
+
 
 }

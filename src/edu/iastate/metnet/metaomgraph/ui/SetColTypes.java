@@ -19,12 +19,13 @@ import java.awt.Dimension;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-public class SetColTypes extends JInternalFrame {
+public class SetColTypes extends TaskbarInternalFrame {
 	private JTable table;
 	private JButton btnOk;
 	private JButton btnBack;
@@ -111,6 +112,9 @@ public class SetColTypes extends JInternalFrame {
 		));
 		initTable();		
 		scrollPane.setViewportView(table);
+		
+		FrameModel setColTypesFrameModel = new FrameModel("Set Column Types","Set Column Types",15);
+		setModel(setColTypesFrameModel);
 	}
 	
 	

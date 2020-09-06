@@ -17,9 +17,10 @@ import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 
-public class AboutFrame extends JInternalFrame {
+public class AboutFrame extends TaskbarInternalFrame {
 	JPanel polyPanel;
 	JPanel background;
 
@@ -32,15 +33,17 @@ public class AboutFrame extends JInternalFrame {
 				+ "<br>" + System.getProperty("MOG.date") + "<br>" + "Wurtele Lab, GDCB, Iowa State University<br>"
 				+ "Send questions, comments, bug reports, and feature requests to:<br>" + "usingh@iastate.edu<br><br>"
 				+ "For more information on the MetNet project, please visit<br>"
-				+ "http://metnetweb.gdcb.iastate.edu<br><br>"
-				+ "This program uses code from the following projects:<br>"
+				+ "http://metnetweb.gdcb.iastate.edu<br><br><br></b></p>"
+				+ "<p align=\"left\"><b>This program uses code from the following projects:<br>"
 				+ "BrowserLauncher2 (http://sourceforge.net/projects/browserlaunch2/)<br>"
 				+ "Jakarta POI (http://jakarta.apache.org/poi/)<br>" + "JDOM (http://www.jdom.org)<br>"
 				+ "JFreeChart (http://www.jfree.org/jfreechart/)<br>"
 				+ "L2FProd Common Components (http://common.l2fprod.com/)<br>"
 				+ "Nitrite Database (https://www.dizitart.org/nitrite-database.html)<br><br>"
-				+ "Biologists: Eve Wurtele, Wieslawa Mentzen, Ling Li, Jianling Peng<br>"
-				+ "Bioinformaticists: Jonathan Hurst, Yaping Feng<br>" + "Current Developer: Urminder Singh"
+				+ "Biologists: Eve Syrkin Wurtele, Wieslawa Mentzen, Ling Li, Jianling Peng<br>"
+				+ "Bioinformaticists: Jonathan Hurst, Yaping Feng <br>" 
+				+ "Developers: Urminder Singh, Nick Ransom, Kumara Sri Harsha Vajjhala, Kaliki Sumanth Reddy, Yusuf Shehata<br><br><br>"
+				+ "Published Paper : Urminder Singh, Manhoi Hur, Karin Dorman, Eve Syrkin Wurtele,<br> MetaOmGraph: a workbench for interactive exploratory data analysis of large expression datasets,<br> Nucleic Acids Research, Volume 48, Issue 4, 28 February 2020, Page e23, https://doi.org/10.1093/nar/gkz1209"
 				+ "</b></p></html>";
 	}
 
@@ -130,6 +133,10 @@ public class AboutFrame extends JInternalFrame {
 		};
 		polyPanel.addMouseListener(ml);
 		setTitle("About MetaOmGraph");
+		
+		FrameModel aboutFrameModel = new FrameModel("About","About MetaOmGraph",0);
+		setModel(aboutFrameModel);
+		
 		pack();
 
 	}
