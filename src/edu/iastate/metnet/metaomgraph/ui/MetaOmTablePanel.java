@@ -1426,6 +1426,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 
 	public void makeBoxPlot() {
+		
 		int[] selected = getSelectedRowsInList();
 
 		HashMap<String,Object> actionMap = new HashMap<String,Object>();

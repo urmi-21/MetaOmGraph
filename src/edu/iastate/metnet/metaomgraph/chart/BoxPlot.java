@@ -191,7 +191,7 @@ public class BoxPlot extends TaskbarInternalFrame implements ChartMouseListener,
 	 */
 	// plot type 0 for features 1 for samples
 	public BoxPlot(HashMap<Integer, double[]> plotData, int pType, MetaOmProject mp, boolean isPlayback) {
-
+		
 		this.plotData = plotData;
 		this.plotType = pType;
 		myProject = mp;
