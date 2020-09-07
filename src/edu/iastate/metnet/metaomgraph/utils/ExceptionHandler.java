@@ -196,7 +196,7 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 	
 	private void displaySuccessMessage(String url) {
 		CustomMessagePane messageBox = new CustomMessagePane("Report error", 
-				"Error is reported to the developer.\nAn issue is created at: " + url,
+				"Error is reported to the developer.\nYou may follow the the issue at: " + url,
 				CustomMessagePane.MessageBoxType.INFORMATION, 
 				CustomMessagePane.MessageBoxButtons.OK);
 		
@@ -221,7 +221,7 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 		String url = properties.getProperty("gitissueUrl");
 		
 		Map<String, String> postContentsMap = new HashMap<String, String>();
-		postContentsMap.put("title", "\"Crash reported from user\"");
+		postContentsMap.put("title", "\"MetaOmBot: Bug report from user\"");
 		postContentsMap.put("body", '\"' + errorLog.toString().replaceAll("[\r\n]+", "\\\\n") + '\"');
 		postContentsMap.put("labels", "[\"bug\"]");
 		

@@ -6,15 +6,20 @@ package edu.iastate.metnet.metaomgraph.ui;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import org.dizitart.no2.Document;
 
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
@@ -63,15 +68,21 @@ public class SampleMetaDataListFrame extends JInternalFrame
 			String listName, 
 			ArrayList<String> selectedRows,
 			ArrayList<String> unSelectedRows) {
+		
+				
 		this.metaDataCol = metaDataCol;
 		this.listName = listName;
 		JPanel buttonPanel = createButtonPanel();
 		if(selectedRows.size() > 0)
 			createButton.setEnabled(true);
-		String[] headers = getHeaders();
-		Object[][] activeData = getInactiveData(selectedRows, headers.length);
-		Object[][] inActiveData = getActiveData(unSelectedRows, headers.length);
+		String[] headers = metaDataCol.getHeaders();
+		Object[][] activeData = getActiveData(selectedRows, headers);
+		
+		Object[][] inActiveData = getActiveData(unSelectedRows, headers);
+		
+		//urmi: headers are not showing up correct
 		dtp = new DualTablePanel(inActiveData, activeData, headers, false);
+		
         dtp.addChangeListener(this);
         dtp.hideColumn(0);
         dtp.setActiveLabel("In List");
@@ -79,55 +90,47 @@ public class SampleMetaDataListFrame extends JInternalFrame
         getContentPane().add(dtp, "Center");
         getContentPane().add(buttonPanel, "Last");
         setDefaultCloseOperation(2);
+        
+        
 	}
 	
 	
-	// get headers to specify the column names.
-	private String[] getHeaders() {
-		String[] actualHeaders = metaDataCol.getHeaders();
-		String[] modifiedHeaders = new String[actualHeaders.length + 1];
-		modifiedHeaders[0] = "row name";
-		for(int i = 1; i < modifiedHeaders.length; i++) {
-			modifiedHeaders[i] = actualHeaders[i-1];
-		}
-		return modifiedHeaders;
-	}
 	
-	// Get active fields from selected rows to display in the dual table panel.
-	private Object[][] getActiveData(ArrayList<String> selectedRows, int headersLen) {
-		Object[][] activeData = new Object[selectedRows.size()][headersLen];
+	/**
+	 * Return object[][] for selected rows to display in dual table panel
+	 * @author urmi 
+	 * @param selectedRows
+	 * @param headers
+	 * @return Object[][]
+	 */
+	private Object[][] getActiveData(ArrayList<String> selectedRows, String[] headers) {
+		//get all metadata rows for selectedRows
+		List<Document> selectedRowsMetadata = metaDataCol.getRowsByDatacols(selectedRows);
+		//if return size doesn't match
+		if(selectedRowsMetadata.size()!=selectedRows.size()) {
+			JOptionPane.showMessageDialog(null, "Error Occured", "Error", JOptionPane.ERROR_MESSAGE);
+			return null;
+		}		
+		
+		Object[][] activeData = new Object[selectedRows.size()][headers.length+1];
+		//add selectedrows as first column
 		for(int i = 0; i < selectedRows.size(); i++) {
 			activeData[i][0] = selectedRows.get(i);
-		}
-		for(int i = 0; i < selectedRows.size(); i++) {
-			HashMap<String, String> rowColVals = 
-					metaDataCol.getDataColumnRowMap(selectedRows.get(i));
-			int j = 1;
-			for(Map.Entry<String, String> entry : rowColVals.entrySet()) {
-				activeData[i][j] = entry.getValue();
-				j++;
+		}			
+		//add rest of columns
+		for (int i = 0; i < selectedRowsMetadata.size(); i++) {
+			for (int j = 0; j < headers.length; j++) {
+				//0th column is already added
+				activeData[i][j+1] = selectedRowsMetadata.get(i).get(headers[j]).toString();					
 			}
-		}
+		}		
+	
 		return activeData;
 	}
 	
-	// Get inActive fields from unselected rows to display in the dual table panel.
-	private Object[][] getInactiveData(ArrayList<String> unSelectedRows, int headersLen){
-		Object[][] inActiveData = new Object[unSelectedRows.size()][headersLen];
-		for(int i = 0; i < unSelectedRows.size(); i++) {
-			inActiveData[i][0] = unSelectedRows.get(i);
-		}
-		for(int i = 0; i < unSelectedRows.size(); i++) {
-			HashMap<String, String> rowColVals = 
-					metaDataCol.getDataColumnRowMap(unSelectedRows.get(i));
-			int j = 1;
-			for(Map.Entry<String, String> entry : rowColVals.entrySet()) {
-				inActiveData[i][j] = entry.getValue();
-				j++;
-			}
-		}
-		return inActiveData;
-	}
+	
+	
+	
 	
 	// create the button panel of the dual table panel.
 	private JPanel createButtonPanel() {

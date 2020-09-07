@@ -10,7 +10,6 @@ import org.dizitart.no2.*;
 import org.dizitart.no2.SortOrder;
 import org.dizitart.no2.filters.Filters;
 
-
 //import com.sun.xml.internal.ws.api.policy.ModelGenerator;
 
 import javax.swing.*;
@@ -169,24 +168,27 @@ public class MetadataCollection {
 
 					}
 					headers = temp;
-					
-					//check for duplicate headers
-					List<String> headerList=Arrays.asList(headers);
+
+					// check for duplicate headers
+					List<String> headerList = Arrays.asList(headers);
 					Set<String> headerSet = new HashSet<String>(headerList);
 					// if duplicates found return
-					if(headerSet.size()<headers.length) {
-						//find duplicate headers
-						List<String> duplicates=new ArrayList<>();
-						for(String s:headerSet) {
-							if(Collections.frequency(headerList, s)>1) {
+					if (headerSet.size() < headers.length) {
+						// find duplicate headers
+						List<String> duplicates = new ArrayList<>();
+						for (String s : headerSet) {
+							if (Collections.frequency(headerList, s) > 1) {
 								duplicates.add(s);
 							}
 						}
-						JOptionPane.showMessageDialog(null,"Metadata validation failed. Please remove following duplicate headers from the metadata file:\n"+String.join(",", duplicates),"Error", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(null,
+								"Metadata validation failed. Please remove following duplicate headers from the metadata file:\n"
+										+ String.join(",", duplicates),
+								"Error", JOptionPane.ERROR_MESSAGE);
 						return;
 					}
-					
-					nCount++; //increment count; this counts the header line
+
+					nCount++; // increment count; this counts the header line
 
 				} else {
 
@@ -210,9 +212,9 @@ public class MetadataCollection {
 								"Metadata validation failed at line:" + (nCount)
 										+ ". MOG will skip this. Please check file delimiters at this line.",
 								"Error", JOptionPane.ERROR_MESSAGE);
-						//JOptionPane.showMessageDialog(null, thisLine);
+						// JOptionPane.showMessageDialog(null, thisLine);
 						totalFails++;
-						
+
 						continue;
 						// return;
 
@@ -230,9 +232,9 @@ public class MetadataCollection {
 					doc.putAll(metadataMap);
 					docList.add(doc);
 					// mogCollection.insert(doc);
-					nCount++; //increment line count
+					nCount++; // increment line count
 				}
-				
+
 			}
 
 			// insert in mogcollection
@@ -697,7 +699,7 @@ public class MetadataCollection {
 		Filter fa = null;
 		if (matchType == SearchMatchType.IS) {
 			fa = Filters.regex(searchCol, caseFlag + "^" + toSearch + "$");
-		} else if (matchType == SearchMatchType.CONTAINS){
+		} else if (matchType == SearchMatchType.CONTAINS) {
 			fa = Filters.regex(searchCol, caseFlag + toSearch);
 		} else {
 			fa = Filters.regex(searchCol, caseFlag + "^(?!" + toSearch + "$).*$");
@@ -721,8 +723,8 @@ public class MetadataCollection {
 	 *            match all fields i.e AND operation
 	 * @return
 	 */
-	public List<String> getDatabyAttributes(String toSearch, String targetCol, SearchMatchType matchType, boolean uniqueFlag,
-			boolean AND, boolean matchCase) {
+	public List<String> getDatabyAttributes(String toSearch, String targetCol, SearchMatchType matchType,
+			boolean uniqueFlag, boolean AND, boolean matchCase) {
 		if (Arrays.asList(headers).contains(targetCol)) {
 			List<Document> output = null;
 			List<String> result = new ArrayList<>();
@@ -736,13 +738,14 @@ public class MetadataCollection {
 			for (int i = 0; i < fa.length; i++) {
 				if (matchType == SearchMatchType.IS) {
 					fa[i] = Filters.regex(this.getHeaders()[i], caseFlag + "^" + toSearch + "$");
-				} else if(matchType == SearchMatchType.CONTAINS){
+				} else if (matchType == SearchMatchType.CONTAINS) {
 					fa[i] = Filters.regex(this.getHeaders()[i], caseFlag + toSearch);
 				} else {
 					// exactly not
 					fa[i] = Filters.regex(this.getHeaders()[i], caseFlag + "^(?!" + toSearch + "$).*$");
 					// not like
-					//fa[i] = Filters.regex(this.getHeaders()[i], caseFlag + "^(?!" + toSearch + ").*$");
+					// fa[i] = Filters.regex(this.getHeaders()[i], caseFlag + "^(?!" + toSearch +
+					// ").*$");
 				}
 			}
 			if (AND) {
@@ -866,13 +869,35 @@ public class MetadataCollection {
 	}
 
 	/**
+	 * Return document list of selected data columns i.e. selected rows in the feature metadata table
+	 * @author urmi
+	 * @param dataColumnList
+	 * @return
+	 */
+	public List<Document> getRowsByDatacols(List<String> dataColumnList) {
+		List<Document> result = new ArrayList<>();
+		List<Document> allData = getAllData(false); //ignore excluded
+		for (int i = 0; i < allData.size(); i++) {
+			// if this row is in list
+			String thisDataCol = allData.get(i).get(getDatacol()).toString();
+			// add this row if its in rowlist or rowlist is null
+			if (dataColumnList == null || dataColumnList.contains(thisDataCol)) {
+				result.add(allData.get(i));
+			}
+
+		}
+
+		return result;
+	}
+
+	/**
 	 * 
 	 * @param colVals
 	 *            List of keywords to search for
 	 * @param field
 	 *            field in which search is done
 	 * @param keep
-	 *            return rows matched data(true) or which doesnet match(false)
+	 *            return rows matched data(true) or which doesnt match(false)
 	 * @return
 	 */
 	public List<Document> getAllData(List<String> colVals, String field, boolean keep) {
@@ -916,6 +941,7 @@ public class MetadataCollection {
 
 	/**
 	 * Get the entire row Document for a given row value of the data column.
+	 * 
 	 * @param dataColValue
 	 * @return Document
 	 */
@@ -930,22 +956,23 @@ public class MetadataCollection {
 			return null;
 		}
 	}
-	
+
 	/**
-	 * Return hashmap with key as column name and value as the row value for that column.
-	 * The hashmap represents a row in the sample data and the row is determined using the rowvalue 
-	 * of the data column.
+	 * Return hashmap with key as column name and value as the row value for that
+	 * column. The hashmap represents a row in the sample data and the row is
+	 * determined using the rowvalue of the data column.
+	 * 
 	 * @param dataColValue
 	 * @return hashmap
 	 */
-	public HashMap<String, String> getDataColumnRowMap(String dataColValue){
+	public HashMap<String, String> getDataColumnRowMap(String dataColValue) {
 		HashMap<String, String> dataColRowValMap = new HashMap<String, String>();
 		Document rowDoc = getDataColumnRow(dataColValue);
-		if(rowDoc != null) {
-			for(String header : this.headers) {
+		if (rowDoc != null) {
+			for (String header : this.headers) {
 				dataColRowValMap.put(header, (String) rowDoc.get(header));
 			}
-		} 
+		}
 		return dataColRowValMap;
 	}
 
@@ -1036,7 +1063,7 @@ public class MetadataCollection {
 	public List<String> getAllDataCols() {
 		return getDatabyAttributes(null, dataCol, true);
 	}
-	
+
 	public List<String> getRemoveCols() {
 		return removeCols;
 	}
@@ -1082,8 +1109,8 @@ class MetadataCollectionTest {
 			long startTime = System.currentTimeMillis();
 			for (int i = 0; i < N; i++) {
 				String valExpected = mogColl
-						.getDatabyAttributes(dc.get(i), mogColl.getDatacol(), 
-								SearchMatchType.IS, true, false, true).get(0);
+						.getDatabyAttributes(dc.get(i), mogColl.getDatacol(), SearchMatchType.IS, true, false, true)
+						.get(0);
 				if (!dc.get(i).equals(valExpected)) {
 					System.out.println("1Failed..." + valExpected);
 				}
