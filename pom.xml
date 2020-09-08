@@ -6,8 +6,6 @@
 	<artifactId>metaomgraph4</artifactId>
 	<packaging>jar</packaging>
 	<version>1.8.2beta</version>
-
-
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<resources>
@@ -90,11 +88,6 @@
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 			<version>4.5.12</version>
-		</dependency>
-		<dependency>
-			<groupId>com.google.code.gson</groupId>
-			<artifactId>gson</artifactId>
-			<version>2.8.6</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dizitart</groupId>
