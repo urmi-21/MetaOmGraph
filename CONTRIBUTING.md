@@ -29,6 +29,7 @@ mvn install:install-file -Dfile='l2fprod-common-all.jar' -DgroupId='com.l2fprod'
 
 mvn install:install-file -Dfile='CustomBrowserLauncher.jar' -DgroupId='edu.iastate.metnet' -DartifactId='custombrowserlauncher' -Dversion='0.0.1' -Dpackaging=jar -DgeneratePom=true
 ```
+#### NOTE: If using Windows CMD remove the `'`(single quotes) from the above `mvn install` commands
  
 
 
