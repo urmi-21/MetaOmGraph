@@ -175,6 +175,7 @@ public class MetaOmProject {
 		allowImport = true;
 		streamMode = false;
 		initialized = createProjectFromFile();
+		sampleDataLists = new HashMap<String, ArrayList<String>>();
 	}
 
 	public MetaOmProject(File source, int infoColumns, char delimiter, boolean ignoreConsecutiveDelimiters,
@@ -188,6 +189,7 @@ public class MetaOmProject {
 		allowImport = true;
 		streamMode = false;
 		initialized = createProjectFromFile();
+		sampleDataLists = new HashMap<String, ArrayList<String>>();
 	}
 
 	public MetaOmProject(File source, int infoColumns, char delimiter, boolean ignoreConsecutiveDelimiters,
@@ -2840,6 +2842,7 @@ public class MetaOmProject {
 			// JOptionPane.showMessageDialog(null, "loading stream");
 			metadataH = new MetadataHybrid(ob, XMLroot, tm, dataCol, mdheaders, treeStructure, defaultrepsMap,
 					defaultrepscol, missingDC, extraDC, removedCols);
+			setMogcollection(metadataH.getMetadataCollection());
 		}
 		this.defaultXAxis = dataCol;
 		// JOptionPane.showMessageDialog(null, "in loadMetadataHybrid");
