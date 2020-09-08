@@ -2061,7 +2061,8 @@ public class MetaOmGraph implements ActionListener {
 				// System.out.print("Loading extended info... ");
 				if (!extInfoFile.exists())
 					extInfoFile = null;
-
+				
+				projectOpened();
 				try {
 					// JOptionPane.showMessageDialog(null, "LOADING MD");
 					if (this.readcsv == -1) {
@@ -2084,7 +2085,7 @@ public class MetaOmGraph implements ActionListener {
 				// getActiveProject().getDataColumnCount() + " samples)");
 				// urmi
 				fixTitle();
-				projectOpened();
+				//projectOpened();
 
 
 				try {
