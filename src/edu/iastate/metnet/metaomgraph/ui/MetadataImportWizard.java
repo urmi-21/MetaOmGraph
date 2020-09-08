@@ -129,6 +129,9 @@ public class MetadataImportWizard extends JDialog {
 	public MetadataImportWizard(MetadataCollection obj, String[] headers, Dimension frameDimension,
 			Point locationOnScreen, ReadMetadata parent, List<String> missingDC, List<String> extraDC,
 			JTree treeStructure, boolean removeCols, List<String> mdrmCols) {
+		
+		//urmi dispose the parent (frame which called this frame; used in  order to go back to previous step) internal frame
+		parent.dispose();
 
 		setIconImage(Toolkit.getDefaultToolkit()
 				.getImage(MetadataImportWizard.class.getResource("/resource/MetaOmicon16.png")));
@@ -204,9 +207,10 @@ public class MetadataImportWizard extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				finish.setEnabled(false);
+				dispose();
 				ReadMetadata ob = new ReadMetadata(obj, obj.getdelimiter());
 				ob.setVisible(true);
-				dispose();
+				
 			}
 		});
 		panel.add(btnBack);
