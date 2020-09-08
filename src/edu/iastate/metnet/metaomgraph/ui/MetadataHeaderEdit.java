@@ -21,7 +21,7 @@ import edu.iastate.metnet.metaomgraph.MetadataCollection;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-public class MetadataHearderEdit extends JDialog {
+public class MetadataHeaderEdit extends JDialog {
 
 	private JPanel contentPane;
 	private JTable table;
@@ -38,7 +38,7 @@ public class MetadataHearderEdit extends JDialog {
 			@Override
 			public void run() {
 				try {
-					MetadataHearderEdit frame = new MetadataHearderEdit(h,null,null)  ;
+					MetadataHeaderEdit frame = new MetadataHeaderEdit(h,null,null)  ;
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -47,13 +47,13 @@ public class MetadataHearderEdit extends JDialog {
 		});
 	}
 
-	public MetadataHearderEdit getThisframe() {
+	public MetadataHeaderEdit getThisframe() {
 		return this;
 	}
 	/**
 	 * Create the frame.
 	 */
-	public MetadataHearderEdit(String[] headervals,MetadataCollection obj,ReadMetadata p) {
+	public MetadataHeaderEdit(String[] headervals,MetadataCollection obj,ReadMetadata p) {
 		this.parent=p;
 		this.mobj=obj;
 		this.headers=headervals;

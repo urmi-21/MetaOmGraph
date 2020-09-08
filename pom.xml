@@ -5,7 +5,7 @@
 	<groupId>metaomgraph4</groupId>
 	<artifactId>metaomgraph4</artifactId>
 	<packaging>jar</packaging>
-	<version>1.8.1</version>
+	<version>1.8.2beta</version>
 
 
 	<build>

@@ -239,13 +239,22 @@ public class ReadMetadata extends JDialog {
 							JOptionPane.showMessageDialog(getThisFrame(),
 									"Sample Id column selected is: " + obj.getDatacol(), "Sample Id column",
 									JOptionPane.INFORMATION_MESSAGE);
+														
 							MetadataImportWizard frame = new MetadataImportWizard(obj, headers, getThisFrame().getSize(), getThisFrame().getLocationOnScreen(), getThisFrame(),
 									missingDC, extraDC, null, true, removedCols);
 							frame.setVisible(true);
-							getThisFrame().dispose();
+							
+							//urmi moved this block to MetadataImportWizard
+							//urmi dispose this frame doesnt work after changing to internal frame
+							//this block is executed after frame is disposed
+							//JOptionPane.showConfirmDialog(null, "disposing");
+							//getThisFrame().dispose();
+							//JOptionPane.showConfirmDialog(null, "disposing done");
+							
+							
 						} catch (Exception e) {
 							e.printStackTrace();
-							JOptionPane.showMessageDialog(null, "Error....");
+							JOptionPane.showMessageDialog(null, "Error loading metadata....");
 						}
 					}
 				});
@@ -443,7 +452,7 @@ public class ReadMetadata extends JDialog {
 					@Override
 					public void run() {
 						try {
-							MetadataHearderEdit frame = new MetadataHearderEdit(headers, obj, getThisFrame());
+							MetadataHeaderEdit frame = new MetadataHeaderEdit(headers, obj, getThisFrame());
 							setEnabled(false);
 							frame.addWindowListener(new java.awt.event.WindowAdapter() {
 								@Override
