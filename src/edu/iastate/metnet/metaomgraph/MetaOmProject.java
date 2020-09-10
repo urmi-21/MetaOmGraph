@@ -2842,7 +2842,7 @@ public class MetaOmProject {
 			// JOptionPane.showMessageDialog(null, "loading stream");
 			metadataH = new MetadataHybrid(ob, XMLroot, tm, dataCol, mdheaders, treeStructure, defaultrepsMap,
 					defaultrepscol, missingDC, extraDC, removedCols);
-			setMogcollection(metadataH.getMetadataCollection());
+			metaDataCollection = metadataH.getMetadataCollection();
 		}
 		this.defaultXAxis = dataCol;
 		// JOptionPane.showMessageDialog(null, "in loadMetadataHybrid");

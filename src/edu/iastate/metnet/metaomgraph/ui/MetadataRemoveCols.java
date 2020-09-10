@@ -348,7 +348,7 @@ public class MetadataRemoveCols extends JDialog {
 				}
 				
 				dataMap.put("removedColumns", remlist);
-				dataMap.put("remainingColumns", p.getHeaders());
+				dataMap.put("remainingColumns", p.getAllHeaders());
 				HashMap<String,Object> resultLog = new HashMap<String,Object>();
 				resultLog.put("result", "OK");
 

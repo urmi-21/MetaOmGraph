@@ -1,6 +1,7 @@
 package edu.iastate.metnet.metaomgraph.ui;
 
 import java.awt.Dialog;
+import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -13,6 +14,8 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
+
+import edu.iastate.metnet.metaomgraph.MetaOmTips;
 
 
 public class BlockingProgressDialog
@@ -53,16 +56,18 @@ public class BlockingProgressDialog
             messageLabel = new JLabel(message);
         }
 
-
+        cancelButton = new JButton("Cancel");
+        cancelButton.setActionCommand("cancel");
+        cancelButton.addActionListener(this);
+        
         if ((min > -2147483648L) && (max < 2147483647L)) {
             progress = new JProgressBar((int) min, (int) max);
+            progress.setPreferredSize(new Dimension(100, cancelButton.getPreferredSize().height));
             progress.setStringPainted(true);
         } else {
             progressLabel = new JLabel("0% complete");
         }
-        cancelButton = new JButton("Cancel");
-        cancelButton.setActionCommand("cancel");
-        cancelButton.addActionListener(this);
+        
         getContentPane().setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.gridx = 0;
@@ -80,10 +85,14 @@ public class BlockingProgressDialog
             c.fill = 0;
             getContentPane().add(progressLabel, c);
         }
+        c.weightx = 0.0D;
+        c.gridx = 1;
+        getContentPane().add(cancelButton, c);
         c.weighty = 0.0D;
+        c.gridx = 0;
         c.gridy = 2;
         c.fill = 0;
-        getContentPane().add(cancelButton, c);
+        getContentPane().add(new MetaOmTips().getTipPane(), c);
         addWindowListener(new WindowAdapter() {
             @Override
 			public void windowClosing(WindowEvent arg0) {

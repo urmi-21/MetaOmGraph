@@ -131,7 +131,8 @@ public class MetadataImportWizard extends JDialog {
 			JTree treeStructure, boolean removeCols, List<String> mdrmCols) {
 		
 		//urmi dispose the parent (frame which called this frame; used in  order to go back to previous step) internal frame
-		parent.dispose();
+		if(parent != null)
+			parent.dispose();
 
 		setIconImage(Toolkit.getDefaultToolkit()
 				.getImage(MetadataImportWizard.class.getResource("/resource/MetaOmicon16.png")));

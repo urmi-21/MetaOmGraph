@@ -53,8 +53,8 @@ public class SampleMetaDataListFrame extends JInternalFrame
      */
 	public SampleMetaDataListFrame(MetadataCollection metaDataCol, 
 			ArrayList<String> selectedRows,
-			ArrayList<String> unSelectedRows) {
-		this(metaDataCol, null, selectedRows, unSelectedRows);
+			ArrayList<String> unSelectedRows, String[] headers) {
+		this(metaDataCol, null, selectedRows, unSelectedRows, headers);
 	}
 
 	/**
@@ -67,7 +67,7 @@ public class SampleMetaDataListFrame extends JInternalFrame
 	public SampleMetaDataListFrame(MetadataCollection metaDataCol, 
 			String listName, 
 			ArrayList<String> selectedRows,
-			ArrayList<String> unSelectedRows) {
+			ArrayList<String> unSelectedRows, String[] headers) {
 		
 				
 		this.metaDataCol = metaDataCol;
@@ -75,13 +75,13 @@ public class SampleMetaDataListFrame extends JInternalFrame
 		JPanel buttonPanel = createButtonPanel();
 		if(selectedRows.size() > 0)
 			createButton.setEnabled(true);
-		String[] headers = metaDataCol.getHeaders();
+		String[] finalHeaders = getHeaders(headers);
 		Object[][] activeData = getActiveData(selectedRows, headers);
 		
 		Object[][] inActiveData = getActiveData(unSelectedRows, headers);
 		
 		//urmi: headers are not showing up correct
-		dtp = new DualTablePanel(inActiveData, activeData, headers, false);
+		dtp = new DualTablePanel(inActiveData, activeData, finalHeaders, false);
 		
         dtp.addChangeListener(this);
         dtp.hideColumn(0);
@@ -94,6 +94,16 @@ public class SampleMetaDataListFrame extends JInternalFrame
         
 	}
 	
+	// get headers to specify the column names.
+	private String[] getHeaders(String[] headers) {
+		String[] actualHeaders = headers;
+		String[] modifiedHeaders = new String[actualHeaders.length + 1];
+		modifiedHeaders[0] = "row name";
+		for(int i = 1; i < modifiedHeaders.length; i++) {
+			modifiedHeaders[i] = actualHeaders[i-1];
+		}
+		return modifiedHeaders;
+	}
 	
 	
 	/**
@@ -205,6 +215,10 @@ public class SampleMetaDataListFrame extends JInternalFrame
             dtp.makeActive(result);
             return;
 		}
+	}
+	
+	public String getCreatedListName() {
+		return this.listName;
 	}
 
 }
