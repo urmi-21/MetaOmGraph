@@ -70,11 +70,16 @@ DOUBLE CLICK on the .jar file icon to start MOG.
 
 Please see [CONTRIBUTING.md](https://github.com/urmi-21/MetaOmGraph/blob/master/CONTRIBUTING.md)
 
-## Developers
+## Contributors
 
-* **Urminder Singh** - Current developer.
-* **Manhoi Hur** - Initial developer.
-* **Nick Ransom** - Initial developer.
+#### Current developers
+* **Urminder Singh**
+* **Sumanth Kaliki**
+* **Kumara Sri Harsha**
+
+#### Initial developers
+* **Manhoi Hur** 
+* **Nick Ransom** 
 
 ## Getting Help
 If you encounter an error/bug, please report a minimal reproducible example on [github](https://github.com/urmi-21/MetaOmGraph/issues). For questions and other discussion, please get in touch with the developers via [github](https://github.com/urmi-21/MetaOmGraph/issues) or [email](http://metnetweb.gdcb.iastate.edu/MetNet_MetaOmGraph_download.php).
