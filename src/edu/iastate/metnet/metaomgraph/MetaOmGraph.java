@@ -748,7 +748,8 @@ public class MetaOmGraph implements ActionListener {
 	
 	public enum Themes{
 		Light,
-		Dark
+		Dark,
+		System
 	}
 	
 	public static boolean setTheme(Themes theme) {
@@ -760,7 +761,13 @@ public class MetaOmGraph implements ActionListener {
 			case Dark:
 				UIManager.setLookAndFeel(new FlatDarkLaf());
 				break;
+			
+			case System:
+				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+				break;
 			}
+				
+			
 			activeTheme = theme;
 			SwingUtilities.updateComponentTreeUI(mainWindow);
 		}

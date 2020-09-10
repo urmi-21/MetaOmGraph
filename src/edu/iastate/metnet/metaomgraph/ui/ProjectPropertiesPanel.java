@@ -274,7 +274,7 @@ public class ProjectPropertiesPanel extends JPanel {
 		c.gridy = 7;
 		add(manageColors, c);
 		
-		String themes[] = {"Light", "Dark"};
+		String themes[] = {"System","Light", "Dark"};
 		JComboBox<String> themeComboBox = new JComboBox<String>(themes);
 		themeComboBox.setSelectedItem(MetaOmGraph.getActiveTheme().toString());
 		themeComboBox.addItemListener(new ItemListener() {
