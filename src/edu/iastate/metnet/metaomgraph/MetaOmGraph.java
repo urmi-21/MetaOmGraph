@@ -66,6 +66,7 @@ import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
@@ -88,6 +89,8 @@ import org.jdom.JDOMException;
 
 
 import com.apple.eawt.Application;
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatLightLaf;
 import com.l2fprod.common.swing.JTipOfTheDay;
 
 
@@ -740,6 +743,36 @@ public class MetaOmGraph implements ActionListener {
 
 	// for splashscreen urmi
 	static SplashScreen mySplash;
+	
+	private static Themes activeTheme;
+	
+	public enum Themes{
+		Light,
+		Dark
+	}
+	
+	public static boolean setTheme(Themes theme) {
+		try {
+			switch(theme) {
+			case Light:
+                UIManager.setLookAndFeel(new FlatLightLaf());
+				break;
+			case Dark:
+				UIManager.setLookAndFeel(new FlatDarkLaf());
+				break;
+			}
+			activeTheme = theme;
+			SwingUtilities.updateComponentTreeUI(mainWindow);
+		}
+		catch (Exception e) {
+			return false;
+		}
+		return true;
+	}
+	
+	public static Themes getActiveTheme() {
+		return activeTheme;
+	}
 
 	/**
 	 * Fetches the active MetaOmProject.
@@ -1679,7 +1712,7 @@ public class MetaOmGraph implements ActionListener {
 		System.setProperty("sun.java2d.renderer.doChecks", "true");
 
 		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			setTheme(Themes.Light);
 			System.setProperty("sun.awt.noerasebackground", "true");
 		} catch (Exception e) {
 			e.printStackTrace();

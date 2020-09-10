@@ -87,7 +87,7 @@ public class SimpleSearchFrame extends TaskbarInternalFrame {
 		comboBox = new JComboBox();
 		comboBox.setFont(new Font("Times New Roman", Font.PLAIN, 13));
 		// select all the headers in the metadata
-		String[] colNames = parent.getHeaders();
+		String[] colNames = parent.getAllHeaders();
 		comboBox.addItem("Any Field");
 		comboBox.addItem("All Fields");
 		for (String c : colNames) {
@@ -193,7 +193,7 @@ public class SimpleSearchFrame extends TaskbarInternalFrame {
 		comboBox = new JComboBox();
 		comboBox.setFont(new Font("Times New Roman", Font.PLAIN, 13));
 		// select all the headers in the metadata
-		String[] colNames = parent.getHeaders();
+		String[] colNames = parent.getAllHeaders();
 		comboBox.addItem("Any Field");
 		comboBox.addItem("All Fields");
 		for (String c : colNames) {

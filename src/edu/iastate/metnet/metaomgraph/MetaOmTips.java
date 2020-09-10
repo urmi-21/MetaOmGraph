@@ -7,8 +7,23 @@ import edu.stanford.ejalbert.BrowserLauncherRunner;
 import edu.stanford.ejalbert.exceptionhandler.BrowserLauncherDefaultErrorHandler;
 import edu.stanford.ejalbert.exceptionhandler.BrowserLauncherErrorHandler;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.io.Serializable;
 import java.util.ArrayList;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTextPane;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
@@ -19,14 +34,16 @@ import java.util.List;
 
 public class MetaOmTips implements TipModel, HyperlinkListener {
     private ArrayList<TipModel.Tip> tips;
-
+    private JTextPane tipPane;
+    private JPanel tipPanel;
+    private static int tipIndex = 0;
     public MetaOmTips() {
         tips = new ArrayList();
         addTip(
                 "Welcome to MetaOmGraph!",
                 "You can press F1 at any time to get help with whatever you're working on.\n\nOn some laptops (especially Mac laptops), you may need to press Fn-F1.");
 
-        JTextPane tipPane = new JTextPane();
+        tipPane = new JTextPane();
         tipPane.setEditable(false);
         tipPane.setContentType("text/html");
         tipPane.setText("<html><font face=\"dialog\" size=\"3\">Bug report?  Feature request?  Submit it to MOG's GitHub page <a href=\"https://github.com/urmi-21/MetaOmGraph\">MOG GitHub</a>!<br>Nobody knows how to improve a program more than its users!</font></html>");
@@ -44,6 +61,8 @@ public class MetaOmTips implements TipModel, HyperlinkListener {
         addTip("Saving Metadata sorts", "To quickly re-order any plot to the result of a metadata sort, save the result as a custom sort.  Run the metadata sort, then select the custom sort option, then click the Save button.");
         //addTip("Sample tip", "Suggestion");
         //add tips
+        
+        createTipPanel();
     }
 
     @Override
@@ -93,6 +112,56 @@ public class MetaOmTips implements TipModel, HyperlinkListener {
         tips.add(myTip);
     }
 
+    private void createTipPanel() {
+
+    	tipPanel = new JPanel();
+    	tipPanel.setLayout(new BoxLayout(tipPanel, BoxLayout.Y_AXIS));
+
+        JPanel topPanel = new JPanel(new BorderLayout(0, 0));
+        topPanel.setMaximumSize(new Dimension(500, 0));
+        JLabel hint = new JLabel("<html><b>Mog tips:<b></html>");
+        hint.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 10));
+        topPanel.add(hint);
+
+        JSeparator separator = new JSeparator();
+        separator.setForeground(Color.gray);
+
+        topPanel.add(separator, BorderLayout.SOUTH);
+
+        tipPanel.add(topPanel);
+        
+        JPanel textPanel = new JPanel(new BorderLayout());
+        textPanel.setBorder(BorderFactory.createEmptyBorder(15, 25, 15, 25));
+        textPanel.setPreferredSize(new Dimension(500, 200));
+       
+        textPanel.add(new JScrollPane(tipPane));
+
+        tipPanel.add(textPanel);
+
+        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+
+        JButton nextTip = new JButton("Next Tip");
+        nextTip.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				tipIndex = tipIndex % tips.size();
+				if(tipIndex == 1)
+					tipIndex++;
+				String tipText = tips.get(tipIndex).getTip().toString();
+				tipPane.setText(tipText);
+				tipIndex++;
+			}
+		});
+        bottom.add(nextTip);
+        tipPanel.add(bottom);
+
+        bottom.setMaximumSize(new Dimension(450, 0));
+    }
+    
+    public JPanel getTipPane() {
+    	return tipPanel;
+    }
+    
     public void addTip(final String name, final JTextPane tip) {
         tip.addHyperlinkListener(this);
         TipModel.Tip myTip = new TipModel.Tip() {
