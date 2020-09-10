@@ -89,6 +89,8 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 	private MetadataCollection obj;
 	private List<Document> metadata;
 	private String[] headers;
+	private HashMap<String, String[]> listHeadersMap;
+	private List<String> prevLists = new ArrayList<String>();;
 	// private List<String> toHighlight;
 	// highlight rows where iths col contains coressponding value. e.g. if
 	// tohighlight is 2:{a,b,c,d}, 3:{abc} this will highlight rows
@@ -134,6 +136,7 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 	 * Create the panel.
 	 */
 	public MetadataTableDisplayPanel(MetadataCollection obj) {
+		listHeadersMap = new HashMap<String, String[]>();
 		this.obj = obj;
 		metadata = this.obj.getAllData();
 		this.headers = obj.getHeaders();
@@ -187,6 +190,10 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 				}
 			}
 		});
+		
+		for(String list : listNames) {
+			listHeadersMap.put(list, headers);
+		}
 	}
 
 	// Create the list panel.
@@ -1396,18 +1403,16 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		});
 
 		DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
+		// Add column names.
+		for(int i = 0; i < headers.length; i++) {
+			tablemodel.addColumn(headers[i]);
+		}
 		// add data
 		// for each row add each coloumn
 		for (int i = 0; i < metadata.size(); i++) {
 			// create a temp string storing all col values for a row
 			String[] temp = new String[headers.length];
 			for (int j = 0; j < headers.length; j++) {
-
-				// add col name
-				if (i == 0) {
-					tablemodel.addColumn(headers[j]);
-				}
-
 				temp[j] = metadata.get(i).get(headers[j]).toString();
 			}
 
@@ -1495,7 +1500,13 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 			public Object construct() {
 				DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
 				tablemodel.setRowCount(0);
-
+				tablemodel.setColumnCount(0);
+				
+				String[] activeListHeaders = getActiveListHeaders();
+				// Add column names.
+				for(int i = 0; i < activeListHeaders.length; i++) {
+					tablemodel.addColumn(activeListHeaders[i]);
+				}			
 				// JOptionPane.showConfirmDialog(null, rowsInList.toString());
 
 				/*
@@ -1579,14 +1590,15 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 				// clear table model
 				tablemodel.setRowCount(0);
 				tablemodel.setColumnCount(0);
-				// get headers
-				List<String> finalHeaders = new ArrayList<String>(Arrays.asList(headers));
-				if (obj.getRemoveCols() != null && !obj.getRemoveCols().isEmpty())
+				String[] activeListHeaders = getActiveListHeaders();
+				// add column names.
+				List<String> finalHeaders = new ArrayList<String>(Arrays.asList(activeListHeaders));
+				if(obj.getRemoveCols() != null && !obj.getRemoveCols().isEmpty())
 					finalHeaders.removeAll(obj.getRemoveCols());
+				
 				// add columns to table
-				for (int j = 0; j < finalHeaders.size(); j++) {
-					// add col name
-					tablemodel.addColumn(finalHeaders.get(j));
+				for(int i = 0; i < finalHeaders.size(); i++) {
+					tablemodel.addColumn(finalHeaders.get(i));
 				}
 
 				// add rows
@@ -1646,22 +1658,34 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 
 	public void updateHeaders() {
 		DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
-		tablemodel.setColumnIdentifiers(headers);
+		tablemodel.setColumnIdentifiers(getActiveListHeaders());
 		table.repaint();
 
 	}
-
-	public void setHeaders(String[] newHeaders) {
-		this.headers = newHeaders;
+	
+	private String[] getActiveListHeaders() {
+		String activeList = getActiveList();
+		return listHeadersMap.get(activeList);
+	}
+	
+	public String getActiveList() {
+		return sampleDataList.getSelectedValue().toString();
 	}
 
-	public String[] getHeaders() {
+	public void setHeaders(String[] newHeaders) {
+		String activeList = getActiveList();
+		listHeadersMap.replace(activeList, newHeaders);
+		//this.headers = newHeaders;
+	}
+
+	public String[] getAllHeaders() {
 		return this.headers;
 	}
 
 	public void resetData() {
 		this.metadata = this.obj.getAllData();
 		this.headers = obj.getHeaders();
+		setHeaders(headers);
 	}
 
 	public MetadataCollection getthisCollection() {
@@ -2382,11 +2406,12 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 
 	private void createSampleListFrame(String title, boolean edit) {
 		SampleMetaDataListFrame sampleListFrame = null;
+		String[]  activeHeaderList = getActiveListHeaders();
 		if (edit) {
 			sampleListFrame = new SampleMetaDataListFrame(obj, (String) sampleDataList.getSelectedValue(),
-					getSelectedRows(false), getSelectedRows(true));
+					getSelectedRows(false), getSelectedRows(true), activeHeaderList);
 		} else {
-			sampleListFrame = new SampleMetaDataListFrame(obj, getSelectedRows(), getSelectedRows(true));
+			sampleListFrame = new SampleMetaDataListFrame(obj, getSelectedRows(), getSelectedRows(true), activeHeaderList);
 			
 		}
 		sampleListFrame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2,
@@ -2405,12 +2430,15 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 
 		for (Object s : selected) {
 			MetaOmGraph.getActiveProject().deleteSampleDataList(s.toString());
+			listHeadersMap.remove(s.toString());
 		}
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if ("new list".equals(e.getActionCommand())) {
+			prevLists.clear();
+			prevLists.addAll(Arrays.asList(MetaOmGraph.getActiveProject().getSampleDataListNames()));
 			createSampleListFrame("Create New List", false);
 			return;
 		}
@@ -2456,11 +2484,27 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 			}
 		});
 	}
-
+	
+	
+	private String getNewlyCreatedList() {
+		ArrayList<String> newestSampleList = new ArrayList<>(Arrays.asList(
+				MetaOmGraph.getActiveProject().getSampleDataListNames()));
+		newestSampleList.removeAll(prevLists);
+		if(newestSampleList.size() == 0)
+			return null;
+		else
+			return newestSampleList.get(0);
+	}
+	
 	@Override
 	public void stateChanged(ChangeEvent e) {
 		if ("create sample data list".equals(e.getSource()) || "rename sample data list".equals(e.getSource())) {
 			int selectedListIndex = sampleDataList.getSelectedIndex();
+			String newList = getNewlyCreatedList();
+			if(newList != null && !newList.isEmpty()) {
+				String[] newListHeaders = listHeadersMap.get(sampleDataList.getSelectedValue().toString());
+				listHeadersMap.put(newList, newListHeaders);
+			}
 			updateLists();
 			sampleDataList.setSelectedIndex(selectedListIndex);
 		} else if ("delete sample data list".equals(e.getSource())) {

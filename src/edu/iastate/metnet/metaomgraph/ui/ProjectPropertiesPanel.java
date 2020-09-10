@@ -16,6 +16,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
@@ -23,7 +25,7 @@ import java.io.IOException;
 import java.util.Vector;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JInternalFrame;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -54,6 +56,7 @@ public class ProjectPropertiesPanel extends JPanel {
 		JLabel yaxisLabel = new JLabel("Default Y-Axis Label: ");
 		JLabel titleLabel = new JLabel("Default Chart Title: ");
 		JLabel changeColors = new JLabel("MOG colors: ");
+		JLabel changeThemeLabel = new JLabel("GUI Themes");
 		
 		
 		// urmi
@@ -243,6 +246,8 @@ public class ProjectPropertiesPanel extends JPanel {
 		add(rParams, c);
 		c.gridy = 7;
 		add(changeColors, c);
+		c.gridy = 8;
+		add(changeThemeLabel, c);
 		
 		c.gridx = 1;
 		c.gridy = 0;
@@ -268,6 +273,28 @@ public class ProjectPropertiesPanel extends JPanel {
 		add(rPathManageButton, c);
 		c.gridy = 7;
 		add(manageColors, c);
+		
+		String themes[] = {"Light", "Dark"};
+		JComboBox<String> themeComboBox = new JComboBox<String>(themes);
+		themeComboBox.setSelectedItem(MetaOmGraph.getActiveTheme().toString());
+		themeComboBox.addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if(e.getStateChange() == e.SELECTED) {
+					MetaOmGraph.Themes theme = MetaOmGraph.Themes.valueOf(themeComboBox.getSelectedItem().toString());
+					MetaOmGraph.setTheme(theme);
+				}
+			}
+		});
+		themeComboBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+			}
+		});
+		c.gridy = 8;
+		add(themeComboBox, c);	
 	}
 
 	public String getXAxisLabel() {
