@@ -1224,7 +1224,7 @@ public class Utils {
 		    result.put("result", "OK");
 		    ActionProperties saveAction = new ActionProperties("save-table-to-excel",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 			saveAction.logActionProperties();
-			
+			workBook.dispose();
 		    return 0;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -1234,6 +1234,7 @@ public class Utils {
 			result.put("resultComments", "Error in saving file:" + destination.getAbsolutePath());
 			ActionProperties saveAction = new ActionProperties("save-table-to-excel",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 			saveAction.logActionProperties();
+			workBook.dispose();
 			return 1;
 		}
 	}
