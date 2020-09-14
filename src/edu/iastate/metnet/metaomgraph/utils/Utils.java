@@ -57,6 +57,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.math3.analysis.function.Atanh;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -1189,7 +1190,14 @@ public class Utils {
 						catch(Exception e){
 							value = table.getValueAt(rowIndex, colIndex).toString();
 						}
-						cell.setCellValue(value);
+						
+						if (NumberUtils.isCreatable(value)) {
+							double numberVal=NumberUtils.toFloat(value);
+							cell.setCellValue(numberVal);
+						} else {
+							cell.setCellValue(value);
+						}
+						
 					}
 					progress.setProgress(rowIndex);
 				}
