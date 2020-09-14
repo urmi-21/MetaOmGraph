@@ -63,6 +63,10 @@ import org.apache.logging.log4j.Logger;
 
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.xssf.streaming.SXSSFCell;
+import org.apache.poi.xssf.streaming.SXSSFRow;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
@@ -1149,21 +1153,21 @@ public class Utils {
 		if(destination == null)
 			return 0;
 		
-		XSSFWorkbook workBook = new XSSFWorkbook();
+		SXSSFWorkbook workBook = new SXSSFWorkbook(1000); // faster
 		
 		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(), "Working",
 				"Creating file", 0L, table.getRowCount(), true);
 		new Thread() {
 			@Override
 			public void run() {
-				XSSFSheet sheet = workBook.createSheet("MetaOmGraph data");
-				XSSFRow row = sheet.createRow(0);
-				XSSFCell cell = null;
+				SXSSFSheet sheet = workBook.createSheet("MetaOmGraph data");
+				SXSSFRow row = sheet.createRow(0);
+				SXSSFCell cell = null;
 
 				// set column name colors and font.
-				XSSFFont headerFont = workBook.createFont();
+				XSSFFont headerFont = (XSSFFont) workBook.createFont();
 				headerFont.setColor(IndexedColors.BLACK.index);
-				XSSFCellStyle headerCellStyle = sheet.getWorkbook().createCellStyle();
+				XSSFCellStyle headerCellStyle = (XSSFCellStyle) sheet.getWorkbook().createCellStyle();
 				headerCellStyle.setFillForegroundColor(IndexedColors.GOLD.index);
 				headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 				headerCellStyle.setFont(headerFont);
