@@ -66,9 +66,12 @@ import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
+import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
+import javax.swing.UIDefaults;
 import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -637,10 +640,6 @@ public class MetaOmGraph implements ActionListener {
 	public static final String ARAPORT_THALEMINE_COMMAND = "ThaleMine";
 	public static final String ARAPORT_JBROWSE_COMMAND = "JBrowse";
 	private static JMenuItem findSamples;
-	private static JMenu diffExpMenu;
-	private static JMenuItem logChange;
-	private static JMenuItem loadDiffExpResults;
-	private static JMenuItem removeDiffExpResults;
 
 	private static JMenuItem tTest;
 
@@ -743,31 +742,31 @@ public class MetaOmGraph implements ActionListener {
 
 	// for splashscreen urmi
 	static SplashScreen mySplash;
-	
+
 	private static Themes activeTheme;
-	
+
 	public enum Themes{
 		Light,
 		Dark,
 		System
 	}
-	
+
 	public static boolean setTheme(Themes theme) {
 		try {
 			switch(theme) {
 			case Light:
-                UIManager.setLookAndFeel(new FlatLightLaf());
+				UIManager.setLookAndFeel(new FlatLightLaf());
 				break;
 			case Dark:
 				UIManager.setLookAndFeel(new FlatDarkLaf());
 				break;
-			
+
 			case System:
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 				break;
 			}
-				
-			
+
+
 			activeTheme = theme;
 			SwingUtilities.updateComponentTreeUI(mainWindow);
 		}
@@ -776,7 +775,7 @@ public class MetaOmGraph implements ActionListener {
 		}
 		return true;
 	}
-	
+
 	public static Themes getActiveTheme() {
 		return activeTheme;
 	}
@@ -1343,29 +1342,6 @@ public class MetaOmGraph implements ActionListener {
 		toolsMenu.add(findSamples);
 		mainMenuBar.add(toolsMenu);
 
-		diffExpMenu = new JMenu("Differential expression analysis");
-		infoButtonMenu.setToolTipText("Find differentially expressed features");
-
-		logChange = new JMenuItem("Perform DEA");
-		logChange.setActionCommand("logChange");
-		logChange.addActionListener(myself);
-		logChange.setToolTipText("Find differentially expressed features over two groups");
-
-		loadDiffExpResults = new JMenuItem("Load saved DE results");
-		loadDiffExpResults.setActionCommand("loadDiffExp");
-		loadDiffExpResults.addActionListener(myself);
-		loadDiffExpResults.setToolTipText("Load saved differential expression results");
-
-		removeDiffExpResults = new JMenuItem("Remove saved DE results");
-		removeDiffExpResults.setActionCommand("removeDiffExp");
-		removeDiffExpResults.addActionListener(myself);
-		removeDiffExpResults.setToolTipText("Remove saved differential expression results from the project");
-
-		diffExpMenu.add(logChange);
-		diffExpMenu.add(loadDiffExpResults);
-		diffExpMenu.add(removeDiffExpResults);
-
-		toolsMenu.add(diffExpMenu);
 		///////////// end tool menu//////////////////
 
 		cascadeItem = new JMenuItem("Arrange Windows");
@@ -1537,7 +1513,7 @@ public class MetaOmGraph implements ActionListener {
 		aboutItem.addActionListener(myself);
 		helpMenu.add(aboutItem);
 
-		historyMenu = new JMenu("History");
+		historyMenu = new JMenu("Playback");
 		JMenuItem playbackMenu = new JMenuItem("Playback Dashboard");
 		playbackMenu.setMnemonic(KeyEvent.VK_A);
 		playbackMenu.setActionCommand(PLAYBACK_COMMAND);
@@ -1553,7 +1529,7 @@ public class MetaOmGraph implements ActionListener {
 
 		//Harsha - reproducibility log menu
 
-		ReproducibilityLogMenu = new JToggleButton("History");
+		ReproducibilityLogMenu = new JToggleButton("Playback");
 		ReproducibilityLogMenu.setForeground(Color.BLUE);
 		ReproducibilityLogMenu.addItemListener(new ItemListener() {
 
@@ -2134,7 +2110,7 @@ public class MetaOmGraph implements ActionListener {
 				// System.out.print("Loading extended info... ");
 				if (!extInfoFile.exists())
 					extInfoFile = null;
-				
+
 				projectOpened();
 				try {
 					// JOptionPane.showMessageDialog(null, "LOADING MD");
@@ -3386,176 +3362,6 @@ public class MetaOmGraph implements ActionListener {
 			return;
 		}
 
-		if ("logChange".equals(e.getActionCommand())) {
-			if (getActiveProject().getMetadataHybrid() == null) {
-				JOptionPane.showMessageDialog(null, "No metadata read", "No metadata", JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-
-			DifferentialExpFrame lframe = new DifferentialExpFrame();
-			lframe.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
-			MetaOmGraph.getDesktop().add(lframe);
-			lframe.setVisible(true);
-
-			return;
-		}
-
-		if ("loadDiffExp".equals(e.getActionCommand())) {
-
-			String[] listOfDE = getActiveProject().getSavedDiffExpResNames();
-			if (listOfDE == null || listOfDE.length < 1) {
-				JOptionPane.showMessageDialog(null, "No saved results found", "No results",
-						JOptionPane.INFORMATION_MESSAGE);
-				return;
-			}
-			// JOptionPane.showMessageDialog(null, "saved" + Arrays.toString(listOfDE));
-
-			// choose one from the available results
-			String chosenVal = (String) JOptionPane.showInputDialog(null, "Choose the DE analysis", "Please choose",
-					JOptionPane.PLAIN_MESSAGE, null, listOfDE, listOfDE[0]);
-			if (chosenVal == null) {
-				return;
-			}
-
-
-			// display chosen results
-			new AnimatedSwingWorker("Working...", true) {
-				@Override
-				public Object construct() {
-					EventQueue.invokeLater(new Runnable() {
-						@Override
-						public void run() {
-							try {
-
-								DifferentialExpResults diffExpObj = getActiveProject().getDiffExpResObj(chosenVal);
-								logFCResultsFrame frame = null;
-								frame = new logFCResultsFrame(diffExpObj, getActiveProject());
-								frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
-
-
-								if(getDEAResultsFrame()!=null && !getDEAResultsFrame().isClosed()) {
-									getDEAResultsFrame().addTabToFrame(frame, diffExpObj.getID());
-									getDEAResultsFrame().addTabListToFrame(frame.getGeneLists(), diffExpObj.getID());
-									getDEAResultsFrame().getDesktopPane().getDesktopManager().maximizeFrame(getDEAResultsFrame());
-									getDEAResultsFrame().getDesktopPane().getDesktopManager().minimizeFrame(getDEAResultsFrame());
-									getDEAResultsFrame().moveToFront();
-								}
-								else {
-									setDEAResultsFrame(new StatisticalResultsFrame("DEA","DEA Results"));
-									getDEAResultsFrame().addTabToFrame(frame, diffExpObj.getID());
-									getDEAResultsFrame().addTabListToFrame(frame.getGeneLists(), diffExpObj.getID());
-									getDEAResultsFrame().setTitle("DE results");
-									MetaOmGraph.getDesktop().add(getDEAResultsFrame());
-									frame.setVisible(true);
-									getDEAResultsFrame().setVisible(true);
-									getDEAResultsFrame().getDesktopPane().getDesktopManager().maximizeFrame(getDEAResultsFrame());
-									getDEAResultsFrame().getDesktopPane().getDesktopManager().minimizeFrame(getDEAResultsFrame());
-									getDEAResultsFrame().moveToFront();
-									frame.setEnabled(true);
-								}
-
-
-							} catch (Exception e) {
-								
-								StringWriter sw = new StringWriter();
-								PrintWriter pw = new PrintWriter(sw);
-								e.printStackTrace(pw);
-								String sStackTrace = sw.toString();
-								
-								JDialog jd = new JDialog();
-								JTextPane jt = new JTextPane();
-								jt.setText(sStackTrace);
-								jt.setBounds(10, 10, 300, 100);
-								jd.getContentPane().add(jt);
-								jd.setBounds(100, 100, 500, 200);
-								jd.setVisible(true);
-							}
-						}
-					});
-					return null;
-				}
-			}.start();
-			//frame.setTitle("DE results");
-
-
-			//Harsha - reproducibility log
-
-			HashMap<String,Object> actionMap = new HashMap<String,Object>();
-			HashMap<String,Object> dataMap = new HashMap<String,Object>();
-			HashMap<String,Object> result = new HashMap<String,Object>();
-
-			try {
-
-				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
-				actionMap.put("section", "All");
-
-				dataMap.put("Chosen DEA", chosenVal);
-
-
-				result.put("result", "OK");
-
-				ActionProperties loadDeaAction = new ActionProperties("load-DEA",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				loadDeaAction.logActionProperties();
-
-			}
-			catch(Exception e1) {
-
-			}
-
-
-			return;
-		}
-
-		if ("removeDiffExp".equals(e.getActionCommand())) {
-
-			String[] listOfDE = getActiveProject().getSavedDiffExpResNames();
-			if (listOfDE == null || listOfDE.length < 1) {
-				JOptionPane.showMessageDialog(null, "No saved results found", "No results",
-						JOptionPane.INFORMATION_MESSAGE);
-				return;
-			}
-
-			// choose one from the available results
-			String chosenVal = (String) JOptionPane.showInputDialog(null, "Choose the DE analysis to remove",
-					"Please choose", JOptionPane.PLAIN_MESSAGE, null, listOfDE, listOfDE[0]);
-			if (chosenVal == null) {
-				return;
-			}
-
-			int opt = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete the selected?", "Confirm", 0,
-					3);
-			if (opt != 0) {
-				return;
-			}
-			getActiveProject().removeDifferentialExpResults(chosenVal);
-
-
-			//Harsha - reproducibility log
-
-			HashMap<String,Object> actionMap = new HashMap<String,Object>();
-			HashMap<String,Object> dataMap = new HashMap<String,Object>();
-			HashMap<String,Object> result = new HashMap<String,Object>();
-
-			try {
-
-				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
-				actionMap.put("section", "All");
-
-				dataMap.put("Removed DEA", chosenVal);
-
-
-				result.put("result", "OK");
-
-				ActionProperties removeDeaAction = new ActionProperties("remove-saved-DEA",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				removeDeaAction.logActionProperties();
-
-			}
-			catch(Exception e1) {
-
-			}
-
-			return;
-		}
 
 		if (CASCADE_WINDOWS_COMMAND.equals(e.getActionCommand())) {
 			JInternalFrame[] frames = desktop.getAllFrames();
@@ -4208,6 +4014,10 @@ public class MetaOmGraph implements ActionListener {
 
 		ReproducibilityDashboardFrame =  new JInternalFrame("Playback");
 
+		ColorUIResource oldActiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.activeTitleBackground");
+		ColorUIResource oldInactiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.inactiveTitleBackground");
+		Font oldFont = UIManager.getFont("InternalFrame.titleFont");
+
 		UIManager.put("InternalFrame.activeTitleBackground", new ColorUIResource(new Color(240,128,128)));
 		UIManager.put("InternalFrame.inactiveTitleBackground", new ColorUIResource(new Color(240,128,128)));
 		UIManager.put("InternalFrame.titleFont", new Font("SansSerif", Font.BOLD,12));
@@ -4216,13 +4026,14 @@ public class MetaOmGraph implements ActionListener {
 
 		ReproducibilityDashboardFrame.setUI(ui);
 
+
 		rdp = new ReproducibilityDashboardPanel(myself);
 		ReproducibilityDashboardFrame.add(rdp);
 		desktop.add(ReproducibilityDashboardFrame);
 
 
 		ReproducibilityDashboardFrame.setClosable(false);
-		ReproducibilityDashboardFrame.setIconifiable(true);
+		ReproducibilityDashboardFrame.setIconifiable(false);
 		ReproducibilityDashboardFrame.setMaximizable(false);
 		ReproducibilityDashboardFrame.setResizable(true);
 
@@ -4233,7 +4044,13 @@ public class MetaOmGraph implements ActionListener {
 		ReproducibilityDashboardFrame.setSize(550, (int)rect.getMaxY()-200);
 		ReproducibilityDashboardFrame.setLocation((ReproducibilityLogMenu.getX()+ReproducibilityLogMenu.getWidth())-550, 0);
 
-		ReproducibilityDashboardFrame.show();     
+		ReproducibilityDashboardFrame.show();    
+
+
+		UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
+		UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
+		UIManager.put("InternalFrame.titleFont", oldFont);
+
 
 	}
 

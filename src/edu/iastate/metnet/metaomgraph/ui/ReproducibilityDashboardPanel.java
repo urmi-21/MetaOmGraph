@@ -47,6 +47,8 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.JTree;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -285,11 +287,11 @@ public class ReproducibilityDashboardPanel extends JPanel {
 		rdbtnOn.setSelected(true);
 		loggingChoicePanel.add(rdbtnOn);
 
-		rdbtnOff = new JRadioButton("off");
+		rdbtnOff = new JRadioButton("pause");
 		loggingChoicePanel.add(rdbtnOff);
 
 		rdbtnPermanentlySwitchedOff = new JRadioButton("permanently switched off");
-		loggingChoicePanel.add(rdbtnPermanentlySwitchedOff);
+//		loggingChoicePanel.add(rdbtnPermanentlySwitchedOff);
 
 		if (MetaOmGraph.getPermanentLogging() == false) {
 			rdbtnOn.setSelected(false);
@@ -850,6 +852,7 @@ public class ReproducibilityDashboardPanel extends JPanel {
 						}
 					});
 
+
 					table.getColumnModel().getColumn(1).setCellRenderer(new MultilineTableRenderer());
 					table.getColumnModel().getColumn(1).setCellEditor(new MultilineTableCellEditor());
 
@@ -1221,9 +1224,11 @@ public class ReproducibilityDashboardPanel extends JPanel {
 
 			}
 
-		} catch (IOException e) {
+		} 
+		catch (Exception e) {
 
-		} finally {
+		}
+		finally {
 			try {
 				if(tabNo!=0 && out!=null) {
 					out.close();
