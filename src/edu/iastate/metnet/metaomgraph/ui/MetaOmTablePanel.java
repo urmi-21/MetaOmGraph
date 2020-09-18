@@ -149,6 +149,13 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	private JMenu removeCorrelationMenu;
 	private JMenu selectedRowsMenu;
 	private MenuButton infoButton;
+	
+	//Harsha
+	private static JMenu diffExpMenu;
+	private static JMenuItem logChange;
+	private static JMenuItem loadDiffExpResults;
+	private static JMenuItem removeDiffExpResults;
+	
 	// urmi
 	private JButton metabutton;
 	private JMenuItem viewCorrStats;
@@ -349,6 +356,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		JMenu poolcorrMenu = new JMenu("Meta-analysis");
 		JMenu diffcorrMenu = new JMenu("Differntial Correlation");
 		JMenu informationMenu = new JMenu("Mutual Information");
+		diffExpMenu = new JMenu("Differential Expression Analysis");
+		
 		JMenu distMenu = new JMenu("Distance");
 
 		//////////////////////////
@@ -495,6 +504,29 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		distMenu.add(manhattanItem);
 		distMenu.add(weightedEuclideanItem);
 		distMenu.add(weightedManhattanItem);
+		
+		//Harsha
+		logChange = new JMenuItem("Perform DEA");
+		logChange.setActionCommand("logChange");
+		logChange.addActionListener(this);
+		logChange.setToolTipText("Find differentially expressed features over two groups");
+
+		loadDiffExpResults = new JMenuItem("Load saved DE results");
+		loadDiffExpResults.setActionCommand("loadDiffExp");
+		loadDiffExpResults.addActionListener(this);
+		loadDiffExpResults.setToolTipText("Load saved differential expression results");
+
+		removeDiffExpResults = new JMenuItem("Remove saved DE results");
+		removeDiffExpResults.setActionCommand("removeDiffExp");
+		removeDiffExpResults.addActionListener(this);
+		removeDiffExpResults.setToolTipText("Remove saved differential expression results from the project");
+		
+		diffExpMenu.add(logChange);
+		diffExpMenu.add(loadDiffExpResults);
+		diffExpMenu.add(removeDiffExpResults);
+		
+		analyzePopupMenu.add(diffExpMenu);
+		
 		analyzePopupMenu.add(distMenu);
 
 		analyzePopupMenu.addSeparator();
@@ -1386,6 +1418,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 							int nBins = myProject.getIncludedDataColumnCount() / 10;
 							HistogramChart f = new HistogramChart(selected, nBins, myProject, 1, null, true);
 							
+							ColorUIResource oldActiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.activeTitleBackground");
+							ColorUIResource oldInactiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.inactiveTitleBackground");
+							Font oldFont = UIManager.getFont("InternalFrame.titleFont");
+							
 							UIManager.put("InternalFrame.activeTitleBackground", new ColorUIResource(new Color(240,128,128)));
 							UIManager.put("InternalFrame.inactiveTitleBackground", new ColorUIResource(new Color(240,128,128)));
 						    UIManager.put("InternalFrame.titleFont", new Font("SansSerif", Font.BOLD,12));
@@ -1403,6 +1439,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 							f.setVisible(true);
 							f.toFront();
 
+							
+							UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
+							UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
+						    UIManager.put("InternalFrame.titleFont", oldFont);
+						    
 							mcol.setIncluded(currentProjectIncludedSamples);
 							mcol.setExcluded(currentProjectExcludedSamples);
 							MetaOmGraph.getActiveTable().updateMetadataTree();
@@ -1574,6 +1615,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 							MetaOmGraph.getActiveTable().updateMetadataTree();
 
 
+							ColorUIResource oldActiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.activeTitleBackground");
+							ColorUIResource oldInactiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.inactiveTitleBackground");
+							Font oldFont = UIManager.getFont("InternalFrame.titleFont");
 
 							BoxPlot f = new BoxPlot(plotData, 0, myProject,true);
 							
@@ -1594,6 +1638,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 							f.toFront();
 
 
+							UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
+							UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
+							UIManager.put("InternalFrame.titleFont", oldFont);
+							
 							mcol.setIncluded(currentProjectIncludedSamples);
 							mcol.setExcluded(currentProjectExcludedSamples);
 							//MetaOmAnalyzer.updateExcluded(currentProjectExcludedSamples);
@@ -1737,8 +1785,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 							mcol.setExcluded(excludedSamples);
 							MetaOmGraph.getActiveTable().updateMetadataTree();
 
-
-
+							ColorUIResource oldActiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.activeTitleBackground");
+							ColorUIResource oldInactiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.inactiveTitleBackground");
+							Font oldFont = UIManager.getFont("InternalFrame.titleFont");
 
 							ScatterPlotChart f = new ScatterPlotChart(selected, 0, myProject,true);
 							
@@ -1760,6 +1809,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 							f.toFront();
 
 
+							UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
+							UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
+							UIManager.put("InternalFrame.titleFont", oldFont);
+							
 							mcol.setIncluded(currentProjectIncludedSamples);
 							mcol.setExcluded(currentProjectExcludedSamples);
 							MetaOmGraph.getActiveTable().updateMetadataTree();
@@ -4259,6 +4312,170 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			//multiSelectAction.logActionProperties();
 			return;
 		}
+		
+		//Harsha - Diff exp
+		
+		if ("logChange".equals(e.getActionCommand())) {
+			if (MetaOmGraph.getActiveProject().getMetadataHybrid() == null) {
+				JOptionPane.showMessageDialog(null, "No metadata read", "No metadata", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+
+			DifferentialExpFrame lframe = new DifferentialExpFrame();
+			lframe.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
+			MetaOmGraph.getDesktop().add(lframe);
+			lframe.setVisible(true);
+
+			return;
+		}
+
+		if ("loadDiffExp".equals(e.getActionCommand())) {
+
+			String[] listOfDE = MetaOmGraph.getActiveProject().getSavedDiffExpResNames();
+			if (listOfDE == null || listOfDE.length < 1) {
+				JOptionPane.showMessageDialog(null, "No saved results found", "No results",
+						JOptionPane.INFORMATION_MESSAGE);
+				return;
+			}
+			// JOptionPane.showMessageDialog(null, "saved" + Arrays.toString(listOfDE));
+
+			// choose one from the available results
+			String chosenVal = (String) JOptionPane.showInputDialog(null, "Choose the DE analysis", "Please choose",
+					JOptionPane.PLAIN_MESSAGE, null, listOfDE, listOfDE[0]);
+			if (chosenVal == null) {
+				return;
+			}
+
+
+			// display chosen results
+			new AnimatedSwingWorker("Working...", true) {
+				@Override
+				public Object construct() {
+					EventQueue.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							try {
+
+								DifferentialExpResults diffExpObj = MetaOmGraph.getActiveProject().getDiffExpResObj(chosenVal);
+								logFCResultsFrame frame = null;
+								frame = new logFCResultsFrame(diffExpObj, MetaOmGraph.getActiveProject());
+								frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
+
+
+								if(MetaOmGraph.getDEAResultsFrame()!=null && !MetaOmGraph.getDEAResultsFrame().isClosed()) {
+									MetaOmGraph.getDEAResultsFrame().addTabToFrame(frame, diffExpObj.getID());
+									MetaOmGraph.getDEAResultsFrame().addTabListToFrame(frame.getGeneLists(), diffExpObj.getID());
+									MetaOmGraph.getDEAResultsFrame().getDesktopPane().getDesktopManager().maximizeFrame(MetaOmGraph.getDEAResultsFrame());
+									MetaOmGraph.getDEAResultsFrame().getDesktopPane().getDesktopManager().minimizeFrame(MetaOmGraph.getDEAResultsFrame());
+									MetaOmGraph.getDEAResultsFrame().moveToFront();
+								}
+								else {
+									MetaOmGraph.setDEAResultsFrame(new StatisticalResultsFrame("DEA","DEA Results"));
+									MetaOmGraph.getDEAResultsFrame().addTabToFrame(frame, diffExpObj.getID());
+									MetaOmGraph.getDEAResultsFrame().addTabListToFrame(frame.getGeneLists(), diffExpObj.getID());
+									MetaOmGraph.getDEAResultsFrame().setTitle("DE results");
+									MetaOmGraph.getDesktop().add(MetaOmGraph.getDEAResultsFrame());
+									frame.setVisible(true);
+									MetaOmGraph.getDEAResultsFrame().setVisible(true);
+									MetaOmGraph.getDEAResultsFrame().getDesktopPane().getDesktopManager().maximizeFrame(MetaOmGraph.getDEAResultsFrame());
+									MetaOmGraph.getDEAResultsFrame().getDesktopPane().getDesktopManager().minimizeFrame(MetaOmGraph.getDEAResultsFrame());
+									MetaOmGraph.getDEAResultsFrame().moveToFront();
+									frame.setEnabled(true);
+								}
+
+
+							} catch (Exception e) {
+
+								
+							}
+						}
+					});
+					return null;
+				}
+			}.start();
+			//frame.setTitle("DE results");
+
+
+			//Harsha - reproducibility log
+
+			HashMap<String,Object> actionMap = new HashMap<String,Object>();
+			HashMap<String,Object> dataMap = new HashMap<String,Object>();
+			HashMap<String,Object> result = new HashMap<String,Object>();
+
+			try {
+
+				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+				actionMap.put("section", "All");
+
+				dataMap.put("Chosen DEA", chosenVal);
+
+
+				result.put("result", "OK");
+
+				ActionProperties loadDeaAction = new ActionProperties("load-DEA",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				loadDeaAction.logActionProperties();
+
+			}
+			catch(Exception e1) {
+
+			}
+
+
+			return;
+		}
+
+		if ("removeDiffExp".equals(e.getActionCommand())) {
+
+			String[] listOfDE = MetaOmGraph.getActiveProject().getSavedDiffExpResNames();
+			if (listOfDE == null || listOfDE.length < 1) {
+				JOptionPane.showMessageDialog(null, "No saved results found", "No results",
+						JOptionPane.INFORMATION_MESSAGE);
+				return;
+			}
+
+			// choose one from the available results
+			String chosenVal = (String) JOptionPane.showInputDialog(null, "Choose the DE analysis to remove",
+					"Please choose", JOptionPane.PLAIN_MESSAGE, null, listOfDE, listOfDE[0]);
+			if (chosenVal == null) {
+				return;
+			}
+
+			int opt = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete the selected?", "Confirm", 0,
+					3);
+			if (opt != 0) {
+				return;
+			}
+			MetaOmGraph.getActiveProject().removeDifferentialExpResults(chosenVal);
+
+
+			//Harsha - reproducibility log
+
+			HashMap<String,Object> actionMap = new HashMap<String,Object>();
+			HashMap<String,Object> dataMap = new HashMap<String,Object>();
+			HashMap<String,Object> result = new HashMap<String,Object>();
+
+			try {
+
+				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+				actionMap.put("section", "All");
+
+				dataMap.put("Removed DEA", chosenVal);
+
+
+				result.put("result", "OK");
+
+				ActionProperties removeDeaAction = new ActionProperties("remove-saved-DEA",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				removeDeaAction.logActionProperties();
+
+			}
+			catch(Exception e1) {
+
+			}
+
+			return;
+		}
+		
+		
 		if ("save correlation".equals(e.getActionCommand())) {
 			keepLastCorrelation(true);
 			return;
@@ -5760,6 +5977,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						nBins = 100;
 					}
 					double[] data = corrVals.stream().mapToDouble(d -> d).toArray();
+					
+					ColorUIResource oldActiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.activeTitleBackground");
+					ColorUIResource oldInactiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.inactiveTitleBackground");
+					Font oldFont = UIManager.getFont("InternalFrame.titleFont");
+					
 					HistogramChart f = new HistogramChart(null, nBins, null, 2, data, false);
 					
 					UIManager.put("InternalFrame.activeTitleBackground", new ColorUIResource(new Color(240,128,128)));
@@ -5778,6 +6000,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					f.setSize(1000, 700);
 					f.setVisible(true);
 					f.toFront();
+					
+					UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
+					UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
+					UIManager.put("InternalFrame.titleFont", oldFont);
 					
 				} catch (Exception e) {
 					JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
@@ -5870,6 +6096,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		// gert data for the selected columns
 		List<String> chartData = getFeatureMetaData(colValue);
 
+		ColorUIResource oldActiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.activeTitleBackground");
+		ColorUIResource oldInactiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.inactiveTitleBackground");
+		Font oldFont = UIManager.getFont("InternalFrame.titleFont");
+		
 		BarChart f2 = new BarChart(myProject, colValue, chartData, 1);
 		
 		UIManager.put("InternalFrame.activeTitleBackground", new ColorUIResource(new Color(240,128,128)));
@@ -5889,6 +6119,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		f2.setSize(1000, 700);
 		f2.setVisible(true);
 		f2.toFront();
+		
+		UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
+		UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
+		UIManager.put("InternalFrame.titleFont", oldFont);
 
 	}
 	

@@ -23,7 +23,7 @@ import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel;
  *
  */
 public class PlaybackAction {
-	
+
 	private static final String LINE_CHART_COMMAND = "line-chart";
 	private static final String SCATTER_PLOT_COMMAND = "scatter-plot";
 	private static final String BOX_PLOT_COMMAND = "box-plot";
@@ -40,8 +40,8 @@ public class PlaybackAction {
 	private static final String SELECTED_COLUMN_PROPERTY = "Selected Column";
 	private static final String CORRELATION_COLUMN_PROPERTY = "Correlation Column";
 	private static final String PLAYABLE_PROPERTY = "Playable";
-	
-	
+
+
 	/**
 	 * <p>
 	 * This method is the first method called when the play button is clicked. It takes the list of actions selected (allPaths) as input, 
@@ -54,80 +54,85 @@ public class PlaybackAction {
 	 * 
 	 */
 	public void playActions(int tabNo, JTree selectedTree, TreePath[] allPaths, HashMap<Integer,PlaybackTabData> allTabsInfo) {
-		
-		for (TreePath path : allPaths) {
-			DefaultMutableTreeNode node2 = (DefaultMutableTreeNode) path.getLastPathComponent();
-			Object nodeObj = node2.getUserObject();
-			LoggingTreeNode ltn = (LoggingTreeNode) nodeObj;
 
-			ActionProperties playedAction = allTabsInfo.get(tabNo).getActionObjects().get(ltn.getNodeNumber());
+		try {
+			for (TreePath path : allPaths) {
+				DefaultMutableTreeNode node2 = (DefaultMutableTreeNode) path.getLastPathComponent();
+				Object nodeObj = node2.getUserObject();
+				LoggingTreeNode ltn = (LoggingTreeNode) nodeObj;
+
+				ActionProperties playedAction = allTabsInfo.get(tabNo).getActionObjects().get(ltn.getNodeNumber());
 
 
-			if(playedAction.getOtherParameters().get(PLAYABLE_PROPERTY)!=null) {
+				if(playedAction.getOtherParameters().get(PLAYABLE_PROPERTY)!=null) {
 
-				String isPlayable = (String)playedAction.getOtherParameters().get(PLAYABLE_PROPERTY);
-				if(isPlayable.equals("true"))
-				{
-					int samplesActionId = 1;
-					if(playedAction.getOtherParameters().get(SAMPLE_ACTION_PROPERTY) instanceof Double) {
-						double temp = (double) playedAction.getOtherParameters().get(SAMPLE_ACTION_PROPERTY);
-						samplesActionId = (int)temp;
-					}
-					else {
-						samplesActionId = (int)playedAction.getOtherParameters().get(SAMPLE_ACTION_PROPERTY);
-					}
-
-					HashSet<String> includedSamples = new HashSet<String>();
-					HashSet<String> excludedSamples = new HashSet<String>();
-
-					for(int i=0;i<allTabsInfo.get(tabNo).getActionObjects().size();i++) {
-
-						if(allTabsInfo.get(tabNo).getActionObjects().get(i).getActionNumber() == samplesActionId) {
-
-							ActionProperties sampleAction = allTabsInfo.get(tabNo).getActionObjects().get(i);
-
-							if(sampleAction.getOtherParameters().get(INCLUDED_SAMPLES_PROPERTY) instanceof List<?>) {
-								includedSamples = new HashSet<String>((List<String>)sampleAction.getOtherParameters().get(INCLUDED_SAMPLES_PROPERTY));
-							}
-							else if(sampleAction.getOtherParameters().get(INCLUDED_SAMPLES_PROPERTY) instanceof HashSet<?>) {
-								includedSamples = (HashSet<String>)sampleAction.getOtherParameters().get(INCLUDED_SAMPLES_PROPERTY);
-							}
-
-							if(sampleAction.getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY) instanceof List<?>) {
-								excludedSamples = new HashSet<String>((List<String>)sampleAction.getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY));
-							}
-							else if(sampleAction.getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY) instanceof HashSet<?>) {
-								excludedSamples = (HashSet<String>)sampleAction.getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY);
-							}
-
+					String isPlayable = (String)playedAction.getOtherParameters().get(PLAYABLE_PROPERTY);
+					if(isPlayable.equals("true"))
+					{
+						int samplesActionId = 1;
+						if(playedAction.getOtherParameters().get(SAMPLE_ACTION_PROPERTY) instanceof Double) {
+							double temp = (double) playedAction.getOtherParameters().get(SAMPLE_ACTION_PROPERTY);
+							samplesActionId = (int)temp;
 						}
+						else {
+							samplesActionId = (int)playedAction.getOtherParameters().get(SAMPLE_ACTION_PROPERTY);
+						}
+
+						HashSet<String> includedSamples = new HashSet<String>();
+						HashSet<String> excludedSamples = new HashSet<String>();
+
+						for(int i=0;i<allTabsInfo.get(tabNo).getActionObjects().size();i++) {
+
+							if(allTabsInfo.get(tabNo).getActionObjects().get(i).getActionNumber() == samplesActionId) {
+
+								ActionProperties sampleAction = allTabsInfo.get(tabNo).getActionObjects().get(i);
+
+								if(sampleAction.getOtherParameters().get(INCLUDED_SAMPLES_PROPERTY) instanceof List<?>) {
+									includedSamples = new HashSet<String>((List<String>)sampleAction.getOtherParameters().get(INCLUDED_SAMPLES_PROPERTY));
+								}
+								else if(sampleAction.getOtherParameters().get(INCLUDED_SAMPLES_PROPERTY) instanceof HashSet<?>) {
+									includedSamples = (HashSet<String>)sampleAction.getOtherParameters().get(INCLUDED_SAMPLES_PROPERTY);
+								}
+
+								if(sampleAction.getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY) instanceof List<?>) {
+									excludedSamples = new HashSet<String>((List<String>)sampleAction.getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY));
+								}
+								else if(sampleAction.getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY) instanceof HashSet<?>) {
+									excludedSamples = (HashSet<String>)sampleAction.getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY);
+								}
+
+							}
+						}
+
+
+						if (ltn.getCommandName().equalsIgnoreCase(LINE_CHART_COMMAND)) {
+							playChart(playedAction, LINE_CHART_COMMAND, includedSamples, excludedSamples);
+						} else if (ltn.getCommandName().equalsIgnoreCase(SCATTER_PLOT_COMMAND)) {
+							playChart(playedAction, SCATTER_PLOT_COMMAND, includedSamples, excludedSamples);
+						} else if (ltn.getCommandName().equalsIgnoreCase(BOX_PLOT_COMMAND)) {
+							playChart(playedAction, BOX_PLOT_COMMAND, includedSamples, excludedSamples);
+						} else if (ltn.getCommandName().equalsIgnoreCase(HISTOGRAM_COMMAND)) {
+							playChart(playedAction, HISTOGRAM_COMMAND, includedSamples, excludedSamples);
+						} else if (ltn.getCommandName().equalsIgnoreCase(LINE_CHART_DEFAULT_GROUPING_COMMAND)) {
+							playChart(playedAction, LINE_CHART_DEFAULT_GROUPING_COMMAND, includedSamples, excludedSamples);
+						} else if (ltn.getCommandName().equalsIgnoreCase(LINE_CHART_CHOOSE_GROUPING_COMMAND)) {
+							playChart(playedAction, LINE_CHART_CHOOSE_GROUPING_COMMAND, includedSamples, excludedSamples);
+						} else if (ltn.getCommandName().equalsIgnoreCase(BAR_CHART_COMMAND)) {
+							playChart(playedAction, BAR_CHART_COMMAND, includedSamples, excludedSamples);
+						} else if (ltn.getCommandName().equalsIgnoreCase(CORRELATION_HISTOGRAM_COMMAND)) {
+							playChart(playedAction, CORRELATION_HISTOGRAM_COMMAND, includedSamples, excludedSamples);
+						}
+
 					}
-
-
-					if (ltn.getCommandName().equalsIgnoreCase(LINE_CHART_COMMAND)) {
-						playChart(playedAction, LINE_CHART_COMMAND, includedSamples, excludedSamples);
-					} else if (ltn.getCommandName().equalsIgnoreCase(SCATTER_PLOT_COMMAND)) {
-						playChart(playedAction, SCATTER_PLOT_COMMAND, includedSamples, excludedSamples);
-					} else if (ltn.getCommandName().equalsIgnoreCase(BOX_PLOT_COMMAND)) {
-						playChart(playedAction, BOX_PLOT_COMMAND, includedSamples, excludedSamples);
-					} else if (ltn.getCommandName().equalsIgnoreCase(HISTOGRAM_COMMAND)) {
-						playChart(playedAction, HISTOGRAM_COMMAND, includedSamples, excludedSamples);
-					} else if (ltn.getCommandName().equalsIgnoreCase(LINE_CHART_DEFAULT_GROUPING_COMMAND)) {
-						playChart(playedAction, LINE_CHART_DEFAULT_GROUPING_COMMAND, includedSamples, excludedSamples);
-					} else if (ltn.getCommandName().equalsIgnoreCase(LINE_CHART_CHOOSE_GROUPING_COMMAND)) {
-						playChart(playedAction, LINE_CHART_CHOOSE_GROUPING_COMMAND, includedSamples, excludedSamples);
-					} else if (ltn.getCommandName().equalsIgnoreCase(BAR_CHART_COMMAND)) {
-						playChart(playedAction, BAR_CHART_COMMAND, includedSamples, excludedSamples);
-					} else if (ltn.getCommandName().equalsIgnoreCase(CORRELATION_HISTOGRAM_COMMAND)) {
-						playChart(playedAction, CORRELATION_HISTOGRAM_COMMAND, includedSamples, excludedSamples);
-					}
-
 				}
 			}
 		}
+		catch(Exception e) {
+
+		}
 	}
 
-	
+
 	/**
 	 * This method plays the chart-type action by calling the respective chart's MetaOmTablePanel function that generates and displays the chart
 	 * based on the selected features and samples.
@@ -140,7 +145,7 @@ public class PlaybackAction {
 		Map<Object,Object> genes = null;
 
 		try {
-			
+
 			if(chartAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) != null) {
 				genes = (Map<Object,Object>)chartAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
 
