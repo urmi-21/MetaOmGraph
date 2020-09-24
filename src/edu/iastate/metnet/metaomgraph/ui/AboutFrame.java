@@ -42,7 +42,7 @@ public class AboutFrame extends TaskbarInternalFrame {
 				+ "Nitrite Database (https://www.dizitart.org/nitrite-database.html)<br><br>"
 				+ "Biologists: Eve Syrkin Wurtele, Wieslawa Mentzen, Ling Li, Jianling Peng<br>"
 				+ "Bioinformaticists: Jonathan Hurst, Yaping Feng <br>" 
-				+ "Developers: Urminder Singh, Nick Ransom, Kumara Sri Harsha Vajjhala, Kaliki Sumanth Reddy, Yusuf Shehata<br><br><br>"
+				+ "Developers: Urminder Singh, Nick Ransom, Kumara Sri Harsha Vajjhala, Kaliki Sumanth Kumar, Yusuf Shehata<br><br><br>"
 				+ "Published Paper : Urminder Singh, Manhoi Hur, Karin Dorman, Eve Syrkin Wurtele,<br> MetaOmGraph: a workbench for interactive exploratory data analysis of large expression datasets,<br> Nucleic Acids Research, Volume 48, Issue 4, 28 February 2020, Page e23, https://doi.org/10.1093/nar/gkz1209"
 				+ "</b></p></html>";
 	}

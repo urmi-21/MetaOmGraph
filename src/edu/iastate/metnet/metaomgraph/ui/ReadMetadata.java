@@ -168,8 +168,9 @@ public class ReadMetadata extends JDialog {
 		JMenu mnAdvanceOptions = new JMenu("Advance Options");
 		menuBar.add(mnAdvanceOptions);
 
-		JMenu mnHelp = new JMenu("Help");
-		menuBar.add(mnHelp);
+		// @TODO Implement me when help manual is added.
+		/*JMenu mnHelp = new JMenu("Help");
+		menuBar.add(mnHelp);*/
 		contentPane = new JPanel();
 		contentPane.setBackground(Color.DARK_GRAY);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));

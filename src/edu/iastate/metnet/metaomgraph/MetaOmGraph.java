@@ -847,6 +847,16 @@ public class MetaOmGraph implements ActionListener {
 				} catch (Exception ex) {
 					setUserRPath("");
 				}
+				
+				try {
+					
+					String prevSessionLafTheme = (String) in.readObject();
+					setTheme(Themes.valueOf(prevSessionLafTheme));
+				}
+				catch (Exception e) {
+					setTheme(Themes.Light);
+				}
+								
 				// read mog themes
 				try {
 					String lastThemeName = (String) in.readObject();
@@ -1793,7 +1803,8 @@ public class MetaOmGraph implements ActionListener {
 				}
 
 				out.writeObject(rObs);
-
+				
+				out.writeObject(activeTheme.toString());
 				out.writeObject(currentmogThemeName);
 				out.writeObject(mogThemes);
 
