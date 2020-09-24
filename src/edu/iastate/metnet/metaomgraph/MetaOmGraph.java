@@ -763,15 +763,23 @@ public class MetaOmGraph implements ActionListener {
 				break;
 			
 			case System:
+				//UIManager.setLookAndFeel(UIManager.get getSystemLookAndFeelClassName());
+				//UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+				//UIManager.setLookAndFeel(new FlatLightLaf());
 				break;
 			}
 				
 			
 			activeTheme = theme;
-			SwingUtilities.updateComponentTreeUI(mainWindow);
+			if (mainWindow!=null) {
+			//SwingUtilities.updateComponentTreeUI(mainWindow);
+			}
 		}
 		catch (Exception e) {
+			//TODO: handle exception when theme change fails
+			//JOptionPane.showMessageDialog(null, "THEMEERRORRRR"+e);
+			//activeTheme = Themes.Light;
 			return false;
 		}
 		return true;
@@ -1668,43 +1676,9 @@ public class MetaOmGraph implements ActionListener {
 	 * handling in <code>init</code>method
 	 */
 
-	/**
-	 * @author urmi
-	 * 
-	 */
-	private static void appInit() {
-		JOptionPane.showMessageDialog(null, "Splashinit");
-		// splash screen for 3 secs
-		for (int i = 1; i <= 3; i++) {
+	
 
-			try {
-				Thread.sleep(1000); // wait a second
-			} catch (InterruptedException ex) {
-				break;
-			}
-		}
-	}
-
-	/**
-	 * @author urmi
-	 * 
-	 */
-	private static void initsplashscreen() {
-		// the splash screen object is created by the JVM, if it is displaying a splash
-		// image
-		JOptionPane.showMessageDialog(null, "SplashinitSCREEN");
-		mySplash = SplashScreen.getSplashScreen();
-		// if there are any problems displaying the splash image
-		// the call to getSplashScreen will returned null
-		if (mySplash != null) {
-			// get the size of the image now being displayed
-			Dimension ssDim = mySplash.getSize();
-			int height = ssDim.height;
-			int width = ssDim.width;
-
-		}
-	}
-
+	
 	public static void main(String[] args) {
 
 		// for Splash screen: urmi
@@ -1728,12 +1702,14 @@ public class MetaOmGraph implements ActionListener {
 
 		System.setProperty("sun.java2d.renderer.doChecks", "true");
 
-		try {
-			setTheme(Themes.Light);
-			System.setProperty("sun.awt.noerasebackground", "true");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		//urmi not sure what is this for?
+		//try {
+		//	setTheme(Themes.Light);
+		//	System.setProperty("sun.awt.noerasebackground", "true");
+		//} catch (Exception e) {
+		//	e.printStackTrace();
+		//}
+		
 		if (args.length > 0) {
 			if ("nobuffer".equals(args[0])) {
 				init(false);
