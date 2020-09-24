@@ -180,14 +180,15 @@ public class MetadataImportWizard extends JDialog {
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 
-		JMenu mnFile = new JMenu("File");
+		// @TODO Implement me when manual is added.
+		/*JMenu mnFile = new JMenu("File");
 		menuBar.add(mnFile);
 
 		JMenu mnHelp = new JMenu("Help");
 		menuBar.add(mnHelp);
 
 		JMenuItem mntmHelpMe = new JMenuItem("Help Me!");
-		mnHelp.add(mntmHelpMe);
+		mnHelp.add(mntmHelpMe);*/
 		contentPane = new JPanel();
 		contentPane.setBackground(Color.DARK_GRAY);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
