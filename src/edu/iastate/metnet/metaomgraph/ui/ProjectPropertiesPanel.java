@@ -88,17 +88,6 @@ public class ProjectPropertiesPanel extends JPanel {
 			public void keyTyped(KeyEvent arg0) {
 			}
 		});
-		xaxisField.addFocusListener(new FocusListener() {
-			@Override
-			public void focusGained(FocusEvent e) {
-			}
-
-			@Override
-			public void focusLost(FocusEvent e) {
-				myProject.setDefaultXAxis(xaxisField.getText());
-			}
-
-		});
 		yaxisField = new JTextField(y);
 		yaxisField.addKeyListener(new KeyListener() {
 			@Override
@@ -113,17 +102,6 @@ public class ProjectPropertiesPanel extends JPanel {
 			@Override
 			public void keyTyped(KeyEvent arg0) {
 			}
-		});
-		yaxisField.addFocusListener(new FocusListener() {
-			@Override
-			public void focusGained(FocusEvent e) {
-			}
-
-			@Override
-			public void focusLost(FocusEvent e) {
-				myProject.setDefaultYAxis(yaxisField.getText());
-			}
-
 		});
 		titleField = new JTextField(title);
 
@@ -140,17 +118,6 @@ public class ProjectPropertiesPanel extends JPanel {
 			@Override
 			public void keyTyped(KeyEvent arg0) {
 			}
-		});
-		titleField.addFocusListener(new FocusListener() {
-			@Override
-			public void focusGained(FocusEvent e) {
-			}
-
-			@Override
-			public void focusLost(FocusEvent e) {
-				myProject.setDefaultTitle(titleField.getText());
-			}
-
 		});
 		JButton rowManageButton = new JButton("Manage...");
 		rowManageButton.addActionListener(new ActionListener() {

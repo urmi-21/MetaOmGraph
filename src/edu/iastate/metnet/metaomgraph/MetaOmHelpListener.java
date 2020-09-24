@@ -22,7 +22,7 @@ import javax.swing.tree.TreeNode;
 
 public class MetaOmHelpListener
         implements ActionListener, TreeSelectionListener, HyperlinkListener {
-    private static final String HOST = "http://metnetweb.gdcb.iastate.edu//MetaOmGraph/help/newhelp/";
+    private static final String HOST = "https://github.com/urmi-21/MetaOmGraph/blob/master/manual/MOG_User_Guide.pdf";
     private JTree helpTree;
     private JTextPane helpDisplay;
 
@@ -47,7 +47,7 @@ public class MetaOmHelpListener
             target = "index.php";
         }
         if (target.substring(target.length() - 4).equals(".php")) {
-            String urlString = "http://metnetweb.gdcb.iastate.edu/MetaOmGraph/help/newhelp/" + target;
+            String urlString = HOST /*+ target*/;
             URI ns=null;
 			try {
 				ns = new URI(urlString);
@@ -116,9 +116,9 @@ public class MetaOmHelpListener
 
     @Override
 	public void valueChanged(TreeSelectionEvent e) {
-        String destPage = "http://metnetweb.gdcb.iastate.edu/MetaOmGraph/help/newhelp/" +
+        String destPage = HOST /*+
                 ((HelpNode) helpTree.getLastSelectedPathComponent())
-                        .getPage();
+                        .getPage()*/;
         try {
             helpDisplay.setPage(new URL(destPage));
         } catch (IOException e1) {

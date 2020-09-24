@@ -4,6 +4,7 @@ import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.ui.CustomFileSaveDialog;
 import edu.iastate.metnet.metaomgraph.ui.CustomMessagePane;
 
+import java.awt.Desktop;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Frame;
@@ -24,6 +25,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -49,13 +52,18 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
+import javax.swing.JEditorPane;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTree;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkEvent.EventType;
+import javax.swing.event.HyperlinkListener;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -195,12 +203,28 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 	}
 	
 	private void displaySuccessMessage(String url) {
-		CustomMessagePane messageBox = new CustomMessagePane("Report error", 
-				"Error is reported to the developer.\nYou may follow the the issue at: " + url,
-				CustomMessagePane.MessageBoxType.INFORMATION, 
-				CustomMessagePane.MessageBoxButtons.OK);
-		
-		messageBox.displayMessageBox();		
+		JEditorPane editorPane = new JEditorPane();
+		editorPane.setContentType("text/html");
+		String message = "<body>" + "Error is reported to the developer." + "<br>" + 
+				"You may follow the the issue at: " + "</br>" +
+				"<a href=" + url + ">" + url + "</a>" + "</body>";
+		editorPane.setText(message);
+		editorPane.setEditable(false);
+		editorPane.addHyperlinkListener(new HyperlinkListener() {
+			
+			@Override
+			public void hyperlinkUpdate(HyperlinkEvent e) {
+				if(e.getEventType().equals(EventType.ACTIVATED)) {
+					try {
+						Desktop.getDesktop().browse(new URI(url));
+					} catch (IOException | URISyntaxException e1) {
+						e1.printStackTrace();
+					}
+				}
+			}
+		});
+		JOptionPane.showConfirmDialog(MetaOmGraph.getMainWindow(), editorPane, 
+				"Report error", JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE);	
 	}
 	
 	/**
@@ -224,7 +248,7 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 		postContentsMap.put("title", "\"MetaOmBot: Bug report from user\"");
 		postContentsMap.put("body", '\"' + errorLog.toString().replaceAll("[\r\n]+", "\\\\n") + '\"');
 		postContentsMap.put("labels", "[\"bug\"]");
-		
+	
 		String jsonFormatedMap = toJsonFormat(postContentsMap);
 		
 		CloseableHttpClient httpClient = HttpClients.createDefault();

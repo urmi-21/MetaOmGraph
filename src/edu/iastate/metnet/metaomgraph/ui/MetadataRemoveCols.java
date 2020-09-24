@@ -147,7 +147,7 @@ public class MetadataRemoveCols extends JDialog {
 		table.setRowHeight(25);
 		table.setIntercellSpacing(new Dimension(2, 2));
 		table.setModel(
-				new DefaultTableModel(new Object[][] {}, new String[] { "Column number", "Header", "Keep/Remove" }));
+				new DefaultTableModel(new Object[][] {}, new String[] { "Column number", "Header", "Keep/Hide" }));
 		// set default values
 		DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
 		for (int i = 0; i < headervals.length; i++) {
@@ -157,7 +157,7 @@ public class MetadataRemoveCols extends JDialog {
 		TableColumn optionColumn = table.getColumnModel().getColumn(2);
 		JComboBox comboBox = new JComboBox();
 		comboBox.addItem("Keep");
-		comboBox.addItem("Remove");
+		comboBox.addItem("Hide");
 		comboBox.setSelectedIndex(0);
 		optionColumn.setCellEditor(new DefaultCellEditor(comboBox));
 
@@ -220,7 +220,7 @@ public class MetadataRemoveCols extends JDialog {
 		table.setRowHeight(25);
 		table.setIntercellSpacing(new Dimension(2, 2));
 		table.setModel(
-				new DefaultTableModel(new Object[][] {}, new String[] { "Column number", "Header", "Keep/Remove" }));
+				new DefaultTableModel(new Object[][] {}, new String[] { "Column number", "Header", "Keep/Hide" }));
 		// set default values
 		DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
 		java.util.List<String> curr_headers = Arrays.asList(headervals);
@@ -243,14 +243,14 @@ public class MetadataRemoveCols extends JDialog {
 			if (toKeep[i]) {
 				tablemodel.addRow(new String[] { String.valueOf(i + 1), allHeaders[i], "Keep" });
 			} else {
-				tablemodel.addRow(new String[] { String.valueOf(i + 1), allHeaders[i], "Remove" });
+				tablemodel.addRow(new String[] { String.valueOf(i + 1), allHeaders[i], "Hide" });
 			}
 		}
 		
 		TableColumn optionColumn = table.getColumnModel().getColumn(2);
 		JComboBox comboBox = new JComboBox();
 		comboBox.addItem("Keep");
-		comboBox.addItem("Remove");
+		comboBox.addItem("Hide");
 		comboBox.setSelectedIndex(0);
 		optionColumn.setCellEditor(new DefaultCellEditor(comboBox));
 

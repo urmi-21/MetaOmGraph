@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
@@ -99,6 +101,7 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 	private HashMap<Integer, List<String>> toHighlight;
 	// highlightedRows contains list of current highlighted rows
 	private List<Integer> highlightedRows;
+	private List<String> previousSearchedRows = new ArrayList<String>();
 
 	private JScrollPane scrollPane;
 	// columns containg SRR and GEO ids to create hyperlinks
@@ -316,8 +319,19 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 				// add highlights to results
 				// move rows in result to top then highlight
 				int dataColNum = table.getColumn(obj.getDatacol()).getModelIndex();
+				String selectedList = (String) sampleDataList.getSelectedValue();
+				if(selectedList != "Complete List") {
+					List<String> activeListRows = MetaOmGraph.getActiveProject().
+							getSampleDataListRowNames(selectedList);
+					List<String> activeListResult = result.stream()
+							.filter(activeListRows :: contains)
+							.collect(Collectors.toList());
+					result.clear();
+					result.addAll(activeListResult);
+				}
 				moveRowsToTop(result, dataColNum);
 				highlightedRows = null;
+				previousSearchedRows = new ArrayList<String>();
 				highlightedRows = new ArrayList<>();
 				toHighlight = new HashMap<Integer, List<String>>();
 				toHighlight.put(dataColNum, result);
@@ -330,6 +344,7 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 						if (highlightThisRow(j, type)) {
 							if (!highlightedRows.contains(modelRow)) {
 								highlightedRows.add(modelRow);
+								previousSearchedRows.add(type);
 							}
 						}
 					}
@@ -419,28 +434,28 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 					filterSelectedRows(true);
 				}
 
-				int[] selected = table.getSelectedRows();
-				List<String> selectedNames = new ArrayList<String>();
-				DefaultTableModel model = (DefaultTableModel) table.getModel();
-				for (int i = 0; i < selected.length; i++) {
-					selectedNames.add(model.getValueAt(table.convertRowIndexToModel(selected[i]),
-							table.getColumn(obj.getDatacol()).getModelIndex()).toString());
-				}
-
-				// Harsha - reproducibility log
-				HashMap<String, Object> actionMap = new HashMap<String, Object>();
-				actionMap.put("parent", MetaOmGraph.getCurrentProjectActionId());
-				actionMap.put("section", "Sample Metadata Table");
-
-				dataMap.put("Selected Rows", getSelectDataColsName());
-				dataMap.put("Columns", selectColumn());
-
-				HashMap<String, Object> resultLog = new HashMap<String, Object>();
-				resultLog.put("result", "OK");
-
-				ActionProperties filterSelectedRowsAction = new ActionProperties("filter-selected-rows", actionMap,
-						dataMap, resultLog, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				filterSelectedRowsAction.logActionProperties();
+//				int[] selected = table.getSelectedRows();
+//				List<String> selectedNames = new ArrayList<String>();
+//				DefaultTableModel model = (DefaultTableModel) table.getModel();
+//				for (int i = 0; i < selected.length; i++) {
+//					selectedNames.add(model.getValueAt(table.convertRowIndexToModel(selected[i]),
+//							table.getColumn(obj.getDatacol()).getModelIndex()).toString());
+//				}
+//
+//				// Harsha - reproducibility log
+//				HashMap<String, Object> actionMap = new HashMap<String, Object>();
+//				actionMap.put("parent", MetaOmGraph.getCurrentProjectActionId());
+//				actionMap.put("section", "Sample Metadata Table");
+//
+//				dataMap.put("Selected Rows", selectedNames);
+//				//dataMap.put("Columns", selectColumn());
+//
+//				HashMap<String, Object> resultLog = new HashMap<String, Object>();
+//				resultLog.put("result", "OK");
+//
+//				ActionProperties filterSelectedRowsAction = new ActionProperties("filter-selected-rows", actionMap,
+//						dataMap, resultLog, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+//				filterSelectedRowsAction.logActionProperties();
 
 			}
 		});
@@ -613,7 +628,22 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 			}
 		});
 		mnRemove.add(mntmColumns);
-
+		
+		JMenu createSampleListMenu = new JMenu("Create Sample List");
+		createSampleListMenu.setToolTipText("Create sample list from the searched samples");
+		mnEdit.add(createSampleListMenu);
+		
+		JMenuItem selectedRowsItem = new JMenuItem("Selected Rows");
+		selectedRowsItem.setActionCommand("Create List with Selected Rows");
+		selectedRowsItem.addActionListener(this);
+		
+		JMenuItem previousSearchedRowItem = new JMenuItem("Last searched");
+		previousSearchedRowItem.setActionCommand("Create List with Last Searched Rows");
+		previousSearchedRowItem.addActionListener(this);
+		
+		createSampleListMenu.add(selectedRowsItem);
+		createSampleListMenu.add(previousSearchedRowItem);
+		
 		JMenu mnLinkToSra = new JMenu("Link to SRA");
 		mnEdit.add(mnLinkToSra);
 
@@ -1256,8 +1286,10 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 			}
 		});
 
-		JMenu mnHelp = new JMenu("Help");
-		menuBar.add(mnHelp);
+		// @TODO comment temporarily until user manual is fully implemented.
+		/*JMenu mnHelp = new JMenu("Help");
+		menuBar.add(mnHelp);*/
+		
 
 		return menuBar;
 	}
@@ -1582,25 +1614,24 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 
 	public void updateTable(boolean colsChanged) {
 		metadata = this.obj.getAllData();
+		DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
+		// clear table model
+		tablemodel.setRowCount(0);
+		tablemodel.setColumnCount(0);
+		String[] activeListHeaders = getActiveListHeaders();
+		// add column names.
+		List<String> finalHeaders = new ArrayList<String>(Arrays.asList(activeListHeaders));
+		if(obj.getRemoveCols() != null && !obj.getRemoveCols().isEmpty())
+			finalHeaders.removeAll(obj.getRemoveCols());
+		
+		// add columns to table
+		for(int i = 0; i < finalHeaders.size(); i++) {
+			tablemodel.addColumn(finalHeaders.get(i));
+		}
+		
 		new AnimatedSwingWorker("Updating table...", true) {
 			@Override
 			public Object construct() {
-
-				DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
-				// clear table model
-				tablemodel.setRowCount(0);
-				tablemodel.setColumnCount(0);
-				String[] activeListHeaders = getActiveListHeaders();
-				// add column names.
-				List<String> finalHeaders = new ArrayList<String>(Arrays.asList(activeListHeaders));
-				if(obj.getRemoveCols() != null && !obj.getRemoveCols().isEmpty())
-					finalHeaders.removeAll(obj.getRemoveCols());
-				
-				// add columns to table
-				for(int i = 0; i < finalHeaders.size(); i++) {
-					tablemodel.addColumn(finalHeaders.get(i));
-				}
-
 				// add rows
 				for (int i = 0; i < metadata.size(); i++) {
 					// create a temp string storing all col values for a row
@@ -1697,14 +1728,14 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 	 * @param invert: if true, return rows not selected
 	 * @return
 	 */
-	private ArrayList<String> getSelectedRows(){
+	private List<String> getSelectedRows(){
 		return getSelectedRows(false);
 	}
-	private ArrayList<String> getSelectedRows(boolean invert) {
+	private List<String> getSelectedRows(boolean invert) {
 
 		int[] selectedRows = table.getSelectedRows();
 		
-		ArrayList<String> selectedRowNames = new ArrayList<String>();
+		List<String> selectedRowNames = new ArrayList<String>();
 		DefaultTableModel model = (DefaultTableModel) table.getModel();
 		for (int rowIndex = 0; rowIndex < selectedRows.length; rowIndex++) {
 			String rowDataColName = model.getValueAt(table.convertRowIndexToModel(selectedRows[rowIndex]),
@@ -1722,8 +1753,6 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		
 		return selectedRowNames;
 	}
-
-
 
 	/**
 	 * @author urmi Exclude data columns in the selected rows
@@ -2165,6 +2194,7 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		// reset highlightedRows it will be initialized by renderer
 		highlightedRows = null;
 		highlightedRows = new ArrayList<>();
+		previousSearchedRows.clear();
 
 	}
 
@@ -2352,6 +2382,7 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		// prepareRenderer
 		toHighlight.put(0, null);
 		highlightedRows = null;
+		previousSearchedRows.clear();
 		table.repaint();
 	}
 
@@ -2404,14 +2435,15 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		f2.toFront();
 	}
 
-	private void createSampleListFrame(String title, boolean edit) {
+	private void createSampleListFrame(String title, boolean edit, 
+			List<String> selectedRows, List<String> notSelectedRows) {
 		SampleMetaDataListFrame sampleListFrame = null;
 		String[]  activeHeaderList = getActiveListHeaders();
 		if (edit) {
 			sampleListFrame = new SampleMetaDataListFrame(obj, (String) sampleDataList.getSelectedValue(),
-					getSelectedRows(false), getSelectedRows(true), activeHeaderList);
+					selectedRows, notSelectedRows, activeHeaderList);
 		} else {
-			sampleListFrame = new SampleMetaDataListFrame(obj, getSelectedRows(), getSelectedRows(true), activeHeaderList);
+			sampleListFrame = new SampleMetaDataListFrame(obj, selectedRows, notSelectedRows, activeHeaderList);
 			
 		}
 		sampleListFrame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2,
@@ -2433,17 +2465,21 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 			listHeadersMap.remove(s.toString());
 		}
 	}
+	
+	private void createNewListFromSelectedRows() {
+		prevLists.clear();
+		prevLists.addAll(Arrays.asList(MetaOmGraph.getActiveProject().getSampleDataListNames()));
+		createSampleListFrame("Create New List", false, getSelectedRows(), getSelectedRows(true));
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if ("new list".equals(e.getActionCommand())) {
-			prevLists.clear();
-			prevLists.addAll(Arrays.asList(MetaOmGraph.getActiveProject().getSampleDataListNames()));
-			createSampleListFrame("Create New List", false);
+			createNewListFromSelectedRows();
 			return;
 		}
 		if ("edit list".equals(e.getActionCommand())) {
-			createSampleListFrame("Edit List", true);
+			createSampleListFrame("Edit List", true, getSelectedRows(false), getSelectedRows(true));
 			return;
 		}
 		if ("rename list".equals(e.getActionCommand())) {
@@ -2459,7 +2495,22 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 				deleteSelectedList();
 			return;
 		}
-
+		if("Create List with Last Searched Rows".equals(e.getActionCommand())) {
+			if(previousSearchedRows.isEmpty())
+				return;
+			prevLists.clear();
+			prevLists.addAll(Arrays.asList(MetaOmGraph.getActiveProject().getSampleDataListNames()));
+			List<String> allRows = obj.getAllDataCols();
+			allRows.removeAll(previousSearchedRows);
+			ArrayList<String> notIncludedInSearch = new ArrayList<String>();
+			notIncludedInSearch.addAll(allRows);
+			createSampleListFrame("Create New List", false, previousSearchedRows, notIncludedInSearch);
+			return;
+		}
+		if("Create List with Selected Rows".equals(e.getActionCommand())) {
+			createNewListFromSelectedRows();
+			return;
+		}
 	}
 
 	private void updateLists() {
@@ -2520,6 +2571,8 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		List<String> values = MetaOmGraph.getActiveProject().getSampleDataListRowNames(selectedRowName);
 		// update currently displayed table
 		updateTable(values);
+		if(highlightedRows != null)
+			highlightedRows.clear();
 		if (sampleDataList.getSelectedIndex() != 0) {
 			listDeleteButton.setEnabled(true);
 			listEditButton.setEnabled(true);
