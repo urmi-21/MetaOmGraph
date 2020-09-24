@@ -577,6 +577,12 @@ public class PointInfoPanel extends JPanel {
 							else
 								selectedLocus = (selectedLocus + ";" + thisItem);
 						}
+						else {
+							if (selectedLocus == null)
+								selectedLocus = thisItem;
+							else
+								selectedLocus = (selectedLocus + ";" + thisItem);
+						}
 						seriesName.addItem(thisItem);
 						// break;//urmi
 					}
