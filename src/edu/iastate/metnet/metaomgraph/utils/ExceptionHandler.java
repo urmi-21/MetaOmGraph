@@ -510,7 +510,8 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 		});
 		
 		buttonPanel.add(okButton);
-		buttonPanel.add(detailsButton);
+		//urmi remove details no need
+		//buttonPanel.add(detailsButton);
 		buttonPanel.add(saveLogButton);
 		buttonPanel.add(cancelButton);
 		c.gridy = 5;
