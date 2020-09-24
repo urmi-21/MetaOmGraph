@@ -465,8 +465,9 @@ public class MetadataTreeDisplayPanel extends JPanel {
 		});
 		mnView.add(mntmSwitchToTable);
 
-		mnHelp = new JMenu("Help");
-		menuBar.add(mnHelp);
+		// @TODO Implement me when help manual is added.
+		/*mnHelp = new JMenu("Help");
+		menuBar.add(mnHelp);*/
 
 		splitPane = new JSplitPane();
 		add(splitPane, BorderLayout.CENTER);

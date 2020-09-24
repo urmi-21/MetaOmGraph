@@ -52,8 +52,8 @@ public class SampleMetaDataListFrame extends JInternalFrame
      * @param unSelectedRows rows that are not selected
      */
 	public SampleMetaDataListFrame(MetadataCollection metaDataCol, 
-			ArrayList<String> selectedRows,
-			ArrayList<String> unSelectedRows, String[] headers) {
+			List<String> selectedRows,
+			List<String> unSelectedRows, String[] headers) {
 		this(metaDataCol, null, selectedRows, unSelectedRows, headers);
 	}
 
@@ -66,8 +66,8 @@ public class SampleMetaDataListFrame extends JInternalFrame
 	 */
 	public SampleMetaDataListFrame(MetadataCollection metaDataCol, 
 			String listName, 
-			ArrayList<String> selectedRows,
-			ArrayList<String> unSelectedRows, String[] headers) {
+			List<String> selectedRows,
+			List<String> unSelectedRows, String[] headers) {
 		
 				
 		this.metaDataCol = metaDataCol;
@@ -89,9 +89,7 @@ public class SampleMetaDataListFrame extends JInternalFrame
         dtp.setInactiveLabel("Not In List");
         getContentPane().add(dtp, "Center");
         getContentPane().add(buttonPanel, "Last");
-        setDefaultCloseOperation(2);
-        
-        
+        setDefaultCloseOperation(2);   
 	}
 	
 	// get headers to specify the column names.
@@ -113,7 +111,7 @@ public class SampleMetaDataListFrame extends JInternalFrame
 	 * @param headers
 	 * @return Object[][]
 	 */
-	private Object[][] getActiveData(ArrayList<String> selectedRows, String[] headers) {
+	private Object[][] getActiveData(List<String> selectedRows, String[] headers) {
 		//get all metadata rows for selectedRows
 		List<Document> selectedRowsMetadata = metaDataCol.getRowsByDatacols(selectedRows);
 		//if return size doesn't match
