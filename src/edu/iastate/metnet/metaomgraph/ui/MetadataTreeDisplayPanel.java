@@ -117,6 +117,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 	private Color BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
 	private Color HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
 	private Color HYPERLINKCOLOR = MetaOmGraph.getTableHyperlinkColor();
+	private boolean USEDEFAULTCOLORS = true;
 
 	/**
 	 * Create the panel.
@@ -126,6 +127,13 @@ public class MetadataTreeDisplayPanel extends JPanel {
 	}
 
 	public MetadataTreeDisplayPanel(MetadataHybrid mdh) {
+
+		// urmi set default table colors or not
+		if (MetaOmGraph.getCurrentThemeName().equals("default")) {
+			USEDEFAULTCOLORS = true;
+		} else {
+			USEDEFAULTCOLORS = false;
+		}
 
 		// set tree background fill to true otherwise it sets both foregraound and
 		// background white
@@ -158,8 +166,10 @@ public class MetadataTreeDisplayPanel extends JPanel {
 
 		// set alternate colors to table
 		table.setDefaultRenderer(Object.class, new TableCellRenderer() {
-			//private DefaultTableCellRenderer DEFAULT_RENDERER = new DefaultTableCellRenderer();
-			private WordWrapCellRenderer my_RENDERER= new WordWrapCellRenderer();
+			// private DefaultTableCellRenderer DEFAULT_RENDERER = new
+			// DefaultTableCellRenderer();
+			private WordWrapCellRenderer my_RENDERER = new WordWrapCellRenderer();
+
 			@Override
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
 					boolean hasFocus, int row, int column) {
@@ -168,27 +178,34 @@ public class MetadataTreeDisplayPanel extends JPanel {
 				if (row % 2 == 0) {
 
 					if (isSelected) {
-						
-						c.setBackground(SELECTIONBCKGRND);
-						c.setForeground(Color.WHITE);
-						
+
+						if (!USEDEFAULTCOLORS) {
+							c.setBackground(SELECTIONBCKGRND);
+							c.setForeground(Color.WHITE);
+						}
+
 					}
 					if (!isSelected) {
-						c.setBackground(BCKGRNDCOLOR1);
-						c.setForeground(Color.black);
+						if (!USEDEFAULTCOLORS) {
+							c.setBackground(BCKGRNDCOLOR1);
+							c.setForeground(Color.black);
+						}
 					}
 
 				} else {
 
 					if (isSelected) {
-						//urmi
-						c.setBackground(SELECTIONBCKGRND);
-						c.setForeground(Color.WHITE);
-						
+						if (!USEDEFAULTCOLORS) {
+							c.setBackground(SELECTIONBCKGRND);
+							c.setForeground(Color.WHITE);
+						}
+
 					}
 					if (!isSelected) {
-						c.setBackground(BCKGRNDCOLOR2);
-						c.setForeground(Color.black);
+						if (!USEDEFAULTCOLORS) {
+							c.setBackground(BCKGRNDCOLOR2);
+							c.setForeground(Color.black);
+						}
 					}
 				}
 
@@ -234,38 +251,40 @@ public class MetadataTreeDisplayPanel extends JPanel {
 				res.setRootElement(xmlRootclone);
 				String resDoc = outter.outputString(res);
 
-				//Harsha - reproducibility log
-				HashMap<String,Object> actionMap = new HashMap<String,Object>();
-				HashMap<String,Object> dataMap = new HashMap<String,Object>();
-				HashMap<String,Object> resultLog = new HashMap<String,Object>();
+				// Harsha - reproducibility log
+				HashMap<String, Object> actionMap = new HashMap<String, Object>();
+				HashMap<String, Object> dataMap = new HashMap<String, Object>();
+				HashMap<String, Object> resultLog = new HashMap<String, Object>();
 
 				try (PrintWriter out = new PrintWriter(file.getAbsolutePath())) {
 					out.println(resDoc);
 
-					actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
-					dataMap.put("File Path",file.getAbsolutePath());
-					dataMap.put("section","Sample Metadata Tree");
+					actionMap.put("parent", MetaOmGraph.getCurrentProjectActionId());
+					dataMap.put("File Path", file.getAbsolutePath());
+					dataMap.put("section", "Sample Metadata Tree");
 					resultLog.put("result", "OK");
 
-					ActionProperties exportXMLAction = new ActionProperties("export-xml",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+					ActionProperties exportXMLAction = new ActionProperties("export-xml", actionMap, dataMap, resultLog,
+							new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 					exportXMLAction.logActionProperties();
 				} catch (FileNotFoundException e) {
 
-					actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
-					dataMap.put("section","Sample Metadata Tree");
+					actionMap.put("parent", MetaOmGraph.getCurrentProjectActionId());
+					dataMap.put("section", "Sample Metadata Tree");
 					resultLog.put("result", "Error");
 					resultLog.put("result", "File not found");
 
-					ActionProperties exportXMLAction = new ActionProperties("export-xml",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+					ActionProperties exportXMLAction = new ActionProperties("export-xml", actionMap, dataMap, resultLog,
+							new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 					exportXMLAction.logActionProperties();
-				}
-				catch(Exception e) {
-					actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
-					dataMap.put("section","Sample Metadata Tree");
+				} catch (Exception e) {
+					actionMap.put("parent", MetaOmGraph.getCurrentProjectActionId());
+					dataMap.put("section", "Sample Metadata Tree");
 					resultLog.put("result", "Error");
 					resultLog.put("result", "Other Exception");
 
-					ActionProperties exportXMLAction = new ActionProperties("export-xml",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+					ActionProperties exportXMLAction = new ActionProperties("export-xml", actionMap, dataMap, resultLog,
+							new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 					exportXMLAction.logActionProperties();
 				}
 
@@ -281,36 +300,38 @@ public class MetadataTreeDisplayPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				QueryResults qr = getQueryResults("Metadata Search");
-				if(qr == null)
+				if (qr == null)
 					return;
 				List<String> result = qr.getFresults();
 				MetadataQuery[] queries = qr.getFqueries();
-				
-				//Harsha - reproducibility log
-				HashMap<String,Object> actionMap = new HashMap<String,Object>();
-				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+
+				// Harsha - reproducibility log
+				HashMap<String, Object> actionMap = new HashMap<String, Object>();
+				actionMap.put("parent", MetaOmGraph.getCurrentProjectActionId());
 				actionMap.put("section", "Sample Metadata Tree");
-				
-				HashMap<String,Object> dataMap = new HashMap<String,Object>();
+
+				HashMap<String, Object> dataMap = new HashMap<String, Object>();
 				List<String> mq = new ArrayList();
-				for(MetadataQuery q: queries) {
+				for (MetadataQuery q : queries) {
 					mq.add(q.toString());
 				}
-				dataMap.put("Queries",mq);
+				dataMap.put("Queries", mq);
 				dataMap.put("numHits", result.size());
-				HashMap<String,Object> resultLog = new HashMap<String,Object>();
+				HashMap<String, Object> resultLog = new HashMap<String, Object>();
 				resultLog.put("result", "OK");
-				
+
 				if (result == null || result.size() < 1 || result.get(0).equals("NULL")) {
 					JOptionPane.showMessageDialog(null, "No hits found", "No hits", JOptionPane.INFORMATION_MESSAGE);
 					resultLog.put("result", "Error");
 					resultLog.put("resultComments", "No hits found");
-					ActionProperties searchMetadataTreeAction = new ActionProperties("search-metadata-tree",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+					ActionProperties searchMetadataTreeAction = new ActionProperties("search-metadata-tree", actionMap,
+							dataMap, resultLog, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 					searchMetadataTreeAction.logActionProperties();
 					return;
 				}
-				
-				ActionProperties searchMetadataTreeAction = new ActionProperties("search-metadata-tree",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+
+				ActionProperties searchMetadataTreeAction = new ActionProperties("search-metadata-tree", actionMap,
+						dataMap, resultLog, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 				searchMetadataTreeAction.logActionProperties();
 
 				expandNodes(result);
@@ -325,15 +346,17 @@ public class MetadataTreeDisplayPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				toHighlightNodes = new ArrayList<>();
 
-				//Harsha - reproducibility log
-				HashMap<String,Object> actionMap = new HashMap<String,Object>();
-				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+				// Harsha - reproducibility log
+				HashMap<String, Object> actionMap = new HashMap<String, Object>();
+				actionMap.put("parent", MetaOmGraph.getCurrentProjectActionId());
 				actionMap.put("section", "Sample Metadata Tree");
 
-				HashMap<String,Object> resultLog = new HashMap<String,Object>();
+				HashMap<String, Object> resultLog = new HashMap<String, Object>();
 				resultLog.put("result", "OK");
 
-				ActionProperties clearSearchMetadataTreeAction = new ActionProperties("clear-search-metadata-tree",actionMap,null,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				ActionProperties clearSearchMetadataTreeAction = new ActionProperties("clear-search-metadata-tree",
+						actionMap, null, resultLog,
+						new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 				clearSearchMetadataTreeAction.logActionProperties();
 			}
 		});
@@ -349,32 +372,35 @@ public class MetadataTreeDisplayPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				QueryResults qr = getQueryResults("Filter by Metadata");
-				//urmi
-				if (qr==null) {return;}
-				
+				// urmi
+				if (qr == null) {
+					return;
+				}
+
 				List<String> result = qr.getFresults();
 				MetadataQuery[] queries = qr.getFqueries();
-				
-				//Harsha - reproducibility log
-				HashMap<String,Object> actionMap = new HashMap<String,Object>();
-				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+
+				// Harsha - reproducibility log
+				HashMap<String, Object> actionMap = new HashMap<String, Object>();
+				actionMap.put("parent", MetaOmGraph.getCurrentProjectActionId());
 				actionMap.put("section", "Sample Metadata Tree");
-				HashMap<String,Object> dataMap = new HashMap<String,Object>();
+				HashMap<String, Object> dataMap = new HashMap<String, Object>();
 				List<String> mq = new ArrayList();
-				for(MetadataQuery q: queries) {
+				for (MetadataQuery q : queries) {
 					mq.add(q.toString());
 				}
-				dataMap.put("Queries",mq);
-				
+				dataMap.put("Queries", mq);
+
 				dataMap.put("numHits", result.size());
-				HashMap<String,Object> resultLog = new HashMap<String,Object>();
+				HashMap<String, Object> resultLog = new HashMap<String, Object>();
 				resultLog.put("result", "OK");
-				
+
 				if (result == null || result.size() < 1 || result.get(0).equals("NULL")) {
 					JOptionPane.showMessageDialog(null, "No hits found", "No hits", JOptionPane.INFORMATION_MESSAGE);
 					resultLog.put("result", "Error");
 					resultLog.put("resultComments", "No hits found");
-					ActionProperties filterMetadataTreeAction = new ActionProperties("filter-metadata-tree",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+					ActionProperties filterMetadataTreeAction = new ActionProperties("filter-metadata-tree", actionMap,
+							dataMap, resultLog, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 					filterMetadataTreeAction.logActionProperties();
 					return;
 				}
@@ -398,17 +424,17 @@ public class MetadataTreeDisplayPanel extends JPanel {
 					List<String> result2 = obj.invertSelectedDataCols(result);
 					filterXMLRoot(result2);
 				}
-				
+
 				if (option == JOptionPane.YES_OPTION) {
 					dataMap.put("keepOrRemove", "remove");
-				}
-				else if (option == JOptionPane.NO_OPTION) {
+				} else if (option == JOptionPane.NO_OPTION) {
 					dataMap.put("keepOrRemove", "keep");
 				}
-				
-				ActionProperties filterMetadataTreeAction = new ActionProperties("filter-metadata-tree",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+
+				ActionProperties filterMetadataTreeAction = new ActionProperties("filter-metadata-tree", actionMap,
+						dataMap, resultLog, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 				filterMetadataTreeAction.logActionProperties();
-				
+
 			}
 		});
 		mnFilter.add(mntmByMetadata);
@@ -420,15 +446,16 @@ public class MetadataTreeDisplayPanel extends JPanel {
 				// update excluded included
 				obj.resetRowFilter();
 				updateTree();
-				
-				//Harsha - reproducibility log
-				HashMap<String,Object> actionMap = new HashMap<String,Object>();
-				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+
+				// Harsha - reproducibility log
+				HashMap<String, Object> actionMap = new HashMap<String, Object>();
+				actionMap.put("parent", MetaOmGraph.getCurrentProjectActionId());
 				actionMap.put("section", "Sample Metadata Tree");
-				HashMap<String,Object> resultLog = new HashMap<String,Object>();
+				HashMap<String, Object> resultLog = new HashMap<String, Object>();
 				resultLog.put("result", "OK");
-				
-				ActionProperties resetTreeAction = new ActionProperties("reset-metadata-tree",actionMap,null,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+
+				ActionProperties resetTreeAction = new ActionProperties("reset-metadata-tree", actionMap, null,
+						resultLog, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 				resetTreeAction.logActionProperties();
 			}
 		});
@@ -442,30 +469,32 @@ public class MetadataTreeDisplayPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// get current selected node
-				
-				//Harsha - reproducibility log
-				HashMap<String,Object> actionMap = new HashMap<String,Object>();
-				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+
+				// Harsha - reproducibility log
+				HashMap<String, Object> actionMap = new HashMap<String, Object>();
+				actionMap.put("parent", MetaOmGraph.getCurrentProjectActionId());
 				actionMap.put("section", "Sample Metadata Tree");
-				HashMap<String,Object> resultLog = new HashMap<String,Object>();
+				HashMap<String, Object> resultLog = new HashMap<String, Object>();
 				resultLog.put("result", "OK");
-				
+
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
 				if (node == null) {
 					JOptionPane.showMessageDialog(null, "No node selected", "Please selcet a node",
 							JOptionPane.ERROR_MESSAGE);
-					
+
 					resultLog.put("result", "Error");
 					resultLog.put("resultComments", "No node selected.Please selcet a node");
-					ActionProperties resetTreeAction = new ActionProperties("switch-to-table",actionMap,null,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+					ActionProperties resetTreeAction = new ActionProperties("switch-to-table", actionMap, null,
+							resultLog, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 					resetTreeAction.logActionProperties();
 					return;
 				}
 
 				// search anyfield in the metadata table that matched node name and highlight it
 				MetaOmGraph.getActiveTable().selecTabRow(node.toString());
-				
-				ActionProperties resetTreeAction = new ActionProperties("switch-to-table",actionMap,null,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+
+				ActionProperties resetTreeAction = new ActionProperties("switch-to-table", actionMap, null, resultLog,
+						new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 				resetTreeAction.logActionProperties();
 
 			}
@@ -473,8 +502,9 @@ public class MetadataTreeDisplayPanel extends JPanel {
 		mnView.add(mntmSwitchToTable);
 
 		// @TODO Implement me when help manual is added.
-		/*mnHelp = new JMenu("Help");
-		menuBar.add(mnHelp);*/
+		/*
+		 * mnHelp = new JMenu("Help"); menuBar.add(mnHelp);
+		 */
 
 		splitPane = new JSplitPane();
 		add(splitPane, BorderLayout.CENTER);
@@ -583,8 +613,9 @@ public class MetadataTreeDisplayPanel extends JPanel {
 		String[] thisRow = thisMD.split(":::");
 		aVector.addElement(thisRow[0]);
 		aVector.addElement(thisRow[1]);
-		//aVector.addElement("<html><br>"+thisRow[1]+"<br>asasd</html>");
-		//JOptionPane.showMessageDialog(null, "<html><br>"+thisRow[1]+"<br>asasd</html>");
+		// aVector.addElement("<html><br>"+thisRow[1]+"<br>asasd</html>");
+		// JOptionPane.showMessageDialog(null,
+		// "<html><br>"+thisRow[1]+"<br>asasd</html>");
 		model.addRow(aVector);
 		for (int i = 0; i < selectedNode.getChildCount(); i++) {
 			DefaultMutableTreeNode thisNode = (DefaultMutableTreeNode) selectedNode.getChildAt(i);
@@ -676,7 +707,9 @@ public class MetadataTreeDisplayPanel extends JPanel {
 					// TreePath path = new TreePath(pathNodes);
 					// tree.setSelectionPath(path);
 					// Rectangle rect = tree.getPathBounds(path);
-					label.setForeground(HIGHLIGHTCOLOR);
+					if (!USEDEFAULTCOLORS) {
+						label.setForeground(HIGHLIGHTCOLOR);
+					}
 				}
 
 				return label;
@@ -828,40 +861,38 @@ public class MetadataTreeDisplayPanel extends JPanel {
 		obj.setExcluded(exc);
 		obj.setIncluded(inc);
 		updateTree();
-		
-		HashMap<String,Object> actionMap = new HashMap<String,Object>();
-		HashMap<String,Object> dataMap = new HashMap<String,Object>();
-		HashMap<String,Object> result = new HashMap<String,Object>();
-		
+
+		HashMap<String, Object> actionMap = new HashMap<String, Object>();
+		HashMap<String, Object> dataMap = new HashMap<String, Object>();
+		HashMap<String, Object> result = new HashMap<String, Object>();
+
 		try {
-			
-		actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
-		actionMap.put("section", "Feature Metadata");
-		
-		
-		MetadataHybrid mhyb = MetaOmGraph.getActiveProject().getMetadataHybrid();
-		if(mhyb !=null) {
-			MetadataCollection mcol = mhyb.getMetadataCollection();
-			if(mcol!= null) {
-				dataMap.put("Data Column", mcol.getDatacol());
-				result.put("Included Samples", mcol.getIncluded());
-				result.put("Excluded Samples", mcol.getExcluded());
+
+			actionMap.put("parent", MetaOmGraph.getCurrentProjectActionId());
+			actionMap.put("section", "Feature Metadata");
+
+			MetadataHybrid mhyb = MetaOmGraph.getActiveProject().getMetadataHybrid();
+			if (mhyb != null) {
+				MetadataCollection mcol = mhyb.getMetadataCollection();
+				if (mcol != null) {
+					dataMap.put("Data Column", mcol.getDatacol());
+					result.put("Included Samples", mcol.getIncluded());
+					result.put("Excluded Samples", mcol.getExcluded());
+				}
+			} else {
+				result.put("Included Samples", null);
+				result.put("Excluded Samples", null);
 			}
-		}
-		else {
-			result.put("Included Samples", null);
-			result.put("Excluded Samples", null);
-		}
 
-		result.put("result", "OK");
+			result.put("result", "OK");
 
-		ActionProperties sampleFilterAction = new ActionProperties("sample-advance-filter",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-		sampleFilterAction.logActionProperties();
-		
-		MetaOmGraph.setCurrentSamplesActionId(sampleFilterAction.getActionNumber());
-		}
-		catch(Exception e1) {
-			
+			ActionProperties sampleFilterAction = new ActionProperties("sample-advance-filter", actionMap, dataMap,
+					result, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+			sampleFilterAction.logActionProperties();
+
+			MetaOmGraph.setCurrentSamplesActionId(sampleFilterAction.getActionNumber());
+		} catch (Exception e1) {
+
 		}
 
 	}
@@ -992,7 +1023,7 @@ public class MetadataTreeDisplayPanel extends JPanel {
 
 		}.start();
 
-		QueryResults searchResult = new QueryResults(result,queries);
+		QueryResults searchResult = new QueryResults(result, queries);
 		return searchResult;
 
 	}
@@ -1031,21 +1062,29 @@ public class MetadataTreeDisplayPanel extends JPanel {
 	}
 
 	public void updateColors() {
-		SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
-		BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
-		BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
-		HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
-		HYPERLINKCOLOR = MetaOmGraph.getTableHyperlinkColor();
+		if (MetaOmGraph.getCurrentThemeName().equals("default")) {
+			USEDEFAULTCOLORS = true;
+		} else {
+			USEDEFAULTCOLORS = false;
+			SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
+			BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
+			BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
+			HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
+			HYPERLINKCOLOR = MetaOmGraph.getTableHyperlinkColor();
+		}
+
 		table.repaint();
 	}
 
 	/**
 	 * TableCellRenderer to wrap text in jtable rows
+	 * 
 	 * @author mrbai
 	 *
 	 */
 	class WordWrapCellRenderer extends JTextArea implements TableCellRenderer {
 		private static final long serialVersionUID = 1L;
+
 		WordWrapCellRenderer() {
 			setLineWrap(true);
 			setWrapStyleWord(true);
@@ -1070,28 +1109,30 @@ public class MetadataTreeDisplayPanel extends JPanel {
 
 }
 
-class QueryResults{
+class QueryResults {
 	private List<String> fresults;
 	private MetadataQuery[] fqueries;
-	
-	
+
 	public QueryResults(List<String> fresults, MetadataQuery[] fqueries) {
 		super();
 		this.fresults = fresults;
 		this.fqueries = fqueries;
 	}
+
 	public List<String> getFresults() {
 		return fresults;
 	}
+
 	public void setFresults(List<String> fresults) {
 		this.fresults = fresults;
 	}
+
 	public MetadataQuery[] getFqueries() {
 		return fqueries;
 	}
+
 	public void setFqueries(MetadataQuery[] fqueries) {
 		this.fqueries = fqueries;
 	}
-	
-	
+
 }
