@@ -90,7 +90,13 @@ import org.jdom.JDOMException;
 
 import com.apple.eawt.Application;
 import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatIntelliJLaf;
 import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.intellijthemes.FlatArcDarkOrangeIJTheme;
+import com.formdev.flatlaf.intellijthemes.FlatCarbonIJTheme;
+import com.formdev.flatlaf.intellijthemes.FlatCobalt2IJTheme;
+import com.formdev.flatlaf.intellijthemes.FlatGradiantoDeepOceanIJTheme;
+import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatMaterialDeepOceanContrastIJTheme;
 import com.l2fprod.common.swing.JTipOfTheDay;
 
 
@@ -750,7 +756,11 @@ public class MetaOmGraph implements ActionListener {
 	public enum Themes{
 		Light,
 		Dark,
-		System
+		System,
+		IntelliJ,
+		DeepOcean,
+		Cobalt,
+		Carbon
 	}
 	
 	public static boolean setTheme(Themes theme) {
@@ -761,6 +771,18 @@ public class MetaOmGraph implements ActionListener {
 				break;
 			case Dark:
 				UIManager.setLookAndFeel(new FlatDarkLaf());
+				break;
+			case IntelliJ :
+				UIManager.setLookAndFeel(new FlatArcDarkOrangeIJTheme());
+				break;
+			case DeepOcean :
+				UIManager.setLookAndFeel(new FlatMaterialDeepOceanContrastIJTheme());
+				break;
+			case Cobalt :
+				UIManager.setLookAndFeel(new FlatCobalt2IJTheme());
+				break;
+			case Carbon :
+				UIManager.setLookAndFeel(new FlatCarbonIJTheme());
 				break;
 			
 			case System:
