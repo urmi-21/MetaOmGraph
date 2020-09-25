@@ -298,7 +298,10 @@ public class ColorProperties extends TaskbarInternalFrame {
 		setModel(colorPropertiesFrameModel);
 
 	}
-
+	
+	/*
+	 * save new colors to theme
+	 */
 	public void updateTheme(MOGColorThemes theme) {
 		theme.setTableColor1(tabCol1Button.getColor());
 		theme.setTableColor2(tabCol2Button.getColor());
@@ -402,7 +405,7 @@ public class ColorProperties extends TaskbarInternalFrame {
 		boolean overWrite = false;
 		MOGColorThemes thisTheme = null;
 		if (themeEdited) {
-			if ( !(selTheme.equals("light") || selTheme.equals("dark")) ) {
+			if ( !(selTheme.equals("default") || selTheme.equals("light") || selTheme.equals("dark")) ) {
 				overWrite = true;
 			}
 			if (overWrite) {
@@ -444,11 +447,18 @@ public class ColorProperties extends TaskbarInternalFrame {
 		initcomboBox();
 	}
 
+	/**
+	 * apply table color theme to MOG tables
+	 * @param newTheme
+	 */
 	private void applyTheme(MOGColorThemes newTheme) {
 		MetaOmGraph.setCurrentTheme(newTheme.getThemeName());
 		MetaOmGraph.getActiveTable().getMetadataTableDisplay().updateColors();
 		MetaOmGraph.getActiveTable().getMetadataTreeDisplay().updateColors();
 		MetaOmGraph.getActiveTable().getStripedTable().updateColors();
+		//apply gui theme to activate default colors
+		MetaOmGraph.setTheme(MetaOmGraph.getActiveTheme());
+		
 	}
 
 	private void initcomboBox() {

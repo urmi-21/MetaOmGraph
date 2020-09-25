@@ -273,12 +273,12 @@ public class MetaOmGraph implements ActionListener {
 	}
 
 	// create themes
+	private static MOGColorThemes themeDefault = new MOGColorThemes("default", Color.gray,Color.gray, Color.gray,Color.gray,Color.gray,Color.gray,Color.gray); //gui default theme
 	private static MOGColorThemes themeLight = new MOGColorThemes("light", Color.white,
-			new ColorUIResource(216, 236, 213), Color.black, Color.PINK, Color.green, Color.WHITE, Color.WHITE);
+			new ColorUIResource(216, 236, 213), Color.DARK_GRAY, Color.PINK, Color.green, Color.WHITE, Color.WHITE);
 	private static MOGColorThemes themeDark = new MOGColorThemes("dark", new ColorUIResource(153, 153, 153),
 			new ColorUIResource(204, 204, 204), Color.black, new ColorUIResource(0, 153, 102), Color.RED,
 			new ColorUIResource(153, 153, 153), new ColorUIResource(153, 153, 153));
-
 	private static MOGColorThemes themeSky = new MOGColorThemes("sky", new ColorUIResource(241, 250, 238),
 			new ColorUIResource(168, 218, 220), new ColorUIResource(69, 123, 157), new ColorUIResource(155, 197, 61),
 			Color.green, Color.WHITE, Color.WHITE);
@@ -291,6 +291,7 @@ public class MetaOmGraph implements ActionListener {
 		mogThemes.put(themeLight.getThemeName(), themeLight);
 		mogThemes.put(themeDark.getThemeName(), themeDark);
 		mogThemes.put(themeSky.getThemeName(), themeSky);
+		mogThemes.put(themeDefault.getThemeName(), themeDefault);
 	}
 
 	public static void initThemes(HashMap<String, MOGColorThemes> themes) {
@@ -773,7 +774,7 @@ public class MetaOmGraph implements ActionListener {
 			
 			activeTheme = theme;
 			if (mainWindow!=null) {
-			//SwingUtilities.updateComponentTreeUI(mainWindow);
+			SwingUtilities.updateComponentTreeUI(mainWindow);
 			}
 		}
 		catch (Exception e) {
@@ -786,6 +787,9 @@ public class MetaOmGraph implements ActionListener {
 	}
 	
 	public static Themes getActiveTheme() {
+		if (activeTheme==null) {
+			return Themes.Light;
+		}
 		return activeTheme;
 	}
 
@@ -862,6 +866,7 @@ public class MetaOmGraph implements ActionListener {
 					setTheme(Themes.valueOf(prevSessionLafTheme));
 				}
 				catch (Exception e) {
+					
 					setTheme(Themes.Light);
 				}
 								
@@ -869,7 +874,6 @@ public class MetaOmGraph implements ActionListener {
 				try {
 					String lastThemeName = (String) in.readObject();
 					HashMap<String, MOGColorThemes> themes = (HashMap<String, MOGColorThemes>) in.readObject();
-
 					if (lastThemeName != null && themes != null && themes.size() > 0) {
 						initThemes(themes);
 						setCurrentTheme(lastThemeName);
@@ -904,11 +908,17 @@ public class MetaOmGraph implements ActionListener {
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
+		}else {
+			//urmi IF .prefs file is absent 
+			//init default themes when prefs file is absent
+			setTheme(Themes.Light);
+			initThemes();
+			setCurrentTheme("light");
+			
 		}
+		
 
-		// init default themes
-		initThemes();
-		setCurrentTheme("light");
+		
 		mainWindow = new JFrame("MetaOmGraph");
 
 		//urmi

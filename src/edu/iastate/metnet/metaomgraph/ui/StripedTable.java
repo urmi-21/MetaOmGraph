@@ -16,6 +16,7 @@ import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
@@ -35,6 +36,7 @@ public class StripedTable extends JTable {
 	private Color BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
 	private Color HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
 	private Color HYPERLINKCOLOR = MetaOmGraph.getTableHyperlinkColor();
+	private boolean USEDEFAULTCOLORS=true;
 
 	public StripedTable() {
 	}
@@ -43,6 +45,13 @@ public class StripedTable extends JTable {
 		super(model);
 		setDefaultEditor(Color.class, new ColorEditor());
 		setDefaultRenderer(Color.class, new ColorRenderer(true));
+		//urmi set default colors or not
+		if (MetaOmGraph.getCurrentThemeName().equals("default")) {
+			USEDEFAULTCOLORS = true;
+		}else {
+			USEDEFAULTCOLORS = false;
+		}
+		
 		
 	}
 
@@ -125,11 +134,14 @@ public class StripedTable extends JTable {
 			return c;
 		}
 		if (!isCellSelected(row, column)) {
+			if(!USEDEFAULTCOLORS) {
 			c.setBackground(colorForRow(row));
+			}
 			c.setForeground(UIManager.getColor("Table.foreground"));
 		} else {
-			//urmi temporary disable background to fix black text on black background
-			//c.setBackground(SELECTIONBCKGRND);
+			if(!USEDEFAULTCOLORS) {
+			c.setBackground(SELECTIONBCKGRND);
+			}
 		}
 		
 		//set font
@@ -249,11 +261,17 @@ public class StripedTable extends JTable {
 
 	public void updateColors() {
 		//urmi		
-		SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
-		BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
-		BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
-		HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
-		HYPERLINKCOLOR = MetaOmGraph.getTableHyperlinkColor();
+		if (MetaOmGraph.getCurrentThemeName().equals("default")) {
+			USEDEFAULTCOLORS = true;
+		} else {
+			USEDEFAULTCOLORS = false;
+			SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
+			BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
+			BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
+			HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
+			HYPERLINKCOLOR = MetaOmGraph.getTableHyperlinkColor();
+		}
+		
 		repaint();
 
 	}
