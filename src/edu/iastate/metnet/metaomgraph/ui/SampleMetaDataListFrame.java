@@ -82,7 +82,7 @@ public class SampleMetaDataListFrame extends TaskbarInternalFrame
 		
 		Object[][] inActiveData = getActiveData(unSelectedRows, headers);
 		
-		//urmi: headers are not showing up correct
+		
 		dtp = new DualTablePanel(inActiveData, activeData, finalHeaders, false);
 		
         dtp.addChangeListener(this);
