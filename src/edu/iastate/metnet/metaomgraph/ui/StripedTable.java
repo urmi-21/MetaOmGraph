@@ -128,9 +128,8 @@ public class StripedTable extends JTable {
 			c.setBackground(colorForRow(row));
 			c.setForeground(UIManager.getColor("Table.foreground"));
 		} else {
-			// c.setBackground(UIManager.getColor("Table.selectionBackground"));
-			// c.setForeground(UIManager.getColor("Table.selectionForeground"));
-			c.setBackground(SELECTIONBCKGRND);
+			//urmi temporary disable background to fix black text on black background
+			//c.setBackground(SELECTIONBCKGRND);
 		}
 		
 		//set font
@@ -249,6 +248,7 @@ public class StripedTable extends JTable {
 	}
 
 	public void updateColors() {
+		//urmi		
 		SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
 		BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
 		BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();

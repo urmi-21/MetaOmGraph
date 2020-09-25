@@ -21,6 +21,7 @@ import javax.swing.event.ChangeListener;
 
 import org.dizitart.no2.Document;
 
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
@@ -30,7 +31,8 @@ import edu.iastate.metnet.metaomgraph.MetadataCollection;
  * @author sumanth
  *
  */
-public class SampleMetaDataListFrame extends JInternalFrame 
+//urmi extend to taskbar internam frame
+public class SampleMetaDataListFrame extends TaskbarInternalFrame 
 									 implements ActionListener, ChangeListener {
 	
 	private static final String OK_COMMAND = "OK";
@@ -90,6 +92,10 @@ public class SampleMetaDataListFrame extends JInternalFrame
         getContentPane().add(dtp, "Center");
         getContentPane().add(buttonPanel, "Last");
         setDefaultCloseOperation(2);   
+        
+        //urmi in order to add to internal taskbar
+        FrameModel aboutFrameModel = new FrameModel("Sample list","Sample list",25);
+		setModel(aboutFrameModel);
 	}
 	
 	// get headers to specify the column names.
