@@ -1326,7 +1326,7 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 						}
 
 					} else {
-						c.setBackground(SELECTIONBCKGRND);
+						//c.setBackground(SELECTIONBCKGRND);
 					}
 
 					return c;
@@ -2469,7 +2469,7 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 	private void createNewListFromSelectedRows() {
 		prevLists.clear();
 		prevLists.addAll(Arrays.asList(MetaOmGraph.getActiveProject().getSampleDataListNames()));
-		createSampleListFrame("Create New List", false, getSelectedRows(), getSelectedRows(true));
+		createSampleListFrame("Create new sample list", false, getSelectedRows(), getSelectedRows(true));
 	}
 
 	@Override
@@ -2479,7 +2479,7 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 			return;
 		}
 		if ("edit list".equals(e.getActionCommand())) {
-			createSampleListFrame("Edit List", true, getSelectedRows(false), getSelectedRows(true));
+			createSampleListFrame("Edit sample list", true, getSelectedRows(false), getSelectedRows(true));
 			return;
 		}
 		if ("rename list".equals(e.getActionCommand())) {
@@ -2504,7 +2504,7 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 			allRows.removeAll(previousSearchedRows);
 			ArrayList<String> notIncludedInSearch = new ArrayList<String>();
 			notIncludedInSearch.addAll(allRows);
-			createSampleListFrame("Create New List", false, previousSearchedRows, notIncludedInSearch);
+			createSampleListFrame("Create new sample list", false, previousSearchedRows, notIncludedInSearch);
 			return;
 		}
 		if("Create List with Selected Rows".equals(e.getActionCommand())) {

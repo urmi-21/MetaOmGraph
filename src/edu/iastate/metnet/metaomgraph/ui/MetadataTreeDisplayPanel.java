@@ -168,8 +168,10 @@ public class MetadataTreeDisplayPanel extends JPanel {
 				if (row % 2 == 0) {
 
 					if (isSelected) {
+						
 						c.setBackground(SELECTIONBCKGRND);
 						c.setForeground(Color.WHITE);
+						
 					}
 					if (!isSelected) {
 						c.setBackground(BCKGRNDCOLOR1);
@@ -179,8 +181,10 @@ public class MetadataTreeDisplayPanel extends JPanel {
 				} else {
 
 					if (isSelected) {
+						//urmi
 						c.setBackground(SELECTIONBCKGRND);
 						c.setForeground(Color.WHITE);
+						
 					}
 					if (!isSelected) {
 						c.setBackground(BCKGRNDCOLOR2);
@@ -344,7 +348,10 @@ public class MetadataTreeDisplayPanel extends JPanel {
 		mntmByMetadata.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				QueryResults qr = getQueryResults("Filter by Metadata"); 
+				QueryResults qr = getQueryResults("Filter by Metadata");
+				//urmi
+				if (qr==null) {return;}
+				
 				List<String> result = qr.getFresults();
 				MetadataQuery[] queries = qr.getFqueries();
 				

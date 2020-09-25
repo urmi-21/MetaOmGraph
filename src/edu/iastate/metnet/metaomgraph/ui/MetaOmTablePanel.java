@@ -2439,7 +2439,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			clf.setMaximizable(true);
 			clf.setIconifiable(true);
 			clf.setClosable(true);
-			clf.setTitle("Create New List");
+			clf.setTitle("Create new feature list");
 			
 			FrameModel createListFrameModel = new FrameModel("List","Create List",25);
 			clf.setModel(createListFrameModel);

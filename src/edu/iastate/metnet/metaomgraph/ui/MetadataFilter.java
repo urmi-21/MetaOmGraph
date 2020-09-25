@@ -69,7 +69,8 @@ public class MetadataFilter extends JDialog {
 	/**
 	 * Default Properties
 	 */
-	private Color SELECTIONBCKGRND = Color.black;
+	//urmi disable black selection background
+	//private Color SELECTIONBCKGRND = Color.black;
 	private Color BCKGRNDCOLOR1 = Color.white;
 	private Color BCKGRNDCOLOR2 = new ColorUIResource(216, 236, 213);
 	private Color HIGHLIGHTCOLOR = Color.ORANGE;
@@ -523,7 +524,7 @@ public class MetadataFilter extends JDialog {
 					 * c.setBackground(Color.YELLOW);
 					 */
 				} else {
-					c.setBackground(SELECTIONBCKGRND);
+					//c.setBackground(SELECTIONBCKGRND);
 				}
 
 				return c;
@@ -595,7 +596,7 @@ public class MetadataFilter extends JDialog {
 					 * c.setBackground(Color.YELLOW);
 					 */
 				} else {
-					c.setBackground(SELECTIONBCKGRND);
+					//c.setBackground(SELECTIONBCKGRND);
 				}
 
 				return c;
