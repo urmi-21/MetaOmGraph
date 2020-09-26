@@ -432,39 +432,7 @@ public class ReproducibilityDashboardPanel extends JPanel {
 				int tabNo = tabbedPane.getSelectedIndex();
 				JTree selectedTree = allTabsInfo.get(tabNo).getTabTree();
 				TreePath[] allPaths = selectedTree.getSelectionPaths();
-				
-				
-				
-				
-				//urmi: before action, backup current state of MOG, excluded and included samples
-				/*MetadataHybrid mhyb = MetaOmGraph.getActiveProject().getMetadataHybrid();
-				if(mhyb==null) {
-					JOptionPane.showMessageDialog(null, "Error in playback. MOG metadata NULL!!!", "Error",
-							JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				MetadataCollection mcol = mhyb.getMetadataCollection();
-				Set<String> currentProjectIncludedSamples = mcol.getIncluded();
-				Set<String> currentProjectExcludedSamples = mcol.getExcluded();
-				boolean actionDone=false;*/
-				
 				playbackAction.playActions(tabNo, selectedTree, allPaths, allTabsInfo);
-				
-				//playbackAction.playActions(tabNo, selectedTree, allPaths, allTabsInfo);
-				
-				//JOptionPane.showMessageDialog(null, "ActionDone:"+String.valueOf(MetaOmAnalyzer.getExcludeCount()));
-				
-				//urmi: after the play back action is over, reset the current state of MOG's included and excluded column
-				//after action
-				//reset samples to current samples		
-				
-				//JOptionPane.showMessageDialog(null, "Excluded cols:"+String.valueOf(MetaOmAnalyzer.getExcludeCount()));
-				//TimeUnit.SECONDS.sleep(3);
-				/*mcol.setIncluded(currentProjectIncludedSamples);
-				mcol.setExcluded(currentProjectExcludedSamples);					
-				//JOptionPane.showMessageDialog(null, "updating exclude"+String.valueOf(currentProjectExcludedSamples.size()));
-				MetaOmAnalyzer.updateExcluded(currentProjectExcludedSamples);*/
-				
 
 			}
 		});
