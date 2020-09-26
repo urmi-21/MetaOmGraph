@@ -1,15 +1,23 @@
 package edu.iastate.metnet.metaomgraph.playback;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
+import javax.swing.JOptionPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
+import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
+import edu.iastate.metnet.metaomgraph.MetaOmProject;
+import edu.iastate.metnet.metaomgraph.MetadataCollection;
+import edu.iastate.metnet.metaomgraph.MetadataHybrid;
 import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel;
 
@@ -99,11 +107,14 @@ public class PlaybackAction {
 							else if(sampleAction.getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY) instanceof HashSet<?>) {
 								excludedSamples = (HashSet<String>)sampleAction.getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY);
 							}
-
+							//urmi
+							break;
 						}
 					}
 
 
+					
+					
 					if (ltn.getCommandName().equalsIgnoreCase(LINE_CHART_COMMAND)) {
 						playChart(playedAction, LINE_CHART_COMMAND, includedSamples, excludedSamples);
 					} else if (ltn.getCommandName().equalsIgnoreCase(SCATTER_PLOT_COMMAND)) {
@@ -121,6 +132,9 @@ public class PlaybackAction {
 					} else if (ltn.getCommandName().equalsIgnoreCase(CORRELATION_HISTOGRAM_COMMAND)) {
 						playChart(playedAction, CORRELATION_HISTOGRAM_COMMAND, includedSamples, excludedSamples);
 					}
+					
+					
+					
 
 				}
 			}
@@ -158,33 +172,104 @@ public class PlaybackAction {
 				}
 
 				val2 = new int[val.length];
-
-				for (int i=0;i<val.length;i++) {
-					val2[i] = val[i];
+				
+				//urmi add in reverse order
+				for (int i=val.length-1;i>=0;i--) {
+					System.out.println(i);
+					System.out.println(val.length-i);
+					val2[val.length-1-i] = val[i];
+				}
+				
+			}
+			
+			
+			//urmi manage samples
+			MetadataHybrid mhyb = MetaOmGraph.getActiveProject().getMetadataHybrid();
+			if(mhyb==null) {
+				JOptionPane.showMessageDialog(null, "Error in playback. MOG metadata NULL!!!", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			MetadataCollection mcol = mhyb.getMetadataCollection();
+			Set<String> currentProjectIncludedSamples = mcol.getIncluded();
+			Set<String> currentProjectExcludedSamples = mcol.getExcluded();
+			
+			//convert excluded samples to boolean excluded list and pass to chart
+			String[] dataCols = MetaOmGraph.getActiveProject().getDataColumnHeaders();
+			boolean [] toExcludeSamples=new boolean[dataCols.length]; 
+			for (int j = 0; j < dataCols.length; j++) {
+				if (excludedSamples.contains(dataCols[j])) {
+					toExcludeSamples[j] = true;
 				}
 			}
+			
 
 
 			MetaOmTablePanel mp = MetaOmGraph.getActiveTablePanel();
-
+			
 			if(chartName == LINE_CHART_COMMAND) {
-				mp.graphSelectedRows(val2, includedSamples, excludedSamples);
+				//for line chart
+				mcol.setIncluded(includedSamples);
+				mcol.setExcluded(excludedSamples);
+				//update the excluded samples
+				MetaOmAnalyzer.updateExcluded(excludedSamples);
+				
+				//make chart
+				mp.graphSelectedRows(val2);
+				
+				//reset samples to current
+				//JOptionPane.showMessageDialog(null, "Excluded cols:"+String.valueOf(MetaOmAnalyzer.getExcludeCount()));
+				//TimeUnit.SECONDS.sleep(3);
+				mcol.setIncluded(currentProjectIncludedSamples);
+				mcol.setExcluded(currentProjectExcludedSamples);					
+				//JOptionPane.showMessageDialog(null, "updating exclude"+String.valueOf(currentProjectExcludedSamples.size()));
+				MetaOmAnalyzer.updateExcluded(currentProjectExcludedSamples);
 			}
 			else if(chartName == BOX_PLOT_COMMAND) {
-				mp.makeBoxPlot(val2, includedSamples, excludedSamples);
+				mp.makeBoxPlot(val2,toExcludeSamples);
 			}
 			else if(chartName == SCATTER_PLOT_COMMAND) {
-				mp.graphPairs(val2, includedSamples, excludedSamples);
+				mp.graphPairs(val2,toExcludeSamples);
 			}
 			else if(chartName == HISTOGRAM_COMMAND) {
-				mp.createHistogram(val2, includedSamples, excludedSamples);
+								
+				mp.createHistogram(val2,toExcludeSamples);
 			}
 			else if(chartName == LINE_CHART_DEFAULT_GROUPING_COMMAND) {
-				mp.plotLineChartDefaultGrouping(val2, includedSamples, excludedSamples);
+				//for line chart
+				mcol.setIncluded(includedSamples);
+				mcol.setExcluded(excludedSamples);
+				//update the excluded samples
+				MetaOmAnalyzer.updateExcluded(excludedSamples);
+				
+				mp.plotLineChartDefaultGrouping(val2);
+				
+				//reset samples to current
+				//JOptionPane.showMessageDialog(null, "Excluded cols:"+String.valueOf(MetaOmAnalyzer.getExcludeCount()));
+				//TimeUnit.SECONDS.sleep(3);
+				mcol.setIncluded(currentProjectIncludedSamples);
+				mcol.setExcluded(currentProjectExcludedSamples);					
+				//JOptionPane.showMessageDialog(null, "updating exclude"+String.valueOf(currentProjectExcludedSamples.size()));
+				MetaOmAnalyzer.updateExcluded(currentProjectExcludedSamples);
 			}
 			else if(chartName == LINE_CHART_CHOOSE_GROUPING_COMMAND) {
+				//for line chart
+				mcol.setIncluded(includedSamples);
+				mcol.setExcluded(excludedSamples);
+				//update the excluded samples
+				MetaOmAnalyzer.updateExcluded(excludedSamples);
+				
 				String groupChosen = (String)chartAction.getDataParameters().get(GROUPING_ATTRIBUTE_PROPERTY);
-				mp.plotLineChartChooseGrouping(val2, groupChosen, includedSamples, excludedSamples);
+				mp.plotLineChartChooseGrouping(val2, groupChosen);
+				
+				//reset samples to current
+				//JOptionPane.showMessageDialog(null, "Excluded cols:"+String.valueOf(MetaOmAnalyzer.getExcludeCount()));
+				//TimeUnit.SECONDS.sleep(3);
+				mcol.setIncluded(currentProjectIncludedSamples);
+				mcol.setExcluded(currentProjectExcludedSamples);					
+				//JOptionPane.showMessageDialog(null, "updating exclude"+String.valueOf(currentProjectExcludedSamples.size()));
+				MetaOmAnalyzer.updateExcluded(currentProjectExcludedSamples);
+				
 			}
 			else if(chartName == BAR_CHART_COMMAND) {
 				String columnChosen = (String)chartAction.getDataParameters().get(SELECTED_COLUMN_PROPERTY);
@@ -194,9 +279,16 @@ public class PlaybackAction {
 				String correlationCol = (String)chartAction.getDataParameters().get(CORRELATION_COLUMN_PROPERTY);
 				mp.plotCorrHist(correlationCol, true);
 			}
+			
+			
+			
+			
 
 		}
 		catch(Exception e) {
+			JOptionPane.showMessageDialog(null, "Failed to playback!!!" + e, "Error",
+					JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
 
 		}
 	}

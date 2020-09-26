@@ -186,21 +186,24 @@ public class BoxPlot extends TaskbarInternalFrame implements ChartMouseListener,
 
 	}
 
+	public BoxPlot(HashMap<Integer, double[]> plotData, int pType, MetaOmProject mp, boolean isPlayback) {
+		this(plotData,  pType,  mp, MetaOmAnalyzer.getExclude(), isPlayback);
+	}
 	/**
 	 * Create the frame.
 	 */
 	// plot type 0 for features 1 for samples
-	public BoxPlot(HashMap<Integer, double[]> plotData, int pType, MetaOmProject mp, boolean isPlayback) {
+	public BoxPlot(HashMap<Integer, double[]> plotData, int pType, MetaOmProject mp, boolean[] excludedSamples, boolean isPlayback) {
 		
 		this.plotData = plotData;
 		this.plotType = pType;
 		myProject = mp;
 		if (plotType == 0) {
 			// make copy of excluded
-			boolean[] excluded = MetaOmAnalyzer.getExclude();
-			if (excluded != null) {
-				excludedCopy = new boolean[excluded.length];
-				System.arraycopy(excluded, 0, excludedCopy, 0, excluded.length);
+			//boolean[] excluded = MetaOmAnalyzer.getExclude();
+			if (excludedSamples != null) {
+				excludedCopy = new boolean[excludedSamples.length];
+				System.arraycopy(excludedSamples, 0, excludedCopy, 0, excludedSamples.length);
 			}
 		}
 		chartPanel = null;

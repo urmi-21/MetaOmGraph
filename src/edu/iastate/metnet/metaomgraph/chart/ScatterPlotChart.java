@@ -138,7 +138,7 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 			public void run() {
 				try {
 
-					ScatterPlotChart frame = new ScatterPlotChart(null, 0, null,false);
+					ScatterPlotChart frame = new ScatterPlotChart(null, 0, null, false);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -151,9 +151,18 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 	 * Create the frame.
 	 */
 	public ScatterPlotChart(int[] selected, int xind, MetaOmProject mp, boolean isPlayback) {
+		this(selected, xind, mp, MetaOmAnalyzer.getExclude(), isPlayback);
+
+	}
+
+	public ScatterPlotChart(int[] selected, int xind, MetaOmProject mp, boolean[] excludedSamples, boolean isPlayback) {
 
 		super("Scatter Plot");
-		
+		// make copy of excluded samples
+		if (excludedSamples != null) {
+			excludedCopy = new boolean[excludedSamples.length];
+			System.arraycopy(excludedSamples, 0, excludedCopy, 0, excludedSamples.length);
+		}
 		this.selected = selected;
 		// init rownames
 		rowNames = mp.getDefaultRowNames(selected);
@@ -271,22 +280,23 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 		setIconifiable(true);
 		setClosable(true);
 		String chartTitle = "Scatter Plot:" + String.join(",", rowNames);
-		if(isPlayback) {
+		if (isPlayback) {
 			chartTitle = "Playback - Scatter Plot:" + String.join(",", rowNames);
 		}
 		this.setTitle(chartTitle);
-		
-		FrameModel scatterPlotFrameModel = new FrameModel("Scatter Plot",chartTitle,3);
+
+		FrameModel scatterPlotFrameModel = new FrameModel("Scatter Plot", chartTitle, 3);
 		this.setModel(scatterPlotFrameModel);
+
 	}
 
 	public ChartPanel makeScatterPlot() throws IOException {
 		// create a copy of excluded
-		boolean[] excluded = MetaOmAnalyzer.getExclude();
-		if (excluded != null) {
-			excludedCopy = new boolean[excluded.length];
-			System.arraycopy(excluded, 0, excludedCopy, 0, excluded.length);
-		}
+		/*
+		 * if (excludedSamples != null) { excludedCopy = new
+		 * boolean[excludedSamples.length]; System.arraycopy(excludedSamples, 0,
+		 * excludedCopy, 0, excludedSamples.length); }
+		 */
 		// Create dataset
 		dataset = createDataset();
 		// Create chart
@@ -305,21 +315,20 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 		}
 
 		myRenderer = plot.getRenderer();
-	
 
 		// use palette if available
 		if (currentlySetColors != null) {
-			plot.setDrawingSupplier(new DefaultDrawingSupplier(currentlySetColors,
-					DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
-					DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
-					DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
-					DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE, getShapesSequence(pointSize)
+			plot.setDrawingSupplier(
+					new DefaultDrawingSupplier(currentlySetColors, DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
+							DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
+							DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
+							DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE, getShapesSequence(pointSize)
 
-			));
+					));
 			// DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE
 
 		} else {
-			//redraw plot
+			// redraw plot
 			Paint[] defaultPaint = DefaultDrawingSupplier.DEFAULT_PAINT_SEQUENCE;
 			Color[] defaultColor = Utils.paintArraytoColor(defaultPaint);
 			plot.setDrawingSupplier(new DefaultDrawingSupplier(Utils.filterColors(defaultColor),
@@ -327,7 +336,7 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 					DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
 					DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE, getShapesSequence(pointSize)));
-			//apply default palette
+			// apply default palette
 			setDefaultPalette();
 		}
 		// Create Panel
