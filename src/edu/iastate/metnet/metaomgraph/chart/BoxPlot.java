@@ -628,6 +628,7 @@ public class BoxPlot extends TaskbarInternalFrame implements ChartMouseListener,
 						double[] thisData = plotData.get(rowIndex);
 						for(String key : splitIndKeys) {
 							List list = new ArrayList();
+				
 							String thisKeyName = "";
 							Collection<Integer> thisInd = splitIndex.get(key);
 							for (int ind : thisInd) {
