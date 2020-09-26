@@ -203,6 +203,9 @@ public class PlaybackAction {
 				}
 			}
 			
+			//@Harsha set data transformation
+			
+			
 
 
 			MetaOmTablePanel mp = MetaOmGraph.getActiveTablePanel();
