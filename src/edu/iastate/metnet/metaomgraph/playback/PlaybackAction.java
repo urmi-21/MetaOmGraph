@@ -218,11 +218,8 @@ public class PlaybackAction {
 				mp.graphSelectedRows(val2);
 				
 				//reset samples to current
-				//JOptionPane.showMessageDialog(null, "Excluded cols:"+String.valueOf(MetaOmAnalyzer.getExcludeCount()));
-				//TimeUnit.SECONDS.sleep(3);
 				mcol.setIncluded(currentProjectIncludedSamples);
 				mcol.setExcluded(currentProjectExcludedSamples);					
-				//JOptionPane.showMessageDialog(null, "updating exclude"+String.valueOf(currentProjectExcludedSamples.size()));
 				MetaOmAnalyzer.updateExcluded(currentProjectExcludedSamples);
 			}
 			else if(chartName == BOX_PLOT_COMMAND) {
@@ -245,11 +242,8 @@ public class PlaybackAction {
 				mp.plotLineChartDefaultGrouping(val2);
 				
 				//reset samples to current
-				//JOptionPane.showMessageDialog(null, "Excluded cols:"+String.valueOf(MetaOmAnalyzer.getExcludeCount()));
-				//TimeUnit.SECONDS.sleep(3);
 				mcol.setIncluded(currentProjectIncludedSamples);
-				mcol.setExcluded(currentProjectExcludedSamples);					
-				//JOptionPane.showMessageDialog(null, "updating exclude"+String.valueOf(currentProjectExcludedSamples.size()));
+				mcol.setExcluded(currentProjectExcludedSamples);
 				MetaOmAnalyzer.updateExcluded(currentProjectExcludedSamples);
 			}
 			else if(chartName == LINE_CHART_CHOOSE_GROUPING_COMMAND) {
@@ -262,12 +256,9 @@ public class PlaybackAction {
 				String groupChosen = (String)chartAction.getDataParameters().get(GROUPING_ATTRIBUTE_PROPERTY);
 				mp.plotLineChartChooseGrouping(val2, groupChosen);
 				
-				//reset samples to current
-				//JOptionPane.showMessageDialog(null, "Excluded cols:"+String.valueOf(MetaOmAnalyzer.getExcludeCount()));
-				//TimeUnit.SECONDS.sleep(3);
+				//reset samples to current;
 				mcol.setIncluded(currentProjectIncludedSamples);
 				mcol.setExcluded(currentProjectExcludedSamples);					
-				//JOptionPane.showMessageDialog(null, "updating exclude"+String.valueOf(currentProjectExcludedSamples.size()));
 				MetaOmAnalyzer.updateExcluded(currentProjectExcludedSamples);
 				
 			}
