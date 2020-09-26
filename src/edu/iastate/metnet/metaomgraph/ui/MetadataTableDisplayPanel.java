@@ -2479,6 +2479,8 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		sampleListFrame.setTitle(title);
 		MetaOmGraph.getDesktop().add(sampleListFrame);
 		sampleListFrame.setVisible(true);
+		MetaOmGraph.getActiveProject().setChanged(true);
+		MetaOmGraph.fixTitle();
 	}
 
 	private void deleteSelectedList() {

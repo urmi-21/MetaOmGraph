@@ -748,9 +748,7 @@ public class MetaOmGraph implements ActionListener {
 
 	private static JDialog welcomeDialog;
 
-	// for splashscreen urmi
-	static SplashScreen mySplash;
-	
+		
 	private static Themes activeTheme;
 	
 	public enum Themes{
@@ -946,8 +944,8 @@ public class MetaOmGraph implements ActionListener {
 		//urmi
 		///////////////enable debug mode//////////////////
 		ExceptionHandler.getInstance(mainWindow).setUseBuffer(useBuffer);
-		// set setUseBuffer(false) to print to console
-		//ExceptionHandler.getInstance(mainWindow).setUseBuffer(false);
+		//urmi set setUseBuffer(false) to print to console debug mode
+		ExceptionHandler.getInstance(mainWindow).setUseBuffer(false);
 		Thread.setDefaultUncaughtExceptionHandler(ExceptionHandler.getInstance(mainWindow));
 		desktop = new JDesktopPane();
 		desktop.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
@@ -1713,13 +1711,6 @@ public class MetaOmGraph implements ActionListener {
 	
 	public static void main(String[] args) {
 
-		// for Splash screen: urmi
-		/*
-		 * initsplashscreen(); // initialize splash screen drawing parameters appInit();
-		 * // Show splash image for some time or show a message if (mySplash != null) //
-		 * check if we really had a spash screen { mySplash.close(); // we're done with
-		 * it }
-		 */
 
 		// begin with the interactive portion of the program
 		/////////////////////////////////////////////////////////////////////////////
@@ -1734,13 +1725,7 @@ public class MetaOmGraph implements ActionListener {
 
 		System.setProperty("sun.java2d.renderer.doChecks", "true");
 
-		//urmi not sure what is this for?
-		//try {
-		//	setTheme(Themes.Light);
-		//	System.setProperty("sun.awt.noerasebackground", "true");
-		//} catch (Exception e) {
-		//	e.printStackTrace();
-		//}
+		
 		
 		if (args.length > 0) {
 			if ("nobuffer".equals(args[0])) {

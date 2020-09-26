@@ -2,6 +2,7 @@ package edu.iastate.metnet.metaomgraph.ui;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -22,12 +23,16 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Files;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import javax.swing.AbstractCellEditor;
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
@@ -37,6 +42,7 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -65,7 +71,12 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.internal.LinkedTreeMap;
+
+import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
+import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
+import edu.iastate.metnet.metaomgraph.MetadataCollection;
+import edu.iastate.metnet.metaomgraph.MetadataHybrid;
 import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.playback.LoggingTreeNode;
 import edu.iastate.metnet.metaomgraph.playback.PlaybackAction;
@@ -421,8 +432,39 @@ public class ReproducibilityDashboardPanel extends JPanel {
 				int tabNo = tabbedPane.getSelectedIndex();
 				JTree selectedTree = allTabsInfo.get(tabNo).getTabTree();
 				TreePath[] allPaths = selectedTree.getSelectionPaths();
-
+				
+				
+				
+				
+				//urmi: before action, backup current state of MOG, excluded and included samples
+				/*MetadataHybrid mhyb = MetaOmGraph.getActiveProject().getMetadataHybrid();
+				if(mhyb==null) {
+					JOptionPane.showMessageDialog(null, "Error in playback. MOG metadata NULL!!!", "Error",
+							JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				MetadataCollection mcol = mhyb.getMetadataCollection();
+				Set<String> currentProjectIncludedSamples = mcol.getIncluded();
+				Set<String> currentProjectExcludedSamples = mcol.getExcluded();
+				boolean actionDone=false;*/
+				
 				playbackAction.playActions(tabNo, selectedTree, allPaths, allTabsInfo);
+				
+				//playbackAction.playActions(tabNo, selectedTree, allPaths, allTabsInfo);
+				
+				//JOptionPane.showMessageDialog(null, "ActionDone:"+String.valueOf(MetaOmAnalyzer.getExcludeCount()));
+				
+				//urmi: after the play back action is over, reset the current state of MOG's included and excluded column
+				//after action
+				//reset samples to current samples		
+				
+				//JOptionPane.showMessageDialog(null, "Excluded cols:"+String.valueOf(MetaOmAnalyzer.getExcludeCount()));
+				//TimeUnit.SECONDS.sleep(3);
+				/*mcol.setIncluded(currentProjectIncludedSamples);
+				mcol.setExcluded(currentProjectExcludedSamples);					
+				//JOptionPane.showMessageDialog(null, "updating exclude"+String.valueOf(currentProjectExcludedSamples.size()));
+				MetaOmAnalyzer.updateExcluded(currentProjectExcludedSamples);*/
+				
 
 			}
 		});
