@@ -187,20 +187,22 @@ public class BoxPlot extends TaskbarInternalFrame implements ChartMouseListener,
 	}
 
 	public BoxPlot(HashMap<Integer, double[]> plotData, int pType, MetaOmProject mp, boolean isPlayback) {
-		this(plotData,  pType,  mp, MetaOmAnalyzer.getExclude(), isPlayback);
+		this(plotData, pType, mp, MetaOmAnalyzer.getExclude(), isPlayback);
 	}
+
 	/**
 	 * Create the frame.
 	 */
 	// plot type 0 for features 1 for samples
-	public BoxPlot(HashMap<Integer, double[]> plotData, int pType, MetaOmProject mp, boolean[] excludedSamples, boolean isPlayback) {
-		
+	public BoxPlot(HashMap<Integer, double[]> plotData, int pType, MetaOmProject mp, boolean[] excludedSamples,
+			boolean isPlayback) {
+
 		this.plotData = plotData;
 		this.plotType = pType;
 		myProject = mp;
 		if (plotType == 0) {
 			// make copy of excluded
-			//boolean[] excluded = MetaOmAnalyzer.getExclude();
+			// boolean[] excluded = MetaOmAnalyzer.getExclude();
 			if (excludedSamples != null) {
 				excludedCopy = new boolean[excludedSamples.length];
 				System.arraycopy(excludedSamples, 0, excludedCopy, 0, excludedSamples.length);
@@ -274,41 +276,41 @@ public class BoxPlot extends TaskbarInternalFrame implements ChartMouseListener,
 		changePalette.setOpaque(false);
 		changePalette.setContentAreaFilled(false);
 		changePalette.setBorderPainted(true);
-		
+
 		JPopupMenu sortMenu = new JPopupMenu();
-		
+
 		defaultSortItem = new JRadioButtonMenuItem("Default");
 		defaultSortItem.setActionCommand("defaultSort");
 		defaultSortItem.addActionListener(this);
 		tempSortItem = defaultSortItem;
 		tempSortItem.setSelected(true);
-		
+
 		nameSortItem = new JRadioButtonMenuItem("By Sample Name");
 		nameSortItem.setActionCommand("nameSort");
 		nameSortItem.addActionListener(this);
-		
+
 		medianSortItem = new JRadioButtonMenuItem("By Median");
 		medianSortItem.setActionCommand("medianSort");
 		medianSortItem.addActionListener(this);
-		
+
 		meanSortItem = new JRadioButtonMenuItem("By Mean");
 		meanSortItem.setActionCommand("meanSort");
 		meanSortItem.addActionListener(this);
-		
+
 		numOfSamplesSortItem = new JRadioButtonMenuItem("By Sample Count");
 		numOfSamplesSortItem.setActionCommand("sampleCountSort");
 		numOfSamplesSortItem.addActionListener(this);
 		numOfSamplesSortItem.setEnabled(false);
-		
+
 		sortMenu.add(defaultSortItem);
 		sortMenu.add(nameSortItem);
 		sortMenu.add(medianSortItem);
 		sortMenu.add(meanSortItem);
 		sortMenu.add(numOfSamplesSortItem);
-		
+
 		sortMenuButton = new MenuButton(theme.getSort(), null);
 		sortMenuButton.setToolTipText("Sort data");
-		
+
 		sortMenuButton.setMenu(sortMenu);
 
 		if (plotType == 0) {
@@ -351,14 +353,14 @@ public class BoxPlot extends TaskbarInternalFrame implements ChartMouseListener,
 		setIconifiable(true);
 		setClosable(true);
 		String chartTitle = "Box Plot:" + String.join(",", rowNamesIndexColNamesMap.keySet());
-		if(isPlayback) {
+		if (isPlayback) {
 			chartTitle = "Playback - Box Plot:" + String.join(",", rowNamesIndexColNamesMap.keySet());
 		}
 		this.setTitle(chartTitle);
-		
-		FrameModel boxPlotFrameModel = new FrameModel("Box Plot",chartTitle,5);
+
+		FrameModel boxPlotFrameModel = new FrameModel("Box Plot", chartTitle, 5);
 		setModel(boxPlotFrameModel);
-		
+
 	}
 
 	public ChartPanel makeBoxPlot(DefaultBoxAndWhiskerCategoryDataset dataset) throws IOException {
@@ -597,12 +599,13 @@ public class BoxPlot extends TaskbarInternalFrame implements ChartMouseListener,
 			@Override
 			public void run() {
 				seriesNames = new ArrayList<>();
-				if (splitIndex == null || splitCol == null || splitCol.length() < 1) {			
+				if (splitIndex == null || splitCol == null || splitCol.length() < 1) {
 					// no split
 					int n = 0;
-					for(Map.Entry<String, HashMap<Integer, ArrayList<String>>> entry: rowNamesIndexColNamesMap.entrySet()) {
+					for (Map.Entry<String, HashMap<Integer, ArrayList<String>>> entry : rowNamesIndexColNamesMap
+							.entrySet()) {
 						List<Double> list = new ArrayList();
-						for(Map.Entry<Integer, ArrayList<String>> indexEntry: entry.getValue().entrySet()) {
+						for (Map.Entry<Integer, ArrayList<String>> indexEntry : entry.getValue().entrySet()) {
 							double[] thisData = plotData.get(indexEntry.getKey());
 							for (int j = 0; j < thisData.length; j++) {
 								if (excludedCopy == null) {
@@ -620,15 +623,15 @@ public class BoxPlot extends TaskbarInternalFrame implements ChartMouseListener,
 				} else {
 					setColSplitIndKeysInRowIndexColMap();
 					ArrayList<String> keyNames = new ArrayList<String>();
-					boolean firstRow = true; 
-					for(String row : rowNamesIndexColNamesMap.keySet()) {
+					boolean firstRow = true;
+					for (String row : rowNamesIndexColNamesMap.keySet()) {
 						HashMap<Integer, ArrayList<String>> rowIndexSplitIndKeys = rowNamesIndexColNamesMap.get(row);
 						int rowIndex = rowIndexSplitIndKeys.keySet().iterator().next();
 						List<String> splitIndKeys = rowIndexSplitIndKeys.get(rowIndex);
 						double[] thisData = plotData.get(rowIndex);
-						for(String key : splitIndKeys) {
+						for (String key : splitIndKeys) {
 							List list = new ArrayList();
-				
+
 							String thisKeyName = "";
 							Collection<Integer> thisInd = splitIndex.get(key);
 							for (int ind : thisInd) {
@@ -640,10 +643,15 @@ public class BoxPlot extends TaskbarInternalFrame implements ChartMouseListener,
 									}
 								}
 							}
-							thisKeyName = key + "(n=" + String.valueOf(list.size()) + ")";
-							dataset.add(list, thisKeyName, row);
-							if(firstRow) {
-								keyNames.add(thisKeyName);
+							//urmi if list has no element then ignore
+							if (list.size() > 0) {
+								thisKeyName = key + "(n=" + String.valueOf(list.size()) + ")";
+								dataset.add(list, thisKeyName, row);
+							}
+							if (firstRow) {
+								if (list.size() > 0) {
+									keyNames.add(thisKeyName);
+								}
 							}
 						}
 						firstRow = false;
@@ -806,7 +814,7 @@ public class BoxPlot extends TaskbarInternalFrame implements ChartMouseListener,
 					return;
 				}
 				splitIndex = myProject.getMetadataHybrid().cluster(selectedVals);
-				if(splitIndex != null) {
+				if (splitIndex != null) {
 					splitIndicesFirstTime = true;
 					numOfSamplesSortItem.setEnabled(true);
 				}
@@ -885,40 +893,43 @@ public class BoxPlot extends TaskbarInternalFrame implements ChartMouseListener,
 			updateChart();
 			return;
 		}
-		
-		if("defaultSort".equals(e.getActionCommand())) {
+
+		if ("defaultSort".equals(e.getActionCommand())) {
 			tempSortItem.setSelected(false);
 			splitIndicesFirstTime = true;
-			this.rowNamesIndexColNamesMap = new HashMap<String, HashMap<Integer, ArrayList<String>>>(this.rowNamesIndexColNamesMap);
+			this.rowNamesIndexColNamesMap = new HashMap<String, HashMap<Integer, ArrayList<String>>>(
+					this.rowNamesIndexColNamesMap);
 			updateChart();
 			tempSortItem = defaultSortItem;
 		}
-		
-		if("nameSort".equals(e.getActionCommand())) {
+
+		if ("nameSort".equals(e.getActionCommand())) {
 			tempSortItem.setSelected(false);
 			splitIndicesFirstTime = false;
 			this.rowNamesIndexColNamesMap = boxPlotSorter.sortByRowName(this.rowNamesIndexColNamesMap);
 			updateChart();
 			tempSortItem = nameSortItem;
 		}
-		
-		if("medianSort".equals(e.getActionCommand())) {
+
+		if ("medianSort".equals(e.getActionCommand())) {
 			tempSortItem.setSelected(false);
 			splitIndicesFirstTime = false;
-			this.rowNamesIndexColNamesMap = boxPlotSorter.sortByMedian(initdataset, rowNamesIndexColNamesMap, splitIndex == null);
+			this.rowNamesIndexColNamesMap = boxPlotSorter.sortByMedian(initdataset, rowNamesIndexColNamesMap,
+					splitIndex == null);
 			updateChart();
 			tempSortItem = medianSortItem;
 		}
-		
-		if("meanSort".equals(e.getActionCommand())) {
+
+		if ("meanSort".equals(e.getActionCommand())) {
 			tempSortItem.setSelected(false);
 			splitIndicesFirstTime = false;
-			this.rowNamesIndexColNamesMap = boxPlotSorter.sortByMean(initdataset, rowNamesIndexColNamesMap, splitIndex == null);
+			this.rowNamesIndexColNamesMap = boxPlotSorter.sortByMean(initdataset, rowNamesIndexColNamesMap,
+					splitIndex == null);
 			updateChart();
 			tempSortItem = meanSortItem;
 		}
-		
-		if("sampleCountSort".equalsIgnoreCase(e.getActionCommand())) {
+
+		if ("sampleCountSort".equalsIgnoreCase(e.getActionCommand())) {
 			tempSortItem.setSelected(false);
 			splitIndicesFirstTime = false;
 			this.rowNamesIndexColNamesMap = boxPlotSorter.sortBySampleCount(initdataset, rowNamesIndexColNamesMap);
@@ -1084,10 +1095,9 @@ public class BoxPlot extends TaskbarInternalFrame implements ChartMouseListener,
 	}
 
 	private Map<String, HashMap<Integer, ArrayList<String>>> initRowNames(Set<Integer> keyset, int type) {
-		Map<String, HashMap<Integer, ArrayList<String>>> rowNamesIndexColNamesMap = 
-				new HashMap<String, HashMap<Integer, ArrayList<String>>>();
-		
-		//Map<String, Integer> rowNameIndexMap = new HashMap<String, Integer>();
+		Map<String, HashMap<Integer, ArrayList<String>>> rowNamesIndexColNamesMap = new HashMap<String, HashMap<Integer, ArrayList<String>>>();
+
+		// Map<String, Integer> rowNameIndexMap = new HashMap<String, Integer>();
 		int[] selectedInd = new int[keyset.size()];
 		int k = 0;
 		for (int i : keyset) {
@@ -1099,8 +1109,8 @@ public class BoxPlot extends TaskbarInternalFrame implements ChartMouseListener,
 		} else if (type == 1) {
 			rowNames = myProject.getDataColumnHeaders(selectedInd);
 		}
-		
-		for(int i = 0; i < rowNames.length; i++) {
+
+		for (int i = 0; i < rowNames.length; i++) {
 			HashMap<Integer, ArrayList<String>> rowIndexColNamesMap = new HashMap<Integer, ArrayList<String>>();
 			ArrayList<String> colNames = new ArrayList<String>();
 			rowIndexColNamesMap.put(selectedInd[i], colNames);
@@ -1108,12 +1118,12 @@ public class BoxPlot extends TaskbarInternalFrame implements ChartMouseListener,
 		}
 		return rowNamesIndexColNamesMap;
 	}
-	
-	private List<String> getSplitIndKeys(){
+
+	private List<String> getSplitIndKeys() {
 		if (splitIndex == null) {
 			return null;
 		}
-		
+
 		ArrayList<String> res = new ArrayList<>();
 		res = rowNamesIndexColNamesMap.entrySet().iterator().next().getValue().entrySet().iterator().next().getValue();
 		return res;
@@ -1121,17 +1131,17 @@ public class BoxPlot extends TaskbarInternalFrame implements ChartMouseListener,
 
 	private void setColSplitIndKeysInRowIndexColMap() {
 		if (splitIndex == null) {
-			return ;
+			return;
 		}
-		if(!splitIndicesFirstTime) {
-			return ;
+		if (!splitIndicesFirstTime) {
+			return;
 		}
-		if(reOrderGroups) {
+		if (reOrderGroups) {
 			return;
 		}
 		ArrayList<String> res = new ArrayList<>();
 		res.addAll(splitIndex.keySet());
-		for(String rowName : rowNamesIndexColNamesMap.keySet()) {	
+		for (String rowName : rowNamesIndexColNamesMap.keySet()) {
 			rowNamesIndexColNamesMap.get(rowName).entrySet().iterator().next().setValue(res);
 		}
 	}
@@ -1162,8 +1172,8 @@ public class BoxPlot extends TaskbarInternalFrame implements ChartMouseListener,
 			for (int i = 0; i < list.getModel().getSize(); i++) {
 				reorderedKeys.add((String) list.getModel().getElementAt(i));
 			}
-			
-			for(String rowName : rowNamesIndexColNamesMap.keySet()) {	
+
+			for (String rowName : rowNamesIndexColNamesMap.keySet()) {
 				rowNamesIndexColNamesMap.get(rowName).entrySet().iterator().next().setValue(reorderedKeys);
 			}
 			reOrderGroups = true;
