@@ -1504,7 +1504,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	 * ids, included and excluded samples as the input, and produces the box-plot
 	 * with those parameters, mimicking the historically produced box-plot.
 	 */
-	public void makeBoxPlot(int[] selected,boolean[] excludedSamples) {
+	public void makeBoxPlot(int[] selected, boolean[] excludedSamples) {
 
 		if (selected.length < 1) {
 			JOptionPane.showMessageDialog(null, "Please select one or more rows and try again.",
