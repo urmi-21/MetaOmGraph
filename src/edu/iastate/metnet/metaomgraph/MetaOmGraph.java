@@ -97,7 +97,13 @@ import org.jdom.JDOMException;
 
 import com.apple.eawt.Application;
 import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatIntelliJLaf;
 import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.intellijthemes.FlatArcDarkOrangeIJTheme;
+import com.formdev.flatlaf.intellijthemes.FlatCarbonIJTheme;
+import com.formdev.flatlaf.intellijthemes.FlatCobalt2IJTheme;
+import com.formdev.flatlaf.intellijthemes.FlatGradiantoDeepOceanIJTheme;
+import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatMaterialDeepOceanContrastIJTheme;
 import com.l2fprod.common.swing.JTipOfTheDay;
 
 
@@ -280,12 +286,12 @@ public class MetaOmGraph implements ActionListener {
 	}
 
 	// create themes
+	private static MOGColorThemes themeDefault = new MOGColorThemes("default", Color.gray,Color.gray, Color.gray,Color.gray,Color.gray,Color.gray,Color.gray); //gui default theme
 	private static MOGColorThemes themeLight = new MOGColorThemes("light", Color.white,
-			new ColorUIResource(216, 236, 213), Color.black, Color.PINK, Color.green, Color.WHITE, Color.WHITE);
+			new ColorUIResource(216, 236, 213), Color.DARK_GRAY, Color.PINK, Color.green, Color.WHITE, Color.WHITE);
 	private static MOGColorThemes themeDark = new MOGColorThemes("dark", new ColorUIResource(153, 153, 153),
 			new ColorUIResource(204, 204, 204), Color.black, new ColorUIResource(0, 153, 102), Color.RED,
 			new ColorUIResource(153, 153, 153), new ColorUIResource(153, 153, 153));
-
 	private static MOGColorThemes themeSky = new MOGColorThemes("sky", new ColorUIResource(241, 250, 238),
 			new ColorUIResource(168, 218, 220), new ColorUIResource(69, 123, 157), new ColorUIResource(155, 197, 61),
 			Color.green, Color.WHITE, Color.WHITE);
@@ -298,6 +304,7 @@ public class MetaOmGraph implements ActionListener {
 		mogThemes.put(themeLight.getThemeName(), themeLight);
 		mogThemes.put(themeDark.getThemeName(), themeDark);
 		mogThemes.put(themeSky.getThemeName(), themeSky);
+		mogThemes.put(themeDefault.getThemeName(), themeDefault);
 	}
 
 	public static void initThemes(HashMap<String, MOGColorThemes> themes) {
@@ -744,15 +751,18 @@ public class MetaOmGraph implements ActionListener {
 
 	private static JDialog welcomeDialog;
 
-	// for splashscreen urmi
-	static SplashScreen mySplash;
+		
 
 	private static Themes activeTheme;
 
 	public enum Themes{
 		Light,
 		Dark,
-		System
+		System,
+		IntelliJ,
+		DeepOcean,
+		Cobalt,
+		Carbon
 	}
 
 	public static boolean setTheme(Themes theme) {
@@ -765,22 +775,46 @@ public class MetaOmGraph implements ActionListener {
 				UIManager.setLookAndFeel(new FlatDarkLaf());
 				break;
 
+			case IntelliJ :
+				UIManager.setLookAndFeel(new FlatArcDarkOrangeIJTheme());
+				break;
+			case DeepOcean :
+				UIManager.setLookAndFeel(new FlatMaterialDeepOceanContrastIJTheme());
+				break;
+			case Cobalt :
+				UIManager.setLookAndFeel(new FlatCobalt2IJTheme());
+				break;
+			case Carbon :
+				UIManager.setLookAndFeel(new FlatCarbonIJTheme());
+				break;
+			
 			case System:
+				//UIManager.setLookAndFeel(UIManager.get getSystemLookAndFeelClassName());
+				//UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+				//UIManager.setLookAndFeel(new FlatLightLaf());
 				break;
 			}
 
 
 			activeTheme = theme;
+			if (mainWindow!=null) {
 			SwingUtilities.updateComponentTreeUI(mainWindow);
+			}
 		}
 		catch (Exception e) {
+			//TODO: handle exception when theme change fails
+			//JOptionPane.showMessageDialog(null, "THEMEERRORRRR"+e);
+			//activeTheme = Themes.Light;
 			return false;
 		}
 		return true;
 	}
 
 	public static Themes getActiveTheme() {
+		if (activeTheme==null) {
+			return Themes.Light;
+		}
 		return activeTheme;
 	}
 
@@ -850,11 +884,21 @@ public class MetaOmGraph implements ActionListener {
 				} catch (Exception ex) {
 					setUserRPath("");
 				}
+				
+				try {
+					
+					String prevSessionLafTheme = (String) in.readObject();
+					setTheme(Themes.valueOf(prevSessionLafTheme));
+				}
+				catch (Exception e) {
+					
+					setTheme(Themes.Light);
+				}
+								
 				// read mog themes
 				try {
 					String lastThemeName = (String) in.readObject();
 					HashMap<String, MOGColorThemes> themes = (HashMap<String, MOGColorThemes>) in.readObject();
-
 					if (lastThemeName != null && themes != null && themes.size() > 0) {
 						initThemes(themes);
 						setCurrentTheme(lastThemeName);
@@ -889,17 +933,23 @@ public class MetaOmGraph implements ActionListener {
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
+		}else {
+			//urmi IF .prefs file is absent 
+			//init default themes when prefs file is absent
+			setTheme(Themes.Light);
+			initThemes();
+			setCurrentTheme("light");
+			
 		}
+		
 
-		// init default themes
-		initThemes();
-		setCurrentTheme("light");
+		
 		mainWindow = new JFrame("MetaOmGraph");
 
 		//urmi
 		///////////////enable debug mode//////////////////
 		ExceptionHandler.getInstance(mainWindow).setUseBuffer(useBuffer);
-		// set setUseBuffer(false) to print to console
+		//urmi set setUseBuffer(false) to print to console debug mode
 		//ExceptionHandler.getInstance(mainWindow).setUseBuffer(false);
 		Thread.setDefaultUncaughtExceptionHandler(ExceptionHandler.getInstance(mainWindow));
 		desktop = new JDesktopPane();
@@ -1688,52 +1738,11 @@ public class MetaOmGraph implements ActionListener {
 	 * handling in <code>init</code>method
 	 */
 
-	/**
-	 * @author urmi
-	 * 
-	 */
-	private static void appInit() {
-		JOptionPane.showMessageDialog(null, "Splashinit");
-		// splash screen for 3 secs
-		for (int i = 1; i <= 3; i++) {
+	
 
-			try {
-				Thread.sleep(1000); // wait a second
-			} catch (InterruptedException ex) {
-				break;
-			}
-		}
-	}
-
-	/**
-	 * @author urmi
-	 * 
-	 */
-	private static void initsplashscreen() {
-		// the splash screen object is created by the JVM, if it is displaying a splash
-		// image
-		JOptionPane.showMessageDialog(null, "SplashinitSCREEN");
-		mySplash = SplashScreen.getSplashScreen();
-		// if there are any problems displaying the splash image
-		// the call to getSplashScreen will returned null
-		if (mySplash != null) {
-			// get the size of the image now being displayed
-			Dimension ssDim = mySplash.getSize();
-			int height = ssDim.height;
-			int width = ssDim.width;
-
-		}
-	}
-
+	
 	public static void main(String[] args) {
 
-		// for Splash screen: urmi
-		/*
-		 * initsplashscreen(); // initialize splash screen drawing parameters appInit();
-		 * // Show splash image for some time or show a message if (mySplash != null) //
-		 * check if we really had a spash screen { mySplash.close(); // we're done with
-		 * it }
-		 */
 
 		// begin with the interactive portion of the program
 		/////////////////////////////////////////////////////////////////////////////
@@ -1748,12 +1757,8 @@ public class MetaOmGraph implements ActionListener {
 
 		System.setProperty("sun.java2d.renderer.doChecks", "true");
 
-		try {
-			setTheme(Themes.Light);
-			System.setProperty("sun.awt.noerasebackground", "true");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		
+		
 		if (args.length > 0) {
 			if ("nobuffer".equals(args[0])) {
 				init(false);
@@ -1823,7 +1828,8 @@ public class MetaOmGraph implements ActionListener {
 				}
 
 				out.writeObject(rObs);
-
+				
+				out.writeObject(activeTheme.toString());
 				out.writeObject(currentmogThemeName);
 				out.writeObject(mogThemes);
 

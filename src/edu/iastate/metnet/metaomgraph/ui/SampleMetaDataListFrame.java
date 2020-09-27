@@ -21,6 +21,7 @@ import javax.swing.event.ChangeListener;
 
 import org.dizitart.no2.Document;
 
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
@@ -30,7 +31,8 @@ import edu.iastate.metnet.metaomgraph.MetadataCollection;
  * @author sumanth
  *
  */
-public class SampleMetaDataListFrame extends JInternalFrame 
+//urmi extend to taskbar internam frame
+public class SampleMetaDataListFrame extends TaskbarInternalFrame 
 									 implements ActionListener, ChangeListener {
 	
 	private static final String OK_COMMAND = "OK";
@@ -52,8 +54,8 @@ public class SampleMetaDataListFrame extends JInternalFrame
      * @param unSelectedRows rows that are not selected
      */
 	public SampleMetaDataListFrame(MetadataCollection metaDataCol, 
-			ArrayList<String> selectedRows,
-			ArrayList<String> unSelectedRows, String[] headers) {
+			List<String> selectedRows,
+			List<String> unSelectedRows, String[] headers) {
 		this(metaDataCol, null, selectedRows, unSelectedRows, headers);
 	}
 
@@ -66,8 +68,8 @@ public class SampleMetaDataListFrame extends JInternalFrame
 	 */
 	public SampleMetaDataListFrame(MetadataCollection metaDataCol, 
 			String listName, 
-			ArrayList<String> selectedRows,
-			ArrayList<String> unSelectedRows, String[] headers) {
+			List<String> selectedRows,
+			List<String> unSelectedRows, String[] headers) {
 		
 				
 		this.metaDataCol = metaDataCol;
@@ -80,7 +82,7 @@ public class SampleMetaDataListFrame extends JInternalFrame
 		
 		Object[][] inActiveData = getActiveData(unSelectedRows, headers);
 		
-		//urmi: headers are not showing up correct
+		
 		dtp = new DualTablePanel(inActiveData, activeData, finalHeaders, false);
 		
         dtp.addChangeListener(this);
@@ -89,9 +91,11 @@ public class SampleMetaDataListFrame extends JInternalFrame
         dtp.setInactiveLabel("Not In List");
         getContentPane().add(dtp, "Center");
         getContentPane().add(buttonPanel, "Last");
-        setDefaultCloseOperation(2);
+        setDefaultCloseOperation(2);   
         
-        
+        //urmi in order to add to internal taskbar
+        FrameModel aboutFrameModel = new FrameModel("Sample list","Sample list",25);
+		setModel(aboutFrameModel);
 	}
 	
 	// get headers to specify the column names.
@@ -113,7 +117,7 @@ public class SampleMetaDataListFrame extends JInternalFrame
 	 * @param headers
 	 * @return Object[][]
 	 */
-	private Object[][] getActiveData(ArrayList<String> selectedRows, String[] headers) {
+	private Object[][] getActiveData(List<String> selectedRows, String[] headers) {
 		//get all metadata rows for selectedRows
 		List<Document> selectedRowsMetadata = metaDataCol.getRowsByDatacols(selectedRows);
 		//if return size doesn't match
