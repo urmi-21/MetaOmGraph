@@ -1205,10 +1205,6 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 		myParent.setFrameIcon(new ImageIcon(getClass().getResource("/resource/MetaOmicon16.png")));
 		myParent.getRootPane().setWindowDecorationStyle(3);
 		
-		ColorUIResource oldActiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.activeTitleBackground");
-		ColorUIResource oldInactiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.inactiveTitleBackground");
-		Font oldFont = UIManager.getFont("InternalFrame.titleFont");
-		
 		UIManager.put("InternalFrame.activeTitleBackground", new ColorUIResource(new Color(240,128,128)));
 		UIManager.put("InternalFrame.inactiveTitleBackground", new ColorUIResource(new Color(240,128,128)));
 	    UIManager.put("InternalFrame.titleFont", new Font("SansSerif", Font.BOLD,12));
@@ -1229,10 +1225,6 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 		// }
 		myParent.setName("plotwindow.php");
 		myParent.show();
-		
-		UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
-		UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
-		UIManager.put("InternalFrame.titleFont", oldFont);
 
 		// urmi
 		// set exception listener

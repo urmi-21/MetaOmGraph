@@ -688,7 +688,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		dataToolbar.add(new Separator());
 		dataToolbar.add(searchPanel);
 		dataToolbar.add(listFromFilterButton);
-
+		
 		// add advance filter button
 		// s
 		advFilterButton = new JButton("Advance filter");
@@ -696,7 +696,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		advFilterButton.addActionListener(this);
 		advFilterButton.setToolTipText("Filter/search the table with multiple queries");
 		dataToolbar.add(advFilterButton);
-
+		
 		geneListPanel.setMinimumSize(listToolbar.getPreferredSize());
 		listSplitPane = new JSplitPane(1, true, geneListPanel, geneListDisplayPane);
 		listSplitPane.setDividerSize(1);
