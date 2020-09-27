@@ -2,6 +2,7 @@ package edu.iastate.metnet.metaomgraph.ui;
 
 import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
+import edu.iastate.metnet.metaomgraph.MetaOmGraph.Themes;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.RandomAccessFile;
 import edu.iastate.metnet.metaomgraph.utils.MetNetUtils;
@@ -22,6 +23,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Vector;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -32,6 +34,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+
+import org.apache.commons.lang3.EnumUtils;
 
 public class ProjectPropertiesPanel extends JPanel {
 	private JTextField xaxisField;
@@ -88,17 +92,6 @@ public class ProjectPropertiesPanel extends JPanel {
 			public void keyTyped(KeyEvent arg0) {
 			}
 		});
-		xaxisField.addFocusListener(new FocusListener() {
-			@Override
-			public void focusGained(FocusEvent e) {
-			}
-
-			@Override
-			public void focusLost(FocusEvent e) {
-				myProject.setDefaultXAxis(xaxisField.getText());
-			}
-
-		});
 		yaxisField = new JTextField(y);
 		yaxisField.addKeyListener(new KeyListener() {
 			@Override
@@ -113,17 +106,6 @@ public class ProjectPropertiesPanel extends JPanel {
 			@Override
 			public void keyTyped(KeyEvent arg0) {
 			}
-		});
-		yaxisField.addFocusListener(new FocusListener() {
-			@Override
-			public void focusGained(FocusEvent e) {
-			}
-
-			@Override
-			public void focusLost(FocusEvent e) {
-				myProject.setDefaultYAxis(yaxisField.getText());
-			}
-
 		});
 		titleField = new JTextField(title);
 
@@ -140,17 +122,6 @@ public class ProjectPropertiesPanel extends JPanel {
 			@Override
 			public void keyTyped(KeyEvent arg0) {
 			}
-		});
-		titleField.addFocusListener(new FocusListener() {
-			@Override
-			public void focusGained(FocusEvent e) {
-			}
-
-			@Override
-			public void focusLost(FocusEvent e) {
-				myProject.setDefaultTitle(titleField.getText());
-			}
-
 		});
 		JButton rowManageButton = new JButton("Manage...");
 		rowManageButton.addActionListener(new ActionListener() {
@@ -274,8 +245,9 @@ public class ProjectPropertiesPanel extends JPanel {
 		c.gridy = 7;
 		add(manageColors, c);
 		
-		String themes[] = {"System","Light", "Dark"};
-		JComboBox<String> themeComboBox = new JComboBox<String>(themes);
+		List<Themes> themes = EnumUtils.getEnumList(MetaOmGraph.Themes.class);//MetaOmGraph.Themes. 
+			//{"System","Light", "Dark"};
+		JComboBox<Object> themeComboBox = new JComboBox<>(themes.toArray());
 		themeComboBox.setSelectedItem(MetaOmGraph.getActiveTheme().toString());
 		themeComboBox.addItemListener(new ItemListener() {
 			

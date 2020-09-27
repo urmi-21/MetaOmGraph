@@ -136,13 +136,18 @@ public class HistogramChart extends TaskbarInternalFrame implements ChartMouseLi
 	 * Create the frame.
 	 */
 	public HistogramChart(int[] selected, int bins, MetaOmProject mp, int htype, double[] data, boolean isPlayback) {
+		this(selected, bins,  mp,htype, data, MetaOmAnalyzer.getExclude(), isPlayback);
+	}
+	public HistogramChart(int[] selected, int bins, MetaOmProject mp, int htype, double[] data, boolean[] excludedSamples, boolean isPlayback) {
 		// create a copy of excluded
-		boolean[] excluded = MetaOmAnalyzer.getExclude();
-		if (excluded != null) {
-			excludedCopy = new boolean[excluded.length];
-			System.arraycopy(excluded, 0, excludedCopy, 0, excluded.length);
+		
+		if (excludedSamples != null) {
+			excludedCopy = new boolean[excludedSamples.length];
+			System.arraycopy(excludedSamples, 0, excludedCopy, 0, excludedSamples.length);
 		}
-
+		
+		
+		
 		histType = htype;
 		setBounds(100, 100, 450, 300);
 		this.selected = selected;
@@ -384,15 +389,12 @@ public class HistogramChart extends TaskbarInternalFrame implements ChartMouseLi
 		}
 		String thisName = "";
 		if (splitIndex == null || splitCol == null || splitCol.length() < 1) {
-
-
+			//get included data
 			for (int i = 0; i < selected.length; i++) {
 				double[] dataY = myProject.getIncludedData(selected[i], excludedCopy);
 				thisName = myProject.getRowName(selected[i])[myProject.getDefaultColumn()].toString();
 
-
 				dataset.addSeries(thisName, dataY, _bins);
-
 			}
 
 		} else {
