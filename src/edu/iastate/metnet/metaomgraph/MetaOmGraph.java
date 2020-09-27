@@ -7,6 +7,8 @@ import java.awt.Dimension;
 import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.HeadlessException;
@@ -21,6 +23,7 @@ import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.geom.Rectangle2D;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,6 +52,7 @@ import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
@@ -1513,7 +1517,7 @@ public class MetaOmGraph implements ActionListener {
 		aboutItem.addActionListener(myself);
 		helpMenu.add(aboutItem);
 
-		historyMenu = new JMenu("Playback");
+		//historyMenu = new JMenu("Playback");
 		JMenuItem playbackMenu = new JMenuItem("Playback Dashboard");
 		playbackMenu.setMnemonic(KeyEvent.VK_A);
 		playbackMenu.setActionCommand(PLAYBACK_COMMAND);
@@ -1522,8 +1526,8 @@ public class MetaOmGraph implements ActionListener {
 		mainMenuBar.add(helpMenu);
 
 		if(Utils.isMac()) {
-			historyMenu.add(playbackMenu);
-			mainMenuBar.add(historyMenu);
+//			historyMenu.add(playbackMenu);
+//			mainMenuBar.add(historyMenu);
 		}
 
 
@@ -1555,7 +1559,57 @@ public class MetaOmGraph implements ActionListener {
 
 		mainMenuBar.add(Box.createHorizontalGlue());
 		mainMenuBar.add(ReproducibilityLogMenu);
+		
+		
+		if (Utils.isMac()) {
+		JPanel playbackForMac = new JPanel() 
+		{
+            @Override
+            protected void paintComponent(Graphics g) {
+                // Draw a rectangle using Rectangle2D class
+//                Graphics2D g2 = (Graphics2D) g;
+//                
+//                g2.setColor(new Color(255,255,240));
+//                g2.setBackground(new Color(255,255,240));
+//                
+//                // Draw the blue rectangle
+//                g2.fill(new Rectangle2D.Double(1250, 10, 100, 30));
+//                g2.setColor(Color.BLUE);
+//                
+//                g2.drawString("Playback",1255,18);
+            }
+        };
+        
+        JButton plbbutton = new JButton("Playback");
+        playbackForMac.setLayout(null);
+        plbbutton.setBounds(1220, 0, 100, 30);
+        playbackForMac.add(plbbutton);
+        playbackForMac.setSize(2000,2000);
+        playbackForMac.setVisible(true);
+        playbackForMac.setBackground(Color.BLACK);
+        
+        plbbutton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				if ((ReproducibilityDashboardFrame != null) && (ReproducibilityDashboardFrame.isVisible())) {
+					//frame.toFront();
+					ReproducibilityDashboardFrame.setVisible(false);
+					return;
+				}
+				else if ((ReproducibilityDashboardFrame != null) && (!ReproducibilityDashboardFrame.isVisible()) && (!ReproducibilityDashboardFrame.isClosed())) {
 
+					ReproducibilityDashboardFrame.setVisible(true);
+					return;
+				}
+
+				createReproducibilityLoggingFrame();
+			}
+		});
+        desktop.add(playbackForMac);
+        
+		}
 		// Menu bar created
 
 		setMenuIcons();
@@ -4047,8 +4101,8 @@ public class MetaOmGraph implements ActionListener {
 		ReproducibilityDashboardFrame.show();    
 
 
-		UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
-		UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
+		UIManager.put("InternalFrame.activeTitleBackground", new ColorUIResource(new Color(0,197,205)));
+		UIManager.put("InternalFrame.inactiveTitleBackground", new ColorUIResource(new Color(0,197,205)));
 		UIManager.put("InternalFrame.titleFont", oldFont);
 
 
