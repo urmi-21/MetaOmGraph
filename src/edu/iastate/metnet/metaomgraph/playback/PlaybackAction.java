@@ -1,8 +1,10 @@
 package edu.iastate.metnet.metaomgraph.playback;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -48,6 +50,7 @@ public class PlaybackAction {
 	private static final String SELECTED_COLUMN_PROPERTY = "Selected Column";
 	private static final String CORRELATION_COLUMN_PROPERTY = "Correlation Column";
 	private static final String PLAYABLE_PROPERTY = "Playable";
+	private static final String TRANSFORMATION_PROPERTY = "Data Transformation";
 
 
 	/**
@@ -95,17 +98,55 @@ public class PlaybackAction {
 
 								ActionProperties sampleAction = allTabsInfo.get(tabNo).getActionObjects().get(i);
 
-
-								if(sampleAction.getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY) instanceof List<?>) {
-									excludedSamples = new HashSet<String>((List<String>)sampleAction.getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY));
+								String [] samples = MetaOmGraph.getActiveProject().getDataColumnHeaders();
+								LinkedList<String> allSamplesList = new LinkedList<String>(Arrays.asList(samples));
+								LinkedList<String> copyAllSamplesList = new LinkedList<String>(Arrays.asList(samples));
+								Object [] exclSamples = null;
+								
+								if(sampleAction.getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY) instanceof List<?> ) {
+									List<Double> exclSamplesList2 = (List<Double>)sampleAction.getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY);
+									exclSamples = exclSamplesList2.toArray();
 								}
 								else if(sampleAction.getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY) instanceof HashSet<?>) {
-									excludedSamples = (HashSet<String>)sampleAction.getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY);
+									HashSet<Double> exclSamplesList2 = (HashSet<Double>)sampleAction.getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY);
+									exclSamples = exclSamplesList2.toArray();
 								}
+								else if(sampleAction.getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY) instanceof Integer[]) {
+									exclSamples = (Object[])sampleAction.getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY);
+								}
+								
+								
+								for(int eindex = 0; eindex < exclSamples.length; eindex++) {
+									
+									int excludedindex = 0;
+									if(exclSamples[eindex] instanceof Double) {
+										Double a = (Double)exclSamples[eindex];
+										excludedindex = a.intValue();
+									}
+									else if(exclSamples[eindex] instanceof Integer) {
+										excludedindex = (int)exclSamples[eindex];
+									}
+									
+									
+									excludedSamples.add(copyAllSamplesList.get(excludedindex));
+									try {
+									allSamplesList.remove(copyAllSamplesList.get(excludedindex));
+									}
+									catch(Exception e) {
+										StackTraceElement[] ste = e.getStackTrace();
+									}
+								}
+								
+								for(int iindex = 0; iindex < allSamplesList.size(); iindex++) {
+									includedSamples.add(allSamplesList.get(iindex));
+								}
+								
+								
 								//urmi
 								//break;
 
 							}
+						}
 
 
 
@@ -132,7 +173,7 @@ public class PlaybackAction {
 
 
 
-						}
+						
 					}
 				}
 			}
@@ -151,35 +192,62 @@ public class PlaybackAction {
 	 */
 	public void playChart(ActionProperties chartAction, String chartName, HashSet<String> includedSamples, HashSet<String> excludedSamples) {
 
-		int val2[] = null;
+		
 		Map<Object,Object> genes = null;
-
+		String currentTransformation = MetaOmGraph.getTransform();
+		int val2[] = null;
 		try {
 
 			if(chartAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) != null) {
-				genes = (Map<Object,Object>)chartAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
-
-				Integer [] val = new Integer[genes.size()];
-
-
-				int j = 0;
-				for (Map.Entry<Object, Object> entry : genes.entrySet()) {
-					if(entry.getKey() instanceof String){
-						val[j++] = Integer.parseInt((String)entry.getKey());
+				
+				if(chartAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) instanceof List<?> ) {
+					List<Double> selFeaturesList = (List<Double>)chartAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
+					Double[] selFeaturesDouble = new Double[selFeaturesList.size()];
+					
+					for( int fno = 0 ; fno < selFeaturesList.size(); fno++ ) {
+						selFeaturesDouble[fno] = (Double)selFeaturesList.get(fno);
 					}
-					else if(entry.getKey() instanceof Integer) {
-						val[j++] = (Integer)entry.getKey();
+					
+					val2 = new int[selFeaturesDouble.length];
+					
+					for( int i =0; i< selFeaturesDouble.length; i++ ) {
+						val2[i] = selFeaturesDouble[i].intValue();
 					}
 				}
-
-				val2 = new int[val.length];
-
-				//urmi add in reverse order
-				for (int i=val.length-1;i>=0;i--) {
-					System.out.println(i);
-					System.out.println(val.length-i);
-					val2[val.length-1-i] = val[i];
+				else if(chartAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) instanceof HashSet<?>) {
+					HashSet<Double> selFeaturesHashSet = (HashSet<Double>)chartAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
+					Double[] selFeaturesDouble = new Double[selFeaturesHashSet.size()];
+					
+					selFeaturesDouble = selFeaturesHashSet.toArray(selFeaturesDouble);
+					val2 = new int[selFeaturesDouble.length];
+					
+					for( int i =0; i< selFeaturesDouble.length; i++ ) {
+						val2[i] = selFeaturesDouble[i].intValue();
+					}
+					
 				}
+				else if(chartAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) instanceof Integer[]) {
+					Integer[] selFeaturesIntArray = (Integer[])chartAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
+					
+					val2 = new int[selFeaturesIntArray.length];
+					
+					for( int i =0; i< selFeaturesIntArray.length; i++ ) {
+						val2[i] = (int)selFeaturesIntArray[i];
+					}
+				}
+				else if(chartAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) instanceof Double[]) {
+					Double[] selFeaturesDoubleArray = (Double[])chartAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
+					
+					val2 = new int[selFeaturesDoubleArray.length];
+					
+					for( int i =0; i< selFeaturesDoubleArray.length; i++ ) {
+						val2[i] = selFeaturesDoubleArray[i].intValue();
+					}
+				}
+				else {
+					val2 = (int[])chartAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
+				}
+			
 
 			}
 
@@ -206,9 +274,12 @@ public class PlaybackAction {
 
 			//@Harsha set data transformation
 
+			
+			String historicalTransformation = (String) chartAction.getDataParameters().get(TRANSFORMATION_PROPERTY);
+			MetaOmGraph.setTransform(historicalTransformation);
 
-
-
+			
+			//Run the chart
 			MetaOmTablePanel mp = MetaOmGraph.getActiveTablePanel();
 
 			if(chartName == LINE_CHART_COMMAND) {
@@ -216,7 +287,7 @@ public class PlaybackAction {
 				mcol.setIncluded(includedSamples);
 				mcol.setExcluded(excludedSamples);
 				//update the excluded samples
-				MetaOmAnalyzer.updateExcluded(excludedSamples);
+				MetaOmAnalyzer.updateExcluded(excludedSamples, false);
 
 				//make chart
 				mp.graphSelectedRows(val2);
@@ -224,7 +295,7 @@ public class PlaybackAction {
 				//reset samples to current
 				mcol.setIncluded(currentProjectIncludedSamples);
 				mcol.setExcluded(currentProjectExcludedSamples);					
-				MetaOmAnalyzer.updateExcluded(currentProjectExcludedSamples);
+				MetaOmAnalyzer.updateExcluded(currentProjectExcludedSamples, false);
 			}
 			else if(chartName == BOX_PLOT_COMMAND) {
 				mp.makeBoxPlot(val2,toExcludeSamples);
@@ -241,21 +312,21 @@ public class PlaybackAction {
 				mcol.setIncluded(includedSamples);
 				mcol.setExcluded(excludedSamples);
 				//update the excluded samples
-				MetaOmAnalyzer.updateExcluded(excludedSamples);
+				MetaOmAnalyzer.updateExcluded(excludedSamples, false);
 
 				mp.plotLineChartDefaultGrouping(val2);
 
 				//reset samples to current
 				mcol.setIncluded(currentProjectIncludedSamples);
 				mcol.setExcluded(currentProjectExcludedSamples);
-				MetaOmAnalyzer.updateExcluded(currentProjectExcludedSamples);
+				MetaOmAnalyzer.updateExcluded(currentProjectExcludedSamples, false);
 			}
 			else if(chartName == LINE_CHART_CHOOSE_GROUPING_COMMAND) {
 				//for line chart
 				mcol.setIncluded(includedSamples);
 				mcol.setExcluded(excludedSamples);
 				//update the excluded samples
-				MetaOmAnalyzer.updateExcluded(excludedSamples);
+				MetaOmAnalyzer.updateExcluded(excludedSamples, false);
 
 				String groupChosen = (String)chartAction.getDataParameters().get(GROUPING_ATTRIBUTE_PROPERTY);
 				mp.plotLineChartChooseGrouping(val2, groupChosen);
@@ -263,7 +334,7 @@ public class PlaybackAction {
 				//reset samples to current;
 				mcol.setIncluded(currentProjectIncludedSamples);
 				mcol.setExcluded(currentProjectExcludedSamples);					
-				MetaOmAnalyzer.updateExcluded(currentProjectExcludedSamples);
+				MetaOmAnalyzer.updateExcluded(currentProjectExcludedSamples, false);
 
 			}
 			else if(chartName == BAR_CHART_COMMAND) {
@@ -276,11 +347,12 @@ public class PlaybackAction {
 			}
 
 
-
-
+			//Setting back transformation to current transformation
+			MetaOmGraph.setTransform(currentTransformation);
 
 		}
 		catch(Exception e) {
+			MetaOmGraph.setTransform(currentTransformation);
 			JOptionPane.showMessageDialog(null, "Failed to playback!!!" + e, "Error",
 					JOptionPane.ERROR_MESSAGE);
 			e.printStackTrace();

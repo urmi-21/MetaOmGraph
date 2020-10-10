@@ -1203,11 +1203,10 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 		myParent.setIconifiable(true);
 		myParent.setMaximizable(true);
 		myParent.setFrameIcon(new ImageIcon(getClass().getResource("/resource/MetaOmicon16.png")));
-		myParent.getRootPane().setWindowDecorationStyle(3);
 		
-		UIManager.put("InternalFrame.activeTitleBackground", new ColorUIResource(new Color(240,128,128)));
-		UIManager.put("InternalFrame.inactiveTitleBackground", new ColorUIResource(new Color(240,128,128)));
-	    UIManager.put("InternalFrame.titleFont", new Font("SansSerif", Font.BOLD,12));
+//		UIManager.put("InternalFrame.activeTitleBackground", new ColorUIResource(new Color(240,128,128)));
+//		UIManager.put("InternalFrame.inactiveTitleBackground", new ColorUIResource(new Color(240,128,128)));
+//	    UIManager.put("InternalFrame.titleFont", new Font("SansSerif", Font.BOLD,12));
 	    
 		javax.swing.plaf.basic.BasicInternalFrameUI ui = new javax.swing.plaf.basic.BasicInternalFrameUI(myParent);
 		

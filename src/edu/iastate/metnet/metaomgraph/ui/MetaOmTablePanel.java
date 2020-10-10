@@ -1255,7 +1255,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 			String selList = geneLists.getSelectedValue().toString();
 			dataMap.put("Selected List", selList);
-			dataMap.put("Selected Features", getSelectedGeneNames());
+			dataMap.put("Selected Features", getSelectedRowsInList());
 			dataMap.put("Data Transformation", MetaOmGraph.getInstance().getTransform());
 			dataMap.put("XAxis", myProject.getDefaultXAxis());
 			dataMap.put("YAxis", myProject.getDefaultYAxis());
@@ -1286,6 +1286,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	 */
 	public void graphSelectedRows(int[] selectedRows) {
 
+		ColorUIResource oldActiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.activeTitleBackground");
+		ColorUIResource oldInactiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.inactiveTitleBackground");
+		Font oldFont = UIManager.getFont("InternalFrame.titleFont");
+		
 		MetadataHybrid mhyb = MetaOmGraph.getActiveProject().getMetadataHybrid();
 		if (mhyb != null) {
 			MetadataCollection mcol = mhyb.getMetadataCollection();
@@ -1295,7 +1299,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				Set<String> currentProjectExcludedSamples = mcol.getExcluded();
 
 				// MetaOmGraph.getActiveTable().updateMetadataTree();
-
+				UIManager.put("InternalFrame.activeTitleBackground", new ColorUIResource(new Color(240,128,128)));
+				UIManager.put("InternalFrame.inactiveTitleBackground", new ColorUIResource(new Color(240,128,128)));
+				UIManager.put("InternalFrame.titleFont", new Font("SansSerif", Font.BOLD,12));
+				
 				new MetaOmChartPanel(selectedRows, myProject.getDefaultXAxis(), myProject.getDefaultYAxis(),
 						myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject)
 								.createInternalFrame(true);
@@ -1307,6 +1314,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			}
 		}
 
+		UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
+		UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
+		UIManager.put("InternalFrame.titleFont", oldFont);
 	}
 
 	public void createHistogram() {
@@ -1321,7 +1331,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 			String selList = geneLists.getSelectedValue().toString();
 			dataMap.put("Selected List", selList);
-			dataMap.put("Selected Features", getSelectedGeneNames());
+			dataMap.put("Selected Features", getSelectedRowsInList());
 			dataMap.put("Data Transformation", MetaOmGraph.getInstance().getTransform());
 			dataMap.put("XAxis", myProject.getDefaultXAxis());
 			dataMap.put("YAxis", myProject.getDefaultYAxis());
@@ -1388,6 +1398,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	 */
 	public void createHistogram(int[] selected,boolean[] excludedSamples) {
 
+		ColorUIResource oldActiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.activeTitleBackground");
+		ColorUIResource oldInactiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.inactiveTitleBackground");
+		Font oldFont = UIManager.getFont("InternalFrame.titleFont");
+		
 		EventQueue.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -1419,10 +1433,17 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					f.setSize(1000, 700);
 					f.setVisible(true);
 					f.toFront();
+					
+					UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
+					UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
+					UIManager.put("InternalFrame.titleFont", oldFont);
 
 				} catch (Exception e) {
 					JOptionPane.showMessageDialog(null, "Histogram: Error occured while reading data!!!" + e, "Error",
 							JOptionPane.ERROR_MESSAGE);
+					UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
+					UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
+					UIManager.put("InternalFrame.titleFont", oldFont);
 					//JOptionPane.showMessageDialog(null, e.toString());
 
 					//e.printStackTrace();
@@ -1450,7 +1471,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 			String selList = geneLists.getSelectedValue().toString();
 			dataMap.put("Selected List", selList);
-			dataMap.put("Selected Features", getSelectedGeneNames());
+			dataMap.put("Selected Features", getSelectedRowsInList());
 			dataMap.put("Data Transformation", MetaOmGraph.getInstance().getTransform());
 			dataMap.put("XAxis", myProject.getDefaultXAxis());
 			dataMap.put("YAxis", myProject.getDefaultYAxis());
@@ -1546,6 +1567,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			return;
 		}
 
+		ColorUIResource oldActiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.activeTitleBackground");
+		ColorUIResource oldInactiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.inactiveTitleBackground");
+		Font oldFont = UIManager.getFont("InternalFrame.titleFont");
+
+		
 		// get data for box plot as hasmap
 		HashMap<Integer, double[]> plotData = new HashMap<>();
 		for (int i = 0; i < selected.length; i++) {
@@ -1585,10 +1611,18 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					f.setSize(1000, 700);
 					f.setVisible(true);
 					f.toFront();
+					
+					UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
+					UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
+					UIManager.put("InternalFrame.titleFont", oldFont);
 
 				} catch (Exception e) {
 					JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
 							JOptionPane.ERROR_MESSAGE);
+					
+					UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
+					UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
+					UIManager.put("InternalFrame.titleFont", oldFont);
 					e.printStackTrace();
 					return;
 				}
@@ -1611,7 +1645,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 			String selList = geneLists.getSelectedValue().toString();
 			dataMap.put("Selected List", selList);
-			dataMap.put("Selected Features", getSelectedGeneNames());
+			dataMap.put("Selected Features", getSelectedRowsInList());
 			dataMap.put("Data Transformation", MetaOmGraph.getInstance().getTransform());
 			dataMap.put("XAxis", myProject.getDefaultXAxis());
 			dataMap.put("YAxis", myProject.getDefaultYAxis());
@@ -1698,6 +1732,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			return;
 		}
 
+		ColorUIResource oldActiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.activeTitleBackground");
+		ColorUIResource oldInactiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.inactiveTitleBackground");
+		Font oldFont = UIManager.getFont("InternalFrame.titleFont");
+		
 		EventQueue.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -1722,10 +1760,18 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					f.setSize(1000, 700);
 					f.setVisible(true);
 					f.toFront();
+					
+					UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
+					UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
+					UIManager.put("InternalFrame.titleFont", oldFont);
 
 				} catch (Exception e) {
 					JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
 							JOptionPane.ERROR_MESSAGE);
+					UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
+					UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
+					UIManager.put("InternalFrame.titleFont", oldFont);
+					
 					e.printStackTrace();
 					return;
 				}
@@ -1833,7 +1879,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 			String selList = geneLists.getSelectedValue().toString();
 			dataMap.put("Selected List", selList);
-			dataMap.put("Selected Features", getSelectedGeneNames());
+			dataMap.put("Selected Features", getSelectedRowsInList());
 			dataMap.put("Data Transformation", MetaOmGraph.getInstance().getTransform());
 			dataMap.put("XAxis", myProject.getDefaultXAxis());
 			dataMap.put("YAxis", myProject.getDefaultYAxis());
@@ -1930,6 +1976,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "No data to calculate rep information...");
 			return;
 		}
+		
+		ColorUIResource oldActiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.activeTitleBackground");
+		ColorUIResource oldInactiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.inactiveTitleBackground");
+		Font oldFont = UIManager.getFont("InternalFrame.titleFont");
+		
 		// plot reps
 		int[] selected = selectedRows;
 		// JOptionPane.showMessageDialog(null, "Selected rows:" +
@@ -1954,6 +2005,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				return;
 			}
 		}
+		
+		UIManager.put("InternalFrame.activeTitleBackground", new ColorUIResource(new Color(240,128,128)));
+		UIManager.put("InternalFrame.inactiveTitleBackground", new ColorUIResource(new Color(240,128,128)));
+		UIManager.put("InternalFrame.titleFont", new Font("SansSerif", Font.BOLD,12));
 
 		// plot
 		MetaOmChartPanel ob = new MetaOmChartPanel(selected, "Groups", myProject.getDefaultYAxis(),
@@ -1962,6 +2017,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 		ob.createInternalFrame(true);
 
+		UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
+		UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
+		UIManager.put("InternalFrame.titleFont", oldFont);
+		
 		return;
 
 	}
@@ -1980,7 +2039,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 			String selList = geneLists.getSelectedValue().toString();
 			dataMap.put("Selected List", selList);
-			dataMap.put("Selected Features", getSelectedGeneNames());
+			dataMap.put("Selected Features", getSelectedRowsInList());
 			dataMap.put("Data Transformation", MetaOmGraph.getInstance().getTransform());
 			dataMap.put("XAxis", myProject.getDefaultXAxis());
 			dataMap.put("YAxis", myProject.getDefaultYAxis());
@@ -2087,6 +2146,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "No data to calculate rep information...");
 			return;
 		}
+		
+		ColorUIResource oldActiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.activeTitleBackground");
+		ColorUIResource oldInactiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.inactiveTitleBackground");
+		Font oldFont = UIManager.getFont("InternalFrame.titleFont");
 
 		// show jdialog to show all metadata attributes
 		String[] headers = myProject.getMetadataHybrid().getMetadataHeaders(true);
@@ -2122,12 +2185,20 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				return;
 			}
 		}
+		
+		UIManager.put("InternalFrame.activeTitleBackground", new ColorUIResource(new Color(240,128,128)));
+		UIManager.put("InternalFrame.inactiveTitleBackground", new ColorUIResource(new Color(240,128,128)));
+		UIManager.put("InternalFrame.titleFont", new Font("SansSerif", Font.BOLD,12));
 
 		MetaOmChartPanel ob = new MetaOmChartPanel(selected, "Groups", myProject.getDefaultYAxis(),
 				myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject, myVals, myStddevs,
 				repCounts, groupNames, sampleNames, true, repsMap);
 		ob.createInternalFrame(true);
 
+		UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
+		UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
+		UIManager.put("InternalFrame.titleFont", oldFont);
+		
 		return;
 
 	}
@@ -2803,7 +2874,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			HashMap<String, Object> dataMap = new HashMap<String, Object>();
 			String selList = geneLists.getSelectedValue().toString();
 			dataMap.put("Selected List", selList);
-			dataMap.put("Selected Features", getSelectedGeneNames());
+			dataMap.put("Selected Features", getSelectedRowsInList());
 			dataMap.put("Data Transformation", MetaOmGraph.getInstance().getTransform());
 
 			HashMap<String, Object> result = new HashMap<String, Object>();
@@ -4455,9 +4526,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			HashMap<String, Object> dataMap = new HashMap<String, Object>();
 			String selList = geneLists.getSelectedValue().toString();
 			dataMap.put("selectedList", selList);
-			dataMap.put("selectedGenes",
+			dataMap.put("selectedFeatures",
 
-					getSelectedGeneNames());
+					getSelectedRowsInList());
 			dataMap.put("transformationData", MetaOmGraph.getInstance().getTransform());
 
 			HashMap<String, Object> resultLog = new HashMap<String, Object>();
@@ -4542,9 +4613,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			HashMap<String, Object> dataMap = new HashMap<String, Object>();
 			String selList = geneLists.getSelectedValue().toString();
 			dataMap.put("selectedList", selList);
-			dataMap.put("selectedGenes",
+			dataMap.put("selectedFeatures",
 
-					getSelectedGeneNames());
+					getSelectedRowsInList());
 
 			HashMap<String, Object> resultLog = new HashMap<String, Object>();
 			resultLog.put("result", "OK");
@@ -5836,6 +5907,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			return;
 		}
 
+		ColorUIResource oldActiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.activeTitleBackground");
+		ColorUIResource oldInactiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.inactiveTitleBackground");
+		Font oldFont = UIManager.getFont("InternalFrame.titleFont");
+		
 		List<Double> corrVals = getCorrData(col_val);
 
 		// create histogram
@@ -5848,10 +5923,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						nBins = 100;
 					}
 					double[] data = corrVals.stream().mapToDouble(d -> d).toArray();
-					
-					ColorUIResource oldActiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.activeTitleBackground");
-					ColorUIResource oldInactiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.inactiveTitleBackground");
-					Font oldFont = UIManager.getFont("InternalFrame.titleFont");
 					
 					HistogramChart f = new HistogramChart(null, nBins, null, 2, data, false);
 
@@ -5882,6 +5953,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
 							JOptionPane.ERROR_MESSAGE);
 
+					UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
+					UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
+					UIManager.put("InternalFrame.titleFont", oldFont);
 					e.printStackTrace();
 
 					return;
