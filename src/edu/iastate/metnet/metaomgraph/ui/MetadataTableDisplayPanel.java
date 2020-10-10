@@ -542,7 +542,7 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 				// clear last searched
 				clearLastSearchedRows();
 				// update exclude list
-				MetaOmAnalyzer.updateExcluded(obj.getExcluded());
+				MetaOmAnalyzer.updateExcluded(obj.getExcluded(),true);
 				updateTable();
 				MetaOmGraph.getActiveTable().updateMetadataTree();
 
@@ -1607,7 +1607,7 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		Set<String> excluded = new HashSet<String>(getExcludedRowsFromTable(rowsInList));
 		obj.setIncluded(rowsInList);
 		obj.setExcluded(excluded);
-		MetaOmAnalyzer.updateExcluded(excluded);
+		MetaOmAnalyzer.updateExcluded(excluded, true);
 		MetaOmGraph.getActiveTable().updateMetadataTree();
 	}
 
@@ -1814,44 +1814,12 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		obj.setExcluded(exc);
 		obj.setIncluded(inc);
 		// update exclude list
-		MetaOmAnalyzer.updateExcluded(exc);
+		MetaOmAnalyzer.updateExcluded(exc, true);
 		// remove selected rows from search result
 		removeFromtoHighlight(removedList);
 		updateTable();
 		MetaOmGraph.getActiveTable().updateMetadataTree();
 
-		HashMap<String, Object> actionMap = new HashMap<String, Object>();
-		HashMap<String, Object> dataMap = new HashMap<String, Object>();
-		HashMap<String, Object> result = new HashMap<String, Object>();
-
-		try {
-
-			actionMap.put("parent", MetaOmGraph.getCurrentProjectActionId());
-			actionMap.put("section", "Feature Metadata");
-
-			MetadataHybrid mhyb = MetaOmGraph.getActiveProject().getMetadataHybrid();
-			if (mhyb != null) {
-				MetadataCollection mcol = mhyb.getMetadataCollection();
-				if (mcol != null) {
-					dataMap.put("Data Column", mcol.getDatacol());
-					result.put("Included Samples", mcol.getIncluded());
-					result.put("Excluded Samples", mcol.getExcluded());
-				}
-			} else {
-				result.put("Included Samples", null);
-				result.put("Excluded Samples", null);
-			}
-
-			result.put("result", "OK");
-
-			ActionProperties sampleFilterAction = new ActionProperties("sample-advance-filter", actionMap, dataMap,
-					result, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-			sampleFilterAction.logActionProperties();
-
-			MetaOmGraph.setCurrentSamplesActionId(sampleFilterAction.getActionNumber());
-		} catch (Exception e1) {
-
-		}
 	}
 
 	public void filterHighlightedRows(boolean invert) {
@@ -1890,7 +1858,7 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		obj.setExcluded(exc);
 		obj.setIncluded(inc);
 		// update exclude list
-		MetaOmAnalyzer.updateExcluded(exc);
+		MetaOmAnalyzer.updateExcluded(exc, true);
 		// after filtering
 		updateTable();
 		MetaOmGraph.getActiveTable().updateMetadataTree();
@@ -1906,34 +1874,6 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		HashMap<String, Object> dataMap = new HashMap<String, Object>();
 		HashMap<String, Object> result = new HashMap<String, Object>();
 
-		try {
-
-			actionMap.put("parent", MetaOmGraph.getCurrentProjectActionId());
-			actionMap.put("section", "Feature Metadata");
-
-			MetadataHybrid mhyb = MetaOmGraph.getActiveProject().getMetadataHybrid();
-			if (mhyb != null) {
-				MetadataCollection mcol = mhyb.getMetadataCollection();
-				if (mcol != null) {
-					dataMap.put("Data Column", mcol.getDatacol());
-					result.put("Included Samples", mcol.getIncluded());
-					result.put("Excluded Samples", mcol.getExcluded());
-				}
-			} else {
-				result.put("Included Samples", null);
-				result.put("Excluded Samples", null);
-			}
-
-			result.put("result", "OK");
-
-			ActionProperties sampleFilterAction = new ActionProperties("sample-advance-filter", actionMap, dataMap,
-					result, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-			sampleFilterAction.logActionProperties();
-
-			MetaOmGraph.setCurrentSamplesActionId(sampleFilterAction.getActionNumber());
-		} catch (Exception e1) {
-
-		}
 	}
 
 	public void filterRows(List<String> s) {
@@ -1954,40 +1894,13 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		obj.setExcluded(exc);
 		obj.setIncluded(inc);
 		// update exclude list
-		MetaOmAnalyzer.updateExcluded(exc);
+		MetaOmAnalyzer.updateExcluded(exc, true);
 
 		HashMap<String, Object> actionMap = new HashMap<String, Object>();
 		HashMap<String, Object> dataMap = new HashMap<String, Object>();
 		HashMap<String, Object> result = new HashMap<String, Object>();
 
-		try {
-
-			actionMap.put("parent", MetaOmGraph.getCurrentProjectActionId());
-			actionMap.put("section", "Feature Metadata");
-
-			MetadataHybrid mhyb = MetaOmGraph.getActiveProject().getMetadataHybrid();
-			if (mhyb != null) {
-				MetadataCollection mcol = mhyb.getMetadataCollection();
-				if (mcol != null) {
-					dataMap.put("Data Column", mcol.getDatacol());
-					result.put("Included Samples", mcol.getIncluded());
-					result.put("Excluded Samples", mcol.getExcluded());
-				}
-			} else {
-				result.put("Included Samples", null);
-				result.put("Excluded Samples", null);
-			}
-
-			result.put("result", "OK");
-
-			ActionProperties sampleFilterAction = new ActionProperties("sample-advance-filter", actionMap, dataMap,
-					result, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-			sampleFilterAction.logActionProperties();
-
-			MetaOmGraph.setCurrentSamplesActionId(sampleFilterAction.getActionNumber());
-		} catch (Exception e1) {
-
-		}
+		
 	}
 
 	public void displaySimilarityTable(HashMap<String, Double> res) {

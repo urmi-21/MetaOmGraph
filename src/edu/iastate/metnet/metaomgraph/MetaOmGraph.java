@@ -2202,7 +2202,7 @@ public class MetaOmGraph implements ActionListener {
 
 					String projectName = projFileName.substring(projFileName.lastIndexOf(File.separator)+1,projFileName.lastIndexOf('.'));
 					String currDate = new SimpleDateFormat("yyyy-MM-dd_HHmmss").format(new Date());
-					String logFilePath = projFileName.substring(0,projFileName.lastIndexOf(File.separator))+File.separator+"logs"+File.separator+projectName+"_"+currDate+".log";
+					String logFilePath = projFileName.substring(0,projFileName.lastIndexOf(File.separator))+File.separator+"moglog"+File.separator+projectName+"_"+currDate+".log";
 
 
 					logger = updateLogger(logFilePath);
@@ -2328,7 +2328,7 @@ public class MetaOmGraph implements ActionListener {
 							String projFileName = source.getAbsolutePath();
 							String projectName = projFileName.substring(projFileName.lastIndexOf(File.separator)+1,projFileName.lastIndexOf('.'));
 							String currDate = new SimpleDateFormat("yyyy-MM-dd_HHmmss").format(new Date());
-							String logFilePath = projFileName.substring(0,projFileName.lastIndexOf(File.separator))+File.separator+"logs"+File.separator+projectName+"_"+currDate+".log";
+							String logFilePath = projFileName.substring(0,projFileName.lastIndexOf(File.separator))+File.separator+"moglog"+File.separator+projectName+"_"+currDate+".log";
 
 							if(getLoggingRequired()) {
 								logger = updateLogger(logFilePath);
@@ -3884,7 +3884,7 @@ public class MetaOmGraph implements ActionListener {
 	 * 
 	 * @return
 	 */
-	public String getTransform() {
+	public static String getTransform() {
 		if (log2Item.isSelected()) {
 			return "log2";
 		} else if (log10Item.isSelected()) {
@@ -4107,8 +4107,8 @@ public class MetaOmGraph implements ActionListener {
 		ReproducibilityDashboardFrame.show();    
 
 
-		UIManager.put("InternalFrame.activeTitleBackground", new ColorUIResource(new Color(0,197,205)));
-		UIManager.put("InternalFrame.inactiveTitleBackground", new ColorUIResource(new Color(0,197,205)));
+		UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
+		UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
 		UIManager.put("InternalFrame.titleFont", oldFont);
 
 
@@ -4187,13 +4187,24 @@ public class MetaOmGraph implements ActionListener {
 			if(mdhObj != null) {
 				mcol = mdhObj.getMetadataCollection();
 			}
-			if(mcol != null) {
-				result.put("Included Samples", mcol.getIncluded());
-				result.put("Excluded Samples", mcol.getExcluded());
+			if(MetaOmAnalyzer.getExclude() != null) {
+				boolean [] excludedSamplesBoolean = MetaOmAnalyzer.getExclude();
+				List<Integer> excludedSamplesInteger = new ArrayList<Integer>();
+				
+				for(int index=0; index < excludedSamplesBoolean.length; index++) {
+					if(excludedSamplesBoolean[index]) {
+						excludedSamplesInteger.add(index);
+					}
+				}
+				result.put("Excluded Samples", excludedSamplesInteger.toArray(new Integer[excludedSamplesInteger.size()]));
+				dataMap.put("Data Column", mcol.getDatacol());
+			}
+			else {
+				result.put("Excluded Samples", new Integer[0]);
 				dataMap.put("Data Column", mcol.getDatacol());
 			}
 			dataMap.put("Start Timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-
+		
 			result.put("result", "OK");
 
 			ActionProperties generalPropertiesAction = new ActionProperties("general-properties",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
