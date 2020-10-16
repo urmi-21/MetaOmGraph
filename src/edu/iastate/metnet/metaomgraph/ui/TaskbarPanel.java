@@ -35,6 +35,8 @@ import javax.swing.MenuElement;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * 
  * @author Harsha
@@ -192,15 +194,18 @@ public class TaskbarPanel extends JPanel{
 
 				if(typeFrames != null) {
 					for(TaskbarInternalFrame frame : typeFrames) {
-						JMenuItem menuItem = new JMenuItem(frame.getModel().getFrameName());
+						String menuItemName = frame.getModel().getFrameName();
+						menuItemName = StringUtils.abbreviate(menuItemName, 80);
+
+						JMenuItem menuItem = new JMenuItem(menuItemName);
 						JPanel tabItemPanel = new JPanel();
 						tabItemPanel.setLayout(new BorderLayout());
-						JLabel tabItemLabel = new JLabel(frame.getModel().getFrameName());
+						JLabel tabItemLabel = new JLabel(menuItemName);
 
 						tabItemPanel.add(tabItemLabel);
 
 						UIManager.put("MenuItem.selectionForeground", Color.BLUE);
-						menuItem.setText(frame.getModel().getFrameName());;
+						menuItem.setText(menuItemName);;
 						menu.add(new JSeparator());
 						menu.add(menuItem);
 						menu.setMargin(new Insets(2, 8, 2, 8));

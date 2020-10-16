@@ -86,6 +86,7 @@ public class MetaOmAnalyzer {
 					}
 				}
 				result.put("Excluded Samples", excludedSamplesInteger);
+				
 				dataMap.put("Data Column", mcol.getDatacol());
 			}
 			else {
@@ -98,6 +99,7 @@ public class MetaOmAnalyzer {
 					new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 
 			if(loggingRequired) {
+				result.put("Sample Action", filterMetadataAction.getCounter()+1);
 				filterMetadataAction.logActionProperties();
 				MetaOmGraph.setCurrentSamplesActionId(filterMetadataAction.getActionNumber());
 			}
@@ -165,6 +167,7 @@ public class MetaOmAnalyzer {
 				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 
 		if(loggingRequired) {
+			result.put("Sample Action", filterMetadataAction.getCounter()+1);
 			filterMetadataAction.logActionProperties();
 			MetaOmGraph.setCurrentSamplesActionId(filterMetadataAction.getActionNumber());
 		}
