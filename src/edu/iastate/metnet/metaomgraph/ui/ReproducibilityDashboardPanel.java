@@ -445,30 +445,14 @@ public class ReproducibilityDashboardPanel extends JPanel {
 						}
 						else {
 
-							int result = JOptionPane.showConfirmDialog((Component) null, "The log file which you are trying to open does not have the same number of features and samples ( Features: "+dimensions[0]+" , Samples: "+dimensions[1]+" ) as the currently opened project ( Features: "+MetaOmGraph.getActiveProject().getDataColumnCount()+" , Samples: "+MetaOmGraph.getActiveProject().getRowCount()+" ). This may cause the play feature to not work properly. Do you still want to proceed?",
-									"Warning", JOptionPane.OK_CANCEL_OPTION);
+							JOptionPane.showMessageDialog((Component) null, "The log file which you are trying to open does not have the same number of samples and features ( Samples: "+dimensions[0]+" , Features: "+dimensions[1]+" ) as the currently opened project ( Samples: "+MetaOmGraph.getActiveProject().getDataColumnCount()+" , Features: "+MetaOmGraph.getActiveProject().getRowCount()+" ). \n\nPlease open a log with matching sample and feature counts. You can find the logs of the current project at : "+logPath);
 
-							if(result==0) {
-
-								JTree sessionTree = new JTree();
-								JTable sessionTable = new JTable();
-
-								HashMap<Integer, DefaultMutableTreeNode> treeStruct = new HashMap<Integer, DefaultMutableTreeNode>();
-
-								int tabNo = createNewTabAndPopulate(sessionTree, sessionTable, file.getName(), true,
-										file.getAbsolutePath());
-								readLogAndPopulateTree(file, sessionTree, tabNo, treeStruct);
-								tabbedPane.setSelectedIndex(tabNo);
-							}
-							else {
-
-							}
 						}
 
 					}
 					else {
 
-						JOptionPane.showMessageDialog((Component) null, "The log file seems to be malformed. Please contact the MOG Support team.");
+						JOptionPane.showMessageDialog((Component) null, "Invalid log file  :( ");
 
 					}
 
