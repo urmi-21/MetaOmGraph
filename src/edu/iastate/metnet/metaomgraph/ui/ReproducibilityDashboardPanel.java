@@ -419,6 +419,10 @@ public class ReproducibilityDashboardPanel extends JPanel {
 				jfc.setCurrentDirectory(projectLogsDir);
 				int retValue = jfc.showOpenDialog(MetaOmGraph.getMainWindow());
 
+				/*Check whether the file being opened has valid dimensions (features size and
+				Samples size), and warn the user if it doesnt have the same dimensions as the
+				currently opened project */
+				
 				if (retValue == JFileChooser.APPROVE_OPTION) {
 					File file = jfc.getSelectedFile();
 
@@ -1277,7 +1281,14 @@ public class ReproducibilityDashboardPanel extends JPanel {
 	}
 
 
-
+	/**
+	 * This method returns the samples size, and the features size from the given log file in 
+	 * an array.  dim[0] - Samples size,  dim[1] - Features size
+	 * 
+	 * 
+	 * @param logfile - The log file from which we need to get the Sample size and feature size
+	 * @return
+	 */
 	int[] getDimensionsFromFile(File logfile) {
 
 		int[] dim = new int[2];
@@ -1351,6 +1362,18 @@ public class ReproducibilityDashboardPanel extends JPanel {
 	}
 
 
+	
+	/**
+	 * This is a utility method to get the selected features array from an Object of 
+	 * selectedFeatures. It is important because the GSON reads the selectedFeatures
+	 * from the log file as an Object, which is sometimes interpreted as a List, or 
+	 * a HashMap or an array depending on whether it is the current log or a historical
+	 * log opened from the file.This method ensures that SelectedFeatures are converted
+	 * to a string array.
+	 * 
+	 * @param selectedFeatures
+	 * @return
+	 */
 	public String[] getSelectedFeaturesFromLog(Object selectedFeatures) {
 
 
