@@ -177,6 +177,8 @@ public class MetaOmGraph implements ActionListener {
 	private static TaskbarPanel taskBar;
 	private static StatisticalResultsFrame DEAResultsFrame;
 	private static StatisticalResultsFrame DCResultsFrame;
+	private static JButton plbbutton;
+	private static JPanel playbackForMac;
 
 
 	public static StatisticalResultsFrame getDEAResultsFrame() {
@@ -860,6 +862,9 @@ public class MetaOmGraph implements ActionListener {
 		myself = new MetaOmGraph();
 		activeProject = null;
 		recentProjects = new Vector<File>();
+		
+		//setting loggingRequired parameter for reproducibility logging
+		MetaOmGraph.setLoggingRequired(true);
 
 		File homeDir = new File(System.getProperty("user.home"));
 		File prefsFile = new File(homeDir, "metaomgraph.prefs");
@@ -913,16 +918,8 @@ public class MetaOmGraph implements ActionListener {
 					setCurrentTheme("light");
 				}
 
-				//setting loggingRequired parameter for reproducibility logging
-				try {
-					boolean lr = (boolean)in.readObject();
-					MetaOmGraph.setLoggingRequired(lr);
-					MetaOmGraph.setPermanentLogging(lr);
-
-				}
-				catch(Exception ex2) {
-					MetaOmGraph.setLoggingRequired(true);
-				}
+				
+				
 
 				in.close();
 			} catch (FileNotFoundException e1) {
@@ -1612,29 +1609,24 @@ public class MetaOmGraph implements ActionListener {
 		
 		
 		if (Utils.isMac()) {
-		JPanel playbackForMac = new JPanel() 
+		playbackForMac = new JPanel() 
 		{
             @Override
             protected void paintComponent(Graphics g) {
-                // Draw a rectangle using Rectangle2D class
-//                Graphics2D g2 = (Graphics2D) g;
-//                
-//                g2.setColor(new Color(255,255,240));
-//                g2.setBackground(new Color(255,255,240));
-//                
-//                // Draw the blue rectangle
-//                g2.fill(new Rectangle2D.Double(1250, 10, 100, 30));
-//                g2.setColor(Color.BLUE);
-//                
-//                g2.drawString("Playback",1255,18);
+               
             }
         };
         
-        JButton plbbutton = new JButton("Playback");
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
+		Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
+		
+        plbbutton = new JButton("Playback");
         playbackForMac.setLayout(null);
-        plbbutton.setBounds(1220, 0, 100, 30);
-        playbackForMac.add(plbbutton);
-        playbackForMac.setSize(2000,2000);
+        //plbbutton.setBounds((int)rect.getMaxX()-100, 0, 100, 20);
+        playbackForMac.setLayout (new BorderLayout ());
+        playbackForMac.add(plbbutton, BorderLayout.EAST);
+        playbackForMac.setSize((int)rect.getMaxX(), 30);
         playbackForMac.setVisible(true);
         playbackForMac.setBackground(Color.BLACK);
         
@@ -1694,6 +1686,12 @@ public class MetaOmGraph implements ActionListener {
 			@Override
 			public void windowClosing(WindowEvent arg0) {
 				shutdown();
+			}
+			
+			@Override
+			public void windowStateChanged(WindowEvent e) {
+				// TODO Auto-generated method stub
+				//refreshPlaybackButton();
 			}
 		});
 		if (activeProjectFile != null)
@@ -2209,7 +2207,6 @@ public class MetaOmGraph implements ActionListener {
 					setCurrentLogFilePath(logFilePath);
 
 					setLoggingRequired(true);
-					setPermanentLogging(true);
 					logGeneralProperties();
 					int newProjectId = logNewProject(source.getAbsolutePath(),extInfoFile.getAbsolutePath());
 
@@ -3724,6 +3721,8 @@ public class MetaOmGraph implements ActionListener {
 			tipsItem.setIcon(new ImageIcon(
 					myself.getClass().getResource("/resource/tango/16x16/status/dialog-information.png")));
 			ReproducibilityLogMenu.setIcon(new ImageIcon(((new ImageIcon(myself.getClass().getResource("/resource/loggingicons/loggingicon2.png")).getImage()).getScaledInstance(14, 14, java.awt.Image.SCALE_SMOOTH))));
+			
+			plbbutton.setIcon(new ImageIcon(((new ImageIcon(myself.getClass().getResource("/resource/loggingicons/loggingicon2.png")).getImage()).getScaledInstance(14, 14, java.awt.Image.SCALE_SMOOTH))));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -4102,8 +4101,13 @@ public class MetaOmGraph implements ActionListener {
 		Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
 
 		ReproducibilityDashboardFrame.setSize(550, (int)rect.getMaxY()-200);
+		
+		if(Utils.isMac()) {
+			ReproducibilityDashboardFrame.setLocation((ReproducibilityLogMenu.getX()+ReproducibilityLogMenu.getWidth())-550, 30);
+		}
+		else {
 		ReproducibilityDashboardFrame.setLocation((ReproducibilityLogMenu.getX()+ReproducibilityLogMenu.getWidth())-550, 0);
-
+		}
 		ReproducibilityDashboardFrame.show();    
 
 
