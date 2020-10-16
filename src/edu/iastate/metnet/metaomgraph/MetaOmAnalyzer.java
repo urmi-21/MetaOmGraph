@@ -55,9 +55,11 @@ public class MetaOmAnalyzer {
 	}
 
 	/**
-	 * @author urmi Update the exclude list to remove excluded data cols from charts
+	 * @author urmi Update the exclude list to remove excluded data cols from charts and log
+	 * it in the mog log.
 	 * @param excluded
 	 *            list of excluded data cols
+	 * 
 	 */
 	public static void updateExcluded(Set<String> excluded, boolean loggingRequired) {
 		if (excluded.size() == 0) {

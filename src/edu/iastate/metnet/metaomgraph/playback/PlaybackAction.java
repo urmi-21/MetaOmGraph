@@ -186,9 +186,11 @@ public class PlaybackAction {
 
 	/**
 	 * This method plays the chart-type action by calling the respective chart's MetaOmTablePanel function that generates and displays the chart
-	 * based on the selected features and samples.
+	 * based on the selected features, the transformation used, and samples.
 	 * 
+	 * Sets the transformation variable of the system to the one in the log before resetting it.
 	 * Before calling the MetaOmTablePanel functions, the selected features' ids are collected into an integer array, to be passed to them.
+	 *
 	 */
 	public void playChart(ActionProperties chartAction, String chartName, HashSet<String> includedSamples, HashSet<String> excludedSamples) {
 
@@ -198,6 +200,7 @@ public class PlaybackAction {
 		int val2[] = null;
 		try {
 
+			//getting the selected features in the right format
 			if(chartAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) != null) {
 				
 				if(chartAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) instanceof List<?> ) {

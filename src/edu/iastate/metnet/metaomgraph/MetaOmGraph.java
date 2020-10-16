@@ -1608,6 +1608,10 @@ public class MetaOmGraph implements ActionListener {
 		mainMenuBar.add(ReproducibilityLogMenu);
 		
 		
+		
+		//Harsha - Add a playback button to the top right corner of the window in Mac
+		//Added because mac was not handling JMenu button ReproducibilityLogMenu properly
+		
 		if (Utils.isMac()) {
 		playbackForMac = new JPanel() 
 		{
