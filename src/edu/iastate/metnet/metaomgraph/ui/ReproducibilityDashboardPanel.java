@@ -16,19 +16,25 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,6 +59,8 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.JTree;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -60,6 +68,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
+
+import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -296,17 +306,14 @@ public class ReproducibilityDashboardPanel extends JPanel {
 		rdbtnOn.setSelected(true);
 		loggingChoicePanel.add(rdbtnOn);
 
-		rdbtnOff = new JRadioButton("off");
+		rdbtnOff = new JRadioButton("pause");
 		loggingChoicePanel.add(rdbtnOff);
 
 		rdbtnPermanentlySwitchedOff = new JRadioButton("permanently switched off");
-		loggingChoicePanel.add(rdbtnPermanentlySwitchedOff);
+		//		loggingChoicePanel.add(rdbtnPermanentlySwitchedOff);
 
-		if (MetaOmGraph.getPermanentLogging() == false) {
-			rdbtnOn.setSelected(false);
-			rdbtnOff.setSelected(false);
-			rdbtnPermanentlySwitchedOff.setSelected(true);
-		}
+		rdbtnOn.setSelected(true);
+		
 		rdbtnOn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -371,7 +378,7 @@ public class ReproducibilityDashboardPanel extends JPanel {
 
 		G.add(rdbtnOn);
 		G.add(rdbtnOff);
-		G.add(rdbtnPermanentlySwitchedOff);
+		//G.add(rdbtnPermanentlySwitchedOff);
 
 		separator_1 = new JSeparator();
 		GridBagConstraints gbc_separator_1 = new GridBagConstraints();
@@ -403,21 +410,51 @@ public class ReproducibilityDashboardPanel extends JPanel {
 
 				JFileChooser jfc = new JFileChooser();
 				jfc.setDialogTitle("open previous session log");
-				jfc.setCurrentDirectory(MetaOmGraph.getActiveProject().getSourceFile());
+
+				File projectSource  = MetaOmGraph.getActiveProject().getSourceFile();
+				String logPath = FilenameUtils.getFullPathNoEndSeparator(projectSource.getAbsolutePath())+File.separator+"moglog";
+
+				File projectLogsDir = new File(logPath);
+
+				jfc.setCurrentDirectory(projectLogsDir);
 				int retValue = jfc.showOpenDialog(MetaOmGraph.getMainWindow());
 
+				/*Check whether the file being opened has valid dimensions (features size and
+				Samples size), and warn the user if it doesnt have the same dimensions as the
+				currently opened project */
+				
 				if (retValue == JFileChooser.APPROVE_OPTION) {
 					File file = jfc.getSelectedFile();
 
-					JTree sessionTree = new JTree();
-					JTable sessionTable = new JTable();
+					int[] dimensions = getDimensionsFromFile(file);
 
-					HashMap<Integer, DefaultMutableTreeNode> treeStruct = new HashMap<Integer, DefaultMutableTreeNode>();
+					if(dimensions != null) {
 
-					int tabNo = createNewTabAndPopulate(sessionTree, sessionTable, file.getName(), true,
-							file.getAbsolutePath());
-					readLogAndPopulateTree(file, sessionTree, tabNo, treeStruct);
-					tabbedPane.setSelectedIndex(tabNo);
+						if(dimensions[0] == MetaOmGraph.getActiveProject().getDataColumnCount() && dimensions[1] == MetaOmGraph.getActiveProject().getRowCount()) {
+
+							JTree sessionTree = new JTree();
+							JTable sessionTable = new JTable();
+
+							HashMap<Integer, DefaultMutableTreeNode> treeStruct = new HashMap<Integer, DefaultMutableTreeNode>();
+
+							int tabNo = createNewTabAndPopulate(sessionTree, sessionTable, file.getName(), true,
+									file.getAbsolutePath());
+							readLogAndPopulateTree(file, sessionTree, tabNo, treeStruct);
+							tabbedPane.setSelectedIndex(tabNo);
+
+						}
+						else {
+
+							JOptionPane.showMessageDialog((Component) null, "The log file which you are trying to open does not have the same number of samples and features ( Samples: "+dimensions[0]+" , Features: "+dimensions[1]+" ) as the currently opened project ( Samples: "+MetaOmGraph.getActiveProject().getDataColumnCount()+" , Features: "+MetaOmGraph.getActiveProject().getRowCount()+" ). \n\nPlease open a log with matching sample and feature counts. You can find the logs of the current project at : "+logPath);
+
+						}
+
+					}
+					else {
+
+						JOptionPane.showMessageDialog((Component) null, "Invalid log file  :( ");
+
+					}
 
 				}
 			}
@@ -453,7 +490,7 @@ public class ReproducibilityDashboardPanel extends JPanel {
 				DefaultTreeModel model = (DefaultTreeModel) selectedTree.getModel();
 				TreePath[] allPaths = selectedTree.getSelectionPaths();
 
-				
+
 				markActionsAsFavorite(tabNo, selectedTree, model, allPaths);
 			}
 		});
@@ -511,77 +548,48 @@ public class ReproducibilityDashboardPanel extends JPanel {
 		try {
 			DefaultTreeModel dtm = (DefaultTreeModel) tree.getModel();
 			String actionCommandString = action.getActionCommand();
-			
+
 			if(action.getOtherParameters().get("Playable") != null) {
 				actionCommandString = "<font color=red>"+(String) action.getActionCommand()+"</font>";
 			}
-			
+
 			if (!action.getActionCommand().equalsIgnoreCase(GENERAL_PROPERTIES_COMMAND)) {
 
 				DefaultMutableTreeNode root = (DefaultMutableTreeNode) dtm.getRoot();
 
 				DefaultMutableTreeNode newNode = null;
 				try {
-					if (action.getOtherParameters().get(FAVORITE_PROPERTY).equals("true")) {
-						if (action.getDataParameters().get(SELECTED_FEATURES_PROPERTY) != null) {
-							LinkedTreeMap<String, Object> features = (LinkedTreeMap<String, Object>) action
-									.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
-							newNode = new DefaultMutableTreeNode(new LoggingTreeNode("<html><p>"
-									+ actionCommandString + " ["
-									+ (String) features.entrySet().iterator().next().getValue() + "]"
-									+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
-									action.getActionCommand(), actionNumber));
+					if(action.getOtherParameters() != null ) {
+						if (action.getOtherParameters().get(FAVORITE_PROPERTY)!= null && action.getOtherParameters().get(FAVORITE_PROPERTY).equals("true")) {
+							if (action.getDataParameters().get(SELECTED_FEATURES_PROPERTY) != null) {
+								String[] features = getSelectedFeaturesFromLog(action.getDataParameters().get(SELECTED_FEATURES_PROPERTY));
+								newNode = new DefaultMutableTreeNode(new LoggingTreeNode("<html><p>"
+										+ actionCommandString + " ["
+										+ (String) features[0] + "]"
+										+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
+										action.getActionCommand(), actionNumber));
+							} else {
+								newNode = new DefaultMutableTreeNode(new LoggingTreeNode("<html><p>"
+										+ actionCommandString
+										+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
+										action.getActionCommand(), actionNumber));
+							}
 						} else {
-							newNode = new DefaultMutableTreeNode(new LoggingTreeNode("<html><p>"
-									+ actionCommandString
-									+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
-									action.getActionCommand(), actionNumber));
-						}
-					} else {
-						if (action.getDataParameters().get(SELECTED_FEATURES_PROPERTY) != null) {
-							LinkedTreeMap<String, Object> features = (LinkedTreeMap<String, Object>) action
-									.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
-							newNode = new DefaultMutableTreeNode(
-									new LoggingTreeNode(
-											"<html><p>"+actionCommandString + " ["
-													+ features.entrySet().iterator().next().getValue() + "]</p></html>",
-													action.getActionCommand(), actionNumber));
-						} else {
-							newNode = new DefaultMutableTreeNode(new LoggingTreeNode("<html><p>"+actionCommandString+"</p></html>",
-									action.getActionCommand(), actionNumber));
+							if (action.getDataParameters().get(SELECTED_FEATURES_PROPERTY) != null) {
+								String[] features = getSelectedFeaturesFromLog(action.getDataParameters().get(SELECTED_FEATURES_PROPERTY));
+								newNode = new DefaultMutableTreeNode(
+										new LoggingTreeNode(
+												"<html><p>"+actionCommandString + " ["
+														+ features[0] + "]</p></html>",
+														action.getActionCommand(), actionNumber));
+							} else {
+								newNode = new DefaultMutableTreeNode(new LoggingTreeNode("<html><p>"+actionCommandString+"</p></html>",
+										action.getActionCommand(), actionNumber));
+							}
 						}
 					}
 				} catch (Exception e) {
 
-					if (action.getDataParameters().get(SELECTED_FEATURES_PROPERTY) != null) {
-						if (action.getDataParameters().get(SELECTED_FEATURES_PROPERTY) instanceof LinkedTreeMap<?, ?>) {
-							LinkedTreeMap<String, Object> features = (LinkedTreeMap<String, Object>) action
-									.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
-							newNode = new DefaultMutableTreeNode(
-									new LoggingTreeNode(
-											"<html><p>"+actionCommandString + " ["
-													+ features.entrySet().iterator().next().getValue() + "]</p></html>",
-													action.getActionCommand(), actionNumber));
-						} else if(action.getDataParameters().get(SELECTED_FEATURES_PROPERTY) instanceof HashMap<?, ?>){
-							HashMap<String, Object> features = (HashMap<String, Object>) action.getDataParameters()
-									.get(SELECTED_FEATURES_PROPERTY);
-							newNode = new DefaultMutableTreeNode(
-									new LoggingTreeNode(
-											"<html><p>"+actionCommandString + " ["
-													+ features.entrySet().iterator().next().getValue() + "]</p></html>",
-													action.getActionCommand(), actionNumber));
-						}
-						else {
-							newNode = new DefaultMutableTreeNode(
-									new LoggingTreeNode(
-											"<html><p>"+actionCommandString+"</p></html>" ,
-											action.getActionCommand(), actionNumber));
-						}
-
-					} else {
-						newNode = new DefaultMutableTreeNode(new LoggingTreeNode("<html><p>"+actionCommandString+"</p></html>",
-								action.getActionCommand(), actionNumber));
-					}
 				}
 
 				Integer parent = (int) Double.parseDouble(action.getActionParameters().get(PARENT_PROPERTY).toString());
@@ -796,7 +804,18 @@ public class ReproducibilityDashboardPanel extends JPanel {
 							Object[] num1Obj = new Object[2];
 							num1Obj[0] = entry.getKey();
 							num1Obj[1] = "";
-							if (entry.getValue() instanceof List<?>) {
+
+							if(num1Obj[0].equals(SELECTED_FEATURES_PROPERTY)) {
+								Object featureIndicesList =  entry.getValue();
+								String[] selectedFeatures = {};
+								if(featureIndicesList != null) {
+									selectedFeatures = getSelectedFeaturesFromLog(featureIndicesList);
+								}
+								for(int sf = 0; sf < selectedFeatures.length; sf++ ) {
+									num1Obj[1] += selectedFeatures[sf]+"\n";
+								}
+							}
+							else if (entry.getValue() instanceof List<?>) {
 								List<String> actionList = (List<String>) entry.getValue();
 								for (int i = 0; i < actionList.size(); i++) {
 									num1Obj[1] += String.valueOf(actionList.get(i)) + "\n";
@@ -860,6 +879,7 @@ public class ReproducibilityDashboardPanel extends JPanel {
 						}
 					});
 
+
 					table.getColumnModel().getColumn(1).setCellRenderer(new MultilineTableRenderer());
 					table.getColumnModel().getColumn(1).setCellEditor(new MultilineTableCellEditor());
 
@@ -900,57 +920,67 @@ public class ReproducibilityDashboardPanel extends JPanel {
 
 										String dataCol = (String)actionObj[i].getDataParameters().get(DATA_COLUMN_PROPERTY);
 
-										if(actionObj[i].getOtherParameters().get(INCLUDED_SAMPLES_PROPERTY) instanceof List<?>) {
+										List<String> excludedSamples = new ArrayList<String>();
+										String [] samples = MetaOmGraph.getActiveProject().getDataColumnHeaders();
 
+										LinkedList<String> allSamplesList = new LinkedList<String>(Arrays.asList(samples));
+										LinkedList<String> copyAllSamplesList = new LinkedList<String>(Arrays.asList(samples));
 
-											List<String> inclSamplesList = (List<String>)actionObj[i].getOtherParameters().get(INCLUDED_SAMPLES_PROPERTY);
-											Object[] inclSamplesArray = inclSamplesList.toArray();
-											Object[][] inclSamplesDArray = new Object[inclSamplesArray.length][1];
-
-											for(int x=0;x<inclSamplesArray.length;x++) {
-												inclSamplesDArray[x][0] = inclSamplesArray[x];
-											}
-
-											includedSamplesTable.setModel(new DefaultTableModel(inclSamplesDArray, new String[] {dataCol}));
-										}
-										else if(actionObj[i].getOtherParameters().get(INCLUDED_SAMPLES_PROPERTY) instanceof HashSet<?>) {
-
-
-											HashSet<String> inclSamplesSet = (HashSet<String>)actionObj[i].getOtherParameters().get(INCLUDED_SAMPLES_PROPERTY);
-											Object[] inclSamplesArray = inclSamplesSet.toArray();
-											Object[][] inclSamplesDArray = new Object[inclSamplesArray.length][1];
-
-											for(int x=0;x<inclSamplesArray.length;x++) {
-												inclSamplesDArray[x][0] = inclSamplesArray[x];
-											}
-											includedSamplesTable.setModel(new DefaultTableModel(inclSamplesDArray, new String[] {dataCol}));
-
-										}
-
-
+										Object [] exclSamples = null;
 
 										if(actionObj[i].getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY) instanceof List<?> ) {
-											List<String> exclSamplesList = (List<String>)actionObj[i].getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY);
-											Object[] exclSamplesArray = exclSamplesList.toArray();
-											Object[][] exclSamplesDArray = new Object[exclSamplesArray.length][1];
-
-											for(int x=0;x<exclSamplesArray.length;x++) {
-												exclSamplesDArray[x][0] = exclSamplesArray[x];
-											}
-											excludedSamplesTable.setModel(new DefaultTableModel(exclSamplesDArray, new String[] {dataCol}));
-
+											List<Double> exclSamplesList2 = (List<Double>)actionObj[i].getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY);
+											exclSamples = exclSamplesList2.toArray();
 										}
 										else if(actionObj[i].getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY) instanceof HashSet<?>) {
-											HashSet<String> exclSamplesSet = (HashSet<String>)actionObj[i].getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY);
-											Object[] exclSamplesArray = exclSamplesSet.toArray();
-											Object[][] exclSamplesDArray = new Object[exclSamplesArray.length][1];
-
-											for(int x=0;x<exclSamplesArray.length;x++) {
-												exclSamplesDArray[x][0] = exclSamplesArray[x];
-											}
-											excludedSamplesTable.setModel(new DefaultTableModel(exclSamplesDArray, new String[] {dataCol}));
-
+											HashSet<Double> exclSamplesList2 = (HashSet<Double>)actionObj[i].getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY);
+											exclSamples = exclSamplesList2.toArray();
 										}
+										else if(actionObj[i].getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY) instanceof Integer[]) {
+											exclSamples = (Object[])actionObj[i].getOtherParameters().get(EXCLUDED_SAMPLES_PROPERTY);
+										}
+
+
+										for(int eindex = 0; eindex < exclSamples.length; eindex++) {
+
+											int excludedindex = 0;
+											if(exclSamples[eindex] instanceof Double) {
+												Double a = (Double)exclSamples[eindex];
+												excludedindex = a.intValue();
+											}
+											else if(exclSamples[eindex] instanceof Integer) {
+												excludedindex = (int)exclSamples[eindex];
+											}
+
+
+											excludedSamples.add(copyAllSamplesList.get(excludedindex));
+											try {
+												allSamplesList.remove(copyAllSamplesList.get(excludedindex));
+											}
+											catch(Exception e) {
+												StackTraceElement[] ste = e.getStackTrace();
+											}
+										}
+
+										Object[] inclSamplesArray = allSamplesList.toArray();
+										Object[][] inclSamplesDArray = new Object[inclSamplesArray.length][1];
+
+										for(int x=0;x<inclSamplesArray.length;x++) {
+											inclSamplesDArray[x][0] = inclSamplesArray[x];
+										}
+
+										includedSamplesTable.setModel(new DefaultTableModel(inclSamplesDArray, new String[] {dataCol}));
+
+										Object[] exclSamplesArray = excludedSamples.toArray();
+										Object[][] exclSamplesDArray = new Object[exclSamplesArray.length][1];
+
+										for(int x=0;x<exclSamplesArray.length;x++) {
+											exclSamplesDArray[x][0] = exclSamplesArray[x];
+										}
+
+										excludedSamplesTable.setModel(new DefaultTableModel(exclSamplesDArray, new String[] {dataCol}));
+
+
 
 
 									}
@@ -974,8 +1004,8 @@ public class ReproducibilityDashboardPanel extends JPanel {
 				}
 			}
 		});
-		
-		
+
+
 		DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) playTree.getCellRenderer();
 
 		renderer.setClosedIcon(closedIcon);
@@ -1032,7 +1062,7 @@ public class ReproducibilityDashboardPanel extends JPanel {
 		}
 	}
 
-	
+
 	/**
 	 * <p>
 	 * This method adds a set of actions as favorites and also makes the play tree display a golden star beside the name of the action
@@ -1047,12 +1077,12 @@ public class ReproducibilityDashboardPanel extends JPanel {
 	 * 
 	 */
 	public void markActionsAsFavorite(int tabNo, JTree selectedTree, DefaultTreeModel model, TreePath[] allPaths) {
-		
+
 		PlaybackTabData currentTabData = allTabsInfo.get(tabNo);
 		String logFileName = currentTabData.getLogFileName();
 
 		BufferedWriter out = null;
-		
+
 		try {
 			if (tabNo != 0) {
 				out = new BufferedWriter(new FileWriter(logFileName, true));
@@ -1066,13 +1096,13 @@ public class ReproducibilityDashboardPanel extends JPanel {
 				LoggingTreeNode logNode = (LoggingTreeNode) nodeObj;
 
 				ActionProperties likedAction = allTabsInfo.get(tabNo).getActionObjects().get(ltn.getNodeNumber());
-				
+
 				String actionCommandString = likedAction.getActionCommand();
-				
+
 				if(likedAction.getOtherParameters().get("Playable") != null) {
 					actionCommandString = "<font color=red>"+(String) likedAction.getActionCommand()+"</font>";
 				}
-				
+
 				try {
 					if (likedAction.getOtherParameters().get(FAVORITE_PROPERTY).equals("true")) {
 
@@ -1080,27 +1110,14 @@ public class ReproducibilityDashboardPanel extends JPanel {
 						likedAction.getOtherParameters().put(FAVORITE_PROPERTY, "false");
 
 						if(likedAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) != null) {
-							if (likedAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) instanceof LinkedTreeMap<?, ?>) {
 
-								LinkedTreeMap<String, Object> features = (LinkedTreeMap<String, Object>) likedAction
-										.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
+							String[] features = getSelectedFeaturesFromLog(likedAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY));
 
-								node.setUserObject(new LoggingTreeNode("<html><p>"+actionCommandString+ " ["
-										+ (String) features.entrySet().iterator().next().getValue() + "]</html></p>"
-										,
-										logNode.getCommandName(), logNode.getNodeNumber()));
-							}
-							else {
 
-								HashMap<String, Object> features = (HashMap<String, Object>) likedAction
-										.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
-
-								node.setUserObject(new LoggingTreeNode("<html><p>"+actionCommandString+ " ["
-										+ (String) features.entrySet().iterator().next().getValue() + "]</html></p>"
-										,
-										logNode.getCommandName(), logNode.getNodeNumber()));
-
-							}
+							node.setUserObject(new LoggingTreeNode("<html><p>"+actionCommandString+ " ["
+									+ (String) features[0] + "]</html></p>"
+									,
+									logNode.getCommandName(), logNode.getNodeNumber()));
 
 						}
 						else {
@@ -1116,34 +1133,20 @@ public class ReproducibilityDashboardPanel extends JPanel {
 
 						if(likedAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) != null) {
 
-							if (likedAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) instanceof LinkedTreeMap<?, ?>) {
-								LinkedTreeMap<String, Object> features = (LinkedTreeMap<String, Object>) likedAction
-										.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
+							String[] features = getSelectedFeaturesFromLog(likedAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY));
 
-								node.setUserObject(new LoggingTreeNode("<html><p>" + actionCommandString+ " ["
-										+ (String) features.entrySet().iterator().next().getValue() + "]"
-
-								+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
-								logNode.getCommandName(), logNode.getNodeNumber()));
-							}
-							else {
-
-								HashMap<String, Object> features = (HashMap<String, Object>) likedAction
-										.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
-
-								node.setUserObject(new LoggingTreeNode("<html><p>" + actionCommandString+ " ["
-										+ (String) features.entrySet().iterator().next().getValue() + "]"
+							node.setUserObject(new LoggingTreeNode("<html><p>" + actionCommandString+ " ["
+									+ (String) features[0] + "]"
 
 								+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
 								logNode.getCommandName(), logNode.getNodeNumber()));
 
-							}
 
 						}
 						else {
 							node.setUserObject(new LoggingTreeNode("<html><p>" + actionCommandString
-							+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
-							logNode.getCommandName(), logNode.getNodeNumber()));
+									+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
+									logNode.getCommandName(), logNode.getNodeNumber()));
 						}
 
 
@@ -1154,34 +1157,21 @@ public class ReproducibilityDashboardPanel extends JPanel {
 
 						if(likedAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) != null) {
 
-							if (likedAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) instanceof LinkedTreeMap<?, ?>) {
+							String[] features = getSelectedFeaturesFromLog(likedAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY));
 
-								LinkedTreeMap<String, Object> features = (LinkedTreeMap<String, Object>) likedAction
-										.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
 
-								node.setUserObject(new LoggingTreeNode("<html><p>" + actionCommandString+ " ["
-										+ (String) features.entrySet().iterator().next().getValue() + "]"
+							node.setUserObject(new LoggingTreeNode("<html><p>" + actionCommandString+ " ["
+									+ (String) features[0] + "]"
 
 								+ "   &nbsp; <font color=orange>&#9733;</font></p></html>",
 								logNode.getCommandName(), logNode.getNodeNumber()));
-							}
-							else {
 
-								HashMap<String, Object> features = (HashMap<String, Object>) likedAction
-										.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
-
-								node.setUserObject(new LoggingTreeNode("<html><p>" + actionCommandString+ " ["
-										+ (String) features.entrySet().iterator().next().getValue() + "]"
-
-								+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
-								logNode.getCommandName(), logNode.getNodeNumber()));
-							}
 
 						}
 						else {
 							node.setUserObject(new LoggingTreeNode("<html><p>" + actionCommandString
-							+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
-							logNode.getCommandName(), logNode.getNodeNumber()));
+									+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
+									logNode.getCommandName(), logNode.getNodeNumber()));
 						}
 						model.reload();
 						expandAllNodes(selectedTree);
@@ -1193,34 +1183,20 @@ public class ReproducibilityDashboardPanel extends JPanel {
 
 					if(likedAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) != null) {
 
-						if (likedAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY) instanceof LinkedTreeMap<?, ?>) {
+						String[] features = getSelectedFeaturesFromLog(likedAction.getDataParameters().get(SELECTED_FEATURES_PROPERTY));
 
-							LinkedTreeMap<String, Object> features = (LinkedTreeMap<String, Object>) likedAction
-									.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
-
-							node.setUserObject(new LoggingTreeNode("<html><p>" + actionCommandString+ " ["
-									+ (String) features.entrySet().iterator().next().getValue() + "]"
+						node.setUserObject(new LoggingTreeNode("<html><p>" + actionCommandString+ " ["
+								+ (String) features[0] + "]"
 
 							+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
 							logNode.getCommandName(), logNode.getNodeNumber()));
-						}
-						else {
 
-							HashMap<String, Object> features = (HashMap<String, Object>) likedAction
-									.getDataParameters().get(SELECTED_FEATURES_PROPERTY);
-
-							node.setUserObject(new LoggingTreeNode("<html><p>" + actionCommandString+ " ["
-									+ (String) features.entrySet().iterator().next().getValue() + "]"
-
-							+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
-							logNode.getCommandName(), logNode.getNodeNumber()));
-						}
 
 					}
 					else {
 						node.setUserObject(new LoggingTreeNode("<html><p>" + actionCommandString
-						+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
-						logNode.getCommandName(), logNode.getNodeNumber()));
+								+ "   &nbsp;<font color=orange>&#9733;</font></p></html>",
+								logNode.getCommandName(), logNode.getNodeNumber()));
 					}
 					model.reload();
 					expandAllNodes(selectedTree);
@@ -1231,9 +1207,11 @@ public class ReproducibilityDashboardPanel extends JPanel {
 
 			}
 
-		} catch (IOException e) {
+		} 
+		catch (Exception e) {
 
-		} finally {
+		}
+		finally {
 			try {
 				if(tabNo!=0 && out!=null) {
 					out.close();
@@ -1254,7 +1232,7 @@ public class ReproducibilityDashboardPanel extends JPanel {
 			PlaybackTabData currentTabData = allTabsInfo.get(tabNo);
 			String logFileName = currentTabData.getLogFileName();
 
-			Gson gson = new GsonBuilder().setPrettyPrinting().create();
+			Gson gson = new GsonBuilder().create();
 			ArrayList<ActionProperties> ap = new ArrayList<ActionProperties>();
 
 			for (ActionProperties act : allTabsInfo.get(tabNo).getActionObjects()) {
@@ -1267,7 +1245,7 @@ public class ReproducibilityDashboardPanel extends JPanel {
 
 			fw = new FileWriter(logFileName, false);
 			String outputJson = gson.toJson(apArray);
-			String output = outputJson.substring(1, outputJson.length() - 2);
+			String output = outputJson.substring(1, outputJson.length() - 1);
 			//output = output.replaceAll("\r", "");
 			fw.write(output);
 
@@ -1284,6 +1262,50 @@ public class ReproducibilityDashboardPanel extends JPanel {
 			}
 		}
 
+	}
+
+
+	/**
+	 * This method returns the samples size, and the features size from the given log file in 
+	 * an array.  dim[0] - Samples size,  dim[1] - Features size
+	 * 
+	 * 
+	 * @param logfile - The log file from which we need to get the Sample size and feature size
+	 * @return
+	 */
+	int[] getDimensionsFromFile(File logfile) {
+
+		int[] dim = new int[2];
+
+		Gson gson = new Gson();
+		String jsonLog = "";
+		try {
+			
+			jsonLog = new String(Files.readAllBytes(logfile.toPath()));
+			
+			String listOfActions = "[" + jsonLog + "]";
+
+			ActionProperties[] actionsFromGSON = gson.fromJson(listOfActions, ActionProperties[].class);
+
+			ArrayList<ActionProperties> list1 = new ArrayList<ActionProperties>();
+			Collections.addAll(list1, actionsFromGSON);
+
+			for (int action = 1; action < 5; action++) {
+
+				if(actionsFromGSON[action].getDataParameters().get("Dimensions")!= null && actionsFromGSON[action].getDataParameters().get("Row Count") != null) {
+
+					dim[0] = Integer.parseInt((String)actionsFromGSON[action].getDataParameters().get("Dimensions"));
+					dim[1] = Integer.parseInt((String)actionsFromGSON[action].getDataParameters().get("Row Count"));
+
+					return dim;
+				}
+			}
+
+		} catch (Exception e) {
+			return null;
+		}
+
+		return null;
 	}
 
 
@@ -1323,6 +1345,81 @@ public class ReproducibilityDashboardPanel extends JPanel {
 		}
 	}
 
+
+	
+	/**
+	 * This is a utility method to get the selected features array from an Object of 
+	 * selectedFeatures. It is important because the GSON reads the selectedFeatures
+	 * from the log file as an Object, which is sometimes interpreted as a List, or 
+	 * a HashMap or an array depending on whether it is the current log or a historical
+	 * log opened from the file.This method ensures that SelectedFeatures are converted
+	 * to a string array.
+	 * 
+	 * @param selectedFeatures
+	 * @return
+	 */
+	public String[] getSelectedFeaturesFromLog(Object selectedFeatures) {
+
+
+		int val2[] = null;
+
+		if(selectedFeatures != null) {
+			if(selectedFeatures instanceof List<?> ) {
+				List<Double> selFeaturesList = (List<Double>)selectedFeatures;
+				Double[] selFeaturesDouble = new Double[selFeaturesList.size()];
+
+				for( int fno = 0 ; fno < selFeaturesList.size(); fno++ ) {
+					selFeaturesDouble[fno] = (Double)selFeaturesList.get(fno);
+				}
+
+				val2 = new int[selFeaturesDouble.length];
+
+				for( int i =0; i< selFeaturesDouble.length; i++ ) {
+					val2[i] = selFeaturesDouble[i].intValue();
+				}
+			}
+			else if(selectedFeatures instanceof HashSet<?>) {
+				HashSet<Double> selFeaturesHashSet = (HashSet<Double>)selectedFeatures;
+				Double[] selFeaturesDouble = new Double[selFeaturesHashSet.size()];
+
+				selFeaturesDouble = selFeaturesHashSet.toArray(selFeaturesDouble);
+				val2 = new int[selFeaturesDouble.length];
+
+				for( int i =0; i< selFeaturesDouble.length; i++ ) {
+					val2[i] = selFeaturesDouble[i].intValue();
+				}
+
+			}
+			else if(selectedFeatures instanceof Integer[]) {
+				Integer[] selFeaturesIntArray = (Integer[])selectedFeatures;
+
+				val2 = new int[selFeaturesIntArray.length];
+
+				for( int i =0; i< selFeaturesIntArray.length; i++ ) {
+					val2[i] = (int)selFeaturesIntArray[i];
+				}
+			}
+			else if(selectedFeatures instanceof Double[]) {
+				Double[] selFeaturesDoubleArray = (Double[])selectedFeatures;
+
+				val2 = new int[selFeaturesDoubleArray.length];
+
+				for( int i =0; i< selFeaturesDoubleArray.length; i++ ) {
+					val2[i] = selFeaturesDoubleArray[i].intValue();
+				}
+			}
+			else {
+				val2 = (int[])selectedFeatures;
+			}
+
+		}
+		if(val2 != null && val2.length > 0) {
+			String[] selectedGeneNames = MetaOmGraph.getActiveProject().getDefaultRowNames(val2);
+			return selectedGeneNames;
+		}
+
+		return new String[] {"null"};
+	}
 
 }
 
