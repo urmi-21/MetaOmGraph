@@ -793,7 +793,8 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		mntmBarChart.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				plotBarChart(selectColumn());
+				String selectedCol = selectColumn();
+				plotBarChart(selectedCol);
 
 				// Harsha - reproducibility log
 				HashMap<String, Object> actionMap = new HashMap<String, Object>();
@@ -801,8 +802,7 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 				actionMap.put("section", "Sample Metadata Table");
 
 				HashMap<String, Object> dataMap = new HashMap<String, Object>();
-				dataMap.put("Column", selectColumn());
-				dataMap.put("Selected Samples", getSelectDataColsName());
+				dataMap.put("Column", selectedCol);
 
 				HashMap<String, Object> resultLog = new HashMap<String, Object>();
 				resultLog.put("result", "OK");
