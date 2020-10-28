@@ -251,7 +251,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				JOptionPane.showMessageDialog(null, "cliscked");
+				JOptionPane.showMessageDialog(null, "clicked");
 				refreshRPlotMenu();
 			}
 		});
@@ -326,13 +326,25 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		plotPopupMenu.add(selectedColsMenu);
 
 		plotButton.setMenu(plotPopupMenu);
-		plotButton.addFocusListener(new FocusAdapter() {
-
+		
+		plotButton.addMouseListener(new MouseListener() {
+			
 			@Override
-			public void focusGained(FocusEvent e) {
+			public void mouseReleased(MouseEvent e) {}
+			
+			@Override
+			public void mousePressed(MouseEvent e) {}
+			
+			@Override
+			public void mouseExited(MouseEvent e) {}
+			
+			@Override
+			public void mouseEntered(MouseEvent e) {
 				selectedRowsMenu.setEnabled(listDisplay.getSelectedRowCount() > 0);
 			}
-
+			
+			@Override
+			public void mouseClicked(MouseEvent e) {}
 		});
 		dataToolbar.add(plotButton);
 
@@ -535,14 +547,26 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		analyzePopupMenu.add(removeCorrelationMenu);
 
 		analyzeMenuButton = new MenuButton("Statistical analysis", theme.getMath(), analyzePopupMenu);
-
-		analyzeMenuButton.addFocusListener(new FocusAdapter() {
+		
+		analyzeMenuButton.addMouseListener(new MouseListener() {
+			
 			@Override
-			public void focusGained(FocusEvent e) {
+			public void mouseReleased(MouseEvent e) {}
+			
+			@Override
+			public void mousePressed(MouseEvent e) {}
+			
+			@Override
+			public void mouseExited(MouseEvent e) {}
+			
+			@Override
+			public void mouseEntered(MouseEvent e) {
 				saveCorrelationItem.setEnabled(myProject.hasLastCorrelation());
 				MetaOmTablePanel.this.populateRemoveCorrelationMenu();
 			}
-
+			
+			@Override
+			public void mouseClicked(MouseEvent e) {}
 		});
 
 		analyzeMenuButton.setToolTipText(
