@@ -31,6 +31,7 @@ import javax.swing.event.HyperlinkListener;
 import edu.stanford.ejalbert.launching.IBrowserLaunching;
 import net.sf.wraplog.AbstractLogger;
 import java.util.List;
+import java.util.Random;
 
 public class MetaOmTips implements TipModel, HyperlinkListener {
     private ArrayList<TipModel.Tip> tips;
@@ -46,8 +47,8 @@ public class MetaOmTips implements TipModel, HyperlinkListener {
         tipPane = new JTextPane();
         tipPane.setEditable(false);
         tipPane.setContentType("text/html");
-        tipPane.setText("<html><font face=\"dialog\" size=\"3\">Bug report?  Feature request?  Submit it to MOG's GitHub page <a href=\"https://github.com/urmi-21/MetaOmGraph\">MOG GitHub</a>!<br>Nobody knows how to improve a program more than its users!</font></html>");
-        addTip("Feedback", tipPane);
+        addTip("Feedback", 
+        		"<html><font face=\"dialog\" size=\"3\">Bug report?  Feature request?  Submit it to MOG's GitHub page <a href=\"https://github.com/urmi-21/MetaOmGraph\">MOG GitHub</a>!<br>Nobody knows how to improve a program more than its users!</font></html>");
         addTip(
                 "Table Sorting",
                 "You can sort the project data table by clicking on any of the headers.  Click once to sort in ascending order, twice to sort in decending order, and a third time to return to the default order.");
@@ -133,7 +134,10 @@ public class MetaOmTips implements TipModel, HyperlinkListener {
         JPanel textPanel = new JPanel(new BorderLayout());
         textPanel.setBorder(BorderFactory.createEmptyBorder(15, 25, 15, 25));
         textPanel.setPreferredSize(new Dimension(500, 200));
-       
+        
+        Random random = new Random();
+    	tipIndex = random.nextInt(7);
+        tipPane.setText(tips.get(tipIndex).getTip().toString());
         textPanel.add(new JScrollPane(tipPane));
 
         tipPanel.add(textPanel);
@@ -145,8 +149,6 @@ public class MetaOmTips implements TipModel, HyperlinkListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				tipIndex = tipIndex % tips.size();
-				if(tipIndex == 1)
-					tipIndex++;
 				String tipText = tips.get(tipIndex).getTip().toString();
 				tipPane.setText(tipText);
 				tipIndex++;
