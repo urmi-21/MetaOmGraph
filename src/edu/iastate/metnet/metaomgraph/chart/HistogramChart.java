@@ -513,7 +513,7 @@ public class HistogramChart extends TaskbarInternalFrame implements ChartMouseLi
 				JOptionPane.showMessageDialog(this, "No metadata found.");
 				return;
 			}
-			String[] options = {"Reset", "By Query", "By MetaData"};
+			String[] options = {"By Metadata", "By Query", "Reset"};
 			int selectedInd = splitCol == null? 0 : 2;			
 
 			String col_val = (String) JOptionPane.showInputDialog(null, "Choose the column:\n", "Please choose",
@@ -535,7 +535,7 @@ public class HistogramChart extends TaskbarInternalFrame implements ChartMouseLi
 			}
 
 			List<String> selectedVals = new ArrayList<>();
-			if (col_val.equals("By MetaData")) {
+			if (col_val.equals("By Metadata")) {
 				// display jpanel with check box
 				String[] fields =  MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataHeaders();
 				JCheckBox[] cBoxes = new JCheckBox[fields.length];

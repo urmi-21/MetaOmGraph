@@ -3,6 +3,7 @@ package edu.iastate.metnet.metaomgraph.chart;
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
+import edu.iastate.metnet.metaomgraph.SearchMatchType;
 import edu.iastate.metnet.metaomgraph.SortableData;
 import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
 
@@ -163,6 +164,29 @@ public class DataSorter {
 		return result;
 	}
 
+	private String getQueryString(MetadataQuery[] queries, boolean and) {
+		String queryStr = "";
+		int queriesCnt = queries.length;
+		for(int i = 0; i < queriesCnt; i++) {
+			MetadataQuery query = queries[i];
+			queryStr += query.getField();
+			if(query.getMatchType() == SearchMatchType.CONTAINS)
+				queryStr += "~";
+			else if(query.getMatchType() == SearchMatchType.IS)
+				queryStr += "=";
+			else
+				queryStr += "!=";
+			queryStr += query.getTerm();
+			if(queriesCnt - 1 != i) {
+				if(and)
+					queryStr += " AND ";
+				else
+					queryStr += " OR ";
+			}
+		}
+		return queryStr;
+	}
+	
 	// to change
 	public int[] sortByMetadata() {
 		final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(myChartPanel.getProject(),
@@ -221,7 +245,7 @@ public class DataSorter {
 					result[index++] = toAdd.get(i);
 				}
 
-				RangeMarker marker = new RangeMarker(0, hits.length - 1, "Hits", RangeMarker.HORIZONTAL);
+				RangeMarker marker = new RangeMarker(0, hits.length - 1, getQueryString(queries, tsp.matchAll()), RangeMarker.HORIZONTAL);
 				rangeMarkers = new Vector<RangeMarker>();
 				rangeMarkers.add(marker);
 				return null;
