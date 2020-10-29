@@ -497,7 +497,7 @@ public class BarChart extends TaskbarInternalFrame implements ChartMouseListener
 
 		if ("splitDataset".equals(e.getActionCommand())) {
 
-			String[] options = {"Reset", "By Query", "By MetaData"};
+			String[] options = {"By Metadata", "By Query", "Reset"};
 			int selectedInd = splitCol == null? 0 : 2;			
 
 			String col_val = (String) JOptionPane.showInputDialog(null, "Choose the column:\n", "Please choose",
@@ -515,7 +515,7 @@ public class BarChart extends TaskbarInternalFrame implements ChartMouseListener
 			}
 
 			List<String> selectedVals = new ArrayList<>();
-			if (col_val.equals("By MetaData")) {
+			if (col_val.equals("By Metadata")) {
 				String[] fields =  MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataHeaders();
 				// display jpanel with check box
 				JCheckBox[] cBoxes = new JCheckBox[fields.length];
