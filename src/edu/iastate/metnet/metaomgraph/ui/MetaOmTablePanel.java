@@ -251,8 +251,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		plotRMenu.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				JOptionPane.showMessageDialog(null, "clicked");
 				refreshRPlotMenu();
 			}
 		});
