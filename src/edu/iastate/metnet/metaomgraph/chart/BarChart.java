@@ -497,11 +497,10 @@ public class BarChart extends TaskbarInternalFrame implements ChartMouseListener
 
 		if ("splitDataset".equals(e.getActionCommand())) {
 
-			String[] options = {"By Metadata", "By Query", "Reset"};
-			int selectedInd = splitCol == null? 0 : 2;			
+			String[] options = {"By Metadata", "By Query", "Reset"};			
 
 			String col_val = (String) JOptionPane.showInputDialog(null, "Choose the column:\n", "Please choose",
-					JOptionPane.PLAIN_MESSAGE, null, options, options[selectedInd]);
+					JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 			if (col_val == null) {
 				return;
 			}

@@ -514,10 +514,9 @@ public class HistogramChart extends TaskbarInternalFrame implements ChartMouseLi
 				return;
 			}
 			String[] options = {"By Metadata", "By Query", "Reset"};
-			int selectedInd = splitCol == null? 0 : 2;			
 
 			String col_val = (String) JOptionPane.showInputDialog(null, "Choose the column:\n", "Please choose",
-					JOptionPane.PLAIN_MESSAGE, null, options, options[selectedInd]);
+					JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 			if (col_val == null) {
 				return;
 			}
