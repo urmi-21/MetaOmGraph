@@ -49,6 +49,7 @@ import org.dizitart.no2.Document;
 
 import edu.iastate.metnet.metaomgraph.AlphanumericComparator;
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
+import edu.iastate.metnet.metaomgraph.ComputePCA;
 import edu.iastate.metnet.metaomgraph.ComputeRunsSimilarity;
 import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.IconTheme;
@@ -60,6 +61,7 @@ import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.chart.BarChart;
 import edu.iastate.metnet.metaomgraph.chart.BoxPlot;
 import edu.iastate.metnet.metaomgraph.chart.PlotRunsasSeries;
+import edu.iastate.metnet.metaomgraph.chart.ScatterPlotPCA;
 import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
@@ -1268,7 +1270,12 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 			}
 		});
 		mnAnalyze.add(mntmSpearmanCorrelation);
-
+		
+		JMenuItem pcaComputation = new JMenuItem("Compute PCA");
+		pcaComputation.setActionCommand("Compute PCA");
+		pcaComputation.addActionListener(this);
+		mnAnalyze.add(pcaComputation);
+		
 		JMenuItem mntmSimple = new JMenuItem("Simple");
 		mntmSimple.addActionListener(new ActionListener() {
 			@Override
@@ -2448,6 +2455,50 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		}
 		if ("Create List with Selected Rows".equals(e.getActionCommand())) {
 			createNewListFromSelectedRows();
+			return;
+		}
+		if("Compute PCA".equals(e.getActionCommand())) {
+			try {
+				String[] selectedNames = getSelectDataColsName();
+				if (selectedNames == null) {
+					return;
+				}
+				
+				String[] geneList = MetaOmGraph.getActiveProject().getGeneListNames();
+				String selectedGeneList = (String) JOptionPane.showInputDialog(MetaOmGraph.getMainWindow(), "Select the gene list", "PCA", JOptionPane.PLAIN_MESSAGE, 
+						null, geneList, geneList[0]);
+				if(selectedGeneList == null || selectedGeneList.isEmpty())
+					return;
+				// for the selected runs find their index in the data file and get data by the
+				// index in data file
+				int[] selectedIndinData = MetaOmGraph.getActiveProject().getColumnIndexbyHeader(selectedNames);
+				final HashMap<Integer, double[]> databyCols;
+				databyCols = MetaOmGraph.getActiveProject().getSelectedListRowData(selectedIndinData, selectedGeneList);
+				if (databyCols == null) {
+					return;
+				}
+				new AnimatedSwingWorker("Computing PCA...", true) {
+					@Override
+					public Object construct() {
+						ComputePCA pca = new ComputePCA(databyCols);
+						double[][] pcaData = pca.projectData(2);
+						// @TODO x and y label names.
+						ScatterPlotPCA f = new ScatterPlotPCA(pcaData, selectedNames, "", "", false);
+						MetaOmGraph.getDesktop().add(f);
+						f.setDefaultCloseOperation(2);
+						f.setClosable(true);
+						f.setResizable(true);
+						f.pack();
+						f.setSize(1000, 700);
+						f.setVisible(true);
+						f.toFront();
+						return null;
+					}
+				}.start();
+				
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 			return;
 		}
 	}

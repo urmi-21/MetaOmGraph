@@ -166,6 +166,11 @@
 			<artifactId>flatlaf-intellij-themes</artifactId>
 			<version>0.42</version>
 		</dependency>
+  		<dependency>
+      		<groupId>org.nd4j</groupId>
+      		<artifactId>nd4j-native-platform</artifactId>
+      		<version>1.0.0-beta7</version>
+  		</dependency>
 	</dependencies>
 
 </project>
