@@ -3177,6 +3177,33 @@ public class MetaOmProject {
 
 		return data;
 	}
+	
+	/**
+	 * this function will return data of all rows for the given columns e.g. get data
+	 * for all genes for a given run
+	 * 
+	 * @param selectedCols selected sample data column indices
+	 * @param selectedList selected gene list name
+	 * @return
+	 * @throws IOException
+	 */
+	public HashMap<Integer, double[]> getSelectedListRowData(int[] selectedCols, String selectedList) throws IOException{
+		int[]  rowNums = getGeneListRowNumbers(selectedList);
+		HashMap<Integer, double[]> res = new HashMap<>();
+		
+		for (int i = 0; i < selectedCols.length; i++) {
+			double[] temp = new double[rowNums.length];
+			res.put(selectedCols[i], temp);
+		}
+		
+		for(int i = 0; i < rowNums.length; i++) {
+			double[] rowData = getAllData(rowNums[i]);
+			for(int j = 0; j < selectedCols.length; j++) {
+				res.get(selectedCols[j])[i] = rowData[selectedCols[j]];
+			}
+		}
+		return res;
+	}
 
 	/**
 	 * this function will return data of all rows for a given column e.g. get data
