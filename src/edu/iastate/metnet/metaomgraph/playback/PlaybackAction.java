@@ -51,6 +51,7 @@ public class PlaybackAction {
 	private static final String CORRELATION_COLUMN_PROPERTY = "Correlation Column";
 	private static final String PLAYABLE_PROPERTY = "Playable";
 	private static final String TRANSFORMATION_PROPERTY = "Data Transformation";
+	private static final String COMPUTE_PCA = "Compute PCA";
 
 
 	/**
@@ -73,7 +74,16 @@ public class PlaybackAction {
 				LoggingTreeNode ltn = (LoggingTreeNode) nodeObj;
 
 				ActionProperties playedAction = allTabsInfo.get(tabNo).getActionObjects().get(ltn.getNodeNumber());
-
+				
+				if(ltn.getCommandName().equalsIgnoreCase(COMPUTE_PCA)) {
+					Map<String, Object> dataMap = playedAction.getDataParameters();
+					ArrayList<String> dataCol = (ArrayList<String>)dataMap.get("Selected samples");
+					String selectedGeneList = (String)dataMap.get("Selected feature list");
+					Boolean normalizeData = (Boolean)dataMap.get("Normalization");
+					String[] selectedDataCols = new String[dataCol.size()];
+					selectedDataCols = dataCol.toArray(selectedDataCols);
+					MetaOmGraph.getActiveTablePanel().getMetadataTableDisplay().computePCA(selectedDataCols, selectedGeneList, normalizeData);
+				}
 
 				if(playedAction.getOtherParameters().get(PLAYABLE_PROPERTY)!=null) {
 
@@ -168,11 +178,6 @@ public class PlaybackAction {
 							} else if (ltn.getCommandName().equalsIgnoreCase(CORRELATION_HISTOGRAM_COMMAND)) {
 								playChart(playedAction, CORRELATION_HISTOGRAM_COMMAND, includedSamples, excludedSamples);
 							}
-
-
-
-
-
 						
 					}
 				}

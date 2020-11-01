@@ -8,6 +8,9 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
@@ -49,6 +52,7 @@ import org.dizitart.no2.Document;
 
 import edu.iastate.metnet.metaomgraph.AlphanumericComparator;
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
+import edu.iastate.metnet.metaomgraph.ComputePCA;
 import edu.iastate.metnet.metaomgraph.ComputeRunsSimilarity;
 import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.IconTheme;
@@ -60,14 +64,17 @@ import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.chart.BarChart;
 import edu.iastate.metnet.metaomgraph.chart.BoxPlot;
 import edu.iastate.metnet.metaomgraph.chart.PlotRunsasSeries;
+import edu.iastate.metnet.metaomgraph.chart.ScatterPlotPCA;
 import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
@@ -120,6 +127,10 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 	private JButton listEditButton;
 	private JButton listDeleteButton;
 	private JButton listRenameButton;
+	
+	// PCA
+	private boolean normalizeData;
+	private String selectedGeneListPCA;
 
 	/**
 	 * Default Properties
@@ -1268,7 +1279,12 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 			}
 		});
 		mnAnalyze.add(mntmSpearmanCorrelation);
-
+		
+		JMenuItem pcaComputation = new JMenuItem("Compute PCA");
+		pcaComputation.setActionCommand("Compute PCA");
+		pcaComputation.addActionListener(this);
+		mnAnalyze.add(pcaComputation);
+		
 		JMenuItem mntmSimple = new JMenuItem("Simple");
 		mntmSimple.addActionListener(new ActionListener() {
 			@Override
@@ -2450,6 +2466,146 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 			createNewListFromSelectedRows();
 			return;
 		}
+		if("Compute PCA".equals(e.getActionCommand())) {
+			String[] selectedDataCols = getSelectDataColsName();
+			if (selectedDataCols == null) {
+				return;
+			}
+			
+			String[] geneList = MetaOmGraph.getActiveProject().getGeneListNames(); 
+			createPCAPanel(geneList);
+			if(selectedGeneListPCA == null || selectedGeneListPCA.isEmpty())
+				return;
+			
+			computePCA(selectedDataCols, selectedGeneListPCA, normalizeData);
+			
+			// Logging
+			HashMap<String, Object> actionMap = new HashMap<String, Object>();
+			actionMap.put("parent", MetaOmGraph.getCurrentProjectActionId());
+			actionMap.put("section", "Sample Metadata Table");
+
+			HashMap<String, Object> dataMap = new HashMap<String, Object>();
+			
+			dataMap.put("Selected samples", Arrays.asList(selectedDataCols));
+			dataMap.put("Selected feature list", selectedGeneListPCA);
+			dataMap.put("Normalization", normalizeData);
+
+			HashMap<String, Object> resultLog = new HashMap<String, Object>();
+			resultLog.put("result", "OK");
+
+			ActionProperties computePCAAction = new ActionProperties("Compute PCA", actionMap,
+					dataMap, resultLog, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+			computePCAAction.logActionProperties();		
+			return;
+		}
+	}
+	
+	/**
+	 * Compute PCA and display the scatter plot
+	 * @param selectedDataCols selected samples
+	 * @param selectedGeneList selected gene list
+	 * @param normalizeData whether to normalize the data when calculating pca
+	 */
+	public void computePCA(String[] selectedDataCols, String selectedGeneList, boolean normalizeData) {
+		// for the selected runs find their index in the data file and get data by the
+		// index in data file
+		try {
+			int[] selectedIndinData = MetaOmGraph.getActiveProject().getColumnIndexbyHeader(selectedDataCols);
+			final HashMap<Integer, double[]> databyCols;
+			databyCols = MetaOmGraph.getActiveProject().getSelectedListRowData(selectedIndinData, selectedGeneList);
+			if (databyCols == null) {
+				return;
+			}
+			new AnimatedSwingWorker("Computing PCA...", true) {
+				@Override
+				public Object construct() {
+					ComputePCA pca = new ComputePCA(databyCols);
+					double[][] pcaData = pca.projectData(2, normalizeData);
+					double[][] transposedData = Utils.getTransposeMatrix(pcaData);
+					String[] rowNames = new String[transposedData.length];
+					for(int i = 0; i < rowNames.length; i++) {
+						rowNames[i] = "PCA" + Integer.toString(i+1);
+					}
+					// @TODO x and y label names.
+					ScatterPlotPCA pcaScatterPlotFrame = new 
+							ScatterPlotPCA(transposedData, rowNames, selectedDataCols, 
+									"", "", false);
+					MetaOmGraph.getDesktop().add(pcaScatterPlotFrame);
+					pcaScatterPlotFrame.setDefaultCloseOperation(2);
+					pcaScatterPlotFrame.setClosable(true);
+					pcaScatterPlotFrame.setResizable(true);
+					pcaScatterPlotFrame.pack();
+					pcaScatterPlotFrame.setSize(1000, 700);
+					pcaScatterPlotFrame.setVisible(true);
+					pcaScatterPlotFrame.toFront();
+					return null;
+				}
+			}.start();
+		}
+		catch(IOException e1) {
+			e1.printStackTrace();
+		}
+	}
+	
+	private void createPCAPanel(String[] geneList) {
+		JDialog dialog = new JDialog();
+		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		dialog.setModal(true);
+		dialog.setTitle("Compute PCA");
+		dialog.setLocationRelativeTo(MetaOmGraph.getDesktop());
+		dialog.setLayout(new GridBagLayout());
+		GridBagConstraints constraints = new GridBagConstraints();
+	    constraints.anchor = GridBagConstraints.WEST;
+	    constraints.insets = new Insets(10, 10, 10, 10);
+	        
+	    constraints.gridx = 0;
+        constraints.gridy = 0;     
+        JLabel geneListLabel = new JLabel("Gene List : ");
+        dialog.add(geneListLabel, constraints);
+        
+        constraints.gridx = 1;
+        JComboBox<String> geneListComboBox = new JComboBox<String>(geneList);
+        geneListComboBox.setMaximumSize(geneListComboBox.getPreferredSize());
+        geneListComboBox.setAlignmentX(Component.CENTER_ALIGNMENT);
+        dialog.add(geneListComboBox, constraints);
+        
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        JCheckBox normalizeDataCheckBox = new JCheckBox(" Normalize data (Mean center)");
+        dialog.add(normalizeDataCheckBox, constraints);
+        
+        constraints.gridx = 0;
+        constraints.gridy = 2;
+        JButton okButton = new JButton("Ok");
+        dialog.add(okButton, constraints);
+        
+        constraints.gridx = 1;
+        JButton cancelButton = new JButton("Cancel");
+        dialog.add(cancelButton, constraints);
+		
+		okButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				normalizeData = normalizeDataCheckBox.isSelected();
+				selectedGeneListPCA = (String) geneListComboBox.getSelectedItem();
+				dialog.dispose();
+			}
+		});
+		
+		cancelButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				selectedGeneListPCA = null;
+				dialog.dispose();
+			}
+		});
+		
+        dialog.setResizable(true);
+        dialog.pack();
+        dialog.setVisible(true);
+        dialog.toFront();
 	}
 
 	private void updateLists() {
