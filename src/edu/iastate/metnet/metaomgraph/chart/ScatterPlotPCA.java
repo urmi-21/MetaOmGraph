@@ -80,6 +80,7 @@ public class ScatterPlotPCA extends TaskbarInternalFrame implements ChartMouseLi
 	// scatterplot
 	private int pivotIndex;
 	private String[] rowNames;
+	private String[] selectedDataCols;
 	private String xAxisname;
 	private String yAxisname;
 	private ChartPanel chartPanel;
@@ -128,7 +129,7 @@ public class ScatterPlotPCA extends TaskbarInternalFrame implements ChartMouseLi
 
 	private String splitCol;
 	private Map<String, Collection<Integer>> splitIndex;
-	private HashMap<String, String> seriesNameToKeyMap;
+	private HashMap<String, String> dataColNameToolTipMap;
 	private JSpinner spinner;
 
 	/**
@@ -151,12 +152,14 @@ public class ScatterPlotPCA extends TaskbarInternalFrame implements ChartMouseLi
 	/**
 	 * Create the frame.
 	 */
-	public ScatterPlotPCA(double[][] data, String[] rowNames, String xLabel, String yLabel, boolean isPlayback) {
+	public ScatterPlotPCA(double[][] data, String[] rowNames, String[] selectedDataCols,
+			String xLabel, String yLabel, boolean isPlayback) {
 		super("Scatter Plot");
 		
 		this.data = data;
 		this.xAxisname = xLabel;
 		this.yAxisname = yLabel;
+		this.selectedDataCols = selectedDataCols;
 		this.rowNames = rowNames;
 		this.metaDataColl = MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataCollection();
 		
@@ -374,17 +377,18 @@ public class ScatterPlotPCA extends TaskbarInternalFrame implements ChartMouseLi
 				XYDataset thisDS = item.getDataset();
 				double chartX = thisDS.getXValue(item.getSeriesIndex(), thisXind);
 				double chartY = thisDS.getYValue(item.getSeriesIndex(), thisXind);
-
-				// get the series name
-				String thisSeries = item.getToolTipText();
-				int lastChar = thisSeries.lastIndexOf(":");
-				thisSeries = thisSeries.substring(0, lastChar);
+				
+				String thisSeries = "";
 				
 				if(splitIndex != null) {
-					String seriesNameKey = String.valueOf(chartX) + 
-							String.valueOf(chartY) +
-							thisSeries;
-					thisSeries = seriesNameToKeyMap.get(seriesNameKey);
+					String seriesNameKey = String.valueOf(chartX) + " " +
+							String.valueOf(chartY);
+					thisSeries = dataColNameToolTipMap.get(seriesNameKey);
+				}
+				else {
+					String toolTipKey = String.valueOf(chartX) + " " +
+							String.valueOf(chartY);
+					thisSeries = dataColNameToolTipMap.get(toolTipKey);
 				}
 				return createTooltipTable(thisSeries, chartX, chartY);
 			}
@@ -425,26 +429,32 @@ public class ScatterPlotPCA extends TaskbarInternalFrame implements ChartMouseLi
 	}
 
 	private XYDataset createDataset() throws IOException {
-		XYSeriesCollection dataset = new XYSeriesCollection();	
+		XYSeriesCollection dataset = new XYSeriesCollection();
+		double[] dataX = data[0];
+		double[] dataY = data[1];
+		dataColNameToolTipMap = new HashMap<>();
 		if(splitIndex != null) {
-			seriesNameToKeyMap = new HashMap<>();
 			for (String key : splitIndex.keySet()) {
 				Collection<Integer> thisInd = splitIndex.get(key);
 				
-				XYSeries series = new XYSeries(key);
+				XYSeries series = new XYSeries(rowNames[0] + " vs " + rowNames[1] + "(" + key + ")");
 				for(int index : thisInd) {
-					series.add(data[index][0], data[index][1]);
-					String seriesNameKey = String.valueOf(data[index][0]) + 
-							String.valueOf(data[index][1]) +
-							key;
-					seriesNameToKeyMap.put(seriesNameKey, rowNames[index]);
+					series.add(dataX[index], dataY[index]);
+					String seriesNameKey = String.valueOf(dataX[index]) + " " +
+							String.valueOf(dataY[index]);
+					dataColNameToolTipMap.put(seriesNameKey, selectedDataCols[index]);
 				}
 				dataset.addSeries(series);
 			}
 		} else {
-			for(int i = 0; i < data.length; i++) {
-				XYSeries series = new XYSeries(rowNames[i]);
-				series.add(data[i][0], data[i][1]);
+			for(int i = 1; i < data.length; i++) {
+				XYSeries series = new XYSeries(rowNames[0] + " vs " + rowNames[1]);
+				for(int j = 0; j < dataX.length; j++) {
+					series.add(dataX[j], dataY[j]);
+					String keyForToolTip = String.valueOf(dataX[j]) + " " +
+							String.valueOf(dataY[j]);
+					dataColNameToolTipMap.put(keyForToolTip, selectedDataCols[j]);
+				}
 				dataset.addSeries(series);
 			}
 		}
@@ -635,7 +645,7 @@ public class ScatterPlotPCA extends TaskbarInternalFrame implements ChartMouseLi
 				} else {
 					return;
 				}
-				List<String> dataCols = Arrays.asList(rowNames);
+				List<String> dataCols = Arrays.asList(selectedDataCols);
 				splitIndex = MetaOmGraph.getActiveProject().getMetadataHybrid().cluster(selectedVals, dataCols);
 
 			} else if (col_val.equals("By Query")) {

@@ -47,10 +47,11 @@ public class ComputePCA {
      * The returned matrix is a projection of A onto principal components
      *
      * @param variance the amount of variance to preserve as a float 0 - 1
+     * @param normalize whether to normalize (set features to have zero mean)
      * @return the matrix representing  a reduced feature set
      */
-	public double[][] projectData(double variance){
-		INDArray pcaFactors = PCA.pca(dataArray, variance, false);
+	public double[][] projectData(double variance, boolean normalize){
+		INDArray pcaFactors = PCA.pca(dataArray, variance, normalize);
 		double[][] plotData = pcaFactors.toDoubleMatrix();
 		return plotData;
 	}
@@ -61,10 +62,11 @@ public class ComputePCA {
      * The return is a projection of A onto principal nDims components
      *
      * @param numOfDims the number of components on which to project the features 
+     * @param normalize whether to normalize (set features to have zero mean)
      * @return the reduced parameters of the data
      */
-	public double[][] projectData(int numOfDims){
-		INDArray pcaFactors = PCA.pca(dataArray, numOfDims, false);
+	public double[][] projectData(int numOfDims, boolean normalize){
+		INDArray pcaFactors = PCA.pca(dataArray, numOfDims, normalize);
 		double[][] plotData = pcaFactors.toDoubleMatrix();
 		return plotData;
 	}
