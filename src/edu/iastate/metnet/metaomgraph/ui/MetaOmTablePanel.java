@@ -93,6 +93,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	// urmi
 	private MenuButton saveMainTableButton;
 	private MenuButton plotButton;
+	private MenuButton runWithRButton;
 	private JMenuItem plotListItem;
 
 	private JMenuItem plotRowsItem;
@@ -250,8 +251,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		plotRMenu.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				JOptionPane.showMessageDialog(null, "cliscked");
 				refreshRPlotMenu();
 			}
 		});
@@ -271,6 +270,31 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				// JOptionPane.showMessageDialog(null, "3");
 				refreshRPlotMenu();
 			}
+		});
+		
+		JPopupMenu rPopupMenu = new JPopupMenu();
+		rPopupMenu.add(plotRMenu);
+		runWithRButton = new MenuButton("Run using R", theme.getRIcon(), null);
+		runWithRButton.setToolTipText("Run using R");
+		runWithRButton.setMenu(rPopupMenu);
+		runWithRButton.addMouseListener(new MouseListener() {
+
+			@Override
+			public void mouseReleased(MouseEvent e) {}
+
+			@Override
+			public void mousePressed(MouseEvent e) {}
+
+			@Override
+			public void mouseExited(MouseEvent e) {}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				plotRMenu.setEnabled(listDisplay.getSelectedRowCount() > 0);
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {}
 		});
 
 		plotListItem.setActionCommand(GRAPH_LIST_COMMAND);
@@ -305,7 +329,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		selectedRowsMenu.add(plotPairRowsItem);
 		selectedRowsMenu.add(plotBoxRowItem);
 		selectedRowsMenu.add(plotHistogramItem);
-		selectedRowsMenu.add(plotRMenu);
 		plotPopupMenu.add(selectedRowsMenu);
 
 		plotPopupMenu.add(plotFilterItem);
@@ -326,13 +349,25 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		plotPopupMenu.add(selectedColsMenu);
 
 		plotButton.setMenu(plotPopupMenu);
-		plotButton.addFocusListener(new FocusAdapter() {
-
+		
+		plotButton.addMouseListener(new MouseListener() {
+			
 			@Override
-			public void focusGained(FocusEvent e) {
+			public void mouseReleased(MouseEvent e) {}
+			
+			@Override
+			public void mousePressed(MouseEvent e) {}
+			
+			@Override
+			public void mouseExited(MouseEvent e) {}
+			
+			@Override
+			public void mouseEntered(MouseEvent e) {
 				selectedRowsMenu.setEnabled(listDisplay.getSelectedRowCount() > 0);
 			}
-
+			
+			@Override
+			public void mouseClicked(MouseEvent e) {}
 		});
 		dataToolbar.add(plotButton);
 
@@ -535,19 +570,33 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		analyzePopupMenu.add(removeCorrelationMenu);
 
 		analyzeMenuButton = new MenuButton("Statistical analysis", theme.getMath(), analyzePopupMenu);
-
-		analyzeMenuButton.addFocusListener(new FocusAdapter() {
+		
+		analyzeMenuButton.addMouseListener(new MouseListener() {
+			
 			@Override
-			public void focusGained(FocusEvent e) {
+			public void mouseReleased(MouseEvent e) {}
+			
+			@Override
+			public void mousePressed(MouseEvent e) {}
+			
+			@Override
+			public void mouseExited(MouseEvent e) {}
+			
+			@Override
+			public void mouseEntered(MouseEvent e) {
 				saveCorrelationItem.setEnabled(myProject.hasLastCorrelation());
 				MetaOmTablePanel.this.populateRemoveCorrelationMenu();
 			}
-
+			
+			@Override
+			public void mouseClicked(MouseEvent e) {}
 		});
 
 		analyzeMenuButton.setToolTipText(
 				"Statistically analyze the selected data set against the other sets in the selected list");
 		dataToolbar.add(analyzeMenuButton);
+		
+		dataToolbar.add(runWithRButton);
 
 		dataToolbar.add(new Separator());
 

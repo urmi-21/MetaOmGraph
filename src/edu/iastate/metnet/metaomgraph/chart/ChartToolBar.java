@@ -114,7 +114,7 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 	private JMenuItem hideColumnsItem;
 	private JRadioButtonMenuItem lastSelected;
 	private JMenu customSortMenu;
-	private JMenu clusterMetadataMenu;
+	//private JMenu clusterMetadataMenu;
 	private int[] newOrder;
 	private MetaOmChartPanel myChartPanel;
 	private String xaxisLabel;
@@ -223,7 +223,7 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 		extInfoSortItem = new JRadioButtonMenuItem("Group by Query");
 		// metadataClusterSortItem = new JRadioButtonMenuItem("More...");
 		// changed to; urmi
-		metadataClusterSortItem = new JRadioButtonMenuItem();
+		metadataClusterSortItem = new JRadioButtonMenuItem("Group by Metadata");
 		poSortItem = new JRadioButtonMenuItem("By POs");
 		newCustomSortItem = new JRadioButtonMenuItem("New custom sort...");
 		sortGroup = new ButtonGroup();
@@ -262,7 +262,7 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 		customSortMenu = new JMenu("Custom");
 		customSortMenu.add(newCustomSortItem);
 		refreshCustomSortMenu();
-		clusterMetadataMenu = new JMenu("Group by Metadata");
+		//clusterMetadataMenu = new JMenu("Group by Metadata");
 		refreshClusterMetadataMenu();
 		sortMenu.add(defaultSortItem);
 		sortMenu.add(nameSortItem);
@@ -274,7 +274,7 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 		 */
 		if (!myChartPanel.repFlag) {
 			// JOptionPane.showMessageDialog(null, "OFF");
-			sortMenu.add(clusterMetadataMenu);
+			sortMenu.add(metadataClusterSortItem);
 			sortMenu.add(extInfoSortItem);
 			sortMenu.add(customSortMenu);
 		}
@@ -685,37 +685,29 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 			}.start();
 			return;
 		}
-		if ((e.getActionCommand() != null) && (e.getActionCommand().startsWith("clusterMetadataSort"))) {
-
-			String[] splitCommand = e.getActionCommand().split("::", 2);
+		if (SORT_CLUSTER_METADATA_COMMAND.equals(e.getActionCommand())) {
 			java.util.List<String> selectedVals = new ArrayList<>();
-			if (splitCommand.length == 2) {
-				if (splitCommand[1].equals("More...")) {
-					String[] metadataHeaders = myChartPanel.getProject().getMetadataHybrid().getMetadataHeaders();
-					// display jpanel with check box
-					JCheckBox[] cBoxes = new JCheckBox[metadataHeaders.length];
-					JPanel cbPanel = new JPanel();
-					cbPanel.setLayout(new GridLayout(0, 3));
-					for (int i = 0; i < metadataHeaders.length; i++) {
-						cBoxes[i] = new JCheckBox(metadataHeaders[i]);
-						cbPanel.add(cBoxes[i]);
-					}
-					int res = JOptionPane.showConfirmDialog(null, cbPanel, "Select categories",
-							JOptionPane.OK_CANCEL_OPTION);
-					if (res == JOptionPane.OK_OPTION) {
-						for (int i = 0; i < metadataHeaders.length; i++) {
-							if (cBoxes[i].isSelected()) {
-								selectedVals.add(metadataHeaders[i]);
-							}
-						}
-					} else {
-						return;
-					}
-				} else {
-					selectedVals.add(splitCommand[1]);
-					newOrder = myChartPanel.getDataSorter().clusterByMetadata(selectedVals);
-				}
+			String[] metadataHeaders = myChartPanel.getProject().getMetadataHybrid().getMetadataHeaders();
+			// display jpanel with check box
+			JCheckBox[] cBoxes = new JCheckBox[metadataHeaders.length + 1];
+			JPanel cbPanel = new JPanel();
+			cbPanel.setLayout(new GridLayout(0, 3));
+			for (int i = 0; i < metadataHeaders.length; i++) {
+				cBoxes[i] = new JCheckBox(metadataHeaders[i]);
+				cbPanel.add(cBoxes[i]);
 			}
+			int res = JOptionPane.showConfirmDialog(null, cbPanel, "Select categories",
+					JOptionPane.OK_CANCEL_OPTION);
+			if (res == JOptionPane.OK_OPTION) {
+				for (int i = 0; i < metadataHeaders.length; i++) {
+					if (cBoxes[i].isSelected()) {
+						selectedVals.add(metadataHeaders[i]);
+					}
+				}
+			} else {
+				return;
+			}
+			
 			new AnimatedSwingWorker("Working...", false) {
 				@Override
 				public Object construct() {
@@ -917,43 +909,13 @@ public class ChartToolBar extends JToolBar implements ActionListener {
 		 * @author urmi get metadata from new class and use its functions
 		 */
 		if (myChartPanel.getProject().getMetadataHybrid() == null) {
-			if (clusterMetadataMenu != null) {
-				clusterMetadataMenu.setEnabled(false);
+			if (metadataClusterSortItem != null) {
+				metadataClusterSortItem.setEnabled(false);
 			}
 			return;
 
 		}
-		final String[] fields = myChartPanel.getProject().getMetadataHybrid().getMetadataHeaders();
-		final String[] fields2 = new String[fields.length + 1];
-		int k = 0;
-		for (String f : fields) {
-			fields2[k++] = f;
-		}
-		fields2[fields2.length - 1] = "More...";
-
-		Component[] components = clusterMetadataMenu.getMenuComponents();
-		for (Component c : components) {
-			if (!(c instanceof JMenuItem))
-				continue;
-			JMenuItem item = (JMenuItem) c;
-
-			if (item.equals(metadataClusterSortItem))
-				continue;
-			item.removeActionListener(this);
-		}
-		clusterMetadataMenu.removeAll();
-		ButtonGroup group = new ButtonGroup();
-		for (int i = 0; i < fields2.length; i++) {
-			JCheckBoxMenuItem item = new JCheckBoxMenuItem(fields2[i]);
-			item.setActionCommand(SORT_CLUSTER_METADATA_COMMAND + "::" + item.getText());
-			item.addActionListener(this);
-			group.add(item);
-			clusterMetadataMenu.add(item);
-		}
-		// removed; urmi
-		// clusterMetadataMenu.addSeparator();
-		// clusterMetadataMenu.add(metadataClusterSortItem); removed urmi
-		clusterMetadataMenu.setEnabled(true);
+		metadataClusterSortItem.setEnabled(true);
 	}
 
 	private void initAppearanceMenu() {

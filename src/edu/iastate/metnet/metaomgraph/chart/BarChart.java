@@ -497,30 +497,10 @@ public class BarChart extends TaskbarInternalFrame implements ChartMouseListener
 
 		if ("splitDataset".equals(e.getActionCommand())) {
 
-			// show feature or sample metadata columns based on the plotType
-			String[] fields = null;
-			if (plotType == 1) {
-				// show feature metadata columns
-				fields = myProject.getInfoColumnNames();
-			} else if (plotType == 2) {
-				// show sample metadata columns
-				fields = myProject.getMetadataHybrid().getMetadataHeaders();
-			}
+			String[] options = {"By Metadata", "By Query", "Reset"};			
 
-			fields = MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataHeaders();
-			String[] fields2 = new String[fields.length + 3];
-			fields2[0] = "Reset";
-			int selectedInd = 0;
-			for (int i = 0; i < fields.length; i++) {
-				fields2[i + 1] = fields[i];
-				if (splitCol != null && splitCol.equals(fields2[i + 1])) {
-					selectedInd = i + 1;
-				}
-			}
-			fields2[fields2.length - 2] = "By Query";
-			fields2[fields2.length - 1] = "More...";
 			String col_val = (String) JOptionPane.showInputDialog(null, "Choose the column:\n", "Please choose",
-					JOptionPane.PLAIN_MESSAGE, null, fields2, fields2[selectedInd]);
+					JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 			if (col_val == null) {
 				return;
 			}
@@ -534,7 +514,8 @@ public class BarChart extends TaskbarInternalFrame implements ChartMouseListener
 			}
 
 			List<String> selectedVals = new ArrayList<>();
-			if (col_val.equals("More...")) {
+			if (col_val.equals("By Metadata")) {
+				String[] fields =  MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataHeaders();
 				// display jpanel with check box
 				JCheckBox[] cBoxes = new JCheckBox[fields.length];
 				JPanel cbPanel = new JPanel();
@@ -604,14 +585,6 @@ public class BarChart extends TaskbarInternalFrame implements ChartMouseListener
 				}
 				splitIndex = createSplitIndex(resList, Arrays.asList("Hits", "Other"));
 			}
-
-			else {
-				// split data set by values of col_val
-				selectedVals.add(col_val);
-				splitCol = col_val;
-				splitIndex = myProject.getMetadataHybrid().cluster(selectedVals);
-			}
-
 			// reset order
 			orderedKeys = null;
 			updateChart();
