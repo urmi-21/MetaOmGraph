@@ -31,6 +31,7 @@ import javax.swing.event.HyperlinkListener;
 import edu.stanford.ejalbert.launching.IBrowserLaunching;
 import net.sf.wraplog.AbstractLogger;
 import java.util.List;
+import java.util.Random;
 
 public class MetaOmTips implements TipModel, HyperlinkListener {
     private ArrayList<TipModel.Tip> tips;
@@ -41,26 +42,28 @@ public class MetaOmTips implements TipModel, HyperlinkListener {
         tips = new ArrayList();
         addTip(
                 "Welcome to MetaOmGraph!",
-                "You can press F1 at any time to get help with whatever you're working on.\n\nOn some laptops (especially Mac laptops), you may need to press Fn-F1.");
+                "<html><p style=\"color:9ACD32\">You can press F1 at any time to get help with whatever you're working on.\n\nOn some laptops (especially Mac laptops), you may need to press Fn-F1.</p></html>");
 
         tipPane = new JTextPane();
         tipPane.setEditable(false);
         tipPane.setContentType("text/html");
-        tipPane.setText("<html><font face=\"dialog\" size=\"3\">Bug report?  Feature request?  Submit it to MOG's GitHub page <a href=\"https://github.com/urmi-21/MetaOmGraph\">MOG GitHub</a>!<br>Nobody knows how to improve a program more than its users!</font></html>");
-        addTip("Feedback", tipPane);
+        addTip("Feedback", 
+        		"<html><p style=\"color:red\"> Bug report?  Feature request?  Submit it to MOG's GitHub page <a href=\"https://github.com/urmi-21/MetaOmGraph\">MOG GitHub</a>!<br>Nobody knows how to improve a program more than its users!</p></html>");
         addTip(
                 "Table Sorting",
-                "You can sort the project data table by clicking on any of the headers.  Click once to sort in ascending order, twice to sort in decending order, and a third time to return to the default order.");
+                "<html><p style=\"color:DC143C\">You can sort the project data table by clicking on any of the headers.  Click once to sort in ascending order, twice to sort in decending order, and a third time to return to the default order.</p></html>");
         addTip(
                 "Series Recoloring",
-                "You can recolor any series on a plot by double-clicking that series' entry in the legend.");
+                "<html><p style=\"color:blue\">You can recolor any series on a plot by double-clicking that series' entry in the legend.</p></html>");
         addTip(
                 "Resizing Saved Plots",
-                "When using the Save Plot as Image feature, you can specify the size of the saved image.  The plot will then grow or shrink to fit the given size.  This often results in a higher-quality picture than leaving the default size, then growing or shrinking the image with an image-manipulation tool.");
-        addTip("Properties", "Plot defaults (axis titles, background gradient), as well as row and column names, can be edited by selecting Project->Properties from the menu bar.");
-        addTip("Saving Metadata sorts", "To quickly re-order any plot to the result of a metadata sort, save the result as a custom sort.  Run the metadata sort, then select the custom sort option, then click the Save button.");
-        //addTip("Sample tip", "Suggestion");
-        //add tips
+                "<html><p style=\"color:green\">When using the Save Plot as Image feature, you can specify the size of the saved image.  The plot will then grow or shrink to fit the given size.  "
+                + "This often results in a higher-quality picture than leaving the default size, then growing or shrinking the image with an image-manipulation tool.</p></html>");
+        addTip("Properties", 
+        		"<html><p style=\"color:FF00FF\">Plot defaults (axis titles, background gradient), as well as row and column names, can be edited by selecting Project->Properties from the menu bar.</p></html>");
+        addTip("Saving Metadata sorts", 
+        		"<html><p style=\"color:7FFF00\">To quickly re-order any plot to the result of a metadata sort, save the result as a custom sort.  Run the metadata sort, then select the custom sort option, then click the Save button.</p></html>");
+        
         
         createTipPanel();
     }
@@ -133,7 +136,10 @@ public class MetaOmTips implements TipModel, HyperlinkListener {
         JPanel textPanel = new JPanel(new BorderLayout());
         textPanel.setBorder(BorderFactory.createEmptyBorder(15, 25, 15, 25));
         textPanel.setPreferredSize(new Dimension(500, 200));
-       
+        
+        Random random = new Random();
+    	tipIndex = random.nextInt(7);
+        tipPane.setText(tips.get(tipIndex).getTip().toString());
         textPanel.add(new JScrollPane(tipPane));
 
         tipPanel.add(textPanel);
@@ -145,8 +151,6 @@ public class MetaOmTips implements TipModel, HyperlinkListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				tipIndex = tipIndex % tips.size();
-				if(tipIndex == 1)
-					tipIndex++;
 				String tipText = tips.get(tipIndex).getTip().toString();
 				tipPane.setText(tipText);
 				tipIndex++;

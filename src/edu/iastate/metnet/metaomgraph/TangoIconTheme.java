@@ -34,6 +34,7 @@ public class TangoIconTheme implements IconTheme {
     private ImageIcon palette;
     private ImageIcon opts;
     private ImageIcon groupBy;
+    private ImageIcon rIcon;
     
     private String dir = "/resource/tango/16x16/";
 
@@ -96,6 +97,8 @@ public class TangoIconTheme implements IconTheme {
     private String metadataPath = dir + "status/dialog-information.png";
     
     private String groupByPath = "/resource/customicon/categorizeIcon16.png";
+    
+    private String rIconPath =  "/resource/customicon/r_logoIcon16.png";
     
     public TangoIconTheme() {
     }
@@ -351,6 +354,13 @@ public class TangoIconTheme implements IconTheme {
 			groupBy = new ImageIcon(getClass().getResource(groupByPath));
 		}
 		return groupBy;
+	}
+    
+	public ImageIcon getRIcon() {
+		if(rIcon == null) {
+			rIcon = new ImageIcon(getClass().getResource(rIconPath));
+		}
+		return rIcon;
 	}
     
     public static void main(String[] args) {

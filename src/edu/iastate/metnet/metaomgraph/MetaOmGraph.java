@@ -7,6 +7,8 @@ import java.awt.Dimension;
 import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.HeadlessException;
@@ -21,6 +23,7 @@ import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.geom.Rectangle2D;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,6 +52,7 @@ import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
@@ -66,9 +70,12 @@ import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
+import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
+import javax.swing.UIDefaults;
 import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -170,6 +177,8 @@ public class MetaOmGraph implements ActionListener {
 	private static TaskbarPanel taskBar;
 	private static StatisticalResultsFrame DEAResultsFrame;
 	private static StatisticalResultsFrame DCResultsFrame;
+	private static JButton plbbutton;
+	private static JPanel playbackForMac;
 
 
 	public static StatisticalResultsFrame getDEAResultsFrame() {
@@ -644,10 +653,6 @@ public class MetaOmGraph implements ActionListener {
 	public static final String ARAPORT_THALEMINE_COMMAND = "ThaleMine";
 	public static final String ARAPORT_JBROWSE_COMMAND = "JBrowse";
 	private static JMenuItem findSamples;
-	private static JMenu diffExpMenu;
-	private static JMenuItem logChange;
-	private static JMenuItem loadDiffExpResults;
-	private static JMenuItem removeDiffExpResults;
 
 	private static JMenuItem tTest;
 
@@ -749,8 +754,9 @@ public class MetaOmGraph implements ActionListener {
 	private static JDialog welcomeDialog;
 
 		
+
 	private static Themes activeTheme;
-	
+
 	public enum Themes{
 		Light,
 		Dark,
@@ -760,16 +766,17 @@ public class MetaOmGraph implements ActionListener {
 		Cobalt,
 		Carbon
 	}
-	
+
 	public static boolean setTheme(Themes theme) {
 		try {
 			switch(theme) {
 			case Light:
-                UIManager.setLookAndFeel(new FlatLightLaf());
+				UIManager.setLookAndFeel(new FlatLightLaf());
 				break;
 			case Dark:
 				UIManager.setLookAndFeel(new FlatDarkLaf());
 				break;
+
 			case IntelliJ :
 				UIManager.setLookAndFeel(new FlatArcDarkOrangeIJTheme());
 				break;
@@ -790,8 +797,8 @@ public class MetaOmGraph implements ActionListener {
 				//UIManager.setLookAndFeel(new FlatLightLaf());
 				break;
 			}
-				
-			
+
+
 			activeTheme = theme;
 			if (mainWindow!=null) {
 			SwingUtilities.updateComponentTreeUI(mainWindow);
@@ -805,7 +812,7 @@ public class MetaOmGraph implements ActionListener {
 		}
 		return true;
 	}
-	
+
 	public static Themes getActiveTheme() {
 		if (activeTheme==null) {
 			return Themes.Light;
@@ -855,6 +862,9 @@ public class MetaOmGraph implements ActionListener {
 		myself = new MetaOmGraph();
 		activeProject = null;
 		recentProjects = new Vector<File>();
+		
+		//setting loggingRequired parameter for reproducibility logging
+		MetaOmGraph.setLoggingRequired(true);
 
 		File homeDir = new File(System.getProperty("user.home"));
 		File prefsFile = new File(homeDir, "metaomgraph.prefs");
@@ -908,16 +918,8 @@ public class MetaOmGraph implements ActionListener {
 					setCurrentTheme("light");
 				}
 
-				//setting loggingRequired parameter for reproducibility logging
-				try {
-					boolean lr = (boolean)in.readObject();
-					MetaOmGraph.setLoggingRequired(lr);
-					MetaOmGraph.setPermanentLogging(lr);
-
-				}
-				catch(Exception ex2) {
-					MetaOmGraph.setLoggingRequired(true);
-				}
+				
+				
 
 				in.close();
 			} catch (FileNotFoundException e1) {
@@ -1392,29 +1394,6 @@ public class MetaOmGraph implements ActionListener {
 		toolsMenu.add(findSamples);
 		mainMenuBar.add(toolsMenu);
 
-		diffExpMenu = new JMenu("Differential expression analysis");
-		infoButtonMenu.setToolTipText("Find differentially expressed features");
-
-		logChange = new JMenuItem("Perform DEA");
-		logChange.setActionCommand("logChange");
-		logChange.addActionListener(myself);
-		logChange.setToolTipText("Find differentially expressed features over two groups");
-
-		loadDiffExpResults = new JMenuItem("Load saved DE results");
-		loadDiffExpResults.setActionCommand("loadDiffExp");
-		loadDiffExpResults.addActionListener(myself);
-		loadDiffExpResults.setToolTipText("Load saved differential expression results");
-
-		removeDiffExpResults = new JMenuItem("Remove saved DE results");
-		removeDiffExpResults.setActionCommand("removeDiffExp");
-		removeDiffExpResults.addActionListener(myself);
-		removeDiffExpResults.setToolTipText("Remove saved differential expression results from the project");
-
-		diffExpMenu.add(logChange);
-		diffExpMenu.add(loadDiffExpResults);
-		diffExpMenu.add(removeDiffExpResults);
-
-		toolsMenu.add(diffExpMenu);
 		///////////// end tool menu//////////////////
 
 		cascadeItem = new JMenuItem("Arrange Windows");
@@ -1586,7 +1565,7 @@ public class MetaOmGraph implements ActionListener {
 		aboutItem.addActionListener(myself);
 		helpMenu.add(aboutItem);
 
-		historyMenu = new JMenu("History");
+		//historyMenu = new JMenu("Playback");
 		JMenuItem playbackMenu = new JMenuItem("Playback Dashboard");
 		playbackMenu.setMnemonic(KeyEvent.VK_A);
 		playbackMenu.setActionCommand(PLAYBACK_COMMAND);
@@ -1595,14 +1574,14 @@ public class MetaOmGraph implements ActionListener {
 		mainMenuBar.add(helpMenu);
 
 		if(Utils.isMac()) {
-			historyMenu.add(playbackMenu);
-			mainMenuBar.add(historyMenu);
+//			historyMenu.add(playbackMenu);
+//			mainMenuBar.add(historyMenu);
 		}
 
 
 		//Harsha - reproducibility log menu
 
-		ReproducibilityLogMenu = new JToggleButton("History");
+		ReproducibilityLogMenu = new JToggleButton("Playback");
 		ReproducibilityLogMenu.setForeground(Color.BLUE);
 		ReproducibilityLogMenu.addItemListener(new ItemListener() {
 
@@ -1628,7 +1607,56 @@ public class MetaOmGraph implements ActionListener {
 
 		mainMenuBar.add(Box.createHorizontalGlue());
 		mainMenuBar.add(ReproducibilityLogMenu);
+		
+		
+		
+		//Harsha - Add a playback button to the top right corner of the window in Mac
+		//Added because mac was not handling JMenu button ReproducibilityLogMenu properly
+		
+		if (Utils.isMac()) {
+		playbackForMac = new JPanel() 
+		{
+            @Override
+            protected void paintComponent(Graphics g) {
+               
+            }
+        };
+        
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
+		Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
+		
+        plbbutton = new JButton("Playback");
+        playbackForMac.setLayout(null);
+        //plbbutton.setBounds((int)rect.getMaxX()-100, 0, 100, 20);
+        playbackForMac.setLayout (new BorderLayout ());
+        playbackForMac.add(plbbutton, BorderLayout.EAST);
+        playbackForMac.setSize((int)rect.getMaxX(), 30);
+        playbackForMac.setVisible(true);
+        playbackForMac.setBackground(Color.BLACK);
+        
+        plbbutton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				if ((ReproducibilityDashboardFrame != null) && (ReproducibilityDashboardFrame.isVisible())) {
+					//frame.toFront();
+					ReproducibilityDashboardFrame.setVisible(false);
+					return;
+				}
+				else if ((ReproducibilityDashboardFrame != null) && (!ReproducibilityDashboardFrame.isVisible()) && (!ReproducibilityDashboardFrame.isClosed())) {
 
+					ReproducibilityDashboardFrame.setVisible(true);
+					return;
+				}
+
+				createReproducibilityLoggingFrame();
+			}
+		});
+        desktop.add(playbackForMac);
+        
+		}
 		// Menu bar created
 
 		setMenuIcons();
@@ -1663,6 +1691,12 @@ public class MetaOmGraph implements ActionListener {
 			@Override
 			public void windowClosing(WindowEvent arg0) {
 				shutdown();
+			}
+			
+			@Override
+			public void windowStateChanged(WindowEvent e) {
+				// TODO Auto-generated method stub
+				//refreshPlaybackButton();
 			}
 		});
 		if (activeProjectFile != null)
@@ -2139,7 +2173,7 @@ public class MetaOmGraph implements ActionListener {
 				// System.out.print("Loading extended info... ");
 				if (!extInfoFile.exists())
 					extInfoFile = null;
-				
+
 				projectOpened();
 				try {
 					// JOptionPane.showMessageDialog(null, "LOADING MD");
@@ -2171,14 +2205,13 @@ public class MetaOmGraph implements ActionListener {
 
 					String projectName = projFileName.substring(projFileName.lastIndexOf(File.separator)+1,projFileName.lastIndexOf('.'));
 					String currDate = new SimpleDateFormat("yyyy-MM-dd_HHmmss").format(new Date());
-					String logFilePath = projFileName.substring(0,projFileName.lastIndexOf(File.separator))+File.separator+"logs"+File.separator+projectName+"_"+currDate+".log";
+					String logFilePath = projFileName.substring(0,projFileName.lastIndexOf(File.separator))+File.separator+"moglog"+File.separator+projectName+"_"+currDate+".log";
 
 
 					logger = updateLogger(logFilePath);
 					setCurrentLogFilePath(logFilePath);
 
 					setLoggingRequired(true);
-					setPermanentLogging(true);
 					logGeneralProperties();
 					int newProjectId = logNewProject(source.getAbsolutePath(),extInfoFile.getAbsolutePath());
 
@@ -2297,7 +2330,7 @@ public class MetaOmGraph implements ActionListener {
 							String projFileName = source.getAbsolutePath();
 							String projectName = projFileName.substring(projFileName.lastIndexOf(File.separator)+1,projFileName.lastIndexOf('.'));
 							String currDate = new SimpleDateFormat("yyyy-MM-dd_HHmmss").format(new Date());
-							String logFilePath = projFileName.substring(0,projFileName.lastIndexOf(File.separator))+File.separator+"logs"+File.separator+projectName+"_"+currDate+".log";
+							String logFilePath = projFileName.substring(0,projFileName.lastIndexOf(File.separator))+File.separator+"moglog"+File.separator+projectName+"_"+currDate+".log";
 
 							if(getLoggingRequired()) {
 								logger = updateLogger(logFilePath);
@@ -3391,176 +3424,6 @@ public class MetaOmGraph implements ActionListener {
 			return;
 		}
 
-		if ("logChange".equals(e.getActionCommand())) {
-			if (getActiveProject().getMetadataHybrid() == null) {
-				JOptionPane.showMessageDialog(null, "No metadata read", "No metadata", JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-
-			DifferentialExpFrame lframe = new DifferentialExpFrame();
-			lframe.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
-			MetaOmGraph.getDesktop().add(lframe);
-			lframe.setVisible(true);
-
-			return;
-		}
-
-		if ("loadDiffExp".equals(e.getActionCommand())) {
-
-			String[] listOfDE = getActiveProject().getSavedDiffExpResNames();
-			if (listOfDE == null || listOfDE.length < 1) {
-				JOptionPane.showMessageDialog(null, "No saved results found", "No results",
-						JOptionPane.INFORMATION_MESSAGE);
-				return;
-			}
-			// JOptionPane.showMessageDialog(null, "saved" + Arrays.toString(listOfDE));
-
-			// choose one from the available results
-			String chosenVal = (String) JOptionPane.showInputDialog(null, "Choose the DE analysis", "Please choose",
-					JOptionPane.PLAIN_MESSAGE, null, listOfDE, listOfDE[0]);
-			if (chosenVal == null) {
-				return;
-			}
-
-
-			// display chosen results
-			new AnimatedSwingWorker("Working...", true) {
-				@Override
-				public Object construct() {
-					EventQueue.invokeLater(new Runnable() {
-						@Override
-						public void run() {
-							try {
-
-								DifferentialExpResults diffExpObj = getActiveProject().getDiffExpResObj(chosenVal);
-								logFCResultsFrame frame = null;
-								frame = new logFCResultsFrame(diffExpObj, getActiveProject());
-								frame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
-
-
-								if(getDEAResultsFrame()!=null && !getDEAResultsFrame().isClosed()) {
-									getDEAResultsFrame().addTabToFrame(frame, diffExpObj.getID());
-									getDEAResultsFrame().addTabListToFrame(frame.getGeneLists(), diffExpObj.getID());
-									getDEAResultsFrame().getDesktopPane().getDesktopManager().maximizeFrame(getDEAResultsFrame());
-									getDEAResultsFrame().getDesktopPane().getDesktopManager().minimizeFrame(getDEAResultsFrame());
-									getDEAResultsFrame().moveToFront();
-								}
-								else {
-									setDEAResultsFrame(new StatisticalResultsFrame("DEA","DEA Results"));
-									getDEAResultsFrame().addTabToFrame(frame, diffExpObj.getID());
-									getDEAResultsFrame().addTabListToFrame(frame.getGeneLists(), diffExpObj.getID());
-									getDEAResultsFrame().setTitle("DE results");
-									MetaOmGraph.getDesktop().add(getDEAResultsFrame());
-									frame.setVisible(true);
-									getDEAResultsFrame().setVisible(true);
-									getDEAResultsFrame().getDesktopPane().getDesktopManager().maximizeFrame(getDEAResultsFrame());
-									getDEAResultsFrame().getDesktopPane().getDesktopManager().minimizeFrame(getDEAResultsFrame());
-									getDEAResultsFrame().moveToFront();
-									frame.setEnabled(true);
-								}
-
-
-							} catch (Exception e) {
-								
-								StringWriter sw = new StringWriter();
-								PrintWriter pw = new PrintWriter(sw);
-								e.printStackTrace(pw);
-								String sStackTrace = sw.toString();
-								
-								JDialog jd = new JDialog();
-								JTextPane jt = new JTextPane();
-								jt.setText(sStackTrace);
-								jt.setBounds(10, 10, 300, 100);
-								jd.getContentPane().add(jt);
-								jd.setBounds(100, 100, 500, 200);
-								jd.setVisible(true);
-							}
-						}
-					});
-					return null;
-				}
-			}.start();
-			//frame.setTitle("DE results");
-
-
-			//Harsha - reproducibility log
-
-			HashMap<String,Object> actionMap = new HashMap<String,Object>();
-			HashMap<String,Object> dataMap = new HashMap<String,Object>();
-			HashMap<String,Object> result = new HashMap<String,Object>();
-
-			try {
-
-				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
-				actionMap.put("section", "All");
-
-				dataMap.put("Chosen DEA", chosenVal);
-
-
-				result.put("result", "OK");
-
-				ActionProperties loadDeaAction = new ActionProperties("load-DEA",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				loadDeaAction.logActionProperties();
-
-			}
-			catch(Exception e1) {
-
-			}
-
-
-			return;
-		}
-
-		if ("removeDiffExp".equals(e.getActionCommand())) {
-
-			String[] listOfDE = getActiveProject().getSavedDiffExpResNames();
-			if (listOfDE == null || listOfDE.length < 1) {
-				JOptionPane.showMessageDialog(null, "No saved results found", "No results",
-						JOptionPane.INFORMATION_MESSAGE);
-				return;
-			}
-
-			// choose one from the available results
-			String chosenVal = (String) JOptionPane.showInputDialog(null, "Choose the DE analysis to remove",
-					"Please choose", JOptionPane.PLAIN_MESSAGE, null, listOfDE, listOfDE[0]);
-			if (chosenVal == null) {
-				return;
-			}
-
-			int opt = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete the selected?", "Confirm", 0,
-					3);
-			if (opt != 0) {
-				return;
-			}
-			getActiveProject().removeDifferentialExpResults(chosenVal);
-
-
-			//Harsha - reproducibility log
-
-			HashMap<String,Object> actionMap = new HashMap<String,Object>();
-			HashMap<String,Object> dataMap = new HashMap<String,Object>();
-			HashMap<String,Object> result = new HashMap<String,Object>();
-
-			try {
-
-				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
-				actionMap.put("section", "All");
-
-				dataMap.put("Removed DEA", chosenVal);
-
-
-				result.put("result", "OK");
-
-				ActionProperties removeDeaAction = new ActionProperties("remove-saved-DEA",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				removeDeaAction.logActionProperties();
-
-			}
-			catch(Exception e1) {
-
-			}
-
-			return;
-		}
 
 		if (CASCADE_WINDOWS_COMMAND.equals(e.getActionCommand())) {
 			JInternalFrame[] frames = desktop.getAllFrames();
@@ -3863,6 +3726,8 @@ public class MetaOmGraph implements ActionListener {
 			tipsItem.setIcon(new ImageIcon(
 					myself.getClass().getResource("/resource/tango/16x16/status/dialog-information.png")));
 			ReproducibilityLogMenu.setIcon(new ImageIcon(((new ImageIcon(myself.getClass().getResource("/resource/loggingicons/loggingicon2.png")).getImage()).getScaledInstance(14, 14, java.awt.Image.SCALE_SMOOTH))));
+			
+			plbbutton.setIcon(new ImageIcon(((new ImageIcon(myself.getClass().getResource("/resource/loggingicons/loggingicon2.png")).getImage()).getScaledInstance(14, 14, java.awt.Image.SCALE_SMOOTH))));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -4023,7 +3888,7 @@ public class MetaOmGraph implements ActionListener {
 	 * 
 	 * @return
 	 */
-	public String getTransform() {
+	public static String getTransform() {
 		if (log2Item.isSelected()) {
 			return "log2";
 		} else if (log10Item.isSelected()) {
@@ -4213,6 +4078,10 @@ public class MetaOmGraph implements ActionListener {
 
 		ReproducibilityDashboardFrame =  new JInternalFrame("Playback");
 
+		ColorUIResource oldActiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.activeTitleBackground");
+		ColorUIResource oldInactiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.inactiveTitleBackground");
+		Font oldFont = UIManager.getFont("InternalFrame.titleFont");
+
 		UIManager.put("InternalFrame.activeTitleBackground", new ColorUIResource(new Color(240,128,128)));
 		UIManager.put("InternalFrame.inactiveTitleBackground", new ColorUIResource(new Color(240,128,128)));
 		UIManager.put("InternalFrame.titleFont", new Font("SansSerif", Font.BOLD,12));
@@ -4221,13 +4090,14 @@ public class MetaOmGraph implements ActionListener {
 
 		ReproducibilityDashboardFrame.setUI(ui);
 
+
 		rdp = new ReproducibilityDashboardPanel(myself);
 		ReproducibilityDashboardFrame.add(rdp);
 		desktop.add(ReproducibilityDashboardFrame);
 
 
 		ReproducibilityDashboardFrame.setClosable(false);
-		ReproducibilityDashboardFrame.setIconifiable(true);
+		ReproducibilityDashboardFrame.setIconifiable(false);
 		ReproducibilityDashboardFrame.setMaximizable(false);
 		ReproducibilityDashboardFrame.setResizable(true);
 
@@ -4236,9 +4106,20 @@ public class MetaOmGraph implements ActionListener {
 		Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
 
 		ReproducibilityDashboardFrame.setSize(550, (int)rect.getMaxY()-200);
+		
+		if(Utils.isMac()) {
+			ReproducibilityDashboardFrame.setLocation((ReproducibilityLogMenu.getX()+ReproducibilityLogMenu.getWidth())-550, 30);
+		}
+		else {
 		ReproducibilityDashboardFrame.setLocation((ReproducibilityLogMenu.getX()+ReproducibilityLogMenu.getWidth())-550, 0);
+		}
+		ReproducibilityDashboardFrame.show();    
 
-		ReproducibilityDashboardFrame.show();     
+
+		UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
+		UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
+		UIManager.put("InternalFrame.titleFont", oldFont);
+
 
 	}
 
@@ -4315,13 +4196,24 @@ public class MetaOmGraph implements ActionListener {
 			if(mdhObj != null) {
 				mcol = mdhObj.getMetadataCollection();
 			}
-			if(mcol != null) {
-				result.put("Included Samples", mcol.getIncluded());
-				result.put("Excluded Samples", mcol.getExcluded());
+			if(MetaOmAnalyzer.getExclude() != null) {
+				boolean [] excludedSamplesBoolean = MetaOmAnalyzer.getExclude();
+				List<Integer> excludedSamplesInteger = new ArrayList<Integer>();
+				
+				for(int index=0; index < excludedSamplesBoolean.length; index++) {
+					if(excludedSamplesBoolean[index]) {
+						excludedSamplesInteger.add(index);
+					}
+				}
+				result.put("Excluded Samples", excludedSamplesInteger.toArray(new Integer[excludedSamplesInteger.size()]));
+				dataMap.put("Data Column", mcol.getDatacol());
+			}
+			else {
+				result.put("Excluded Samples", new Integer[0]);
 				dataMap.put("Data Column", mcol.getDatacol());
 			}
 			dataMap.put("Start Timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-
+		
 			result.put("result", "OK");
 
 			ActionProperties generalPropertiesAction = new ActionProperties("general-properties",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
