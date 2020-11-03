@@ -198,10 +198,22 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		sampleDataList = new JList(listNames);
 		sampleDataList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		sampleDataList.setSelectedIndex(0);
-		sampleDataList.addListSelectionListener(this);
-		sampleDataList.addMouseMotionListener(new MouseMotionAdapter() {
+		sampleDataList.addMouseListener(new MouseAdapter() {
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				super.mouseClicked(e);
+				String selectedRowName = (String) sampleDataList.getSelectedValue();
+				List<String> values = MetaOmGraph.getActiveProject().getSampleDataListRowNames(selectedRowName);
+				// Double click to update include and exclude.
+				if(e.getClickCount() > 1) {
+					updateTable(values, true);
+				}
+			}
+
 			@Override
 			public void mouseMoved(MouseEvent e) {
+				super.mouseMoved(e);
 				JList l = (JList) e.getSource();
 				ListModel m = l.getModel();
 				int index = l.locationToIndex(e.getPoint());
@@ -212,7 +224,10 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 					l.setToolTipText(thisListName + ":" + numElements + " Elements");
 				}
 			}
+			
 		});
+		
+		sampleDataList.addListSelectionListener(this);
 
 		for (String list : listNames) {
 			listHeadersMap.put(list, headers);
@@ -1555,8 +1570,9 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 	 * Update sample metadata table with the rows
 	 * 
 	 * @param rowsInList
+	 * @param updateIncludeExclude set true to add the new table values to include and exclude all other.
 	 */
-	public void updateTable(List<String> rowsInList) {
+	public void updateTable(List<String> rowsInList, boolean updateIncludeExlude) {
 
 		new AnimatedSwingWorker("Updating table", true) {
 			@Override
@@ -1620,11 +1636,13 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		}.start();
 
 		// Update excluded and included data according to the list selected.
-		Set<String> excluded = new HashSet<String>(getExcludedRowsFromTable(rowsInList));
-		obj.setIncluded(rowsInList);
-		obj.setExcluded(excluded);
-		MetaOmAnalyzer.updateExcluded(excluded, true);
-		MetaOmGraph.getActiveTable().updateMetadataTree();
+		if(updateIncludeExlude) {
+			Set<String> excluded = new HashSet<String>(getExcludedRowsFromTable(rowsInList));
+			obj.setIncluded(rowsInList);
+			obj.setExcluded(excluded);
+			MetaOmAnalyzer.updateExcluded(excluded, true);
+			MetaOmGraph.getActiveTable().updateMetadataTree();
+		}
 	}
 
 	// get rows that are not included (Excluded).
@@ -2612,12 +2630,24 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		String[] listNames = MetaOmGraph.getActiveProject().getSampleDataListNames();
 		Arrays.sort(listNames, new ListNameComparator());
 		sampleDataList = new JList(listNames);
-		sampleDataList.addListSelectionListener(this);
 		sampleDataList.setSelectionMode(0);
 
-		sampleDataList.addMouseMotionListener(new MouseMotionAdapter() {
+		sampleDataList.addMouseListener(new MouseAdapter() {
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				super.mouseClicked(e);
+				String selectedRowName = (String) sampleDataList.getSelectedValue();
+				List<String> values = MetaOmGraph.getActiveProject().getSampleDataListRowNames(selectedRowName);
+				// Double click to update include and exclude.
+				if(e.getClickCount() > 1) {
+					updateTable(values, true);
+				}
+			}
+
 			@Override
 			public void mouseMoved(MouseEvent e) {
+				super.mouseMoved(e);
 				JList l = (JList) e.getSource();
 				ListModel m = l.getModel();
 				int index = l.locationToIndex(e.getPoint());
@@ -2628,7 +2658,10 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 					l.setToolTipText(thisListName + ":" + numElements + " Elements");
 				}
 			}
+			
 		});
+		
+		sampleDataList.addListSelectionListener(this);
 	}
 
 	private String getNewlyCreatedList() {
@@ -2663,8 +2696,7 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 	public void valueChanged(ListSelectionEvent e) {
 		String selectedRowName = (String) sampleDataList.getSelectedValue();
 		List<String> values = MetaOmGraph.getActiveProject().getSampleDataListRowNames(selectedRowName);
-		// update currently displayed table
-		updateTable(values);
+		updateTable(values, false);
 		if (highlightedRows != null)
 			highlightedRows.clear();
 		if (sampleDataList.getSelectedIndex() != 0) {
