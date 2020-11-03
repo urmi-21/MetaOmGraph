@@ -940,6 +940,7 @@ public class MetaOmGraph implements ActionListener {
 
 		
 		mainWindow = new JFrame("MetaOmGraph");
+		
 
 		//urmi
 		///////////////enable debug mode//////////////////

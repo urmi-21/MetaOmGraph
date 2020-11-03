@@ -63,7 +63,6 @@ public class ColorProperties extends TaskbarInternalFrame {
 	 * Create the frame.
 	 */
 	public ColorProperties() {
-
 		// frame properties
 		// setBounds(100, 100, 450, 300);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
