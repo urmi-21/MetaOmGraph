@@ -234,7 +234,21 @@ public class DifferentialCorrFrame extends TaskbarInternalFrame {
 						while (myProject.diffExpNameExists(id)) {
 							id = JOptionPane.showInputDialog(MetaOmGraph.getDesktop(),
 									"A previous analysis exists with the same name. Please enter a different name for this analysis",
-									"Save differential expression results", 2);
+									"Save differential coexpression results", 2);
+							if (id == null) {
+								// cancelled
+								return;
+							}
+							id = id.trim();
+						}
+					}
+					
+					//if name starts with number its illegal
+					if (Character.isDigit(id.charAt(0))) {
+						while (Character.isDigit(id.charAt(0))) {
+							id = JOptionPane.showInputDialog(MetaOmGraph.getDesktop(),
+									"Name can't start with a number. Please enter a different name for this analysis",
+									"Save differential coexpression results", 2);
 							if (id == null) {
 								// cancelled
 								return;

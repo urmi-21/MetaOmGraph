@@ -1468,9 +1468,19 @@ public class Utils {
 
 	/*
 	 * Remove all special chars from a string to make it usable for XML Names
+	 * Rules:
+	 * 
+    	XML elements must follow these naming rules:
+        Names can contain letters, numbers, and other characters
+        Names cannot start with a number or punctuation character
+        Names cannot start with the letters xml (or XML, or Xml, etc)
+        Names cannot contain spaces
+    	Any name can be used, no words are reserved.
+		http://www.w3schools.com/xml/xml_elements.asp
+	 * 
 	 */
 	public static String removeSpecialChars(String s) {
-
+		
 		String[] special = { "/", "\\", "+", "[", "^", "$", ".", "|", "?", "*", "(", ")", "{", "}", "-", "&", "%", "!",
 				";" };
 		// remove spaces

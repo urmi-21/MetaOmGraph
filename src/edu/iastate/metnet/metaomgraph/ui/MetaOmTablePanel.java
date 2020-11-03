@@ -274,8 +274,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		
 		JPopupMenu rPopupMenu = new JPopupMenu();
 		rPopupMenu.add(plotRMenu);
-		runWithRButton = new MenuButton("Run using R", theme.getRIcon(), null);
-		runWithRButton.setToolTipText("Run using R");
+		runWithRButton = new MenuButton("Run R", theme.getRIcon(), null);
+		runWithRButton.setToolTipText("Run R script with selected rows and samples");
 		runWithRButton.setMenu(rPopupMenu);
 		runWithRButton.addMouseListener(new MouseListener() {
 
