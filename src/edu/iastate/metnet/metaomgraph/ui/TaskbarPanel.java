@@ -35,6 +35,8 @@ import javax.swing.MenuElement;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * 
  * @author Harsha
@@ -78,24 +80,24 @@ public class TaskbarPanel extends JPanel{
 
 	private LinkedHashMap<String,List<TaskbarInternalFrame>> taskbarData;
 	private JMenuBar menuBar;
-	
+
 	/**
 	 * Constructor to initialize the masterdata (taskbarData) and the JPanel
 	 */
 	public TaskbarPanel() {
-		
+
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
 		Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
 		setSize((int)rect.getMaxX(), 30);
 		setLocation(0, (int)rect.getMaxY()-30);
 		setLayout(new FlowLayout(FlowLayout.LEFT));
-		
+
 		taskbarData = new LinkedHashMap<String,List<TaskbarInternalFrame>>();
 		menuBar = new JMenuBar();
 		add(menuBar);
 	}
-	
+
 	/**
 	 * This method adds a tab to the taskbar
 	 * 
@@ -110,7 +112,7 @@ public class TaskbarPanel extends JPanel{
 	 * 
 	 */
 	public void addToTaskbar(TaskbarInternalFrame currentFrame) {
-		
+
 		if(taskbarData.get(currentFrame.getModel().getFrameType()) != null) {
 			ArrayList<TaskbarInternalFrame> listOfFrames = (ArrayList<TaskbarInternalFrame>)taskbarData.get(currentFrame.getModel().getFrameType());
 			listOfFrames.add(currentFrame);
@@ -120,13 +122,13 @@ public class TaskbarPanel extends JPanel{
 			listOfFrames.add(currentFrame);
 			taskbarData.put(currentFrame.getModel().getFrameType(), listOfFrames);
 		}
-		
+
 		reloadTaskbar();
-		
+
 	}
-	
-	
-	
+
+
+
 	/**
 	 * This method removes the given frame from the taskbar.
 	 * 
@@ -140,11 +142,11 @@ public class TaskbarPanel extends JPanel{
 	 * At the end, the taskbar is reloaded to reflect the removal.
 	 */
 	public void removeFromTaskbar(TaskbarInternalFrame currentFrame) {
-		
+
 		if(taskbarData.get(currentFrame.getModel().getFrameType()) != null) {
 			ArrayList<TaskbarInternalFrame> listOfFrames = (ArrayList<TaskbarInternalFrame>)taskbarData.get(currentFrame.getModel().getFrameType());
 			listOfFrames.remove(currentFrame);
-			
+
 			if(listOfFrames.size()==0) {
 				taskbarData.remove(currentFrame.getModel().getFrameType());
 			}
@@ -152,23 +154,23 @@ public class TaskbarPanel extends JPanel{
 		else {
 			taskbarData.remove(currentFrame.getModel().getFrameType());
 		}
-		
+
 		reloadTaskbar();
-		
+
 	}
 
-	
+
 	/**
 	 * Clears the tab data from the taskbarData master data, and removes all the
 	 * JMenu objects from the menubar.
 	 */
 	public void removeAllTabsFromTaskbar() {
-		
+
 		taskbarData.clear();
 		menuBar.removeAll();
 	}
-	
-	
+
+
 	/**
 	 * This method first removes all the JMenus from the menuBar object.
 	 * 
@@ -181,48 +183,58 @@ public class TaskbarPanel extends JPanel{
 	 *
 	 */
 	public void reloadTaskbar() {
-		
+
 		menuBar.removeAll();
-		
+
 		if(taskbarData != null) {
-			
+
 			for(Map.Entry<String, List<TaskbarInternalFrame>> entryset : taskbarData.entrySet()) {
 				JMenu menu = new JMenu(entryset.getKey());
 				List<TaskbarInternalFrame> typeFrames = entryset.getValue();
-				
+
 				if(typeFrames != null) {
 					for(TaskbarInternalFrame frame : typeFrames) {
-						JMenuItem menuItem = new JMenuItem(frame.getModel().getFrameName());
+						String menuItemName = frame.getModel().getFrameName();
+						menuItemName = StringUtils.abbreviate(menuItemName, 80);
+
+						JMenuItem menuItem = new JMenuItem(menuItemName);
 						JPanel tabItemPanel = new JPanel();
 						tabItemPanel.setLayout(new BorderLayout());
-						JLabel tabItemLabel = new JLabel(frame.getModel().getFrameName());
-						
+						JLabel tabItemLabel = new JLabel(menuItemName);
+
 						tabItemPanel.add(tabItemLabel);
 
 						UIManager.put("MenuItem.selectionForeground", Color.BLUE);
-						menuItem.setText(frame.getModel().getFrameName());;
+						menuItem.setText(menuItemName);;
 						menu.add(new JSeparator());
 						menu.add(menuItem);
 						menu.setMargin(new Insets(2, 8, 2, 8));
-				
-						menuItem.addActionListener(new java.awt.event.ActionListener() {
-						    public void actionPerformed(java.awt.event.ActionEvent evt) {
 
-						    	frame.getDesktopPane().getDesktopManager().maximizeFrame(frame);
-						    	frame.getDesktopPane().getDesktopManager().minimizeFrame(frame);
-						    	frame.moveToFront();
-						    }
+						menuItem.addActionListener(new java.awt.event.ActionListener() {
+							public void actionPerformed(java.awt.event.ActionEvent evt) {
+
+								try {
+									if(frame != null) {
+										frame.getDesktopPane().getDesktopManager().maximizeFrame(frame);
+										frame.getDesktopPane().getDesktopManager().minimizeFrame(frame);
+										frame.moveToFront();
+									}
+								}
+								catch(Exception e) {
+
+								}
+							}
 						});
 					}
 				}
-				
+
 				JSeparator menuSeparator = new JSeparator();
 				menuBar.add(menuSeparator);
 				menuBar.add(menu);
-				
+
 			}
 		}
-	
+
 	}
-	
+
 }

@@ -19,7 +19,6 @@ public class JSONMessage implements Message {
 	private static final long serialVersionUID = 1L;
 	private String messageString;
     private static final Gson GSON = new GsonBuilder()
-            .setPrettyPrinting()
             .create();
 
     public JSONMessage(){
@@ -41,12 +40,12 @@ public class JSONMessage implements Message {
     }
 
     public String getFormattedMessage() {
-    	return messageString.replace("\n", "%n");
+    	return messageString;
   
     }
 
     public String getFormat() {
-        return messageString.replace("\n", "%n");
+        return messageString;
     }
 
     public Object[] getParameters() {

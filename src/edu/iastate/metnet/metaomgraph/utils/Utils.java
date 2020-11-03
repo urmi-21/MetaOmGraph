@@ -1523,9 +1523,20 @@ public class Utils {
 		} else {
 			return (x * 10);
 		}
-
 	}
 	
+	/**
+	 * return the transpose of a 2D matrix
+	 * @param matrix 2d array 
+	 * @return transposed 2d matrix(array)
+	 */
+	public static double[][] getTransposeMatrix(final double[][] matrix){
+		double[][] transposedMatrix = new double[matrix[0].length][matrix.length];
+        for (int i = 0; i < matrix.length; i++)
+            for (int j = 0; j < matrix[0].length; j++)
+            	transposedMatrix[j][i] = matrix[i][j];
+        return transposedMatrix;
+	}
 	
 
 	public static void main(String args[]) {

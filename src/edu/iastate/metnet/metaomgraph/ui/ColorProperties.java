@@ -39,6 +39,7 @@ public class ColorProperties extends TaskbarInternalFrame {
 	private ColorChooseButton plotBckButton;
 	private boolean themeEdited;
 	private JComboBox comboBox;
+	private TaskbarInternalFrame currentFrame;
 	
 	private String _defaulttheme="light";
 
@@ -71,6 +72,8 @@ public class ColorProperties extends TaskbarInternalFrame {
 		setMaximizable(true);
 		setIconifiable(true);
 		setClosable(true);
+		
+		currentFrame = this;
 		// setSize(600, 600);
 		//
 		JPanel panel = new JPanel();
@@ -80,6 +83,7 @@ public class ColorProperties extends TaskbarInternalFrame {
 		btnCancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				MetaOmGraph.getTaskBar().removeFromTaskbar(currentFrame);
 				dispose();
 			}
 		});
@@ -111,6 +115,7 @@ public class ColorProperties extends TaskbarInternalFrame {
 					saveTheme();
 				}
 
+				MetaOmGraph.getTaskBar().removeFromTaskbar(currentFrame);
 				dispose();
 			}
 		});

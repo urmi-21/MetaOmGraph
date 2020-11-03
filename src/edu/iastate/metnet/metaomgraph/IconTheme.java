@@ -62,4 +62,6 @@ public interface IconTheme {
     ImageIcon getOpts();
     
     ImageIcon getGroupBy();
+    
+    ImageIcon getRIcon();
 }

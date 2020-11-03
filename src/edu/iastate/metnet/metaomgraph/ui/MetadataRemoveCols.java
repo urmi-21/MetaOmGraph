@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.table.DefaultTableModel;
@@ -290,6 +291,10 @@ public class MetadataRemoveCols extends JDialog {
 					}
 					// update headers in object
 					obj.setHeaders(allHeaders, toKeep);
+					List<String> removedCols = obj.getRemoveCols();
+					if(removedCols != null && !removedCols.isEmpty())
+						deletedColumns.addAll(obj.getRemoveCols());
+					obj.setRemoveCols(deletedColumns);
 					// update data in table panel
 					p.resetData();
 					p.updateTable(true);

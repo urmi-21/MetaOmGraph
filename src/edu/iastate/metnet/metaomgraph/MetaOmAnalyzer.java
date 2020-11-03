@@ -1,5 +1,6 @@
 package edu.iastate.metnet.metaomgraph;
 
+import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
 import edu.iastate.metnet.metaomgraph.ui.ClearableTextField;
 import edu.iastate.metnet.metaomgraph.ui.DualTablePanel;
@@ -16,8 +17,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -51,15 +55,57 @@ public class MetaOmAnalyzer {
 	}
 
 	/**
-	 * @author urmi Update the exclude list to remove excluded data cols from charts
+	 * @author urmi Update the exclude list to remove excluded data cols from charts and log
+	 * it in the mog log.
 	 * @param excluded
 	 *            list of excluded data cols
+	 * 
 	 */
-	public static void updateExcluded(Set<String> excluded) {
+	public static void updateExcluded(Set<String> excluded, boolean loggingRequired) {
 		if (excluded.size() == 0) {
 			MetaOmAnalyzer.exclude = null;
 			MetaOmAnalyzer.excludeCount = 0;
 			MetaOmGraph.fixTitle();
+
+			HashMap<String, Object> actionMap = new HashMap<String, Object>();
+			HashMap<String, Object> dataMap = new HashMap<String, Object>();
+			HashMap<String, Object> result = new HashMap<String, Object>();
+
+			actionMap.put("parent", MetaOmGraph.getCurrentProjectActionId());
+
+			MetadataHybrid mdhObj = MetaOmGraph.getActiveProject().getMetadataHybrid();
+			MetadataCollection mcol = null;
+			if(mdhObj != null) {
+				mcol = mdhObj.getMetadataCollection();
+			}
+			if(exclude != null) {
+				boolean [] excludedSamplesBoolean = MetaOmAnalyzer.getExclude();
+				List<Integer> excludedSamplesInteger = new ArrayList<Integer>();
+
+				for(int index=0; index < exclude.length; index++) {
+					if(exclude[index]) {
+						excludedSamplesInteger.add(index);
+					}
+				}
+				result.put("Excluded Samples", excludedSamplesInteger);
+				
+				dataMap.put("Data Column", mcol.getDatacol());
+			}
+			else {
+				result.put("Excluded Samples", new Integer[0]);
+			}
+
+			result.put("result", "OK");
+
+			ActionProperties filterMetadataAction = new ActionProperties("filter-metadata", actionMap, dataMap, result,
+					new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+
+			if(loggingRequired) {
+				result.put("Sample Action", filterMetadataAction.getCounter()+1);
+				filterMetadataAction.logActionProperties();
+				MetaOmGraph.setCurrentSamplesActionId(filterMetadataAction.getActionNumber());
+			}
+
 			return;
 		} else {
 
@@ -74,6 +120,7 @@ public class MetaOmAnalyzer {
 		int excount = 0;
 		String[] dataCols = MetaOmGraph.getActiveProject().getDataColumnHeaders();
 		for (int j = 0; j < dataCols.length; j++) {
+			String dc = dataCols[j];
 			if (excluded.contains(dataCols[j])) {
 				exclude[j] = true;
 				excount++;
@@ -85,6 +132,47 @@ public class MetaOmAnalyzer {
 
 		MetaOmAnalyzer.excludeCount = excount;
 		MetaOmGraph.fixTitle();
+
+
+		// Harsha - logging the sample filter action
+
+		HashMap<String, Object> actionMap = new HashMap<String, Object>();
+		HashMap<String, Object> dataMap = new HashMap<String, Object>();
+		HashMap<String, Object> result = new HashMap<String, Object>();
+
+		actionMap.put("parent", MetaOmGraph.getCurrentProjectActionId());
+
+		MetadataHybrid mdhObj = MetaOmGraph.getActiveProject().getMetadataHybrid();
+		MetadataCollection mcol = null;
+		if(mdhObj != null) {
+			mcol = mdhObj.getMetadataCollection();
+		}
+		if(exclude != null) {
+			boolean [] excludedSamplesBoolean = MetaOmAnalyzer.getExclude();
+			List<Integer> excludedSamplesInteger = new ArrayList<Integer>();
+
+			for(int index=0; index < exclude.length; index++) {
+				if(exclude[index]) {
+					excludedSamplesInteger.add(index);
+				}
+			}
+			result.put("Excluded Samples", excludedSamplesInteger);
+			dataMap.put("Data Column", mcol.getDatacol());
+		}
+		else {
+			result.put("Excluded Samples", new Integer[0]);
+		}
+
+		result.put("result", "OK");
+
+		ActionProperties filterMetadataAction = new ActionProperties("filter-metadata", actionMap, dataMap, result,
+				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+
+		if(loggingRequired) {
+			result.put("Sample Action", filterMetadataAction.getCounter()+1);
+			filterMetadataAction.logActionProperties();
+			MetaOmGraph.setCurrentSamplesActionId(filterMetadataAction.getActionNumber());
+		}
 
 		return;
 	}
@@ -148,7 +236,7 @@ public class MetaOmAnalyzer {
 		final Number[] result = new Number[project.getRowCount()];
 		// final Number[] result;
 		String message = project.getRowName(entries[row])[project.getDefaultColumn()] + "";
-		
+
 		if (method == 1) {
 			message = message + " - Pearson Correlation";
 		} else if (method == 2) {
@@ -368,7 +456,7 @@ public class MetaOmAnalyzer {
 
 							if ((row == 0) && (bufferSize < 0L)) {
 								//System.gc();
-								
+
 								long freemem = Runtime.getRuntime().freeMemory();
 								long maxmem = Runtime.getRuntime().maxMemory();
 								long totmem = Runtime.getRuntime().totalMemory();
@@ -584,9 +672,9 @@ public class MetaOmAnalyzer {
 					long timeStarted = System.nanoTime();
 					String timeString = "Preparing...";
 					for (int row = 0; (row < entries.length) && (!progress.isCanceled()); row++) {
-						
+
 						double[] sourceData = project.getIncludedData(entries[row]);
-						
+
 
 						CorrelationCalc calcy = new CorrelationCalc(sourceData, MetaOmAnalyzer.exclude);
 
@@ -628,7 +716,7 @@ public class MetaOmAnalyzer {
 								//JOptionPane.showMessageDialog(null, "buff size:"+dataBuffer.size());
 							} else {
 								//long st = System.currentTimeMillis();
-								
+
 								data = project.getIncludedData(entries[i]);
 								//long spt = System.currentTimeMillis();
 								//long elapsedTime = spt - st;
@@ -656,7 +744,7 @@ public class MetaOmAnalyzer {
 							if ((row == 0) && (i >= entries.length - bufferSize)) {
 								dataBuffer.add(data);
 							}
-							
+
 							if (nameCol >= 0) {
 								out.write(rowNames[row][nameCol] + "\t" + rowNames[i][nameCol]);
 							} else {
@@ -770,7 +858,7 @@ public class MetaOmAnalyzer {
 	}
 
 	private static class ExcludeDialog extends JDialog
-			implements ActionListener, HashLoadable<MetaOmAnalyzer.ExcludeData> {
+	implements ActionListener, HashLoadable<MetaOmAnalyzer.ExcludeData> {
 		private MetaOmProject myProject;
 
 		private DualTablePanel dtp;
@@ -857,7 +945,7 @@ public class MetaOmAnalyzer {
 			buttonPanel.add(cancelButton);
 
 			dtp.getButtonPanel()
-					.add(Box.createRigidArea(new Dimension(0, metadataExcludeButton.getPreferredSize().height)));
+			.add(Box.createRigidArea(new Dimension(0, metadataExcludeButton.getPreferredSize().height)));
 			dtp.getButtonPanel().add(metadataExcludeButton);
 			dtp.getButtonPanel().add(metadataIncludeButton);
 			HashtableSavePanel savePanel = new HashtableSavePanel(myProject.getSavedExcludes(), this);
