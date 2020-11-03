@@ -1574,9 +1574,7 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 	 */
 	public void updateTable(List<String> rowsInList, boolean updateIncludeExlude) {
 
-		new AnimatedSwingWorker("Updating table", true) {
-			@Override
-			public Object construct() {
+		
 				DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
 				tablemodel.setRowCount(0);
 				tablemodel.setColumnCount(0);
@@ -1586,18 +1584,7 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 				for (int i = 0; i < activeListHeaders.length; i++) {
 					tablemodel.addColumn(activeListHeaders[i]);
 				}
-				// JOptionPane.showConfirmDialog(null, rowsInList.toString());
-
-				/*
-				 * for(int i = 0; i < rowsInList.size(); i++) { HashMap<String, String>
-				 * colRowValMap = obj.getDataColumnRowMap(rowsInList.get(i));
-				 * 
-				 * String[] rowVals = new String[headers.length]; for(int j = 0; j <
-				 * headers.length; j++) { rowVals[j] = colRowValMap.get(headers[j]); }
-				 * 
-				 * tablemodel.addRow(rowVals); }
-				 */
-
+			
 				// urmi make faster
 				// add rows
 				List<Document> metadataSelectedRows = obj.getRowsByDatacols(rowsInList);
@@ -1631,9 +1618,6 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 				}
 				table.setRowSorter(sorter);
 				table.repaint();
-				return null;
-			}
-		}.start();
 
 		// Update excluded and included data according to the list selected.
 		if(updateIncludeExlude) {
