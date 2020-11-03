@@ -507,8 +507,8 @@ public class MetaOmGraph implements ActionListener {
 	}
 
 	/////////////////////
-	private static final String VERSION = "1.8.1";
-	private static final String DATE = "February 20, 2020";
+	private static final String VERSION = "1.8.2beta3";
+	private static final String DATE = "November 3, 2020";
 
 	public static String getVersion() {
 		return VERSION;
@@ -4028,6 +4028,10 @@ public class MetaOmGraph implements ActionListener {
 	 * 
 	 */
 	public static void checkUpdates(boolean showCurrentMessage) {
+		//skip check if using beta
+		if(getVersion().contains("beta")) {
+			return;
+		}
 		VersionCheck ob = new VersionCheck(getVersion());
 		if (!ob.isLatestMOG()) {
 

@@ -246,9 +246,25 @@ public class DifferentialExpFrame extends TaskbarInternalFrame {
 							id = id.trim();
 						}
 					}
+					
+					//if name starts with number its illegal
+					if (Character.isDigit(id.charAt(0))) {
+						while (Character.isDigit(id.charAt(0))) {
+							id = JOptionPane.showInputDialog(MetaOmGraph.getDesktop(),
+									"Name can't start with a number. Please enter a different name for this analysis",
+									"Save differential expression results", 2);
+							if (id == null) {
+								// cancelled
+								return;
+							}
+							id = id.trim();
+						}
+					}
 				}
 
 				final String id_f = id;
+				//cant'start with string
+				
 
 				new AnimatedSwingWorker("Working...", true) {
 					@Override
