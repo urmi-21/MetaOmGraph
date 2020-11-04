@@ -762,20 +762,10 @@ public class BoxPlot extends TaskbarInternalFrame implements ChartMouseListener,
 				JOptionPane.showMessageDialog(this, "No metadata found.");
 				return;
 			}
-			String[] fields = MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataHeaders();
-			String[] fields2 = new String[fields.length + 3];
-			fields2[0] = "Reset";
-			int selectedInd = 0;
-			for (int i = 0; i < fields.length; i++) {
-				fields2[i + 1] = fields[i];
-				if (splitCol != null && splitCol.equals(fields2[i + 1])) {
-					selectedInd = i + 1;
-				}
-			}
-			fields2[fields2.length - 2] = "By Query";
-			fields2[fields2.length - 1] = "More...";
+			String[] options = {"By Metadata", "By Query", "Reset"};		
+
 			String col_val = (String) JOptionPane.showInputDialog(null, "Choose the column:\n", "Please choose",
-					JOptionPane.PLAIN_MESSAGE, null, fields2, fields2[selectedInd]);
+					JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 			if (col_val == null) {
 				return;
 			}
@@ -792,8 +782,9 @@ public class BoxPlot extends TaskbarInternalFrame implements ChartMouseListener,
 			}
 
 			List<String> selectedVals = new ArrayList<>();
-			if (col_val.equals("More...")) {
+			if (col_val.equals("By Metadata")) {
 				// display jpanel with check box
+				String[] fields =  MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataHeaders();
 				JCheckBox[] cBoxes = new JCheckBox[fields.length];
 				JPanel cbPanel = new JPanel();
 				cbPanel.setLayout(new GridLayout(0, 3));
@@ -881,14 +872,6 @@ public class BoxPlot extends TaskbarInternalFrame implements ChartMouseListener,
 				numOfSamplesSortItem.setEnabled(true);
 			}
 
-			else {
-				// split data set by values of col_val
-				selectedVals.add(col_val);
-				splitCol = col_val;
-				splitIndex = myProject.getMetadataHybrid().cluster(selectedVals);
-				splitIndicesFirstTime = true;
-				numOfSamplesSortItem.setEnabled(true);
-			}
 			reOrderGroups = false;
 			updateChart();
 			return;

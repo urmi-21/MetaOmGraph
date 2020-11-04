@@ -388,6 +388,36 @@ public class MetadataHybrid {
 		}
 		return result;
 	}
+	
+	/**
+	 * Cluster by multiple fields
+	 * 
+	 * @param field sample data column fields
+	 * @param selectedDataCols sample data columns
+	 * @return
+	 */
+	public Map<String, Collection<Integer>> cluster(List<String> field, List<String> selectedDataCols){
+		Map<String, Collection<Integer>> result = new TreeMap();
+		
+		List<Document> allData = mogCollection.getRowsByDatacols(selectedDataCols);
+		for (int i = 0; i < allData.size(); i++) {
+			Document thisRow = allData.get(i);
+			String thisVal = "";
+			for (String f : field) {
+				thisVal += thisRow.get(f).toString() + ";";
+			}
+			thisVal = thisVal.substring(0, thisVal.length() - 1);
+			String thisDc = thisRow.get(dataColumn).toString();
+			int thisInd = MetaOmGraph.getActiveProject().findDataColumnHeader(thisDc);
+			Collection<Integer> thisBin = result.get(thisVal);
+			if (thisBin == null) {
+				thisBin = new ArrayList();
+			}
+			thisBin.add(Integer.valueOf(thisInd));
+			result.put(thisVal, thisBin);
+		}
+		return result;
+	}
 
 	/**
 	 * create and return a map mapping datacolumn --> givenCol

@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 import java.util.Vector;
 
@@ -120,26 +121,26 @@ public class SimilarityDisplayFrame extends TaskbarInternalFrame {
 		menuBar.add(mnPlot);
 		
 		JMenuItem mntmHistogram = new JMenuItem("Histogram");
+
 		mntmHistogram.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-
-
 				// plot histogram of current pvalues in table
-				double[] data = new double[table.getRowCount()];
-				for (int r = 0; r < table.getRowCount(); r++) {
-
-					data[r] = (double) table.getModel().getValueAt(r, table.getColumn(metricName).getModelIndex());
+				double[] histogramData = new double[data.size()];
+				int i = 0;
+				for(Map.Entry<String, Double> entrySet : data.entrySet()) {
+					histogramData[i++] = entrySet.getValue();
 				}
+				
 				EventQueue.invokeLater(new Runnable() {
 					@Override
 					public void run() {
 						try {// get data for selected rows
-							int nBins = data.length/100;
+							int nBins = histogramData.length/100;
 							if(nBins<10) {
 								nBins=10;
 							}
-							HistogramChart f = new HistogramChart(null, nBins, null, 2, data, false);
+							HistogramChart f = new HistogramChart(null, nBins, null, 2, histogramData, false);
 							MetaOmGraph.getDesktop().add(f);
 							f.setDefaultCloseOperation(2);
 							f.setClosable(true);

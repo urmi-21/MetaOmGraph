@@ -876,13 +876,21 @@ public class MetadataCollection {
 	 */
 	public List<Document> getRowsByDatacols(List<String> dataColumnList) {
 		List<Document> result = new ArrayList<>();
+		if(dataColumnList != null) {
+			result = Arrays.asList(new Document[dataColumnList.size()]);
+		}
 		List<Document> allData = getAllData(false); //ignore excluded
 		for (int i = 0; i < allData.size(); i++) {
 			// if this row is in list
 			String thisDataCol = allData.get(i).get(getDatacol()).toString();
 			// add this row if its in rowlist or rowlist is null
-			if (dataColumnList == null || dataColumnList.contains(thisDataCol)) {
+			if (dataColumnList == null) {
 				result.add(allData.get(i));
+			}
+			else {
+				int pos = dataColumnList.indexOf(thisDataCol);
+				if(pos != -1)
+					result.set(pos, allData.get(i));
 			}
 
 		}
