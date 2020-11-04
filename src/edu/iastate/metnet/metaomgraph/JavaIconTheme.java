@@ -30,6 +30,7 @@ public class JavaIconTheme implements IconTheme {
 	private ImageIcon excel;
 	private ImageIcon report;
 	private ImageIcon groupBy;
+	private ImageIcon rIcon;
 	// urmi
 	private ImageIcon palette;
 
@@ -89,6 +90,8 @@ public class JavaIconTheme implements IconTheme {
 	private String reportPath = "/resource/javaicon/History16.gif";
 	
 	private String groupByPath = "/resource/customicon/categorizeIcon16.png";
+	
+	private String rIconPath =  "/resource/customicon/r_logoIcon16.png";
 
 	@Override
 	public ImageIcon getProperties() {
@@ -341,5 +344,12 @@ public class JavaIconTheme implements IconTheme {
 			groupBy = new ImageIcon(getClass().getResource(groupByPath));
 		}
 		return groupBy;
+	}
+	
+	public ImageIcon getRIcon() {
+		if(rIcon == null) {
+			rIcon = new ImageIcon(getClass().getResource(rIconPath));
+		}
+		return rIcon;
 	}
 }

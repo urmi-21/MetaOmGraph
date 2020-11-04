@@ -1468,9 +1468,19 @@ public class Utils {
 
 	/*
 	 * Remove all special chars from a string to make it usable for XML Names
+	 * Rules:
+	 * 
+    	XML elements must follow these naming rules:
+        Names can contain letters, numbers, and other characters
+        Names cannot start with a number or punctuation character
+        Names cannot start with the letters xml (or XML, or Xml, etc)
+        Names cannot contain spaces
+    	Any name can be used, no words are reserved.
+		http://www.w3schools.com/xml/xml_elements.asp
+	 * 
 	 */
 	public static String removeSpecialChars(String s) {
-
+		
 		String[] special = { "/", "\\", "+", "[", "^", "$", ".", "|", "?", "*", "(", ")", "{", "}", "-", "&", "%", "!",
 				";" };
 		// remove spaces
@@ -1523,9 +1533,20 @@ public class Utils {
 		} else {
 			return (x * 10);
 		}
-
 	}
 	
+	/**
+	 * return the transpose of a 2D matrix
+	 * @param matrix 2d array 
+	 * @return transposed 2d matrix(array)
+	 */
+	public static double[][] getTransposeMatrix(final double[][] matrix){
+		double[][] transposedMatrix = new double[matrix[0].length][matrix.length];
+        for (int i = 0; i < matrix.length; i++)
+            for (int j = 0; j < matrix[0].length; j++)
+            	transposedMatrix[j][i] = matrix[i][j];
+        return transposedMatrix;
+	}
 	
 
 	public static void main(String args[]) {
