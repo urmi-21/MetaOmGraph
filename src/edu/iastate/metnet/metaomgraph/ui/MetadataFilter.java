@@ -3,6 +3,7 @@ package edu.iastate.metnet.metaomgraph.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -28,6 +29,8 @@ import javax.swing.JOptionPane;
 
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GraphicsEnvironment;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -40,6 +43,7 @@ import java.util.Vector;
 
 import javax.swing.JMenu;
 import javax.swing.JSplitPane;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JSeparator;
@@ -231,6 +235,7 @@ public class MetadataFilter extends JDialog {
 
 		JPanel panel_2 = new JPanel();
 		panel_1.add(panel_2, BorderLayout.NORTH);
+		panel_2.setLayout(new BoxLayout(panel_2, BoxLayout.LINE_AXIS));
 
 		JButton btnSearch = new JButton("Search Included");
 		btnSearch.addActionListener(new ActionListener() {
@@ -359,6 +364,8 @@ public class MetadataFilter extends JDialog {
 
 		JPanel panel_4 = new JPanel();
 		panel_3.add(panel_4, BorderLayout.NORTH);
+		
+		panel_4.setLayout(new BoxLayout(panel_4, BoxLayout.LINE_AXIS));
 
 		JButton btnMoveAll_1 = new JButton("Move all");
 		btnMoveAll_1.addActionListener(new ActionListener() {
@@ -473,10 +480,21 @@ public class MetadataFilter extends JDialog {
 
 		JScrollPane scrollPane_1 = new JScrollPane();
 		panel_3.add(scrollPane_1, BorderLayout.CENTER);
-
+	
 		scrollPane_1.setViewportView(table_1);
-		this.setSize(700, 700);
+		//this.setSize(btnMoveSelected_1.getWidth()*8, 700);
 		this.setTitle("Advance Sample Filter");
+		this.setMaximumSize(new Dimension(2000, 700));
+		this.pack();
+		
+		GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		Rectangle bounds = env.getMaximumWindowBounds();
+		
+		int width = Math.min(this.getWidth(), bounds.width);
+		int height = Math.min(this.getHeight(), bounds.height-200);
+		this.setSize( new Dimension(width, height) );
+		
+		
 	}
 
 	private void initTables() {
