@@ -408,7 +408,7 @@ public class MetadataHybrid {
 			}
 			thisVal = thisVal.substring(0, thisVal.length() - 1);
 			String thisDc = thisRow.get(dataColumn).toString();
-			int thisInd = MetaOmGraph.getActiveProject().findDataColumnHeader(thisDc);
+			int thisInd = selectedDataCols.indexOf(thisDc);
 			Collection<Integer> thisBin = result.get(thisVal);
 			if (thisBin == null) {
 				thisBin = new ArrayList();
