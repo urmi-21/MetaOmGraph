@@ -166,11 +166,105 @@
 			<artifactId>flatlaf-intellij-themes</artifactId>
 			<version>0.42</version>
 		</dependency>
-  		<dependency>
+		<dependency>
       		<groupId>org.nd4j</groupId>
-      		<artifactId>nd4j-native-platform</artifactId>
+      		<artifactId>nd4j-native</artifactId>
       		<version>1.0.0-beta7</version>
-  		</dependency>
+      		<exclusions>
+      			<exclusion>
+      				<groupId>org.bytedeco</groupId>
+      				<artifactId>openblas-platform</artifactId>
+      			</exclusion>
+      			<exclusion>
+      				<groupId>org.bytedeco</groupId>
+      				<artifactId>mkl-platform</artifactId>
+      			</exclusion>
+      			<exclusion>
+      				<groupId>org.nd4j</groupId>
+      				<artifactId>jackson</artifactId>
+      			</exclusion>
+      			<exclusion>
+      				<groupId>org.bytedeco</groupId>
+      				<artifactId>openblas</artifactId>
+      			</exclusion>
+      			<exclusion>
+      				<groupId>org.bytedeco</groupId>
+      				<artifactId>javacpp</artifactId>
+      			</exclusion>
+      			<exclusion>
+      				<groupId>com.github.oshi</groupId>
+      				<artifactId>oshi-core</artifactId>
+      			</exclusion>
+      			<exclusion>
+      				<groupId>net.ericaro</groupId>
+      				<artifactId>neoitertools</artifactId>
+      			</exclusion>
+      			<exclusion>
+      				<groupId>commons-net</groupId>
+      				<artifactId>commons-net</artifactId>
+      			</exclusion>
+      			<exclusion>
+      				<groupId>org.nd4j</groupId>
+      				<artifactId>protobuf</artifactId>
+      			</exclusion>
+      			<exclusion>
+      				<groupId>com.google.flatbuffers</groupId>
+      				<artifactId>flatbuffers-java</artifactId>
+      			</exclusion>
+      			<exclusion>
+      				<groupId>com.jakewharton.byteunits</groupId>
+      				<artifactId>byteunits</artifactId>
+      			</exclusion>
+      		</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.bytedeco</groupId>
+			<artifactId>javacpp</artifactId>
+			<version>1.5.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bytedeco</groupId>
+			<artifactId>javacpp</artifactId>
+			<version>1.5.3</version>
+			<classifier>windows-x86_64</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.bytedeco</groupId>
+			<artifactId>javacpp</artifactId>
+			<version>1.5.3</version>
+			<classifier>macosx-x86_64</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.bytedeco</groupId>
+			<artifactId>javacpp</artifactId>
+			<version>1.5.3</version>
+			<classifier>linux-x86_64</classifier>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.bytedeco</groupId>
+			<artifactId>openblas</artifactId>
+			<version>0.3.9-1-1.5.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bytedeco</groupId>
+			<artifactId>openblas</artifactId>
+			<version>0.3.9-1-1.5.3</version>
+			<classifier>windows-x86_64</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.bytedeco</groupId>
+			<artifactId>openblas</artifactId>
+			<version>0.3.9-1-1.5.3</version>
+			<classifier>macosx-x86_64</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.bytedeco</groupId>
+			<artifactId>openblas</artifactId>
+			<version>0.3.9-1-1.5.3</version>
+			<classifier>linux-x86_64</classifier>
+		</dependency>
+		
 	</dependencies>
 
 </project>
