@@ -134,12 +134,14 @@ public class MetaOmTips implements TipModel, HyperlinkListener {
         tipPanel.add(topPanel);
         
         JPanel textPanel = new JPanel(new BorderLayout());
+        textPanel.setBackground(Color.WHITE);
         textPanel.setBorder(BorderFactory.createEmptyBorder(15, 25, 15, 25));
         textPanel.setPreferredSize(new Dimension(500, 200));
         
         Random random = new Random();
     	tipIndex = random.nextInt(7);
         tipPane.setText(tips.get(tipIndex).getTip().toString());
+        tipPane.setBackground(Color.WHITE);
         textPanel.add(new JScrollPane(tipPane));
 
         tipPanel.add(textPanel);

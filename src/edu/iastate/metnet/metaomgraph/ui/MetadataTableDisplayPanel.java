@@ -210,7 +210,9 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 					updateTable(values, true);
 				}
 			}
+		});
 
+		sampleDataList.addMouseMotionListener(new MouseMotionAdapter() {
 			@Override
 			public void mouseMoved(MouseEvent e) {
 				super.mouseMoved(e);
@@ -221,7 +223,7 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 					// create tooltip
 					String thisListName = m.getElementAt(index).toString();
 					int numElements = MetaOmGraph.getActiveProject().getSampleDataListRowNames(thisListName).size();
-					l.setToolTipText(thisListName + ":" + numElements + " Elements");
+					l.setToolTipText(thisListName + ":" + numElements + " Elements\n" + "Single click to view the list; Double click to make it active");
 				}
 			}
 			
@@ -2628,7 +2630,10 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 					updateTable(values, true);
 				}
 			}
-
+			
+		});
+		
+		sampleDataList.addMouseMotionListener(new MouseMotionAdapter() {
 			@Override
 			public void mouseMoved(MouseEvent e) {
 				super.mouseMoved(e);
@@ -2639,7 +2644,7 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 					// create tooltip
 					String thisListName = m.getElementAt(index).toString();
 					int numElements = MetaOmGraph.getActiveProject().getSampleDataListRowNames(thisListName).size();
-					l.setToolTipText(thisListName + ":" + numElements + " Elements");
+					l.setToolTipText(thisListName + ":" + numElements + " Elements\n" + "Single click to view the list; Double click to make it active");
 				}
 			}
 			
