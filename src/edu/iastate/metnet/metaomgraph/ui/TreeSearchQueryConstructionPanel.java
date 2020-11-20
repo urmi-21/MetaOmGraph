@@ -85,12 +85,11 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 		// String[] fields = myProject.getMetadata().getFields();
 
 		String[] fields=null;
-		if (searchDataTable==false) {
+		if (searchDataTable == true) {
 			/**
 			 * @author urmi changed to : now fields are from Metadatahybrid
 			 */
 			fields = myProject.getMetadataHybrid().getMetadataHeaders();
-			//JOptionPane.showMessageDialog(null, "flds:"+Arrays.toString(fields));
 			Arrays.sort(fields);
 		}else {
 			fields=myProject.getInfoColumnNames();
