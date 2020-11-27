@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.ColorUIResource;
@@ -16,6 +17,7 @@ import javax.swing.table.TableCellRenderer;
 import org.jfree.chart.axis.ValueAxis;
 
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
@@ -30,6 +32,7 @@ import javax.swing.JOptionPane;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
+import java.awt.HeadlessException;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,8 +54,16 @@ import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextPane;
+
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.beans.PropertyVetoException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.awt.event.ActionEvent;
 
@@ -88,7 +99,12 @@ public class MetadataFilter extends JDialog {
 			public void run() {
 				try {
 					MetadataFilter frame = new MetadataFilter(null);
+					FrameModel fm = new FrameModel("Metadata Filter","Metadata Filter",31);
+//					frame.setModel(fm);
+					MetaOmGraph.getDesktop().add(frame);
 					frame.setVisible(true);
+					frame.show();
+//					frame.moveToFront();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -119,380 +135,422 @@ public class MetadataFilter extends JDialog {
 	}
 
 	public MetadataFilter(MetadataCollection metadataCollection, boolean val, MetaOmChartPanel thisChartPanel) {
-		// TODO Auto-generated constructor stub
-		this.delete = val;
-		this.chartPanel=thisChartPanel;
-		setModal(true);
-		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
-		this.mogColl = metadataCollection;
-		included = mogColl.getIncluded();
-		excluded = mogColl.getExcluded();
-		// JOptionPane.showMessageDialog(null, "inc:"+included.toString());
-		// JOptionPane.showMessageDialog(null, "exc:"+excluded.toString());
-		JMenuBar menuBar = new JMenuBar();
-		//setJMenuBar(menuBar);
+//			super("Metadata Filter");
+	
+			// TODO Auto-generated constructor stub
+			this.delete = val;
+			this.chartPanel=thisChartPanel;
+			//setModal(true);
+			setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+			setBounds(100, 100, 450, 300);
+			this.mogColl = metadataCollection;
+			included = mogColl.getIncluded();
+			excluded = mogColl.getExcluded();
+			// JOptionPane.showMessageDialog(null, "inc:"+included.toString());
+			// JOptionPane.showMessageDialog(null, "exc:"+excluded.toString());
+			JMenuBar menuBar = new JMenuBar();
+			//setJMenuBar(menuBar);
 
-		JMenu mnFile = new JMenu("File");
-		menuBar.add(mnFile);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		contentPane.setLayout(new BorderLayout(0, 0));
-		setContentPane(contentPane);
+			JMenu mnFile = new JMenu("File");
+			menuBar.add(mnFile);
+			contentPane = new JPanel();
+			contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+			contentPane.setLayout(new BorderLayout(0, 0));
+			setContentPane(contentPane);
 
-		JPanel panel = new JPanel();
-		contentPane.add(panel, BorderLayout.NORTH);
-		panel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+			JPanel panel = new JPanel();
+			contentPane.add(panel, BorderLayout.NORTH);
+			panel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 
-		JButton btnDone;
-		if (delete) {
-			btnDone = new JButton("Delete");
-		} else {
-			btnDone = new JButton("Filter");
-		}
-		btnDone.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				/*if(getTablerows(table_1).size()<1) {
-					JOptionPane.showMessageDialog(null, "Please use buttons to move selected columns to the excluded list", "Excluded list empty", JOptionPane.ERROR_MESSAGE);
-					return;
-				}*/
-				
-				if (delete) {
-					int result = JOptionPane.showConfirmDialog((Component) null, "This will delete the rows in the excluded list. This can't be undone","Delete rows", JOptionPane.OK_CANCEL_OPTION);
-					if(result==JOptionPane.CANCEL_OPTION) {
+			JButton btnDone;
+			if (delete) {
+				btnDone = new JButton("Delete");
+			} else {
+				btnDone = new JButton("Filter");
+			}
+			btnDone.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					/*if(getTablerows(table_1).size()<1) {
+						JOptionPane.showMessageDialog(null, "Please use buttons to move selected columns to the excluded list", "Excluded list empty", JOptionPane.ERROR_MESSAGE);
+						return;
+					}*/
+					
+					if (delete) {
+						int result = JOptionPane.showConfirmDialog((Component) null, "This will delete the rows in the excluded list. This can't be undone","Delete rows", JOptionPane.OK_CANCEL_OPTION);
+						if(result==JOptionPane.CANCEL_OPTION) {
+							return;
+						}
+						updateIncludedlist();
+						//add rows to removedMD list
+						Set<String> rowsDeleted = new HashSet<String>(mogColl.getExcluded());
+						
+						MetaOmGraph.getActiveProject().getMetadataHybrid().addExcludedMDRows(mogColl.getExcluded());
+						//add these to list of missing as these will be deleted from the project
+						MetaOmGraph.getActiveProject().getMetadataHybrid().addMissingMDRows(mogColl.getExcluded());
+						removeExcludedRows();
+						
+						((DefaultTableModel) table_1.getModel()).setRowCount(0);
+						
+						//Harsha - reproducibility log
+						HashMap<String,Object> actionMap = new HashMap<String,Object>();
+						actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+						actionMap.put("section", "Sample Metadata Table");
+
+						HashMap<String,Object> dataMap = new HashMap<String,Object>();
+						dataMap.put("Deleted Rows",rowsDeleted);
+						
+						HashMap<String,Object> resultLog = new HashMap<String,Object>();
+						resultLog.put("result", "OK");
+
+						ActionProperties filterSelectedRowsAction = new ActionProperties("delete-metadata-rows",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+						filterSelectedRowsAction.logActionProperties();
+						
+						
+						
+					} else {
+						updateIncludedlist();
+						// update exclude list
+						// JOptionPane.showMessageDialog(null, "exlist"+excluded.toString());
+						MetaOmAnalyzer.updateExcluded(metadataCollection.getExcluded(), true);
+					}
+					MetaOmGraph.getActiveTable().updateMetadataTable();
+					MetaOmGraph.getActiveTable().updateMetadataTree();
+					if(chartPanel!=null) {
+						chartPanel.updateChartAfterFilter();
+					}
+				}
+			});
+			panel.add(btnDone);
+
+			JSeparator separator = new JSeparator();
+			separator.setOrientation(SwingConstants.VERTICAL);
+			panel.add(separator);
+			
+			JButton btnSwapIncludedAnd = new JButton("Swap included and excluded");
+			btnSwapIncludedAnd.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					//switch included and excluced lists
+					//s;
+					DefaultTableModel model_inc = (DefaultTableModel) table.getModel();
+					DefaultTableModel model_exc = (DefaultTableModel) table_1.getModel();
+					table.setModel(model_exc);
+					table_1.setModel(model_inc);
+					
+				}
+			});
+			panel.add(btnSwapIncludedAnd);
+
+			JSplitPane splitPane = new JSplitPane();
+			contentPane.add(splitPane, BorderLayout.CENTER);
+			splitPane.setDividerSize(2);
+			splitPane.setResizeWeight(.50d);
+
+			JPanel panel_1 = new JPanel();
+			splitPane.setLeftComponent(panel_1);
+			panel_1.setLayout(new BorderLayout(0, 0));
+
+			JPanel panel_2 = new JPanel();
+			panel_1.add(panel_2, BorderLayout.NORTH);
+			//panel_2.setLayout(new BoxLayout(panel_2, BoxLayout.LINE_AXIS));
+			panel_2.setLayout(new FlowLayout());
+
+			JButton btnSearch = new JButton("Search Included");
+			btnSearch.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					/*
+					 * try { SimpleSearchDialog dialog = new SimpleSearchDialog(); searchIncres =
+					 * dialog.showDialog(); if (searchIncres == null || searchIncres.size() == 0) {
+					 * JOptionPane.showMessageDialog(null, "Nothing found", "Search results",
+					 * JOptionPane.WARNING_MESSAGE); } setSelected(searchIncres, table); //
+					 * table.repaint(); } catch (Exception ex) { ex.printStackTrace(); }
+					 */
+
+					// show advance search dialog
+					final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(
+							MetaOmGraph.getActiveProject(),false);
+					final MetadataQuery[] queries;
+					queries = tsp.showSearchDialog();
+					if (tsp.getQueryCount() <= 0) {
+						// System.out.println("Search dialog cancelled");
+						// User didn't enter any queries
 						return;
 					}
-					updateIncludedlist();
-					//add rows to removedMD list
-					Set<String> rowsDeleted = new HashSet<String>(mogColl.getExcluded());
-					
-					MetaOmGraph.getActiveProject().getMetadataHybrid().addExcludedMDRows(mogColl.getExcluded());
-					//add these to list of missing as these will be deleted from the project
-					MetaOmGraph.getActiveProject().getMetadataHybrid().addMissingMDRows(mogColl.getExcluded());
-					removeExcludedRows();
-					
-					((DefaultTableModel) table_1.getModel()).setRowCount(0);
-					
-					//Harsha - reproducibility log
-					HashMap<String,Object> actionMap = new HashMap<String,Object>();
-					actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
-					actionMap.put("section", "Sample Metadata Table");
+					// final int[] result = new
+					// int[MetaOmGraph.getActiveProject().getDataColumnCount()];
+					final List<String> result = new ArrayList<>();
 
-					HashMap<String,Object> dataMap = new HashMap<String,Object>();
-					dataMap.put("Deleted Rows",rowsDeleted);
-					
-					HashMap<String,Object> resultLog = new HashMap<String,Object>();
-					resultLog.put("result", "OK");
+					new AnimatedSwingWorker("Searching...", true) {
 
-					ActionProperties filterSelectedRowsAction = new ActionProperties("delete-metadata-rows",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-					filterSelectedRowsAction.logActionProperties();
-					
-					
-					
-				} else {
-					updateIncludedlist();
-					// update exclude list
-					// JOptionPane.showMessageDialog(null, "exlist"+excluded.toString());
-					MetaOmAnalyzer.updateExcluded(metadataCollection.getExcluded(), true);
+						@Override
+						public Object construct() {
+
+							List<String> hits = MetaOmGraph.getActiveProject().getMetadataHybrid().getMatchingRows(queries,	tsp.matchAll());
+
+							// return if no hits
+							if (hits.size() == 0) {
+								// JOptionPane.showMessageDialog(null, "hits len:"+hits.length);
+								// nohits=true;
+								result.add("NULL");
+								return null;
+							} else {
+								for (int i = 0; i < hits.size(); i++) {
+									result.add(hits.get(i));
+								}
+							}
+
+							return null;
+						}
+
+					}.start();
+
+					searchIncres = result;
+					if (searchIncres == null || searchIncres.size() == 0) {
+						JOptionPane.showMessageDialog(null, "Nothing found", "Search results", JOptionPane.WARNING_MESSAGE);
+					}
+					//bring matched item to top and select them
+					setSelected(searchIncres, table);
+
 				}
-				MetaOmGraph.getActiveTable().updateMetadataTable();
-				MetaOmGraph.getActiveTable().updateMetadataTree();
-				if(chartPanel!=null) {
-					chartPanel.updateChartAfterFilter();
-				}
-			}
-		});
-		panel.add(btnDone);
+			});
+			panel_2.add(btnSearch);
 
-		JSeparator separator = new JSeparator();
-		separator.setOrientation(SwingConstants.VERTICAL);
-		panel.add(separator);
-		
-		JButton btnSwapIncludedAnd = new JButton("Swap included and excluded");
-		btnSwapIncludedAnd.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				//switch included and excluced lists
-				//s;
-				DefaultTableModel model_inc = (DefaultTableModel) table.getModel();
-				DefaultTableModel model_exc = (DefaultTableModel) table_1.getModel();
-				table.setModel(model_exc);
-				table_1.setModel(model_inc);
+			JButton btnMoveSelected = new JButton("Move selected");
+			btnMoveSelected.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					/**
+					 * Transfer selected rows of included to excluded
+					 * 
+					 */
+					DefaultTableModel model_inc = (DefaultTableModel) table.getModel();
+					DefaultTableModel model_exc = (DefaultTableModel) table_1.getModel();
+					int[] selected = table.getSelectedRows();
+					// JOptionPane.showMessageDialog(null, "s:"+Arrays.toString(selected));
+					String[] temp = new String[1];
+					for (int c = 0; c < selected.length; c++) {
+						temp[0] = model_inc.getValueAt(table.convertRowIndexToModel(selected[c]), 0).toString();
+						model_exc.addRow(temp);
+					}
+					// remove rows from included
+					Arrays.sort(selected);
+					// JOptionPane.showMessageDialog(null, "s:"+Arrays.toString(selected));
+					for (int i = selected.length - 1; i >= 0; i--) {
+						// JOptionPane.showMessageDialog(null, "si:"+selected[i]);
+						model_inc.removeRow(table.convertRowIndexToModel(selected[i]));
+						// model_inc.fireTableRowsDeleted(selected[i], selected[i]);
+					}
+
+				}
+			});
+			panel_2.add(btnMoveSelected);
+
+			JButton btnMoveAll = new JButton("Move all");
+			btnMoveAll.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					/**
+					 * Transfer all rows of included to excluded
+					 * 
+					 */
+					DefaultTableModel model_inc = (DefaultTableModel) table.getModel();
+					DefaultTableModel model_exc = (DefaultTableModel) table_1.getModel();
+					String[] temp = new String[1];
+					for (int c = 0; c < model_inc.getRowCount(); c++) {
+
+						temp[0] = model_inc.getValueAt(c, 0).toString();
+						model_exc.addRow(temp);
+					}
+					model_inc.setRowCount(0);
+
+				}
+			});
+			panel_2.add(btnMoveAll);
+
+			JScrollPane scrollPane = new JScrollPane();
+			panel_1.add(scrollPane, BorderLayout.CENTER);
+
+			// table = new JTable();
+			initTables();
+			scrollPane.setViewportView(table);
+
+			JPanel panel_3 = new JPanel();
+			splitPane.setRightComponent(panel_3);
+			panel_3.setLayout(new BorderLayout(0, 0));
+
+			JPanel panel_4 = new JPanel();
+			panel_3.add(panel_4, BorderLayout.NORTH);
+			
+			//panel_4.setLayout(new BoxLayout(panel_4, BoxLayout.LINE_AXIS));
+			panel_4.setLayout(new FlowLayout());
+			JButton btnMoveAll_1 = new JButton("Move all");
+			btnMoveAll_1.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					/**
+					 * Transfer all rows of excluded to included
+					 * 
+					 */
+					DefaultTableModel model_inc = (DefaultTableModel) table.getModel();
+					DefaultTableModel model_exc = (DefaultTableModel) table_1.getModel();
+					String[] temp = new String[1];
+					for (int c = 0; c < model_exc.getRowCount(); c++) {
+
+						temp[0] = model_exc.getValueAt(c, 0).toString();
+						model_inc.addRow(temp);
+					}
+					model_exc.setRowCount(0);
+				}
+			});
+			panel_4.add(btnMoveAll_1);
+
+			JButton btnMoveSelected_1 = new JButton("Move selected");
+			btnMoveSelected_1.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					/**
+					 * Transfer selected rows of included to excluded
+					 * 
+					 */
+					DefaultTableModel model_inc = (DefaultTableModel) table.getModel();
+					DefaultTableModel model_exc = (DefaultTableModel) table_1.getModel();
+					int[] selected = table_1.getSelectedRows();
+					String[] temp = new String[1];
+					for (int c = 0; c < selected.length; c++) {
+						temp[0] = model_exc.getValueAt(table_1.convertRowIndexToModel(selected[c]), 0).toString();
+						model_inc.addRow(temp);
+
+					}
+					// remove rows from excluded
+					Arrays.sort(selected);
+					for (int i = selected.length - 1; i >= 0; i--) {
+						// JOptionPane.showMessageDialog(null, "si:"+selected[i]);
+						model_exc.removeRow(table_1.convertRowIndexToModel(selected[i]));
+						// model_inc.fireTableRowsDeleted(selected[i], selected[i]);
+					}
+				}
+			});
+			panel_4.add(btnMoveSelected_1);
+
+			JButton btnSearch_1 = new JButton("Search excluded");
+			btnSearch_1.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					/*
+					 * try { SimpleSearchDialog dialog = new SimpleSearchDialog(); searchExcres =
+					 * dialog.showDialog(); if (searchExcres == null || searchExcres.size() == 0) {
+					 * JOptionPane.showMessageDialog(null, "Nothing found", "Search results",
+					 * JOptionPane.WARNING_MESSAGE); } setSelected(searchExcres, table_1); //
+					 * table.repaint(); } catch (Exception ex) { ex.printStackTrace(); }
+					 */
+
+					// show advance search dialog
+
+					final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(
+							MetaOmGraph.getActiveProject());
+					final MetadataQuery[] queries;
+					queries = tsp.showSearchDialog();
+					if (tsp.getQueryCount() <= 0) {
+						// System.out.println("Search dialog cancelled");
+						// User didn't enter any queries
+						return;
+					}
+					// final int[] result = new
+					// int[MetaOmGraph.getActiveProject().getDataColumnCount()];
+					final List<String> result = new ArrayList<>();
+
+					new AnimatedSwingWorker("Searching...", true) {
+
+						@Override
+						public Object construct() {
+
+							List<String> hits = MetaOmGraph.getActiveProject().getMetadataHybrid().getMatchingRows(queries,
+									tsp.matchAll());
+
+							// return if no hits
+							if (hits.size() == 0) {
+								// JOptionPane.showMessageDialog(null, "hits len:"+hits.length);
+								// nohits=true;
+								result.add("NULL");
+								return null;
+							} else {
+								for (int i = 0; i < hits.size(); i++) {
+									result.add(hits.get(i));
+								}
+							}
+
+							return null;
+						}
+
+					}.start();
+
+					searchExcres = result;
+					//JOptionPane.showMessageDialog(null, "res:" + searchExcres.toString());
+					if (searchExcres == null || searchExcres.size() == 0) {
+						JOptionPane.showMessageDialog(null, "Nothing found", "Search results", JOptionPane.WARNING_MESSAGE);
+					}
+					setSelected(searchExcres, table_1);
+				}
+			});
+			panel_4.add(btnSearch_1);
+
+			JScrollPane scrollPane_1 = new JScrollPane();
+			panel_3.add(scrollPane_1, BorderLayout.CENTER);
+
+			scrollPane_1.setViewportView(table_1);
+			//this.setSize(btnMoveSelected_1.getWidth()*8, 700);
+			this.setTitle("Advance Sample Filter");
+			//this.setMaximumSize(new Dimension(2000, 700));
+			this.pack();
+			
+			GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+			Rectangle bounds = env.getMaximumWindowBounds();
+			
+			int width = Math.min(this.getWidth(), bounds.width);
+			int height = Math.min(this.getHeight(), bounds.height-200);
+			this.setSize( new Dimension(width, height) );
+			
+			MetadataFilter thisFrame = this;
+			this.addComponentListener(new ComponentListener() {
 				
-			}
-		});
-		panel.add(btnSwapIncludedAnd);
-
-		JSplitPane splitPane = new JSplitPane();
-		contentPane.add(splitPane, BorderLayout.CENTER);
-		splitPane.setDividerSize(2);
-		splitPane.setResizeWeight(.50d);
-
-		JPanel panel_1 = new JPanel();
-		splitPane.setLeftComponent(panel_1);
-		panel_1.setLayout(new BorderLayout(0, 0));
-
-		JPanel panel_2 = new JPanel();
-		panel_1.add(panel_2, BorderLayout.NORTH);
-		panel_2.setLayout(new BoxLayout(panel_2, BoxLayout.LINE_AXIS));
-
-		JButton btnSearch = new JButton("Search Included");
-		btnSearch.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				/*
-				 * try { SimpleSearchDialog dialog = new SimpleSearchDialog(); searchIncres =
-				 * dialog.showDialog(); if (searchIncres == null || searchIncres.size() == 0) {
-				 * JOptionPane.showMessageDialog(null, "Nothing found", "Search results",
-				 * JOptionPane.WARNING_MESSAGE); } setSelected(searchIncres, table); //
-				 * table.repaint(); } catch (Exception ex) { ex.printStackTrace(); }
-				 */
-
-				// show advance search dialog
-				final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(
-						MetaOmGraph.getActiveProject(),false);
-				final MetadataQuery[] queries;
-				queries = tsp.showSearchDialog();
-				if (tsp.getQueryCount() <= 0) {
-					// System.out.println("Search dialog cancelled");
-					// User didn't enter any queries
-					return;
+				@Override
+				public void componentShown(ComponentEvent e) {
+					// TODO Auto-generated method stub
+					
 				}
-				// final int[] result = new
-				// int[MetaOmGraph.getActiveProject().getDataColumnCount()];
-				final List<String> result = new ArrayList<>();
-
-				new AnimatedSwingWorker("Searching...", true) {
-
-					@Override
-					public Object construct() {
-
-						List<String> hits = MetaOmGraph.getActiveProject().getMetadataHybrid().getMatchingRows(queries,	tsp.matchAll());
-
-						// return if no hits
-						if (hits.size() == 0) {
-							// JOptionPane.showMessageDialog(null, "hits len:"+hits.length);
-							// nohits=true;
-							result.add("NULL");
-							return null;
-						} else {
-							for (int i = 0; i < hits.size(); i++) {
-								result.add(hits.get(i));
-							}
-						}
-
-						return null;
+				
+				@Override
+				public void componentResized(ComponentEvent e) {
+					// TODO Auto-generated method stub
+					
+					if(thisFrame.getWidth() < width || thisFrame.getHeight() < height) {
+						thisFrame.setSize(width, height);
 					}
-
-				}.start();
-
-				searchIncres = result;
-				if (searchIncres == null || searchIncres.size() == 0) {
-					JOptionPane.showMessageDialog(null, "Nothing found", "Search results", JOptionPane.WARNING_MESSAGE);
 				}
-				//bring matched item to top and select them
-				setSelected(searchIncres, table);
-
-			}
-		});
-		panel_2.add(btnSearch);
-
-		JButton btnMoveSelected = new JButton("Move selected");
-		btnMoveSelected.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				/**
-				 * Transfer selected rows of included to excluded
-				 * 
-				 */
-				DefaultTableModel model_inc = (DefaultTableModel) table.getModel();
-				DefaultTableModel model_exc = (DefaultTableModel) table_1.getModel();
-				int[] selected = table.getSelectedRows();
-				// JOptionPane.showMessageDialog(null, "s:"+Arrays.toString(selected));
-				String[] temp = new String[1];
-				for (int c = 0; c < selected.length; c++) {
-					temp[0] = model_inc.getValueAt(table.convertRowIndexToModel(selected[c]), 0).toString();
-					model_exc.addRow(temp);
+				
+				@Override
+				public void componentMoved(ComponentEvent e) {
+					// TODO Auto-generated method stub
+					
 				}
-				// remove rows from included
-				Arrays.sort(selected);
-				// JOptionPane.showMessageDialog(null, "s:"+Arrays.toString(selected));
-				for (int i = selected.length - 1; i >= 0; i--) {
-					// JOptionPane.showMessageDialog(null, "si:"+selected[i]);
-					model_inc.removeRow(table.convertRowIndexToModel(selected[i]));
-					// model_inc.fireTableRowsDeleted(selected[i], selected[i]);
+				
+				@Override
+				public void componentHidden(ComponentEvent e) {
+					// TODO Auto-generated method stub
+					
 				}
-
-			}
-		});
-		panel_2.add(btnMoveSelected);
-
-		JButton btnMoveAll = new JButton("Move all");
-		btnMoveAll.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				/**
-				 * Transfer all rows of included to excluded
-				 * 
-				 */
-				DefaultTableModel model_inc = (DefaultTableModel) table.getModel();
-				DefaultTableModel model_exc = (DefaultTableModel) table_1.getModel();
-				String[] temp = new String[1];
-				for (int c = 0; c < model_inc.getRowCount(); c++) {
-
-					temp[0] = model_inc.getValueAt(c, 0).toString();
-					model_exc.addRow(temp);
-				}
-				model_inc.setRowCount(0);
-
-			}
-		});
-		panel_2.add(btnMoveAll);
-
-		JScrollPane scrollPane = new JScrollPane();
-		panel_1.add(scrollPane, BorderLayout.CENTER);
-
-		// table = new JTable();
-		initTables();
-		scrollPane.setViewportView(table);
-
-		JPanel panel_3 = new JPanel();
-		splitPane.setRightComponent(panel_3);
-		panel_3.setLayout(new BorderLayout(0, 0));
-
-		JPanel panel_4 = new JPanel();
-		panel_3.add(panel_4, BorderLayout.NORTH);
-		
-		panel_4.setLayout(new BoxLayout(panel_4, BoxLayout.LINE_AXIS));
-
-		JButton btnMoveAll_1 = new JButton("Move all");
-		btnMoveAll_1.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				/**
-				 * Transfer all rows of excluded to included
-				 * 
-				 */
-				DefaultTableModel model_inc = (DefaultTableModel) table.getModel();
-				DefaultTableModel model_exc = (DefaultTableModel) table_1.getModel();
-				String[] temp = new String[1];
-				for (int c = 0; c < model_exc.getRowCount(); c++) {
-
-					temp[0] = model_exc.getValueAt(c, 0).toString();
-					model_inc.addRow(temp);
-				}
-				model_exc.setRowCount(0);
-			}
-		});
-		panel_4.add(btnMoveAll_1);
-
-		JButton btnMoveSelected_1 = new JButton("Move selected");
-		btnMoveSelected_1.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				/**
-				 * Transfer selected rows of included to excluded
-				 * 
-				 */
-				DefaultTableModel model_inc = (DefaultTableModel) table.getModel();
-				DefaultTableModel model_exc = (DefaultTableModel) table_1.getModel();
-				int[] selected = table_1.getSelectedRows();
-				String[] temp = new String[1];
-				for (int c = 0; c < selected.length; c++) {
-					temp[0] = model_exc.getValueAt(table_1.convertRowIndexToModel(selected[c]), 0).toString();
-					model_inc.addRow(temp);
-
-				}
-				// remove rows from excluded
-				Arrays.sort(selected);
-				for (int i = selected.length - 1; i >= 0; i--) {
-					// JOptionPane.showMessageDialog(null, "si:"+selected[i]);
-					model_exc.removeRow(table_1.convertRowIndexToModel(selected[i]));
-					// model_inc.fireTableRowsDeleted(selected[i], selected[i]);
-				}
-			}
-		});
-		panel_4.add(btnMoveSelected_1);
-
-		JButton btnSearch_1 = new JButton("Search excluded");
-		btnSearch_1.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				/*
-				 * try { SimpleSearchDialog dialog = new SimpleSearchDialog(); searchExcres =
-				 * dialog.showDialog(); if (searchExcres == null || searchExcres.size() == 0) {
-				 * JOptionPane.showMessageDialog(null, "Nothing found", "Search results",
-				 * JOptionPane.WARNING_MESSAGE); } setSelected(searchExcres, table_1); //
-				 * table.repaint(); } catch (Exception ex) { ex.printStackTrace(); }
-				 */
-
-				// show advance search dialog
-
-				final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(
-						MetaOmGraph.getActiveProject());
-				final MetadataQuery[] queries;
-				queries = tsp.showSearchDialog();
-				if (tsp.getQueryCount() <= 0) {
-					// System.out.println("Search dialog cancelled");
-					// User didn't enter any queries
-					return;
-				}
-				// final int[] result = new
-				// int[MetaOmGraph.getActiveProject().getDataColumnCount()];
-				final List<String> result = new ArrayList<>();
-
-				new AnimatedSwingWorker("Searching...", true) {
-
-					@Override
-					public Object construct() {
-
-						List<String> hits = MetaOmGraph.getActiveProject().getMetadataHybrid().getMatchingRows(queries,
-								tsp.matchAll());
-
-						// return if no hits
-						if (hits.size() == 0) {
-							// JOptionPane.showMessageDialog(null, "hits len:"+hits.length);
-							// nohits=true;
-							result.add("NULL");
-							return null;
-						} else {
-							for (int i = 0; i < hits.size(); i++) {
-								result.add(hits.get(i));
-							}
-						}
-
-						return null;
-					}
-
-				}.start();
-
-				searchExcres = result;
-				//JOptionPane.showMessageDialog(null, "res:" + searchExcres.toString());
-				if (searchExcres == null || searchExcres.size() == 0) {
-					JOptionPane.showMessageDialog(null, "Nothing found", "Search results", JOptionPane.WARNING_MESSAGE);
-				}
-				setSelected(searchExcres, table_1);
-			}
-		});
-		panel_4.add(btnSearch_1);
-
-		JScrollPane scrollPane_1 = new JScrollPane();
-		panel_3.add(scrollPane_1, BorderLayout.CENTER);
-	
-		scrollPane_1.setViewportView(table_1);
-		//this.setSize(btnMoveSelected_1.getWidth()*8, 700);
-		this.setTitle("Advance Sample Filter");
-		this.setMaximumSize(new Dimension(2000, 700));
-		this.pack();
-		
-		GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
-		Rectangle bounds = env.getMaximumWindowBounds();
-		
-		int width = Math.min(this.getWidth(), bounds.width);
-		int height = Math.min(this.getHeight(), bounds.height-200);
-		this.setSize( new Dimension(width, height) );
+			});
+			
+//			this.setClosable(true);
+			this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+			this.setResizable(true);
+//			this.setIconifiable(true);
+//			this.setMaximizable(false);
+			
+			this.setVisible(true);
 		
 		
 	}
