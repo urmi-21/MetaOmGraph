@@ -3467,7 +3467,11 @@ public class MetaOmGraph implements ActionListener {
 					try {
 						MetadataFilter frame = new MetadataFilter(
 								getActiveProject().getMetadataHybrid().getMetadataCollection());
+						FrameModel fm = new FrameModel("Metadata Filter","Metadata Filter",31);
+//						frame.setModel(fm);
 						frame.setVisible(true);
+						desktop.add(frame);
+						frame.show();
 
 					} catch (Exception e) {
 						e.printStackTrace();

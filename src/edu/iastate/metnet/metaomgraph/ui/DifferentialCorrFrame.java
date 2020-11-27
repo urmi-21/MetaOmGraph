@@ -52,6 +52,8 @@ import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 
 import javax.swing.ScrollPaneConstants;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JCheckBox;
 
@@ -489,7 +491,41 @@ public class DifferentialCorrFrame extends TaskbarInternalFrame {
 
 		// frame properties
 		this.setClosable(true);
-		// pack();
+		pack();
+		
+		int defaultWidth = this.getWidth();
+		int defaultHeight = MetaOmGraph.getMainWindow().getHeight() / 2;
+		DifferentialCorrFrame thisFrame = this;
+		
+		this.addComponentListener(new ComponentListener() {
+			
+			@Override
+			public void componentShown(ComponentEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void componentResized(ComponentEvent e) {
+				// TODO Auto-generated method stub
+				
+				if(thisFrame.getWidth() < defaultWidth || thisFrame.getHeight() < defaultHeight) {
+					thisFrame.setSize(defaultWidth, defaultHeight);
+				}
+			}
+			
+			@Override
+			public void componentMoved(ComponentEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void componentHidden(ComponentEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		putClientProperty("JInternalFrame.frameType", "normal");
 		setResizable(true);
 		setMaximizable(true);
