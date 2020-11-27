@@ -552,11 +552,11 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 						try {
 							MetadataFilter frame = new MetadataFilter(obj);
 							FrameModel fm = new FrameModel("Metadata Filter","Metadata Filter",31);
-//							frame.setModel(fm);
+							frame.setModel(fm);
 							MetaOmGraph.getDesktop().add(frame);
 							frame.setVisible(true);
 							frame.show();
-//							frame.moveToFront();
+							frame.moveToFront();
 
 						} catch (Exception e) {
 							e.printStackTrace();
