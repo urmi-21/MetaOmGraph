@@ -36,6 +36,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JButton;
 import javax.swing.AbstractListModel;
+import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.table.DefaultTableModel;
@@ -57,6 +58,8 @@ import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 
 import javax.swing.ScrollPaneConstants;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JCheckBox;
 
@@ -385,7 +388,7 @@ public class DifferentialExpFrame extends TaskbarInternalFrame {
 		txtGroup2 = new JTextField();
 		txtGroup2.setText("Group2");
 		txtGroup2.setColumns(10);
-		JPanel topbtnPnl2 = new JPanel(new FlowLayout());
+		JPanel topbtnPnl2 = new JPanel();
 		JButton sendLeft = new JButton("<<");
 		sendLeft.addActionListener(new ActionListener() {
 			@Override
@@ -399,7 +402,8 @@ public class DifferentialExpFrame extends TaskbarInternalFrame {
 		topbtnPnl2.add(lblGroupName_1);
 		topbtnPnl2.add(txtGroup2);
 		panel_3.add(topbtnPnl2, BorderLayout.NORTH);
-
+		//topbtnPnl2.setLayout(new BoxLayout(topbtnPnl2, BoxLayout.LINE_AXIS));
+		topbtnPnl2.setLayout(new FlowLayout());
 		lblN2 = new JLabel("n=0");
 		lblN2.setFont(new Font("Tahoma", Font.BOLD, 13));
 		topbtnPnl2.add(lblN2);
@@ -452,7 +456,9 @@ public class DifferentialExpFrame extends TaskbarInternalFrame {
 		});
 		btnPnl2.add(btnSearch2);
 		panel_3.add(btnPnl2, BorderLayout.SOUTH);
-
+		
+		//btnPnl2.setLayout(new BoxLayout(btnPnl2, BoxLayout.LINE_AXIS));
+		btnPnl2.setLayout(new FlowLayout());
 		JPanel panel_4 = new JPanel();
 		splitPane.setLeftComponent(panel_4);
 		panel_4.setLayout(new BorderLayout(0, 0));
@@ -460,7 +466,7 @@ public class DifferentialExpFrame extends TaskbarInternalFrame {
 		txtGroup1 = new JTextField();
 		txtGroup1.setText("Group1");
 		txtGroup1.setColumns(10);
-		JPanel topbtnPnl1 = new JPanel(new FlowLayout());
+		JPanel topbtnPnl1 = new JPanel();
 		JButton sendRight = new JButton(">>");
 		sendRight.addActionListener(new ActionListener() {
 			@Override
@@ -479,6 +485,9 @@ public class DifferentialExpFrame extends TaskbarInternalFrame {
 		topbtnPnl1.add(sendRight);
 
 		panel_4.add(topbtnPnl1, BorderLayout.NORTH);
+		
+		//topbtnPnl1.setLayout(new BoxLayout(topbtnPnl1, BoxLayout.LINE_AXIS));
+		topbtnPnl1.setLayout(new FlowLayout());
 
 		// add table1
 		jscp1 = new JScrollPane();
@@ -500,7 +509,7 @@ public class DifferentialExpFrame extends TaskbarInternalFrame {
 
 			}
 		});
-		JPanel btnPnl1 = new JPanel(new FlowLayout());
+		JPanel btnPnl1 = new JPanel();
 		btnPnl1.add(btnAdd1);
 		JButton btnRem1 = new JButton("Remove");
 		btnRem1.addActionListener(new ActionListener() {
@@ -530,10 +539,48 @@ public class DifferentialExpFrame extends TaskbarInternalFrame {
 		});
 		btnPnl1.add(btnSearch1);
 		panel_4.add(btnPnl1, BorderLayout.SOUTH);
-
+		
+		//btnPnl1.setLayout(new BoxLayout(btnPnl1, BoxLayout.LINE_AXIS));
+		btnPnl1.setLayout(new FlowLayout());
+		
 		// frame properties
 		this.setClosable(true);
-		// pack();
+		pack();
+		
+		int defaultWidth = this.getWidth();
+		int defaultHeight = MetaOmGraph.getMainWindow().getHeight() / 2;
+		DifferentialExpFrame thisFrame = this;
+		
+		this.addComponentListener(new ComponentListener() {
+			
+			@Override
+			public void componentShown(ComponentEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void componentResized(ComponentEvent e) {
+				// TODO Auto-generated method stub
+				
+				if(thisFrame.getWidth() < defaultWidth || thisFrame.getHeight() < defaultHeight) {
+					thisFrame.setSize(defaultWidth, defaultHeight);
+				}
+			}
+			
+			@Override
+			public void componentMoved(ComponentEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void componentHidden(ComponentEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
 		putClientProperty("JInternalFrame.frameType", "normal");
 		setResizable(true);
 		setMaximizable(true);

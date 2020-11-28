@@ -551,7 +551,12 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 					public void run() {
 						try {
 							MetadataFilter frame = new MetadataFilter(obj);
+							FrameModel fm = new FrameModel("Metadata Filter","Metadata Filter",31);
+							frame.setModel(fm);
+							MetaOmGraph.getDesktop().add(frame);
 							frame.setVisible(true);
+							frame.show();
+							frame.moveToFront();
 
 						} catch (Exception e) {
 							e.printStackTrace();
@@ -635,7 +640,12 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 					public void run() {
 						try {
 							MetadataFilter frame = new MetadataFilter(obj, true);
+							FrameModel fm = new FrameModel("Metadata Filter","Metadata Filter",31);
+//							frame.setModel(fm);
+							MetaOmGraph.getDesktop().add(frame);
 							frame.setVisible(true);
+							frame.show();
+//							frame.moveToFront();
 
 						} catch (Exception e) {
 							e.printStackTrace();

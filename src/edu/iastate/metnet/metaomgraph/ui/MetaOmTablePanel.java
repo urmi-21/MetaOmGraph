@@ -4284,7 +4284,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			}
 
 			DifferentialExpFrame lframe = new DifferentialExpFrame();
-			lframe.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
+			lframe.setSize(lframe.getWidth(), MetaOmGraph.getMainWindow().getHeight() / 2);
+			
 			MetaOmGraph.getDesktop().add(lframe);
 			lframe.setVisible(true);
 
@@ -4939,7 +4940,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			String rowName = getSelectedGeneName();
 			DifferentialCorrFrame lframe = new DifferentialCorrFrame(geneLists.getSelectedValue().toString(), rowName,
 					selectedInd);
-			lframe.setSize(MetaOmGraph.getMainWindow().getWidth() / 2, MetaOmGraph.getMainWindow().getHeight() / 2);
+			lframe.setSize(lframe.getWidth(), MetaOmGraph.getMainWindow().getHeight() / 2);
 			MetaOmGraph.getDesktop().add(lframe);
 			lframe.setVisible(true);
 
