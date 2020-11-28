@@ -3,9 +3,11 @@ package edu.iastate.metnet.metaomgraph.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.ColorUIResource;
@@ -15,6 +17,7 @@ import javax.swing.table.TableCellRenderer;
 import org.jfree.chart.axis.ValueAxis;
 
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
@@ -28,6 +31,9 @@ import javax.swing.JOptionPane;
 
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GraphicsEnvironment;
+import java.awt.HeadlessException;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -40,6 +46,7 @@ import java.util.Vector;
 
 import javax.swing.JMenu;
 import javax.swing.JSplitPane;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JSeparator;
@@ -47,12 +54,20 @@ import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextPane;
+
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.beans.PropertyVetoException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.awt.event.ActionEvent;
 
-public class MetadataFilter extends JDialog {
+public class MetadataFilter extends TaskbarInternalFrame {
 
 	private JPanel contentPane;
 	private JTable table;
@@ -84,7 +99,12 @@ public class MetadataFilter extends JDialog {
 			public void run() {
 				try {
 					MetadataFilter frame = new MetadataFilter(null);
+					FrameModel fm = new FrameModel("Metadata Filter","Metadata Filter",31);
+					//					frame.setModel(fm);
+					MetaOmGraph.getDesktop().add(frame);
 					frame.setVisible(true);
+					frame.show();
+					//					frame.moveToFront();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -115,10 +135,13 @@ public class MetadataFilter extends JDialog {
 	}
 
 	public MetadataFilter(MetadataCollection metadataCollection, boolean val, MetaOmChartPanel thisChartPanel) {
+		super("Metadata Filter");
+
+
 		// TODO Auto-generated constructor stub
 		this.delete = val;
 		this.chartPanel=thisChartPanel;
-		setModal(true);
+		//setModal(true);
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		this.mogColl = metadataCollection;
@@ -150,10 +173,10 @@ public class MetadataFilter extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				/*if(getTablerows(table_1).size()<1) {
-					JOptionPane.showMessageDialog(null, "Please use buttons to move selected columns to the excluded list", "Excluded list empty", JOptionPane.ERROR_MESSAGE);
-					return;
-				}*/
-				
+						JOptionPane.showMessageDialog(null, "Please use buttons to move selected columns to the excluded list", "Excluded list empty", JOptionPane.ERROR_MESSAGE);
+						return;
+					}*/
+
 				if (delete) {
 					int result = JOptionPane.showConfirmDialog((Component) null, "This will delete the rows in the excluded list. This can't be undone","Delete rows", JOptionPane.OK_CANCEL_OPTION);
 					if(result==JOptionPane.CANCEL_OPTION) {
@@ -162,14 +185,14 @@ public class MetadataFilter extends JDialog {
 					updateIncludedlist();
 					//add rows to removedMD list
 					Set<String> rowsDeleted = new HashSet<String>(mogColl.getExcluded());
-					
+
 					MetaOmGraph.getActiveProject().getMetadataHybrid().addExcludedMDRows(mogColl.getExcluded());
 					//add these to list of missing as these will be deleted from the project
 					MetaOmGraph.getActiveProject().getMetadataHybrid().addMissingMDRows(mogColl.getExcluded());
 					removeExcludedRows();
-					
+
 					((DefaultTableModel) table_1.getModel()).setRowCount(0);
-					
+
 					//Harsha - reproducibility log
 					HashMap<String,Object> actionMap = new HashMap<String,Object>();
 					actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
@@ -177,15 +200,15 @@ public class MetadataFilter extends JDialog {
 
 					HashMap<String,Object> dataMap = new HashMap<String,Object>();
 					dataMap.put("Deleted Rows",rowsDeleted);
-					
+
 					HashMap<String,Object> resultLog = new HashMap<String,Object>();
 					resultLog.put("result", "OK");
 
 					ActionProperties filterSelectedRowsAction = new ActionProperties("delete-metadata-rows",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 					filterSelectedRowsAction.logActionProperties();
-					
-					
-					
+
+
+
 				} else {
 					updateIncludedlist();
 					// update exclude list
@@ -204,7 +227,7 @@ public class MetadataFilter extends JDialog {
 		JSeparator separator = new JSeparator();
 		separator.setOrientation(SwingConstants.VERTICAL);
 		panel.add(separator);
-		
+
 		JButton btnSwapIncludedAnd = new JButton("Swap included and excluded");
 		btnSwapIncludedAnd.addActionListener(new ActionListener() {
 			@Override
@@ -215,7 +238,7 @@ public class MetadataFilter extends JDialog {
 				DefaultTableModel model_exc = (DefaultTableModel) table_1.getModel();
 				table.setModel(model_exc);
 				table_1.setModel(model_inc);
-				
+
 			}
 		});
 		panel.add(btnSwapIncludedAnd);
@@ -231,6 +254,8 @@ public class MetadataFilter extends JDialog {
 
 		JPanel panel_2 = new JPanel();
 		panel_1.add(panel_2, BorderLayout.NORTH);
+		//panel_2.setLayout(new BoxLayout(panel_2, BoxLayout.LINE_AXIS));
+		panel_2.setLayout(new FlowLayout());
 
 		JButton btnSearch = new JButton("Search Included");
 		btnSearch.addActionListener(new ActionListener() {
@@ -360,6 +385,8 @@ public class MetadataFilter extends JDialog {
 		JPanel panel_4 = new JPanel();
 		panel_3.add(panel_4, BorderLayout.NORTH);
 
+		//panel_4.setLayout(new BoxLayout(panel_4, BoxLayout.LINE_AXIS));
+		panel_4.setLayout(new FlowLayout());
 		JButton btnMoveAll_1 = new JButton("Move all");
 		btnMoveAll_1.addActionListener(new ActionListener() {
 			@Override
@@ -475,8 +502,57 @@ public class MetadataFilter extends JDialog {
 		panel_3.add(scrollPane_1, BorderLayout.CENTER);
 
 		scrollPane_1.setViewportView(table_1);
-		this.setSize(700, 700);
+		//this.setSize(btnMoveSelected_1.getWidth()*8, 700);
 		this.setTitle("Advance Sample Filter");
+		//this.setMaximumSize(new Dimension(2000, 700));
+		this.pack();
+
+		GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		Rectangle bounds = env.getMaximumWindowBounds();
+
+		int width = Math.min(this.getWidth(), bounds.width);
+		int height = bounds.height-200;
+		this.setSize( new Dimension(width, height) );
+
+		MetadataFilter thisFrame = this;
+		this.addComponentListener(new ComponentListener() {
+
+			@Override
+			public void componentShown(ComponentEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void componentResized(ComponentEvent e) {
+				// TODO Auto-generated method stub
+
+				if(thisFrame.getWidth() < width || thisFrame.getHeight() < height) {
+					thisFrame.setSize(width, height);
+				}
+			}
+
+			@Override
+			public void componentMoved(ComponentEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void componentHidden(ComponentEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+		});
+
+		this.setClosable(true);
+		this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		this.setResizable(true);
+		this.setIconifiable(true);
+		this.setMaximizable(false);
+
+
+
 	}
 
 	private void initTables() {
@@ -546,9 +622,9 @@ public class MetadataFilter extends JDialog {
 		// temp[0] = "Data Column";
 		// tablemodel.addRow(temp);
 		tablemodel.addColumn(mogColl.getDatacol() + "(included)");
-		
+
 		List<String> tempListinc=new ArrayList<>(included);
-		
+
 		for (int i = 0; i < tempListinc.size(); i++) {
 			// JOptionPane.showMessageDialog(null,included.get(i).toString() );
 			temp[0] = tempListinc.get(i).toString();
@@ -614,7 +690,7 @@ public class MetadataFilter extends JDialog {
 		DefaultTableModel tablemodel_1 = (DefaultTableModel) table_1.getModel();
 		// add data
 		tablemodel_1.addColumn(mogColl.getDatacol() + "(excluded)");
-		
+
 		List<String> tempListexc=new ArrayList<>(excluded);
 		for (int i = 0; i < tempListexc.size(); i++) {
 			// JOptionPane.showMessageDialog(null,excluded.get(i).toString() );
@@ -647,7 +723,7 @@ public class MetadataFilter extends JDialog {
 		return result;
 	}
 
-	
+
 	/**
 	 * @author urmi
 	 * bring the matched items to top and set them as selected
@@ -688,11 +764,11 @@ public class MetadataFilter extends JDialog {
 	public void updateIncludedlist() {
 		mogColl.setIncluded(getTablerows(table));
 		mogColl.setExcluded(getTablerows(table_1));
-		
+
 		HashMap<String,Object> actionMap = new HashMap<String,Object>();
 		HashMap<String,Object> dataMap = new HashMap<String,Object>();
 		HashMap<String,Object> result = new HashMap<String,Object>();
-		
+
 	}
 
 	public void removeExcludedRows() {
@@ -707,7 +783,7 @@ public class MetadataFilter extends JDialog {
 		}
 		return res;
 	}
-	
+
 	Map<Integer,String> getTableRowInfo(JTable tab) {
 		Map<Integer,String> res = new HashMap<Integer,String>();
 		DefaultTableModel model = (DefaultTableModel) tab.getModel();
@@ -716,7 +792,7 @@ public class MetadataFilter extends JDialog {
 		}
 		return res;
 	}
-	
+
 
 	public void setDelete(boolean val) {
 		this.delete = val;

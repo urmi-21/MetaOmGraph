@@ -708,8 +708,14 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 								MetadataFilter frame = new MetadataFilter(
 										MetaOmGraph.getActiveProject().getMetadataHybrid().getMetadataCollection(),
 										false, getThisChartPanel());
+								
+								FrameModel fm = new FrameModel("Metadata Filter","Metadata Filter",31);
+								frame.setModel(fm);
 
+								MetaOmGraph.getDesktop().add(frame);
 								frame.setVisible(true);
+								frame.show();
+								frame.moveToFront();
 
 							} catch (Exception e) {
 								e.printStackTrace();
