@@ -881,7 +881,7 @@ public class MetaOmAnalyzer {
 					includedData[i][0] = new Integer(i);
 					includedData[i][1] = myProject.getDataColumnHeader(i);
 				}
-				dtp = new DualTablePanel(includedData, headers, true);
+				dtp = new DualTablePanel(includedData, headers, false);
 			} else {
 				Object[][] includedData = new Object[myProject.getDataColumnCount() - MetaOmAnalyzer.excludeCount][2];
 				Object[][] excludedData = new Object[MetaOmAnalyzer.excludeCount][2];
@@ -898,7 +898,7 @@ public class MetaOmAnalyzer {
 						includeIndex++;
 					}
 				}
-				dtp = new DualTablePanel(includedData, excludedData, headers, true);
+				dtp = new DualTablePanel(includedData, excludedData, headers, false);
 			}
 			dtp.hideColumn(0);
 

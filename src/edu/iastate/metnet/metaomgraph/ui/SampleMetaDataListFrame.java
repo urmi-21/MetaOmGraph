@@ -83,7 +83,7 @@ public class SampleMetaDataListFrame extends TaskbarInternalFrame
 		Object[][] inActiveData = getActiveData(unSelectedRows, headers);
 		
 		
-		dtp = new DualTablePanel(inActiveData, activeData, finalHeaders, true);
+		dtp = new DualTablePanel(inActiveData, activeData, finalHeaders, false);
 		
         dtp.addChangeListener(this);
         dtp.hideColumn(0);

@@ -121,7 +121,7 @@ public class CreateListFrame
             for (int y = 1; y < inactive[x].length; y++)
                 inactive[x][y] = thisRowName[(y - 1)];
         }
-        dtp = new DualTablePanel(inactive, active, headers, false);
+        dtp = new DualTablePanel(inactive, active, headers, true);
         dtp.addChangeListener(this);
         dtp.hideColumn(0);
         dtp.setActiveLabel("In List");
