@@ -35,6 +35,7 @@ public class TangoIconTheme implements IconTheme {
     private ImageIcon opts;
     private ImageIcon groupBy;
     private ImageIcon rIcon;
+    private ImageIcon selectIcon;
     
     private String dir = "/resource/tango/16x16/";
 
@@ -99,6 +100,8 @@ public class TangoIconTheme implements IconTheme {
     private String groupByPath = "/resource/customicon/categorizeIcon16.png";
     
     private String rIconPath =  "/resource/customicon/r_logoIcon16.png";
+    
+    private String selectIconPath = "/resource/customicon/select16.png";
     
     public TangoIconTheme() {
     }
@@ -363,6 +366,13 @@ public class TangoIconTheme implements IconTheme {
 		return rIcon;
 	}
     
+	public ImageIcon getSelectIcon() {
+		if(selectIcon == null) {
+			selectIcon = new ImageIcon(getClass().getResource(selectIconPath));
+		}
+		return selectIcon;
+	}
+	
     public static void main(String[] args) {
         java.lang.reflect.Method[] methods = SilkIconTheme.class.getDeclaredMethods();
         IconTheme theme = new SilkIconTheme();
