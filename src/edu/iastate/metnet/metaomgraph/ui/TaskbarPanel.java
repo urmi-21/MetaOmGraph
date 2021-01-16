@@ -24,6 +24,7 @@ import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -215,8 +216,11 @@ public class TaskbarPanel extends JPanel{
 
 								try {
 									if(frame != null) {
+										frame.getDesktopPane().getDesktopManager().deiconifyFrame(frame);
 										frame.getDesktopPane().getDesktopManager().maximizeFrame(frame);
 										frame.getDesktopPane().getDesktopManager().minimizeFrame(frame);
+										frame.getDesktopPane().getDesktopManager().deiconifyFrame(frame);
+										
 										frame.moveToFront();
 									}
 								}

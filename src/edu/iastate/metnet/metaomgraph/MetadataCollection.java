@@ -184,7 +184,7 @@ public class MetadataCollection {
 						JOptionPane.showMessageDialog(null,
 								"Metadata validation failed. Please remove following duplicate headers from the metadata file:\n"
 										+ String.join(",", duplicates),
-								"Error", JOptionPane.ERROR_MESSAGE);
+										"Error", JOptionPane.ERROR_MESSAGE);
 						return;
 					}
 
@@ -210,7 +210,7 @@ public class MetadataCollection {
 						// System.out.println("rows:"+Arrays.toString(row));
 						JOptionPane.showMessageDialog(null,
 								"Metadata validation failed at line:" + (nCount)
-										+ ". MOG will skip this. Please check file delimiters at this line.",
+								+ ". MOG will skip this. Please check file delimiters at this line.",
 								"Error", JOptionPane.ERROR_MESSAGE);
 						// JOptionPane.showMessageDialog(null, thisLine);
 						totalFails++;
@@ -725,47 +725,56 @@ public class MetadataCollection {
 	 */
 	public List<String> getDatabyAttributes(String toSearch, String targetCol, SearchMatchType matchType,
 			boolean uniqueFlag, boolean AND, boolean matchCase) {
-		if (Arrays.asList(headers).contains(targetCol)) {
-			List<Document> output = null;
-			List<String> result = new ArrayList<>();
-			Filter filter;
-			String caseFlag = "";
-			if (!matchCase) {
-				caseFlag = "(?i)";
-			}
-			// create a filter over all cols
-			Filter[] fa = new Filter[this.getHeaders().length];
-			for (int i = 0; i < fa.length; i++) {
-				if (matchType == SearchMatchType.IS) {
-					fa[i] = Filters.regex(this.getHeaders()[i], caseFlag + "^" + toSearch + "$");
-				} else if (matchType == SearchMatchType.CONTAINS) {
-					fa[i] = Filters.regex(this.getHeaders()[i], caseFlag + toSearch);
-				} else {
-					// exactly not
-					fa[i] = Filters.regex(this.getHeaders()[i], caseFlag + "^(?!" + toSearch + "$).*$");
-					// not like
-					// fa[i] = Filters.regex(this.getHeaders()[i], caseFlag + "^(?!" + toSearch +
-					// ").*$");
+
+		try {
+			if (Arrays.asList(headers).contains(targetCol)) {
+				List<Document> output = null;
+				List<String> result = new ArrayList<>();
+				Filter filter;
+				String caseFlag = "";
+				if (!matchCase) {
+					caseFlag = "(?i)";
 				}
-			}
-			if (AND) {
-				filter = Filters.and(fa);
+				// create a filter over all cols
+				Filter[] fa = new Filter[this.getHeaders().length];
+				for (int i = 0; i < fa.length; i++) {
+					if (matchType == SearchMatchType.IS) {
+						fa[i] = Filters.regex(this.getHeaders()[i], caseFlag + "^" + toSearch + "$");
+					} else if (matchType == SearchMatchType.CONTAINS) {
+						fa[i] = Filters.regex(this.getHeaders()[i], caseFlag + toSearch);
+					} else {
+						// exactly not
+						fa[i] = Filters.regex(this.getHeaders()[i], caseFlag + "^(?!" + toSearch + "$).*$");
+						// not like
+						// fa[i] = Filters.regex(this.getHeaders()[i], caseFlag + "^(?!" + toSearch +
+						// ").*$");
+					}
+				}
+				if (AND) {
+					filter = Filters.and(fa);
+				} else {
+					filter = Filters.or(fa);
+				}
+				output = mogCollection.find(filter).toList();
+				for (int i = 0; i < output.size(); i++) {
+					result.add(output.get(i).get(targetCol).toString());
+				}
+				if (uniqueFlag) {
+					// remove duplicate matches using set
+					Set<String> tempset = new HashSet<String>();
+					tempset.addAll(result);
+					result.clear();
+					result.addAll(tempset);
+				}
+				return result;
 			} else {
-				filter = Filters.or(fa);
+				JOptionPane.showMessageDialog(null,
+						"Error. Target column " + targetCol + " not found while returning search...", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				return null;
 			}
-			output = mogCollection.find(filter).toList();
-			for (int i = 0; i < output.size(); i++) {
-				result.add(output.get(i).get(targetCol).toString());
-			}
-			if (uniqueFlag) {
-				// remove duplicate matches using set
-				Set<String> tempset = new HashSet<String>();
-				tempset.addAll(result);
-				result.clear();
-				result.addAll(tempset);
-			}
-			return result;
-		} else {
+		}
+		catch(Exception e) {
 			JOptionPane.showMessageDialog(null,
 					"Error. Target column " + targetCol + " not found while returning search...", "Error",
 					JOptionPane.ERROR_MESSAGE);

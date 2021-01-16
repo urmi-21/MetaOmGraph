@@ -77,6 +77,7 @@ public class TaskbarInternalFrame extends JInternalFrame{
 	public void setModel(FrameModel model) {
 		this.model = model;
 	}
+
 	
 	
 	

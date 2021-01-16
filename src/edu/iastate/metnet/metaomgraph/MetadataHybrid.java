@@ -16,6 +16,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.xml.stream.XMLStreamWriter;
 
 import org.dizitart.no2.Document;
 import org.dizitart.no2.Filter;
@@ -876,22 +877,49 @@ public class MetadataHybrid {
 	 * 
 	 * @return
 	 */
-	public org.jdom.Document generateFileInfo() {
-		org.jdom.Document res = new org.jdom.Document();
-		Element root = new Element("MDROOT");
-		Element path = new Element("FILEPATH");
-		path.setAttribute("name", this.mogCollection.getfilepath());
-		Element delim = new Element("DELIMITER");
-		delim.setAttribute("name", this.mogCollection.getdelimiter());
-		Element datacol = new Element("DATACOL");
-		datacol.setAttribute("name", this.mogCollection.getDatacol());
-		root.addContent(path);
-		root.addContent(delim);
-		root.addContent(datacol);
-		XMLOutputter outter = new XMLOutputter();
-		outter.setFormat(Format.getPrettyFormat());
-		res.setRootElement(root);
-		return res;
+	public void generateFileInfo(XMLStreamWriter xMLStreamWriter) {
+		//org.jdom.Document res = new org.jdom.Document();
+		
+		try {
+		xMLStreamWriter.writeStartDocument();
+		xMLStreamWriter.writeStartElement("MDROOT");
+		
+		xMLStreamWriter.writeStartElement("FILEPATH");
+		xMLStreamWriter.writeAttribute("name", this.mogCollection.getfilepath());
+		xMLStreamWriter.writeEndElement();
+		
+		xMLStreamWriter.writeStartElement("DELIMITER");
+		xMLStreamWriter.writeAttribute("name", this.mogCollection.getdelimiter());
+		xMLStreamWriter.writeEndElement();
+		
+		xMLStreamWriter.writeStartElement("DATACOL");
+		xMLStreamWriter.writeAttribute("name", this.mogCollection.getDatacol());
+		xMLStreamWriter.writeEndElement();
+		
+        xMLStreamWriter.writeEndElement();
+		
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			JOptionPane.showInternalMessageDialog(MetaOmGraph.getDesktop(),
+					"Unable to save the project file.  Make sure the destination file is not write-protected.",
+					"Error saving project", 0);
+		}
+        
+//		Element root = new Element("MDROOT");
+//		Element path = new Element("FILEPATH");
+//		path.setAttribute("name", this.mogCollection.getfilepath());
+//		Element delim = new Element("DELIMITER");
+//		delim.setAttribute("name", this.mogCollection.getdelimiter());
+//		Element datacol = new Element("DATACOL");
+//		datacol.setAttribute("name", this.mogCollection.getDatacol());
+//		root.addContent(path);
+//		root.addContent(delim);
+//		root.addContent(datacol);
+//		XMLOutputter outter = new XMLOutputter();
+//		outter.setFormat(Format.getPrettyFormat());
+//		res.setRootElement(root);
+//		return res;
 	}
 	
 	/**
