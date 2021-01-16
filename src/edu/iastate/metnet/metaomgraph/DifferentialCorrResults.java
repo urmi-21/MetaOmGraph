@@ -2,6 +2,9 @@ package edu.iastate.metnet.metaomgraph;
 
 import java.util.List;
 
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+
 import org.jdom.Element;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
@@ -221,6 +224,148 @@ public class DifferentialCorrResults {
 		 */
 		return res;
 	}
+	
+	
+	
+	
+	//write as XML
+	public Element writeAsXMLNode(XMLStreamWriter xMLStreamWriter) throws XMLStreamException {
+
+		xMLStreamWriter.writeStartElement(id);
+		
+		// add attributes
+		xMLStreamWriter.writeAttribute("FeatureName", featureName);
+		xMLStreamWriter.writeAttribute("FeatureIndex", String.valueOf(featureID));
+		xMLStreamWriter.writeAttribute("method", String.valueOf(method));
+		xMLStreamWriter.writeAttribute("Group1", grp1Name);
+		xMLStreamWriter.writeAttribute("Group2", grp2Name);
+		xMLStreamWriter.writeAttribute("FeatureList", geneList);
+		xMLStreamWriter.writeAttribute("DataTransform", dataTransform);
+		
+
+		// add featureNames
+		xMLStreamWriter.writeStartElement("rownames");
+		for (int i = 0; i < featureNames.size(); i++) {
+			xMLStreamWriter.writeStartElement("value");
+			xMLStreamWriter.writeCharacters(featureNames.get(i));
+			xMLStreamWriter.writeEndElement();
+			
+		}
+		xMLStreamWriter.writeEndElement();
+
+		
+		// add grp1 samples
+		xMLStreamWriter.writeStartElement("grp1Samples");
+		for (int i = 0; i < grp1.size(); i++) {
+			xMLStreamWriter.writeStartElement("value");
+			xMLStreamWriter.writeCharacters(String.valueOf(grp1.get(i)));
+			xMLStreamWriter.writeEndElement();
+			
+		}
+		xMLStreamWriter.writeEndElement();
+		
+		
+		// add grp2 samples
+		xMLStreamWriter.writeStartElement("grp2Samples");
+		for (int i = 0; i < grp2.size(); i++) {
+			xMLStreamWriter.writeStartElement("value");
+			xMLStreamWriter.writeCharacters(String.valueOf(grp2.get(i)));
+			xMLStreamWriter.writeEndElement();
+			
+		}
+		xMLStreamWriter.writeEndElement();
+		
+
+		// add corrgrp1
+		xMLStreamWriter.writeStartElement("grp1Corr");
+		for (int i = 0; i < corrGrp1.size(); i++) {
+			xMLStreamWriter.writeStartElement("value");
+			xMLStreamWriter.writeCharacters(String.valueOf(corrGrp1.get(i)));
+			xMLStreamWriter.writeEndElement();
+			
+		}
+		xMLStreamWriter.writeEndElement();
+		
+		
+
+		// add corrgrp2
+		xMLStreamWriter.writeStartElement("grp2Corr");
+		for (int i = 0; i < corrGrp2.size(); i++) {
+			xMLStreamWriter.writeStartElement("value");
+			xMLStreamWriter.writeCharacters(String.valueOf(corrGrp2.get(i)));
+			xMLStreamWriter.writeEndElement();
+			
+		}
+		xMLStreamWriter.writeEndElement();
+		
+		Element grp2 = new Element("grp2Corr");
+		for (int i = 0; i < corrGrp2.size(); i++) {
+			Element thisVal = new Element("value");
+			thisVal.addContent(String.valueOf(corrGrp2.get(i)));
+			grp2.addContent(thisVal);
+		}
+
+		// add zvals1
+		Element zv1 = new Element("zVals1");
+		for (int i = 0; i < zVals1.size(); i++) {
+			Element thisVal = new Element("value");
+			thisVal.addContent(String.valueOf(zVals1.get(i)));
+			zv1.addContent(thisVal);
+		}
+
+		// add zvals2
+		Element zv2 = new Element("zVals2");
+		for (int i = 0; i < zVals2.size(); i++) {
+			Element thisVal = new Element("value");
+			thisVal.addContent(String.valueOf(zVals2.get(i)));
+			zv2.addContent(thisVal);
+		}
+
+		// add diff
+		Element diff = new Element("diffzVals");
+		for (int i = 0; i < diffZvals.size(); i++) {
+			Element thisVal = new Element("value");
+			thisVal.addContent(String.valueOf(diffZvals.get(i)));
+			diff.addContent(thisVal);
+		}
+
+		// add zscores
+		Element zs = new Element("zScores");
+		for (int i = 0; i < zScores.size(); i++) {
+			Element thisVal = new Element("value");
+			thisVal.addContent(String.valueOf(zScores.get(i)));
+			zs.addContent(thisVal);
+		}
+
+		// add p values
+		Element pv = new Element("pValues");
+		for (int i = 0; i < pValues.size(); i++) {
+			Element thisVal = new Element("value");
+			thisVal.addContent(String.valueOf(pValues.get(i)));
+			pv.addContent(thisVal);
+		}
+
+		res.addContent(rowName);
+		res.addContent(grp1Samples);
+		res.addContent(grp2Samples);
+		res.addContent(grp1);
+		res.addContent(grp2);
+		res.addContent(zv1);
+		res.addContent(zv2);
+		res.addContent(diff);
+		res.addContent(zs);
+		res.addContent(pv);
+
+		// print
+		/*
+		 * XMLOutputter outter = new XMLOutputter();
+		 * outter.setFormat(Format.getPrettyFormat()); String resDoc =
+		 * outter.outputString(res); JOptionPane.showMessageDialog(null, resDoc);
+		 */
+		return res;
+	}
+	
+	
 
 	/**
 	 * get z vals

@@ -15,15 +15,19 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.UIManager;
 
 public class ClosableTabbedPane extends JTabbedPane {
 
 	public ClosableTabbedPane() {
+		
 		super();
+		
 	}
 	
 	@Override
 	public void addTab(String title, Icon icon, Component component, String tip) {
+		UIManager.put("TabbedPane.selected", Color.red);
 		// TODO Auto-generated method stub
 		super.addTab(title, icon, component, tip);
 		int tabNo = this.getTabCount() - 1;
@@ -31,6 +35,7 @@ public class ClosableTabbedPane extends JTabbedPane {
 	}
 	
 	public void addNonClosableTab(String title, Icon icon, Component component, String tip) {
+		UIManager.put("TabbedPane.selected", Color.red);
 		super.addTab(title, icon, component, tip);
 	}
 	

@@ -44,6 +44,7 @@ import javax.swing.JToolBar;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.Timer;
+import javax.swing.UIManager;
 import javax.swing.JToolBar.Separator;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
@@ -195,6 +196,11 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 		ftestRatiovals = ftestratio;
 		ftestPvals = ftestpv;
 
+		UIManager.put("TabbedPane.selected", Color.red);
+		UIManager.put("TabbedPane.unselectedForeground", Color.gray);
+		UIManager.put("TabbedPane.selectedBackground", Color.white);
+		
+		
 		currentPanel = this;
 		// compute adjusted pv
 		if (testPvals != null) {

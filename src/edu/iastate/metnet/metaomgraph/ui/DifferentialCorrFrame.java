@@ -244,7 +244,7 @@ public class DifferentialCorrFrame extends TaskbarInternalFrame {
 							id = id.trim();
 						}
 					}
-					
+
 					//if name starts with number its illegal
 					if (Character.isDigit(id.charAt(0))) {
 						while (Character.isDigit(id.charAt(0))) {
@@ -492,38 +492,38 @@ public class DifferentialCorrFrame extends TaskbarInternalFrame {
 		// frame properties
 		this.setClosable(true);
 		pack();
-		
+
 		int defaultWidth = this.getWidth();
 		int defaultHeight = MetaOmGraph.getMainWindow().getHeight() / 2;
 		DifferentialCorrFrame thisFrame = this;
-		
+
 		this.addComponentListener(new ComponentListener() {
-			
+
 			@Override
 			public void componentShown(ComponentEvent e) {
 				// TODO Auto-generated method stub
-				
+
 			}
-			
+
 			@Override
 			public void componentResized(ComponentEvent e) {
 				// TODO Auto-generated method stub
-				
+
 				if(thisFrame.getWidth() < defaultWidth || thisFrame.getHeight() < defaultHeight) {
 					thisFrame.setSize(defaultWidth, defaultHeight);
 				}
 			}
-			
+
 			@Override
 			public void componentMoved(ComponentEvent e) {
 				// TODO Auto-generated method stub
-				
+
 			}
-			
+
 			@Override
 			public void componentHidden(ComponentEvent e) {
 				// TODO Auto-generated method stub
-				
+
 			}
 		});
 		putClientProperty("JInternalFrame.frameType", "normal");
@@ -750,61 +750,72 @@ public class DifferentialCorrFrame extends TaskbarInternalFrame {
 	private List<String> showSearchMetadataPanel() {
 		// search datacolumns by metadata and add results
 		// display query panel
-		final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(myProject, false);
-		final MetadataQuery[] queries;
-		queries = tsp.showSearchDialog();
-		if (tsp.getQueryCount() <= 0) {
-			// System.out.println("Search dialog cancelled");
-			// User didn't enter any queries
-			return null;
-		}
-		// final int[] result = new int[myProject.getDataColumnCount()];
-		Collection<Integer> result = new ArrayList<>();
-		new AnimatedSwingWorker("Searching...", true) {
-			@Override
-			public Object construct() {
-				ArrayList<Integer> toAdd = new ArrayList<Integer>();
-				for (int i = 0; i < myProject.getDataColumnCount(); i++) {
-					toAdd.add(i);
-				}
-				Integer[] hits = myProject.getMetadataHybrid().search(queries, tsp.matchAll());
-
-				// remove excluded cols from list
-				// urmi
-				boolean[] excluded = excludedCopy;
-				if (excluded != null) {
-					List<Integer> temp = new ArrayList<>();
-					for (Integer i : hits) {
-						if (!excluded[i]) {
-							temp.add(i);
-						}
-					}
-					hits = new Integer[temp.size()];
-					hits = temp.toArray(hits);
-				}
-				int index;
-				for (index = 0; index < hits.length; index++) {
-					result.add(hits[index]);
-					toAdd.remove(hits[index]);
-				}
-
+		try {
+			final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(myProject, false);
+			final MetadataQuery[] queries;
+			queries = tsp.showSearchDialog();
+			if (tsp.getQueryCount() <= 0) {
+				// System.out.println("Search dialog cancelled");
+				// User didn't enter any queries
 				return null;
 			}
-		}.start();
+			// final int[] result = new int[myProject.getDataColumnCount()];
+			Collection<Integer> result = new ArrayList<>();
+			new AnimatedSwingWorker("Searching...", true) {
+				@Override
+				public Object construct() {
+					try {
+						ArrayList<Integer> toAdd = new ArrayList<Integer>();
+						for (int i = 0; i < myProject.getDataColumnCount(); i++) {
+							toAdd.add(i);
+						}
+						Integer[] hits = myProject.getMetadataHybrid().search(queries, tsp.matchAll());
 
-		// category
-		if (result.size() < 1) {
+						// remove excluded cols from list
+						// urmi
+						boolean[] excluded = excludedCopy;
+						if (excluded != null) {
+							List<Integer> temp = new ArrayList<>();
+							for (Integer i : hits) {
+								if (!excluded[i]) {
+									temp.add(i);
+								}
+							}
+							hits = new Integer[temp.size()];
+							hits = temp.toArray(hits);
+						}
+						int index;
+						for (index = 0; index < hits.length; index++) {
+							result.add(hits[index]);
+							toAdd.remove(hits[index]);
+						}
+
+						return null;
+					}
+					catch(Exception e) {
+						return null;
+					}
+				}
+			}.start();
+
+			// category
+			if (result.size() < 1) {
+				JOptionPane.showMessageDialog(null, "No hits found", "No hits", JOptionPane.INFORMATION_MESSAGE);
+				return null;
+			} else {
+				List<String> hitsColumns = new ArrayList<>();
+				// get datacolumn names
+				for (int i : result) {
+					hitsColumns.add(myProject.getDataColumnHeader(i));
+				}
+				return hitsColumns;
+			}
+
+		}
+		catch(Exception e) {
 			JOptionPane.showMessageDialog(null, "No hits found", "No hits", JOptionPane.INFORMATION_MESSAGE);
 			return null;
-		} else {
-			List<String> hitsColumns = new ArrayList<>();
-			// get datacolumn names
-			for (int i : result) {
-				hitsColumns.add(myProject.getDataColumnHeader(i));
-			}
-			return hitsColumns;
 		}
-
 	}
 
 }

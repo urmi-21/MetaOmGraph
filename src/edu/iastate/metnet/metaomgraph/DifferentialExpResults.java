@@ -2,6 +2,10 @@ package edu.iastate.metnet.metaomgraph;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+
 import org.jdom.Element;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
@@ -240,4 +244,184 @@ public class DifferentialExpResults {
 		 */
 		return res;
 	}
+	
+	
+	// return this object in XML format
+		public void writeAsXMLNode(XMLStreamWriter xMLStreamWriter) throws XMLStreamException {
+			
+			
+			xMLStreamWriter.writeStartElement(id);
+			xMLStreamWriter.writeAttribute("method", String.valueOf(method));
+			xMLStreamWriter.writeAttribute("Group1", grp1);
+			xMLStreamWriter.writeAttribute("Group2", grp2);
+			xMLStreamWriter.writeAttribute("Group1Size", String.valueOf(grp1Size));
+			xMLStreamWriter.writeAttribute("Group2Size", String.valueOf(grp2Size));
+			xMLStreamWriter.writeAttribute("FeatureList", featureListName);
+			xMLStreamWriter.writeAttribute("DataTransform", dataTransform);
+			
+			
+			xMLStreamWriter.writeStartElement("rownames");
+			for (int i = 0; i < rowNames.size(); i++) {
+				xMLStreamWriter.writeStartElement("value");
+				xMLStreamWriter.writeCharacters(rowNames.get(i));
+				xMLStreamWriter.writeEndElement();
+				
+			}
+			xMLStreamWriter.writeEndElement();
+			
+			
+			xMLStreamWriter.writeStartElement("grp1");
+			for (int i = 0; i < meanGrp1.size(); i++) {
+				xMLStreamWriter.writeStartElement("value");
+				xMLStreamWriter.writeCharacters(String.valueOf(meanGrp1.get(i)));
+				xMLStreamWriter.writeEndElement();
+				
+			}
+			xMLStreamWriter.writeEndElement();
+			
+			
+			xMLStreamWriter.writeStartElement("grp2");
+			for (int i = 0; i < meanGrp2.size(); i++) {
+				xMLStreamWriter.writeStartElement("value");
+				xMLStreamWriter.writeCharacters(String.valueOf(meanGrp2.get(i)));
+				xMLStreamWriter.writeEndElement();
+				
+			}
+			xMLStreamWriter.writeEndElement();
+			
+			
+			xMLStreamWriter.writeStartElement("logfc");
+			for (int i = 0; i < logFC.size(); i++) {
+				xMLStreamWriter.writeStartElement("value");
+				xMLStreamWriter.writeCharacters(String.valueOf(logFC.get(i)));
+				xMLStreamWriter.writeEndElement();
+				
+			}
+			xMLStreamWriter.writeEndElement();
+			
+			
+			if (fStat != null) {
+			xMLStreamWriter.writeStartElement("fstat");
+			for (int i = 0; i < fStat.size(); i++) {
+				xMLStreamWriter.writeStartElement("value");
+				xMLStreamWriter.writeCharacters(String.valueOf(fStat.get(i)));
+				xMLStreamWriter.writeEndElement();
+				
+			}
+			
+			xMLStreamWriter.writeEndElement();
+			}
+			
+			if (fPval != null) {
+			xMLStreamWriter.writeStartElement("fpval");
+			for (int i = 0; i < fPval.size(); i++) {
+				xMLStreamWriter.writeStartElement("value");
+				xMLStreamWriter.writeCharacters(String.valueOf(fPval.get(i)));
+				xMLStreamWriter.writeEndElement();
+				
+			}
+			xMLStreamWriter.writeEndElement();
+			}
+			
+			xMLStreamWriter.writeStartElement("pval");
+			for (int i = 0; i < pval.size(); i++) {
+				xMLStreamWriter.writeStartElement("value");
+				xMLStreamWriter.writeCharacters(String.valueOf(pval.get(i)));
+				xMLStreamWriter.writeEndElement();
+				
+			}
+			xMLStreamWriter.writeEndElement();
+
+			xMLStreamWriter.writeEndElement();
+			
+			
+//			Element res = new Element(id);
+//			
+//			//add attributes
+//			res.setAttribute("method", String.valueOf(method));
+//			res.setAttribute("Group1", grp1);
+//			res.setAttribute("Group2", grp2);
+//			res.setAttribute("Group1Size", String.valueOf(grp1Size));
+//			res.setAttribute("Group2Size", String.valueOf(grp2Size));
+//			res.setAttribute("FeatureList", featureListName);
+//			res.setAttribute("DataTransform", dataTransform);
+//			
+//			
+//			// add rownames
+//			Element rowName = new Element("rownames");
+//			for (int i = 0; i < rowNames.size(); i++) {
+//				Element thisVal = new Element("value");
+//				thisVal.addContent(rowNames.get(i));
+//				rowName.addContent(thisVal);
+//			}
+//
+//			// add meangrp1
+//			Element grp1 = new Element("grp1");
+//			for (int i = 0; i < meanGrp1.size(); i++) {
+//				Element thisVal = new Element("value");
+//				thisVal.addContent(String.valueOf(meanGrp1.get(i)));
+//				grp1.addContent(thisVal);
+//			}
+//
+//			// add meangrp2
+//			Element grp2 = new Element("grp2");
+//			for (int i = 0; i < meanGrp2.size(); i++) {
+//				Element thisVal = new Element("value");
+//				thisVal.addContent(String.valueOf(meanGrp2.get(i)));
+//				grp2.addContent(thisVal);
+//			}
+//
+//			// add logfc
+//			Element logfc = new Element("logfc");
+//			for (int i = 0; i < logFC.size(); i++) {
+//				Element thisVal = new Element("value");
+//				thisVal.addContent(String.valueOf(logFC.get(i)));
+//				logfc.addContent(thisVal);
+//			}
+//
+//			// add fstat
+//			Element fstat = new Element("fstat");
+//			if (fstat != null) {
+//				for (int i = 0; i < fStat.size(); i++) {
+//					Element thisVal = new Element("value");
+//					thisVal.addContent(String.valueOf(fStat.get(i)));
+//					fstat.addContent(thisVal);
+//				}
+//			}
+//
+//			// add fPval
+//			Element fpval = new Element("fpval");
+//			if (fPval != null) {
+//				for (int i = 0; i < fPval.size(); i++) {
+//					Element thisVal = new Element("value");
+//					thisVal.addContent(String.valueOf(fPval.get(i)));
+//					fpval.addContent(thisVal);
+//				}
+//			}
+//
+//			// add Pval
+//			Element pVal = new Element("pval");
+//			for (int i = 0; i < pval.size(); i++) {
+//				Element thisVal = new Element("value");
+//				thisVal.addContent(String.valueOf(pval.get(i)));
+//				pVal.addContent(thisVal);
+//			}
+//
+//			res.addContent(rowName);
+//			res.addContent(grp1);
+//			res.addContent(grp2);
+//			res.addContent(logfc);
+//			res.addContent(fstat);
+//			res.addContent(fpval);
+//			res.addContent(pVal);
+
+			// print
+			/*
+			 * XMLOutputter outter = new XMLOutputter();
+			 * outter.setFormat(Format.getPrettyFormat()); String resDoc =
+			 * outter.outputString(res); JOptionPane.showMessageDialog(null, resDoc);
+			 */
+			
+		}
+	
 }
