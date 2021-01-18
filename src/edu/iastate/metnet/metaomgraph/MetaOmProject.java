@@ -41,6 +41,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -3187,9 +3188,9 @@ public class MetaOmProject {
 	 * @return
 	 * @throws IOException
 	 */
-	public HashMap<Integer, double[]> getSelectedListRowData(int[] selectedCols, String selectedList) throws IOException{
+	public LinkedHashMap<Integer, double[]> getSelectedListRowData(int[] selectedCols, String selectedList) throws IOException{
 		int[]  rowNums = getGeneListRowNumbers(selectedList);
-		HashMap<Integer, double[]> res = new HashMap<>();
+		LinkedHashMap<Integer, double[]> res = new LinkedHashMap<>();
 		
 		for (int i = 0; i < selectedCols.length; i++) {
 			double[] temp = new double[rowNums.length];
