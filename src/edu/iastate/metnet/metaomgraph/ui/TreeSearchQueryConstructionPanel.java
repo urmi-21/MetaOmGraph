@@ -56,8 +56,6 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 	private MetaOmProject myProject;
 	private static final String ANY_FIELD_STRING = "Any field";
 
-	private boolean searchDataTable;
-
 	public TreeSearchQueryConstructionPanel(MetaOmProject project) {
 		this(project,false);
 	 }
@@ -65,10 +63,9 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 	/**
 	 * 
 	 * @param project activeproject object
-	 * @param searchDataTable: true for search datatable, false for metadata 
+	 * @param searchFeatureMetaDataTable: true for search feature meta data table, false for sample metadata 
 	 */
-	public TreeSearchQueryConstructionPanel(MetaOmProject project, boolean searchDataTable) {
-		this.searchDataTable = searchDataTable;
+	public TreeSearchQueryConstructionPanel(MetaOmProject project, boolean searchFeatureMetaDataTable) {
 		myProject = project;
 		setLayout(new BorderLayout());
 		queryPanel = new JPanel();
@@ -85,12 +82,11 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 		// String[] fields = myProject.getMetadata().getFields();
 
 		String[] fields=null;
-		if (searchDataTable==false) {
+		if (searchFeatureMetaDataTable == false) {
 			/**
 			 * @author urmi changed to : now fields are from Metadatahybrid
 			 */
 			fields = myProject.getMetadataHybrid().getMetadataHeaders();
-			//JOptionPane.showMessageDialog(null, "flds:"+Arrays.toString(fields));
 			Arrays.sort(fields);
 		}else {
 			fields=myProject.getInfoColumnNames();
