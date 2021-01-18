@@ -229,7 +229,7 @@ public class DifferentialCorrResults {
 	
 	
 	//write as XML
-	public Element writeAsXMLNode(XMLStreamWriter xMLStreamWriter) throws XMLStreamException {
+	public void writeAsXMLNode(XMLStreamWriter xMLStreamWriter) throws XMLStreamException {
 
 		xMLStreamWriter.writeStartElement(id);
 		
@@ -298,71 +298,61 @@ public class DifferentialCorrResults {
 		}
 		xMLStreamWriter.writeEndElement();
 		
-		Element grp2 = new Element("grp2Corr");
-		for (int i = 0; i < corrGrp2.size(); i++) {
-			Element thisVal = new Element("value");
-			thisVal.addContent(String.valueOf(corrGrp2.get(i)));
-			grp2.addContent(thisVal);
-		}
 
 		// add zvals1
-		Element zv1 = new Element("zVals1");
+		xMLStreamWriter.writeStartElement("zVals1");
 		for (int i = 0; i < zVals1.size(); i++) {
-			Element thisVal = new Element("value");
-			thisVal.addContent(String.valueOf(zVals1.get(i)));
-			zv1.addContent(thisVal);
+			xMLStreamWriter.writeStartElement("value");
+			xMLStreamWriter.writeCharacters(String.valueOf(zVals1.get(i)));
+			xMLStreamWriter.writeEndElement();
+			
 		}
+		xMLStreamWriter.writeEndElement();
+		
 
 		// add zvals2
-		Element zv2 = new Element("zVals2");
+		xMLStreamWriter.writeStartElement("zVals2");
 		for (int i = 0; i < zVals2.size(); i++) {
-			Element thisVal = new Element("value");
-			thisVal.addContent(String.valueOf(zVals2.get(i)));
-			zv2.addContent(thisVal);
+			xMLStreamWriter.writeStartElement("value");
+			xMLStreamWriter.writeCharacters(String.valueOf(zVals2.get(i)));
+			xMLStreamWriter.writeEndElement();
+			
 		}
-
+		xMLStreamWriter.writeEndElement();
+		
+		
 		// add diff
-		Element diff = new Element("diffzVals");
+		xMLStreamWriter.writeStartElement("diffzVals");
 		for (int i = 0; i < diffZvals.size(); i++) {
-			Element thisVal = new Element("value");
-			thisVal.addContent(String.valueOf(diffZvals.get(i)));
-			diff.addContent(thisVal);
+			xMLStreamWriter.writeStartElement("value");
+			xMLStreamWriter.writeCharacters(String.valueOf(diffZvals.get(i)));
+			xMLStreamWriter.writeEndElement();
+			
 		}
-
+		xMLStreamWriter.writeEndElement();
+		
+		
 		// add zscores
-		Element zs = new Element("zScores");
+		xMLStreamWriter.writeStartElement("zScores");
 		for (int i = 0; i < zScores.size(); i++) {
-			Element thisVal = new Element("value");
-			thisVal.addContent(String.valueOf(zScores.get(i)));
-			zs.addContent(thisVal);
+			xMLStreamWriter.writeStartElement("value");
+			xMLStreamWriter.writeCharacters(String.valueOf(zScores.get(i)));
+			xMLStreamWriter.writeEndElement();
+			
 		}
+		xMLStreamWriter.writeEndElement();
+		
 
 		// add p values
-		Element pv = new Element("pValues");
+		xMLStreamWriter.writeStartElement("pValues");
 		for (int i = 0; i < pValues.size(); i++) {
-			Element thisVal = new Element("value");
-			thisVal.addContent(String.valueOf(pValues.get(i)));
-			pv.addContent(thisVal);
+			xMLStreamWriter.writeStartElement("value");
+			xMLStreamWriter.writeCharacters(String.valueOf(pValues.get(i)));
+			xMLStreamWriter.writeEndElement();
+			
 		}
-
-		res.addContent(rowName);
-		res.addContent(grp1Samples);
-		res.addContent(grp2Samples);
-		res.addContent(grp1);
-		res.addContent(grp2);
-		res.addContent(zv1);
-		res.addContent(zv2);
-		res.addContent(diff);
-		res.addContent(zs);
-		res.addContent(pv);
-
-		// print
-		/*
-		 * XMLOutputter outter = new XMLOutputter();
-		 * outter.setFormat(Format.getPrettyFormat()); String resDoc =
-		 * outter.outputString(res); JOptionPane.showMessageDialog(null, resDoc);
-		 */
-		return res;
+		xMLStreamWriter.writeEndElement();
+		
 	}
 	
 	

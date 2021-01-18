@@ -16,6 +16,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.dizitart.no2.Document;
@@ -43,7 +44,7 @@ public class MetadataHybrid {
 	// private List<Document> metadata;
 	private String dataColumn;
 	private String[] metadataHeaders; // only those columns imported in tree structure subset of metadata headers from
-										// MOGcollection object
+	// MOGcollection object
 	// objects corresponding to filtered data
 	private String[] currentmetadataHeaders;
 	// private MetadataCollection currentmogCollection;
@@ -166,6 +167,45 @@ public class MetadataHybrid {
 		}
 
 	}
+	
+	
+	
+	/**
+	 * write JTree to XML structure to save to file
+	 * 
+	 * @param tree
+	 * @return
+	 * @throws XMLStreamException 
+	 */
+	public void writeJtreetoXML(JTree tree, XMLStreamWriter xMLStreamWriter) throws XMLStreamException {
+
+		DefaultTreeModel tmodel = (DefaultTreeModel) tree.getModel();
+		DefaultMutableTreeNode treeRoot = (DefaultMutableTreeNode) tmodel.getRoot();
+		
+		xMLStreamWriter.writeStartDocument();
+		xMLStreamWriter.writeStartElement(treeRoot.toString());
+		xMLStreamWriter.writeAttribute("name", "Root");
+		
+		buildAndWriteXMLfromJTree(treeRoot, xMLStreamWriter);
+		xMLStreamWriter.writeEndElement();
+		
+	}
+
+	public void buildAndWriteXMLfromJTree(DefaultMutableTreeNode node, XMLStreamWriter xMLStreamWriter) throws XMLStreamException {
+		// element = new Element(node.toString());
+		int numchild = node.getChildCount();
+		for (int i = 0; i < numchild; i++) {
+			DefaultMutableTreeNode thisNode = (DefaultMutableTreeNode) node.getChildAt(i);
+			xMLStreamWriter.writeStartElement(thisNode.toString());
+			xMLStreamWriter.writeAttribute("name", thisNode.toString());
+			
+			buildAndWriteXMLfromJTree(thisNode, xMLStreamWriter);
+			xMLStreamWriter.writeEndElement();
+		}
+
+	}
+	
+	
 
 	public void setXMLroot(Element root) {
 		this.XMLroot = root;
@@ -389,7 +429,7 @@ public class MetadataHybrid {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * Cluster by multiple fields
 	 * 
@@ -399,7 +439,7 @@ public class MetadataHybrid {
 	 */
 	public Map<String, Collection<Integer>> cluster(List<String> field, List<String> selectedDataCols){
 		Map<String, Collection<Integer>> result = new TreeMap();
-		
+
 		List<Document> allData = mogCollection.getRowsByDatacols(selectedDataCols);
 		for (int i = 0; i < allData.size(); i++) {
 			Document thisRow = allData.get(i);
@@ -879,25 +919,25 @@ public class MetadataHybrid {
 	 */
 	public void generateFileInfo(XMLStreamWriter xMLStreamWriter) {
 		//org.jdom.Document res = new org.jdom.Document();
-		
+
 		try {
-		xMLStreamWriter.writeStartDocument();
-		xMLStreamWriter.writeStartElement("MDROOT");
-		
-		xMLStreamWriter.writeStartElement("FILEPATH");
-		xMLStreamWriter.writeAttribute("name", this.mogCollection.getfilepath());
-		xMLStreamWriter.writeEndElement();
-		
-		xMLStreamWriter.writeStartElement("DELIMITER");
-		xMLStreamWriter.writeAttribute("name", this.mogCollection.getdelimiter());
-		xMLStreamWriter.writeEndElement();
-		
-		xMLStreamWriter.writeStartElement("DATACOL");
-		xMLStreamWriter.writeAttribute("name", this.mogCollection.getDatacol());
-		xMLStreamWriter.writeEndElement();
-		
-        xMLStreamWriter.writeEndElement();
-		
+			xMLStreamWriter.writeStartDocument();
+			xMLStreamWriter.writeStartElement("MDROOT");
+
+			xMLStreamWriter.writeStartElement("FILEPATH");
+			xMLStreamWriter.writeAttribute("name", this.mogCollection.getfilepath());
+			xMLStreamWriter.writeEndElement();
+
+			xMLStreamWriter.writeStartElement("DELIMITER");
+			xMLStreamWriter.writeAttribute("name", this.mogCollection.getdelimiter());
+			xMLStreamWriter.writeEndElement();
+
+			xMLStreamWriter.writeStartElement("DATACOL");
+			xMLStreamWriter.writeAttribute("name", this.mogCollection.getDatacol());
+			xMLStreamWriter.writeEndElement();
+
+			xMLStreamWriter.writeEndElement();
+
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -905,23 +945,9 @@ public class MetadataHybrid {
 					"Unable to save the project file.  Make sure the destination file is not write-protected.",
 					"Error saving project", 0);
 		}
-        
-//		Element root = new Element("MDROOT");
-//		Element path = new Element("FILEPATH");
-//		path.setAttribute("name", this.mogCollection.getfilepath());
-//		Element delim = new Element("DELIMITER");
-//		delim.setAttribute("name", this.mogCollection.getdelimiter());
-//		Element datacol = new Element("DATACOL");
-//		datacol.setAttribute("name", this.mogCollection.getDatacol());
-//		root.addContent(path);
-//		root.addContent(delim);
-//		root.addContent(datacol);
-//		XMLOutputter outter = new XMLOutputter();
-//		outter.setFormat(Format.getPrettyFormat());
-//		res.setRootElement(root);
-//		return res;
+
 	}
-	
+
 	/**
 	 * Get the metadata file path in the project
 	 * @return
@@ -1095,6 +1121,32 @@ public class MetadataHybrid {
 			root.addContent(newNode);
 		}
 		return root;
+	}
+
+
+	/**
+	 * Convert a list to an XML object
+	 * 
+	 * @param list
+	 * @return
+	 * @throws XMLStreamException 
+	 */
+	public void writeListToXML(Set<String> list, XMLStreamWriter xMLStreamWriter) throws XMLStreamException {
+
+		xMLStreamWriter.writeStartDocument();
+		xMLStreamWriter.writeStartElement("Root");
+
+		if(list != null) {
+			for (String s : list) {
+
+				xMLStreamWriter.writeStartElement(s);
+				xMLStreamWriter.writeAttribute("name", s);
+				xMLStreamWriter.writeEndElement();
+
+			}
+		}
+		xMLStreamWriter.writeEndElement();
+
 	}
 
 }

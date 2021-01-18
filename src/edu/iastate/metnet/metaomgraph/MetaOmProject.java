@@ -889,42 +889,39 @@ public class MetaOmProject {
 
 				// write removed cols from md file
 				myZipOut.putNextEntry(new ZipEntry("removedMDCols.xml"));
-				Document removedColsMD = new Document();
-				removedColsMD.setRootElement(
-						this.getMetadataHybrid().listToXML(this.getMetadataHybrid().getRemovedMDCols()));
-				output.output(removedColsMD, myZipOut);
+				//Document removedColsMD = new Document();
+				
+				this.getMetadataHybrid().writeListToXML(this.getMetadataHybrid().getRemovedMDCols(), xMLStreamWriter);
+				//output.output(removedColsMD, myZipOut);
 
 				// write exluded and missing rows from metadata
 				myZipOut.putNextEntry(new ZipEntry("excludedMD.xml"));
-				Document excludedMD = new Document();
-				excludedMD.setRootElement(
-						this.getMetadataHybrid().listToXML(this.getMetadataHybrid().getExcludedMDRows()));
-				output.output(excludedMD, myZipOut);
+				//Document excludedMD = new Document();
+				this.getMetadataHybrid().writeListToXML(this.getMetadataHybrid().getExcludedMDRows(), xMLStreamWriter);
+				//output.output(excludedMD, myZipOut);
 
 				myZipOut.putNextEntry(new ZipEntry("missingMD.xml"));
-				Document missingMD = new Document();
-				missingMD.setRootElement(
-						this.getMetadataHybrid().listToXML(this.getMetadataHybrid().getMissingMDRows()));
-				output.output(missingMD, myZipOut);
+				//Document missingMD = new Document();
+				this.getMetadataHybrid().writeListToXML(this.getMetadataHybrid().getMissingMDRows(), xMLStreamWriter);
+				//output.output(missingMD, myZipOut);
 
 				// write tree
 				myZipOut.putNextEntry(new ZipEntry("metadataTree.xml"));
-				Document treeStruct = new Document();
-				treeStruct.setRootElement(
-						this.getMetadataHybrid().jtreetoXML(this.getMetadataHybrid().getTreeStucture()));
-				output.output(treeStruct, myZipOut);
+				//Document treeStruct = new Document();
+				this.getMetadataHybrid().writeJtreetoXML(this.getMetadataHybrid().getTreeStucture(), xMLStreamWriter);
+				//output.output(treeStruct, myZipOut);
 
 				// write saved correlations
 				myZipOut.putNextEntry(new ZipEntry("correlations.xml"));
-				Document corrs = new Document();
-				corrs.setRootElement(getMetaCorrResasXML());
-				output.output(corrs, myZipOut);
+				//Document corrs = new Document();
+				writeMetaCorrResasXML(xMLStreamWriter);
+				//output.output(corrs, myZipOut);
 
 				// write MOG parameters
 				myZipOut.putNextEntry(new ZipEntry("params.xml"));
-				Document params = new Document();
-				params.setRootElement(getParamsasXML());
-				output.output(params, myZipOut);
+				//Document params = new Document();
+				writeParamsasXML(xMLStreamWriter);
+				//output.output(params, myZipOut);
 
 				//write diff exp results
 				myZipOut.putNextEntry(new ZipEntry("diffexpresults.xml"));
@@ -934,9 +931,9 @@ public class MetaOmProject {
 
 				// write diff corr results
 				myZipOut.putNextEntry(new ZipEntry("diffcorrresults.xml"));
-				Document diffCorrXML = new Document();
-				diffCorrXML.setRootElement(getDiffCorrResAsXML());
-				output.output(diffCorrXML, myZipOut);
+				//Document diffCorrXML = new Document();
+				writeDiffCorrResAsXML(xMLStreamWriter);
+				//output.output(diffCorrXML, myZipOut);
 
 			}
 			myZipOut.closeEntry();
@@ -5112,6 +5109,32 @@ public class MetaOmProject {
 		// s
 		return root;
 	}
+	
+	/**
+	 * write correlation data as XML
+	 * 
+	 * @return
+	 * @throws XMLStreamException 
+	 */
+	public void writeMetaCorrResasXML(XMLStreamWriter xMLStreamWriter) throws XMLStreamException {
+		
+		xMLStreamWriter.writeStartDocument();
+		xMLStreamWriter.writeStartElement("ROOT");
+		
+		xMLStreamWriter.writeAttribute("name", "Root");
+		
+		if (metaCorrs != null) {
+			
+		// add each saved corr to Root
+		for (String s : metaCorrs.keySet()) {
+			writeCorrXMLNode(s, xMLStreamWriter);
+		}
+		
+		}
+		
+		xMLStreamWriter.writeEndElement();
+		
+	}
 
 	public Element createCorrXMLNode(String s) {
 		Element thisNode = new Element("Corr");
@@ -5181,6 +5204,71 @@ public class MetaOmProject {
 
 		return thisNode;
 	}
+	
+	
+	
+	
+	public void writeCorrXMLNode(String s, XMLStreamWriter xMLStreamWriter) throws XMLStreamException {
+		
+		xMLStreamWriter.writeStartElement("Corr");
+		xMLStreamWriter.writeAttribute("name", s);
+		
+		CorrelationMetaCollection cmcObj = metaCorrs.get(s);
+
+		// check values of table depending on cmcObj and populate the table
+		int corrTypeId = cmcObj.getCorrTypeId();
+		xMLStreamWriter.writeAttribute("corrtype", String.valueOf(corrTypeId));
+		xMLStreamWriter.writeAttribute("corrmodel", cmcObj.getCorrModel());
+		xMLStreamWriter.writeAttribute("corrvar", cmcObj.getCorrAgainst());
+
+		// for MI
+		if (corrTypeId == 3) {
+			xMLStreamWriter.writeAttribute("bins", String.valueOf(cmcObj.getBins()));
+			xMLStreamWriter.writeAttribute("order", String.valueOf(cmcObj.getOrder()));
+		}
+
+		List<CorrelationMeta> corrList = cmcObj.getCorrList();
+		if (metaCorrs != null) {
+			if (corrTypeId == 0) {
+
+				for (int i = 0; i < corrList.size(); i++) {
+					CorrelationMeta thisObj = corrList.get(i);
+
+					xMLStreamWriter.writeStartElement("row");
+					xMLStreamWriter.writeAttribute("name", thisObj.getName());
+					xMLStreamWriter.writeAttribute("value", String.valueOf(thisObj.getrVal()));
+					xMLStreamWriter.writeAttribute("pvalue", String.valueOf(thisObj.getpVal()));
+					xMLStreamWriter.writeAttribute("zval", String.valueOf(thisObj.getzVal()));
+					xMLStreamWriter.writeAttribute("qval", String.valueOf(thisObj.getqVal()));
+					xMLStreamWriter.writeAttribute("pooledzr", String.valueOf(thisObj.getpooledzr()));
+					xMLStreamWriter.writeAttribute("stderr", String.valueOf(thisObj.getstdErr()));
+					
+					
+					xMLStreamWriter.writeEndElement();
+
+				}
+
+			} else {
+
+				for (int i = 0; i < corrList.size(); i++) {
+					CorrelationMeta thisObj = corrList.get(i);
+
+					xMLStreamWriter.writeStartElement("row");
+					xMLStreamWriter.writeAttribute("name", thisObj.getName());
+					xMLStreamWriter.writeAttribute("value", String.valueOf(thisObj.getrVal()));
+					xMLStreamWriter.writeAttribute("pvalue", String.valueOf(thisObj.getpVal()));
+					
+					xMLStreamWriter.writeEndElement();
+
+				}
+
+			}
+		}
+
+		xMLStreamWriter.writeEndElement();
+	}
+	
+	
 
 	/**
 	 * get saved differential expression results as XML
@@ -5220,18 +5308,7 @@ public Element getDEResAsXML() {
 			}
 		}
 		xMLStreamWriter.writeEndElement();
-//		
-//		Element root = new Element("ROOT");
-//		root.setAttribute("name", "Root");
-//		if (diffExpRes != null) {
-//			String[] savedDE = getSavedDiffExpResNames();
-//			for (String id : savedDE) {
-//				DifferentialExpResults thisOB = getDiffExpResObj(id);
-//				root.addContent(thisOB.getAsXMLNode());
-//			}
-//		}
-//
-//		return root;
+
 	}
 
 	/**
@@ -5239,19 +5316,21 @@ public Element getDEResAsXML() {
 	 * 
 	 * @return
 	 */
-	public Element getDiffCorrResAsXML() {
-		Element root = new Element("ROOT");
-		root.setAttribute("name", "Root");
-
+	public void writeDiffCorrResAsXML(XMLStreamWriter xMLStreamWriter) throws XMLStreamException {
+		
+		xMLStreamWriter.writeStartDocument();
+		xMLStreamWriter.writeStartElement("ROOT");
+		xMLStreamWriter.writeAttribute("name", "Root");
+		
 		if (diffCorrRes != null) {
 			String[] savedDC = getSavedDiffCorrResNames();
 			for (String id : savedDC) {
 				DifferentialCorrResults thisOB = getDiffCorrResObj(id);
-				root.addContent(thisOB.getAsXMLNode());
+				thisOB.writeAsXMLNode(xMLStreamWriter);
 			}
 		}
-
-		return root;
+		xMLStreamWriter.writeEndElement();
+		
 	}
 
 	/**
@@ -5292,6 +5371,40 @@ public Element getDEResAsXML() {
 		return root;
 	}
 
+	
+	/**
+	 * return MOG parameters as XML
+	 * 
+	 * @return
+	 */
+	public void writeParamsasXML(XMLStreamWriter xMLStreamWriter) throws XMLStreamException {
+		
+		xMLStreamWriter.writeStartDocument();
+		xMLStreamWriter.writeStartElement("ROOT");
+		xMLStreamWriter.writeAttribute("name", "Root");
+		
+		xMLStreamWriter.writeStartElement("permutations");
+		xMLStreamWriter.writeAttribute("value", String.valueOf(MetaOmGraph.getNumPermutations()));
+		xMLStreamWriter.writeEndElement();
+		
+		xMLStreamWriter.writeStartElement("threads");
+		xMLStreamWriter.writeAttribute("value", String.valueOf(MetaOmGraph.getNumThreads()));
+		xMLStreamWriter.writeEndElement();
+		
+		xMLStreamWriter.writeStartElement("hyperlinksCols");
+		xMLStreamWriter.writeAttribute("srrColumn", String.valueOf(MetaOmGraph.getActiveTable().getMetadataTableDisplay().getsrrColumn()));
+		xMLStreamWriter.writeAttribute("srpColumn", String.valueOf(MetaOmGraph.getActiveTable().getMetadataTableDisplay().getsrpColumn()));
+		xMLStreamWriter.writeAttribute("srxColumn", String.valueOf(MetaOmGraph.getActiveTable().getMetadataTableDisplay().getsrxColumn()));
+		xMLStreamWriter.writeAttribute("srsColumn", String.valueOf(MetaOmGraph.getActiveTable().getMetadataTableDisplay().getsrsColumn()));
+		xMLStreamWriter.writeAttribute("gseColumn", String.valueOf(MetaOmGraph.getActiveTable().getMetadataTableDisplay().getgseColumn()));
+		xMLStreamWriter.writeAttribute("gsmColumn", String.valueOf(MetaOmGraph.getActiveTable().getMetadataTableDisplay().getgsmColumn()));
+		xMLStreamWriter.writeEndElement();
+		
+		xMLStreamWriter.writeEndElement();
+		
+	}
+	
+	
 	public boolean setInfoColTypes(HashMap<String, Class> map) {
 		this.infoColTypes = map;
 		return true;
