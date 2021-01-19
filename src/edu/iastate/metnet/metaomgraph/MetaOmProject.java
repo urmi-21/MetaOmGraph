@@ -848,15 +848,15 @@ public class MetaOmProject {
 				xMLStreamWriter.writeEndElement();
 			}
 
-//			if (savedSorts != null) {
-//				enumer = savedSorts.keys();
-//				while (enumer.hasMoreElements()) {
-//					String name = enumer.nextElement().toString();
-//					NewCustomSortDialog.CustomSortObject cso = getSavedSorts().get(name);
-//					Element sort = cso.toXML().setAttribute("name", name);
-//					root.addContent(sort);
-//				}
-//			}
+			if (savedSorts != null) {
+				enumer = savedSorts.keys();
+				while (enumer.hasMoreElements()) {
+					String name = enumer.nextElement().toString();
+					NewCustomSortDialog.CustomSortObject cso = getSavedSorts().get(name);
+					cso.writeToXML(xMLStreamWriter, name);
+				}
+			}
+//			
 //			if (savedQueries != null) {
 //				enumer = savedQueries.keys();
 //				while (enumer.hasMoreElements()) {
@@ -2219,7 +2219,7 @@ public class MetaOmProject {
 					}
 					else if(qName.equals("info")) {
 						isInfo = true;
-						
+						infoData = null;
 						Iterator<Attribute> attributes = startElement.getAttributes();
 						
 						while(attributes.hasNext()) {
