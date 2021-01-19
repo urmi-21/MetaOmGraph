@@ -41,6 +41,9 @@ import javax.swing.ToolTipManager;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+
 import org.jdom.Element;
 
 public class NewCustomSortDialog extends JDialog implements ActionListener, HashLoadable<NewCustomSortDialog.CustomSortObject> {
@@ -452,6 +455,54 @@ public class NewCustomSortDialog extends JDialog implements ActionListener, Hash
             }
             return sort;
         }
+        
+       
+		public void writeToXML(XMLStreamWriter xMLStreamWriter, String name) throws XMLStreamException {
+			
+			xMLStreamWriter.writeStartElement(getXMLElementName());
+			xMLStreamWriter.writeAttribute("name", name);
+
+            String orderString = sortOrder[0] + "";
+            for (int x = 1; x < sortOrder.length; x++) {
+                orderString = orderString + "," + sortOrder[x];
+            }
+            
+            xMLStreamWriter.writeStartElement("order");
+			xMLStreamWriter.writeCharacters(orderString);
+			xMLStreamWriter.writeEndElement();
+			
+            
+            if (rangeMarkers != null) {
+                for (int x = 0; x < rangeMarkers.size(); x++) {
+                    RangeMarker thisMarker = rangeMarkers.get(x);
+                    xMLStreamWriter.writeStartElement("marker");
+                    xMLStreamWriter.writeAttribute("style", thisMarker.getStyle() == RangeMarker.HORIZONTAL ? "horizontal" : "vertical");
+                    
+                    xMLStreamWriter.writeStartElement("start");
+                    xMLStreamWriter.writeCharacters(thisMarker.getStart() + "");
+        			xMLStreamWriter.writeEndElement();
+                    
+        			xMLStreamWriter.writeStartElement("end");
+                    xMLStreamWriter.writeCharacters(thisMarker.getEnd() + "");
+        			xMLStreamWriter.writeEndElement();
+        			
+        			xMLStreamWriter.writeStartElement("label");
+                    xMLStreamWriter.writeCharacters(thisMarker.getLabel());
+        			xMLStreamWriter.writeEndElement();
+        			
+        			xMLStreamWriter.writeStartElement("color");
+                    xMLStreamWriter.writeCharacters(thisMarker.getColor().getRGB() + "");
+        			xMLStreamWriter.writeEndElement();
+        			
+                    xMLStreamWriter.writeEndElement();
+                    
+                }
+            }
+            
+            xMLStreamWriter.writeEndElement();
+            
+        }
+        
 
         @Override
 		public void fromXML(Element source) {
