@@ -1,7 +1,9 @@
 
 package edu.iastate.metnet.metaomgraph;
 
+import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.chart.NewCustomSortDialog;
+import edu.iastate.metnet.metaomgraph.chart.RangeMarker;
 import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
 import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel;
@@ -31,6 +33,10 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -96,6 +102,7 @@ public class MetaOmProject {
 	public static final String DELETE_INFO_COLUMN_CAUSE = "info column deleted";
 	private String[] columnHeaders;
 	private Object[][] rowNames;
+	private HashMap<String, Integer> rowMapping;
 	private int infoColumns;
 	private Long[] fileIndex;
 	private File source = null;
@@ -522,10 +529,13 @@ public class MetaOmProject {
 	public boolean saveProject(File destination) {
 		String extension = Utils.getExtension(destination);
 		File saveHere;
+		String mogPathToSave = "";
 		if ((extension != null) && ((extension.equals("mog")) || (extension.equals("mcg")))) {
-			saveHere = destination;
+			saveHere = new File(destination.getAbsolutePath() + ".tmp");
+			mogPathToSave = destination.getAbsolutePath();
 		} else {
-			saveHere = new File(destination.getAbsolutePath() + ".mog");
+			saveHere = new File(destination.getAbsolutePath() + ".mog.tmp");
+			mogPathToSave = destination.getAbsolutePath() + ".mog.tmp";
 		}
 
 		if (isCreatedFromStream()) {
@@ -549,119 +559,6 @@ public class MetaOmProject {
 			}
 		}
 
-//		Element root = new Element("MetaOmProject");
-//		Element projectInfo = new Element("projectInfo");
-//		Element sourcePathElement = new Element("sourcePath").setText(source.getParent());
-//		Element sourceFileElement = new Element("sourceFile").setText(source.getName());
-//		Element delimiterElement = new Element("delimiter").setText(delimiter + "");
-//		Element consecutiveElement = new Element("ignoreConsecutiveDelimiters")
-//				.setText(ignoreConsecutiveDelimiters + "");
-//		if (delimiter == '\t') {
-//			delimiterElement.setText("\\t");
-//		}
-//		projectInfo.addContent(sourcePathElement);
-//		projectInfo.addContent(sourceFileElement);
-//		projectInfo.addContent(delimiterElement);
-//		projectInfo.addContent(consecutiveElement);
-//		if (getBlankValue() != null) {
-//			projectInfo.addContent(new Element("blankValue").setText(getBlankValue() + ""));
-//		}
-//		projectInfo.addContent(new Element("xLabel").setText(getDefaultXAxis()));
-//		projectInfo.addContent(new Element("yLabel").setText(getDefaultYAxis()));
-//		projectInfo.addContent(new Element("title").setText(getDefaultTitle()));
-//		projectInfo.addContent(new Element("color1").setText(getColor1().getRGB() + ""));
-//		projectInfo.addContent(new Element("color2").setText(getColor2().getRGB() + ""));
-//		projectInfo.addContent(new Element("defaultColumn").setText(defaultColumn + ""));
-//
-//		for (int x = 0; x < infoColumns; x++) {
-//			Element infoColumnElement = new Element("infoColumn").setText(columnHeaders[x]);
-//			projectInfo.addContent(infoColumnElement);
-//		}
-//		root.addContent(projectInfo);
-//		Element columnsElement = new Element("columns");
-//
-//		for (int x = 0; x < getDataColumnCount(); x++) {
-//			Element column = new Element("column").setText(getDataColumnHeader(x));
-//			columnsElement.addContent(column);
-//		}
-//		root.addContent(columnsElement);
-//
-//		boolean savedLast = false;
-//		for (int x = 0; x < rowNames.length; x++) {
-//			Element data = new Element("data");
-//			for (int y = 0; y < infoColumns; y++) {
-//				Element info;
-//				if (rowNames[x][y] == null) {
-//					info = new Element("info").setText("");
-//
-//				} else {
-//					info = new Element("info").setText(rowNames[x][y].toString());
-//					if ((rowNames[x][y] instanceof CorrelationValue)) {
-//						info.setAttribute("type", "correlation");
-//						if ((hasLastCorrelation()) && (!savedLast)) {
-//							info.setAttribute("last", "true");
-//							savedLast = true;
-//						}
-//						if (!((CorrelationValue) rowNames[x][y]).isAsPercent()) {
-//							info.setAttribute("asPercent", "false");
-//						}
-//					}
-//				}
-//				data.addContent(info);
-//			}
-//			Element location = new Element("location").setText(fileIndex[x] + "");
-//			data.addContent(location);
-//			root.addContent(data);
-//		}
-//
-//		Enumeration enumer = geneLists.keys();
-//
-//		while (enumer.hasMoreElements()) {
-//			String name = enumer.nextElement().toString();
-//			Element list = new Element("list").setAttribute("name", name);
-//			int[] entries = geneLists.get(name);
-//			for (int x = 0; x < entries.length; x++)
-//				list.addContent(new Element("entry").setText(entries[x] + ""));
-//			root.addContent(list);
-//		}
-//
-//		for (Map.Entry<String, ArrayList<String>> entry : sampleDataLists.entrySet()) {
-//			String listName = entry.getKey();
-//			Element list = new Element("sampleDataList").setAttribute("name", listName);
-//			ArrayList<String> values = entry.getValue();
-//			for (int index = 0; index < values.size(); index++)
-//				list.addContent(new Element("entry").setText(values.get(index) + ""));
-//			root.addContent(list);
-//		}
-//
-//		if (savedSorts != null) {
-//			enumer = savedSorts.keys();
-//			while (enumer.hasMoreElements()) {
-//				String name = enumer.nextElement().toString();
-//				NewCustomSortDialog.CustomSortObject cso = getSavedSorts().get(name);
-//				Element sort = cso.toXML().setAttribute("name", name);
-//				root.addContent(sort);
-//			}
-//		}
-//		if (savedQueries != null) {
-//			enumer = savedQueries.keys();
-//			while (enumer.hasMoreElements()) {
-//				String name = enumer.nextElement().toString();
-//				TreeSearchQueryConstructionPanel.QuerySet thisQuerySet = getSavedQueries().get(name);
-//				Element query = thisQuerySet.toXML().setAttribute("name", name).toJDOMElement();
-//				root.addContent(query);
-//			}
-//		}
-//		if (savedExcludes != null) {
-//			enumer = savedExcludes.keys();
-//			while (enumer.hasMoreElements()) {
-//				String name = enumer.nextElement().toString();
-//				MetaOmAnalyzer.ExcludeData thisData = savedExcludes.get(name);
-//				Element exclude = thisData.toXML().setAttribute("name", name);
-//				root.addContent(exclude);
-//			}
-//		}
-//
 		XMLOutputter output = new XMLOutputter();
 		output.setFormat(Format.getPrettyFormat().setLineSeparator("\n"));
 //		Document myDoc = new Document(root);
@@ -856,25 +753,25 @@ public class MetaOmProject {
 					cso.writeToXML(xMLStreamWriter, name);
 				}
 			}
-//			
-//			if (savedQueries != null) {
-//				enumer = savedQueries.keys();
-//				while (enumer.hasMoreElements()) {
-//					String name = enumer.nextElement().toString();
-//					TreeSearchQueryConstructionPanel.QuerySet thisQuerySet = getSavedQueries().get(name);
-//					Element query = thisQuerySet.toXML().setAttribute("name", name).toJDOMElement();
-//					root.addContent(query);
-//				}
-//			}
-//			if (savedExcludes != null) {
-//				enumer = savedExcludes.keys();
-//				while (enumer.hasMoreElements()) {
-//					String name = enumer.nextElement().toString();
-//					MetaOmAnalyzer.ExcludeData thisData = savedExcludes.get(name);
-//					Element exclude = thisData.toXML().setAttribute("name", name);
-//					root.addContent(exclude);
-//				}
-//			}
+			
+			if (savedQueries != null) {
+				enumer = savedQueries.keys();
+				while (enumer.hasMoreElements()) {
+					String name = enumer.nextElement().toString();
+					TreeSearchQueryConstructionPanel.QuerySet thisQuerySet = getSavedQueries().get(name);
+					thisQuerySet.writeToXML(xMLStreamWriter, name);
+				}
+			}
+			
+			
+			if (savedExcludes != null) {
+				enumer = savedExcludes.keys();
+				while (enumer.hasMoreElements()) {
+					String name = enumer.nextElement().toString();
+					MetaOmAnalyzer.ExcludeData thisData = savedExcludes.get(name);
+					thisData.writeToXML(xMLStreamWriter, name);
+				}
+			}
 	        
 			xMLStreamWriter.writeEndElement();
 			
@@ -939,6 +836,15 @@ public class MetaOmProject {
 			myZipOut.closeEntry();
 			myZipOut.finish();
 			myZipOut.close();
+			
+			
+			//Move the temporary file to the actual mog project
+			
+			Path from = saveHere.toPath(); 
+			Path to = Paths.get(mogPathToSave); 
+			Files.move(from, to, StandardCopyOption.REPLACE_EXISTING);
+			
+			
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 			JOptionPane.showInternalMessageDialog(MetaOmGraph.getDesktop(),
@@ -1139,8 +1045,6 @@ public class MetaOmProject {
 						}
 					}
 
-					// JOptionPane.showMessageDialog(null, "datacol"+newcollection.getDatacol());
-					// this.setMogcollection(newcollection);
 
 					extendedFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
@@ -2109,7 +2013,16 @@ public class MetaOmProject {
 			boolean isLocation = false;
 			boolean issampleDataList = false;
 			boolean isCustomSort = false;
+			boolean isOrder = false;
+			boolean isMarker = false;
+			boolean isStart = false;
+			boolean isEnd = false;
+			boolean isLabel = false;
+			boolean isColor = false;
 			boolean isQuerySet = false;
+			boolean isQuery = false;
+			boolean isField = false;
+			boolean isTerm = false;
 			boolean isExcludeList = false;
 			boolean isEntry = false;
 			
@@ -2133,20 +2046,31 @@ public class MetaOmProject {
 			String listName = "";
 			String dataListName = "";
 			String savedSortName = "";
+			String orderVal = "";
+			String markerStyle = "";
+			int startMarker = 0;
+			int endMarker = 0;
+			String labelMarker = "";
+			Color colorMarker = null;
 			String savedQueryName = "";
+			boolean querySetMatchAll = false;
+			SearchMatchType queryMatchType = SearchMatchType.CONTAINS;
+			String queryField = "";
+			String queryTerm = "";
 			String savedExcludeName = "";
 			List<Integer> entryList = null;
 			ArrayList<String> dataListValues = null;
+			ArrayList<RangeMarker> markerList = null;
+			RangeMarker rangeMarker = null;
+			ArrayList<MetadataQuery> queryList = null;
+			MetadataQuery currentQuery = null;
 			
 			geneLists = new Hashtable();
 			sampleDataLists = new HashMap<String, ArrayList<String>>();
 			savedSorts = new Hashtable();
 			savedQueries = new Hashtable();
 			savedExcludes = new Hashtable();
-			sampleDataLists = new HashMap<String, ArrayList<String>>();
-			savedSorts = new Hashtable();
-			savedQueries = new Hashtable();
-			savedExcludes = new Hashtable();
+
 			
 			NewCustomSortDialog.CustomSortObject cso = null;
 			TreeSearchQueryConstructionPanel.QuerySet thisQuerySet = null;
@@ -2280,6 +2204,7 @@ public class MetaOmProject {
 						
 						isCustomSort = true;
 						cso = new NewCustomSortDialog.CustomSortObject();
+						markerList = new ArrayList<RangeMarker>();
 						
 						Iterator<Attribute> attributes = startElement.getAttributes();
 						
@@ -2294,10 +2219,44 @@ public class MetaOmProject {
 						}
 						
 					}
+					else if(qName.equals("order")) {
+						
+						orderVal = "";
+						isOrder = true;
+					}
+					else if(qName.equals("marker")) {
+						
+						Iterator<Attribute> attributes = startElement.getAttributes();
+						
+						while(attributes.hasNext()) {
+
+							Attribute nextAttr = attributes.next();
+
+							if(nextAttr.getName().getLocalPart().equals("style")) {
+								markerStyle = nextAttr.getValue();
+							}
+							
+						}
+							
+						isMarker = true;
+					}
+					else if(qName.equals("start")) {
+						isStart = true;
+					}
+					else if(qName.equals("end")) {
+						isEnd = true;
+					}
+					else if(qName.equals("label")) {
+						isLabel = true;
+					}	
+					else if(qName.equals("color")) {
+						isColor = true;
+					}
 					else if(qName.equals(TreeSearchQueryConstructionPanel.QuerySet.getXMLElementName())) {
 						
 						isQuerySet = true;
 						thisQuerySet = new TreeSearchQueryConstructionPanel.QuerySet();
+						queryList = new ArrayList<MetadataQuery>();
 						
 						Iterator<Attribute> attributes = startElement.getAttributes();
 						
@@ -2308,9 +2267,43 @@ public class MetaOmProject {
 							if(nextAttr.getName().getLocalPart().equals("name")) {
 								savedQueryName = nextAttr.getValue();
 							}
+							else if(nextAttr.getName().getLocalPart().equals("matchAll")) {
+								querySetMatchAll = "true".equals(nextAttr.getValue());
+							}
 							
 						}
 						
+					}
+					else if(qName.equals("query")) {
+						isQuery = true;
+						
+						currentQuery = null;
+						queryMatchType = SearchMatchType.CONTAINS;
+						
+						Iterator<Attribute> attributes = startElement.getAttributes();
+						
+						while(attributes.hasNext()) {
+
+							Attribute nextAttr = attributes.next();
+
+							if(nextAttr.getName().getLocalPart().equals("exact")) {
+								boolean isExact = "true".equals(nextAttr.getValue());
+								if(isExact)
+									queryMatchType = SearchMatchType.IS;
+								
+							}
+							else if(nextAttr.getName().getLocalPart().equals("matchAll")) {
+								queryMatchType = SearchMatchType.valueOf(nextAttr.getValue().toUpperCase());
+							}
+							
+						}
+						
+					}
+					else if(qName.equals("field")) {
+						isField = true;
+					}
+					else if(qName.equals("term")) {
+						isTerm = true;
 					}
 					else if(qName.equals(MetaOmAnalyzer.ExcludeData.getXMLElementName())) {
 						
@@ -2389,6 +2382,35 @@ public class MetaOmProject {
 	                  else if(isLocation) {
 	                	  fileIndexList.add(new Long(characters.getData()));
 	                  }
+	                  else if(isCustomSort && isOrder) {
+	                	  
+	                	  orderVal = characters.getData();
+	                	  
+	                  }
+	                  else if(isCustomSort && isMarker && isStart) {
+	                	  startMarker = Integer.parseInt(characters.getData());
+	                  }
+	                  else if(isCustomSort && isMarker && isEnd) {
+	                	  endMarker = Integer.parseInt(characters.getData());
+	                  }
+	                  else if(isCustomSort && isMarker && isLabel) {
+	                	  labelMarker = characters.getData();
+	                  }
+	                  else if(isCustomSort && isMarker && isColor) {
+	                	  String colorText = characters.getData();
+	                	  if (colorText != null) {
+	                		  colorMarker = new Color(Integer.parseInt(colorText));
+	                      } else {
+	                    	  colorMarker = Color.BLACK;
+	                      }
+	                  }
+	                  else if(isQuerySet && isQuery && isField) {
+	                	  queryField = characters.getData();
+	                  }
+	                  else if(isQuerySet && isQuery && isTerm) {
+	                	  queryTerm = characters.getData();
+	                  }
+	              
 	                  break;
 	             
 				case XMLStreamConstants.END_ELEMENT:
@@ -2474,7 +2496,7 @@ public class MetaOmProject {
 							
 							
 							//populate defaultColumn
-							if (!defaultColumnVal.equals("")) {
+							if (defaultColumnVal.equals("")) {
 								defaultColumn = 0;
 							} else {
 								defaultColumn = Integer.parseInt(defaultColumnVal);
@@ -2622,6 +2644,65 @@ public class MetaOmProject {
 						else if(endName.equals("entry")) {
 							isEntry = false;
 						}
+						else if(endName.equals("order")) {
+							isOrder = false;
+						}
+						else if(endName.equals("marker")) {
+							isMarker = false;
+							
+							int style = "horizontal".equals(markerStyle) ? RangeMarker.HORIZONTAL : RangeMarker.VERTICAL;
+							
+							rangeMarker = new RangeMarker(startMarker, endMarker, labelMarker, style, colorMarker);
+							
+							markerList.add(rangeMarker);
+							
+						}
+						else if(endName.equals(NewCustomSortDialog.CustomSortObject.getXMLElementName())) {
+							isCustomSort = false;
+							
+							cso.readFromXML(orderVal, markerList);
+							savedSorts.put(savedSortName, cso);
+							
+						}
+						else if(endName.equals("start")) {
+							
+							isStart = false;
+						}
+						else if(endName.equals("end")) {
+							
+							isEnd = false;
+						}
+						else if(endName.equals("label")) {
+							
+							isLabel = false;
+						}	
+						else if(endName.equals("color")) {
+							
+							isColor = false;
+						}
+	                  
+						else if(endName.equals(TreeSearchQueryConstructionPanel.QuerySet.getXMLElementName())) {
+							
+							isQuerySet = false;
+							
+							thisQuerySet.initializeQuerySet(querySetMatchAll, queryList);
+							
+							savedQueries.put(savedQueryName, thisQuerySet);
+							
+						}
+						else if(endName.equals("query")) {
+							isQuery = false;
+							
+							currentQuery = new MetadataQuery(queryField, queryTerm, queryMatchType, false);
+							queryList.add(currentQuery);
+							
+						}
+						else if(endName.equals("field")) {
+							isField = false;
+						}
+						else if(endName.equals("term")) {
+							isTerm = false;
+						}
 						else if(endName.equals("MetaOmProject")) {
 							
 							rowNames = new Object[dataInfoList.size()][infoColumns];
@@ -2652,229 +2733,7 @@ public class MetaOmProject {
 			}
 		}
 
-			
-			
-//			
-//			SAXBuilder builder = new SAXBuilder();
-//		Document myDoc = builder.build(instream);
-//
-//			Element root = myDoc.getRootElement();
-//			Element projectInfo = root.getChild("projectInfo");
-//
-//			source = new File(projectInfo.getChild("sourcePath").getText() + File.separator
-//					+ projectInfo.getChild("sourceFile").getText());
-//			if (!source.exists()) {
-//
-//				source = new File(projectFile.getParentFile().getAbsolutePath() + File.separator
-//						+ projectInfo.getChild("sourceFile").getText());
-//				if (!source.exists()) {
-//					int result = JOptionPane.showConfirmDialog(MetaOmGraph.getMainWindow(),
-//							"The file " + source.getName() + " was not found.\nWould you like to locate it yourself?",
-//							"File not found", 0);
-//					if (result == 1)
-//						return false;
-//					JFileChooser chooser = new JFileChooser(projectFile.getParentFile());
-//					chooser.setFileFilter(new FileFilter() {
-//						@Override
-//						public boolean accept(File f) {
-//							return (f.isDirectory()) || (f.getName().equals(source.getName()));
-//						}
-//
-//						@Override
-//						public String getDescription() {
-//							return source.getName();
-//						}
-//
-//					});
-//					result = 0;
-//					while ((!source.exists()) && (result == 0)) {
-//						result = chooser.showOpenDialog(MetaOmGraph.getMainWindow());
-//						source = chooser.getSelectedFile();
-//					}
-//					if (result != 0)
-//						return false;
-//					Utils.setLastDir(source.getParentFile());
-//				}
-//			}
-//
-//			Element delimiterElement = projectInfo.getChild("delimiter");
-//
-//			if (delimiterElement.getText().equals("")) {
-//				delimiter = ' ';
-//			} else if (delimiterElement.getText().equals("\\t")) {
-//				delimiter = '\t';
-//			} else
-//				delimiter = delimiterElement.getText().charAt(0);
-//			Element ignoreConsecutiveElement = projectInfo.getChild("ignoreConsecutiveDelimiters");
-//			if (ignoreConsecutiveElement != null) {
-//				ignoreConsecutiveDelimiters = Boolean.parseBoolean(ignoreConsecutiveElement.getText());
-//			} else {
-//				ignoreConsecutiveDelimiters = true;
-//			}
-//			Element blankValueElement = projectInfo.getChild("blankValue");
-//			if (blankValueElement != null) {
-//				blankValue = Double.valueOf(Double.parseDouble(blankValueElement.getText()));
-//			}
-//			defaultXAxis = projectInfo.getChild("xLabel").getText();
-//			defaultYAxis = projectInfo.getChild("yLabel").getText();
-//			defaultTitle = projectInfo.getChild("title").getText();
-//			color1 = new Color(Integer.parseInt(projectInfo.getChild("color1").getText()));
-//			color2 = new Color(Integer.parseInt(projectInfo.getChild("color2").getText()));
-//			if (projectInfo.getChild("defaultColumn") == null) {
-//				defaultColumn = 0;
-//			} else {
-//				defaultColumn = Integer.parseInt(projectInfo.getChild("defaultColumn").getText());
-//			}
-//			List infoColumnList = projectInfo.getChildren("infoColumn");
-//			infoColumns = infoColumnList.size();
-//			List dataColumnList = root.getChild("columns").getChildren("column");
-//			columnHeaders = new String[infoColumns + dataColumnList.size()];
-//			Iterator iter = infoColumnList.iterator();
-//			int index = 0;
-//			while (iter.hasNext()) {
-//				columnHeaders[index] = ((Element) iter.next()).getText();
-//				index++;
-//			}
-//			System.out.println(dataColumnList.size() + " columns");
-//			iter = dataColumnList.iterator();
-//			while (iter.hasNext()) {
-//				columnHeaders[index] = ((Element) iter.next()).getText();
-//				if (columnHeaders[index].length() > maxNameLength)
-//					maxNameLength = columnHeaders[index].length();
-//				index++;
-//			}
-//			List dataList = root.getChildren("data");
-//			iter = dataList.iterator();
-//
-//			index = 0;
-//
-//			rowNames = new Object[dataList.size()][infoColumns];
-//			fileIndex = new Long[dataList.size()];
-//			while (iter.hasNext()) {
-//				Element thisDataItem = (Element) iter.next();
-//				infoColumnList = thisDataItem.getChildren("info");
-//				Iterator iter2 = infoColumnList.iterator();
-//				int index2 = 0;
-//				while (iter2.hasNext()) {
-//					Element thisElement = (Element) iter2.next();
-//					String text = thisElement.getText();
-//					if ("correlation".equals(thisElement.getAttributeValue("type"))) {
-//						CorrelationValue thisValue;
-//						if ("false".equals(thisElement.getAttributeValue("asPercent"))) {
-//							if (text.length() > 0) {
-//								thisValue = new CorrelationValue(Double.parseDouble(text));
-//							} else {
-//								thisValue = null;
-//							}
-//							thisValue.setAsPercent(false);
-//						} else {
-//							if (text.length() > 0) {
-//								thisValue = new CorrelationValue(
-//										Double.parseDouble(text.substring(0, text.length() - 1)) / 100.0D);
-//							} else {
-//								thisValue = null;
-//							}
-//						}
-//						rowNames[index][index2] = thisValue;
-//						if ("true".equals(thisElement.getAttributeValue("last"))) {
-//							hasLastCorrelation = true;
-//						}
-//					} else if (text.length() > 0) {
-//						rowNames[index][index2] = thisElement.getText();
-//					} else {
-//						rowNames[index][index2] = null;
-//					}
-//
-//					index2++;
-//				}
-//				fileIndex[index] = new Long(thisDataItem.getChild("location").getText());
-//				index++;
-//			}
-//
-//			List geneListList = root.getChildren("list");
-//			iter = geneListList.iterator();
-//
-//			geneLists = new Hashtable();
-//			while (iter.hasNext()) {
-//				Element thisGeneList = (Element) iter.next();
-//				List entryList2 = thisGeneList.getChildren("entry");
-//				int[] entries = new int[entryList2.size()];
-//				Iterator iter2 = entryList2.iterator();
-//				index = 0;
-//				while (iter2.hasNext()) {
-//					entries[index] = Integer.parseInt(((Element) iter2.next()).getText());
-//					index++;
-//				}
-//				geneLists.put(thisGeneList.getAttributeValue("name"), entries);
-//			}
-//
-//			List sampleDataListList = root.getChildren("sampleDataList");
-//			iter = sampleDataListList.iterator();
-//
-//			sampleDataLists = new HashMap<String, ArrayList<String>>();
-//			while (iter.hasNext()) {
-//				Element thisSampleList = (Element) iter.next();
-//				List entryList3 = thisSampleList.getChildren("entry");
-//				String[] entries = new String[entryList3.size()];
-//				Iterator iter2 = entryList3.iterator();
-//				index = 0;
-//				while (iter2.hasNext()) {
-//					entries[index] = ((Element) iter2.next()).getText();
-//					index++;
-//				}
-//				ArrayList<String> values = new ArrayList<String>(Arrays.asList(entries));
-//				sampleDataLists.put(thisSampleList.getAttributeValue("name"), values);
-//			}
-//
-//			List sortList = root.getChildren(NewCustomSortDialog.CustomSortObject.getXMLElementName());
-//			iter = sortList.iterator();
-//
-//			savedSorts = new Hashtable();
-//			while (iter.hasNext()) {
-//				Element thisSortElement = (Element) iter.next();
-//				String name = thisSortElement.getAttributeValue("name");
-//				NewCustomSortDialog.CustomSortObject cso = new NewCustomSortDialog.CustomSortObject();
-//				cso.fromXML(thisSortElement);
-//				savedSorts.put(name, cso);
-//			}
-//
-//			List querySetList = root.getChildren(TreeSearchQueryConstructionPanel.QuerySet.getXMLElementName());
-//			iter = querySetList.iterator();
-//
-//			savedQueries = new Hashtable();
-//			while (iter.hasNext()) {
-//				Element thisQuerySetElement = (Element) iter.next();
-//				String name = thisQuerySetElement.getAttributeValue("name");
-//				TreeSearchQueryConstructionPanel.QuerySet thisQuerySet = new TreeSearchQueryConstructionPanel.QuerySet();
-//				thisQuerySet.fromXML(SimpleXMLElement.fromJDOMElement(thisQuerySetElement));
-//				savedQueries.put(name, thisQuerySet);
-//			}
-//
-//			List excludeList = root.getChildren(MetaOmAnalyzer.ExcludeData.getXMLElementName());
-//			iter = excludeList.iterator();
-//
-//			savedExcludes = new Hashtable();
-//			while (iter.hasNext()) {
-//				Element thisExcludeElement = (Element) iter.next();
-//				String name = thisExcludeElement.getAttributeValue("name");
-//				MetaOmAnalyzer.ExcludeData thisExcludeData = new MetaOmAnalyzer.ExcludeData();
-//				thisExcludeData.fromXML(thisExcludeElement);
-//				savedExcludes.put(name, thisExcludeData);
-//			}
-//			Element repElement = root.getChild("reps");
-//		} catch (JDOMException e) {
-//			Element repElement;
-//
-//			e.printStackTrace();
-//			JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "The file " + projectFile.getName()
-//			+ " does not appear to be a valid " + "MetaOmGraph project file!");
-//			return false;
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//			JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(),
-//					"Error reading the file " + projectFile.getName());
-//			return false;
-//		} 
+
 		catch (NullPointerException e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "The file " + projectFile.getName()
@@ -2899,6 +2758,7 @@ public class MetaOmProject {
 			
 			e.printStackTrace();
 		}
+
 		return true;
 	}
 
@@ -3070,7 +2930,7 @@ public class MetaOmProject {
 				if (result != null)
 					result = result.trim();
 				if (getGeneListRowNumbers(result) != null) {
-					JOptionPane.showInternalMessageDialog(null,
+					JOptionPane.showMessageDialog(null,
 							"A list with that name already exists.  Please enter a different name.",
 							"Duplicate list name", 0);
 					result = "";
@@ -3483,6 +3343,68 @@ public class MetaOmProject {
 		}
 		return temp;
 	}
+	
+	
+	/**
+	 * faster method to return index of rows matching a list of names
+	 * 
+	 * @param names
+	 * @return
+	 */
+	
+	public int[] getRowIndexesFromFeatureNames(List<String> names, boolean matchCase) {
+		
+		if(rowMapping == null) {
+			populateRowMapping();
+		}
+		
+		if (names == null)
+			return null;
+
+		// use list in case of duplicates in names list
+		List<Integer> res = new ArrayList<>();
+
+		if (matchCase) {
+			for (int i = 0; i < names.size(); i++) {
+					int val = rowMapping.get(names.get(i));
+					res.add(val);
+			}
+		} else {
+			for (String s : names) {
+				res.add(getRowIndexbyName(s, true));
+			}
+		}
+
+		int[] temp = new int[res.size()];
+		int k = 0;
+		for (int i : res) {
+			temp[k++] = i;
+		}
+		return temp;
+		
+	}
+	
+	
+	public void populateRowMapping() {
+		
+		rowMapping = new HashMap<String, Integer>();
+		
+		if(rowNames != null) {
+		for (int i = 0; i < rowNames.length; i++) {
+			String thisName = rowNames[i][defaultColumn].toString();
+			
+			rowMapping.put(thisName, i);
+		}
+		}
+	}
+	
+	/**
+	 * 
+	 * @param name
+	 * @param matchCase
+	 * @return
+	 */
+	
 
 	public int getRowIndexbyName(String name, boolean matchCase) {
 		if (name == null)

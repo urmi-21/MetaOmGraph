@@ -451,7 +451,7 @@ public class DiffCorrResultsTable extends StatisticalResultsPanel {
 
 										//Get Feature metadata rows
 										List<String> rowNames = featureNames;
-										int[] rowIndices = MetaOmGraph.activeProject.getRowIndexbyName(rowNames, true);
+										int[] rowIndices = MetaOmGraph.activeProject.getRowIndexesFromFeatureNames(rowNames, true);
 										
 										for(int j = 0; j < rowIndices.length; j++) {
 											rowIndicesMapping[rowIndices[j]] = j;
@@ -598,7 +598,7 @@ public class DiffCorrResultsTable extends StatisticalResultsPanel {
 
 										//Get Feature metadata rows
 										List<String> rowNames = featureNames;
-										int[] rowIndices = MetaOmGraph.activeProject.getRowIndexbyName(rowNames, true);
+										int[] rowIndices = MetaOmGraph.activeProject.getRowIndexesFromFeatureNames(rowNames, true);
 										
 										for(int j = 0; j < rowIndices.length; j++) {
 											rowIndicesMapping[rowIndices[j]] = j;
@@ -1053,7 +1053,7 @@ public class DiffCorrResultsTable extends StatisticalResultsPanel {
 
 			//Get Feature metadata rows
 			List<String> rowNames = featureNames;
-			int[] rowIndices = MetaOmGraph.activeProject.getRowIndexbyName(rowNames, true);
+			int[] rowIndices = MetaOmGraph.activeProject.getRowIndexesFromFeatureNames(rowNames, true);
 			
 			for(int j = 0; j < rowIndices.length; j++) {
 				rowIndicesMapping[rowIndices[j]] = j;
@@ -1290,7 +1290,7 @@ public class DiffCorrResultsTable extends StatisticalResultsPanel {
 		for (int i : rowIndices) {
 			names.add(table.getValueAt(i, table.getColumn("Name").getModelIndex()).toString());
 		}
-		rowIndices = myProject.getRowIndexbyName(names, true);
+		rowIndices = myProject.getRowIndexesFromFeatureNames(names, true);
 
 		return rowIndices;
 	}

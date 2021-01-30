@@ -708,7 +708,7 @@ public class CorrelationMetaTable extends TaskbarInternalFrame {
 		for (int i : rowIndices) {
 			names.add(table.getValueAt(i, table.getColumn("Name").getModelIndex()).toString());
 		}
-		rowIndices = myProject.getRowIndexbyName(names, true);
+		rowIndices = myProject.getRowIndexesFromFeatureNames(names, true);
 
 		return rowIndices;
 	}

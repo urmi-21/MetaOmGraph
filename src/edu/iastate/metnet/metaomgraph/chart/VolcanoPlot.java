@@ -112,6 +112,7 @@ public class VolcanoPlot extends TaskbarInternalFrame implements ChartMouseListe
 	List<Double> pVals;
 	private String grp1;
 	private String grp2;
+	private boolean isAdj;
 
 	private double significanceCutOff = 0.01;
 	private double foldChangeCutOffUp = 1;
@@ -125,16 +126,18 @@ public class VolcanoPlot extends TaskbarInternalFrame implements ChartMouseListe
 	 */
 	public VolcanoPlot() {
 
-		this(null, null, null, "", "");
+		this(null, null, null, "", "", false);
 
 	}
 
-	public VolcanoPlot(List<String> featureNames, List<Double> fc, List<Double> pv, String g1, String g2) {
+	public VolcanoPlot(List<String> featureNames, List<Double> fc, List<Double> pv, String g1, String g2, boolean isAdj) {
 		this.featureNames = featureNames;
 		this.foldChange = fc;
 		this.pVals = pv;
 		this.grp1 = g1;
 		this.grp2 = g2;
+		this.isAdj = isAdj;
+		
 		// format the data; order data by foldchange values so order in lists and chart
 		// is maintained
 		formatInput();
@@ -230,9 +233,25 @@ public class VolcanoPlot extends TaskbarInternalFrame implements ChartMouseListe
 		setIconifiable(true);
 		setClosable(true);
 		String chartTitle = "Volcano Plot:";
+		
+		if(isAdj) {
+			chartTitle = "Adj Pval Volcano Plot:";
+		}
+		else {
+			chartTitle = "Pval Volcano Plot:";
+		}
 		this.setTitle(chartTitle);
 
-		String taskName = "Volcano Plot ["+featureNames.get(0)+"] ("+featureNames.size()+" features selected)";
+		
+		String taskName = "";
+		
+		if(isAdj) {
+			taskName = "Adj pval Volcano Plot ["+featureNames.get(0)+"] ("+featureNames.size()+" features selected)";
+		}
+		else {
+			taskName = "Volcano Plot ["+featureNames.get(0)+"] ("+featureNames.size()+" features selected)";
+		}
+		
 		FrameModel volcanoPlotFrameModel = new FrameModel("Volcano Plot",taskName,7);
 		setModel(volcanoPlotFrameModel);
 	}
@@ -241,7 +260,13 @@ public class VolcanoPlot extends TaskbarInternalFrame implements ChartMouseListe
 
 		// Create dataset
 		dataset = createVolcanoDataset();
-		myChart = ChartFactory.createScatterPlot("", "log2 fold change", "-log10 p-value", dataset);
+		if(isAdj) {
+			myChart = ChartFactory.createScatterPlot("", "log2 fold change", "-log10 adj p-value", dataset);
+		}
+		else {
+			myChart = ChartFactory.createScatterPlot("", "log2 fold change", "-log10 p-value", dataset);
+		}
+		
 
 		// Changes background color
 		XYPlot plot = (XYPlot) myChart.getPlot();
