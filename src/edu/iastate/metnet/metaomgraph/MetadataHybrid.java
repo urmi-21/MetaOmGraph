@@ -417,7 +417,9 @@ public class MetadataHybrid {
 			for (String f : field) {
 				thisVal += thisRow.get(f).toString() + ";";
 			}
+			if(thisVal.length() > 0) {
 			thisVal = thisVal.substring(0, thisVal.length() - 1);
+			}
 			String thisDc = thisRow.get(dataColumn).toString();
 			int thisInd = MetaOmGraph.getActiveProject().findDataColumnHeader(thisDc);
 			Collection<Integer> thisBin = result.get(thisVal);
@@ -447,7 +449,10 @@ public class MetadataHybrid {
 			for (String f : field) {
 				thisVal += thisRow.get(f).toString() + ";";
 			}
+			
+			if(thisVal.length() > 0) {
 			thisVal = thisVal.substring(0, thisVal.length() - 1);
+			}
 			String thisDc = thisRow.get(dataColumn).toString();
 			int thisInd = selectedDataCols.indexOf(thisDc);
 			Collection<Integer> thisBin = result.get(thisVal);

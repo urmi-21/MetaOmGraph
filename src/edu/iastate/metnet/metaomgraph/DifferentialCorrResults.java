@@ -352,6 +352,7 @@ public class DifferentialCorrResults {
 			
 		}
 		xMLStreamWriter.writeEndElement();
+		xMLStreamWriter.writeEndElement();
 		
 	}
 	

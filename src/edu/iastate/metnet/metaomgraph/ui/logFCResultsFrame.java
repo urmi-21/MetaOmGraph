@@ -200,6 +200,7 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 		UIManager.put("TabbedPane.unselectedForeground", Color.gray);
 		UIManager.put("TabbedPane.selectedBackground", Color.white);
 		
+		MetaOmGraph.activeProject.populateRowMapping();
 		
 		currentPanel = this;
 		// compute adjusted pv
@@ -490,7 +491,7 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 
 										//Get Feature metadata rows
 										List<String> rowNames = featureNames;
-										int[] rowIndices = MetaOmGraph.activeProject.getRowIndexbyName(rowNames, true);
+										int[] rowIndices = MetaOmGraph.activeProject.getRowIndexesFromFeatureNames(rowNames, true);
 										
 										for(int j = 0; j < rowIndices.length; j++) {
 											rowIndicesMapping[rowIndices[j]] = j;
@@ -654,7 +655,7 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 
 										//Get Feature metadata rows
 										List<String> rowNames = featureNames;
-										int[] rowIndices = MetaOmGraph.activeProject.getRowIndexbyName(rowNames, true);
+										int[] rowIndices = MetaOmGraph.activeProject.getRowIndexesFromFeatureNames(rowNames, true);
 										
 										for(int j = 0; j < rowIndices.length; j++) {
 											rowIndicesMapping[rowIndices[j]] = j;
@@ -955,7 +956,10 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 		});
 		mnSelected.add(mntmHistogram);
 
-		JMenuItem mntmVolcanoPlot = new JMenuItem("Volcano plot");
+		JMenu volcanoPlotMenu = new JMenu("Volcano plot");
+		mnPlot.add(volcanoPlotMenu);
+		
+		JMenuItem mntmVolcanoPlot = new JMenuItem("pval");
 		mntmVolcanoPlot.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -964,7 +968,20 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 
 			}
 		});
-		mnPlot.add(mntmVolcanoPlot);
+		volcanoPlotMenu.add(mntmVolcanoPlot);
+		
+		
+		JMenuItem mntmAdjVolcanoPlot = new JMenuItem("adj pval");
+		mntmAdjVolcanoPlot.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+
+				makeAdjVolcano();
+
+			}
+		});
+		volcanoPlotMenu.add(mntmAdjVolcanoPlot);
+		
 
 		JMenuItem mntmFcHistogram = new JMenuItem("FC histogram");
 		mntmFcHistogram.addActionListener(new ActionListener() {
@@ -1150,7 +1167,8 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 
 			//Get Feature metadata rows
 			List<String> rowNames = featureNames;
-			int[] rowIndices = MetaOmGraph.activeProject.getRowIndexbyName(rowNames, true);
+			int[] rowIndices = MetaOmGraph.activeProject.getRowIndexesFromFeatureNames(rowNames, true);
+			String [] defRows = MetaOmGraph.activeProject.getDefaultRowNames(rowIndices);
 			
 			for(int j = 0; j < rowIndices.length; j++) {
 				rowIndicesMapping[rowIndices[j]] = j;
@@ -1248,7 +1266,36 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 		}
 
 		// make plot
-		VolcanoPlot f = new VolcanoPlot(featureNames, fc, pv, name1, name2);
+		VolcanoPlot f = new VolcanoPlot(featureNames, fc, pv, name1, name2, false);
+		MetaOmGraph.getDesktop().add(f);
+		f.setDefaultCloseOperation(2);
+		f.setClosable(true);
+		f.setResizable(true);
+		f.pack();
+		f.setSize(1000, 700);
+		f.setVisible(true);
+		f.toFront();
+
+	}
+	
+	
+	/**
+	 * Method that creates a adj-pval volcano chart from the selected rows
+	 */
+	private void makeAdjVolcano() {
+		// create data for volcano plot object
+		List<String> featureNames = new ArrayList<>();
+		List<Double> fc = new ArrayList<>();
+		List<Double> apv = new ArrayList<>();
+		for (int i = 0; i < table.getRowCount(); i++) {
+			featureNames.add((String) table.getModel().getValueAt(i, table.getColumn("Name").getModelIndex()));
+			fc.add((Double) table.getModel().getValueAt(i, table.getColumn("logFC").getModelIndex()));
+			apv.add((Double) table.getModel().getValueAt(i, table.getColumn("Adj pval").getModelIndex()));
+			
+		}
+
+		// make plot
+		VolcanoPlot f = new VolcanoPlot(featureNames, fc, apv, name1, name2, true);
 		MetaOmGraph.getDesktop().add(f);
 		f.setDefaultCloseOperation(2);
 		f.setClosable(true);
@@ -1399,7 +1446,7 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 		for (int i : rowIndices) {
 			names.add(table.getValueAt(i, table.getColumn("Name").getModelIndex()).toString());
 		}
-		rowIndices = myProject.getRowIndexbyName(names, true);
+		rowIndices = myProject.getRowIndexesFromFeatureNames(names, true);
 
 		return rowIndices;
 	}

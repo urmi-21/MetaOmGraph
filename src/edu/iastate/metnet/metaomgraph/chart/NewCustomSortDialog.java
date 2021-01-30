@@ -534,6 +534,28 @@ public class NewCustomSortDialog extends JDialog implements ActionListener, Hash
                 }
             }
         }
+        
+        
+        public void readFromXML(String order, List<RangeMarker> allMarkers) {
+        	
+        	String[] splitOrder = order.split(",");
+            sortOrder = new int[splitOrder.length];
+            for (int x = 0; x < sortOrder.length; x++) {
+                sortOrder[x] = Integer.parseInt(splitOrder[x]);
+            }
+            
+            rangeMarkers = null;
+            if (!allMarkers.isEmpty()) {
+                rangeMarkers = new Vector();
+                Iterator markerIter = allMarkers.iterator();
+                while (markerIter.hasNext()) {
+                	RangeMarker thisMarkerElement = (RangeMarker) markerIter.next();
+                   
+                    rangeMarkers.add(thisMarkerElement);
+                }
+            }
+            
+        }
 
         public static String getXMLElementName() {
             return "sort";

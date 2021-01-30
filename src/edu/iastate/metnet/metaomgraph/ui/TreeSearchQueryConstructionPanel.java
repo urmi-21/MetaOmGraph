@@ -5,6 +5,7 @@ import edu.iastate.metnet.metaomgraph.HashtableSavePanel;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.Metadata;
+import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.SearchMatchType;
 import edu.iastate.metnet.metaomgraph.utils.qdxml.SimpleXMLElement;
 import edu.iastate.metnet.metaomgraph.utils.qdxml.SimpleXMLizable;
@@ -18,6 +19,8 @@ import java.awt.event.ActionListener;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -32,6 +35,8 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 
 public class TreeSearchQueryConstructionPanel extends JPanel
 		implements ActionListener, HashLoadable<TreeSearchQueryConstructionPanel.QuerySet> {
@@ -346,6 +351,19 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 			}
 			return result;
 		}
+		
+		
+		public void writeToXML(XMLStreamWriter xMLStreamWriter, String name) throws XMLStreamException {
+			
+			xMLStreamWriter.writeStartElement(getXMLElementName());
+			xMLStreamWriter.writeAttribute("matchAll", matchAll ? "true" : "false");
+			xMLStreamWriter.writeAttribute("name", name);
+			
+			for (int x = 0; x < queries.length; x++) {
+				queries[x].writeToXML(xMLStreamWriter);
+			}
+			xMLStreamWriter.writeEndElement();
+		}
 
 		@Override
 		public QuerySet fromXML(SimpleXMLElement source) {
@@ -356,6 +374,21 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 				queries[x].fromXML(source.getChildAt(x));
 			}
 			return this;
+		}
+		
+		public void initializeQuerySet(boolean querysetMatchAll, List<MetadataQuery> queriesList) {
+			matchAll = querysetMatchAll;
+			
+			if(queriesList != null && !queriesList.isEmpty()) {
+				
+			queries = new Metadata.MetadataQuery[queriesList.size()];
+			
+			for (int x = 0; x < queries.length; x++) {
+				queries[x] = queriesList.get(x);
+			}
+			
+			}
+			
 		}
 
 		public static String getXMLElementName() {
