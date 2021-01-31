@@ -1,6 +1,7 @@
 package edu.iastate.metnet.metaomgraph.utils;
 
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
+import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.ui.CustomFileSaveDialog;
 import edu.iastate.metnet.metaomgraph.ui.CustomMessagePane;
 
@@ -534,6 +535,42 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 		// dispose charts
 		dialog.setModalityType(java.awt.Dialog.ModalityType.APPLICATION_MODAL);
 		dialog.setVisible(true);
+		
+		
+		
+		StringBuffer text = new StringBuffer("MetaOmGraph Error:\n\n");
+		text.append("Email: " + emailField.getText() + "\nComments:\n" + commentArea.getText());
+		text.append("\nMOG version: " + System.getProperty("MOG.version") + "\nMOG date: "
+				+ System.getProperty("MOG.date") + "\nOS: " + MetaOmGraph.getOsName() + "\n\n");
+		
+		text.append("Error log:\n");
+		StackTraceElement[] trace = thrown.getStackTrace();
+		text.append(thrown.toString());
+		for (StackTraceElement ste : trace) {
+			text.append("\n" + ste);
+		}
+		
+		HashMap<String, Object> actionMap = new HashMap<String, Object>();
+		HashMap<String, Object> dataMap = new HashMap<String, Object>();
+		HashMap<String, Object> result = new HashMap<String, Object>();
+
+		try {
+
+			actionMap.put("parent", MetaOmGraph.getCurrentProjectActionId());
+			actionMap.put("section", "Exception");
+
+			dataMap.put("Exception", text.toString());
+
+			result.put("result", "Error");
+
+			ActionProperties exceptionAction = new ActionProperties("exception", actionMap, dataMap, result,
+					new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+			exceptionAction.logActionProperties();
+		} catch (Exception e1) {
+
+		}
+
+		
 
 		// System.exit(1);
 		notifyListeners(e);
