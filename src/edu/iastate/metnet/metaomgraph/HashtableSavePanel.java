@@ -144,6 +144,9 @@ public class HashtableSavePanel
         listModel.removeElement(selected);
         deleteButton.setEnabled(false);
         loadButton.setEnabled(false);
+        
+      //setting project changed as true
+        MetaOmGraph.getActiveProject().setChanged(true);
     }
 
     private void loadData() {
@@ -152,6 +155,9 @@ public class HashtableSavePanel
         }
         Object data = storage.get(savedList.getSelectedValue());
         loader.loadData(data);
+        
+      //setting project changed as true
+        MetaOmGraph.getActiveProject().setChanged(true);
     }
 
     private void saveData() {
@@ -198,6 +204,9 @@ public class HashtableSavePanel
                 insertHere++;
             }
             listModel.add(insertHere, name);
+            
+            //setting project changed as true
+            MetaOmGraph.getActiveProject().setChanged(true);
         }
     }
 

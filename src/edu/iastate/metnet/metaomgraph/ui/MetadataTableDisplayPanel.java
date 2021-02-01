@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
@@ -1741,7 +1742,10 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 
 	private String[] getActiveListHeaders() {
 		String activeList = getActiveList();
-		return listHeadersMap.get(activeList);
+		if(listHeadersMap.containsKey(activeList))
+			return listHeadersMap.get(activeList);
+		else
+			return headers;
 	}
 
 	public String getActiveList() {
@@ -2525,7 +2529,7 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		// index in data file
 		try {
 			int[] selectedIndinData = MetaOmGraph.getActiveProject().getColumnIndexbyHeader(selectedDataCols);
-			final HashMap<Integer, double[]> databyCols;
+			final LinkedHashMap<Integer, double[]> databyCols;
 			databyCols = MetaOmGraph.getActiveProject().getSelectedListRowData(selectedIndinData, selectedGeneList);
 			if (databyCols == null) {
 				return;

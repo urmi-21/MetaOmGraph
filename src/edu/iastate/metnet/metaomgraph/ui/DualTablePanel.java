@@ -79,12 +79,26 @@ public class DualTablePanel extends JPanel implements ActionListener {
 	// urmi
 	private JButton searchActive;
 	private JButton searchInactive;
-
-	public DualTablePanel(Object[][] inactiveData, String[] headers, boolean isSampleMetaData) {
-		this(inactiveData, null, headers, isSampleMetaData);
+	
+	
+	/**
+	 * 
+	 * @param inactiveData left side data
+	 * @param headers column headers
+	 * @param isFeatureMetaData if it is feature meta data
+	 */
+	public DualTablePanel(Object[][] inactiveData, String[] headers, boolean isFeatureMetaData) {
+		this(inactiveData, null, headers, isFeatureMetaData);
 	}
 
-	public DualTablePanel(Object[][] inactiveData, Object[][] activeData, String[] headers, boolean isSampleMetaData) {
+	/**
+	 * 
+	 * @param inactiveData left side data
+	 * @param activeData right side data
+	 * @param headers column headers
+	 * @param isFeatureMetaData if it is feature meta data
+	 */
+	public DualTablePanel(Object[][] inactiveData, Object[][] activeData, String[] headers, boolean isFeatureMetaData) {
 		originalInactiveData = inactiveData;
 		originalActiveData = activeData;
 		this.headers = headers;
@@ -116,7 +130,7 @@ public class DualTablePanel extends JPanel implements ActionListener {
 
 					@Override
 					public Object construct() {
-						searchInactiveTab(isSampleMetaData);
+						searchInactiveTab(isFeatureMetaData);
 						return null;
 					}
 
@@ -141,7 +155,7 @@ public class DualTablePanel extends JPanel implements ActionListener {
 
 					@Override
 					public Object construct() {
-						searchActiveTab(isSampleMetaData);
+						searchActiveTab(isFeatureMetaData);
 						return null;
 					}
 
@@ -200,9 +214,9 @@ public class DualTablePanel extends JPanel implements ActionListener {
 
 	}
 
-	private void searchInactiveTab(boolean isSampleMetaData) {
+	private void searchInactiveTab(boolean isFeatureMetaData) {
 		final TreeSearchQueryConstructionPanel tsp = 
-				new TreeSearchQueryConstructionPanel(MetaOmGraph.getActiveProject(), isSampleMetaData);
+				new TreeSearchQueryConstructionPanel(MetaOmGraph.getActiveProject(), isFeatureMetaData);
 
 		final MetadataQuery[] queries;
 		queries = tsp.showSearchDialog();
@@ -365,9 +379,9 @@ public class DualTablePanel extends JPanel implements ActionListener {
 	}
 
 	//searches in right panel, in list table
-	private void searchActiveTab(boolean isSampleMetaData) {
+	private void searchActiveTab(boolean isFeatureMetaData) {
 		final TreeSearchQueryConstructionPanel tsp = new TreeSearchQueryConstructionPanel(
-				MetaOmGraph.getActiveProject(), isSampleMetaData);
+				MetaOmGraph.getActiveProject(), isFeatureMetaData);
 		
 		final MetadataQuery[] queries;
 		queries = tsp.showSearchDialog();

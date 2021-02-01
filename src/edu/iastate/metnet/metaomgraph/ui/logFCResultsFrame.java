@@ -1014,12 +1014,21 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 
+				//getting non feature column count
+				int nonFeatureColCount = 4;
+				if (testPvals != null) {
+					if (ftestRatiovals != null && ftestRatiovals.size() > 0) {
+						nonFeatureColCount += 3;
+					}
+					nonFeatureColCount += 2;
+				}
+				
 				// display option to select a column
 				JPanel cboxPanel = new JPanel();
-				String[] colNames = new String[table.getColumnCount() - 1];
+				String[] colNames = new String[nonFeatureColCount-1];
 
 				// dont display 1st column or other non-numerical columns
-				for (int cols = 1; cols < table.getColumnCount(); cols++) {
+				for (int cols = 1; cols < nonFeatureColCount; cols++) {
 					colNames[cols-1] = table.getColumnName(cols);
 				}
 				// get a list of multiple correction methods implemented
