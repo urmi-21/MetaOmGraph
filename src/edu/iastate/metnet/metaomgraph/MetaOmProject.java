@@ -19,6 +19,7 @@ import edu.iastate.metnet.metaomgraph.utils.qdxml.SimpleXMLElement;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
@@ -573,7 +574,7 @@ public class MetaOmProject {
 			ZipOutputStream myZipOut = new ZipOutputStream(new FileOutputStream(saveHere));
 			myZipOut.putNextEntry(new ZipEntry("ProjectFile.xml"));
 			XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
-			XMLStreamWriter xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(myZipOut);
+			XMLStreamWriter xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(new BufferedOutputStream(myZipOut));
 
 			xMLStreamWriter.writeStartDocument();
 			xMLStreamWriter.writeStartElement("MetaOmProject");
@@ -782,7 +783,7 @@ public class MetaOmProject {
 			if (this.getMetadataHybrid() != null) {
 				// write metadata
 				myZipOut.putNextEntry(new ZipEntry("metadataFile.xml"));
-				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(myZipOut);
+				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(new BufferedOutputStream(myZipOut));
 
 				this.getMetadataHybrid().generateFileInfo(xMLStreamWriter);
 				xMLStreamWriter.close();
@@ -792,7 +793,7 @@ public class MetaOmProject {
 
 				// write removed cols from md file
 				myZipOut.putNextEntry(new ZipEntry("removedMDCols.xml"));
-				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(myZipOut);
+				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(new BufferedOutputStream(myZipOut));
 
 				this.getMetadataHybrid().writeListToXML(this.getMetadataHybrid().getRemovedMDCols(), xMLStreamWriter);
 				xMLStreamWriter.close();
@@ -803,7 +804,7 @@ public class MetaOmProject {
 
 				// write exluded and missing rows from metadata
 				myZipOut.putNextEntry(new ZipEntry("excludedMD.xml"));
-				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(myZipOut);
+				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(new BufferedOutputStream(myZipOut));
 				this.getMetadataHybrid().writeListToXML(this.getMetadataHybrid().getExcludedMDRows(), xMLStreamWriter);
 				xMLStreamWriter.close();
 				myZipOut.closeEntry();
@@ -812,7 +813,7 @@ public class MetaOmProject {
 
 
 				myZipOut.putNextEntry(new ZipEntry("missingMD.xml"));
-				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(myZipOut);
+				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(new BufferedOutputStream(myZipOut));
 				this.getMetadataHybrid().writeListToXML(this.getMetadataHybrid().getMissingMDRows(), xMLStreamWriter);
 				xMLStreamWriter.close();
 				myZipOut.closeEntry();
@@ -822,7 +823,7 @@ public class MetaOmProject {
 
 				// write tree
 				myZipOut.putNextEntry(new ZipEntry("metadataTree.xml"));
-				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(myZipOut);
+				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(new BufferedOutputStream(myZipOut));
 				this.getMetadataHybrid().writeJtreetoXML(this.getMetadataHybrid().getTreeStucture(), xMLStreamWriter);
 				xMLStreamWriter.close();
 				myZipOut.closeEntry();
@@ -832,7 +833,7 @@ public class MetaOmProject {
 
 				// write saved correlations
 				myZipOut.putNextEntry(new ZipEntry("correlations.xml"));
-				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(myZipOut);
+				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(new BufferedOutputStream(myZipOut));
 				writeMetaCorrResasXML(xMLStreamWriter);
 				xMLStreamWriter.close();
 				myZipOut.closeEntry();
@@ -842,7 +843,7 @@ public class MetaOmProject {
 
 				// write MOG parameters
 				myZipOut.putNextEntry(new ZipEntry("params.xml"));
-				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(myZipOut);
+				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(new BufferedOutputStream(myZipOut));
 				writeParamsasXML(xMLStreamWriter);
 				xMLStreamWriter.close();
 				myZipOut.closeEntry();
@@ -852,7 +853,7 @@ public class MetaOmProject {
 
 				//write diff exp results
 				myZipOut.putNextEntry(new ZipEntry("diffexpresults.xml"));
-				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(myZipOut);
+				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(new BufferedOutputStream(myZipOut));
 				writeDEResAsXML(xMLStreamWriter);
 				xMLStreamWriter.close();
 				myZipOut.closeEntry();
@@ -862,7 +863,7 @@ public class MetaOmProject {
 
 				// write diff corr results
 				myZipOut.putNextEntry(new ZipEntry("diffcorrresults.xml"));
-				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(myZipOut);
+				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(new BufferedOutputStream(myZipOut));
 				writeDiffCorrResAsXML(xMLStreamWriter);
 				xMLStreamWriter.close();
 				myZipOut.closeEntry();
