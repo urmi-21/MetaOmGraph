@@ -641,6 +641,7 @@ public class NewCustomSortDialog extends JDialog implements ActionListener, Hash
             sortTable.removeRowSelectionInterval(rows[0], rows[(rows.length - 1)]);
             sortTable.paintImmediately(sortTable.getVisibleRect());
         }
+        
     }
 
     public void doPaste() {

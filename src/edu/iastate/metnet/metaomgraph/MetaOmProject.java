@@ -49,6 +49,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -102,7 +103,7 @@ public class MetaOmProject {
 	public static final String DELETE_INFO_COLUMN_CAUSE = "info column deleted";
 	private String[] columnHeaders;
 	private Object[][] rowNames;
-	private HashMap<String, Integer> rowMapping;
+
 	private int infoColumns;
 	private Long[] fileIndex;
 	private File source = null;
@@ -182,6 +183,9 @@ public class MetaOmProject {
 
 	// info column type used to sort data
 	private HashMap<String, Class> infoColTypes = null;
+
+	//feature name to index mapping
+	private HashMap<String, Integer> rowMapping;
 
 	// new constructor to add metadata delimiter
 	public MetaOmProject(File source, int infoColumns, char delimiter, char mddelimiter,
@@ -522,7 +526,9 @@ public class MetaOmProject {
 	}
 
 	/**
-	 * @author urmi new save project
+	 * @author urmi new save project using StAX parser.
+	 * Saves the project to a .mog.tmp file before saving to the .mog file (if there are no exceptions)
+	 * 
 	 * @param destination
 	 * @return
 	 */
@@ -561,32 +567,26 @@ public class MetaOmProject {
 
 		XMLOutputter output = new XMLOutputter();
 		output.setFormat(Format.getPrettyFormat().setLineSeparator("\n"));
-//		Document myDoc = new Document(root);
+		//		Document myDoc = new Document(root);
 
 		try {
 			ZipOutputStream myZipOut = new ZipOutputStream(new FileOutputStream(saveHere));
 			myZipOut.putNextEntry(new ZipEntry("ProjectFile.xml"));
-//			output.output(myDoc, myZipOut);
-			
-			
-			////
-			////sTax parser
-			
 			XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
 			XMLStreamWriter xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(myZipOut);
-			
+
 			xMLStreamWriter.writeStartDocument();
 			xMLStreamWriter.writeStartElement("MetaOmProject");
 			xMLStreamWriter.writeStartElement("projectInfo");
-			
+
 			xMLStreamWriter.writeStartElement("sourcePath");
 			xMLStreamWriter.writeCharacters(source.getParent());
-	        xMLStreamWriter.writeEndElement();
-	         
+			xMLStreamWriter.writeEndElement();
+
 			xMLStreamWriter.writeStartElement("sourceFile");
 			xMLStreamWriter.writeCharacters(source.getName());
-	        xMLStreamWriter.writeEndElement();
-	         
+			xMLStreamWriter.writeEndElement();
+
 			xMLStreamWriter.writeStartElement("delimiter");
 			if (delimiter == '\t') {
 				xMLStreamWriter.writeCharacters("\\t");
@@ -594,86 +594,86 @@ public class MetaOmProject {
 			else {
 				xMLStreamWriter.writeCharacters(delimiter + "");
 			}
-	        xMLStreamWriter.writeEndElement();
-	        
-	        
-	        xMLStreamWriter.writeStartElement("ignoreConsecutiveDelimiters");
-			xMLStreamWriter.writeCharacters(ignoreConsecutiveDelimiters + "");
-	        xMLStreamWriter.writeEndElement();
-	        
-	        
-	        if (getBlankValue() != null) {
-	        	
-	        	xMLStreamWriter.writeStartElement("blankValue");
-				xMLStreamWriter.writeCharacters(getBlankValue() + "");
-		        xMLStreamWriter.writeEndElement();
-		        
-			}
-	        
-	        
-	        xMLStreamWriter.writeStartElement("xLabel");
-			xMLStreamWriter.writeCharacters(getDefaultXAxis());
-	        xMLStreamWriter.writeEndElement();
-	        
-	        
-	        xMLStreamWriter.writeStartElement("yLabel");
-			xMLStreamWriter.writeCharacters(getDefaultYAxis());
-	        xMLStreamWriter.writeEndElement();
-	        
-	        
-	        xMLStreamWriter.writeStartElement("title");
-			xMLStreamWriter.writeCharacters(getDefaultTitle());
-	        xMLStreamWriter.writeEndElement();
-	        
-	        
-	        xMLStreamWriter.writeStartElement("color1");
-			xMLStreamWriter.writeCharacters(getColor1().getRGB() + "");
-	        xMLStreamWriter.writeEndElement();
-	        
-	        
-	        xMLStreamWriter.writeStartElement("color2");
-			xMLStreamWriter.writeCharacters(getColor2().getRGB() + "");
-	        xMLStreamWriter.writeEndElement();
-	        
-	        
-	        xMLStreamWriter.writeStartElement("defaultColumn");
-			xMLStreamWriter.writeCharacters(defaultColumn + "");
-	        xMLStreamWriter.writeEndElement();
-				
-	        
-	        for (int x = 0; x < infoColumns; x++) {
-	        	
-	        	xMLStreamWriter.writeStartElement("infoColumn");
-				xMLStreamWriter.writeCharacters(columnHeaders[x]);
-		        xMLStreamWriter.writeEndElement();
-		        
-			}
-	        
 			xMLStreamWriter.writeEndElement();
-			
-			
+
+
+			xMLStreamWriter.writeStartElement("ignoreConsecutiveDelimiters");
+			xMLStreamWriter.writeCharacters(ignoreConsecutiveDelimiters + "");
+			xMLStreamWriter.writeEndElement();
+
+
+			if (getBlankValue() != null) {
+
+				xMLStreamWriter.writeStartElement("blankValue");
+				xMLStreamWriter.writeCharacters(getBlankValue() + "");
+				xMLStreamWriter.writeEndElement();
+
+			}
+
+
+			xMLStreamWriter.writeStartElement("xLabel");
+			xMLStreamWriter.writeCharacters(getDefaultXAxis());
+			xMLStreamWriter.writeEndElement();
+
+
+			xMLStreamWriter.writeStartElement("yLabel");
+			xMLStreamWriter.writeCharacters(getDefaultYAxis());
+			xMLStreamWriter.writeEndElement();
+
+
+			xMLStreamWriter.writeStartElement("title");
+			xMLStreamWriter.writeCharacters(getDefaultTitle());
+			xMLStreamWriter.writeEndElement();
+
+
+			xMLStreamWriter.writeStartElement("color1");
+			xMLStreamWriter.writeCharacters(getColor1().getRGB() + "");
+			xMLStreamWriter.writeEndElement();
+
+
+			xMLStreamWriter.writeStartElement("color2");
+			xMLStreamWriter.writeCharacters(getColor2().getRGB() + "");
+			xMLStreamWriter.writeEndElement();
+
+
+			xMLStreamWriter.writeStartElement("defaultColumn");
+			xMLStreamWriter.writeCharacters(defaultColumn + "");
+			xMLStreamWriter.writeEndElement();
+
+
+			for (int x = 0; x < infoColumns; x++) {
+
+				xMLStreamWriter.writeStartElement("infoColumn");
+				xMLStreamWriter.writeCharacters(columnHeaders[x]);
+				xMLStreamWriter.writeEndElement();
+
+			}
+
+			xMLStreamWriter.writeEndElement();
+
+
 			//columns
 			xMLStreamWriter.writeStartElement("columns");
-			
+
 			for (int x = 0; x < getDataColumnCount(); x++) {
-				
+
 				xMLStreamWriter.writeStartElement("column");
 				xMLStreamWriter.writeCharacters(getDataColumnHeader(x));
-		        xMLStreamWriter.writeEndElement();
-		        
+				xMLStreamWriter.writeEndElement();
+
 			}
-			
-	        xMLStreamWriter.writeEndElement();
-			
-			
-	        
-	        //data
-	        boolean savedLast = false;
+
+			xMLStreamWriter.writeEndElement();
+
+
+
+			//data
+			boolean savedLast = false;
 			for (int x = 0; x < rowNames.length; x++) {
 				xMLStreamWriter.writeStartElement("data");
-				
+
 				for (int y = 0; y < infoColumns; y++) {
-					
+
 					if (rowNames[x][y] == null) {
 						xMLStreamWriter.writeStartElement("info");
 						xMLStreamWriter.writeCharacters("");
@@ -694,54 +694,54 @@ public class MetaOmProject {
 						xMLStreamWriter.writeCharacters(rowNames[x][y].toString());
 						xMLStreamWriter.writeEndElement();
 					}
-					
+
 				}
 				xMLStreamWriter.writeStartElement("location");
 				xMLStreamWriter.writeCharacters(fileIndex[x] + "");
 				xMLStreamWriter.writeEndElement();
-				
-				
+
+
 				xMLStreamWriter.writeEndElement();
 			}
-	        
-			
 
-			
+
+
+
 			Enumeration enumer = geneLists.keys();
 
 			while (enumer.hasMoreElements()) {
 				String name = enumer.nextElement().toString();
 				xMLStreamWriter.writeStartElement("list");
 				xMLStreamWriter.writeAttribute("name", name);
-				
-			
+
+
 				int[] entries = geneLists.get(name);
 				for (int x = 0; x < entries.length; x++) {
-					
+
 					xMLStreamWriter.writeStartElement("entry");
 					xMLStreamWriter.writeCharacters(entries[x] + "");
 					xMLStreamWriter.writeEndElement();
 				}
-					
-				
+
+
 				xMLStreamWriter.writeEndElement();
-				
+
 			}
 
 			for (Map.Entry<String, ArrayList<String>> entry : sampleDataLists.entrySet()) {
 				String listName = entry.getKey();
 				xMLStreamWriter.writeStartElement("sampleDataList");
 				xMLStreamWriter.writeAttribute("name", listName);
-				
+
 				ArrayList<String> values = entry.getValue();
 				for (int index = 0; index < values.size(); index++) {
-					
+
 					xMLStreamWriter.writeStartElement("entry");
 					xMLStreamWriter.writeCharacters(values.get(index) + "");
 					xMLStreamWriter.writeEndElement();
-					
+
 				}
-				
+
 				xMLStreamWriter.writeEndElement();
 			}
 
@@ -753,7 +753,7 @@ public class MetaOmProject {
 					cso.writeToXML(xMLStreamWriter, name);
 				}
 			}
-			
+
 			if (savedQueries != null) {
 				enumer = savedQueries.keys();
 				while (enumer.hasMoreElements()) {
@@ -762,8 +762,8 @@ public class MetaOmProject {
 					thisQuerySet.writeToXML(xMLStreamWriter, name);
 				}
 			}
-			
-			
+
+
 			if (savedExcludes != null) {
 				enumer = savedExcludes.keys();
 				while (enumer.hasMoreElements()) {
@@ -772,79 +772,114 @@ public class MetaOmProject {
 					thisData.writeToXML(xMLStreamWriter, name);
 				}
 			}
-	        
+
 			xMLStreamWriter.writeEndElement();
-			
-			
-			//myZipOut.closeEntry();
+
+			xMLStreamWriter.close();
+			myZipOut.closeEntry();
+
+
 			if (this.getMetadataHybrid() != null) {
 				// write metadata
 				myZipOut.putNextEntry(new ZipEntry("metadataFile.xml"));
-				// metadata.outputToStream(myZipOut);
+				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(myZipOut);
+
 				this.getMetadataHybrid().generateFileInfo(xMLStreamWriter);
-				//output.output(mdFileinfo, myZipOut);
+				xMLStreamWriter.close();
+				myZipOut.closeEntry();
+
+
 
 				// write removed cols from md file
 				myZipOut.putNextEntry(new ZipEntry("removedMDCols.xml"));
-				//Document removedColsMD = new Document();
-				
+				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(myZipOut);
+
 				this.getMetadataHybrid().writeListToXML(this.getMetadataHybrid().getRemovedMDCols(), xMLStreamWriter);
-				//output.output(removedColsMD, myZipOut);
+				xMLStreamWriter.close();
+				myZipOut.closeEntry();
+
+
+
 
 				// write exluded and missing rows from metadata
 				myZipOut.putNextEntry(new ZipEntry("excludedMD.xml"));
-				//Document excludedMD = new Document();
+				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(myZipOut);
 				this.getMetadataHybrid().writeListToXML(this.getMetadataHybrid().getExcludedMDRows(), xMLStreamWriter);
-				//output.output(excludedMD, myZipOut);
+				xMLStreamWriter.close();
+				myZipOut.closeEntry();
+
+
+
 
 				myZipOut.putNextEntry(new ZipEntry("missingMD.xml"));
-				//Document missingMD = new Document();
+				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(myZipOut);
 				this.getMetadataHybrid().writeListToXML(this.getMetadataHybrid().getMissingMDRows(), xMLStreamWriter);
-				//output.output(missingMD, myZipOut);
+				xMLStreamWriter.close();
+				myZipOut.closeEntry();
+
+
+
 
 				// write tree
 				myZipOut.putNextEntry(new ZipEntry("metadataTree.xml"));
-				//Document treeStruct = new Document();
+				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(myZipOut);
 				this.getMetadataHybrid().writeJtreetoXML(this.getMetadataHybrid().getTreeStucture(), xMLStreamWriter);
-				//output.output(treeStruct, myZipOut);
+				xMLStreamWriter.close();
+				myZipOut.closeEntry();
+
+
+
 
 				// write saved correlations
 				myZipOut.putNextEntry(new ZipEntry("correlations.xml"));
-				//Document corrs = new Document();
+				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(myZipOut);
 				writeMetaCorrResasXML(xMLStreamWriter);
-				//output.output(corrs, myZipOut);
+				xMLStreamWriter.close();
+				myZipOut.closeEntry();
+
+
+
 
 				// write MOG parameters
 				myZipOut.putNextEntry(new ZipEntry("params.xml"));
-				//Document params = new Document();
+				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(myZipOut);
 				writeParamsasXML(xMLStreamWriter);
-				//output.output(params, myZipOut);
+				xMLStreamWriter.close();
+				myZipOut.closeEntry();
+
+
+
 
 				//write diff exp results
 				myZipOut.putNextEntry(new ZipEntry("diffexpresults.xml"));
-				//Document diffexpXML = new Document();
+				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(myZipOut);
 				writeDEResAsXML(xMLStreamWriter);
-				//output.output(diffexpXML, myZipOut);
+				xMLStreamWriter.close();
+				myZipOut.closeEntry();
+
+
+
 
 				// write diff corr results
 				myZipOut.putNextEntry(new ZipEntry("diffcorrresults.xml"));
-				//Document diffCorrXML = new Document();
+				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(myZipOut);
 				writeDiffCorrResAsXML(xMLStreamWriter);
-				//output.output(diffCorrXML, myZipOut);
+				xMLStreamWriter.close();
+				myZipOut.closeEntry();
 
 			}
-			myZipOut.closeEntry();
+
 			myZipOut.finish();
 			myZipOut.close();
-			
-			
+
+
 			//Move the temporary file to the actual mog project
-			
+
 			Path from = saveHere.toPath(); 
 			Path to = Paths.get(mogPathToSave); 
 			Files.move(from, to, StandardCopyOption.REPLACE_EXISTING);
-			
-			
+
+
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 			JOptionPane.showInternalMessageDialog(MetaOmGraph.getDesktop(),
@@ -856,7 +891,7 @@ public class MetaOmProject {
 			StringWriter sw = new StringWriter();
 			PrintWriter pw = new PrintWriter(sw);
 			e.printStackTrace(pw);
-			
+
 			JOptionPane.showInternalMessageDialog(MetaOmGraph.getDesktop(),
 					sw.toString(),
 					"Error saving project", 0);
@@ -922,6 +957,7 @@ public class MetaOmProject {
 
 	/**
 	 * open a new project edited: urmi
+	 * edited: Harsha -  changed parser to StAX parser
 	 * 
 	 * @author
 	 * 
@@ -977,6 +1013,7 @@ public class MetaOmProject {
 					XMLInputFactory factory = XMLInputFactory.newInstance();
 					XMLEventReader eventReader = factory.createXMLEventReader(inputReader);
 
+					factory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
 
 					while(eventReader.hasNext()) {
 						XMLEvent event = eventReader.nextEvent();
@@ -1059,22 +1096,17 @@ public class MetaOmProject {
 					Document mdTreeStruc = builder.build(new ByteArrayInputStream(sb.toString().getBytes()));
 					outter = new XMLOutputter();
 					outter.setFormat(Format.getPrettyFormat());
-					// org.jdom.Document res = new org.jdom.Document();
-					// res.setRootElement(XMLroot);
-					// String resDoc = outter.outputString(mdTreeStruc);
-					// JOptionPane.showMessageDialog(null, resDoc);
+
 					// call parse object
 					if (metaDataCollection == null) {
-						// JOptionPane.showMessageDialog(null, "returning");
+						
 						return false;
 					}
 					tree = new JTree();
 					// get Jtree structure
 					Element xmlRoot = mdTreeStruc.getRootElement();
 					tree.setModel(xmltoJtree(xmlRoot));
-					// JOptionPane.showMessageDialog(null, "model created:"+xmlRoot.toString());
-					// JOptionPane.showMessageDialog(null,
-					// "colhed"+Arrays.toString(this.getDataColumnHeaders()));
+					
 					treeFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				} else if ((thisEntry.getName().equals("correlations.xml")) && (!corrFound)) {
@@ -1153,6 +1185,8 @@ public class MetaOmProject {
 					XMLInputFactory factory = XMLInputFactory.newInstance();
 					XMLEventReader eventReader = factory.createXMLEventReader(inputReader);
 
+					factory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
+
 					while(eventReader.hasNext()) {
 						XMLEvent event = eventReader.nextEvent();
 
@@ -1229,10 +1263,12 @@ public class MetaOmProject {
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				} else if ((thisEntry.getName().equals("excludedMD.xml")) && (!excludedFound)) {
 					inputReader = new BufferedReader(new InputStreamReader(instream));
-					
+
 					XMLInputFactory factory = XMLInputFactory.newInstance();
 					XMLEventReader eventReader = factory.createXMLEventReader(inputReader);
 					excluded = new ArrayList<>();
+
+					factory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
 
 					while(eventReader.hasNext()) {
 						XMLEvent event = eventReader.nextEvent();
@@ -1242,11 +1278,11 @@ public class MetaOmProject {
 						case XMLStreamConstants.START_ELEMENT:
 							StartElement startElement = event.asStartElement();
 							String qName = startElement.getName().getLocalPart();
-							
+
 							if(!qName.equals("ROOT")) {
 								excluded.add(qName);
 							}
-							
+
 							break;
 
 						} 
@@ -1256,10 +1292,12 @@ public class MetaOmProject {
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				} else if ((thisEntry.getName().equals("missingMD.xml")) && (!missingFound)) {
 					inputReader = new BufferedReader(new InputStreamReader(instream));
-					
+
 					XMLInputFactory factory = XMLInputFactory.newInstance();
 					XMLEventReader eventReader = factory.createXMLEventReader(inputReader);
 					missing = new ArrayList<>();
+
+					factory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
 
 					while(eventReader.hasNext()) {
 						XMLEvent event = eventReader.nextEvent();
@@ -1269,11 +1307,11 @@ public class MetaOmProject {
 						case XMLStreamConstants.START_ELEMENT:
 							StartElement startElement = event.asStartElement();
 							String qName = startElement.getName().getLocalPart();
-							
+
 							if(!qName.equals("ROOT")) {
 								missing.add(qName);
 							}
-							
+
 							break;
 
 						} 
@@ -1283,10 +1321,12 @@ public class MetaOmProject {
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				} else if ((thisEntry.getName().equals("removedMDCols.xml")) && (!removedMDColsFound)) {
 					inputReader = new BufferedReader(new InputStreamReader(instream));
-					
+
 					XMLInputFactory factory = XMLInputFactory.newInstance();
 					XMLEventReader eventReader = factory.createXMLEventReader(inputReader);
 					removedMDCols = new ArrayList<>();
+
+					factory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
 
 					while(eventReader.hasNext()) {
 						XMLEvent event = eventReader.nextEvent();
@@ -1296,11 +1336,11 @@ public class MetaOmProject {
 						case XMLStreamConstants.START_ELEMENT:
 							StartElement startElement = event.asStartElement();
 							String qName = startElement.getName().getLocalPart();
-							
+
 							if(!qName.equals("ROOT")) {
 								removedMDCols.add(qName);
 							}
-							
+
 							break;
 
 						} 
@@ -1315,11 +1355,13 @@ public class MetaOmProject {
 				else if ((thisEntry.getName().equals("diffexpresults.xml")) && (!diffExpResfound)) {
 					// JOptionPane.showMessageDialog(null, "reading DE");
 					inputReader = new BufferedReader(new InputStreamReader(instream));
-					
+
 					XMLInputFactory factory = XMLInputFactory.newInstance();
 					XMLEventReader eventReader = factory.createXMLEventReader(inputReader);
 					removedMDCols = new ArrayList<>();
-					
+
+					factory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
+
 					String currentDERootName = "";
 
 					int method = 0;
@@ -1329,7 +1371,7 @@ public class MetaOmProject {
 					int g2size = 0;
 					String flistname = "";
 					String datatransform = "";
-					
+
 					boolean isrownames = false;
 					boolean isgrp1 = false;
 					boolean isgrp2 = false;
@@ -1338,7 +1380,7 @@ public class MetaOmProject {
 					boolean isfpval = false;
 					boolean ispval = false;
 					boolean isval = false;
-					
+
 					List<String> rowNamesdiff = null;
 					List<Double> meangrp1 = null;
 					List<Double> meangrp2 = null;
@@ -1346,7 +1388,7 @@ public class MetaOmProject {
 					List<Double> fStat = null;
 					List<Double> fPval = null;
 					List<Double> pVal = null;
-					
+
 					while(eventReader.hasNext()) {
 						XMLEvent event = eventReader.nextEvent();
 
@@ -1355,14 +1397,14 @@ public class MetaOmProject {
 						case XMLStreamConstants.START_ELEMENT:
 							StartElement startElement = event.asStartElement();
 							String qName = startElement.getName().getLocalPart();
-							
+
 							boolean isDERoot = false;
-							
+
 							Iterator<Attribute> attributes = startElement.getAttributes();
-							
+
 							while(attributes.hasNext()) {
 								Attribute attr = attributes.next();
-								
+
 								if(attr.getName().toString().equals("method")) {
 									isDERoot = true;
 									currentDERootName = qName;
@@ -1398,9 +1440,9 @@ public class MetaOmProject {
 									currentDERootName = qName;
 									datatransform = attr.getValue();
 								}
-								
+
 							}
-							
+
 							if(isDERoot) {
 								rowNamesdiff = new ArrayList<>();
 								meangrp1 = new ArrayList<>();
@@ -1409,10 +1451,10 @@ public class MetaOmProject {
 								fStat = new ArrayList<>();
 								fPval = new ArrayList<>();
 								pVal = new ArrayList<>();
-								
+
 							}
-							
-							
+
+
 							if(qName.equals("rownames")) {
 								isrownames = true;
 							}
@@ -1437,67 +1479,67 @@ public class MetaOmProject {
 							else if(qName.equals("value")) {
 								isval = true;
 							}
-							
+
 							isDERoot = false;
-							
+
 							break;
-							
-						
-						 case XMLStreamConstants.CHARACTERS:
-			                  Characters characters = event.asCharacters();
-			                  
-			                  if(isrownames && isval) {
-			                	  if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
-			                	  rowNamesdiff.add(characters.getData());
-			                	  }
-			                  }
-			                  else if(isgrp1 && isval) {
-			                	  if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
-			                	  meangrp1.add(Double.parseDouble(characters.getData()));
-			                	  }
-			                  }
-			                  else if(isgrp2 && isval) {
-			                	  if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
-			                	  meangrp2.add(Double.parseDouble(characters.getData()));
-			                	  }
-			                  }
-			                  else if(islogfc && isval) {
-			                	  if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
-			                	  logFC.add(Double.parseDouble(characters.getData()));
-			                	  }
-			                  }
-			                  else if(isfstat && isval) {
-			                	  if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
-			                	  fStat.add(Double.parseDouble(characters.getData()));
-			                	  }
-			                  }
-			                  else if(isfpval && isval) {
-			                	  if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
-			                	  fPval.add(Double.parseDouble(characters.getData()));
-			                	  }
-			                  }
-			                  else if(ispval && isval) {
-			                	  if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
-			                	  pVal.add(Double.parseDouble(characters.getData()));
-			                	  }
-			                  }
-			               
-			               break;
-			               
+
+
+						case XMLStreamConstants.CHARACTERS:
+							Characters characters = event.asCharacters();
+
+							if(isrownames && isval) {
+								if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
+									rowNamesdiff.add(characters.getData());
+								}
+							}
+							else if(isgrp1 && isval) {
+								if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
+									meangrp1.add(Double.parseDouble(characters.getData()));
+								}
+							}
+							else if(isgrp2 && isval) {
+								if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
+									meangrp2.add(Double.parseDouble(characters.getData()));
+								}
+							}
+							else if(islogfc && isval) {
+								if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
+									logFC.add(Double.parseDouble(characters.getData()));
+								}
+							}
+							else if(isfstat && isval) {
+								if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
+									fStat.add(Double.parseDouble(characters.getData()));
+								}
+							}
+							else if(isfpval && isval) {
+								if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
+									fPval.add(Double.parseDouble(characters.getData()));
+								}
+							}
+							else if(ispval && isval) {
+								if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
+									pVal.add(Double.parseDouble(characters.getData()));
+								}
+							}
+
+							break;
+
 						case XMLStreamConstants.END_ELEMENT:
-			                  EndElement endElement = event.asEndElement();
-			                  String endName = endElement.getName().getLocalPart();
-			                  
-			               if(endName.equalsIgnoreCase(currentDERootName)) {
-			                  
-			            	   DifferentialExpResults thisOb = new DifferentialExpResults(currentDERootName, method, g1name, g2name, g1size,
+							EndElement endElement = event.asEndElement();
+							String endName = endElement.getName().getLocalPart();
+
+							if(endName.equalsIgnoreCase(currentDERootName)) {
+
+								DifferentialExpResults thisOb = new DifferentialExpResults(currentDERootName, method, g1name, g2name, g1size,
 										g2size, flistname, datatransform, rowNamesdiff, meangrp1, meangrp2, fStat, fPval, pVal);
 
 								// add this ob to saved DE
 								addDiffExpRes(currentDERootName, thisOb);
-								
-			               }
-			               else if(endName.equals("rownames")) {
+
+							}
+							else if(endName.equals("rownames")) {
 								isrownames = false;
 							}
 							else if(endName.equals("grp1")) {
@@ -1521,12 +1563,12 @@ public class MetaOmProject {
 							else if(endName.equals("value")) {
 								isval = false;
 							}
-			               break;
+							break;
 
 						} 
 					}
-					
-					
+
+
 
 					diffExpResfound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
@@ -1536,13 +1578,15 @@ public class MetaOmProject {
 				else if ((thisEntry.getName().equals("diffcorrresults.xml")) && (!diffCorrResfound)) {
 					// JOptionPane.showMessageDialog(null, "reading DE");
 					inputReader = new BufferedReader(new InputStreamReader(instream));
-					
-					
-					
+
+
+
 					XMLInputFactory factory = XMLInputFactory.newInstance();
 					XMLEventReader eventReader = factory.createXMLEventReader(inputReader);
 					removedMDCols = new ArrayList<>();
-					
+
+					factory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
+
 					String currentDERootName = "";
 
 					int method = 0;
@@ -1552,7 +1596,7 @@ public class MetaOmProject {
 					String datatransform = "";
 					String featureName = "";
 					int featureInd = 0;
-					
+
 					boolean isrownames = false;
 					boolean isgrp1samp = false;
 					boolean isgrp2samp = false;
@@ -1564,7 +1608,7 @@ public class MetaOmProject {
 					boolean iszscores = false;
 					boolean ispvalues = false;
 					boolean isval = false;
-					
+
 					List<String> rowNamesdiff = null;
 					List<String> namesgrp1 = null;
 					List<String> namesgrp2 = null;
@@ -1575,7 +1619,7 @@ public class MetaOmProject {
 					List<Double> diffList = null;
 					List<Double> zsList = null;
 					List<Double> pvList = null;
-					
+
 					while(eventReader.hasNext()) {
 						XMLEvent event = eventReader.nextEvent();
 
@@ -1584,14 +1628,14 @@ public class MetaOmProject {
 						case XMLStreamConstants.START_ELEMENT:
 							StartElement startElement = event.asStartElement();
 							String qName = startElement.getName().getLocalPart();
-							
+
 							boolean isDERoot = false;
-							
+
 							Iterator<Attribute> attributes = startElement.getAttributes();
-							
+
 							while(attributes.hasNext()) {
 								Attribute attr = attributes.next();
-								
+
 								if(attr.getName().toString().equals("method")) {
 									isDERoot = true;
 									currentDERootName = qName;
@@ -1627,9 +1671,9 @@ public class MetaOmProject {
 									currentDERootName = qName;
 									featureInd = Integer.parseInt(attr.getValue());
 								}
-								
+
 							}
-							
+
 							if(isDERoot) {
 								rowNamesdiff = new ArrayList<>();
 								namesgrp1 = new ArrayList<>();
@@ -1641,10 +1685,10 @@ public class MetaOmProject {
 								diffList = new ArrayList<>();
 								zsList = new ArrayList<>();
 								pvList = new ArrayList<>();
-								
+
 							}
-							
-							
+
+
 							if(qName.equals("rownames")) {
 								isrownames = true;
 							}
@@ -1678,83 +1722,83 @@ public class MetaOmProject {
 							else if(qName.equals("value")) {
 								isval = true;
 							}
-							
+
 							isDERoot = false;
-							
+
 							break;
-							
-						
-						 case XMLStreamConstants.CHARACTERS:
-			                  Characters characters = event.asCharacters();
-			                  
-			                  if(isrownames && isval) {
-			                	  if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
-			                		  rowNamesdiff.add(characters.getData());
-			                	  }
-			                  }
-			                  else if(isgrp1samp && isval) {
-			                	  if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
-			                		  namesgrp1.add(characters.getData());
-			                	  }
-			                  }
-			                  else if(isgrp2samp && isval) {
-			                	  if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
-			                		  namesgrp2.add(characters.getData());
-			                	  }
-			                  }
-			                  else if(isgrp1corr && isval) {
-			                	  if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
-			                		  corrgrp1.add(Double.parseDouble(characters.getData()));
-			                	  }
-			                  }
-			                  else if(isgrp2corr && isval) {
-			                	  if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
-			                		  corrgrp2.add(Double.parseDouble(characters.getData()));
-			                	  }
-			                  }
-			                  else if(iszval1 && isval) {
-			                	  if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
-			                		  zv1List.add(Double.parseDouble(characters.getData()));
-			                	  }
-			                  }
-			                  else if(iszval2 && isval) {
-			                	  if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
-			                		  zv2List.add(Double.parseDouble(characters.getData()));
-			                	  }
-			                  }
-			                  else if(isdiffzvals && isval) {
-			                	  if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
-			                		  diffList.add(Double.parseDouble(characters.getData()));
-			                	  }
-			                  }
-			                  else if(iszscores && isval) {
-			                	  if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
-			                		  zsList.add(Double.parseDouble(characters.getData()));
-			                	  }
-			                  }
-			                  else if(ispvalues && isval) {
-			                	  if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
-			                		  pvList.add(Double.parseDouble(characters.getData()));
-			                	  }
-			                  }
-			                  
-			               
-			               break;
-			               
+
+
+						case XMLStreamConstants.CHARACTERS:
+							Characters characters = event.asCharacters();
+
+							if(isrownames && isval) {
+								if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
+									rowNamesdiff.add(characters.getData());
+								}
+							}
+							else if(isgrp1samp && isval) {
+								if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
+									namesgrp1.add(characters.getData());
+								}
+							}
+							else if(isgrp2samp && isval) {
+								if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
+									namesgrp2.add(characters.getData());
+								}
+							}
+							else if(isgrp1corr && isval) {
+								if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
+									corrgrp1.add(Double.parseDouble(characters.getData()));
+								}
+							}
+							else if(isgrp2corr && isval) {
+								if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
+									corrgrp2.add(Double.parseDouble(characters.getData()));
+								}
+							}
+							else if(iszval1 && isval) {
+								if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
+									zv1List.add(Double.parseDouble(characters.getData()));
+								}
+							}
+							else if(iszval2 && isval) {
+								if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
+									zv2List.add(Double.parseDouble(characters.getData()));
+								}
+							}
+							else if(isdiffzvals && isval) {
+								if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
+									diffList.add(Double.parseDouble(characters.getData()));
+								}
+							}
+							else if(iszscores && isval) {
+								if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
+									zsList.add(Double.parseDouble(characters.getData()));
+								}
+							}
+							else if(ispvalues && isval) {
+								if(characters.getData() != null && !characters.getData().equalsIgnoreCase("")) {
+									pvList.add(Double.parseDouble(characters.getData()));
+								}
+							}
+
+
+							break;
+
 						case XMLStreamConstants.END_ELEMENT:
-			                  EndElement endElement = event.asEndElement();
-			                  String endName = endElement.getName().getLocalPart();
-			                  
-			               if(endName.equalsIgnoreCase(currentDERootName)) {
-			                  
-			            	   DifferentialCorrResults thisOb = new DifferentialCorrResults(flistname, featureName, featureInd,
+							EndElement endElement = event.asEndElement();
+							String endName = endElement.getName().getLocalPart();
+
+							if(endName.equalsIgnoreCase(currentDERootName)) {
+
+								DifferentialCorrResults thisOb = new DifferentialCorrResults(flistname, featureName, featureInd,
 										namesgrp1, namesgrp2, g1name, g2name, method, rowNamesdiff, corrgrp1, corrgrp2, zv1List,
 										zv2List, diffList, zsList, pvList, datatransform, currentDERootName);
 								// add this ob to saved DE
 								addDiffCorrRes(currentDERootName, thisOb);
-								
-			               }
-			               else if(endName.equals("rownames")) {
+
+							}
+							else if(endName.equals("rownames")) {
 								isrownames = false;
 							}
 							else if(endName.equals("grp1Samples")) {
@@ -1787,12 +1831,12 @@ public class MetaOmProject {
 							else if(endName.equals("value")) {
 								isval = false;
 							}
-			               break;
+							break;
 
 						} 
 					}
-					
-					
+
+
 					diffCorrResfound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				}
@@ -1806,13 +1850,13 @@ public class MetaOmProject {
 			instream.close();
 		} catch (Exception e) {
 			e.printStackTrace();
-			
+
 			StringWriter sw = new StringWriter();
 			PrintWriter pw = new PrintWriter(sw);
 			e.printStackTrace(pw);
-			
+
 			JOptionPane.showMessageDialog(null, sw.toString());
-			
+
 			return false;
 		}
 		ZipInputStream instream = null;
@@ -1826,7 +1870,7 @@ public class MetaOmProject {
 				StringWriter sw = new StringWriter();
 				PrintWriter pw = new PrintWriter(sw);
 				e.printStackTrace(pw);
-				
+
 				JOptionPane.showMessageDialog(null, sw.toString());
 			}
 		}
@@ -1865,7 +1909,7 @@ public class MetaOmProject {
 				StringWriter sw = new StringWriter();
 				PrintWriter pw = new PrintWriter(sw);
 				e.printStackTrace(pw);
-				
+
 				JOptionPane.showMessageDialog(null, sw.toString());
 				return false;
 			}
@@ -1985,10 +2029,19 @@ public class MetaOmProject {
 		return (allsWell) && (projectFileFound);
 	}
 
+	
+	/**
+	 * 
+	 * Method that loads the project.xml file in the .mog file using StAX parser.
+	 * 
+	 * @param instream
+	 * @param projectFile
+	 * @return
+	 */
 	private boolean loadProjectFile(InputStream instream, File projectFile) {
 		try {
 			maxNameLength = 0;
-			
+
 			boolean isprojectInfo = false;
 			boolean issourcePath = false;
 			boolean issourceFile = false;
@@ -2025,7 +2078,7 @@ public class MetaOmProject {
 			boolean isTerm = false;
 			boolean isExcludeList = false;
 			boolean isEntry = false;
-			
+
 			String sourcePath = "";
 			String sourceFile = "";
 			String delimiterVal = "";
@@ -2064,23 +2117,26 @@ public class MetaOmProject {
 			RangeMarker rangeMarker = null;
 			ArrayList<MetadataQuery> queryList = null;
 			MetadataQuery currentQuery = null;
-			
+
+			StringBuilder orderValSB = null;
+
 			geneLists = new Hashtable();
 			sampleDataLists = new HashMap<String, ArrayList<String>>();
 			savedSorts = new Hashtable();
 			savedQueries = new Hashtable();
 			savedExcludes = new Hashtable();
 
-			
+
 			NewCustomSortDialog.CustomSortObject cso = null;
 			TreeSearchQueryConstructionPanel.QuerySet thisQuerySet = null;
 			MetaOmAnalyzer.ExcludeData thisExcludeData = null;
-			
+
 			BufferedReader inputReader = new BufferedReader(new InputStreamReader(instream));
 
 			XMLInputFactory factory = XMLInputFactory.newInstance();
 			XMLEventReader eventReader = factory.createXMLEventReader(inputReader);
 
+			factory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
 
 			while(eventReader.hasNext()) {
 				XMLEvent event = eventReader.nextEvent();
@@ -2145,7 +2201,7 @@ public class MetaOmProject {
 						isInfo = true;
 						infoData = null;
 						Iterator<Attribute> attributes = startElement.getAttributes();
-						
+
 						while(attributes.hasNext()) {
 
 							Attribute nextAttr = attributes.next();
@@ -2167,47 +2223,47 @@ public class MetaOmProject {
 							}
 						}
 					}
-					
+
 					else if(qName.equals("location")) {
 						isLocation = true;
 					}
-					
+
 					else if(qName.equals("list")) {
 						isList = true;
-						
+
 						Iterator<Attribute> attributes = startElement.getAttributes();
-						
+
 						listName = attributes.next().getValue();
-						
+
 						entryList = new ArrayList<Integer>();
-						
+
 					}
-					
+
 					else if( qName.equals("entry") ) {
-						
+
 						isEntry = true;
-						
-						
+
+
 					}
 					else if(qName.equals("sampleDataList")) {
-						
+
 						issampleDataList = true;
-						
+
 						Iterator<Attribute> attributes = startElement.getAttributes();
-						
+
 						dataListName = attributes.next().getValue();
-						
+
 						dataListValues = new ArrayList<String>();
-						
+
 					}
 					else if(qName.equals(NewCustomSortDialog.CustomSortObject.getXMLElementName())) {
-						
+
 						isCustomSort = true;
 						cso = new NewCustomSortDialog.CustomSortObject();
 						markerList = new ArrayList<RangeMarker>();
-						
+
 						Iterator<Attribute> attributes = startElement.getAttributes();
-						
+
 						while(attributes.hasNext()) {
 
 							Attribute nextAttr = attributes.next();
@@ -2215,19 +2271,22 @@ public class MetaOmProject {
 							if(nextAttr.getName().getLocalPart().equals("name")) {
 								savedSortName = nextAttr.getValue();
 							}
-							
+
 						}
-						
+
 					}
 					else if(qName.equals("order")) {
-						
+
+
+						orderValSB = new StringBuilder();
+
 						orderVal = "";
 						isOrder = true;
 					}
 					else if(qName.equals("marker")) {
-						
+
 						Iterator<Attribute> attributes = startElement.getAttributes();
-						
+
 						while(attributes.hasNext()) {
 
 							Attribute nextAttr = attributes.next();
@@ -2235,9 +2294,9 @@ public class MetaOmProject {
 							if(nextAttr.getName().getLocalPart().equals("style")) {
 								markerStyle = nextAttr.getValue();
 							}
-							
+
 						}
-							
+
 						isMarker = true;
 					}
 					else if(qName.equals("start")) {
@@ -2253,13 +2312,13 @@ public class MetaOmProject {
 						isColor = true;
 					}
 					else if(qName.equals(TreeSearchQueryConstructionPanel.QuerySet.getXMLElementName())) {
-						
+
 						isQuerySet = true;
 						thisQuerySet = new TreeSearchQueryConstructionPanel.QuerySet();
 						queryList = new ArrayList<MetadataQuery>();
-						
+
 						Iterator<Attribute> attributes = startElement.getAttributes();
-						
+
 						while(attributes.hasNext()) {
 
 							Attribute nextAttr = attributes.next();
@@ -2270,18 +2329,18 @@ public class MetaOmProject {
 							else if(nextAttr.getName().getLocalPart().equals("matchAll")) {
 								querySetMatchAll = "true".equals(nextAttr.getValue());
 							}
-							
+
 						}
-						
+
 					}
 					else if(qName.equals("query")) {
 						isQuery = true;
-						
+
 						currentQuery = null;
 						queryMatchType = SearchMatchType.CONTAINS;
-						
+
 						Iterator<Attribute> attributes = startElement.getAttributes();
-						
+
 						while(attributes.hasNext()) {
 
 							Attribute nextAttr = attributes.next();
@@ -2290,14 +2349,14 @@ public class MetaOmProject {
 								boolean isExact = "true".equals(nextAttr.getValue());
 								if(isExact)
 									queryMatchType = SearchMatchType.IS;
-								
+
 							}
 							else if(nextAttr.getName().getLocalPart().equals("matchAll")) {
 								queryMatchType = SearchMatchType.valueOf(nextAttr.getValue().toUpperCase());
 							}
-							
+
 						}
-						
+
 					}
 					else if(qName.equals("field")) {
 						isField = true;
@@ -2306,12 +2365,12 @@ public class MetaOmProject {
 						isTerm = true;
 					}
 					else if(qName.equals(MetaOmAnalyzer.ExcludeData.getXMLElementName())) {
-						
+
 						isExcludeList = true;
 						thisExcludeData = new MetaOmAnalyzer.ExcludeData();
-						
+
 						Iterator<Attribute> attributes = startElement.getAttributes();
-						
+
 						while(attributes.hasNext()) {
 
 							Attribute nextAttr = attributes.next();
@@ -2319,115 +2378,120 @@ public class MetaOmProject {
 							if(nextAttr.getName().getLocalPart().equals("name")) {
 								savedExcludeName = nextAttr.getValue();
 							}
-							
+
 						}
 					}
 
 					break;
 
 				case XMLStreamConstants.CHARACTERS:
-	                  Characters characters = event.asCharacters();
-	                  
-	                  if(issourcePath) {
-	                	  sourcePath = characters.getData();
-	                  }
-	                  else if(issourceFile) {
-	                	  sourceFile = characters.getData();
-	                  }
-	                  else if(isdelimiter) {
-	                	  delimiterVal = characters.getData();
-	                  }
-	                  else if(isignoreConsecutiveDelimiters) {
-	                	  ignoreConsecutiveDelimitersVal = characters.getData();
-	                  }
-	                  else if(isblankValue) {
-	                	  blankValueVal = characters.getData();
-	                  }
-	                  else if(isxLabel) {
-	                	  xLabelVal = characters.getData();
-	                  }
-	                  else if(isyLabel) {
-	                	  yLabelVal = characters.getData();
-	                  }
-	                  else if(istitle) {
-	                	  titleVal = characters.getData();
-	                  }
-	                  else if(iscolor1) {
-	                	  color1Val = characters.getData();
-	                  }
-	                  else if(iscolor2) {
-	                	  color2Val = characters.getData();
-	                  }
-	                  else if(isdefaultColumn) {
-	                	  defaultColumnVal = characters.getData();
-	                  }
-	                  else if(isinfoColumn) {
-	                	  infoColumnVal.add(characters.getData());
-	                  }
-	                  else if(isColumns && isColumn) {
-	                	  columnsVal.add(characters.getData());
-	                  }
-	                  else if(isData && isInfo) {
-	                	  infoData = characters.getData();
-	                  }
-	                  else if(isEntry && isList) {
-	                	  
-	                	  entryList.add(Integer.parseInt(characters.getData()));
-	                  }
-	                  else if(issampleDataList && isEntry) {
-	                	  
-	                	  dataListValues.add(characters.getData());
-	                	  
-	                  }
-	                  else if(isLocation) {
-	                	  fileIndexList.add(new Long(characters.getData()));
-	                  }
-	                  else if(isCustomSort && isOrder) {
-	                	  
-	                	  orderVal = characters.getData();
-	                	  
-	                  }
-	                  else if(isCustomSort && isMarker && isStart) {
-	                	  startMarker = Integer.parseInt(characters.getData());
-	                  }
-	                  else if(isCustomSort && isMarker && isEnd) {
-	                	  endMarker = Integer.parseInt(characters.getData());
-	                  }
-	                  else if(isCustomSort && isMarker && isLabel) {
-	                	  labelMarker = characters.getData();
-	                  }
-	                  else if(isCustomSort && isMarker && isColor) {
-	                	  String colorText = characters.getData();
-	                	  if (colorText != null) {
-	                		  colorMarker = new Color(Integer.parseInt(colorText));
-	                      } else {
-	                    	  colorMarker = Color.BLACK;
-	                      }
-	                  }
-	                  else if(isQuerySet && isQuery && isField) {
-	                	  queryField = characters.getData();
-	                  }
-	                  else if(isQuerySet && isQuery && isTerm) {
-	                	  queryTerm = characters.getData();
-	                  }
-	              
-	                  break;
-	             
+					Characters characters = event.asCharacters();
+
+					if(issourcePath) {
+						sourcePath = characters.getData();
+					}
+					else if(issourceFile) {
+						sourceFile = characters.getData();
+					}
+					else if(isdelimiter) {
+						delimiterVal = characters.getData();
+					}
+					else if(isignoreConsecutiveDelimiters) {
+						ignoreConsecutiveDelimitersVal = characters.getData();
+					}
+					else if(isblankValue) {
+						blankValueVal = characters.getData();
+					}
+					else if(isxLabel) {
+						xLabelVal = characters.getData();
+					}
+					else if(isyLabel) {
+						yLabelVal = characters.getData();
+					}
+					else if(istitle) {
+						titleVal = characters.getData();
+					}
+					else if(iscolor1) {
+						color1Val = characters.getData();
+					}
+					else if(iscolor2) {
+						color2Val = characters.getData();
+					}
+					else if(isdefaultColumn) {
+						defaultColumnVal = characters.getData();
+					}
+					else if(isinfoColumn) {
+						infoColumnVal.add(characters.getData());
+					}
+					else if(isColumns && isColumn) {
+						columnsVal.add(characters.getData());
+					}
+					else if(isData && isInfo) {
+						infoData = characters.getData();
+					}
+					else if(isEntry && isList) {
+
+						entryList.add(Integer.parseInt(characters.getData()));
+					}
+					else if(issampleDataList && isEntry) {
+
+						dataListValues.add(characters.getData());
+
+					}
+					else if(isLocation) {
+						fileIndexList.add(new Long(characters.getData()));
+					}
+					else if(isCustomSort && isOrder) {
+
+						if(orderValSB == null) {
+							orderValSB = new StringBuilder();
+						}
+
+						orderValSB.append(characters.getData());
+
+
+					}
+					else if(isCustomSort && isMarker && isStart) {
+						startMarker = Integer.parseInt(characters.getData());
+					}
+					else if(isCustomSort && isMarker && isEnd) {
+						endMarker = Integer.parseInt(characters.getData());
+					}
+					else if(isCustomSort && isMarker && isLabel) {
+						labelMarker = characters.getData();
+					}
+					else if(isCustomSort && isMarker && isColor) {
+						String colorText = characters.getData();
+						if (colorText != null) {
+							colorMarker = new Color(Integer.parseInt(colorText));
+						} else {
+							colorMarker = Color.BLACK;
+						}
+					}
+					else if(isQuerySet && isQuery && isField) {
+						queryField = characters.getData();
+					}
+					else if(isQuerySet && isQuery && isTerm) {
+						queryTerm = characters.getData();
+					}
+
+					break;
+
 				case XMLStreamConstants.END_ELEMENT:
-					  EndElement endElement = event.asEndElement();
-	                  String endName = endElement.getName().getLocalPart();
-	                  
-	                  if(endName.equals("projectInfo")) {
-							isprojectInfo = false;
-							
-							//Getting source
-							
-							source = new File(sourcePath + File.separator + sourceFile);
-							
-							if (!source.exists()) {
-								
+					EndElement endElement = event.asEndElement();
+					String endName = endElement.getName().getLocalPart();
+
+					if(endName.equals("projectInfo")) {
+						isprojectInfo = false;
+
+						//Getting source
+
+						source = new File(sourcePath + File.separator + sourceFile);
+
+						if (!source.exists()) {
+
 							source = new File(projectFile.getParentFile().getAbsolutePath() + File.separator
-														+ sourceFile);
+									+ sourceFile);
 							if (!source.exists()) {
 								int result = JOptionPane.showConfirmDialog(MetaOmGraph.getMainWindow(),
 										"The file " + source.getName() + " was not found.\nWould you like to locate it yourself?",
@@ -2456,278 +2520,282 @@ public class MetaOmProject {
 									return false;
 								Utils.setLastDir(source.getParentFile());
 							}
-							}
-							
-							
-							//delimiter
-							
-							if (delimiterVal.equals("")) {
-								delimiter = ' ';
-							} else if (delimiterVal.equals("\\t")) {
-								delimiter = '\t';
-							} else
-								delimiter = delimiterVal.charAt(0);
-							
-							
-							
-							//populate ignoreConsecutiveDelimiters
-							
-							if (!ignoreConsecutiveDelimitersVal.equals("")) {
-								ignoreConsecutiveDelimiters = Boolean.parseBoolean(ignoreConsecutiveDelimitersVal);
-							} else {
-								ignoreConsecutiveDelimiters = true;
-							}
-							
-							
-							
-							//populate blankValue
-							
-							if (!blankValueVal.equals("")) {
-								blankValue = Double.valueOf(Double.parseDouble(blankValueVal));
-							}
-							
-							
-							//populate other values
-							defaultXAxis = xLabelVal;
-							defaultYAxis = yLabelVal;
-							defaultTitle = titleVal;
-							color1 = new Color(Integer.parseInt(color1Val));
-							color2 = new Color(Integer.parseInt(color2Val));
-							
-							
-							//populate defaultColumn
-							if (defaultColumnVal.equals("")) {
-								defaultColumn = 0;
-							} else {
-								defaultColumn = Integer.parseInt(defaultColumnVal);
-							}
-							
-							
-							infoColumns = infoColumnVal.size();
-							
-							
-							
-							
 						}
-	                  else if(endName.equals("sourcePath")) {
-							issourcePath = false;
+
+
+						//delimiter
+
+						if (delimiterVal.equals("")) {
+							delimiter = ' ';
+						} else if (delimiterVal.equals("\\t")) {
+							delimiter = '\t';
+						} else
+							delimiter = delimiterVal.charAt(0);
+
+
+
+						//populate ignoreConsecutiveDelimiters
+
+						if (!ignoreConsecutiveDelimitersVal.equals("")) {
+							ignoreConsecutiveDelimiters = Boolean.parseBoolean(ignoreConsecutiveDelimitersVal);
+						} else {
+							ignoreConsecutiveDelimiters = true;
 						}
-						else if(endName.equals("sourceFile")) {
-							issourceFile = false;
+
+
+
+						//populate blankValue
+
+						if (!blankValueVal.equals("")) {
+							blankValue = Double.valueOf(Double.parseDouble(blankValueVal));
 						}
-						else if(endName.equals("delimiter")) {
-							isdelimiter = false;
+
+
+						//populate other values
+						defaultXAxis = xLabelVal;
+						defaultYAxis = yLabelVal;
+						defaultTitle = titleVal;
+						color1 = new Color(Integer.parseInt(color1Val));
+						color2 = new Color(Integer.parseInt(color2Val));
+
+
+						//populate defaultColumn
+						if (defaultColumnVal.equals("")) {
+							defaultColumn = 0;
+						} else {
+							defaultColumn = Integer.parseInt(defaultColumnVal);
 						}
-						else if(endName.equals("ignoreConsecutiveDelimiters")) {
-							isignoreConsecutiveDelimiters = false;
+
+
+						infoColumns = infoColumnVal.size();
+
+
+
+
+					}
+					else if(endName.equals("sourcePath")) {
+						issourcePath = false;
+					}
+					else if(endName.equals("sourceFile")) {
+						issourceFile = false;
+					}
+					else if(endName.equals("delimiter")) {
+						isdelimiter = false;
+					}
+					else if(endName.equals("ignoreConsecutiveDelimiters")) {
+						isignoreConsecutiveDelimiters = false;
+					}
+					else if(endName.equals("blankValue")) {
+						isblankValue = false;
+					}
+					else if(endName.equals("xLabel")) {
+						isxLabel = false;
+					}
+					else if(endName.equals("yLabel")) {
+						isyLabel = false;
+					}
+					else if(endName.equals("title")) {
+						istitle = false;
+					}
+					else if(endName.equals("color1")) {
+						iscolor1 = false;
+					}
+					else if(endName.equals("color2")) {
+						iscolor2 = false;
+					}
+					else if(endName.equals("defaultColumn")) {
+						isdefaultColumn = false;
+					}
+					else if(endName.equals("infoColumn")) {
+						isinfoColumn = false;
+					}
+					else if(endName.equals("columns")) {
+						isColumns = false;
+
+						columnHeaders = new String[infoColumns + columnsVal.size()];
+						Iterator iter = infoColumnVal.iterator();
+						int index = 0;
+						while (iter.hasNext()) {
+							columnHeaders[index] = (String)iter.next();
+							index++;
 						}
-						else if(endName.equals("blankValue")) {
-							isblankValue = false;
+						System.out.println(columnsVal.size() + " columns");
+						iter = columnsVal.iterator();
+						while (iter.hasNext()) {
+							columnHeaders[index] = (String)iter.next();
+							if (columnHeaders[index].length() > maxNameLength)
+								maxNameLength = columnHeaders[index].length();
+							index++;
 						}
-						else if(endName.equals("xLabel")) {
-							isxLabel = false;
-						}
-						else if(endName.equals("yLabel")) {
-							isyLabel = false;
-						}
-						else if(endName.equals("title")) {
-							istitle = false;
-						}
-						else if(endName.equals("color1")) {
-							iscolor1 = false;
-						}
-						else if(endName.equals("color2")) {
-							iscolor2 = false;
-						}
-						else if(endName.equals("defaultColumn")) {
-							isdefaultColumn = false;
-						}
-						else if(endName.equals("infoColumn")) {
-							isinfoColumn = false;
-						}
-						else if(endName.equals("columns")) {
-							isColumns = false;
-							
-							columnHeaders = new String[infoColumns + columnsVal.size()];
-							Iterator iter = infoColumnVal.iterator();
-							int index = 0;
-							while (iter.hasNext()) {
-								columnHeaders[index] = (String)iter.next();
-								index++;
-							}
-							System.out.println(columnsVal.size() + " columns");
-							iter = columnsVal.iterator();
-							while (iter.hasNext()) {
-								columnHeaders[index] = (String)iter.next();
-								if (columnHeaders[index].length() > maxNameLength)
-									maxNameLength = columnHeaders[index].length();
-								index++;
-							}
-							
-							
-						}
-						else if(endName.equals("column")) {
-							isColumn = false;
-						}
-						else if(endName.equals("data")) {
-							isData = false;
-							
-							dataInfoList.add(infoList);
-							
-						}
-						else if(endName.equals("info")) {
-							isInfo = false;
-							
-							if(isCorrelation) {
-								
-								CorrelationValue thisValue;
-								
-								if(isAsPercentFalse) {
-									if (infoData != null && infoData.length() > 0) {
-										thisValue = new CorrelationValue(Double.parseDouble(infoData));
-									} else {
-										thisValue = null;
-									}
-									thisValue.setAsPercent(false);
+
+
+					}
+					else if(endName.equals("column")) {
+						isColumn = false;
+					}
+					else if(endName.equals("data")) {
+						isData = false;
+
+						dataInfoList.add(infoList);
+
+					}
+					else if(endName.equals("info")) {
+						isInfo = false;
+
+						if(isCorrelation) {
+
+							CorrelationValue thisValue;
+
+							if(isAsPercentFalse) {
+								if (infoData != null && infoData.length() > 0) {
+									thisValue = new CorrelationValue(Double.parseDouble(infoData));
+								} else {
+									thisValue = null;
 								}
-								else {
-									
-									if (infoData != null && infoData.length() > 0) {
-										thisValue = new CorrelationValue(
-												Double.parseDouble(infoData.substring(0, infoData.length() - 1)) / 100.0D);
-									} else {
-										thisValue = null;
-									}
-								}
-									infoList.add(thisValue);
-									
-									
-									if (isLastTrue) {
-										hasLastCorrelation = true;
-									}
-								
+								thisValue.setAsPercent(false);
 							}
-							else if (infoData != null && infoData.length() > 0) {
-								infoList.add(infoData);
-								
-							} else {
-								infoList.add(null);
-								
-							}
-							
-							
-							isCorrelation = false;
-							isAsPercentFalse = false;
-							
-						}
-	                  
-						else if(endName.equals("location")) {
-							isLocation = false;
-						}
-	                  
-						else if(endName.equals("list")) {
-							isList = false;
-							
-							int [] entryArr = new int[entryList.size()];
-							
-							for(int i=0; i<entryList.size(); i++) {
-								entryArr[i] = entryList.get(i);
-							}
-							
-							geneLists.put(listName, entryArr);
-						}
-						else if(endName.equals("sampleDataList")) {
-							issampleDataList = false;
-							
-							sampleDataLists.put(dataListName, dataListValues);
-						}
-						else if(endName.equals("entry")) {
-							isEntry = false;
-						}
-						else if(endName.equals("order")) {
-							isOrder = false;
-						}
-						else if(endName.equals("marker")) {
-							isMarker = false;
-							
-							int style = "horizontal".equals(markerStyle) ? RangeMarker.HORIZONTAL : RangeMarker.VERTICAL;
-							
-							rangeMarker = new RangeMarker(startMarker, endMarker, labelMarker, style, colorMarker);
-							
-							markerList.add(rangeMarker);
-							
-						}
-						else if(endName.equals(NewCustomSortDialog.CustomSortObject.getXMLElementName())) {
-							isCustomSort = false;
-							
-							cso.readFromXML(orderVal, markerList);
-							savedSorts.put(savedSortName, cso);
-							
-						}
-						else if(endName.equals("start")) {
-							
-							isStart = false;
-						}
-						else if(endName.equals("end")) {
-							
-							isEnd = false;
-						}
-						else if(endName.equals("label")) {
-							
-							isLabel = false;
-						}	
-						else if(endName.equals("color")) {
-							
-							isColor = false;
-						}
-	                  
-						else if(endName.equals(TreeSearchQueryConstructionPanel.QuerySet.getXMLElementName())) {
-							
-							isQuerySet = false;
-							
-							thisQuerySet.initializeQuerySet(querySetMatchAll, queryList);
-							
-							savedQueries.put(savedQueryName, thisQuerySet);
-							
-						}
-						else if(endName.equals("query")) {
-							isQuery = false;
-							
-							currentQuery = new MetadataQuery(queryField, queryTerm, queryMatchType, false);
-							queryList.add(currentQuery);
-							
-						}
-						else if(endName.equals("field")) {
-							isField = false;
-						}
-						else if(endName.equals("term")) {
-							isTerm = false;
-						}
-						else if(endName.equals("MetaOmProject")) {
-							
-							rowNames = new Object[dataInfoList.size()][infoColumns];
-							fileIndex = new Long[dataInfoList.size()];
-							
-							
-							
-							for(int i=0; i<dataInfoList.size(); i++) {
-								List currentDataList = dataInfoList.get(i);
-								
-								for(int j=0; j< currentDataList.size(); j++) {
-									
-									rowNames[i][j] = currentDataList.get(j);
+							else {
+
+								if (infoData != null && infoData.length() > 0) {
+									thisValue = new CorrelationValue(
+											Double.parseDouble(infoData.substring(0, infoData.length() - 1)) / 100.0D);
+								} else {
+									thisValue = null;
 								}
 							}
-							
-							
-							for(int i=0; i<fileIndexList.size(); i++) {
-								fileIndex[i] = fileIndexList.get(i);
+							infoList.add(thisValue);
+
+
+							if (isLastTrue) {
+								hasLastCorrelation = true;
 							}
-							
-							
+
 						}
-	                  
-	                  break;
+						else if (infoData != null && infoData.length() > 0) {
+							infoList.add(infoData);
+
+						} else {
+							infoList.add(null);
+
+						}
+
+
+						isCorrelation = false;
+						isAsPercentFalse = false;
+
+					}
+
+					else if(endName.equals("location")) {
+						isLocation = false;
+					}
+
+					else if(endName.equals("list")) {
+						isList = false;
+
+						int [] entryArr = new int[entryList.size()];
+
+						for(int i=0; i<entryList.size(); i++) {
+							entryArr[i] = entryList.get(i);
+						}
+
+						geneLists.put(listName, entryArr);
+					}
+					else if(endName.equals("sampleDataList")) {
+						issampleDataList = false;
+
+						sampleDataLists.put(dataListName, dataListValues);
+					}
+					else if(endName.equals("entry")) {
+						isEntry = false;
+					}
+					else if(endName.equals("order")) {
+						isOrder = false;
+					}
+					else if(endName.equals("marker")) {
+						isMarker = false;
+
+						int style = "horizontal".equals(markerStyle) ? RangeMarker.HORIZONTAL : RangeMarker.VERTICAL;
+
+						rangeMarker = new RangeMarker(startMarker, endMarker, labelMarker, style, colorMarker);
+
+						markerList.add(rangeMarker);
+
+					}
+					else if(endName.equals(NewCustomSortDialog.CustomSortObject.getXMLElementName())) {
+						isCustomSort = false;
+
+						if(orderValSB != null) {
+							orderVal = orderValSB.toString();
+						}
+
+						cso.readFromXML(orderVal, markerList);
+						savedSorts.put(savedSortName, cso);
+
+					}
+					else if(endName.equals("start")) {
+
+						isStart = false;
+					}
+					else if(endName.equals("end")) {
+
+						isEnd = false;
+					}
+					else if(endName.equals("label")) {
+
+						isLabel = false;
+					}	
+					else if(endName.equals("color")) {
+
+						isColor = false;
+					}
+
+					else if(endName.equals(TreeSearchQueryConstructionPanel.QuerySet.getXMLElementName())) {
+
+						isQuerySet = false;
+
+						thisQuerySet.initializeQuerySet(querySetMatchAll, queryList);
+
+						savedQueries.put(savedQueryName, thisQuerySet);
+
+					}
+					else if(endName.equals("query")) {
+						isQuery = false;
+
+						currentQuery = new MetadataQuery(queryField, queryTerm, queryMatchType, false);
+						queryList.add(currentQuery);
+
+					}
+					else if(endName.equals("field")) {
+						isField = false;
+					}
+					else if(endName.equals("term")) {
+						isTerm = false;
+					}
+					else if(endName.equals("MetaOmProject")) {
+
+						rowNames = new Object[dataInfoList.size()][infoColumns];
+						fileIndex = new Long[dataInfoList.size()];
+
+
+
+						for(int i=0; i<dataInfoList.size(); i++) {
+							List currentDataList = dataInfoList.get(i);
+
+							for(int j=0; j< currentDataList.size(); j++) {
+
+								rowNames[i][j] = currentDataList.get(j);
+							}
+						}
+
+
+						for(int i=0; i<fileIndexList.size(); i++) {
+							fileIndex[i] = fileIndexList.get(i);
+						}
+
+
+					}
+
+					break;
 
 				} 
 			}
@@ -2738,24 +2806,24 @@ public class MetaOmProject {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "The file " + projectFile.getName()
 			+ " is either not a MetaOmGraph project " + "file, or it is missing required data.");
-			
+
 			StringWriter sw = new StringWriter();
 			PrintWriter pw = new PrintWriter(sw);
 			e.printStackTrace(pw);
-			
+
 			JOptionPane.showMessageDialog(null, sw.toString());
-			
+
 			return false;
 		} 
 		catch (XMLStreamException e) {
 			// TODO Auto-generated catch block
-			
+
 			StringWriter sw = new StringWriter();
 			PrintWriter pw = new PrintWriter(sw);
 			e.printStackTrace(pw);
-			
+
 			JOptionPane.showMessageDialog(null, sw.toString());
-			
+
 			e.printStackTrace();
 		}
 
@@ -3343,21 +3411,21 @@ public class MetaOmProject {
 		}
 		return temp;
 	}
-	
-	
+
+
 	/**
 	 * faster method to return index of rows matching a list of names
 	 * 
 	 * @param names
 	 * @return
 	 */
-	
+
 	public int[] getRowIndexesFromFeatureNames(List<String> names, boolean matchCase) {
-		
+
 		if(rowMapping == null) {
 			populateRowMapping();
 		}
-		
+
 		if (names == null)
 			return null;
 
@@ -3366,8 +3434,8 @@ public class MetaOmProject {
 
 		if (matchCase) {
 			for (int i = 0; i < names.size(); i++) {
-					int val = rowMapping.get(names.get(i));
-					res.add(val);
+				int val = rowMapping.get(names.get(i));
+				res.add(val);
 			}
 		} else {
 			for (String s : names) {
@@ -3381,30 +3449,30 @@ public class MetaOmProject {
 			temp[k++] = i;
 		}
 		return temp;
-		
+
 	}
-	
-	
+
+
 	public void populateRowMapping() {
-		
+
 		rowMapping = new HashMap<String, Integer>();
-		
+
 		if(rowNames != null) {
-		for (int i = 0; i < rowNames.length; i++) {
-			String thisName = rowNames[i][defaultColumn].toString();
-			
-			rowMapping.put(thisName, i);
-		}
+			for (int i = 0; i < rowNames.length; i++) {
+				String thisName = rowNames[i][defaultColumn].toString();
+
+				rowMapping.put(thisName, i);
+			}
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @param name
 	 * @param matchCase
 	 * @return
 	 */
-	
+
 
 	public int getRowIndexbyName(String name, boolean matchCase) {
 		if (name == null)
@@ -4253,9 +4321,10 @@ public class MetaOmProject {
 	 * @return
 	 * @throws IOException
 	 */
-	public HashMap<Integer, double[]> getSelectedListRowData(int[] selectedCols, String selectedList) throws IOException{
+	public LinkedHashMap<Integer, double[]> getSelectedListRowData(int[] selectedCols, String selectedList) throws IOException{
 		int[]  rowNums = getGeneListRowNumbers(selectedList);
-		HashMap<Integer, double[]> res = new HashMap<>();
+
+		LinkedHashMap<Integer, double[]> res = new LinkedHashMap<>();
 
 		for (int i = 0; i < selectedCols.length; i++) {
 			double[] temp = new double[rowNums.length];
@@ -5031,7 +5100,7 @@ public class MetaOmProject {
 		// s
 		return root;
 	}
-	
+
 	/**
 	 * write correlation data as XML
 	 * 
@@ -5039,23 +5108,23 @@ public class MetaOmProject {
 	 * @throws XMLStreamException 
 	 */
 	public void writeMetaCorrResasXML(XMLStreamWriter xMLStreamWriter) throws XMLStreamException {
-		
+
 		xMLStreamWriter.writeStartDocument();
 		xMLStreamWriter.writeStartElement("ROOT");
-		
+
 		xMLStreamWriter.writeAttribute("name", "Root");
-		
+
 		if (metaCorrs != null) {
-			
-		// add each saved corr to Root
-		for (String s : metaCorrs.keySet()) {
-			writeCorrXMLNode(s, xMLStreamWriter);
+
+			// add each saved corr to Root
+			for (String s : metaCorrs.keySet()) {
+				writeCorrXMLNode(s, xMLStreamWriter);
+			}
+
 		}
-		
-		}
-		
+
 		xMLStreamWriter.writeEndElement();
-		
+
 	}
 
 	public Element createCorrXMLNode(String s) {
@@ -5126,15 +5195,15 @@ public class MetaOmProject {
 
 		return thisNode;
 	}
-	
-	
-	
-	
+
+
+
+
 	public void writeCorrXMLNode(String s, XMLStreamWriter xMLStreamWriter) throws XMLStreamException {
-		
+
 		xMLStreamWriter.writeStartElement("Corr");
 		xMLStreamWriter.writeAttribute("name", s);
-		
+
 		CorrelationMetaCollection cmcObj = metaCorrs.get(s);
 
 		// check values of table depending on cmcObj and populate the table
@@ -5164,8 +5233,8 @@ public class MetaOmProject {
 					xMLStreamWriter.writeAttribute("qval", String.valueOf(thisObj.getqVal()));
 					xMLStreamWriter.writeAttribute("pooledzr", String.valueOf(thisObj.getpooledzr()));
 					xMLStreamWriter.writeAttribute("stderr", String.valueOf(thisObj.getstdErr()));
-					
-					
+
+
 					xMLStreamWriter.writeEndElement();
 
 				}
@@ -5179,7 +5248,7 @@ public class MetaOmProject {
 					xMLStreamWriter.writeAttribute("name", thisObj.getName());
 					xMLStreamWriter.writeAttribute("value", String.valueOf(thisObj.getrVal()));
 					xMLStreamWriter.writeAttribute("pvalue", String.valueOf(thisObj.getpVal()));
-					
+
 					xMLStreamWriter.writeEndElement();
 
 				}
@@ -5189,8 +5258,8 @@ public class MetaOmProject {
 
 		xMLStreamWriter.writeEndElement();
 	}
-	
-	
+
+
 
 	/**
 	 * get saved differential expression results as XML
@@ -5198,10 +5267,10 @@ public class MetaOmProject {
 	 * @return
 	 * @throws XMLStreamException 
 	 */
-	
-	
-public Element getDEResAsXML() {
-			
+
+
+	public Element getDEResAsXML() {
+
 		Element root = new Element("ROOT");
 		root.setAttribute("name", "Root");
 		if (diffExpRes != null) {
@@ -5217,11 +5286,11 @@ public Element getDEResAsXML() {
 
 
 	public void writeDEResAsXML(XMLStreamWriter xMLStreamWriter) throws XMLStreamException {
-		
+
 		xMLStreamWriter.writeStartDocument();
 		xMLStreamWriter.writeStartElement("ROOT");
 		xMLStreamWriter.writeAttribute("name", "Root");
-		
+
 		if (diffExpRes != null) {
 			String[] savedDE = getSavedDiffExpResNames();
 			for (String id : savedDE) {
@@ -5239,11 +5308,11 @@ public Element getDEResAsXML() {
 	 * @return
 	 */
 	public void writeDiffCorrResAsXML(XMLStreamWriter xMLStreamWriter) throws XMLStreamException {
-		
+
 		xMLStreamWriter.writeStartDocument();
 		xMLStreamWriter.writeStartElement("ROOT");
 		xMLStreamWriter.writeAttribute("name", "Root");
-		
+
 		if (diffCorrRes != null) {
 			String[] savedDC = getSavedDiffCorrResNames();
 			for (String id : savedDC) {
@@ -5252,7 +5321,7 @@ public Element getDEResAsXML() {
 			}
 		}
 		xMLStreamWriter.writeEndElement();
-		
+
 	}
 
 	/**
@@ -5293,26 +5362,26 @@ public Element getDEResAsXML() {
 		return root;
 	}
 
-	
+
 	/**
 	 * return MOG parameters as XML
 	 * 
 	 * @return
 	 */
 	public void writeParamsasXML(XMLStreamWriter xMLStreamWriter) throws XMLStreamException {
-		
+
 		xMLStreamWriter.writeStartDocument();
 		xMLStreamWriter.writeStartElement("ROOT");
 		xMLStreamWriter.writeAttribute("name", "Root");
-		
+
 		xMLStreamWriter.writeStartElement("permutations");
 		xMLStreamWriter.writeAttribute("value", String.valueOf(MetaOmGraph.getNumPermutations()));
 		xMLStreamWriter.writeEndElement();
-		
+
 		xMLStreamWriter.writeStartElement("threads");
 		xMLStreamWriter.writeAttribute("value", String.valueOf(MetaOmGraph.getNumThreads()));
 		xMLStreamWriter.writeEndElement();
-		
+
 		xMLStreamWriter.writeStartElement("hyperlinksCols");
 		xMLStreamWriter.writeAttribute("srrColumn", String.valueOf(MetaOmGraph.getActiveTable().getMetadataTableDisplay().getsrrColumn()));
 		xMLStreamWriter.writeAttribute("srpColumn", String.valueOf(MetaOmGraph.getActiveTable().getMetadataTableDisplay().getsrpColumn()));
@@ -5321,12 +5390,12 @@ public Element getDEResAsXML() {
 		xMLStreamWriter.writeAttribute("gseColumn", String.valueOf(MetaOmGraph.getActiveTable().getMetadataTableDisplay().getgseColumn()));
 		xMLStreamWriter.writeAttribute("gsmColumn", String.valueOf(MetaOmGraph.getActiveTable().getMetadataTableDisplay().getgsmColumn()));
 		xMLStreamWriter.writeEndElement();
-		
+
 		xMLStreamWriter.writeEndElement();
-		
+
 	}
-	
-	
+
+
 	public boolean setInfoColTypes(HashMap<String, Class> map) {
 		this.infoColTypes = map;
 		return true;
