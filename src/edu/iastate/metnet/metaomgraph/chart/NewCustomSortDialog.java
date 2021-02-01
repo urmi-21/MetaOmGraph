@@ -457,6 +457,16 @@ public class NewCustomSortDialog extends JDialog implements ActionListener, Hash
         }
         
        
+        /**
+         * 
+         * @param xMLStreamWriter
+         * @param name
+         * @throws XMLStreamException
+         * 
+         * Method that writes the custom sort info to the .mog file using StAX parser
+         * 
+         */
+        
 		public void writeToXML(XMLStreamWriter xMLStreamWriter, String name) throws XMLStreamException {
 			
 			xMLStreamWriter.writeStartElement(getXMLElementName());
@@ -536,6 +546,15 @@ public class NewCustomSortDialog extends JDialog implements ActionListener, Hash
         }
         
         
+        /**
+         * 
+         * @param order
+         * @param allMarkers
+         * 
+         * Utility method that initializes the sortOrder and rangeMarkers from the .mog file using StAX parser
+         * The XML read portion is handled in the MetaOmProject, and the parameters are passed to this method
+         * 
+         */
         public void readFromXML(String order, List<RangeMarker> allMarkers) {
         	
         	String[] splitOrder = order.split(",");

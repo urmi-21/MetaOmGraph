@@ -234,6 +234,7 @@ public class VolcanoPlot extends TaskbarInternalFrame implements ChartMouseListe
 		setClosable(true);
 		String chartTitle = "Volcano Plot:";
 		
+		//Setting title based on the chart type
 		if(isAdj) {
 			chartTitle = "Adj Pval Volcano Plot:";
 		}
@@ -245,6 +246,7 @@ public class VolcanoPlot extends TaskbarInternalFrame implements ChartMouseListe
 		
 		String taskName = "";
 		
+		//setting the task name in the taskbar based on chart type
 		if(isAdj) {
 			taskName = "Adj pval Volcano Plot ["+featureNames.get(0)+"] ("+featureNames.size()+" features selected)";
 		}
@@ -260,6 +262,8 @@ public class VolcanoPlot extends TaskbarInternalFrame implements ChartMouseListe
 
 		// Create dataset
 		dataset = createVolcanoDataset();
+		
+		//Creating volcano plot based on the plot type required
 		if(isAdj) {
 			myChart = ChartFactory.createScatterPlot("", "log2 fold change", "-log10 adj p-value", dataset);
 		}

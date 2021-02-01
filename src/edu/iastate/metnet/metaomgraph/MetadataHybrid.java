@@ -1130,7 +1130,7 @@ public class MetadataHybrid {
 
 
 	/**
-	 * Convert a list to an XML object
+	 * Method that writes a list to the .mog file using StAX parser
 	 * 
 	 * @param list
 	 * @return

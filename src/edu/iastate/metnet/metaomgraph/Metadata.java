@@ -577,6 +577,15 @@ public class Metadata {
 			return result;
 		}
 		
+		
+		/**
+		 * 
+		 * @param xMLStreamWriter
+		 * @throws XMLStreamException
+		 * 
+		 * Method to write metadata to the .mog file using StAX parser
+		 * 
+		 */
 		public void writeToXML(XMLStreamWriter xMLStreamWriter) throws XMLStreamException {
 			
 			xMLStreamWriter.writeStartElement(getXMLElementName());

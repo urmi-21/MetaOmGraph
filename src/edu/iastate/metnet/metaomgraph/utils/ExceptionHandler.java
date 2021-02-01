@@ -550,6 +550,9 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 			text.append("\n" + ste);
 		}
 		
+		
+		//Write the exception to moglog
+		
 		HashMap<String, Object> actionMap = new HashMap<String, Object>();
 		HashMap<String, Object> dataMap = new HashMap<String, Object>();
 		HashMap<String, Object> result = new HashMap<String, Object>();
