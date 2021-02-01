@@ -57,8 +57,8 @@ public class DifferentialExpResults {
 		this.pval = pval;
 
 	}
-	
-	
+
+
 
 	// calculate log FC
 	private List<Double> calculatelogFC() {
@@ -155,9 +155,9 @@ public class DifferentialExpResults {
 
 	// return this object in XML format
 	public Element getAsXMLNode() {
-		
+
 		Element res = new Element(id);
-		
+
 		//add attributes
 		res.setAttribute("method", String.valueOf(method));
 		res.setAttribute("Group1", grp1);
@@ -166,8 +166,8 @@ public class DifferentialExpResults {
 		res.setAttribute("Group2Size", String.valueOf(grp2Size));
 		res.setAttribute("FeatureList", featureListName);
 		res.setAttribute("DataTransform", dataTransform);
-		
-		
+
+
 		// add rownames
 		Element rowName = new Element("rownames");
 		for (int i = 0; i < rowNames.size(); i++) {
@@ -244,98 +244,106 @@ public class DifferentialExpResults {
 		 */
 		return res;
 	}
-	
-	
-	// return this object in XML format
-		public void writeAsXMLNode(XMLStreamWriter xMLStreamWriter) throws XMLStreamException {
-			
-			
-			xMLStreamWriter.writeStartElement(id);
-			xMLStreamWriter.writeAttribute("method", String.valueOf(method));
-			xMLStreamWriter.writeAttribute("Group1", grp1);
-			xMLStreamWriter.writeAttribute("Group2", grp2);
-			xMLStreamWriter.writeAttribute("Group1Size", String.valueOf(grp1Size));
-			xMLStreamWriter.writeAttribute("Group2Size", String.valueOf(grp2Size));
-			xMLStreamWriter.writeAttribute("FeatureList", featureListName);
-			xMLStreamWriter.writeAttribute("DataTransform", dataTransform);
-			
-			
-			xMLStreamWriter.writeStartElement("rownames");
-			for (int i = 0; i < rowNames.size(); i++) {
-				xMLStreamWriter.writeStartElement("value");
-				xMLStreamWriter.writeCharacters(rowNames.get(i));
-				xMLStreamWriter.writeEndElement();
-				
-			}
+
+
+
+	/**
+	 * 
+	 * @param xMLStreamWriter
+	 * @throws XMLStreamException
+	 * 
+	 * Method that writes differential expression results to the .mog file using StAX parser
+	 * 
+	 */
+	public void writeAsXMLNode(XMLStreamWriter xMLStreamWriter) throws XMLStreamException {
+
+
+		xMLStreamWriter.writeStartElement(id);
+		xMLStreamWriter.writeAttribute("method", String.valueOf(method));
+		xMLStreamWriter.writeAttribute("Group1", grp1);
+		xMLStreamWriter.writeAttribute("Group2", grp2);
+		xMLStreamWriter.writeAttribute("Group1Size", String.valueOf(grp1Size));
+		xMLStreamWriter.writeAttribute("Group2Size", String.valueOf(grp2Size));
+		xMLStreamWriter.writeAttribute("FeatureList", featureListName);
+		xMLStreamWriter.writeAttribute("DataTransform", dataTransform);
+
+
+		xMLStreamWriter.writeStartElement("rownames");
+		for (int i = 0; i < rowNames.size(); i++) {
+			xMLStreamWriter.writeStartElement("value");
+			xMLStreamWriter.writeCharacters(rowNames.get(i));
 			xMLStreamWriter.writeEndElement();
-			
-			
-			xMLStreamWriter.writeStartElement("grp1");
-			for (int i = 0; i < meanGrp1.size(); i++) {
-				xMLStreamWriter.writeStartElement("value");
-				xMLStreamWriter.writeCharacters(String.valueOf(meanGrp1.get(i)));
-				xMLStreamWriter.writeEndElement();
-				
-			}
+
+		}
+		xMLStreamWriter.writeEndElement();
+
+
+		xMLStreamWriter.writeStartElement("grp1");
+		for (int i = 0; i < meanGrp1.size(); i++) {
+			xMLStreamWriter.writeStartElement("value");
+			xMLStreamWriter.writeCharacters(String.valueOf(meanGrp1.get(i)));
 			xMLStreamWriter.writeEndElement();
-			
-			
-			xMLStreamWriter.writeStartElement("grp2");
-			for (int i = 0; i < meanGrp2.size(); i++) {
-				xMLStreamWriter.writeStartElement("value");
-				xMLStreamWriter.writeCharacters(String.valueOf(meanGrp2.get(i)));
-				xMLStreamWriter.writeEndElement();
-				
-			}
+
+		}
+		xMLStreamWriter.writeEndElement();
+
+
+		xMLStreamWriter.writeStartElement("grp2");
+		for (int i = 0; i < meanGrp2.size(); i++) {
+			xMLStreamWriter.writeStartElement("value");
+			xMLStreamWriter.writeCharacters(String.valueOf(meanGrp2.get(i)));
 			xMLStreamWriter.writeEndElement();
-			
-			
-			xMLStreamWriter.writeStartElement("logfc");
-			for (int i = 0; i < logFC.size(); i++) {
-				xMLStreamWriter.writeStartElement("value");
-				xMLStreamWriter.writeCharacters(String.valueOf(logFC.get(i)));
-				xMLStreamWriter.writeEndElement();
-				
-			}
+
+		}
+		xMLStreamWriter.writeEndElement();
+
+
+		xMLStreamWriter.writeStartElement("logfc");
+		for (int i = 0; i < logFC.size(); i++) {
+			xMLStreamWriter.writeStartElement("value");
+			xMLStreamWriter.writeCharacters(String.valueOf(logFC.get(i)));
 			xMLStreamWriter.writeEndElement();
-			
-			
-			if (fStat != null) {
+
+		}
+		xMLStreamWriter.writeEndElement();
+
+
+		if (fStat != null) {
 			xMLStreamWriter.writeStartElement("fstat");
 			for (int i = 0; i < fStat.size(); i++) {
 				xMLStreamWriter.writeStartElement("value");
 				xMLStreamWriter.writeCharacters(String.valueOf(fStat.get(i)));
 				xMLStreamWriter.writeEndElement();
-				
+
 			}
-			
+
 			xMLStreamWriter.writeEndElement();
-			}
-			
-			if (fPval != null) {
+		}
+
+		if (fPval != null) {
 			xMLStreamWriter.writeStartElement("fpval");
 			for (int i = 0; i < fPval.size(); i++) {
 				xMLStreamWriter.writeStartElement("value");
 				xMLStreamWriter.writeCharacters(String.valueOf(fPval.get(i)));
 				xMLStreamWriter.writeEndElement();
-				
+
 			}
 			xMLStreamWriter.writeEndElement();
-			}
-			
-			xMLStreamWriter.writeStartElement("pval");
-			for (int i = 0; i < pval.size(); i++) {
-				xMLStreamWriter.writeStartElement("value");
-				xMLStreamWriter.writeCharacters(String.valueOf(pval.get(i)));
-				xMLStreamWriter.writeEndElement();
-				
-			}
+		}
+
+		xMLStreamWriter.writeStartElement("pval");
+		for (int i = 0; i < pval.size(); i++) {
+			xMLStreamWriter.writeStartElement("value");
+			xMLStreamWriter.writeCharacters(String.valueOf(pval.get(i)));
 			xMLStreamWriter.writeEndElement();
 
-			xMLStreamWriter.writeEndElement();
-			
-			
-			
 		}
-	
+		xMLStreamWriter.writeEndElement();
+
+		xMLStreamWriter.writeEndElement();
+
+
+
+	}
+
 }

@@ -349,6 +349,15 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 		}
 		
 		
+		/**
+		 * 
+		 * @param xMLStreamWriter
+		 * @param name
+		 * @throws XMLStreamException
+		 * 
+		 * Method to write Advanced Search queries to the .mog file using StAX parser
+		 * 
+		 */
 		public void writeToXML(XMLStreamWriter xMLStreamWriter, String name) throws XMLStreamException {
 			
 			xMLStreamWriter.writeStartElement(getXMLElementName());
@@ -372,6 +381,16 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 			return this;
 		}
 		
+		
+		/**
+		 * 
+		 * @param querysetMatchAll
+		 * @param queriesList
+		 * 
+		 * Method to initialize Advanced Search queries
+		 * This method is called from the MetaOmProject loadProject method during the XML read
+		 * 
+		 */
 		public void initializeQuerySet(boolean querysetMatchAll, List<MetadataQuery> queriesList) {
 			matchAll = querysetMatchAll;
 			

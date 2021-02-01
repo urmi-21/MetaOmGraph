@@ -228,7 +228,14 @@ public class DifferentialCorrResults {
 	
 	
 	
-	//write as XML
+	/**
+	 * 
+	 * @param xMLStreamWriter
+	 * @throws XMLStreamException
+	 * 
+	 * Method that writes differential correlation results to the .mog file using StAX parser
+	 * 
+	 */
 	public void writeAsXMLNode(XMLStreamWriter xMLStreamWriter) throws XMLStreamException {
 
 		xMLStreamWriter.writeStartElement(id);
