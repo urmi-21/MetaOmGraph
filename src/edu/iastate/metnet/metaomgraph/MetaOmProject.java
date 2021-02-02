@@ -1280,7 +1280,7 @@ public class MetaOmProject {
 							StartElement startElement = event.asStartElement();
 							String qName = startElement.getName().getLocalPart();
 
-							if(!qName.equals("ROOT")) {
+							if(!qName.equalsIgnoreCase("ROOT")) {
 								excluded.add(qName);
 							}
 
@@ -1309,7 +1309,7 @@ public class MetaOmProject {
 							StartElement startElement = event.asStartElement();
 							String qName = startElement.getName().getLocalPart();
 
-							if(!qName.equals("ROOT")) {
+							if(!qName.equalsIgnoreCase("ROOT")) {
 								missing.add(qName);
 							}
 
@@ -1338,7 +1338,7 @@ public class MetaOmProject {
 							StartElement startElement = event.asStartElement();
 							String qName = startElement.getName().getLocalPart();
 
-							if(!qName.equals("ROOT")) {
+							if(!qName.equalsIgnoreCase("ROOT")) {
 								removedMDCols.add(qName);
 							}
 
@@ -2120,6 +2120,26 @@ public class MetaOmProject {
 			MetadataQuery currentQuery = null;
 
 			StringBuilder orderValSB = null;
+			StringBuilder sampleColumnSB = null;
+			StringBuilder infoDataSB = null;
+			StringBuilder sourcePathSB = null;
+			StringBuilder sourceFileSB = null;
+			StringBuilder delimiterValSB = null;
+			StringBuilder ignoreConsecutiveDelimitersValSB = null;
+			StringBuilder blankValueValSB = null;
+			StringBuilder xLabelValSB = null;
+			StringBuilder yLabelValSB = null;
+			StringBuilder titleValSB = null;
+			StringBuilder color1ValSB = null;
+			StringBuilder color2ValSB = null;
+			StringBuilder defaultColumnValSB = null;
+			StringBuilder infoColumnSB = null;
+			StringBuilder labelMarkerSB = null;
+			StringBuilder queryFieldSB = null;
+			StringBuilder queryTermSB = null;
+			
+			
+			
 
 			geneLists = new Hashtable();
 			sampleDataLists = new HashMap<String, ArrayList<String>>();
@@ -2153,45 +2173,73 @@ public class MetaOmProject {
 					}
 					else if(qName.equals("sourcePath")) {
 						issourcePath = true;
+						sourcePath = "";
+						sourcePathSB = new StringBuilder();
 					}
 					else if(qName.equals("sourceFile")) {
 						issourceFile = true;
+						sourceFile = "";
+						sourceFileSB = new StringBuilder();
 					}
 					else if(qName.equals("delimiter")) {
 						isdelimiter = true;
+						delimiterVal = "";
+						delimiterValSB = new StringBuilder();
 					}
 					else if(qName.equals("ignoreConsecutiveDelimiters")) {
 						isignoreConsecutiveDelimiters = true;
+						ignoreConsecutiveDelimitersVal = "";
+						ignoreConsecutiveDelimitersValSB = new StringBuilder();
 					}
 					else if(qName.equals("blankValue")) {
 						isblankValue = true;
+						blankValueVal = "";
+						blankValueValSB = new StringBuilder();
 					}
 					else if(qName.equals("xLabel")) {
 						isxLabel = true;
+						xLabelVal = "";
+						xLabelValSB = new StringBuilder();
 					}
 					else if(qName.equals("yLabel")) {
 						isyLabel = true;
+						yLabelVal = "";
+						yLabelValSB = new StringBuilder();
 					}
 					else if(qName.equals("title")) {
 						istitle = true;
+						titleVal = "";
+						titleValSB = new StringBuilder();
 					}
 					else if(qName.equals("color1")) {
 						iscolor1 = true;
+						color1Val = "";
+						color1ValSB = new StringBuilder();
 					}
 					else if(qName.equals("color2")) {
 						iscolor2 = true;
+						color2Val = "";
+						color2ValSB = new StringBuilder();
 					}
 					else if(qName.equals("defaultColumn")) {
 						isdefaultColumn = true;
+						defaultColumnVal = "";
+						defaultColumnValSB = new StringBuilder();
 					}
 					else if(qName.equals("infoColumn")) {
 						isinfoColumn = true;
+						
+						infoColumnSB = new StringBuilder();
 					}
 					else if(qName.equals("columns")) {
 						isColumns = true;
 					}
 					else if(qName.equals("column")) {
 						isColumn = true;
+						
+						
+						sampleColumnSB = new StringBuilder();
+						
 					}
 					else if(qName.equals("data")) {
 						isData = true;
@@ -2201,6 +2249,8 @@ public class MetaOmProject {
 					else if(qName.equals("info")) {
 						isInfo = true;
 						infoData = null;
+						infoDataSB = new StringBuilder();
+								
 						Iterator<Attribute> attributes = startElement.getAttributes();
 
 						while(attributes.hasNext()) {
@@ -2308,6 +2358,8 @@ public class MetaOmProject {
 					}
 					else if(qName.equals("label")) {
 						isLabel = true;
+						labelMarker = "";
+						labelMarkerSB = new StringBuilder();
 					}	
 					else if(qName.equals("color")) {
 						isColor = true;
@@ -2361,9 +2413,13 @@ public class MetaOmProject {
 					}
 					else if(qName.equals("field")) {
 						isField = true;
+						queryField = "";
+						queryFieldSB = new StringBuilder();
 					}
 					else if(qName.equals("term")) {
 						isTerm = true;
+						queryTerm = "";
+						queryTermSB = new StringBuilder();
 					}
 					else if(qName.equals(MetaOmAnalyzer.ExcludeData.getXMLElementName())) {
 
@@ -2389,46 +2445,117 @@ public class MetaOmProject {
 					Characters characters = event.asCharacters();
 
 					if(issourcePath) {
-						sourcePath = characters.getData();
+						
+						if(sourcePathSB == null) {
+							sourcePathSB = new StringBuilder();
+						}
+						sourcePathSB.append(characters.getData());
+						
 					}
 					else if(issourceFile) {
-						sourceFile = characters.getData();
+						
+						if(sourceFileSB == null) {
+							sourceFileSB = new StringBuilder();
+						}
+						sourceFileSB.append(characters.getData());
+						
 					}
 					else if(isdelimiter) {
-						delimiterVal = characters.getData();
+						
+						if(delimiterValSB == null) {
+							delimiterValSB = new StringBuilder();
+						}
+						delimiterValSB.append(characters.getData());
+						
 					}
 					else if(isignoreConsecutiveDelimiters) {
-						ignoreConsecutiveDelimitersVal = characters.getData();
+						
+						if(ignoreConsecutiveDelimitersValSB == null) {
+							ignoreConsecutiveDelimitersValSB = new StringBuilder();
+						}
+						ignoreConsecutiveDelimitersValSB.append(characters.getData());
+						
 					}
 					else if(isblankValue) {
-						blankValueVal = characters.getData();
+						
+						if(blankValueValSB == null) {
+							blankValueValSB = new StringBuilder();
+						}
+						blankValueValSB.append(characters.getData());
+						
 					}
 					else if(isxLabel) {
-						xLabelVal = characters.getData();
+						
+						if(xLabelValSB == null) {
+							xLabelValSB = new StringBuilder();
+						}
+						xLabelValSB.append(characters.getData());
+						
 					}
 					else if(isyLabel) {
-						yLabelVal = characters.getData();
+						
+						if(yLabelValSB == null) {
+							yLabelValSB = new StringBuilder();
+						}
+						yLabelValSB.append(characters.getData());
+						
 					}
 					else if(istitle) {
-						titleVal = characters.getData();
+						
+						if(titleValSB == null) {
+							titleValSB = new StringBuilder();
+						}
+						titleValSB.append(characters.getData());
+						
 					}
 					else if(iscolor1) {
-						color1Val = characters.getData();
+						
+						if(color1ValSB == null) {
+							color1ValSB = new StringBuilder();
+						}
+						color1ValSB.append(characters.getData());
+						
 					}
 					else if(iscolor2) {
-						color2Val = characters.getData();
+						
+						if(color2ValSB == null) {
+							color2ValSB = new StringBuilder();
+						}
+						color2ValSB.append(characters.getData());
+						
 					}
 					else if(isdefaultColumn) {
-						defaultColumnVal = characters.getData();
+						
+						if(defaultColumnValSB == null) {
+							defaultColumnValSB = new StringBuilder();
+						}
+						defaultColumnValSB.append(characters.getData());
+						
 					}
 					else if(isinfoColumn) {
-						infoColumnVal.add(characters.getData());
+						
+						if(infoColumnSB == null) {
+							infoColumnSB = new StringBuilder();
+						}
+						infoColumnSB.append(characters.getData());
+						
 					}
 					else if(isColumns && isColumn) {
-						columnsVal.add(characters.getData());
+						if(sampleColumnSB == null) {
+							sampleColumnSB = new StringBuilder();
+						}
+						
+						sampleColumnSB.append(characters.getData());
+						
 					}
 					else if(isData && isInfo) {
-						infoData = characters.getData();
+						
+						if(infoDataSB == null) {
+							infoDataSB = new StringBuilder();
+						}
+						
+						infoDataSB.append(characters.getData());
+						
 					}
 					else if(isEntry && isList) {
 
@@ -2459,7 +2586,12 @@ public class MetaOmProject {
 						endMarker = Integer.parseInt(characters.getData());
 					}
 					else if(isCustomSort && isMarker && isLabel) {
-						labelMarker = characters.getData();
+						
+						if(labelMarkerSB == null) {
+							labelMarkerSB = new StringBuilder();
+						}
+						labelMarkerSB.append(characters.getData());
+						
 					}
 					else if(isCustomSort && isMarker && isColor) {
 						String colorText = characters.getData();
@@ -2470,10 +2602,20 @@ public class MetaOmProject {
 						}
 					}
 					else if(isQuerySet && isQuery && isField) {
-						queryField = characters.getData();
+
+						if(queryFieldSB == null) {
+							queryFieldSB = new StringBuilder();
+						}
+						queryFieldSB.append(characters.getData());
+						
 					}
 					else if(isQuerySet && isQuery && isTerm) {
-						queryTerm = characters.getData();
+						
+						if(queryTermSB == null) {
+							queryTermSB = new StringBuilder();
+						}
+						queryTermSB.append(characters.getData());
+						
 					}
 
 					break;
@@ -2576,39 +2718,118 @@ public class MetaOmProject {
 					}
 					else if(endName.equals("sourcePath")) {
 						issourcePath = false;
+						
+						if(sourcePathSB != null) {
+							sourcePath = sourcePathSB.toString();
+						}
+						
+						sourcePathSB = null;
 					}
 					else if(endName.equals("sourceFile")) {
 						issourceFile = false;
+						
+						if(sourceFileSB != null) {
+							sourceFile = sourceFileSB.toString();
+						}
+						
+						sourceFileSB = null;
 					}
 					else if(endName.equals("delimiter")) {
 						isdelimiter = false;
+
+						if(delimiterValSB != null) {
+							delimiterVal = delimiterValSB.toString();
+						}
+						
+						delimiterValSB = null;
 					}
 					else if(endName.equals("ignoreConsecutiveDelimiters")) {
 						isignoreConsecutiveDelimiters = false;
+						
+						if(ignoreConsecutiveDelimitersValSB != null) {
+							ignoreConsecutiveDelimitersVal = ignoreConsecutiveDelimitersValSB.toString();
+						}
+						
+						ignoreConsecutiveDelimitersValSB = null;
 					}
 					else if(endName.equals("blankValue")) {
 						isblankValue = false;
+						
+						if(blankValueValSB != null) {
+							blankValueVal = blankValueValSB.toString();
+						}
+						
+						blankValueValSB = null;
 					}
 					else if(endName.equals("xLabel")) {
 						isxLabel = false;
+						
+						if(xLabelValSB != null) {
+							xLabelVal = xLabelValSB.toString();
+						}
+						
+						xLabelValSB = null;
+						
 					}
 					else if(endName.equals("yLabel")) {
 						isyLabel = false;
+						
+						if(yLabelValSB != null) {
+							yLabelVal = yLabelValSB.toString();
+						}
+						
+						yLabelValSB = null;
+						
 					}
 					else if(endName.equals("title")) {
 						istitle = false;
+						
+						if(titleValSB != null) {
+							titleVal = titleValSB.toString();
+						}
+						
+						titleValSB = null;
+						
 					}
 					else if(endName.equals("color1")) {
 						iscolor1 = false;
+						
+						if(color1ValSB != null) {
+							color1Val = color1ValSB.toString();
+						}
+						
+						color1ValSB = null;
+						
 					}
 					else if(endName.equals("color2")) {
 						iscolor2 = false;
+						
+						if(color2ValSB != null) {
+							color2Val = color2ValSB.toString();
+						}
+						
+						color2ValSB = null;
+						
 					}
 					else if(endName.equals("defaultColumn")) {
 						isdefaultColumn = false;
+						
+						if(defaultColumnValSB != null) {
+							defaultColumnVal = defaultColumnValSB.toString();
+						}
+						
+						defaultColumnValSB = null;
 					}
 					else if(endName.equals("infoColumn")) {
 						isinfoColumn = false;
+						
+						if(infoColumnSB != null) {
+							infoColumnVal.add(infoColumnSB.toString());
+						}
+						
+						infoColumnSB = null;
+						
+						
 					}
 					else if(endName.equals("columns")) {
 						isColumns = false;
@@ -2633,6 +2854,10 @@ public class MetaOmProject {
 					}
 					else if(endName.equals("column")) {
 						isColumn = false;
+						
+						if(sampleColumnSB != null) {
+						columnsVal.add(sampleColumnSB.toString());
+						}
 					}
 					else if(endName.equals("data")) {
 						isData = false;
@@ -2642,6 +2867,10 @@ public class MetaOmProject {
 					}
 					else if(endName.equals("info")) {
 						isInfo = false;
+						
+						if(infoDataSB != null) {
+							infoData = infoDataSB.toString();
+						}
 
 						if(isCorrelation) {
 
@@ -2683,6 +2912,7 @@ public class MetaOmProject {
 
 						isCorrelation = false;
 						isAsPercentFalse = false;
+						infoDataSB = null;
 
 					}
 
@@ -2744,6 +2974,13 @@ public class MetaOmProject {
 					else if(endName.equals("label")) {
 
 						isLabel = false;
+						
+						if(labelMarkerSB != null) {
+							labelMarker = labelMarkerSB.toString();
+						}
+						
+						labelMarkerSB = null;
+						
 					}	
 					else if(endName.equals("color")) {
 
@@ -2768,9 +3005,23 @@ public class MetaOmProject {
 					}
 					else if(endName.equals("field")) {
 						isField = false;
+						
+						if(queryFieldSB != null) {
+							queryField = queryFieldSB.toString();
+						}
+						
+						queryFieldSB = null;
+						
 					}
 					else if(endName.equals("term")) {
 						isTerm = false;
+						
+						if(queryTermSB != null) {
+							queryTerm = queryTermSB.toString();
+						}
+						
+						queryTermSB = null;
+						
 					}
 					else if(endName.equals("MetaOmProject")) {
 
