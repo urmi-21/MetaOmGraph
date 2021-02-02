@@ -1390,6 +1390,8 @@ public class Utils {
 	 * @return
 	 */
 	public static <T> List<T> getListIntersection(java.util.List<java.util.List<T>> origLists) {
+		
+		try {
 		java.util.List<T> res = new ArrayList<>();
 		java.util.List<java.util.List<T>> listList = new ArrayList<>(origLists);
 
@@ -1422,6 +1424,10 @@ public class Utils {
 		}
 
 		return res;
+		}
+		catch(Exception e) {
+			return null;
+		}
 	}
 
 	/**

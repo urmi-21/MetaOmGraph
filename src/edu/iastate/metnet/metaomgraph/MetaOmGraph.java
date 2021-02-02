@@ -299,7 +299,7 @@ public class MetaOmGraph implements ActionListener {
 			Color.green, Color.WHITE, Color.WHITE);
 
 	private static HashMap<String, MOGColorThemes> mogThemes = new HashMap<>();
-	private static String currentmogThemeName = "light";
+	private static String currentmogThemeName = "sky";
 	private static MOGColorThemes currentTheme;
 
 	public static void initThemes() {
@@ -909,13 +909,13 @@ public class MetaOmGraph implements ActionListener {
 						setCurrentTheme(lastThemeName);
 					} else {
 						initThemes();
-						setCurrentTheme("light");
+						setCurrentTheme("sky");
 					}
 
 					//UserPreferences up = new UserPreferences(recentProjects,showTips,lastThemeName);
 				} catch (Exception ex) {
 					initThemes();
-					setCurrentTheme("light");
+					setCurrentTheme("sky");
 				}
 
 				
@@ -935,7 +935,7 @@ public class MetaOmGraph implements ActionListener {
 			//init default themes when prefs file is absent
 			setTheme(Themes.Light);
 			initThemes();
-			setCurrentTheme("light");
+			setCurrentTheme("sky");
 			
 		}
 		
@@ -1882,10 +1882,20 @@ public class MetaOmGraph implements ActionListener {
 		if ((result == JOptionPane.CANCEL_OPTION) || (result == JOptionPane.CLOSED_OPTION))
 			return false;
 		else if (result == JOptionPane.YES_OPTION) {
-			if (activeProjectFile == null)
-				saveAs();
-			else
-				activeProject.saveProject(activeProjectFile);
+			
+			new AnimatedSwingWorker("Saving...", true) {
+
+				@Override
+				public Object construct() {
+					if (activeProjectFile == null)
+						saveAs();
+					else
+						activeProject.saveProject(activeProjectFile);
+					return null;
+				}
+
+			}.start();
+			
 		}
 		return true;
 	}
@@ -2325,8 +2335,9 @@ public class MetaOmGraph implements ActionListener {
 				EventQueue.invokeAndWait(new Runnable() {
 					@Override
 					public void run() {
-						activeProject = new MetaOmProject(source);
+						
 						try{
+							activeProject = new MetaOmProject(source);
 							String projFileName = source.getAbsolutePath();
 							String projectName = projFileName.substring(projFileName.lastIndexOf(File.separator)+1,projFileName.lastIndexOf('.'));
 							String currDate = new SimpleDateFormat("yyyy-MM-dd_HHmmss").format(new Date());
@@ -2347,13 +2358,25 @@ public class MetaOmGraph implements ActionListener {
 
 						}
 						catch(Exception e){
+							StringWriter sw = new StringWriter();
+							PrintWriter pw = new PrintWriter(sw);
+							e.printStackTrace(pw);
+							
+							JOptionPane.showMessageDialog(null, sw.toString());
 						}
 
 					}
 				});
 			} catch (InvocationTargetException | InterruptedException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				
+				StringWriter sw = new StringWriter();
+				PrintWriter pw = new PrintWriter(sw);
+				e.printStackTrace(pw);
+				
+				JOptionPane.showMessageDialog(null, sw.toString());
+				
+				
 			}
 			// activeProject = new MetaOmProject(source);
 			return null;

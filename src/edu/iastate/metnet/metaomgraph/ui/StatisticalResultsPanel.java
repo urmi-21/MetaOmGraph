@@ -343,7 +343,7 @@ public abstract class StatisticalResultsPanel extends JPanel {
 			selectedGeneNames.add((String)table.getValueAt(currentTableSelRows[i], 0));
 		}
 
-		return myProject.getRowIndexbyName(selectedGeneNames, true);
+		return myProject.getRowIndexesFromFeatureNames(selectedGeneNames, true);
 	}
 	
 	
@@ -360,7 +360,7 @@ public abstract class StatisticalResultsPanel extends JPanel {
 			selectedGeneNames.add((String)table.getValueAt(i, 0));
 		}
 
-		int[] entries = myProject.getRowIndexbyName(selectedGeneNames, true);
+		int[] entries = myProject.getRowIndexesFromFeatureNames(selectedGeneNames, true);
 
 		myProject.addGeneList(filterText, entries, true, false);
 	}

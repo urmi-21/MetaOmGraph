@@ -2,6 +2,9 @@ package edu.iastate.metnet.metaomgraph;
 
 import java.util.List;
 
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+
 import org.jdom.Element;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
@@ -221,6 +224,146 @@ public class DifferentialCorrResults {
 		 */
 		return res;
 	}
+	
+	
+	
+	
+	/**
+	 * 
+	 * @param xMLStreamWriter
+	 * @throws XMLStreamException
+	 * 
+	 * Method that writes differential correlation results to the .mog file using StAX parser
+	 * 
+	 */
+	public void writeAsXMLNode(XMLStreamWriter xMLStreamWriter) throws XMLStreamException {
+
+		xMLStreamWriter.writeStartElement(id);
+		
+		// add attributes
+		xMLStreamWriter.writeAttribute("FeatureName", featureName);
+		xMLStreamWriter.writeAttribute("FeatureIndex", String.valueOf(featureID));
+		xMLStreamWriter.writeAttribute("method", String.valueOf(method));
+		xMLStreamWriter.writeAttribute("Group1", grp1Name);
+		xMLStreamWriter.writeAttribute("Group2", grp2Name);
+		xMLStreamWriter.writeAttribute("FeatureList", geneList);
+		xMLStreamWriter.writeAttribute("DataTransform", dataTransform);
+		
+
+		// add featureNames
+		xMLStreamWriter.writeStartElement("rownames");
+		for (int i = 0; i < featureNames.size(); i++) {
+			xMLStreamWriter.writeStartElement("value");
+			xMLStreamWriter.writeCharacters(featureNames.get(i));
+			xMLStreamWriter.writeEndElement();
+			
+		}
+		xMLStreamWriter.writeEndElement();
+
+		
+		// add grp1 samples
+		xMLStreamWriter.writeStartElement("grp1Samples");
+		for (int i = 0; i < grp1.size(); i++) {
+			xMLStreamWriter.writeStartElement("value");
+			xMLStreamWriter.writeCharacters(String.valueOf(grp1.get(i)));
+			xMLStreamWriter.writeEndElement();
+			
+		}
+		xMLStreamWriter.writeEndElement();
+		
+		
+		// add grp2 samples
+		xMLStreamWriter.writeStartElement("grp2Samples");
+		for (int i = 0; i < grp2.size(); i++) {
+			xMLStreamWriter.writeStartElement("value");
+			xMLStreamWriter.writeCharacters(String.valueOf(grp2.get(i)));
+			xMLStreamWriter.writeEndElement();
+			
+		}
+		xMLStreamWriter.writeEndElement();
+		
+
+		// add corrgrp1
+		xMLStreamWriter.writeStartElement("grp1Corr");
+		for (int i = 0; i < corrGrp1.size(); i++) {
+			xMLStreamWriter.writeStartElement("value");
+			xMLStreamWriter.writeCharacters(String.valueOf(corrGrp1.get(i)));
+			xMLStreamWriter.writeEndElement();
+			
+		}
+		xMLStreamWriter.writeEndElement();
+		
+		
+
+		// add corrgrp2
+		xMLStreamWriter.writeStartElement("grp2Corr");
+		for (int i = 0; i < corrGrp2.size(); i++) {
+			xMLStreamWriter.writeStartElement("value");
+			xMLStreamWriter.writeCharacters(String.valueOf(corrGrp2.get(i)));
+			xMLStreamWriter.writeEndElement();
+			
+		}
+		xMLStreamWriter.writeEndElement();
+		
+
+		// add zvals1
+		xMLStreamWriter.writeStartElement("zVals1");
+		for (int i = 0; i < zVals1.size(); i++) {
+			xMLStreamWriter.writeStartElement("value");
+			xMLStreamWriter.writeCharacters(String.valueOf(zVals1.get(i)));
+			xMLStreamWriter.writeEndElement();
+			
+		}
+		xMLStreamWriter.writeEndElement();
+		
+
+		// add zvals2
+		xMLStreamWriter.writeStartElement("zVals2");
+		for (int i = 0; i < zVals2.size(); i++) {
+			xMLStreamWriter.writeStartElement("value");
+			xMLStreamWriter.writeCharacters(String.valueOf(zVals2.get(i)));
+			xMLStreamWriter.writeEndElement();
+			
+		}
+		xMLStreamWriter.writeEndElement();
+		
+		
+		// add diff
+		xMLStreamWriter.writeStartElement("diffzVals");
+		for (int i = 0; i < diffZvals.size(); i++) {
+			xMLStreamWriter.writeStartElement("value");
+			xMLStreamWriter.writeCharacters(String.valueOf(diffZvals.get(i)));
+			xMLStreamWriter.writeEndElement();
+			
+		}
+		xMLStreamWriter.writeEndElement();
+		
+		
+		// add zscores
+		xMLStreamWriter.writeStartElement("zScores");
+		for (int i = 0; i < zScores.size(); i++) {
+			xMLStreamWriter.writeStartElement("value");
+			xMLStreamWriter.writeCharacters(String.valueOf(zScores.get(i)));
+			xMLStreamWriter.writeEndElement();
+			
+		}
+		xMLStreamWriter.writeEndElement();
+		
+
+		// add p values
+		xMLStreamWriter.writeStartElement("pValues");
+		for (int i = 0; i < pValues.size(); i++) {
+			xMLStreamWriter.writeStartElement("value");
+			xMLStreamWriter.writeCharacters(String.valueOf(pValues.get(i)));
+			xMLStreamWriter.writeEndElement();
+			
+		}
+		xMLStreamWriter.writeEndElement();
+		xMLStreamWriter.writeEndElement();
+		
+	}
+	
+	
 
 	/**
 	 * get z vals
