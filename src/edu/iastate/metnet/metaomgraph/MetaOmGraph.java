@@ -507,8 +507,8 @@ public class MetaOmGraph implements ActionListener {
 	}
 
 	/////////////////////
-	private static final String VERSION = "1.8.2beta3";
-	private static final String DATE = "November 3, 2020";
+	private static final String VERSION = "1.8.2beta4";
+	private static final String DATE = "Feb 2, 2021";
 
 	public static String getVersion() {
 		return VERSION;
@@ -3770,7 +3770,7 @@ public class MetaOmGraph implements ActionListener {
 			public void run() {
 
 				try {
-					welcomeDialog = new JDialog(getMainWindow(), "Welcome to MetaOmGraph", true);
+					welcomeDialog = new JDialog(getMainWindow(), "Welcome to MetaOmGraph "+getVersion(), true);
 					String OS = getOsName();
 					if (OS.indexOf("swin") >= 0 || OS.indexOf("sWin") >= 0) {
 						// show new welcome dialog
