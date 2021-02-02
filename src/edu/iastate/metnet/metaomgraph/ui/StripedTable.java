@@ -57,6 +57,7 @@ public class StripedTable extends JTable {
 
 	
 	
+	/*
 	
 	// urmi show p value as tool tip
 	@Override
@@ -123,6 +124,7 @@ public class StripedTable extends JTable {
 		return null;
 	}
 
+*/
 	public Color colorForRow(int row) {
 		return row % 2 == 0 ? BCKGRNDCOLOR1 : BCKGRNDCOLOR2;
 	}

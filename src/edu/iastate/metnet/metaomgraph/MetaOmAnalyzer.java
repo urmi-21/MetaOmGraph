@@ -35,6 +35,9 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.table.TableModel;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.jdom.Element;
 
@@ -88,7 +91,7 @@ public class MetaOmAnalyzer {
 					}
 				}
 				result.put("Excluded Samples", excludedSamplesInteger);
-				
+
 				dataMap.put("Data Column", mcol.getDatacol());
 			}
 			else {
@@ -1218,6 +1221,42 @@ public class MetaOmAnalyzer {
 			myElement.setAttribute("sampleCount", exclude.length + "");
 			return myElement;
 		}
+
+
+		/**
+		 * 
+		 * @param xMLStreamWriter
+		 * @param name
+		 * @throws XMLStreamException
+		 * 
+		 * Method to write excludes to the .mog file using StAX parser
+		 * 
+		 */
+		public void writeToXML(XMLStreamWriter xMLStreamWriter, String name) throws XMLStreamException {
+
+			xMLStreamWriter.writeStartElement(getXMLElementName());
+			xMLStreamWriter.writeAttribute("name", name);
+
+
+			String excludeString = null;
+			for (int i = 0; i < exclude.length; i++) {
+				if (exclude[i]) {
+					if (excludeString == null) {
+						excludeString = i + "";
+					} else {
+						excludeString = excludeString + "," + i;
+					}
+				}
+			}
+
+			xMLStreamWriter.writeAttribute("sampleCount", exclude.length + "");
+			xMLStreamWriter.writeCharacters(excludeString);
+
+
+			xMLStreamWriter.writeEndElement();
+		}
+
+
 
 		public static String getXMLElementName() {
 			return "excludeList";

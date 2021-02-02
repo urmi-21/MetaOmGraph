@@ -451,7 +451,7 @@ public class DiffCorrResultsTable extends StatisticalResultsPanel {
 
 										//Get Feature metadata rows
 										List<String> rowNames = featureNames;
-										int[] rowIndices = MetaOmGraph.activeProject.getRowIndexbyName(rowNames, true);
+										int[] rowIndices = MetaOmGraph.activeProject.getRowIndexesFromFeatureNames(rowNames, true);
 										
 										for(int j = 0; j < rowIndices.length; j++) {
 											rowIndicesMapping[rowIndices[j]] = j;
@@ -598,7 +598,7 @@ public class DiffCorrResultsTable extends StatisticalResultsPanel {
 
 										//Get Feature metadata rows
 										List<String> rowNames = featureNames;
-										int[] rowIndices = MetaOmGraph.activeProject.getRowIndexbyName(rowNames, true);
+										int[] rowIndices = MetaOmGraph.activeProject.getRowIndexesFromFeatureNames(rowNames, true);
 										
 										for(int j = 0; j < rowIndices.length; j++) {
 											rowIndicesMapping[rowIndices[j]] = j;
@@ -903,12 +903,15 @@ public class DiffCorrResultsTable extends StatisticalResultsPanel {
 		mntmHistogramcolumn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				
+				int nonFeatureColCount = 9;
+				
 				// display option to select a column
 				JPanel cboxPanel = new JPanel();
-				String[] colNames = new String[table.getColumnCount() - 1];
+				String[] colNames = new String[nonFeatureColCount - 1];
 
 				// dont display 1st column or other non-numerical columns
-				for (int cols = 1; cols < table.getColumnCount(); cols++) {
+				for (int cols = 1; cols < nonFeatureColCount; cols++) {
 					colNames[cols-1] = table.getColumnName(cols);
 				}
 				// get a list of multiple correction methods implemented
@@ -1053,7 +1056,7 @@ public class DiffCorrResultsTable extends StatisticalResultsPanel {
 
 			//Get Feature metadata rows
 			List<String> rowNames = featureNames;
-			int[] rowIndices = MetaOmGraph.activeProject.getRowIndexbyName(rowNames, true);
+			int[] rowIndices = MetaOmGraph.activeProject.getRowIndexesFromFeatureNames(rowNames, true);
 			
 			for(int j = 0; j < rowIndices.length; j++) {
 				rowIndicesMapping[rowIndices[j]] = j;
@@ -1290,7 +1293,7 @@ public class DiffCorrResultsTable extends StatisticalResultsPanel {
 		for (int i : rowIndices) {
 			names.add(table.getValueAt(i, table.getColumn("Name").getModelIndex()).toString());
 		}
-		rowIndices = myProject.getRowIndexbyName(names, true);
+		rowIndices = myProject.getRowIndexesFromFeatureNames(names, true);
 
 		return rowIndices;
 	}

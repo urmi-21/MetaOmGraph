@@ -32,6 +32,8 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 
 public class Metadata {
 	private SimpleXMLElement metadataRoot;
@@ -573,6 +575,33 @@ public class Metadata {
 			}
 			result.add(new SimpleXMLElement("term").setText(term));
 			return result;
+		}
+		
+		
+		/**
+		 * 
+		 * @param xMLStreamWriter
+		 * @throws XMLStreamException
+		 * 
+		 * Method to write metadata to the .mog file using StAX parser
+		 * 
+		 */
+		public void writeToXML(XMLStreamWriter xMLStreamWriter) throws XMLStreamException {
+			
+			xMLStreamWriter.writeStartElement(getXMLElementName());
+			xMLStreamWriter.writeAttribute("matchAll", matchType.toString());
+			
+			if (field != null) {
+				xMLStreamWriter.writeStartElement("field");
+				xMLStreamWriter.writeCharacters(field);
+				xMLStreamWriter.writeEndElement();
+			}
+			
+			xMLStreamWriter.writeStartElement("term");
+			xMLStreamWriter.writeCharacters(term);
+			xMLStreamWriter.writeEndElement();
+			
+			xMLStreamWriter.writeEndElement();
 		}
 
 		@Override

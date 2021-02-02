@@ -1,6 +1,7 @@
 package edu.iastate.metnet.metaomgraph.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,6 +13,9 @@ import java.util.Map.Entry;
 import javax.swing.JList;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
+
+import org.apache.poi.ss.usermodel.Font;
 
 import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
@@ -57,9 +61,15 @@ public class StatisticalResultsFrame extends TaskbarInternalFrame {
 		
 		getContentPane().setLayout(new BorderLayout(0, 0));
 
+		UIManager.put("TabbedPane.selected", Color.red);
+		UIManager.put("TabbedPane.unselectedForeground", Color.gray);
+		UIManager.put("TabbedPane.selectedBackground", Color.white);
+		
 		resultTab = new ClosableTabbedPane();
+		
 		add(resultTab);
 		
+		resultTab.updateUI();
 		FrameModel DEAResultsFrameModel = new FrameModel(taskbarName,frameName,17);
 		setModel(DEAResultsFrameModel);
 		putClientProperty("JInternalFrame.frameType", "normal");
@@ -81,11 +91,13 @@ public class StatisticalResultsFrame extends TaskbarInternalFrame {
 		if(resultTab != null && resultTab.getTabCount()==0) {
 			resultTab.addNonClosableTab(tabName,null, panel, tabName);
 			resultTab.setSelectedIndex(resultTab.getTabCount()-1);
+
 			
 		}
 		else {
 			resultTab.addTab(tabName,null, panel, tabName);
 			resultTab.setSelectedIndex(resultTab.getTabCount()-1);
+
 		}
 	}
 	

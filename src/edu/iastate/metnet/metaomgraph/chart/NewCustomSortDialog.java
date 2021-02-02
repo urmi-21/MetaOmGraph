@@ -41,6 +41,9 @@ import javax.swing.ToolTipManager;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+
 import org.jdom.Element;
 
 public class NewCustomSortDialog extends JDialog implements ActionListener, HashLoadable<NewCustomSortDialog.CustomSortObject> {
@@ -452,6 +455,64 @@ public class NewCustomSortDialog extends JDialog implements ActionListener, Hash
             }
             return sort;
         }
+        
+       
+        /**
+         * 
+         * @param xMLStreamWriter
+         * @param name
+         * @throws XMLStreamException
+         * 
+         * Method that writes the custom sort info to the .mog file using StAX parser
+         * 
+         */
+        
+		public void writeToXML(XMLStreamWriter xMLStreamWriter, String name) throws XMLStreamException {
+			
+			xMLStreamWriter.writeStartElement(getXMLElementName());
+			xMLStreamWriter.writeAttribute("name", name);
+
+            String orderString = sortOrder[0] + "";
+            for (int x = 1; x < sortOrder.length; x++) {
+                orderString = orderString + "," + sortOrder[x];
+            }
+            
+            xMLStreamWriter.writeStartElement("order");
+			xMLStreamWriter.writeCharacters(orderString);
+			xMLStreamWriter.writeEndElement();
+			
+            
+            if (rangeMarkers != null) {
+                for (int x = 0; x < rangeMarkers.size(); x++) {
+                    RangeMarker thisMarker = rangeMarkers.get(x);
+                    xMLStreamWriter.writeStartElement("marker");
+                    xMLStreamWriter.writeAttribute("style", thisMarker.getStyle() == RangeMarker.HORIZONTAL ? "horizontal" : "vertical");
+                    
+                    xMLStreamWriter.writeStartElement("start");
+                    xMLStreamWriter.writeCharacters(thisMarker.getStart() + "");
+        			xMLStreamWriter.writeEndElement();
+                    
+        			xMLStreamWriter.writeStartElement("end");
+                    xMLStreamWriter.writeCharacters(thisMarker.getEnd() + "");
+        			xMLStreamWriter.writeEndElement();
+        			
+        			xMLStreamWriter.writeStartElement("label");
+                    xMLStreamWriter.writeCharacters(thisMarker.getLabel());
+        			xMLStreamWriter.writeEndElement();
+        			
+        			xMLStreamWriter.writeStartElement("color");
+                    xMLStreamWriter.writeCharacters(thisMarker.getColor().getRGB() + "");
+        			xMLStreamWriter.writeEndElement();
+        			
+                    xMLStreamWriter.writeEndElement();
+                    
+                }
+            }
+            
+            xMLStreamWriter.writeEndElement();
+            
+        }
+        
 
         @Override
 		public void fromXML(Element source) {
@@ -482,6 +543,37 @@ public class NewCustomSortDialog extends JDialog implements ActionListener, Hash
                     rangeMarkers.add(new RangeMarker(start, end, label, style, myColor));
                 }
             }
+        }
+        
+        
+        /**
+         * 
+         * @param order
+         * @param allMarkers
+         * 
+         * Utility method that initializes the sortOrder and rangeMarkers from the .mog file using StAX parser
+         * The XML read portion is handled in the MetaOmProject, and the parameters are passed to this method
+         * 
+         */
+        public void readFromXML(String order, List<RangeMarker> allMarkers) {
+        	
+        	String[] splitOrder = order.split(",");
+            sortOrder = new int[splitOrder.length];
+            for (int x = 0; x < sortOrder.length; x++) {
+                sortOrder[x] = Integer.parseInt(splitOrder[x]);
+            }
+            
+            rangeMarkers = null;
+            if (!allMarkers.isEmpty()) {
+                rangeMarkers = new Vector();
+                Iterator markerIter = allMarkers.iterator();
+                while (markerIter.hasNext()) {
+                	RangeMarker thisMarkerElement = (RangeMarker) markerIter.next();
+                   
+                    rangeMarkers.add(thisMarkerElement);
+                }
+            }
+            
         }
 
         public static String getXMLElementName() {
@@ -568,6 +660,7 @@ public class NewCustomSortDialog extends JDialog implements ActionListener, Hash
             sortTable.removeRowSelectionInterval(rows[0], rows[(rows.length - 1)]);
             sortTable.paintImmediately(sortTable.getVisibleRect());
         }
+        
     }
 
     public void doPaste() {
