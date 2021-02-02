@@ -150,6 +150,8 @@ public class HashtableSavePanel
     }
 
     private void loadData() {
+    	
+    	try {
         if (loader == null) {
             return;
         }
@@ -158,6 +160,10 @@ public class HashtableSavePanel
         
       //setting project changed as true
         MetaOmGraph.getActiveProject().setChanged(true);
+    	}
+    	catch(NullPointerException npe) {
+    		npe.printStackTrace();
+    	}
     }
 
     private void saveData() {

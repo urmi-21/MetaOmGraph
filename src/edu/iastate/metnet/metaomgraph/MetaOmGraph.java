@@ -909,13 +909,13 @@ public class MetaOmGraph implements ActionListener {
 						setCurrentTheme(lastThemeName);
 					} else {
 						initThemes();
-						setCurrentTheme("light");
+						setCurrentTheme("sky");
 					}
 
 					//UserPreferences up = new UserPreferences(recentProjects,showTips,lastThemeName);
 				} catch (Exception ex) {
 					initThemes();
-					setCurrentTheme("light");
+					setCurrentTheme("sky");
 				}
 
 				
@@ -935,7 +935,7 @@ public class MetaOmGraph implements ActionListener {
 			//init default themes when prefs file is absent
 			setTheme(Themes.Light);
 			initThemes();
-			setCurrentTheme("light");
+			setCurrentTheme("sky");
 			
 		}
 		
