@@ -2,6 +2,7 @@ package edu.iastate.metnet.metaomgraph.chart;
 
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -15,6 +16,8 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -24,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -31,14 +36,21 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.swing.JInternalFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
@@ -51,6 +63,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.entity.ChartEntity;
+import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.entity.LegendItemEntity;
 import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.plot.*;
@@ -66,15 +79,20 @@ import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
+import edu.iastate.metnet.metaomgraph.MetadataCollection;
+import edu.iastate.metnet.metaomgraph.ui.SampleMetaDataListFrame;
+import edu.iastate.metnet.metaomgraph.ui.SelectedSampleMetaDataDisplayTable;
 import edu.iastate.metnet.metaomgraph.ui.TaskbarInternalFrame;
 import edu.iastate.metnet.metaomgraph.ui.TreeSearchQueryConstructionPanel;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JSplitPane;
+import javax.swing.JTable;
 import javax.swing.JToggleButton;
 import javax.swing.SpinnerNumberModel;
 
-public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouseListener, ActionListener {
+public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouseListener, MouseMotionListener, ActionListener, MouseListener {
 
 	private int[] selected;
 	// pivotIndex is the ith index in the selected rows which is the x axis for the
@@ -107,6 +125,11 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 	private boolean legendFlag = true;
 	// if number of items in legend is more than this then turn legend off
 	private int maxLegend = 30;
+	
+	private JToggleButton selectionButton;
+	private JMenuItem singleSelectionMenu;
+	private JMenuItem multiSelectionMenu;
+	private JMenuItem zoomMenu;
 
 	// bottom toolbar
 	private JButton btnNewButton_1;
@@ -126,8 +149,21 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 
 	String splitCol;
 	Map<String, Collection<Integer>> splitIndex;
-	HashMap<String, String> seriesNameToKeyMap;
+	private HashMap<String, Integer> dataColNameToolTipMap;
 	private JSpinner spinner;
+	
+	private boolean singleSelection = false;
+	private boolean multiSelection = false;
+	private Point2D rectStartPos;
+	private Point2D rectEndPos;
+
+	private JPanel chartDisplayPanel;
+	private JPanel tableDisplayPanel;
+	private JTable selectedPointsTable;
+	private JScrollPane scrollPanel;
+	private JSplitPane splitPane;
+	private SelectedSampleMetaDataDisplayTable selectedPointsDisplayTableObj;
+	private ArrayList<Rectangle2D> selectedRectangles;
 
 	/**
 	 * Launch the application.
@@ -169,18 +205,34 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 		// JOptionPane.showMessageDialog(null, Arrays.toString(rowNames));
 		pivotIndex = xind;
 		myProject = mp;
+		
+		chartDisplayPanel = new JPanel();
+		chartDisplayPanel.setLayout(new BorderLayout(0,0));
+		tableDisplayPanel = new JPanel();
+		tableDisplayPanel.setLayout(new BorderLayout(0,0));
+		
+		selectedPointsDisplayTableObj = new SelectedSampleMetaDataDisplayTable();
+		initSelectedPointsTable();
+		JMenuBar menuBar = initSelectedPointsTableMenuBar();
+		tableDisplayPanel.add(menuBar, "First");
+		scrollPanel = new JScrollPane(selectedPointsTable);
+		tableDisplayPanel.add(scrollPanel, BorderLayout.CENTER);
+		
 		chartPanel = null;
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(new BorderLayout(0, 0));
+		
+		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, chartDisplayPanel, tableDisplayPanel);
+		splitPane.setDividerSize(1);
+		splitPane.remove(tableDisplayPanel);
+		getContentPane().add(splitPane);
 
 		JPanel panel = new JPanel();
 		panel.setLayout(new FlowLayout());
-		getContentPane().add(panel, BorderLayout.NORTH);
-		JButton btnNewButton = new JButton("New button");
-		// panel.add(btnNewButton);
+		chartDisplayPanel.add(panel, BorderLayout.NORTH);
 
 		JPanel panel_1 = new JPanel();
-		getContentPane().add(panel_1, BorderLayout.SOUTH);
+		chartDisplayPanel.add(panel_1, BorderLayout.SOUTH);
 
 		btnNewButton_1 = new JButton("Change X axis");
 		btnNewButton_1.setActionCommand("chooseX");
@@ -188,7 +240,7 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 		panel_1.add(btnNewButton_1);
 
 		scrollPane = new JScrollPane();
-		getContentPane().add(scrollPane, BorderLayout.CENTER);
+		chartDisplayPanel.add(scrollPane, BorderLayout.CENTER);
 
 		// create sample plot
 
@@ -269,6 +321,59 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 		};
 
 		spinner.addChangeListener(listener);
+
+		//Selection tool buttons
+		selectionButton = new JToggleButton();
+		selectionButton.setIcon(theme.getSelectIcon());
+
+		JPopupMenu selectionPopUpMenu = new JPopupMenu();
+		singleSelectionMenu = new JMenuItem("Single selection tool");
+		singleSelectionMenu.setIcon(theme.getSelectIcon());
+		singleSelectionMenu.setActionCommand("single selection");
+		singleSelectionMenu.addActionListener(this);
+
+		multiSelectionMenu = new JMenuItem("Multi selection tool");
+		multiSelectionMenu.setIcon(theme.getSelectIcon());
+		multiSelectionMenu.setActionCommand("multi selection");
+		multiSelectionMenu.addActionListener(this);
+
+		zoomMenu = new JMenuItem("Zoom tool");
+		zoomMenu.setIcon(theme.getDefaultZoom());
+		zoomMenu.setActionCommand("zoom tool");
+		zoomMenu.addActionListener(this);
+
+		selectionPopUpMenu.add(singleSelectionMenu);
+		selectionPopUpMenu.add(multiSelectionMenu);
+		selectionPopUpMenu.add(zoomMenu);
+
+		selectionButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(selectionButton.isSelected()) {
+					selectionPopUpMenu.show(selectionButton, 0, selectionButton.getBounds().height);
+				}
+				else {
+					selectionPopUpMenu.setVisible(false);
+				}
+			}
+		});
+
+		selectionPopUpMenu.addPopupMenuListener(new PopupMenuListener() {
+
+			@Override
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {}
+
+			@Override
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+				selectionButton.setSelected(false);
+			}
+
+			@Override
+			public void popupMenuCanceled(PopupMenuEvent e) {}
+		});
+		
+		panel.add(selectionButton);
 		/////////////////
 
 		// frame properties
@@ -287,8 +392,67 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 
 		FrameModel scatterPlotFrameModel = new FrameModel("Scatter Plot", chartTitle, 3);
 		this.setModel(scatterPlotFrameModel);
-
+		selectedRectangles = new ArrayList<Rectangle2D>();
 	}
+	
+	private void initSelectedPointsTable() {
+		selectedPointsTable = new JTable();
+
+		selectedPointsTable.setModel(new DefaultTableModel() {
+
+			@Override
+			public boolean isCellEditable(int row, int column) {
+				return false;
+			}
+
+			@Override
+			public Class<?> getColumnClass(int col) {
+				Class<?> returnValue;
+				returnValue = Object.class;
+				return returnValue;
+			}
+		});
+
+		selectedPointsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		selectedPointsTable.setPreferredScrollableViewportSize(selectedPointsTable.getPreferredSize());
+		selectedPointsTable.setFillsViewportHeight(true);
+		selectedPointsTable.getTableHeader().setFont(new Font("Garamond", Font.BOLD, 14));
+	}
+	
+	private JMenuBar initSelectedPointsTableMenuBar() {
+		JMenuBar menuBar = new JMenuBar();
+
+		JMenu mnFile = new JMenu("File");
+
+		JMenuItem exportToTextItem = new JMenuItem("Export to text file");
+		exportToTextItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				Utils.saveJTabletofile(selectedPointsTable, "Metadata Table Panel");
+			}
+		});
+
+		JMenuItem exportToExcelItem = new JMenuItem("Export to xlsx");
+		exportToExcelItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				Utils.saveJTableToExcel(selectedPointsTable);
+			}
+		});
+		
+		JMenuItem createListItem = new JMenuItem("Create list");
+		createListItem.setActionCommand("create list");
+		createListItem.addActionListener(this);
+		
+		mnFile.add(exportToTextItem);
+		mnFile.add(exportToExcelItem);
+		mnFile.add(createListItem);
+		
+		menuBar.add(mnFile);
+		
+		return menuBar;
+	}
+
 
 	public ChartPanel makeScatterPlot() throws IOException {
 		// create a copy of excluded
@@ -407,28 +571,12 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 				thisSeries = thisSeries.substring(0, lastChar);
 
 				int correctColIndex = -1;
-				try {
-					// Scatterplot dataset is sorted by x-axis values. Get correct colIndex.
-					if (splitIndex == null) {
-						// create collection of 0 till #Samples-1
-						Collection<Integer> thisIndices = new ArrayList<>(
-								IntStream.rangeClosed(0, myProject.getDataColumnCount() - 1).boxed()
-										.collect(Collectors.toList()));
-						correctColIndex = myProject.getCorrectDataColumnForScatterPlot(selected[pivotIndex], thisXind,
-								thisIndices, excludedCopy);
+				// Scatterplot dataset is sorted by x-axis values. Get correct colIndex.
+				// @sumanth make tool tip correct and faster.
+				String seriesNameKey = String.valueOf(chartX) + " " +
+						String.valueOf(chartY);
+				correctColIndex = dataColNameToolTipMap.get(seriesNameKey);
 
-					} else {
-						String splitIndexKey = seriesNameToKeyMap
-								.get(thisDS.getSeriesKey(item.getSeriesIndex()).toString());
-
-						correctColIndex = myProject.getCorrectDataColumnForScatterPlot(selected[pivotIndex], thisXind,
-								splitIndex.get(splitIndexKey), excludedCopy);
-					}
-
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 				if (correctColIndex == -1) {
 					return null;
 				}
@@ -474,13 +622,11 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 
 	private XYDataset createDataset() throws IOException {
 
-		// int serInd=0;
+		dataColNameToolTipMap = new HashMap<>();
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		double[] dataX = myProject.getAllData(selected[pivotIndex]);
-		if (splitIndex != null) {
-			seriesNameToKeyMap = new HashMap<>();
-		}
 		xAxisname = myProject.getRowName(selected[pivotIndex])[myProject.getDefaultColumn()].toString();
+
 		String yAxisname = "";
 		for (int i = 0; i < selected.length; i++) {
 			if (i == pivotIndex) {
@@ -500,15 +646,20 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 					for (int ind : thisInd) {
 						if (excludedCopy == null) {
 							series1.add(dataX[ind], dataY[ind]);
+							String seriesNameKey = String.valueOf(dataX[ind]) + " " +
+									String.valueOf(dataY[ind]);
+							dataColNameToolTipMap.put(seriesNameKey, ind);
 						} else {
 							if (!excludedCopy[ind]) {
 								series1.add(dataX[ind], dataY[ind]);
+								String seriesNameKey = String.valueOf(dataX[ind]) + " " +
+										String.valueOf(dataY[ind]);
+								dataColNameToolTipMap.put(seriesNameKey, ind);
 							}
 						}
 
 					}
 					dataset.addSeries(series1);
-					seriesNameToKeyMap.put(xAxisname + " vs. " + yAxisname, key);
 				}
 			} else {
 
@@ -517,9 +668,15 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 				for (int j = 0; j < dataX.length; j++) {
 					if (excludedCopy == null) {
 						series1.add(dataX[j], dataY[j]);
+						String seriesNameKey = String.valueOf(dataX[j]) + " " +
+								String.valueOf(dataY[j]);
+						dataColNameToolTipMap.put(seriesNameKey, j);
 					} else {
 						if (!excludedCopy[j]) {
 							series1.add(dataX[j], dataY[j]);
+							String seriesNameKey = String.valueOf(dataX[j]) + " " +
+									String.valueOf(dataY[j]);
+							dataColNameToolTipMap.put(seriesNameKey, j);
 						}
 					}
 
@@ -606,9 +763,78 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 
 	}
 
+	/**
+	 * Sets the mouse zoom tool active
+	 */
+	private void setZoomToolActive() {
+		chartPanel.removeMouseListener(this);
+		chartPanel.removeMouseMotionListener(this);
+		chartPanel.setMouseZoomable(true);
+		splitPane.remove(tableDisplayPanel);
+		selectedPointsDisplayTableObj.clearMetaDataCols();
+	}
+	
+	/**
+	 * Sets the selection tool (Single or multi level) active
+	 */
+	private void setSelectionToolActive() {
+		chartPanel.setMouseZoomable(false);
+		chartPanel.addMouseListener(this);
+		chartPanel.addMouseMotionListener(this);
+		if(splitPane.getComponentCount() == 2)
+			splitPane.add(tableDisplayPanel);
+		singleSelectionMenu.setSelected(true);
+	}
+	
+	private void createSampleListFrame(String title, List<String> selectedRows,
+			List<String> notSelectedRows) {
+		SampleMetaDataListFrame sampleListFrame = null;
+		MetadataCollection metaDataColl = myProject.getMetadataHybrid().getMetadataCollection();
+		String[] activeHeaderList = metaDataColl.getHeaders();
+		sampleListFrame = new SampleMetaDataListFrame(metaDataColl, selectedRows, notSelectedRows, activeHeaderList);
+
+		sampleListFrame.setSize(MetaOmGraph.getMainWindow().getWidth() / 2,
+				MetaOmGraph.getMainWindow().getHeight() / 2);
+		sampleListFrame.setResizable(true);
+		sampleListFrame.setMaximizable(true);
+		sampleListFrame.setIconifiable(true);
+		sampleListFrame.setClosable(true);
+		sampleListFrame.setTitle(title);
+		MetaOmGraph.getDesktop().add(sampleListFrame);
+		sampleListFrame.setVisible(true);
+		MetaOmGraph.getActiveProject().setChanged(true);
+		MetaOmGraph.fixTitle();
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
+		
+		if("single selection".equals(e.getActionCommand())) {
+			selectionButton.setIcon(MetaOmGraph.getIconTheme().getSelectIcon());
+			setSelectionToolActive();
+			singleSelection = true;
+			multiSelection = false;
+			selectedRectangles.clear();
+		}
+		
+		if("multi selection".equals(e.getActionCommand())) {
+			selectionButton.setIcon(MetaOmGraph.getIconTheme().getSelectIcon());
+			setSelectionToolActive();
+			singleSelection = false;
+			multiSelection = true;
+		}
+		
+		if("zoom tool".equals(e.getActionCommand())) {
+			selectionButton.setIcon(MetaOmGraph.getIconTheme().getDefaultZoom());
+			setZoomToolActive();
+			singleSelection = false;
+			multiSelection = false;
+		}
+		
+		if("create list".equals(e.getActionCommand())) {
+			List<String> selectedRows = selectedPointsDisplayTableObj.getMetaDataColsInTable();
+			createSampleListFrame("Selected samples list", new ArrayList<String>(), selectedRows);
+		}
 
 		if (ZOOM_IN_COMMAND.equals(e.getActionCommand())) {
 			Point2D center = getCenterPoint();
@@ -690,7 +916,6 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 				try {
 					createDataset();
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 				updateChart();
@@ -785,7 +1010,6 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 			try {
 				createDataset();
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			updateChart();
@@ -898,11 +1122,7 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 	}
 
 	@Override
-	public void chartMouseMoved(ChartMouseEvent arg0) {
-		// TODO Auto-generated method stub
-		// JOptionPane.showMessageDialog(null, "CLICKED2");
-
-	}
+	public void chartMouseMoved(ChartMouseEvent arg0) {}
 
 	/**
 	 * Changes the colour of the Selected series
@@ -944,7 +1164,6 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 
 			this.repaint();
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 			JOptionPane.showMessageDialog(null, "ERRRRR");
 		}
@@ -1024,6 +1243,165 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 		} else {
 			myChart.removeLegend();
 		}
+	}
+	
+	/**
+	 * Find all the points in the scatter plot inside the drawn rectangle.
+	 * @param start startpoint of the rectangle diagonal
+	 * @param end endpoint of the rectangle diagonal
+	 * @return ArrayList<String> list of selected points.
+	 */
+	private ArrayList<String> pointsInsideRect(Point2D start, Point2D end){
+		ArrayList<String> points = new ArrayList<String>();
+		Rectangle2D selectedRect = new Rectangle2D.Double();
+		selectedRect.setFrameFromDiagonal(start, end);
+		
+		EntityCollection entities = chartPanel.getChartRenderingInfo().getEntityCollection();
+		
+		for(Iterator it = entities.iterator(); it.hasNext();) {
+			ChartEntity entity = (ChartEntity)it.next();
+			Rectangle2D entityRect = entity.getArea().getBounds2D();
+			if(entityRect.intersects(selectedRect)) {
+				if (!(entity instanceof XYItemEntity)) {
+					continue;
+				}
+				XYItemEntity item = (XYItemEntity) entity;
+				int thisXind = item.getItem();
+				// get x and y points
+				XYDataset thisDS = item.getDataset();
+				double chartX = thisDS.getXValue(item.getSeriesIndex(), thisXind);
+				double chartY = thisDS.getYValue(item.getSeriesIndex(), thisXind);
+				if(splitIndex != null) {
+					
+					String seriesNameKey = String.valueOf(chartX) + " " +
+							String.valueOf(chartY);
+					String dataColHeader = myProject.getDataColumnHeader(dataColNameToolTipMap.get(seriesNameKey));
+					points.add(dataColHeader);
+				}
+				else {	
+					String seriesNameKey = String.valueOf(chartX) + " " +
+							String.valueOf(chartY);
+					String dataColHeader = myProject.getDataColumnHeader(dataColNameToolTipMap.get(seriesNameKey));
+					points.add(dataColHeader);
+				}
+			}
+		}
+		return points;
+	}
+	
+	/**
+	 * Use this event to record the mouse starting position.
+	 */
+	@Override
+	public void mousePressed(MouseEvent e) {
+		rectStartPos = chartPanel.translateScreenToJava2D(e.getPoint());
+	}
+	
+	/**
+	 * Draw the selected rectangle and add the points to the selected points table
+	 */
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		if(rectStartPos == null)
+			return;
+		
+		rectEndPos = chartPanel.translateScreenToJava2D(e.getPoint());
+		
+		ArrayList<String> points = pointsInsideRect(rectStartPos, rectEndPos);
+		
+		HashSet<String> pointsSet = new HashSet<String>(points);
+		if(multiSelection)
+			pointsSet.addAll(selectedPointsDisplayTableObj.getMetaDataColsInTable());
+		else
+			selectedRectangles.clear();
+		
+		DefaultTableModel tablemodel = (DefaultTableModel) selectedPointsTable.getModel();
+		tablemodel.setRowCount(0);
+		tablemodel.setColumnCount(0);
+		
+		selectedPointsTable.setModel(selectedPointsDisplayTableObj.getTableModel(
+				new ArrayList<String>(pointsSet)));
+		selectedPointsTable.repaint();
+		
+		Point startPoint = new Point((int)rectStartPos.getX(), (int)rectStartPos.getY());
+		Point endPoint = new Point((int)rectEndPos.getX(), (int)rectEndPos.getY());
+		Rectangle2D selectedRect = getRectangleInChartPanel(startPoint, endPoint);
+		selectedRectangles.add(selectedRect);
+		
+		Graphics2D graphics = (Graphics2D) getGraphics();
+		graphics.setColor(Color.RED);
+		drawRectangle(graphics);
+		rectStartPos = null;
+		rectEndPos = null;
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {}
+
+	@Override
+	public void mouseExited(MouseEvent e) {}
+	
+	/**
+	 * Use this event to draw the rectangle when dragging the mouse.
+	 */
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		if(rectStartPos != null && (singleSelection || multiSelection)) {
+			Point startPoint = new Point((int)rectStartPos.getX(), (int)rectStartPos.getY());
+			Graphics2D graphics = (Graphics2D) getGraphics();
+			graphics.setColor(Color.RED);
+			Rectangle2D selectedRect = getRectangleInChartPanel(startPoint, e.getPoint());
+			graphics.drawRect((int)selectedRect.getX(), (int)selectedRect.getY(), 
+					(int)selectedRect.getWidth(), (int)selectedRect.getHeight());
+			graphics.dispose();
+		}
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {}
+	
+	/**
+	 * Draw all the selected rectangles in case of multi selection tool.
+	 * @param graphics
+	 */
+	private void drawRectangle(Graphics2D graphics) {
+		for(Rectangle2D rect : selectedRectangles) {
+			graphics.drawRect((int)rect.getX(), (int)rect.getY(), 
+					(int)rect.getWidth(), (int)rect.getHeight());
+		}
+	}
+	
+	/** 
+	 * Get the rectangle in chart plane based on start and end diagonal points.
+	 * 
+	 * @param startPoint
+	 * @param endPoint
+	 * @return Rectangle2D
+	 */
+	private Rectangle2D getRectangleInChartPanel(Point startPoint, Point endPoint) {
+		int maxHeight = chartDisplayPanel.getHeight();
+		int chartPanelHeight = scrollPane.getHeight();
+
+		int yTranslation = 0;
+		yTranslation = maxHeight - chartPanelHeight - 2;
+		Point translationPnt = new Point(0, yTranslation);
+		 
+		startPoint.translate(translationPnt.x, translationPnt.y);
+		
+		if(endPoint.y <= chartPanelHeight) {
+			endPoint.translate(translationPnt.x, translationPnt.y);
+		}	
+		else {
+			endPoint.setLocation(endPoint.x, chartPanelHeight - 2);	
+		}
+		
+		Rectangle2D rectInDrawPanel = new Rectangle2D.Double();
+		rectInDrawPanel.setFrameFromDiagonal(startPoint, endPoint);
+		
+		return rectInDrawPanel;
 	}
 
 }
