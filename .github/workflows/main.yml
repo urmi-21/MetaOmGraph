@@ -53,7 +53,7 @@ jobs:
       run: mvn install:install-file `-Dfile=src/lib/CustomBrowserLauncher.jar `-DgroupId=edu.iastate.metnet `-DartifactId=custombrowserlauncher `-Dversion=0.0.1 `-Dpackaging=jar `-DgeneratePom=true
       
     - name: Build with Maven
-      run: mvn -B package --file pom.xml
+      run: mvn -B assembly:single --file pom.xml
     
     - name: Upload Jar
       uses: actions/upload-artifact@v2
