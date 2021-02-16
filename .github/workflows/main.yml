@@ -54,3 +54,9 @@ jobs:
       
     - name: Build with Maven
       run: mvn -B package --file pom.xml
+    
+    - name: Upload Jar
+      uses: actions/upload-artifact@v2
+      with:
+        name: 'Test.jar'
+        path: build/libs/*.jar
