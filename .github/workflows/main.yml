@@ -53,10 +53,25 @@ jobs:
       run: mvn install:install-file `-Dfile=src/lib/CustomBrowserLauncher.jar `-DgroupId=edu.iastate.metnet `-DartifactId=custombrowserlauncher `-Dversion=0.0.1 `-Dpackaging=jar `-DgeneratePom=true
       
     - name: Build with Maven
-      run: mvn -B package --file pom.xml 
-    
-    - name: Upload Jar
+      run: mvn -B package --file pom.xml
+      
+    - name: Upload Jar - macOS
+      if: ${{ matrix.os == 'macos-latest'}}
       uses: actions/upload-artifact@v2
       with:
-        name: 'Artifacts'
+        name: 'Artifacts-MacOS'
+        path: /Users/runner/work/MetaOmGraph/MetaOmGraph/target/*.jar
+        
+    - name: Upload Jar - Linux
+      if: ${{ matrix.os == 'ubuntu-latest'}}
+      uses: actions/upload-artifact@v2
+      with:
+        name: 'Artifacts-Linux'
+        path: /home/runner/work/MetaOmGraph/MetaOmGraph/target/*.jar
+    
+    - name: Upload Jar - Windows
+      if: ${{ matrix.os == 'windows-latest'}}
+      uses: actions/upload-artifact@v2
+      with:
+        name: 'Artifacts-Windows'
         path: D:\a\MetaOmGraph\MetaOmGraph\target\*.jar
