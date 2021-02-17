@@ -53,10 +53,10 @@ jobs:
       run: mvn install:install-file `-Dfile=src/lib/CustomBrowserLauncher.jar `-DgroupId=edu.iastate.metnet `-DartifactId=custombrowserlauncher `-Dversion=0.0.1 `-Dpackaging=jar `-DgeneratePom=true
       
     - name: Build with Maven
-      run: mvn assembly:single
+      run: mvn -B package --file pom.xml 
     
     - name: Upload Jar
       uses: actions/upload-artifact@v2
       with:
-        name: 'Test'
+        name: 'Artifacts'
         path: D:\a\MetaOmGraph\MetaOmGraph\target\*.jar
