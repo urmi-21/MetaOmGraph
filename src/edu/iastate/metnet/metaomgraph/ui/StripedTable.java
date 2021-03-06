@@ -6,8 +6,12 @@ import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
@@ -20,13 +24,17 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
+import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
 import edu.iastate.metnet.metaomgraph.CorrelationMeta;
 import edu.iastate.metnet.metaomgraph.CorrelationMetaCollection;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
+import edu.iastate.metnet.metaomgraph.StripedTableMetadata;
 
 public class StripedTable extends JTable {
 	// public static final ColorUIResource alternateRowColor = new
@@ -37,8 +45,20 @@ public class StripedTable extends JTable {
 	private Color HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
 	private Color HYPERLINKCOLOR = MetaOmGraph.getTableHyperlinkColor();
 	private boolean USEDEFAULTCOLORS=true;
+	private StripedTableMetadata metadata;
 
 	public StripedTable() {
+
+		this.metadata = new StripedTableMetadata();
+		List<TableColumn> columnsList = Collections.list(this.getColumnModel().getColumns());
+
+		LinkedHashMap<TableColumn,Boolean> columnVisibilityMap = new LinkedHashMap<TableColumn,Boolean>();
+		for(TableColumn c: columnsList) {
+			columnVisibilityMap.put(c, true);
+		}
+
+		this.metadata.setColumnVisibilityMap(columnVisibilityMap);
+
 	}
 
 	public StripedTable(TableModel model) {
@@ -51,14 +71,39 @@ public class StripedTable extends JTable {
 		}else {
 			USEDEFAULTCOLORS = false;
 		}
-		
-		
+
+		JTableHeader header = this.getTableHeader();
+		header.addMouseListener(new StripedTableHeaderMouseListener(this));
+
+		this.metadata = new StripedTableMetadata();
+		List<TableColumn> columnsList = Collections.list(this.getColumnModel().getColumns());
+
+		LinkedHashMap<TableColumn,Boolean> columnVisibilityMap = new LinkedHashMap<TableColumn,Boolean>();
+		for(TableColumn c: columnsList) {
+			columnVisibilityMap.put(c, true);
+		}
+
+		this.metadata.setColumnVisibilityMap(columnVisibilityMap);
+
+	}
+	
+	public StripedTable(TableModel model, StripedTableMetadata metadata) {
+		this(model);
+		this.metadata = metadata;
 	}
 
-	
-	
+
+
+	public StripedTableMetadata getMetadata() {
+		return metadata;
+	}
+
+	public void setMetadata(StripedTableMetadata metadata) {
+		this.metadata = metadata;
+	}
+
 	/*
-	
+
 	// urmi show p value as tool tip
 	@Override
 	public String getToolTipText(MouseEvent e) {
@@ -80,7 +125,7 @@ public class StripedTable extends JTable {
 			return null;
 		}
 
-		
+
 
 		rowIndex = MetaOmGraph.getActiveProject().getRowIndexbyName(rowName, true);
 		// JOptionPane.showMessageDialog(null, "this rowname:"+rowName+" thisrow
@@ -124,7 +169,7 @@ public class StripedTable extends JTable {
 		return null;
 	}
 
-*/
+	 */
 	public Color colorForRow(int row) {
 		return row % 2 == 0 ? BCKGRNDCOLOR1 : BCKGRNDCOLOR2;
 	}
@@ -137,18 +182,18 @@ public class StripedTable extends JTable {
 		}
 		if (!isCellSelected(row, column)) {
 			if(!USEDEFAULTCOLORS) {
-			c.setBackground(colorForRow(row));
+				c.setBackground(colorForRow(row));
 			}
 			c.setForeground(UIManager.getColor("Table.foreground"));
 		} else {
 			if(!USEDEFAULTCOLORS) {
-			c.setBackground(SELECTIONBCKGRND);
+				c.setBackground(SELECTIONBCKGRND);
 			}
 		}
-		
+
 		//set font
 		//c.setFont(new Font("Serif", Font.LAYOUT_LEFT_TO_RIGHT, 16));
-		
+
 		return c;
 	}
 
@@ -273,8 +318,48 @@ public class StripedTable extends JTable {
 			HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
 			HYPERLINKCOLOR = MetaOmGraph.getTableHyperlinkColor();
 		}
-		
+
 		repaint();
+
+	}
+
+
+	public void initializeVisibilityMap() {
+
+		if(this.metadata.getColumnVisibilityMap() == null || this.metadata.getColumnVisibilityMap().size() == 0) {
+			List<TableColumn> columnsList = Collections.list(this.getColumnModel().getColumns());
+
+			LinkedHashMap<TableColumn,Boolean> columnVisibilityMap = new LinkedHashMap<TableColumn,Boolean>();
+			for(TableColumn c: columnsList) {
+				columnVisibilityMap.put(c, true);
+			}
+
+			this.metadata.setColumnVisibilityMap(columnVisibilityMap);
+
+		}
+	}
+
+
+	public void hideColumns() {
+
+		TableColumnModel cm = this.getColumnModel();
+		while (cm.getColumnCount()!=0) {                
+			TableColumn column = cm.getColumn(0);
+			cm.removeColumn(column);
+		}
+
+		List<TableColumn> allColumns =  new ArrayList<TableColumn>();
+
+		for(Entry<TableColumn, Boolean> col : metadata.getColumnVisibilityMap().entrySet()) {
+			TableColumn c = col.getKey();
+			allColumns.add(c);
+		}
+
+		for (int i = 0; i < allColumns.size(); i++) {
+			if (metadata.getColumnVisibilityMap().get(allColumns.get(i)) == true) {
+				cm.addColumn(allColumns.get(i));
+			}
+		}
 
 	}
 

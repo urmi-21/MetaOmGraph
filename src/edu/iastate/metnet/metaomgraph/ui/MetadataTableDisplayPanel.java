@@ -95,7 +95,7 @@ import java.awt.event.ActionEvent;
 
 public class MetadataTableDisplayPanel extends JPanel implements ActionListener, ListSelectionListener, ChangeListener {
 
-	private JTable table;
+	private StripedTable table;
 	private MetadataCollection obj;
 	private List<Document> metadata;
 	private String[] headers;
@@ -1358,7 +1358,7 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		// ls.add("Exp1");
 		// toHighlight.put(0, ls);
 		// headers = obj.getHeaders();
-		table = new JTable() {
+		table = new StripedTable() {
 
 			@Override
 			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
@@ -1574,6 +1574,10 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 	public JTable getTable() {
 		return this.table;
 	}
+	
+	public StripedTable getStripedTable() {
+		return this.table;
+	}
 
 	public MetadataTableDisplayPanel getThisPanel() {
 		return this;
@@ -1640,6 +1644,9 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 			MetaOmAnalyzer.updateExcluded(excluded, true);
 			MetaOmGraph.getActiveTable().updateMetadataTree();
 		}
+		
+		table.initializeVisibilityMap();
+		table.hideColumns();
 	}
 
 	// get rows that are not included (Excluded).

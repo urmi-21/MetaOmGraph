@@ -18,6 +18,7 @@ import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 
 import edu.iastate.metnet.metaomgraph.FilterableTableModel;
@@ -187,32 +188,10 @@ public abstract class StatisticalResultsPanel extends JPanel {
 			}
 
 		};
+		
+		table.getTableHeader().addMouseListener(new StripedTableHeaderMouseListener(table));
 
-		// table mouse listener
-		table.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				// only do if double click
-				if (e.getClickCount() < 2) {
-					return;
-				}
-				int row = table.convertRowIndexToModel(table.rowAtPoint(new Point(e.getX(), e.getY())));
-				int col = table.convertColumnIndexToModel(table.columnAtPoint(new Point(e.getX(), e.getY())));
 
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				int col = table.columnAtPoint(new Point(e.getX(), e.getY()));
-
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-				int col = table.columnAtPoint(new Point(e.getX(), e.getY()));
-
-			}
-		});
 		// end mouse listner
 
 		// disable colum drag
@@ -276,6 +255,7 @@ public abstract class StatisticalResultsPanel extends JPanel {
 		sorter = new TableSorter(filterModel);
 
 		table.setModel(sorter);
+		
 
 		formatTable();
 
