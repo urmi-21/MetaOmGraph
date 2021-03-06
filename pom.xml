@@ -27,6 +27,15 @@
 				</configuration>
 			</plugin>
 			<plugin>
+				<artifactId>maven-jar-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>default-jar</id>
+						<phase>none</phase>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
 					<archive>
@@ -38,12 +47,16 @@
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
 				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase> 
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
-			<!-- <plugin> <artifactId>maven-assembly-plugin</artifactId> <executions> 
-				<execution> <phase>package</phase> <goals> <goal>single</goal> </goals> </execution> 
-				</executions> <configuration> <archive> <manifest> <mainClass>edu.iastate.metnet.metaomgraph.MetaOmGraph</mainClass> 
-				</manifest> </archive> <descriptorRefs> <descriptorRef>jar-with-dependencies</descriptorRef> 
-				</descriptorRefs> </configuration> </plugin>  -->
 		</plugins>
 
 	</build>
@@ -173,23 +186,11 @@
       		<exclusions>
       			<exclusion>
       				<groupId>org.bytedeco</groupId>
-      				<artifactId>openblas-platform</artifactId>
-      			</exclusion>
-      			<exclusion>
-      				<groupId>org.bytedeco</groupId>
       				<artifactId>mkl-platform</artifactId>
       			</exclusion>
       			<exclusion>
       				<groupId>org.nd4j</groupId>
       				<artifactId>jackson</artifactId>
-      			</exclusion>
-      			<exclusion>
-      				<groupId>org.bytedeco</groupId>
-      				<artifactId>openblas</artifactId>
-      			</exclusion>
-      			<exclusion>
-      				<groupId>org.bytedeco</groupId>
-      				<artifactId>javacpp</artifactId>
       			</exclusion>
       			<exclusion>
       				<groupId>com.github.oshi</groupId>
@@ -217,54 +218,6 @@
       			</exclusion>
       		</exclusions>
 		</dependency>
-		<dependency>
-			<groupId>org.bytedeco</groupId>
-			<artifactId>javacpp</artifactId>
-			<version>1.5.3</version>
-		</dependency>
-		<dependency>
-			<groupId>org.bytedeco</groupId>
-			<artifactId>javacpp</artifactId>
-			<version>1.5.3</version>
-			<classifier>windows-x86_64</classifier>
-		</dependency>
-		<dependency>
-			<groupId>org.bytedeco</groupId>
-			<artifactId>javacpp</artifactId>
-			<version>1.5.3</version>
-			<classifier>macosx-x86_64</classifier>
-		</dependency>
-		<dependency>
-			<groupId>org.bytedeco</groupId>
-			<artifactId>javacpp</artifactId>
-			<version>1.5.3</version>
-			<classifier>linux-x86_64</classifier>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.bytedeco</groupId>
-			<artifactId>openblas</artifactId>
-			<version>0.3.9-1-1.5.3</version>
-		</dependency>
-		<dependency>
-			<groupId>org.bytedeco</groupId>
-			<artifactId>openblas</artifactId>
-			<version>0.3.9-1-1.5.3</version>
-			<classifier>windows-x86_64</classifier>
-		</dependency>
-		<dependency>
-			<groupId>org.bytedeco</groupId>
-			<artifactId>openblas</artifactId>
-			<version>0.3.9-1-1.5.3</version>
-			<classifier>macosx-x86_64</classifier>
-		</dependency>
-		<dependency>
-			<groupId>org.bytedeco</groupId>
-			<artifactId>openblas</artifactId>
-			<version>0.3.9-1-1.5.3</version>
-			<classifier>linux-x86_64</classifier>
-		</dependency>
-		
 	</dependencies>
 
 </project>
