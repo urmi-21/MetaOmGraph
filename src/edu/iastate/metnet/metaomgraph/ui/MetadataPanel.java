@@ -585,6 +585,10 @@ public class MetadataPanel extends JPanel {
         return mySplitPane;
     }
 
+    public StripedTable getStripedTable() {
+    	return dataTable;
+    }
+   
     private class MetadataTransferHandler extends TransferHandler {
 
         private DataFlavor metadataFlavor;

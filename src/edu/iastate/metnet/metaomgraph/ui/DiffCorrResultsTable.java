@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -18,12 +19,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.Vector;
+import java.util.Map.Entry;
+
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -45,6 +51,8 @@ import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumn;
+
 import edu.iastate.metnet.metaomgraph.AdjustPval;
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.DEAHeaderRenderer;
@@ -704,15 +712,124 @@ public class DiffCorrResultsTable extends StatisticalResultsPanel {
 		mnEdit.add(mntmPvalueCorrection);
 
 
-		JMenuItem mntmSelFeatureCols = new JMenuItem("Select Feature Metadata Cols");
+		JMenuItem mntmSelFeatureCols = new JMenuItem("Hide/Show DC Result columns");
 		mntmSelFeatureCols.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				DCColumnSelectFrame deaColSelect = new DCColumnSelectFrame(currentPanel);
-				MetaOmGraph.getDesktop().add(deaColSelect);
-				deaColSelect.moveToFront();
+				
+
+				table.initializeVisibilityMap();
+				java.util.List<String> selectedVals = new ArrayList<>();
+				LinkedHashMap<TableColumn,Boolean> visibleColumns = (LinkedHashMap<TableColumn,Boolean>)table.getMetadata().getColumnVisibilityMap();
+				List<TableColumn> allColumns =  new ArrayList<TableColumn>();
+				
+				
+				List<String> metadataHeaders = new ArrayList<String>();
+				List<Boolean> metadataSelectedStatus = new ArrayList<Boolean>();
+				
+				for(Entry<TableColumn, Boolean> col : visibleColumns.entrySet()) {
+					TableColumn c = col.getKey();
+					allColumns.add(c);
+					metadataHeaders.add(c.getHeaderValue().toString());
+					metadataSelectedStatus.add(col.getValue());
+				}
+				
+				JPanel outerPanel = new JPanel(new BorderLayout());
+				JLabel txt = new JLabel("Select the columns that are to be displayed", JLabel.CENTER);
+				
+				outerPanel.add(txt,BorderLayout.NORTH);
+				
+				JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+				JButton selectAllButton = new JButton("Select All");
+				JButton deselectAllButton = new JButton("Deselect All");
+				
+				buttonPanel.add(selectAllButton);
+				buttonPanel.add(deselectAllButton);
+				
+				
+				outerPanel.add(buttonPanel,BorderLayout.CENTER);
+				// display jpanel with check box
+				JCheckBox[] cBoxes = new JCheckBox[metadataHeaders.size() + 1];
+				JPanel cbPanel = new JPanel();
+				cbPanel.setLayout(new GridLayout(0, 3));
+				cbPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+				for (int i = 0; i < metadataHeaders.size(); i++) {
+					cBoxes[i] = new JCheckBox(metadataHeaders.get(i));
+					
+				}
+				
+				TreeMap<String,Integer> sortedCheckboxesMap = new TreeMap<String,Integer>();
+				
+				for (int i = 0; i < metadataHeaders.size(); i++) {
+					sortedCheckboxesMap.put(metadataHeaders.get(i).toLowerCase(), i);
+				}
+				
+				for(Map.Entry<String, Integer> entry : sortedCheckboxesMap.entrySet()) {
+					
+					cbPanel.add(cBoxes[entry.getValue()]);
+					
+					if(metadataSelectedStatus.get(entry.getValue())==true) {
+						cBoxes[entry.getValue()].setSelected(true);
+					}
+					else {
+						cBoxes[entry.getValue()].setSelected(false);
+					}
+					
+				}
+				
+				outerPanel.add(cbPanel,BorderLayout.SOUTH);
+				
+				
+				selectAllButton.addActionListener(new ActionListener() {
+					
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						
+						for (int i = 0; i < metadataHeaders.size(); i++) {
+							cBoxes[i].setSelected(true);
+						}
+					}
+				});
+
+				
+				deselectAllButton.addActionListener(new ActionListener() {
+					
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						
+						for (int i = 0; i < metadataHeaders.size(); i++) {
+							cBoxes[i].setSelected(false);
+						}
+					}
+				});
+
+				
+				int res = JOptionPane.showConfirmDialog(null, outerPanel, "Hide/Show DC Result Columns",
+						JOptionPane.OK_CANCEL_OPTION);
+				if (res == JOptionPane.OK_OPTION) {
+					
+					for (int i = 0; i < metadataHeaders.size(); i++) {
+						if (cBoxes[i].isSelected()) {
+							metadataSelectedStatus.add(i, true);
+							visibleColumns.put(allColumns.get(i), true);
+							table.getMetadata().setColumnVisibilityMap(visibleColumns);
+						}
+						else {
+							metadataSelectedStatus.add(i, false);
+							visibleColumns.put(allColumns.get(i), false);
+							table.getMetadata().setColumnVisibilityMap(visibleColumns);
+						}
+					}
+					
+					table.hideColumns();
+					
+				} else {
+					return;
+				}
+				
+				
+			
 			}
 		});
 		mnEdit.add(mntmSelFeatureCols);
@@ -1182,6 +1299,10 @@ public class DiffCorrResultsTable extends StatisticalResultsPanel {
 			table.getColumnModel().getColumn(i).setCellRenderer(new DefaultTableCellRenderer());
 			table.getColumnModel().getColumn(i).setHeaderRenderer(featureMetadataHeaderCellRenderer);
 		}
+		
+		
+		table.initializeVisibilityMap();
+		table.hideColumns();
 
 	}
 	
