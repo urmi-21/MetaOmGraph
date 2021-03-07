@@ -602,31 +602,11 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		mntmSelectColumn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				EventQueue.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							MetadataRemoveCols frame = new MetadataRemoveCols(headers, obj, getThisPanel(), false);
-							frame.setVisible(true);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-				});
+				MetaOmGraph.getActiveTablePanel().getMetadataTableDisplay().getStripedTable().openColumnSelectorDialog("Sample Metadata");
 			}
 		});
 		mnByColumn.add(mntmSelectColumn);
 
-		JMenuItem mntmReset = new JMenuItem("Reset");
-		mntmReset.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				resetData();
-				updateTable();
-				updateHeaders();
-			}
-		});
-		mnByColumn.add(mntmReset);
 
 		JMenu mnRemove = new JMenu("Remove");
 		mnRemove.setToolTipText("Permanently delete data or metadata. This can't be undone!");
