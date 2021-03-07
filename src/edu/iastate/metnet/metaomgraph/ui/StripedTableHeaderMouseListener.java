@@ -35,7 +35,7 @@ import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 
 /**
  * A mouse listener class which is used to handle mouse clicking event
- * on column headers of a JTable.
+ * on column headers of a StripedTable.
  *
  */
 public class StripedTableHeaderMouseListener extends MouseAdapter {
@@ -44,6 +44,7 @@ public class StripedTableHeaderMouseListener extends MouseAdapter {
 	private JPopupMenu popup;
 	private Map<Integer,TableColumn> hiddenColumns;
 	private Map<Integer,TableColumn> allColumns;
+	private String tableType;
 
 	public StripedTableHeaderMouseListener(StripedTable table) {
 		this.table = table;
@@ -121,122 +122,7 @@ public class StripedTableHeaderMouseListener extends MouseAdapter {
 			
 			selectColHide.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent ev) {
-
-
-					
-					java.util.List<String> selectedVals = new ArrayList<>();
-					LinkedHashMap<TableColumn,Boolean> visibleColumns = (LinkedHashMap<TableColumn,Boolean>)MetaOmGraph.getActiveTablePanel().getStripedTable().getMetadata().getColumnVisibilityMap();
-					List<TableColumn> allColumns =  new ArrayList<TableColumn>();
-					
-					StripedTable table = MetaOmGraph.getActiveTablePanel().getStripedTable();
-					
-					List<String> metadataHeaders = new ArrayList<String>();
-					List<Boolean> metadataSelectedStatus = new ArrayList<Boolean>();
-					
-					for(Entry<TableColumn, Boolean> col : visibleColumns.entrySet()) {
-						TableColumn c = col.getKey();
-						allColumns.add(c);
-						metadataHeaders.add(c.getHeaderValue().toString());
-						metadataSelectedStatus.add(col.getValue());
-					}
-					
-					JPanel outerPanel = new JPanel(new BorderLayout());
-					JLabel txt = new JLabel("Select the columns that are to be displayed", JLabel.CENTER);
-					
-					outerPanel.add(txt,BorderLayout.NORTH);
-					
-					JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-					JButton selectAllButton = new JButton("Select All");
-					JButton deselectAllButton = new JButton("Deselect All");
-					
-					buttonPanel.add(selectAllButton);
-					buttonPanel.add(deselectAllButton);
-					
-					
-					outerPanel.add(buttonPanel,BorderLayout.CENTER);
-					// display jpanel with check box
-					JCheckBox[] cBoxes = new JCheckBox[metadataHeaders.size() + 1];
-					JPanel cbPanel = new JPanel();
-					cbPanel.setLayout(new GridLayout(0, 3));
-					cbPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-					for (int i = 0; i < metadataHeaders.size(); i++) {
-						cBoxes[i] = new JCheckBox(metadataHeaders.get(i));
-						
-					}
-					
-					TreeMap<String,Integer> sortedCheckboxesMap = new TreeMap<String,Integer>();
-					
-					for (int i = 0; i < metadataHeaders.size(); i++) {
-						sortedCheckboxesMap.put(metadataHeaders.get(i).toLowerCase(), i);
-					}
-					
-					for(Map.Entry<String, Integer> entry : sortedCheckboxesMap.entrySet()) {
-						
-						cbPanel.add(cBoxes[entry.getValue()]);
-						
-						if(metadataSelectedStatus.get(entry.getValue())==true) {
-							cBoxes[entry.getValue()].setSelected(true);
-						}
-						else {
-							cBoxes[entry.getValue()].setSelected(false);
-						}
-						
-					}
-					
-					outerPanel.add(cbPanel,BorderLayout.SOUTH);
-					
-					
-					selectAllButton.addActionListener(new ActionListener() {
-						
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							
-							for (int i = 0; i < metadataHeaders.size(); i++) {
-								cBoxes[i].setSelected(true);
-							}
-						}
-					});
-
-					
-					deselectAllButton.addActionListener(new ActionListener() {
-						
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							
-							for (int i = 0; i < metadataHeaders.size(); i++) {
-								cBoxes[i].setSelected(false);
-							}
-						}
-					});
-
-					
-					int res = JOptionPane.showConfirmDialog(null, outerPanel, "Hide/Show Feature Metadata Columns",
-							JOptionPane.OK_CANCEL_OPTION);
-					if (res == JOptionPane.OK_OPTION) {
-						
-						for (int i = 0; i < metadataHeaders.size(); i++) {
-							if (cBoxes[i].isSelected()) {
-								metadataSelectedStatus.add(i, true);
-								visibleColumns.put(allColumns.get(i), true);
-								MetaOmGraph.getActiveTablePanel().getStripedTable().getMetadata().setColumnVisibilityMap(visibleColumns);
-							}
-							else {
-								metadataSelectedStatus.add(i, false);
-								visibleColumns.put(allColumns.get(i), false);
-								MetaOmGraph.getActiveTablePanel().getStripedTable().getMetadata().setColumnVisibilityMap(visibleColumns);
-							}
-						}
-						
-						MetaOmGraph.getActiveTablePanel().getStripedTable().hideColumns();
-						
-					} else {
-						return;
-					}
-					
-					
-				
-					
-					
+					table.openColumnSelectorDialog("Current Table");
 				}
 			});
 
