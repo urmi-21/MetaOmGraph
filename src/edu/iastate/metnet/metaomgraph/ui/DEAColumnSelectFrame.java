@@ -8,11 +8,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyVetoException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -51,6 +54,7 @@ public class DEAColumnSelectFrame extends TaskbarInternalFrame{
 	private StripedTable jList;
 	private JButton jButton;
 	private DEAColumnSelectFrame currentFrame;
+	private Map<Integer,JCheckBox> checkboxMap;
 
 	private static String[] listItems = { "BLUE", "BLACK", "CYAN",
 			"GREEN", "GRAY", "RED", "WHITE" };
@@ -65,10 +69,10 @@ public class DEAColumnSelectFrame extends TaskbarInternalFrame{
 	 * the Differential Expression Analysis table.
 	 */
 	public DEAColumnSelectFrame(logFCResultsFrame frame) {
-		super("Select Feature Metadata columns to be shown");
+		super("Show/Hide Feature metadata columns");
 		
 		setLayout(new FlowLayout());
-		setBounds(100, 100, 500, 450);
+		setBounds(100, 100, 300, 450);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
 		currentFrame = this;
@@ -77,7 +81,7 @@ public class DEAColumnSelectFrame extends TaskbarInternalFrame{
 		outerPanel.setLayout(new BoxLayout(outerPanel, BoxLayout.Y_AXIS));
 
 
-		jLabel = new JLabel("Select the Feature Metadata columns to display in DE Results");
+		jLabel = new JLabel("Check the columns that should be displayed in the DE results");
 		outerPanel.add(jLabel);
 
 		jLabel.setBorder(new EmptyBorder(10,0,10,0));
@@ -91,12 +95,28 @@ public class DEAColumnSelectFrame extends TaskbarInternalFrame{
 			x++;
 		}
 
-		jList = new StripedTable();
-		NoneditableTableModel model = new NoneditableTableModel(fmObj,new String[] {"Feature Metadata Cols"});
-		jList.setModel(model);
-		jList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		
+		checkboxMap = new HashMap<Integer,JCheckBox>();
+		
+		JPanel checkboxPanel = new JPanel();
+		checkboxPanel.setLayout(new BoxLayout(checkboxPanel, BoxLayout.Y_AXIS));
+		
+		int itemno = 0;
+		
+		 for (String s:listItems){
+			    
+			    JCheckBox chk=new JCheckBox(s);
+			    //add the checkbox to the panel
+			    chk.setSelected(true);
+			    checkboxPanel.add(chk);
+			    
+			    
+			    checkboxMap.put(itemno, chk);
+			    itemno++;
 
-		JScrollPane scrollPane = new JScrollPane(jList);
+			  }
+
+		JScrollPane scrollPane = new JScrollPane(checkboxPanel);
 		scrollPane.setPreferredSize(new Dimension(100,400));
 		outerPanel.add(scrollPane);
 		scrollPane.setBorder(new EmptyBorder(0,0,10,0));
@@ -116,15 +136,19 @@ public class DEAColumnSelectFrame extends TaskbarInternalFrame{
 							public void run() {
 								try {
 
-									int [] selectedFeatureMetadataCols = jList.getSelectedRows();
-									List<String> selectedCols = new ArrayList<String>();
-
-									for(int j=0;j<selectedFeatureMetadataCols.length;j++) {
-										selectedCols.add((String) model.getValueAt(selectedFeatureMetadataCols[j], 0));
+									ArrayList<Integer> columnsToHide = new ArrayList<Integer>();
+									
+									for(Map.Entry<Integer, JCheckBox> checkboxEntry : checkboxMap.entrySet()) {
+										
+										JCheckBox ck = (JCheckBox)checkboxEntry.getValue();
+										
+										if(!ck.isSelected()) {
+											columnsToHide.add(checkboxEntry.getKey());
+										}
 									}
-
-									frame.projectColumns(selectedCols);
-									frame.setSelectedFeatureColumns(selectedCols);
+									
+									frame.hideColumns(columnsToHide, checkboxMap.size());
+									
 
 									try {
 										currentFrame.setClosed(true);

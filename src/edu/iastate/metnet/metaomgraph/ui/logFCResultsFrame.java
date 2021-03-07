@@ -3,6 +3,7 @@ package edu.iastate.metnet.metaomgraph.ui;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -18,7 +19,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.Vector;
+import java.util.Map.Entry;
 
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
@@ -34,6 +37,7 @@ import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JMenuBar;
@@ -54,11 +58,14 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 import org.apache.logging.log4j.Logger;
 
 import edu.iastate.metnet.metaomgraph.AdjustPval;
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
+import edu.iastate.metnet.metaomgraph.CorrelationValue;
 import edu.iastate.metnet.metaomgraph.DEAHeaderRenderer;
 import edu.iastate.metnet.metaomgraph.DecimalFormatRenderer;
 import edu.iastate.metnet.metaomgraph.DifferentialExpResults;
@@ -122,7 +129,7 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 	String methodName;
 	String pvAdjMethod;
 	logFCResultsFrame currentPanel;
-	
+
 
 	double pvThresh = 2;
 
@@ -134,7 +141,7 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 		return geneLists.getSelectedValue().toString();
 	}
 
-	
+
 	/**
 	 * Launch the application.
 	 */
@@ -164,7 +171,7 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 				ob.getmethodName(), ob.getPVal(), ob.getfStat(), ob.getFPVal(), myProject);
 	}
 
-	
+
 	/**
 	 * 
 	 * @param featureNames
@@ -199,9 +206,9 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 		UIManager.put("TabbedPane.selected", Color.red);
 		UIManager.put("TabbedPane.unselectedForeground", Color.gray);
 		UIManager.put("TabbedPane.selectedBackground", Color.white);
-		
+
 		MetaOmGraph.activeProject.populateRowMapping();
-		
+
 		currentPanel = this;
 		// compute adjusted pv
 		if (testPvals != null) {
@@ -225,10 +232,10 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 		Arrays.sort(listNames, MetaOmGraph.getActiveTablePanel().new ListNameComparator());
 
 		geneLists = new JList(listNames);
-		
+
 		geneLists.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		geneLists.setSelectedIndex(0);
-		
+
 
 		dataToolbar = new JToolBar();
 		dataToolbar.setFloatable(false);
@@ -458,158 +465,180 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 		mntmFilter.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+
+				//Set all columns as unhidden before calling p-value filter as the chart uses all column indexes
+				Map<TableColumn,Boolean> backupMap = table.getMetadata().getColumnVisibilityMap();
+				Map<TableColumn,Boolean> newMap = new LinkedHashMap<TableColumn,Boolean>();
+				for(Map.Entry<TableColumn, Boolean> entry : backupMap.entrySet()) {
+					newMap.put(entry.getKey(), true);
+				}
+				table.getMetadata().setColumnVisibilityMap(newMap);
+				table.hideColumns();
 				
 				
-				new AnimatedSwingWorker("Working...", true) {
-					@Override
-					public Object construct() {
-						EventQueue.invokeLater(new Runnable() {
-							@Override
-							public void run() {
-								try {
+				try {
 
-									double pvalThresh = 0;
-									try {
-										String input = (String) JOptionPane.showInputDialog(null, "Please Enter a value", "Input p-value",
-												JOptionPane.QUESTION_MESSAGE, null, null, String.valueOf(pvThresh));
-										if (input == null) {
-											return;
-										}
-										pvalThresh = Double.parseDouble(input);
+					double pvalThresh = 0;
+					try {
+						String input = (String) JOptionPane.showInputDialog(null, "Please Enter a value", "Input p-value",
+								JOptionPane.QUESTION_MESSAGE, null, null, String.valueOf(pvThresh));
+						if (input == null) {
+							JOptionPane.showMessageDialog(null, "Invalid number entered. Please try again.", "Error",
+									JOptionPane.ERROR_MESSAGE);
 
-									} catch (NumberFormatException nfe) {
-										JOptionPane.showMessageDialog(null, "Invalid number entered. Please try again.", "Error",
-												JOptionPane.ERROR_MESSAGE);
-										return;
-									}
+							return;
+						}
+						pvalThresh = Double.parseDouble(input);
 
-									pvThresh = pvalThresh;
+					} catch (NumberFormatException nfe) {
+						JOptionPane.showMessageDialog(null, "Invalid number entered. Please try again.", "Error",
+								JOptionPane.ERROR_MESSAGE);
 
-									
-									
-									if(featureNames != null) {
-
-										//Get Feature metadata rows
-										List<String> rowNames = featureNames;
-										int[] rowIndices = MetaOmGraph.activeProject.getRowIndexesFromFeatureNames(rowNames, true);
-										
-										for(int j = 0; j < rowIndices.length; j++) {
-											rowIndicesMapping[rowIndices[j]] = j;
-										}
-
-										Object[][] featureInfoRows = MetaOmGraph.activeProject.getRowNames(rowIndices);	
-										String [] featureInfoColNames = MetaOmGraph.activeProject.getInfoColumnNames();
-										
-										int nonFeatureColCount = 0;
-										
-										List<String> allColumnNames = new ArrayList<String>();
-										allColumnNames.add("Name");
-										allColumnNames.add("Mean(log(" + name1 + "))");
-										allColumnNames.add("Mean(log(" + name2 + "))");
-										allColumnNames.add("logFC");
-										nonFeatureColCount += 4;
-										if (testPvals != null) {
-											if (ftestRatiovals != null && ftestRatiovals.size() > 0) {
-												allColumnNames.add("F statistic");
-												allColumnNames.add("F test pval");
-												allColumnNames.add("Adj F test pval");
-												nonFeatureColCount += 3;
-											}
-											
-											allColumnNames.add(methodName + " pval");
-											allColumnNames.add("Adj pval");
-											nonFeatureColCount += 2;
-										}
-
-										if(featureInfoColNames!=null) {
-											for(String col : featureInfoColNames) {
-												allColumnNames.add(col);
-											}
-										}
-
-										String [] masterColumns = new String[allColumnNames.size()];
-										
-										for(int i=0; i< allColumnNames.size(); i++) {
-											masterColumns[i] = (String) allColumnNames.get(i);
-										}
-
-										ArrayList<ArrayList> pValRows = new ArrayList<ArrayList>();
-										// for each row add each coloumn
-										for (int i = 0; i < featureNames.size(); i++) {
-											// create a temp string storing all col values for a row
-											ArrayList temp = new ArrayList();
-											temp.add(featureNames.get(i));
-											temp.add(mean1.get(i));
-											temp.add(mean2.get(i));
-											temp.add(mean1.get(i) - mean2.get(i));
-											if (testPvals != null) {
-												if (testPvals.get(i) >= pvThresh) {
-													continue;
-												}
-												if (ftestRatiovals != null && ftestRatiovals.size() > 0) {
-													temp.add(ftestRatiovals.get(i));
-													temp.add(ftestPvals.get(i));
-													temp.add(ftestadjutestPvals.get(i));
-												}
-												temp.add(testPvals.get(i));
-												temp.add(testadjutestPvals.get(i));
-											}
-
-											if(featureInfoRows!=null) {
-												for(int k=0;k<featureInfoRows[i].length;k++) {
-													temp.add(featureInfoRows[i][k]);
-												}
-											}
-
-											pValRows.add(temp);
-
-										}
-
-										Object [][] pValLimitedData = new Object[pValRows.size()][featureInfoColNames.length+nonFeatureColCount];
-										
-										
-										int[] rowIndices2 = new int[pValRows.size()];
-										
-										if(pValRows.size() > 0) {
-											
-											for(int i = 0; i < rowIndicesMapping.length; i++) {
-												rowIndicesMapping[i] = -1;
-											}
-										}
-										for(int i = 0 ; i < pValRows.size(); i++ ) {
-											ArrayList temp = pValRows.get(i);
-											pValLimitedData[i] = temp.toArray();
-											rowIndices2[i] = MetaOmGraph.activeProject.getRowIndexbyName((String)pValLimitedData[i][0],true);
-											rowIndicesMapping[rowIndices2[i]] = i;
-										}
-										
-										setMasterTableData(pValLimitedData);
-										setMasterTableColumns(masterColumns);
-										setSelectedAndProjectedTableData(pValLimitedData);
-										setSelectedAndProjectedTableColumns(masterColumns);
-										
-										projectColumns(getSelectedFeatureColumns());
-
-									}
-
-									// JOptionPane.showMessageDialog(null, "Done");
-
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-							}
-						});
-						return null;
+						return;
 					}
-				}.start();
-				
-				
-				
-				
-				
+
+					pvThresh = pvalThresh;
+
+					
+
+					new AnimatedSwingWorker("Working...", true) {
+						@Override
+						public Object construct() {
+
+							try {
+							
+							if(featureNames != null) {
+
+								//Get Feature metadata rows
+								List<String> rowNames = featureNames;
+								int[] rowIndices = MetaOmGraph.activeProject.getRowIndexesFromFeatureNames(rowNames, true);
+
+								for(int j = 0; j < rowIndices.length; j++) {
+									rowIndicesMapping[rowIndices[j]] = j;
+								}
+
+								Object[][] featureInfoRows = MetaOmGraph.activeProject.getRowNames(rowIndices);	
+								String [] featureInfoColNames = MetaOmGraph.activeProject.getInfoColumnNames();
+
+								int nonFeatureColCount = 0;
+
+								List<String> allColumnNames = new ArrayList<String>();
+								allColumnNames.add("Name");
+								allColumnNames.add("Mean(log(" + name1 + "))");
+								allColumnNames.add("Mean(log(" + name2 + "))");
+								allColumnNames.add("logFC");
+								nonFeatureColCount += 4;
+								if (testPvals != null) {
+									if (ftestRatiovals != null && ftestRatiovals.size() > 0) {
+										allColumnNames.add("F statistic");
+										allColumnNames.add("F test pval");
+										allColumnNames.add("Adj F test pval");
+										nonFeatureColCount += 3;
+									}
+
+									allColumnNames.add(methodName + " pval");
+									allColumnNames.add("Adj pval");
+									nonFeatureColCount += 2;
+								}
+
+								if(featureInfoColNames!=null) {
+									for(String col : featureInfoColNames) {
+										allColumnNames.add(col);
+									}
+								}
+
+								String [] masterColumns = new String[allColumnNames.size()];
+
+								for(int i=0; i< allColumnNames.size(); i++) {
+									masterColumns[i] = (String) allColumnNames.get(i);
+								}
+
+								ArrayList<ArrayList> pValRows = new ArrayList<ArrayList>();
+								// for each row add each coloumn
+								for (int i = 0; i < featureNames.size(); i++) {
+									// create a temp string storing all col values for a row
+									ArrayList temp = new ArrayList();
+									temp.add(featureNames.get(i));
+									temp.add(mean1.get(i));
+									temp.add(mean2.get(i));
+									temp.add(mean1.get(i) - mean2.get(i));
+									if (testPvals != null) {
+										if (testPvals.get(i) >= pvThresh) {
+											continue;
+										}
+										if (ftestRatiovals != null && ftestRatiovals.size() > 0) {
+											temp.add(ftestRatiovals.get(i));
+											temp.add(ftestPvals.get(i));
+											temp.add(ftestadjutestPvals.get(i));
+										}
+										temp.add(testPvals.get(i));
+										temp.add(testadjutestPvals.get(i));
+									}
+
+									if(featureInfoRows!=null) {
+										for(int k=0;k<featureInfoRows[i].length;k++) {
+											if(featureInfoRows[i][k] instanceof CorrelationValue) {
+												temp.add(featureInfoRows[i][k].toString());
+											}
+											else {
+												temp.add(featureInfoRows[i][k]);
+											}
+
+										}
+									}
+
+									pValRows.add(temp);
+
+								}
+
+								Object [][] pValLimitedData = new Object[pValRows.size()][featureInfoColNames.length+nonFeatureColCount];
+
+
+								int[] rowIndices2 = new int[pValRows.size()];
+
+								if(pValRows.size() > 0) {
+
+									for(int i = 0; i < rowIndicesMapping.length; i++) {
+										rowIndicesMapping[i] = -1;
+									}
+								}
+								for(int i = 0 ; i < pValRows.size(); i++ ) {
+									ArrayList temp = pValRows.get(i);
+									pValLimitedData[i] = temp.toArray();
+									rowIndices2[i] = MetaOmGraph.activeProject.getRowIndexbyName((String)pValLimitedData[i][0],true);
+									rowIndicesMapping[rowIndices2[i]] = i;
+								}
+
+								setMasterTableData(pValLimitedData);
+								setMasterTableColumns(masterColumns);
+								setSelectedAndProjectedTableData(pValLimitedData);
+								setSelectedAndProjectedTableColumns(masterColumns);
+
+								projectColumns(getSelectedFeatureColumns());
+
+							}
+
+							return null;
+
+							}
+							catch(Exception e2) {
+								return null;
+							}
+						}
+					}.start();
+
+					// JOptionPane.showMessageDialog(null, "Done");
+
+
+				} catch (Exception e) {
+					e.printStackTrace();
+
+				}
 
 			}
+
 		});
+
 		mnEdit.add(mntmFilter);
 
 		JMenuItem mntmPvalueCorrection = new JMenuItem("P-value correction");
@@ -617,172 +646,183 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				
-				
-				new AnimatedSwingWorker("Working...", true) {
-					@Override
-					public Object construct() {
-						EventQueue.invokeLater(new Runnable() {
-							@Override
-							public void run() {
-								try {
+				//Set all columns as unhidden before calling p-value correction as the chart uses all column indexes
+				Map<TableColumn,Boolean> backupMap = table.getMetadata().getColumnVisibilityMap();
+				Map<TableColumn,Boolean> newMap = new LinkedHashMap<TableColumn,Boolean>();
+				for(Map.Entry<TableColumn, Boolean> entry : backupMap.entrySet()) {
+					newMap.put(entry.getKey(), true);
+				}
+				table.getMetadata().setColumnVisibilityMap(newMap);
+				table.hideColumns();
 
-									// choose adjustment method
-									JPanel cboxPanel = new JPanel();
-									String[] adjMethods = AdjustPval.getMethodNames();
-									JComboBox pvadjCBox = new JComboBox<>(adjMethods);
-									cboxPanel.add(pvadjCBox);
-									int opt = JOptionPane.showConfirmDialog(null, cboxPanel, "Select categories",
-											JOptionPane.OK_CANCEL_OPTION);
-									if (opt == JOptionPane.OK_OPTION) {
-										pvAdjMethod = pvadjCBox.getSelectedItem().toString();
-									} else {
-										return;
+				try {
+
+					// choose adjustment method
+					JPanel cboxPanel = new JPanel();
+					String[] adjMethods = AdjustPval.getMethodNames();
+					JComboBox pvadjCBox = new JComboBox<>(adjMethods);
+					cboxPanel.add(pvadjCBox);
+					int opt = JOptionPane.showConfirmDialog(null, cboxPanel, "Select categories",
+							JOptionPane.OK_CANCEL_OPTION);
+					if (opt == JOptionPane.OK_OPTION) {
+						pvAdjMethod = pvadjCBox.getSelectedItem().toString();
+					} else {
+						return;
+					}
+
+					// correct p values
+
+					if (testPvals != null) {
+						testadjutestPvals = AdjustPval.computeAdjPV(testPvals, pvAdjMethod);
+					}
+					if (ftestPvals != null) {
+
+						ftestadjutestPvals = AdjustPval.computeAdjPV(ftestPvals, pvAdjMethod);
+					}
+
+					// update in table
+					new AnimatedSwingWorker("Working...", true) {
+						@Override
+						public Object construct() {
+
+							try {
+								if(featureNames != null) {
+
+									//Get Feature metadata rows
+									List<String> rowNames = featureNames;
+									int[] rowIndices = MetaOmGraph.activeProject.getRowIndexesFromFeatureNames(rowNames, true);
+
+									for(int j = 0; j < rowIndices.length; j++) {
+										rowIndicesMapping[rowIndices[j]] = j;
 									}
 
-									// correct p values
+									Object[][] featureInfoRows = MetaOmGraph.activeProject.getRowNames(rowIndices);	
+									String [] featureInfoColNames = MetaOmGraph.activeProject.getInfoColumnNames();
 
+									int nonFeatureColCount = 0;
+
+									List<String> allColumnNames = new ArrayList<String>();
+									allColumnNames.add("Name");
+									allColumnNames.add("Mean(log(" + name1 + "))");
+									allColumnNames.add("Mean(log(" + name2 + "))");
+									allColumnNames.add("logFC");
+									nonFeatureColCount += 4;
 									if (testPvals != null) {
-										testadjutestPvals = AdjustPval.computeAdjPV(testPvals, pvAdjMethod);
-									}
-									if (ftestPvals != null) {
-
-										ftestadjutestPvals = AdjustPval.computeAdjPV(ftestPvals, pvAdjMethod);
-									}
-
-									// update in table
-									
-									if(featureNames != null) {
-
-										//Get Feature metadata rows
-										List<String> rowNames = featureNames;
-										int[] rowIndices = MetaOmGraph.activeProject.getRowIndexesFromFeatureNames(rowNames, true);
-										
-										for(int j = 0; j < rowIndices.length; j++) {
-											rowIndicesMapping[rowIndices[j]] = j;
+										if (ftestRatiovals != null && ftestRatiovals.size() > 0) {
+											allColumnNames.add("F statistic");
+											allColumnNames.add("F test pval");
+											allColumnNames.add("Adj F test pval");
+											nonFeatureColCount += 3;
 										}
+										allColumnNames.add(methodName + " pval");
+										allColumnNames.add("Adj pval");
+										nonFeatureColCount += 2;
+									}
 
-										Object[][] featureInfoRows = MetaOmGraph.activeProject.getRowNames(rowIndices);	
-										String [] featureInfoColNames = MetaOmGraph.activeProject.getInfoColumnNames();
-										
-										int nonFeatureColCount = 0;
-										
-										List<String> allColumnNames = new ArrayList<String>();
-										allColumnNames.add("Name");
-										allColumnNames.add("Mean(log(" + name1 + "))");
-										allColumnNames.add("Mean(log(" + name2 + "))");
-										allColumnNames.add("logFC");
-										nonFeatureColCount += 4;
+									if(featureInfoColNames!=null) {
+										for(String col : featureInfoColNames) {
+											allColumnNames.add(col);
+										}
+									}
+
+									String [] masterColumns = new String[allColumnNames.size()];
+
+									for(int i=0; i< allColumnNames.size(); i++) {
+										masterColumns[i] = (String) allColumnNames.get(i);
+									}
+
+									ArrayList<ArrayList> pValRows = new ArrayList<ArrayList>();
+									// for each row add each coloumn
+									for (int i = 0; i < featureNames.size(); i++) {
+										// create a temp string storing all col values for a row
+										ArrayList temp = new ArrayList();
+										temp.add(featureNames.get(i));
+										temp.add(mean1.get(i));
+										temp.add(mean2.get(i));
+										temp.add(mean1.get(i) - mean2.get(i));
 										if (testPvals != null) {
+											if (testPvals.get(i) >= pvThresh) {
+												continue;
+											}
 											if (ftestRatiovals != null && ftestRatiovals.size() > 0) {
-												allColumnNames.add("F statistic");
-												allColumnNames.add("F test pval");
-												allColumnNames.add("Adj F test pval");
-												nonFeatureColCount += 3;
+												temp.add(ftestRatiovals.get(i));
+												temp.add(ftestPvals.get(i));
+												temp.add(ftestadjutestPvals.get(i));
 											}
-											allColumnNames.add(methodName + " pval");
-											allColumnNames.add("Adj pval");
-											nonFeatureColCount += 2;
+											temp.add(testPvals.get(i));
+											temp.add(testadjutestPvals.get(i));
 										}
 
-										if(featureInfoColNames!=null) {
-											for(String col : featureInfoColNames) {
-												allColumnNames.add(col);
-											}
-										}
-
-										String [] masterColumns = new String[allColumnNames.size()];
-										
-										for(int i=0; i< allColumnNames.size(); i++) {
-											masterColumns[i] = (String) allColumnNames.get(i);
-										}
-
-										ArrayList<ArrayList> pValRows = new ArrayList<ArrayList>();
-										// for each row add each coloumn
-										for (int i = 0; i < featureNames.size(); i++) {
-											// create a temp string storing all col values for a row
-											ArrayList temp = new ArrayList();
-											temp.add(featureNames.get(i));
-											temp.add(mean1.get(i));
-											temp.add(mean2.get(i));
-											temp.add(mean1.get(i) - mean2.get(i));
-											if (testPvals != null) {
-												if (testPvals.get(i) >= pvThresh) {
-													continue;
+										if(featureInfoRows!=null) {
+											for(int k=0;k<featureInfoRows[i].length;k++) {
+												if(featureInfoRows[i][k] instanceof CorrelationValue) {
+													temp.add(featureInfoRows[i][k].toString());
 												}
-												if (ftestRatiovals != null && ftestRatiovals.size() > 0) {
-													temp.add(ftestRatiovals.get(i));
-													temp.add(ftestPvals.get(i));
-													temp.add(ftestadjutestPvals.get(i));
-												}
-												temp.add(testPvals.get(i));
-												temp.add(testadjutestPvals.get(i));
-											}
-
-											if(featureInfoRows!=null) {
-												for(int k=0;k<featureInfoRows[i].length;k++) {
+												else {
 													temp.add(featureInfoRows[i][k]);
 												}
 											}
-
-											pValRows.add(temp);
-
 										}
 
-										Object [][] pValLimitedData = new Object[pValRows.size()][featureInfoColNames.length+nonFeatureColCount];
-										
-										
-										int[] rowIndices2 = new int[pValRows.size()];
-										
-										if(pValRows.size() > 0) {
-											
-											for(int i = 0; i < rowIndicesMapping.length; i++) {
-												rowIndicesMapping[i] = -1;
-											}
-										}
-										for(int i = 0 ; i < pValRows.size(); i++ ) {
-											ArrayList temp = pValRows.get(i);
-											pValLimitedData[i] = temp.toArray();
-											rowIndices2[i] = MetaOmGraph.activeProject.getRowIndexbyName((String)pValLimitedData[i][0],true);
-											rowIndicesMapping[rowIndices2[i]] = i;
-										}
-										
-										setMasterTableData(pValLimitedData);
-										setMasterTableColumns(masterColumns);
-										setSelectedAndProjectedTableData(pValLimitedData);
-										setSelectedAndProjectedTableColumns(masterColumns);
-										
-										projectColumns(getSelectedFeatureColumns());
+										pValRows.add(temp);
 
 									}
 
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-							}
-						});
-						return null;
-					}
-				}.start();
-				
-				
-				
+									Object [][] pValLimitedData = new Object[pValRows.size()][featureInfoColNames.length+nonFeatureColCount];
 
-				
+
+									int[] rowIndices2 = new int[pValRows.size()];
+
+									if(pValRows.size() > 0) {
+
+										for(int i = 0; i < rowIndicesMapping.length; i++) {
+											rowIndicesMapping[i] = -1;
+										}
+									}
+									for(int i = 0 ; i < pValRows.size(); i++ ) {
+										ArrayList temp = pValRows.get(i);
+										pValLimitedData[i] = temp.toArray();
+										rowIndices2[i] = MetaOmGraph.activeProject.getRowIndexbyName((String)pValLimitedData[i][0],true);
+										rowIndicesMapping[rowIndices2[i]] = i;
+									}
+
+									setMasterTableData(pValLimitedData);
+									setMasterTableColumns(masterColumns);
+									setSelectedAndProjectedTableData(pValLimitedData);
+									setSelectedAndProjectedTableColumns(masterColumns);
+
+									projectColumns(getSelectedFeatureColumns());
+
+								}
+
+
+								return null;
+							}
+							catch(Exception e2) {
+								return null;
+							}
+						}
+					}.start();
+
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
 			}
 		});
 		mnEdit.add(mntmPvalueCorrection);
 
-		JMenuItem mntmSelFeatureCols = new JMenuItem("Select Feature Metadata Cols");
+		JMenuItem mntmSelFeatureCols = new JMenuItem("Hide/Show DEA Result columns");
+
 		mntmSelFeatureCols.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
-				DEAColumnSelectFrame deaColSelect = new DEAColumnSelectFrame(currentPanel);
-				MetaOmGraph.getDesktop().add(deaColSelect);
-				deaColSelect.moveToFront();
+
+				table.openColumnSelectorDialog("DEA Result");
 			}
 		});
+
 		mnEdit.add(mntmSelFeatureCols);
 
 		JMenu mnPlot = new JMenu("Plot");
@@ -795,16 +835,35 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 		mntmLineChart.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+
+				//Set all columns as unhidden before calling line-chart as the chart uses all column indexes
+				Map<TableColumn,Boolean> backupMap = table.getMetadata().getColumnVisibilityMap();
+				Map<TableColumn,Boolean> newMap = new LinkedHashMap<TableColumn,Boolean>();
+				for(Map.Entry<TableColumn, Boolean> entry : backupMap.entrySet()) {
+					newMap.put(entry.getKey(), true);
+				}
+				table.getMetadata().setColumnVisibilityMap(newMap);
+				table.hideColumns();
+
+
+
 				// get selected rowindex
 				int[] rowIndices = getSelectedRowIndices();
 				if (rowIndices == null || rowIndices.length == 0) {
 					JOptionPane.showMessageDialog(null, "No rows selected", "Nothing selected",
 							JOptionPane.ERROR_MESSAGE);
+
+					table.getMetadata().setColumnVisibilityMap(backupMap);
+					table.hideColumns();
+
 					return;
 				}
 				new MetaOmChartPanel(rowIndices, myProject.getDefaultXAxis(), myProject.getDefaultYAxis(),
 						myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject)
 				.createInternalFrame();
+
+				table.getMetadata().setColumnVisibilityMap(backupMap);
+				table.hideColumns();
 			}
 		});
 		mnSelected.add(mntmLineChart);
@@ -814,17 +873,35 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
+				//Set all columns as unhidden before calling chart as the chart uses all column indexes
+				Map<TableColumn,Boolean> backupMap = table.getMetadata().getColumnVisibilityMap();
+				Map<TableColumn,Boolean> newMap = new LinkedHashMap<TableColumn,Boolean>();
+				for(Map.Entry<TableColumn, Boolean> entry : backupMap.entrySet()) {
+					newMap.put(entry.getKey(), true);
+				}
+				table.getMetadata().setColumnVisibilityMap(newMap);
+				table.hideColumns();
+
+
 				// get selected rowindex
 				int[] rowIndices = getSelectedRowIndices();
 				if (rowIndices == null) {
 					JOptionPane.showMessageDialog(null, "No rows selected", "Nothing selected",
 							JOptionPane.ERROR_MESSAGE);
+
+					table.getMetadata().setColumnVisibilityMap(backupMap);
+					table.hideColumns();
+
 					return;
 				}
 				if (rowIndices.length < 1) {
 					JOptionPane.showMessageDialog(null,
 							"Please select two or more rows and try again to plot a scatterplot.",
 							"Invalid number of rows selected", JOptionPane.ERROR_MESSAGE);
+
+					table.getMetadata().setColumnVisibilityMap(backupMap);
+					table.hideColumns();
+
 					return;
 				}
 
@@ -843,9 +920,15 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 							f.setVisible(true);
 							f.toFront();
 
+							table.getMetadata().setColumnVisibilityMap(backupMap);
+							table.hideColumns();
+
 						} catch (Exception e) {
 							JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
 									JOptionPane.ERROR_MESSAGE);
+
+							table.getMetadata().setColumnVisibilityMap(backupMap);
+							table.hideColumns();
 
 							e.printStackTrace();
 							return;
@@ -863,10 +946,24 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 		mntmBoxPlot.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+
+				//Set all columns as unhidden before calling chart as the chart uses all column indexes
+				Map<TableColumn,Boolean> backupMap = table.getMetadata().getColumnVisibilityMap();
+				Map<TableColumn,Boolean> newMap = new LinkedHashMap<TableColumn,Boolean>();
+				for(Map.Entry<TableColumn, Boolean> entry : backupMap.entrySet()) {
+					newMap.put(entry.getKey(), true);
+				}
+				table.getMetadata().setColumnVisibilityMap(newMap);
+				table.hideColumns();
+
+
 				int[] rowIndices = getSelectedRowIndices();
 				if (rowIndices == null || rowIndices.length == 0) {
 					JOptionPane.showMessageDialog(null, "No rows selected", "Nothing selected",
 							JOptionPane.ERROR_MESSAGE);
+
+					table.getMetadata().setColumnVisibilityMap(backupMap);
+					table.hideColumns();
 					return;
 				}
 				// get data for box plot as hasmap
@@ -900,9 +997,15 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 							f.setVisible(true);
 							f.toFront();
 
+							table.getMetadata().setColumnVisibilityMap(backupMap);
+							table.hideColumns();
+
 						} catch (Exception e) {
 							JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
 									JOptionPane.ERROR_MESSAGE);
+
+							table.getMetadata().setColumnVisibilityMap(backupMap);
+							table.hideColumns();
 
 							e.printStackTrace();
 							return;
@@ -919,6 +1022,16 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
+				//Set all columns as unhidden before calling chart as the chart uses all column indexes
+				Map<TableColumn,Boolean> backupMap = table.getMetadata().getColumnVisibilityMap();
+				Map<TableColumn,Boolean> newMap = new LinkedHashMap<TableColumn,Boolean>();
+				for(Map.Entry<TableColumn, Boolean> entry : backupMap.entrySet()) {
+					newMap.put(entry.getKey(), true);
+				}
+				table.getMetadata().setColumnVisibilityMap(newMap);
+				table.hideColumns();
+
+
 				EventQueue.invokeLater(new Runnable() {
 					@Override
 					public void run() {
@@ -927,6 +1040,10 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 							if (selected == null || selected.length == 0) {
 								JOptionPane.showMessageDialog(null, "No rows selected", "Nothing selected",
 										JOptionPane.ERROR_MESSAGE);
+
+								table.getMetadata().setColumnVisibilityMap(backupMap);
+								table.hideColumns();
+
 								return;
 							}
 							// number of bins
@@ -941,9 +1058,15 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 							f.setVisible(true);
 							f.toFront();
 
+							table.getMetadata().setColumnVisibilityMap(backupMap);
+							table.hideColumns();
+
 						} catch (Exception e) {
 							JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
 									JOptionPane.ERROR_MESSAGE);
+
+							table.getMetadata().setColumnVisibilityMap(backupMap);
+							table.hideColumns();
 
 							e.printStackTrace();
 							return;
@@ -958,37 +1081,74 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 
 		JMenu volcanoPlotMenu = new JMenu("Volcano plot");
 		mnPlot.add(volcanoPlotMenu);
-		
+
 		JMenuItem mntmVolcanoPlot = new JMenuItem("pval");
 		mntmVolcanoPlot.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 
+				//Set all columns as unhidden before calling chart as the chart uses all column indexes
+				Map<TableColumn,Boolean> backupMap = table.getMetadata().getColumnVisibilityMap();
+				Map<TableColumn,Boolean> newMap = new LinkedHashMap<TableColumn,Boolean>();
+				for(Map.Entry<TableColumn, Boolean> entry : backupMap.entrySet()) {
+					newMap.put(entry.getKey(), true);
+				}
+				table.getMetadata().setColumnVisibilityMap(newMap);
+				table.hideColumns();
+
 				makeVolcano();
+
+				table.getMetadata().setColumnVisibilityMap(backupMap);
+				table.hideColumns();
 
 			}
 		});
 		volcanoPlotMenu.add(mntmVolcanoPlot);
-		
-		
+
+
 		JMenuItem mntmAdjVolcanoPlot = new JMenuItem("adj pval");
 		mntmAdjVolcanoPlot.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 
+				//Set all columns as unhidden before calling chart as the chart uses all column indexes
+				Map<TableColumn,Boolean> backupMap = table.getMetadata().getColumnVisibilityMap();
+				Map<TableColumn,Boolean> newMap = new LinkedHashMap<TableColumn,Boolean>();
+				for(Map.Entry<TableColumn, Boolean> entry : backupMap.entrySet()) {
+					newMap.put(entry.getKey(), true);
+				}
+				table.getMetadata().setColumnVisibilityMap(newMap);
+				table.hideColumns();
+
 				makeAdjVolcano();
+
+				table.getMetadata().setColumnVisibilityMap(backupMap);
+				table.hideColumns();
 
 			}
 		});
 		volcanoPlotMenu.add(mntmAdjVolcanoPlot);
-		
+
 
 		JMenuItem mntmFcHistogram = new JMenuItem("FC histogram");
 		mntmFcHistogram.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
+				//Set all columns as unhidden before calling chart as the chart uses all column indexes
+				Map<TableColumn,Boolean> backupMap = table.getMetadata().getColumnVisibilityMap();
+				Map<TableColumn,Boolean> newMap = new LinkedHashMap<TableColumn,Boolean>();
+				for(Map.Entry<TableColumn, Boolean> entry : backupMap.entrySet()) {
+					newMap.put(entry.getKey(), true);
+				}
+				table.getMetadata().setColumnVisibilityMap(newMap);
+				table.hideColumns();
+
+
 				plotColumnHistogram("logFC");
+
+				table.getMetadata().setColumnVisibilityMap(backupMap);
+				table.hideColumns();
 
 				return;
 
@@ -1001,7 +1161,19 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
+				//Set all columns as unhidden before calling chart as the chart uses all column indexes
+				Map<TableColumn,Boolean> backupMap = table.getMetadata().getColumnVisibilityMap();
+				Map<TableColumn,Boolean> newMap = new LinkedHashMap<TableColumn,Boolean>();
+				for(Map.Entry<TableColumn, Boolean> entry : backupMap.entrySet()) {
+					newMap.put(entry.getKey(), true);
+				}
+				table.getMetadata().setColumnVisibilityMap(newMap);
+				table.hideColumns();
+
 				plotColumnHistogram(methodName + " pval");
+
+				table.getMetadata().setColumnVisibilityMap(backupMap);
+				table.hideColumns();
 
 				return;
 
@@ -1011,9 +1183,21 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 
 		JMenuItem mntmHistogramcolumn = new JMenuItem("Histogram (column)");
 		mntmHistogramcolumn.addActionListener(new ActionListener() {
+			
+			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-
+				
+				//Set all columns as unhidden before calling chart as the chart uses all column indexes
+				Map<TableColumn,Boolean> backupMap = table.getMetadata().getColumnVisibilityMap();
+				Map<TableColumn,Boolean> newMap = new LinkedHashMap<TableColumn,Boolean>();
+				for(Map.Entry<TableColumn, Boolean> entry : backupMap.entrySet()) {
+					newMap.put(entry.getKey(), true);
+				}
+				table.getMetadata().setColumnVisibilityMap(newMap);
+				table.hideColumns();
+				
+				
 				//getting non feature column count
 				int nonFeatureColCount = 4;
 				if (testPvals != null) {
@@ -1022,7 +1206,7 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 					}
 					nonFeatureColCount += 2;
 				}
-				
+
 				// display option to select a column
 				JPanel cboxPanel = new JPanel();
 				String[] colNames = new String[nonFeatureColCount-1];
@@ -1036,8 +1220,13 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 				cboxPanel.add(options);
 				int opt = JOptionPane.showConfirmDialog(null, cboxPanel, "Select column", JOptionPane.OK_CANCEL_OPTION);
 				if (opt == JOptionPane.OK_OPTION) {
+					
 					// draw histogram with the selected column
 					plotColumnHistogram(options.getSelectedItem().toString());
+
+					table.getMetadata().setColumnVisibilityMap(backupMap);
+					table.hideColumns();
+
 				} else {
 					return;
 				}
@@ -1163,10 +1352,10 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 
 		panel_1.add(dataToolbar);
 
-		
-		
+
+
 		//populating table
-		
+
 		rowIndicesMapping = new int[MetaOmGraph.activeProject.getRowCount()];
 		for(int i=0; i < rowIndicesMapping.length; i++) {
 			rowIndicesMapping[i] = -1;
@@ -1178,15 +1367,15 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 			List<String> rowNames = featureNames;
 			int[] rowIndices = MetaOmGraph.activeProject.getRowIndexesFromFeatureNames(rowNames, true);
 			String [] defRows = MetaOmGraph.activeProject.getDefaultRowNames(rowIndices);
-			
+
 			for(int j = 0; j < rowIndices.length; j++) {
 				rowIndicesMapping[rowIndices[j]] = j;
 			}
 
 			Object[][] featureInfoRows = MetaOmGraph.activeProject.getRowNames(rowIndices);	
 			String [] featureInfoColNames = MetaOmGraph.activeProject.getInfoColumnNames();
-			
-			
+
+
 			List<String> allColumnNames = new ArrayList<String>();
 			allColumnNames.add("Name");
 			allColumnNames.add("Mean(log(" + name1 + "))");
@@ -1210,7 +1399,7 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 
 			Object [][] masterData = new Object[featureNames.size()][allColumnNames.size()];
 			String [] masterColumns = new String[allColumnNames.size()];
-			
+
 			for(int i=0; i< allColumnNames.size(); i++) {
 				masterColumns[i] = (String) allColumnNames.get(i);
 			}
@@ -1218,7 +1407,7 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 			// for each row add each coloumn
 			for (int i = 0; i < featureNames.size(); i++) {
 				// create a temp string storing all col values for a row
-				Vector temp = new Vector<>();
+				ArrayList temp = new ArrayList<>();
 				temp.add(featureNames.get(i));
 				temp.add(mean1.get(i));
 				temp.add(mean2.get(i));
@@ -1238,7 +1427,12 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 
 				if(featureInfoRows!=null) {
 					for(int k=0;k<featureInfoRows[i].length;k++) {
-						temp.add(featureInfoRows[i][k]);
+						if(featureInfoRows[i][k] instanceof CorrelationValue) {
+							temp.add(featureInfoRows[i][k].toString());
+						}
+						else {
+							temp.add(featureInfoRows[i][k]);
+						}
 					}
 				}
 
@@ -1251,7 +1445,7 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 			setSelectedAndProjectedTableData(masterData);
 			setSelectedAndProjectedTableColumns(masterColumns);
 			setSelectedFeatureColumns(Arrays.asList(myProject.getInfoColumnNames()));
-			
+
 			updateTable();
 
 		}
@@ -1259,7 +1453,7 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 
 	}
 
-	
+
 	/**
 	 * Method that creates a volcano chart from the selected rows
 	 */
@@ -1286,8 +1480,8 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 		f.toFront();
 
 	}
-	
-	
+
+
 	/**
 	 * Method that creates a adj-pval volcano chart from the selected rows
 	 */
@@ -1300,7 +1494,7 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 			featureNames.add((String) table.getModel().getValueAt(i, table.getColumn("Name").getModelIndex()));
 			fc.add((Double) table.getModel().getValueAt(i, table.getColumn("logFC").getModelIndex()));
 			apv.add((Double) table.getModel().getValueAt(i, table.getColumn("Adj pval").getModelIndex()));
-			
+
 		}
 
 		// make plot
@@ -1316,7 +1510,7 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 
 	}
 
-	
+
 	/**
 	 * Overriden method that formats the Statistical Result Panel table to show the
 	 * DEA columns in Red color and Feature metadata columns in Blue.
@@ -1365,20 +1559,23 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 			table.getColumnModel().getColumn(i).setHeaderRenderer(featureMetadataHeaderCellRenderer);
 		}
 
+		table.initializeVisibilityMap();
+		table.hideColumns();
+
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Overriden method that projects the feature metadata columns after a user
 	 * chooses the required columns.
 	 */
 	@Override
 	public void projectColumns(List<String> selectedCols) {
-		
+
 		String [] featureInfoColNames = MetaOmGraph.activeProject.getInfoColumnNames();
 		int [] selectedFeatureMetadataCols = new int[selectedCols.size()];
-		
+
 		for(int i = 0; i < selectedCols.size(); i++) {
 			for(int j = 0; j < featureInfoColNames.length ; j++) {
 				if(selectedCols.get(i).equals(featureInfoColNames[j])) {
@@ -1386,7 +1583,7 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 				}
 			}
 		}
-		
+
 		int nonFeatureColCount = 4;
 		if (testPvals != null) {
 			if (ftestRatiovals != null && ftestRatiovals.size() > 0) {
@@ -1394,27 +1591,27 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 			}
 			nonFeatureColCount += 2;
 		}
-		
-		
+
+
 		String[] originalMasterColumns = getMasterTableColumns();
 		String[] projectedMasterColumns = new String[selectedCols.size()+nonFeatureColCount];
-		
-		
+
+
 		for(int k = 0; k < nonFeatureColCount ; k++) {
 			projectedMasterColumns[k] = originalMasterColumns[k];
 		}
-		
+
 		for(int l = 0; l < selectedCols.size(); l++) {
 			projectedMasterColumns[l+nonFeatureColCount] = selectedCols.get(l);
 		}
-		
+
 		setSelectedAndProjectedTableColumns(projectedMasterColumns);
-		
-		
-		
+
+
+
 		Object[][] originalMasterData = getMasterTableData();
 		Object[][] projectedMasterData = new Object[originalMasterData.length][projectedMasterColumns.length];
-		
+
 		for(int a = 0; a < originalMasterData.length; a++) {
 			for(int b = 0; b < nonFeatureColCount; b++) {
 				projectedMasterData[a][b] = originalMasterData[a][b];
@@ -1423,15 +1620,33 @@ public class logFCResultsFrame extends StatisticalResultsPanel {
 				projectedMasterData[a][c+nonFeatureColCount] = originalMasterData[a][selectedFeatureMetadataCols[c]+nonFeatureColCount];
 			}
 		}
-		
+
 		setSelectedAndProjectedTableData(projectedMasterData);
-		
+
 		updateTable();
 		selectList(getCurrentSelectedList());
-		
-	}
-	
 
+	}
+
+
+	public void hideColumns(ArrayList<Integer> columnsToHide, int totalColumns) {
+
+		int nonFeatureColCount = 4;
+		if (testPvals != null) {
+			if (ftestRatiovals != null && ftestRatiovals.size() > 0) {
+				nonFeatureColCount += 3;
+			}
+			nonFeatureColCount += 2;
+		}
+
+
+		for(int i=0; i<columnsToHide.size(); i++) {
+
+			TableColumn column  = table.getColumnModel().getColumn(i+nonFeatureColCount);
+			table.removeColumn(column);
+
+		}
+	}
 
 
 	public void printMessage(String msg) {

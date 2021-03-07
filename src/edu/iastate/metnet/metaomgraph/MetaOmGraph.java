@@ -6,11 +6,13 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Event;
 import java.awt.EventQueue;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.GridLayout;
 import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.Rectangle;
@@ -45,14 +47,20 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
@@ -67,6 +75,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
@@ -83,6 +92,9 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.ColorUIResource;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -132,6 +144,7 @@ import edu.iastate.metnet.metaomgraph.ui.ReproducibilityDashboardPanel;
 import edu.iastate.metnet.metaomgraph.ui.SearchByExpressionFrame;
 import edu.iastate.metnet.metaomgraph.ui.SetColTypes;
 import edu.iastate.metnet.metaomgraph.ui.StatisticalResultsFrame;
+import edu.iastate.metnet.metaomgraph.ui.StripedTable;
 import edu.iastate.metnet.metaomgraph.ui.TaskbarInternalFrame;
 import edu.iastate.metnet.metaomgraph.ui.TaskbarPanel;
 import edu.iastate.metnet.metaomgraph.ui.WelcomePanel;
@@ -588,6 +601,10 @@ public class MetaOmGraph implements ActionListener {
 	public static final String FIND_REPS_COMMAND = "find reps";
 
 	public static final String CONTACT_COMMAND = "send an email";
+	
+	public static final String HIDE_SHOW_FEATURE_METADATA_COLUMNS = "hide/show feature metadata cols";
+	
+	public static final String HIDE_SHOW_SAMPLE_METADATA_COLUMNS = "hide/show sample metadata cols";
 
 	/** The program's main JFrame */
 	private static JFrame mainWindow;
@@ -662,7 +679,7 @@ public class MetaOmGraph implements ActionListener {
 	private static JMenuItem closeProjectItem, loadInfoItem, projectPropertiesItem, excludeSamplesItem;
 	// urmi
 	private static JMenuItem openMDColTypes, openInfoColTypes, openMetadataStructureItem, metadataViewerItem,
-	loadInfoItem2, loadTree;
+	loadInfoItem2, loadTree, hideShowFeatureMetadataColumns, hideShowSampleMetadataColumns;
 
 	private static JCheckBoxMenuItem logDataItem;
 
@@ -1104,6 +1121,8 @@ public class MetaOmGraph implements ActionListener {
 		// projectMenu.add(openInfoColTypes);
 
 		projectMenu.addSeparator();
+		
+		
 		// metadataViewerItem = new JMenuItem("View metadata");
 		// metadataViewerItem.setActionCommand("viewmetadata");
 		// metadataViewerItem.addActionListener(myself);
@@ -1331,6 +1350,20 @@ public class MetaOmGraph implements ActionListener {
 		mergeListsItem.addActionListener(myself);
 		mergeListsItem.setToolTipText("Merge existing lists into a new list");
 		projectMenu.add(mergeListsItem);
+		
+		
+		projectMenu.addSeparator();
+		
+		hideShowFeatureMetadataColumns = new JMenuItem("Hide/Show Feature Metadata columns");
+		hideShowFeatureMetadataColumns.setActionCommand(HIDE_SHOW_FEATURE_METADATA_COLUMNS);
+		hideShowFeatureMetadataColumns.addActionListener(myself);
+		
+		hideShowSampleMetadataColumns = new JMenuItem("Hide/Show Sample Metadata columns");
+		hideShowSampleMetadataColumns.setActionCommand(HIDE_SHOW_SAMPLE_METADATA_COLUMNS);
+		hideShowSampleMetadataColumns.addActionListener(myself);
+		
+		projectMenu.add(hideShowFeatureMetadataColumns);
+		projectMenu.add(hideShowSampleMetadataColumns);
 
 		mainMenuBar.add(projectMenu);
 
@@ -3377,6 +3410,16 @@ public class MetaOmGraph implements ActionListener {
 			ListMergePanel.showMergeDialog(getActiveProject());
 			return;
 		}
+		
+		if(HIDE_SHOW_FEATURE_METADATA_COLUMNS.equals(e.getActionCommand())) {
+			MetaOmGraph.getActiveTablePanel().getStripedTable().openColumnSelectorDialog("Feature Metadata");
+		}
+		
+		
+		if(HIDE_SHOW_SAMPLE_METADATA_COLUMNS.equals(e.getActionCommand())) {
+			MetaOmGraph.getActiveTablePanel().getMetadataTableDisplay().getStripedTable().openColumnSelectorDialog("Sample Metadata");
+		}
+
 
 		if (GENECARDS_COMMAND.equals(e.getActionCommand())) {
 			// open genecards
