@@ -38,7 +38,6 @@ public class MetadataCollection {
 	private boolean transpose;
 	private HashMap<String, String> replaceVals;
 	
-	
 
 	public MetadataCollection(String fpath, String delim, String datacol) {
 

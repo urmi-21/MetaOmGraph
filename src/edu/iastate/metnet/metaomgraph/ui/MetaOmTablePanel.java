@@ -875,7 +875,14 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 		filterModel = new FilterableTableModel(mainModel);
 		sorter = new TableSorter(filterModel);
-		listDisplay = new StripedTable(sorter);
+		if(listDisplay != null && listDisplay.getMetadata() != null) {
+			listDisplay = new StripedTable(sorter,listDisplay.getMetadata());
+		}
+		else {
+			listDisplay = new StripedTable(sorter);
+		}
+		
+		listDisplay.hideColumns();
 		listDisplay.setAutoResizeMode(0);
 		sorter.setTableHeader(listDisplay.getTableHeader());
 
