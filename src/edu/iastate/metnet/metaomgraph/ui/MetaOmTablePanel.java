@@ -6,6 +6,7 @@ import edu.iastate.metnet.metaomgraph.MetaOmProject.RepAveragedData;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.chart.BarChart;
 import edu.iastate.metnet.metaomgraph.chart.BoxPlot;
+import edu.iastate.metnet.metaomgraph.chart.HeatMapChart;
 import edu.iastate.metnet.metaomgraph.chart.HistogramChart;
 import edu.iastate.metnet.metaomgraph.chart.MakeChartWithR;
 import edu.iastate.metnet.metaomgraph.chart.MetaOmChartPanel;
@@ -105,13 +106,13 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	private JMenuItem plotBoxRowItem;
 	private JMenuItem plotBoxColItem;
 	private JMenuItem plotHistogramItem;
+	private JMenuItem plotHeatMapItem;
 
 	// urmi plot oclumns
 	private JMenu selectedColsMenu;
 	private JMenuItem plotCorrHistItem;
 	private JMenuItem plotBarChartItem;
 	// urmi
-	private JMenuItem plotHeatMapItem;
 	private JMenuItem runOtherScript;
 	private MenuButton analyzeMenuButton;
 	private JMenuItem pearsonItem;
@@ -244,6 +245,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		plotBoxColItem = new JMenuItem("Box Plot Samples");
 
 		plotHistogramItem = new JMenuItem("Histogram");
+		
+		plotHeatMapItem = new JMenuItem("HeatMap");
 
 		// urmi
 		plotRMenu = new JMenu("Using R");
@@ -320,6 +323,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		plotBoxColItem.addActionListener(this);
 		plotHistogramItem.setActionCommand("create histogram");
 		plotHistogramItem.addActionListener(this);
+		plotHeatMapItem.setActionCommand("plot heatmap");
+		plotHeatMapItem.addActionListener(this);
+		
 
 		JPopupMenu plotPopupMenu = new JPopupMenu();
 		selectedRowsMenu.add(plotRowsItem);
@@ -329,6 +335,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		selectedRowsMenu.add(plotPairRowsItem);
 		selectedRowsMenu.add(plotBoxRowItem);
 		selectedRowsMenu.add(plotHistogramItem);
+		selectedRowsMenu.add(plotHeatMapItem);
 		plotPopupMenu.add(selectedRowsMenu);
 
 		plotPopupMenu.add(plotFilterItem);
@@ -1373,6 +1380,33 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
 		UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
 		UIManager.put("InternalFrame.titleFont", oldFont);
+	}
+	
+	private void createHeatMap() {
+		int[] selected = getSelectedRowsInList();
+		String[] rowNames = myProject.getDefaultRowNames(selected);
+		String[] columnNames = myProject.getIncludedDataColumnHeaders();
+		
+		double[][] heatMapData = new double[selected.length][];
+		int rowIndex = 0;
+		for(int selectedIndex : selected) {
+			try {
+				double[] rowData = myProject.getIncludedData(selectedIndex);
+				heatMapData[rowIndex++] = rowData;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}	
+		}
+//		HeatMapTest heatMapChart = new HeatMapTest(heatMapData, rowNames, columnNames, false);
+		HeatMapChart heatMapChart = new HeatMapChart(heatMapData, rowNames, columnNames, false);
+		MetaOmGraph.getDesktop().add(heatMapChart);
+		heatMapChart.setDefaultCloseOperation(2);
+		heatMapChart.setClosable(true);
+		heatMapChart.setResizable(true);
+		heatMapChart.pack();
+		heatMapChart.setSize(1000, 700);
+		heatMapChart.setVisible(true);
+		heatMapChart.toFront();
 	}
 
 	public void createHistogram() {
@@ -2606,6 +2640,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 			createHistogram();
 		}
+		
+		if("plot heatmap".equals(e.getActionCommand())) {
+			createHeatMap();
+		}
+		
 		if ("create heatmap".equals(e.getActionCommand())) {
 			// create heat map for selected rows over all included columns
 			// temp solution
