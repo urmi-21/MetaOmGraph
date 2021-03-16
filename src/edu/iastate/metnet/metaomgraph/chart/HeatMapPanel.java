@@ -438,15 +438,16 @@ public class HeatMapPanel extends JPanel{
 				@Override
 				public void mouseClicked(MouseEvent e) {
 					if(e.getClickCount() == 2) {
-						
+						HeatMapRangeColorSelector rangeSelector = 
+								new HeatMapRangeColorSelector(valueRangeColorMap);
+						valueRangeColorMap = rangeSelector.getRangeColorMap();
+						heatMapTable.repaint();
 					}
 				}
-				
 			});
 		}
 		@Override
 		protected void paintComponent(Graphics g) {
-			
 			int startX = 400;
 			int startY = 7;
 			int width = 30;
@@ -471,10 +472,10 @@ public class HeatMapPanel extends JPanel{
 			for(Map.Entry<Double, Color> entry : valueRangeColorMap.entrySet()) {
 				if(entry.getKey() == valueRangeColorMap.lastKey())
 					break;
-				g2.drawString(String.valueOf(entry.getKey()), startX, labelY);
+				g2.drawString(String.valueOf(entry.getKey().floatValue()), startX, labelY);
 				startX += width;
 			}
-			g2.drawString(String.valueOf(valueRangeColorMap.lastKey()), startX, labelY);
+			g2.drawString(String.valueOf(valueRangeColorMap.lastKey().floatValue()), startX, labelY);
 			g2.dispose();
 		}
 	}
