@@ -2,7 +2,6 @@ package edu.iastate.metnet.metaomgraph.chart;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -10,16 +9,25 @@ import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.lang.ref.WeakReference;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+
+import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTable;
@@ -44,8 +52,9 @@ public class HeatMapPanel extends JPanel{
 	private String[] colNames;
 	private double minValue;
 	private double maxValue;
-	private double interval;
-	private TreeMap<Double, Color> valueRangeColorMap;
+	private int clusterMidCol = -1;
+	private String clusterMidColLabel = "";
+	private TreeMap<Double[], Color> valueRangeColorMap;
 	private Map<String, Collection<Integer>> columnClusterMap;
 	private Map<String, Color> labelColorMap = new HashMap<String, Color>();
 	private Map<String, Collection<Integer>> rowClusterMap;
@@ -53,10 +62,13 @@ public class HeatMapPanel extends JPanel{
 	private List<ColorBrewer> clusterLabelColors;
 	private int currColorIndex;
 	private JTable heatMapTable;
+	private LegendPanel legendPanel;
 	private int[] columnIndexColNamesMap;
 	private List<String> clusterRowNames;
 	private Map<String, ColorBrewer> clusterRowColorMap;
 	private int[] clusterLabelsInRowTillNow;
+	private Font textFont;
+	private Color textColor;
 			
 			
 	public HeatMapPanel(double[][] data, String[] rowNames, String[] colNames) {
@@ -65,7 +77,18 @@ public class HeatMapPanel extends JPanel{
 		this.colNames = colNames;
 		clusterRowNames = new ArrayList<String>();
 		clusterRowNames.add("Data column");
-		valueRangeColorMap = new TreeMap<Double, Color>();
+		// Java 9 -> change it to new TreeMap<>(Arrays::compare);
+		valueRangeColorMap = new TreeMap<>((o1, o2) -> {
+	        for (int i = 0; i < o1.length; i++) {
+	            if (o1[i] > o2[i]) {
+	                return 1;
+	            } else if (o1[i] < o2[i]) {
+	                return -1;
+	            }
+	        }
+
+	        return 0;
+	    });
 		this.setLayout(new GridLayout(2, 0));
 		createTable();
 	}
@@ -84,7 +107,7 @@ public class HeatMapPanel extends JPanel{
 				+ "            <th>Attribute</th>\n" + "            <th >Value</th>\n" + "        </tr>";
 
 		text += "<tr bgcolor=" + rowColors[1] + ">";
-		text += "<td><font size=-2>" + Utils.wrapText("Point", 100, "<br>") + "</font></td>";
+		text += "<td><font size=-2>" + Utils.wrapText("Value", 100, "<br>") + "</font></td>";
 		text += "<td><font size=-2>" + Utils.wrapText(df.format(value), 100, "<br>")
 				+ "</font></td>";
 		text += "</tr>";
@@ -157,7 +180,6 @@ public class HeatMapPanel extends JPanel{
 				if(rowIndex == -1 || colIndex == -1 || colIndex == 0)
 					return "";
 
-
 				if(columnClusterMap != null) {
 					String dataColName = colNames[columnIndexColNamesMap[colIndex]];
 					if(rowIndex < numOfRowsOccupiedByLabels)
@@ -199,10 +221,17 @@ public class HeatMapPanel extends JPanel{
 				}
 				return new Point(x + xMargin, newy);
 			}
+			
+			@Override
+			public boolean isCellEditable(int row, int column) {                
+                return false;               
+            }
 		};
-		//heatMapTable.setSize(800, 600);
-		int panelHeight = 800;
-		int panelWidth = 600;
+		
+		MouseHandler mouseHandler = new MouseHandler(heatMapTable, (DefaultTableModel) heatMapTable.getModel());
+		heatMapTable.addMouseListener(mouseHandler);
+		heatMapTable.addMouseMotionListener(mouseHandler);
+
 		int rowLen = heatMapData.length;
 		int colLen = heatMapData[0].length;
 		
@@ -212,6 +241,7 @@ public class HeatMapPanel extends JPanel{
 		//heatMapTable.setColumnMargin(2);
 		heatMapTable.setGridColor(Color.BLACK);
 		//heatMapTable.setShowGrid(true);
+		
 		
 		heatMapTable.setDefaultRenderer(Object.class, new CellRenderer());
 				
@@ -240,52 +270,80 @@ public class HeatMapPanel extends JPanel{
 		}
 		
 		//double midValue = (minValue + maxValue) / 2;
-		
-		valueRangeColorMap.put(minValue, Color.BLUE);
-		valueRangeColorMap.put(maxValue, Color.CYAN);
-		interval = calculateInterval();
+		//valueRangeColorMap.put(maxValue, Color.CYAN);
+		//interval = calculateInterval();
 		fillColorRangesMap();
 		//heatMapTable.setPreferredScrollableViewportSize(heatMapTable.getPreferredSize());
 		//heatMapTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 //		Dimension heatmapSize = new Dimension(800, 600);
 //		heatMapTable.setPreferredSize(heatmapSize);
-		//heatMapTable.getColumnModel().getColumn(1).getWidth();
+		//heatMapTable.getColumnModel().getColumn(0).setWidth(1);
+		//heatMapTable.setAutoResizeMode(JTable.);
+		heatMapTable.getColumnModel().getColumn(0).setMaxWidth(50);
 		for(int i = 1; i <= colLen; i++) {
 			heatMapTable.getColumnModel().getColumn(i).setPreferredWidth(1);
 		}
-	
+
 		setVisible(true);
+		add(heatMapTable);
+		this.legendPanel = new LegendPanel();
+		add(legendPanel);
+		
+		
 		//JScrollPane scPane = new JScrollPane();
 		//scPane.setViewportView(heatMapTable);
 //		GridBagConstraints layoutConstraints = new GridBagConstraints();
 //		layoutConstraints.insets = new Insets(0, 0, 0, 0);
 //		layoutConstraints.gridx = 0;
 //		layoutConstraints.gridy = 0;
-		add(heatMapTable);
+
 		//LegendPanel legendPanel = new LegendPanel();
 //		layoutConstraints.gridx = 0;
 //		layoutConstraints.gridy = 1;
-		add(new LegendPanel());
+		
+		
+		//heatMapTable.
+//		heatMapTable.addMouseMotionListener(new MouseMotionListener() {
+//		    public void mouseDragged(MouseEvent e) {
+//		        e.consume();
+//		        JComponent c = (JComponent) e.getSource();
+//		        TransferHandler handler = c.getTransferHandler();
+//		        handler.exportAsDrag(c, e, TransferHandler.MOVE);
+//		    }
+//
+//		    public void mouseMoved(MouseEvent e) {
+//		    }
+//		});
+		
+//		heatMapTable.setDragEnabled(true);
+//		heatMapTable.setDropMode(DropMode.INSERT_ROWS);
+//		heatMapTable.setTransferHandler(new TableRowTransferHandler(heatMapTable));
+		
+		//heatMapTable.setSize(800, 600);
 	}
 	
 	// Fill the colors ranges map based on the interval returned by calculateInterval method.
 	private void fillColorRangesMap() {
+		double interval = calculateInterval();
+		Color startRangeColor = Color.CYAN;
+		Color endRangeColor = Color.BLUE;
+		//valueRangeColorMap.put(new Double[] {minValue, minValue + interval}, startRangeColor);
 		for(double i = minValue; i <= maxValue; i += interval) {
 			double rangeVal = ((i - minValue) / (maxValue - minValue));
 			double fraction = rangeVal % 1;
 			if(rangeVal != 0 && rangeVal != 1) {
-				Color prevRangeColor = valueRangeColorMap.floorEntry(i).getValue();
-				Color nextRangeColor = valueRangeColorMap.ceilingEntry(i).getValue();
-				int minR = prevRangeColor.getRed();
-				int minG = prevRangeColor.getGreen();
-				int minB = prevRangeColor.getBlue();
-				int maxR = nextRangeColor.getRed();
-				int maxG = nextRangeColor.getGreen();
-				int maxB = nextRangeColor.getBlue();
+				//Color nextRangeColor = valueRangeColorMap.ceilingEntry(i).getValue();
+				int minR = startRangeColor.getRed();
+				int minG = startRangeColor.getGreen();
+				int minB = startRangeColor.getBlue();
+				int maxR = endRangeColor.getRed();
+				int maxG = endRangeColor.getGreen();
+				int maxB = endRangeColor.getBlue();
 				int currR = (int) (minR + fraction * (maxR - minR));
 				int currG = (int) (minG + fraction * (maxG - minG));
 				int currB = (int) (minB + fraction * (maxB - minB));
-				valueRangeColorMap.put(i, new Color(currR, currG, currB));
+				valueRangeColorMap.put(new Double[] {i, i + interval}, 
+						new Color(currR, currG, currB));
 			}
 		}
 	}
@@ -302,12 +360,31 @@ public class HeatMapPanel extends JPanel{
 	        return x / 5.0;
 	}
 	
-	public void setRangeColors(TreeMap<Double, Color> valueColorRange) {
+	public boolean saveImage(File file, String fileExtension) {
+		BufferedImage image = new BufferedImage(getWidth(),getHeight(), BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2 = image.createGraphics();
+		paint(g2);
+		try{
+			return ImageIO.write(image, "PNG", file);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public void setLabelColorAndFont(Font textFont, Color textColor) {
+		this.textFont = textFont;
+		this.textColor = textColor;
+		if(columnClusterMap != null)
+			heatMapTable.repaint();
+	}
+	
+	public void setRangeColors(TreeMap<Double[], Color> valueColorRange) {
 		this.valueRangeColorMap = valueColorRange;
 	}
 	
-	public void addRangeColor(double rangeStart, Color color) {
-		valueRangeColorMap.put(rangeStart, color);
+	public void addRangeColor(double rangeStart, double rangeEnd, Color color) {
+		valueRangeColorMap.put(new Double[] {rangeStart, rangeEnd}, color);
 	}
 	
 	public void setClusterRowColorMap(Map<String, ColorBrewer> clusterRowColorMap) {
@@ -374,6 +451,8 @@ public class HeatMapPanel extends JPanel{
 	}
 	
 	private void updateHeatMapTableWithClusters() {
+		this.clusterMidCol = -1;
+		this.clusterMidColLabel = "";
 		DefaultTableModel tablemodel = (DefaultTableModel) heatMapTable.getModel();
 		tablemodel.setRowCount(0);
 		tablemodel.setColumnCount(0);
@@ -424,6 +503,10 @@ public class HeatMapPanel extends JPanel{
 		}
 		//heatMapTable.setRowHeight(0, row0LabelMaxSize * 8);
 		//heatMapTable.setRowHeight(1, row1LabelMaxSize * 8);
+		heatMapTable.getColumnModel().getColumn(0).setMaxWidth(50);
+		for(int i = 1; i <= colLen; i++) {
+			heatMapTable.getColumnModel().getColumn(i).setPreferredWidth(1);
+		}
 		heatMapTable.repaint();
 	}
 	
@@ -446,22 +529,26 @@ public class HeatMapPanel extends JPanel{
 				}
 			});
 		}
+		
 		@Override
 		protected void paintComponent(Graphics g) {
 			int startX = 400;
 			int startY = 7;
-			int width = 30;
+			int width = 300 / valueRangeColorMap.size();
 			int height = 20;
-			for(Map.Entry<Double, Color> entry : valueRangeColorMap.entrySet()) {
-				if(entry.getKey() == valueRangeColorMap.lastKey())
-					break;
+			//double prevKey = 0;
+			for(Map.Entry<Double[], Color> entry : valueRangeColorMap.entrySet()) {
+//				if(entry.getKey() != 0 && entry.getKey() - prevKey < 1E-4) {
+//					prevKey = entry.getKey();
+//					continue;
+//				}
 				g.setColor(entry.getValue());
 				g.fillRect(startX, startY, width, height);
 				startX += width;
 			}
 			
 			startX = 398;
-			int labelY = startY + 30;
+			int labelY = startY + height + 5;
 			Graphics2D g2 = (Graphics2D) g;
 			Font font = new Font(null, Font.BOLD, 10);    
 			AffineTransform affineTransform = new AffineTransform();
@@ -469,13 +556,19 @@ public class HeatMapPanel extends JPanel{
 			Font rotatedFont = font.deriveFont(affineTransform);
 			g2.setFont(rotatedFont);
 			g2.setColor(Color.BLACK);
-			for(Map.Entry<Double, Color> entry : valueRangeColorMap.entrySet()) {
-				if(entry.getKey() == valueRangeColorMap.lastKey())
-					break;
-				g2.drawString(String.valueOf(entry.getKey().floatValue()), startX, labelY);
+			//prevKey = 0;
+			for(Map.Entry<Double[], Color> entry : valueRangeColorMap.entrySet()) {
+//				if(entry.getKey() != 0 && entry.getKey() - prevKey < 1E-4) {
+//					prevKey = entry.getKey();
+//					continue;
+//				}
+//				if(entry.getKey() == valueRangeColorMap.lastKey())
+//					break;
+				g2.drawString(String.valueOf(entry.getKey()[0].floatValue()), startX, labelY);
 				startX += width;
+				//prevKey = entry.getKey();
 			}
-			g2.drawString(String.valueOf(valueRangeColorMap.lastKey().floatValue()), startX, labelY);
+			g2.drawString(String.valueOf(valueRangeColorMap.lastKey()[1].floatValue()), startX, labelY);
 			g2.dispose();
 		}
 	}
@@ -497,10 +590,35 @@ public class HeatMapPanel extends JPanel{
 				return cellColorRenderingObj;
 			}
 			else {
-				stringRenderingObj.setStringLabel((String) value, row, column);
+				boolean skipDrawString = false;
+				if(column != 0) {
+					String columnLabel = (String) value;
+					if(!clusterMidColLabel.equals(columnLabel)) {
+						int currColumn = column + 1;
+						int columnClusterLen = 0;
+						while(currColumn < table.getColumnCount() - 1) {
+							String currColumnLabel = (String) table.getValueAt(row, currColumn++);
+							if(currColumnLabel.equals(columnLabel))
+								columnClusterLen++;
+							else
+								break;
+						}
+						clusterMidCol = column + columnClusterLen / 2;
+						clusterMidColLabel = columnLabel;
+					}
+
+					if(column != clusterMidCol)
+						skipDrawString = true;
+				}
+				stringRenderingObj.setStringLabel((String) value, row, column, skipDrawString);
 				return stringRenderingObj;
 			}
 		}
+	}
+	
+	private static Color getContrastColor(Color color) {
+		  double y = (299 * color.getRed() + 587 * color.getGreen() + 114 * color.getBlue()) / 1000;
+		  return y >= 128 ? Color.black : Color.white;
 	}
 	
 	/**
@@ -512,36 +630,55 @@ public class HeatMapPanel extends JPanel{
 		private String stringLabel = null;
 		private int rowNum;
 		private int colNum;
+		private boolean skipDrawString;
 		
-		public void setStringLabel(String label, int rowNum, int colNum) {
-			stringLabel = label;
+		public void setStringLabel(String label, int rowNum, int colNum, boolean skipDrawString) {
+			this.stringLabel = label;
 			this.rowNum = rowNum;
 			this.colNum = colNum;
+			this.skipDrawString = skipDrawString;
 		}
 		
 		@Override
 		protected void paintComponent(Graphics g) {
 			Graphics2D g2 = (Graphics2D) g;
-			Font font = new Font(null, Font.BOLD, 10); 
 			if(colNum != 0 && (rowNum == 0 || 
-					(columnClusterMap != null && rowNum < numOfRowsOccupiedByLabels))) {   
+					(columnClusterMap != null && rowNum < numOfRowsOccupiedByLabels))) {
+				Color labelColor = textColor;
 //				AffineTransform affineTransform = new AffineTransform();
 //				affineTransform.rotate(Math.toRadians(90), 0, 0);
 //				Font rotatedFont = font.deriveFont(affineTransform);
 //				g2.setFont(rotatedFont);
 				if(labelColorMap.containsKey(stringLabel + ":" + rowNum)) {
-					g.setColor(labelColorMap.get(stringLabel + ":" + rowNum));
+					Color cellColor = labelColorMap.get(stringLabel + ":" + rowNum);
+					g.setColor(cellColor);
+					labelColor = getContrastColor(cellColor);
 					g.fillRect(0, 0, this.getWidth(), this.getHeight());
 				}
-				g2.setColor(Color.BLACK);
+				if(!skipDrawString) {
+					g2.setColor(labelColor);
+					g2.setFont(textFont);
+					g2.drawString(stringLabel, 1, 10);
+				}
+			}
+			else if(colNum == 0 && rowNum < numOfRowsOccupiedByLabels) {
+				g2.setFont(new Font(null, Font.BOLD, 12));
 				g2.drawString(stringLabel, 1, 10);
 			}
 			else {
-				g2.setFont(font);
+				g2.setFont(new Font(null, Font.PLAIN, 10));
 				g2.drawString(stringLabel, 1, 10);
 			}
 			g2.dispose();
 		}
+	}
+	
+	private Color getColor(double value) {
+		for(Entry<Double[], Color> entry : valueRangeColorMap.entrySet()) {
+			if(value >= entry.getKey()[0] && value < entry.getKey()[1])
+				return entry.getValue();
+		}
+		return valueRangeColorMap.lastEntry().getValue();
 	}
 	
 	/**
@@ -554,8 +691,8 @@ public class HeatMapPanel extends JPanel{
 
 		// determine the cell color based on the value.
 		public void setColorValue(double cellValue) {
-			double key = valueRangeColorMap.floorKey(cellValue);
-			this.color = valueRangeColorMap.get(key);
+			//double key = valueRangeColorMap.floorKey(cellValue);
+			this.color = getColor(cellValue);
 		}
 		
 		@Override
@@ -564,6 +701,103 @@ public class HeatMapPanel extends JPanel{
 			//g.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), 4, 4);
 			g.fillRect(0, 0, this.getWidth(), this.getHeight());
 		}
+	}
+
+	/**
+	 * 
+	 * @author sumanth
+	 * Mouse handler to handle the mouse drag events for column clusters.
+	 */
+	public class MouseHandler implements MouseListener, MouseMotionListener {
+
+	    private Integer row = null;
+	    private final WeakReference<JTable> table;
+	    private final  WeakReference<DefaultTableModel> tableModel;
+
+	    public MouseHandler(JTable table, DefaultTableModel model) {
+	        this.table = new WeakReference<>(table);
+	        this.tableModel = new WeakReference<>(model);
+	    }
+
+	    @Override
+	    public void mouseClicked(MouseEvent event) {}
+
+	    @Override
+	    public void mousePressed(MouseEvent event) {
+	        JTable table;
+	        if((table = this.table.get()) == null) {
+	            return;
+	        }
+	        int viewRowIndex = table.rowAtPoint(event.getPoint());
+	        if(!(viewRowIndex == 0 || 
+					(columnClusterMap != null && viewRowIndex < numOfRowsOccupiedByLabels)))
+	        	return;
+	        row = table.convertRowIndexToModel(viewRowIndex);
+	    }
+
+	    @Override
+	    public void mouseReleased(MouseEvent event) {
+	        row = null;
+	        JTable table;
+	        if((table = this.table.get()) == null) {
+	            return;
+	        }
+	        if(columnClusterMap == null)
+	        	return;
+	        int viewRowIndex = table.rowAtPoint(event.getPoint());
+	        if(!(viewRowIndex == 0 || 
+					(columnClusterMap != null)))
+	        	return;
+	        List<String> samplesToBeClustered = getClusterRowsInArrangedOrder();
+	        Map<String, Collection<Integer>> splitIndex = 
+	        		MetaOmGraph.getActiveProject().getMetadataHybrid().cluster(samplesToBeClustered, Arrays.asList(colNames));
+	        clusterColumns(samplesToBeClustered, splitIndex);
+	    }
+
+	    @Override
+	    public void mouseEntered(MouseEvent event) {}
+
+	    @Override
+	    public void mouseExited(MouseEvent event) {}
+
+	    @Override
+	    public void mouseDragged(MouseEvent event) {
+	        JTable table;
+	        DefaultTableModel tableModel;
+	        if((table = this.table.get()) == null || (tableModel = this.tableModel.get()) == null) {
+	            return;
+	        }
+
+	        int viewRowIndex = table.rowAtPoint(event.getPoint());
+	        if(!(viewRowIndex == 0 || 
+					(columnClusterMap != null && viewRowIndex < numOfRowsOccupiedByLabels)))
+	        	return;
+	        
+	        int currentRow = table.convertRowIndexToModel(viewRowIndex);
+
+	        if(row == null || currentRow == row || currentRow < 0) {
+	            return;
+	        }
+
+	        tableModel.moveRow(row, row, currentRow);
+	        row = currentRow;
+	        table.setRowSelectionInterval(viewRowIndex, viewRowIndex);        
+	        //MetaOmGraph.getActiveProject().getMetadataHybrid().cluster(, dataCols);
+	    }
+
+	    @Override
+	    public void mouseMoved(MouseEvent event) {}
+	    
+	    private List<String> getClusterRowsInArrangedOrder(){
+	    	List<String> rowsInArrangedOrder = new ArrayList<String>();
+	    	DefaultTableModel tableModel = this.tableModel.get();
+	    	for(int row = 0; row < numOfRowsOccupiedByLabels; ++row) {
+	    		rowsInArrangedOrder.add((String) tableModel.getValueAt(row, 0));
+	    	}
+	    	
+	    	return rowsInArrangedOrder;
+	    }
+
 	}
 
 }
