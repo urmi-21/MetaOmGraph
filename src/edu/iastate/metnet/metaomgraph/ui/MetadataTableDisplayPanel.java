@@ -32,6 +32,7 @@ import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
@@ -55,6 +56,7 @@ import edu.iastate.metnet.metaomgraph.AlphanumericComparator;
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.ComputePCA;
 import edu.iastate.metnet.metaomgraph.ComputeRunsSimilarity;
+import edu.iastate.metnet.metaomgraph.ComputeTSNE;
 import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.IconTheme;
 import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
@@ -129,10 +131,14 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 	private JButton listDeleteButton;
 	private JButton listRenameButton;
 	
-	// PCA
+	// PCA & TSNE
 	private boolean normalizeData;
-	private String selectedGeneListPCA;
-
+	private String selectedGeneListDimRed;
+	private double perplexity;
+	private int maxIter;
+	private double learningRate;
+	private int numDims = 2;
+	private boolean usePCA;
 	/**
 	 * Default Properties
 	 */
@@ -1292,6 +1298,11 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		pcaComputation.setActionCommand("Compute PCA");
 		pcaComputation.addActionListener(this);
 		mnAnalyze.add(pcaComputation);
+		
+		JMenuItem tsneComputation = new JMenuItem("Compute t-SNE");
+		tsneComputation.setActionCommand("Compute TSNE");
+		tsneComputation.addActionListener(this);
+		mnAnalyze.add(tsneComputation);
 		
 		JMenuItem mntmSimple = new JMenuItem("Simple");
 		mntmSimple.addActionListener(new ActionListener() {
@@ -2479,10 +2490,10 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 			
 			String[] geneList = MetaOmGraph.getActiveProject().getGeneListNames(); 
 			createPCAPanel(geneList);
-			if(selectedGeneListPCA == null || selectedGeneListPCA.isEmpty())
+			if(selectedGeneListDimRed == null || selectedGeneListDimRed.isEmpty())
 				return;
 			
-			computePCA(selectedDataCols, selectedGeneListPCA, normalizeData);
+			computePCA(selectedDataCols, selectedGeneListDimRed, normalizeData);
 			
 			// Logging
 			HashMap<String, Object> actionMap = new HashMap<String, Object>();
@@ -2492,7 +2503,7 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 			HashMap<String, Object> dataMap = new HashMap<String, Object>();
 			
 			dataMap.put("Selected samples", Arrays.asList(selectedDataCols));
-			dataMap.put("Selected feature list", selectedGeneListPCA);
+			dataMap.put("Selected feature list", selectedGeneListDimRed);
 			dataMap.put("Normalization", normalizeData);
 
 			HashMap<String, Object> resultLog = new HashMap<String, Object>();
@@ -2503,6 +2514,47 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 			computePCAAction.logActionProperties();		
 			return;
 		}
+		
+		if("Compute TSNE".equals(e.getActionCommand())) {
+			String[] selectedDataCols = getSelectDataColsName();
+			if (selectedDataCols == null) {
+				return;
+			}
+			
+			String[] geneList = MetaOmGraph.getActiveProject().getGeneListNames(); 
+			createTSNEPanel(geneList);
+			if(selectedGeneListDimRed == null || selectedGeneListDimRed.isEmpty())
+				return;
+			
+			//computeTSNE(selectedDataCols, selectedGeneListDimRed, normalizeData);
+			new AnimatedSwingWorker("Computing t-SNE...", true) {
+				@Override
+				public Object construct() {
+					computeTSNE(selectedDataCols, selectedGeneListDimRed, normalizeData);
+					return null;
+				}
+			}.start();
+			
+			// Logging
+			HashMap<String, Object> actionMap = new HashMap<String, Object>();
+			actionMap.put("parent", MetaOmGraph.getCurrentProjectActionId());
+			actionMap.put("section", "Sample Metadata Table");
+
+			HashMap<String, Object> dataMap = new HashMap<String, Object>();
+			
+			dataMap.put("Selected samples", Arrays.asList(selectedDataCols));
+			dataMap.put("Selected feature list", selectedGeneListDimRed);
+			dataMap.put("Normalization", normalizeData);
+
+			HashMap<String, Object> resultLog = new HashMap<String, Object>();
+			resultLog.put("result", "OK");
+
+			ActionProperties computePCAAction = new ActionProperties("Compute t-SNE", actionMap,
+					dataMap, resultLog, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+			computePCAAction.logActionProperties();		
+			return;
+		}
+
 	}
 	
 	/**
@@ -2516,7 +2568,7 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		// index in data file
 		try {
 			int[] selectedIndinData = MetaOmGraph.getActiveProject().getColumnIndexbyHeader(selectedDataCols);
-			final LinkedHashMap<Integer, double[]> databyCols;
+			LinkedHashMap<Integer, double[]> databyCols;
 			databyCols = MetaOmGraph.getActiveProject().getSelectedListRowData(selectedIndinData, selectedGeneList);
 			if (databyCols == null) {
 				return;
@@ -2525,7 +2577,7 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 				@Override
 				public Object construct() {
 					ComputePCA pca = new ComputePCA(databyCols);
-					double[][] pcaData = pca.projectData(2, normalizeData);
+					double[][] pcaData = pca.projectData(numDims, normalizeData);
 					double[][] transposedData = Utils.getTransposeMatrix(pcaData);
 					String[] rowNames = new String[transposedData.length];
 					for(int i = 0; i < rowNames.length; i++) {
@@ -2550,6 +2602,160 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		catch(IOException e1) {
 			e1.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Compute TSNE and display the scatter plot
+	 * @param selectedDataCols selected samples
+	 * @param selectedGeneList selected gene list
+	 * @param normalizeData whether to normalize the data when calculating pca
+	 */
+	public void computeTSNE(String[] selectedDataCols, String selectedGeneList, boolean normalizeData) {
+		// for the selected runs find their index in the data file and get data by the
+		// index in data file
+		try {
+			int[] selectedIndinData = MetaOmGraph.getActiveProject().getColumnIndexbyHeader(selectedDataCols);
+//			LinkedHashMap<Integer, double[]> databyCols = MetaOmGraph.getActiveProject().
+//					getSelectedListRowData(selectedIndinData, selectedGeneList);
+			double[][] onlyData = MetaOmGraph.getActiveProject().
+					getSelectedListOnlyRowData(selectedIndinData, selectedGeneList);
+			if (onlyData == null) {
+				return;
+			}
+			ComputeTSNE tsne = new ComputeTSNE(onlyData, perplexity, maxIter, learningRate, numDims, normalizeData, usePCA);
+			double[][] tsneData = tsne.projectData(selectedDataCols);
+			double[][] transposedData = Utils.getTransposeMatrix(tsneData);
+			String[] rowNames = new String[transposedData.length];
+			for(int i = 0; i < rowNames.length; i++) {
+				rowNames[i] = "t-SNE" + Integer.toString(i+1);
+			}
+			// @TODO x and y label names.
+			ScatterPlotPCA pcaScatterPlotFrame = new 
+					ScatterPlotPCA(transposedData, rowNames, selectedDataCols, 
+							"", "", false);
+			MetaOmGraph.getDesktop().add(pcaScatterPlotFrame);
+			pcaScatterPlotFrame.setDefaultCloseOperation(2);
+			pcaScatterPlotFrame.setClosable(true);
+			pcaScatterPlotFrame.setResizable(true);
+			pcaScatterPlotFrame.pack();
+			pcaScatterPlotFrame.setSize(1000, 700);
+			pcaScatterPlotFrame.setVisible(true);
+			pcaScatterPlotFrame.toFront();
+
+		}
+		catch(IOException e1) {
+			e1.printStackTrace();
+		}
+	}
+	
+	private void createTSNEPanel(String[] geneList) {
+		JDialog dialog = new JDialog();
+		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		dialog.setModal(true);
+		dialog.setTitle("Compute t-SNE");
+		dialog.setLocationRelativeTo(MetaOmGraph.getDesktop());
+		dialog.setLayout(new GridBagLayout());
+		GridBagConstraints constraints = new GridBagConstraints();
+	    constraints.anchor = GridBagConstraints.WEST;
+	    constraints.insets = new Insets(10, 10, 10, 10);
+	        
+	    constraints.gridx = 0;
+        constraints.gridy = 0;     
+        JLabel geneListLabel = new JLabel("Gene List : ");
+        dialog.add(geneListLabel, constraints);
+        
+        constraints.gridx = 1;
+        JComboBox<String> geneListComboBox = new JComboBox<String>(geneList);
+        geneListComboBox.setMaximumSize(geneListComboBox.getPreferredSize());
+        geneListComboBox.setAlignmentX(Component.CENTER_ALIGNMENT);
+        dialog.add(geneListComboBox, constraints);
+                
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        JLabel perplexityLabel = new JLabel("Perplexity :");
+        dialog.add(perplexityLabel, constraints);
+        
+        constraints.gridx = 1;
+        JTextField perplexityTextField = new JTextField("30");
+        dialog.add(perplexityTextField, constraints);
+        
+        constraints.gridx = 0;
+        constraints.gridy = 2;
+        JLabel maxIterLabel = new JLabel("Maximum Iterations :");
+        dialog.add(maxIterLabel, constraints);
+        
+        constraints.gridx = 1;
+        JTextField maxIterTextField = new JTextField("1000");
+        dialog.add(maxIterTextField, constraints);
+        
+        constraints.gridx = 0;
+        constraints.gridy = 3;
+        JLabel learningRateLabel = new JLabel("Learning Rate :");
+        dialog.add(learningRateLabel, constraints);
+        
+        constraints.gridx = 1;
+        JTextField learningRateTextField = new JTextField("200");
+        dialog.add(learningRateTextField, constraints);
+        
+        constraints.gridx = 0;
+        constraints.gridy = 4;
+        JLabel normalizeDataLabel = new JLabel("Normalize data (Mean center)");
+        dialog.add(normalizeDataLabel, constraints);
+        
+        constraints.gridx = 1;
+        JCheckBox normalizeDataCheckBox = new JCheckBox();
+        dialog.add(normalizeDataCheckBox, constraints);
+        
+        constraints.gridx = 0;
+        constraints.gridy = 5;
+        JLabel usePCALabel = new JLabel("Use PCA :");
+        dialog.add(usePCALabel, constraints);
+        
+        constraints.gridx = 1;
+        JCheckBox usePCACheckBox = new JCheckBox();
+        dialog.add(usePCACheckBox, constraints);
+        
+        constraints.gridx = 0;
+        constraints.gridy = 6;
+        JButton okButton = new JButton("Ok");
+        dialog.add(okButton, constraints);
+        
+        constraints.gridx = 1;
+        JButton cancelButton = new JButton("Cancel");
+        dialog.add(cancelButton, constraints);
+		
+		okButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				normalizeData = normalizeDataCheckBox.isSelected();
+				usePCA = usePCACheckBox.isSelected();
+				try {
+					perplexity = Double.parseDouble(perplexityTextField.getText());
+					maxIter = Integer.parseInt(maxIterTextField.getText());
+					learningRate = Double.parseDouble(learningRateTextField.getText());
+				}
+				catch(Exception e1) {
+					
+				}
+				selectedGeneListDimRed = (String) geneListComboBox.getSelectedItem();
+				dialog.dispose();
+			}
+		});
+		
+		cancelButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				selectedGeneListDimRed = null;
+				dialog.dispose();
+			}
+		});
+		
+        dialog.setResizable(true);
+        dialog.pack();
+        dialog.setVisible(true);
+        dialog.toFront();
 	}
 	
 	private void createPCAPanel(String[] geneList) {
@@ -2593,7 +2799,7 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				normalizeData = normalizeDataCheckBox.isSelected();
-				selectedGeneListPCA = (String) geneListComboBox.getSelectedItem();
+				selectedGeneListDimRed = (String) geneListComboBox.getSelectedItem();
 				dialog.dispose();
 			}
 		});
@@ -2602,7 +2808,7 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				selectedGeneListPCA = null;
+				selectedGeneListDimRed = null;
 				dialog.dispose();
 			}
 		});

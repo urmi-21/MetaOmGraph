@@ -233,7 +233,7 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 	 * Create the git issues from error logs.
 	 * @param errorLog
 	 */
-	private void createGitIssue(String errorLog) {
+	private void createGitIssue(String errorLog, String title) {
 		PropertyFileReader properties = null;
 		try {
 			properties = new PropertyFileReader("/resource/config.properties");
@@ -246,7 +246,7 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 		String url = properties.getProperty("gitissueUrl");
 		
 		Map<String, String> postContentsMap = new HashMap<String, String>();
-		postContentsMap.put("title", "\"MetaOmBot: Bug report from user\"");
+		postContentsMap.put("title", "\"MetaOmBot Bug report: "  + title + "\"");
 		postContentsMap.put("body", '\"' + errorLog.toString().replaceAll("[\r\n]+", "\\\\n") + '\"');
 		postContentsMap.put("labels", "[\"bug\"]");
 	
@@ -419,7 +419,6 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 		//////////////// end error message
 
 		JPanel buttonPanel = new JPanel();
-
 		final Throwable thrown = e;
 		JButton okButton = new JButton("Notify");
 		okButton.addActionListener(new ActionListener() {
@@ -433,12 +432,13 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 				
 				text.append("Error log:\n```\n");
 				StackTraceElement[] trace = thrown.getStackTrace();
+				String title = thrown.toString();
 				text.append(thrown.toString());
 				for (StackTraceElement ste : trace) {
 					text.append("\n" + ste);
 				}
 								
-				createGitIssue(text.toString());
+				createGitIssue(text.toString(), title);
 
 			}
 		});

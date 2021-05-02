@@ -43,7 +43,7 @@ public class HeatMapRangeColorSelector extends JPanel implements ActionListener{
 	private JButton addRangeButton;
 	private ArrayList<SingleRangePanel> rangePanelsCollection;
 	
-	public HeatMapRangeColorSelector(TreeMap<Double, Color> rangeColorMap) {
+	public HeatMapRangeColorSelector(TreeMap<Double[], Color> rangeColorMap) {
 		setLayout(new BorderLayout());
 		JPanel addRangeButtonPanel = new JPanel();
 		addRangeButton = new JButton(MetaOmGraph.getIconTheme().getListAdd());
@@ -116,15 +116,14 @@ public class HeatMapRangeColorSelector extends JPanel implements ActionListener{
 		rangeDialog.setVisible(true);		
 	}
 	
-	private void addRangePanels(TreeMap<Double, Color> rangeColorMap) {
+	private void addRangePanels(TreeMap<Double[], Color> rangeColorMap) {
 		rangePanelsCollection = new ArrayList<SingleRangePanel>();
-		double prevMin = 0.0;
-		for(Map.Entry<Double, Color> entry : rangeColorMap.entrySet()) {
+		for(Map.Entry<Double[], Color> entry : rangeColorMap.entrySet()) {
 			SingleRangePanel singleRangePanel = 
-					new SingleRangePanel(prevMin, entry.getKey(), entry.getValue());
+					new SingleRangePanel(entry.getKey()[0], 
+							entry.getKey()[1], entry.getValue());
 			rangePanelsCollection.add(singleRangePanel);
 			rangePanel.add(singleRangePanel);
-			prevMin = entry.getKey();
 		}
 	}
 	
@@ -178,12 +177,21 @@ public class HeatMapRangeColorSelector extends JPanel implements ActionListener{
 		}
 	}
 	
-	public TreeMap<Double, Color> getRangeColorMap(){
-		double tolerance = 1E-6;
-		TreeMap<Double, Color> rangeColorMap = new TreeMap<Double, Color>();
+	public TreeMap<Double[], Color> getRangeColorMap(){
+		TreeMap<Double[], Color> rangeColorMap = new TreeMap<>((o1, o2) -> {
+	        for (int i = 0; i < o1.length; i++) {
+	            if (o1[i] > o2[i]) {
+	                return 1;
+	            } else if (o1[i] < o2[i]) {
+	                return -1;
+	            }
+	        }
+	        return 0;
+	    });
 		for(SingleRangePanel range : rangePanelsCollection) {
-			rangeColorMap.put(range.getMinValue(), range.getRangeColor());
-			rangeColorMap.put(range.getMaxValue()-tolerance, range.getRangeColor());
+			rangeColorMap.put(new Double[] {range.getMinValue(), range.getMaxValue()},
+					range.getRangeColor());
+			//rangeColorMap.put(range.getMaxValue()-tolerance, range.getRangeColor());
 		}
 		return rangeColorMap;
 	}

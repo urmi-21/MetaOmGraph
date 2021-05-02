@@ -6,44 +6,34 @@ package edu.iastate.metnet.metaomgraph.chart;
 import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.IconTheme;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
-import edu.iastate.metnet.metaomgraph.ui.CustomFileSaveDialog;
-import edu.iastate.metnet.metaomgraph.ui.CustomMessagePane;
-import edu.iastate.metnet.metaomgraph.ui.CustomMessagePane.MessageBoxButtons;
-import edu.iastate.metnet.metaomgraph.ui.CustomMessagePane.MessageBoxType;
 import edu.iastate.metnet.metaomgraph.ui.TaskbarInternalFrame;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import org.apache.commons.io.filefilter.FileFileFilter;
 import org.jcolorbrewer.ColorBrewer;
 import org.jcolorbrewer.ui.ColorPaletteChooserDialog;
 
@@ -68,12 +58,10 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 	private JButton changePalette;
 	private JButton splitDataset;
 	private JToggleButton toggleLegend;
-	private boolean legendFlag = true;
-	
 	private JScrollPane scrollPane;
-	
 	private JButton bottomPanelButton;
 	
+	private boolean legendFlag = true;
 	private Color minValueColor = Color.GREEN;
 	private Color maxValueColor = Color.RED;
 	private double minValue;
@@ -83,6 +71,8 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 	private String splitCol;
 	private Map<String, Collection<Integer>> splitIndex;
 	private HeatMapPanel heatMap;
+	private Font textFont;
+	private Color textColor;
 	
 	public HeatMapChart(double[][] data, String[] rowNames, String[] columnNames, boolean transposeData) {
 		super();
@@ -93,6 +83,8 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 		this.transposeData = transposeData;
 		this.sampleDataOnRow = transposeData;
 		this.selectedDataCols = columnNames;
+		this.textFont = new JLabel().getFont();
+		this.textColor = Color.BLACK;
 		
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		
@@ -165,9 +157,9 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 
 		chartButtonsPanel.add(properties);
 		chartButtonsPanel.add(save);
-		chartButtonsPanel.add(zoomIn);
-		chartButtonsPanel.add(zoomOut);
-		chartButtonsPanel.add(defaultZoom);
+		//chartButtonsPanel.add(zoomIn);
+		//chartButtonsPanel.add(zoomOut);
+		//chartButtonsPanel.add(defaultZoom);
 		chartButtonsPanel.add(splitDataset);
 		chartButtonsPanel.add(changePalette);
 
@@ -184,21 +176,24 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 		
 		getContentPane().add(bottomPanel, BorderLayout.SOUTH);
 	}
-	
+		
 	private void createHeatMapPanel() {
-		if(transposeData) {
+		if(transposeData && splitIndex == null) {
 			heatMapData = Utils.getTransposeMatrix(heatMapData);
 			String[] temp = columnNames;
 			columnNames = rowNames;
 			rowNames = temp;
+			//heatMap = new HeatMapPanel(transposedData, rowNames, columnNames);
 		}
+		heatMap = new HeatMapPanel(heatMapData, rowNames, columnNames);
 //		JHeatMapModel heatMapModel = new JHeatMapModel(heatMapData, rowNames, columnNames);
 //		heatMap = new JHeatMap(heatMapModel);
-		heatMap = new HeatMapPanel(heatMapData, rowNames, columnNames);
 		//heatMap.setPreferredSize(new Dimension(800, 600));
 //		maxValue = heatMap.getHighValue();
 //		minValue = heatMap.getLowValue();
+		//scrollPane.setPreferredSize(new Dimension(400, 600));
 		scrollPane.setViewportView(heatMap);
+		//this.pack();
 	}
 
 	@Override
@@ -207,21 +202,22 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 		if("transposeAxis".equals(e.getActionCommand())) {
 			transposeData = true;
 			sampleDataOnRow = !sampleDataOnRow;
+			if(sampleDataOnRow) {
+				splitDataset.setEnabled(false);
+			}else {
+				splitDataset.setEnabled(true);
+			}
 			createHeatMapPanel();
 		}
 		
 		if("Properties".equals(e.getActionCommand())) {
-//			HeatMapChartProperties properties = new HeatMapChartProperties(minValue, maxValue);
-//			properties.setModal(true);
-//			properties.setVisible(true);
-//			
-//			if(properties.isChartPropertiesUpdated()) {
-//				minValue = properties.getMinValue();
-//				maxValue = properties.getMaxValue();
-//				DoubleRange valuesRange = new DoubleRange(minValue, maxValue);
-//				heatMap.setValuesRange(valuesRange);
-//				heatMap.setHeatmapFont(properties.getFont());
-//			}
+			
+			HeatMapChartProperties heatMapProperties = new HeatMapChartProperties(textFont, textColor);
+			if(heatMapProperties.isValuesChanged()) {
+				textFont = heatMapProperties.getSelectedFont();
+				textColor = heatMapProperties.getSelectedFontColor();
+				heatMap.setLabelColorAndFont(textFont, textColor);
+			}
 		}
 		
 		if("ZoomIn".equals(e.getActionCommand())) {
@@ -264,6 +260,11 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 				if (!fileToSave.getName().toLowerCase().endsWith(".png")) {
 					fileToSave = new File(fileToSave.getParentFile(), fileToSave.getName() + ".png");
 			      }
+				if(heatMap.saveImage(fileToSave, ".png"))
+					JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Image Saved");
+				else
+					JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), 
+							"Image saved", "File save error", JOptionPane.ERROR_MESSAGE);
 //				try {
 //					//heatMap.toPngImage(fileToSave);
 //				} catch (IOException e1) {
@@ -335,7 +336,9 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 			if (col_val.equals("Reset")) {
 				splitCol = null;
 				splitIndex = null;
+				transposeData = false;
 				this.heatMapData = originalData;
+				bottomPanelButton.setEnabled(true);
 				createHeatMapPanel();
 				return;
 			}
@@ -364,6 +367,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 				List<String> dataCols = Arrays.asList(selectedDataCols);
 				splitIndex = MetaOmGraph.getActiveProject().getMetadataHybrid().cluster(selectedVals, dataCols);
 				heatMap.clusterColumns(selectedVals, splitIndex);
+				bottomPanelButton.setEnabled(false);
 			}
 		}
 	}

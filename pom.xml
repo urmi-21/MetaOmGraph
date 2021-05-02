@@ -61,6 +61,7 @@
 
 	</build>
 
+
 	<dependencies>
 		<dependency>
 			<groupId>com.apple</groupId>
@@ -218,6 +219,7 @@
       			</exclusion>
       		</exclusions>
 		</dependency>
+
 	</dependencies>
 
 </project>
