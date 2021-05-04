@@ -60,6 +60,12 @@
 		</plugins>
 
 	</build>
+	<repositories>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
+	</repositories>
 
 	<dependencies>
 		<dependency>
@@ -217,6 +223,11 @@
       				<artifactId>byteunits</artifactId>
       			</exclusion>
       		</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.github.lejon.T-SNE-Java</groupId>
+			<artifactId>tsne</artifactId>
+			<version>v2.6.3</version>
 		</dependency>
 	</dependencies>
 

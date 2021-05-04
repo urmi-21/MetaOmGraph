@@ -3,8 +3,6 @@
  */
 package edu.iastate.metnet.metaomgraph;
 
-import java.util.LinkedHashMap;
-
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dimensionalityreduction.PCA;
 import org.nd4j.linalg.factory.Nd4j;
@@ -19,26 +17,10 @@ public class ComputePCA {
 	INDArray dataArray;
 	/**
 	 * Constructor
-	 * @param dataMap dataMap with key as the sample datacol index
+	 * @param data data
 	 */
-	public ComputePCA(LinkedHashMap<Integer, double[]> dataMap) {
-		convertData(dataMap);
-	}
-	
-	// convert the data into INDArray format, which is an off-heap memory
-	private void convertData(LinkedHashMap<Integer, double[]> dataMap) {
-		double[][] data = getDataFromMap(dataMap);
+	public ComputePCA(double[][] data) {
 		dataArray = Nd4j.createFromArray(data);
-	}
-	
-	// get the data from map as 2Dimensional double array.
-	private double[][] getDataFromMap(LinkedHashMap<Integer, double[]> dataMap){
-		double[][] data = new double[dataMap.size()][];
-		int rowIndex = 0;
-		for(double[] rowData : dataMap.values()) {
-			data[rowIndex++] =rowData;
-		}
-		return data;
 	}
 	
 	/**

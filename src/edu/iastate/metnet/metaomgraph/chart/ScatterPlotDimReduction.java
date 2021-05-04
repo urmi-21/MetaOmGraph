@@ -94,7 +94,7 @@ import edu.iastate.metnet.metaomgraph.utils.Utils;
  * Scatter plot char to plot the PCA
  * This charts implements the selection tool for the scatter plots.
  */
-public class ScatterPlotPCA extends TaskbarInternalFrame implements ChartMouseListener, MouseMotionListener, ActionListener, MouseListener {
+public class ScatterPlotDimReduction extends TaskbarInternalFrame implements ChartMouseListener, MouseMotionListener, ActionListener, MouseListener {
 
 	private int pivotIndex;
 	private String[] rowNames;
@@ -171,7 +171,7 @@ public class ScatterPlotPCA extends TaskbarInternalFrame implements ChartMouseLi
 	/**
 	 * Create the frame.
 	 */
-	public ScatterPlotPCA(double[][] data, String[] rowNames, String[] selectedDataCols,
+	public ScatterPlotDimReduction(double[][] data, String[] rowNames, String[] selectedDataCols,
 			String xLabel, String yLabel, boolean isPlayback) {
 		super("Scatter Plot");
 		
