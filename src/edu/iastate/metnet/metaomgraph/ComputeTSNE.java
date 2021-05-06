@@ -18,7 +18,7 @@ public class ComputeTSNE {
 	private TSneConfiguration tsneConfig;
 	/**
 	 * Constructor
-	 * @param data 
+	 * @param data 2d array with m rows(selected samples) and n columns(selected feature/gene list)
 	 * @param perplexity denotes number of nearest neighbors
 	 * @param maxIter maximum number of iterations
 	 * @param theta barneshut tsne tradeoff parameter, 0-1, 0 represents normal tsne
@@ -38,8 +38,9 @@ public class ComputeTSNE {
 	}
 	
 	/**
-     * @return the reduced parameters of the data
-     */
+	 * returns 2d array with m rows and 2 columns
+	* @return the reduced parameters of the data 
+	*/
 	public double[][] projectData(){
 		return tsne.tsne(tsneConfig);
 	}
