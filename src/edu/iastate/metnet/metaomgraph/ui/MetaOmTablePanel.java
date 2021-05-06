@@ -1382,6 +1382,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		UIManager.put("InternalFrame.titleFont", oldFont);
 	}
 	
+	// HeatMap
 	private void createHeatMap() {
 		int[] selected = getSelectedRowsInList();
 		String[] rowNames = myProject.getDefaultRowNames(selected);
@@ -1397,7 +1398,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				e.printStackTrace();
 			}	
 		}
-//		HeatMapTest heatMapChart = new HeatMapTest(heatMapData, rowNames, columnNames, false);
 		HeatMapChart heatMapChart = new HeatMapChart(heatMapData, rowNames, columnNames, false);
 		MetaOmGraph.getDesktop().add(heatMapChart);
 		heatMapChart.setDefaultCloseOperation(2);
@@ -2637,7 +2637,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			return;
 		}
 		if ("create histogram".equals(e.getActionCommand())) {
-
 			createHistogram();
 		}
 		

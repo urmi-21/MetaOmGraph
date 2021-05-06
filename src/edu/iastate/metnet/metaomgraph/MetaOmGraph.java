@@ -74,7 +74,6 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.plaf.ColorUIResource;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -2897,7 +2896,6 @@ public class MetaOmGraph implements ActionListener {
 
 		// Display the About frame
 		if (ABOUT_COMMAND.equals(e.getActionCommand())) {
-			int test = 10/0;
 			// if (e.getModifiers() == (ActionEvent.CTRL_MASK
 			// | ActionEvent.SHIFT_MASK)) {
 			if ((e.getModifiers() & ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK) {
@@ -3223,18 +3221,15 @@ public class MetaOmGraph implements ActionListener {
 				System.err.println("Selected value didn't match any info cols");
 				return;
 			}
-			final File dest = Utils.chooseFileToSave(new FileNameExtensionFilter("Excel Workbook (*.xlsx)", "xlsx"),
-					"xlsx",
-					MetaOmGraph.getMainWindow(), true);
+			FileFilter xmlFilter = Utils.createFileFilter("xml", "XML Files");
+			final File dest = Utils.chooseFileToSave(xmlFilter, "xml", MetaOmGraph.getMainWindow(), true);
 			if(dest == null)
 				return;
 			new AnimatedSwingWorker("Exporting...", true) {
 
 				@Override
 				public Object construct() {
-					//getActiveProject().exportLists(dest, idCol);
-					getActiveProject().exportListsToExcel(dest, idCol, infoCols[idCol],
-							Arrays.asList( getActiveProject().getGeneListNames()));
+					getActiveProject().exportLists(dest, idCol);
 					return null;
 				}
 			}.start();
