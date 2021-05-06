@@ -4563,33 +4563,6 @@ public class MetaOmProject {
 
 		return data;
 	}
-	
-	/**
-	 * this function will return data of all rows for the given columns e.g. get data
-	 * for all genes for a given run
-	 * 
-	 * @param selectedCols selected sample data column indices
-	 * @param selectedList selected gene list name
-	 * @return
-	 * @throws IOException
-	 */
-	public double[][] getSelectedListOnlyRowData(int[] selectedCols, String selectedList) throws IOException{
-		int[]  rowNums = getGeneListRowNumbers(selectedList);
-
-		double[][] result = new double[selectedCols.length][];
-		for (int i = 0; i < selectedCols.length; i++) {
-			double[] temp = new double[rowNums.length];
-			result[i] = temp;
-		}
-
-		for(int i = 0; i < rowNums.length; i++) {
-			double[] rowData = getAllData(rowNums[i]);
-			for(int j = 0; j < selectedCols.length; j++) {
-				result[j][i] = rowData[selectedCols[j]];
-			}
-		}
-		return result;
-	}
 
 	/**
 	 * this function will return data of all rows for the given columns e.g. get data
