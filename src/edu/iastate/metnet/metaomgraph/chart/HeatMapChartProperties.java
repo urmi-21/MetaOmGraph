@@ -23,7 +23,7 @@ import edu.iastate.metnet.metaomgraph.ui.ColorChooseButton;
 
 /**
  * @author sumanth
- *
+ * HeatMapChartProperties class to set the properties of heatmap like font color, font style
  */
 public class HeatMapChartProperties extends JDialog{
 	private ColorChooseButton colorChoserButton;
@@ -32,6 +32,11 @@ public class HeatMapChartProperties extends JDialog{
 	private Color color;
 	private boolean valuesChanged = false;
 	
+	/**
+	 * Constructor
+	 * @param textFont current text font
+	 * @param textColor current text color
+	 */
 	HeatMapChartProperties(Font textFont, Color textColor){
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setModal(true);
@@ -100,14 +105,28 @@ public class HeatMapChartProperties extends JDialog{
         toFront();
 	}
 	
+	/**
+	 * 
+	 * @return valuesChanged, If the user didn't change any values, return false, else true
+	 */
 	public boolean isValuesChanged() {
 		return valuesChanged;
 	}
 	
+	/**
+	 * 
+	 * @return Font, get the user selected font
+	 * It is recommended to first call isValuesChanged() and check if the values are changed
+	 */
 	public Font getSelectedFont() {
 		return font;
 	}
 	
+	/**
+	 * 
+	 * @return Color, get the user selected font color
+	 * It is recommended to first call isValuesChanged() and check if the values are changed
+	 */
 	public Color getSelectedFontColor() {
 		return color;
 	}
