@@ -14,10 +14,10 @@ import org.nd4j.linalg.factory.Nd4j;
  * uses the library nd4j to compute the PCA
  */
 public class ComputePCA {
-	INDArray dataArray;
+	private INDArray dataArray;
 	/**
 	 * Constructor
-	 * @param data data
+	 * @param data 2d array with m rows(selected samples) and n columns(selected feature/gene list)
 	 */
 	public ComputePCA(double[][] data) {
 		dataArray = Nd4j.createFromArray(data);
