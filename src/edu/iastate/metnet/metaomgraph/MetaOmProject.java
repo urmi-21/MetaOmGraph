@@ -74,15 +74,6 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.poi.ss.usermodel.FillPatternType;
-import org.apache.poi.ss.usermodel.IndexedColors;
-import org.apache.poi.xssf.streaming.SXSSFCell;
-import org.apache.poi.xssf.streaming.SXSSFRow;
-import org.apache.poi.xssf.streaming.SXSSFSheet;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -5050,72 +5041,6 @@ public class MetaOmProject {
 			JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Error during list export:\n" + ioe.getMessage(),
 					"Error", 0);
 		}
-	}
-	
-	public void exportListsToExcel(File destination, int idCol, String colName, List<String> geneListNames) {	
-		
-		SXSSFWorkbook workBook = new SXSSFWorkbook(1000);
-
-		final BlockingProgressDialog progress = new BlockingProgressDialog(MetaOmGraph.getMainWindow(), "Working",
-				"Creating file", 0L, geneListNames.size(), true);
-		new Thread() {
-			@Override
-			public void run() {
-				int startIndex = 0;
-				if(geneListNames.get(0) == "Complete List")
-					startIndex = 1;
-				for(int i = startIndex; i < geneListNames.size(); i++) {
-					String geneListName = geneListNames.get(i);
-					SXSSFSheet sheet = workBook.createSheet(geneListName);
-					SXSSFRow row = sheet.createRow(0);
-					SXSSFCell cell = null;
-
-					// set column name colors and font.
-					XSSFFont headerFont = (XSSFFont) workBook.createFont();
-					headerFont.setColor(IndexedColors.BLACK.index);
-					XSSFCellStyle headerCellStyle = (XSSFCellStyle) sheet.getWorkbook().createCellStyle();
-					headerCellStyle.setFillForegroundColor(IndexedColors.GOLD.index);
-					headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-					headerCellStyle.setFont(headerFont);
-
-					cell = row.createCell(0);
-					cell.setCellStyle(headerCellStyle);
-					cell.setCellValue(colName);
-
-					int rows[] = geneLists.get(geneListName);
-					
-					for(int rowIndex = 0; rowIndex < rows.length; rowIndex++) {
-						row = sheet.createRow(rowIndex + 1);
-						cell = row.createCell(0);
-						cell.setCellValue(rows[rowIndex]);
-						//progress.setProgress(rowIndex);
-					}
-					progress.dispose();
-				}
-			}
-		}.start();
-		progress.setVisible(true);
-		if (progress.isCanceled()) {
-			return;
-		}	
-
-		FileOutputStream out;
-
-		try {
-			out = new FileOutputStream(destination);
-			workBook.write(out);
-			
-			JOptionPane.showMessageDialog(null, "File saved to: " + destination.getAbsolutePath(), "File saved",
-					JOptionPane.INFORMATION_MESSAGE);
-			workBook.dispose();
-			out.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-			JOptionPane.showMessageDialog(null, "Error in saving file: " + destination.getAbsolutePath(), "Error",
-					JOptionPane.ERROR_MESSAGE);
-			workBook.dispose();
-		}
-
 	}
 
 	public void importLists(File source) {
