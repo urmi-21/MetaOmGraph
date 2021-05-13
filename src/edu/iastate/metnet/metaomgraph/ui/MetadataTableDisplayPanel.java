@@ -88,6 +88,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.net.URI;
@@ -2724,6 +2726,13 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
         constraints.gridx = 1;
         JButton cancelButton = new JButton("Cancel");
         dialog.add(cancelButton, constraints);
+        
+        dialog.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosed(WindowEvent we) {
+				selectedGeneListDimRed = null;
+			}
+		});
 		
 		okButton.addActionListener(new ActionListener() {
 			
@@ -2794,6 +2803,13 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
         constraints.gridx = 1;
         JButton cancelButton = new JButton("Cancel");
         dialog.add(cancelButton, constraints);
+        
+        dialog.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosed(WindowEvent we) {
+				selectedGeneListDimRed = null;
+			}
+		});
 		
 		okButton.addActionListener(new ActionListener() {
 			
