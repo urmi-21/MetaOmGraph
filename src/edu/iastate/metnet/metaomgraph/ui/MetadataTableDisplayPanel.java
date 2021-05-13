@@ -2537,7 +2537,7 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 				@Override
 				public Object construct() {
 					computeTSNE(selectedDataCols, selectedGeneListDimRed);
-					return null;
+					return false;
 				}
 			}.start();
 			
@@ -2618,8 +2618,13 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 			if (data == null) {
 				return;
 			}
-			ComputeTSNE tsne = new ComputeTSNE(data, perplexity, maxIter, theta, numDims, usePCA, parallel);
+			ComputeTSNE tsne = ComputeTSNE.getTsneInstance(data, perplexity, maxIter, theta, numDims, usePCA, parallel);
 			double[][] tsneData = tsne.projectData();
+			// clear tsne after the projected data is returned
+			ComputeTSNE.abortTsne();
+			if(tsneData == null) {
+				return;
+			}
 			double[][] transposedData = Utils.getTransposeMatrix(tsneData);
 			String[] rowNames = new String[transposedData.length];
 			for(int i = 0; i < rowNames.length; i++) {
