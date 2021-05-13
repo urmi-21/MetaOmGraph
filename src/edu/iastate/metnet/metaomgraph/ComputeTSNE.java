@@ -3,6 +3,8 @@
  */
 package edu.iastate.metnet.metaomgraph;
 
+import javax.swing.JOptionPane;
+
 import com.jujutsu.tsne.TSneConfiguration;
 import com.jujutsu.tsne.barneshut.BHTSne;
 import com.jujutsu.tsne.barneshut.BarnesHutTSne;
@@ -11,13 +13,33 @@ import com.jujutsu.utils.TSneUtils;
 
 /**
  * @author sumanth
- *
+ * Singleton class 
+ * get the object by calling getTsneInstance()
  */
 public class ComputeTSNE {
-	private BarnesHutTSne tsne;
-	private TSneConfiguration tsneConfig;
+	private static BarnesHutTSne tsne;
+	private static TSneConfiguration tsneConfig;
+	
+	private static ComputeTSNE tsneInstance = null;
+	
+	// make it singleton
+	private ComputeTSNE() {}
+	
+	// Singleton class
+	private ComputeTSNE(double[][] data, double perplexity, int maxIter, double theta,
+			int numDims, boolean usePCA, boolean parallel) {
+		if(parallel) {
+			tsne = new ParallelBHTsne();
+		} else {
+			tsne = new BHTSne();
+		}
+
+		tsneConfig = 
+				TSneUtils.buildConfig(data, numDims, data.length, perplexity, maxIter, usePCA, theta, true);
+	}
+	
 	/**
-	 * Constructor
+	 * returns the singleton instance of the ComputeTSNE class
 	 * @param data 2d array with m rows(selected samples) and n columns(selected feature/gene list)
 	 * @param perplexity denotes number of nearest neighbors
 	 * @param maxIter maximum number of iterations
@@ -25,23 +47,42 @@ public class ComputeTSNE {
 	 * @param numDims number of output dimensions
 	 * @param usePCA use pca
 	 * @param parallel use parallel version or non parallel version.
+	 * @return ComputeTSNE object
 	 */
-	public ComputeTSNE(double[][] data, double perplexity, int maxIter, double theta,
+	public static ComputeTSNE getTsneInstance(double[][] data, double perplexity, int maxIter, double theta,
 			int numDims, boolean usePCA, boolean parallel) {
-		if(parallel) {
-			tsne = new ParallelBHTsne();
-		} else {
-			tsne = new BHTSne();
+		if(tsneInstance == null) {
+			tsneInstance = new ComputeTSNE(data, perplexity, maxIter, theta, numDims, usePCA, parallel);
 		}
-		tsneConfig = 
-				TSneUtils.buildConfig(data, numDims, data.length, perplexity, maxIter, usePCA, theta, true);
+		return tsneInstance;
+	}
+	
+	/**
+	 * public method to garbage collect tsne
+	 * 
+	 */
+	public static void abortTsne() {
+		if(tsneInstance != null) {
+			tsne.abort();
+			tsne = null;
+			tsneConfig = null;
+			tsneInstance = null;
+		}
 	}
 	
 	/**
 	 * returns 2d array with m rows and 2 columns
-	* @return the reduced parameters of the data 
+	 * @return the reduced parameters of the data 
 	*/
 	public double[][] projectData(){
-		return tsne.tsne(tsneConfig);
+		try {
+			return tsne.tsne(tsneConfig);
+		}
+		catch(Exception e) {
+			abortTsne();
+			String error = e.getMessage();
+			JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), error, "Tsne error", JOptionPane.ERROR_MESSAGE);
+		}
+		return null;
 	}
 }

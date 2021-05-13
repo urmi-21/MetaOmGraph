@@ -1,5 +1,6 @@
 package edu.iastate.metnet.metaomgraph.utils;
 
+import edu.iastate.metnet.metaomgraph.ComputeTSNE;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.ui.CustomFileSaveDialog;
@@ -329,7 +330,10 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 	@Override
 	public void uncaughtException(Thread t, Throwable e) {
 		if(e instanceof OutOfMemoryError) {
+			// Hack to clear tsne data, if present
+			ComputeTSNE.abortTsne();
 			displayOutOfMemoryException();
+			notifyListeners(e);
 			return;
 		}
 		e.printStackTrace();
