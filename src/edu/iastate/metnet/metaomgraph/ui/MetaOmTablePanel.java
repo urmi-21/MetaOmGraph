@@ -2641,7 +2641,14 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 		
 		if("plot heatmap".equals(e.getActionCommand())) {
-			createHeatMap();
+			new AnimatedSwingWorker("Creating heatmap") {
+				
+				@Override
+				public Object construct() {
+					createHeatMap();
+					return null;
+				}
+			}.start();
 		}
 		
 		if ("create heatmap".equals(e.getActionCommand())) {

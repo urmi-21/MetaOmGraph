@@ -241,6 +241,12 @@ public class HeatMapRangeColorSelector extends JPanel implements ActionListener{
 	// Check if the set range is valid or not
 	// Checkf for overlapping ranges, duplicate ranges
 	private boolean areValidRanges() {
+		if(rangePanelsCollection.size() <= 0) {
+			JOptionPane.showMessageDialog(this, 
+					"You should have atleast one range", 
+					"Range error", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
 		// Sort the rangePanelsCollection by minvalue
 		rangePanelsCollection.sort(
 				(r1, r2)->r1.getMinValue().compareTo(r2.getMinValue()));

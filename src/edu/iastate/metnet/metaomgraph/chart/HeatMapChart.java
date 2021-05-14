@@ -3,6 +3,7 @@
  */
 package edu.iastate.metnet.metaomgraph.chart;
 
+import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.IconTheme;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
@@ -179,7 +180,14 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 			}else {
 				splitDataset.setEnabled(true);
 			}
-			createHeatMapPanel();
+			new AnimatedSwingWorker("Transposing rows and columns") {
+				
+				@Override
+				public Object construct() {
+					createHeatMapPanel();
+					return null;
+				}
+			};
 		}
 		
 		// Properties
@@ -280,7 +288,14 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 				transposeData = false;
 				this.heatMapData = originalData;
 				bottomPanelButton.setEnabled(true);
-				createHeatMapPanel();
+				new AnimatedSwingWorker("Resetting..") {
+					
+					@Override
+					public Object construct() {
+						createHeatMapPanel();
+						return null;
+					}
+				}.start();
 				return;
 			}
 			List<String> selectedVals = new ArrayList<>();
@@ -305,8 +320,15 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 					return;
 				}
 				List<String> dataCols = Arrays.asList(selectedDataCols);
-				splitIndex = MetaOmGraph.getActiveProject().getMetadataHybrid().cluster(selectedVals, dataCols);
-				heatMap.clusterColumns(selectedVals, splitIndex);
+				new AnimatedSwingWorker("Clustering...") {
+					
+					@Override
+					public Object construct() {
+						splitIndex = MetaOmGraph.getActiveProject().getMetadataHybrid().cluster(selectedVals, dataCols);
+						heatMap.clusterColumns(selectedVals, splitIndex);
+						return null;
+					}
+				}.start();
 				bottomPanelButton.setEnabled(false);
 			}
 		}
