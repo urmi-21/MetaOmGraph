@@ -134,6 +134,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 		changePalette.setOpaque(false);
 		changePalette.setContentAreaFilled(false);
 		changePalette.setBorderPainted(true);
+		changePalette.setEnabled(false);
 
 		chartButtonsPanel.add(properties);
 		chartButtonsPanel.add(save);
@@ -165,7 +166,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 			rowNames = temp;
 		}
 		heatMap = new HeatMapPanel(heatMapData, rowNames, columnNames);
-
+		heatMap.setSampleDataOnRow(sampleDataOnRow);
 		scrollPane.setViewportView(heatMap);
 	}
 
@@ -177,6 +178,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 			sampleDataOnRow = !sampleDataOnRow;
 			if(sampleDataOnRow) {
 				splitDataset.setEnabled(false);
+				changePalette.setEnabled(false);
 			}else {
 				splitDataset.setEnabled(true);
 			}
@@ -187,7 +189,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 					createHeatMapPanel();
 					return null;
 				}
-			};
+			}.start();
 		}
 		
 		// Properties
@@ -275,7 +277,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 		
 		// Cluster the data
 		if("splitDataset".equals(e.getActionCommand())) {
-			String[] options = {"By Metadata", "By Query", "Reset"};	
+			String[] options = {"By Metadata", "Reset"};	
 
 			String col_val = (String) JOptionPane.showInputDialog(null, "Choose the column:\n", "Please choose",
 					JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
@@ -296,6 +298,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 						return null;
 					}
 				}.start();
+				changePalette.setEnabled(false);
 				return;
 			}
 			List<String> selectedVals = new ArrayList<>();
@@ -329,6 +332,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 						return null;
 					}
 				}.start();
+				changePalette.setEnabled(true);
 				bottomPanelButton.setEnabled(false);
 			}
 		}

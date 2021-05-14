@@ -61,6 +61,7 @@ public class HeatMapPanel extends JPanel{
 	private int[] clusterLabelsInRowTillNow;
 	private double[][] heatMapData;
 	private boolean heatMapTableUpdating;
+	private boolean sampleDataOnRow;
 	private List<ColorBrewer> clusterLabelColors;
 	private List<String> clusterRowNames;
 	private Map<String, Collection<Integer>> columnClusterMap;
@@ -85,6 +86,7 @@ public class HeatMapPanel extends JPanel{
 		this.rowNames = rowNames;
 		this.colNames = colNames;
 		this.heatMapTableUpdating = false;
+		this.sampleDataOnRow = false;
 		clusterRowNames = new ArrayList<String>();
 		clusterRowNames.add("Data column");
 		// Java 9 -> change it to new TreeMap<>(Arrays::compare);
@@ -210,7 +212,13 @@ public class HeatMapPanel extends JPanel{
 					}
 					return createToolTipTextString(dataColName, value);
 				}else {
-					String dataColName = colNames[colIndex - 1];
+					String dataColName;
+					if(sampleDataOnRow) {
+						dataColName = rowNames[rowIndex - 1];
+					}
+					else {
+						dataColName = colNames[colIndex - 1];
+					}
 					String value;
 					if (rowIndex == 0) {
 						value = dataColName;
@@ -395,6 +403,14 @@ public class HeatMapPanel extends JPanel{
 		clusterLabelsInRowTillNow = new int[clusterRowNames.size()];
 		// Update the heatmaptable with new colors
 		updateHeatMapTableWithClusters();
+	}
+	
+	/**
+	 * Set the boolean whether the sample data is on row or columns. Used in tool tips
+	 * @param sampleDataOnRow
+	 */
+	public void setSampleDataOnRow(boolean sampleDataOnRow) {
+		this.sampleDataOnRow = sampleDataOnRow;
 	}
 	
 	/**
@@ -686,7 +702,7 @@ public class HeatMapPanel extends JPanel{
 		@Override
 		protected void paintComponent(Graphics g) {
 			Graphics2D g2 = (Graphics2D) g;
-			// Check if clustering is enabled ad current row is in the cluster rows limit
+			// Check if clustering is enabled and current row is in the cluster rows limit
 			if(colNum != 0 && (rowNum == 0 || 
 					(columnClusterMap != null && rowNum < numOfRowsOccupiedByLabels))) {
 				Color labelColor = textColor;
@@ -698,7 +714,8 @@ public class HeatMapPanel extends JPanel{
 				}
 				if(!skipDrawString) {
 					g2.setColor(labelColor);
-					g2.setFont(textFont);
+					//g2.setFont(textFont);
+					g2.setFont(new Font(null, Font.BOLD, 10));
 					g2.drawString(stringLabel, 1, 10);
 				}
 			}
