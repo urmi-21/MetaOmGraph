@@ -31,12 +31,14 @@ import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.jcolorbrewer.ColorBrewer;
 
+import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
@@ -58,6 +60,7 @@ public class HeatMapPanel extends JPanel{
 	private int[] columnIndexColNamesMap;
 	private int[] clusterLabelsInRowTillNow;
 	private double[][] heatMapData;
+	private boolean heatMapTableUpdating;
 	private List<ColorBrewer> clusterLabelColors;
 	private List<String> clusterRowNames;
 	private Map<String, Collection<Integer>> columnClusterMap;
@@ -81,6 +84,7 @@ public class HeatMapPanel extends JPanel{
 		this.heatMapData = data;
 		this.rowNames = rowNames;
 		this.colNames = colNames;
+		this.heatMapTableUpdating = false;
 		clusterRowNames = new ArrayList<String>();
 		clusterRowNames.add("Data column");
 		// Java 9 -> change it to new TreeMap<>(Arrays::compare);
@@ -179,6 +183,7 @@ public class HeatMapPanel extends JPanel{
 	
 	// Function which creates the JTable 
 	private void createTable() {
+		heatMapTableUpdating = true;
 		// Create a JTable with 1 additional row and column to accomodate row and column labels
 		heatMapTable = new JTable(heatMapData.length + 1, heatMapData[0].length + 1) {
 			
@@ -288,6 +293,7 @@ public class HeatMapPanel extends JPanel{
 
 		setVisible(true);
 		add(heatMapTable);
+		heatMapTableUpdating = false;
 		this.legendPanel = new LegendPanel();
 		add(legendPanel);
 	}
@@ -456,6 +462,7 @@ public class HeatMapPanel extends JPanel{
 	
 	// Updates the heatmap table with clusters
 	private void updateHeatMapTableWithClusters() {
+		heatMapTableUpdating = true;
 		// reset the existing table first
 		DefaultTableModel tablemodel = (DefaultTableModel) heatMapTable.getModel();
 		tablemodel.setRowCount(0);
@@ -509,6 +516,7 @@ public class HeatMapPanel extends JPanel{
 		for(int i = 1; i <= colLen; i++) {
 			heatMapTable.getColumnModel().getColumn(i).setPreferredWidth(1);
 		}
+		heatMapTableUpdating = false;
 		heatMapTable.repaint();
 	}
 	
@@ -528,7 +536,7 @@ public class HeatMapPanel extends JPanel{
 						HeatMapRangeColorSelector rangeSelector = 
 								new HeatMapRangeColorSelector(valueRangeColorMap);
 						valueRangeColorMap = rangeSelector.getRangeColorMap();
-						heatMapTable.repaint();
+						HeatMapPanel.this.repaint();
 					}
 				}
 			});
@@ -596,6 +604,9 @@ public class HeatMapPanel extends JPanel{
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
 				int row, int column) {
+			if(heatMapTableUpdating) {
+				return null;
+			}
 			if(value instanceof Double) {
 				cellColorRenderingObj.setColorValue((double)value);
 				return cellColorRenderingObj;
@@ -743,7 +754,7 @@ public class HeatMapPanel extends JPanel{
 	    private Integer row = null;
 	    // Using weak reference so that, entire table won't be copied and maintained in the memory
 	    private final WeakReference<JTable> table;
-	    private final  WeakReference<DefaultTableModel> tableModel;
+	    private final WeakReference<DefaultTableModel> tableModel;
 
 	    // Constructor
 	    public MouseHandler(JTable table, DefaultTableModel model) {
@@ -784,11 +795,18 @@ public class HeatMapPanel extends JPanel{
 	        if(!(viewRowIndex == 0 || 
 					(columnClusterMap != null)))
 	        	return;
-	        List<String> samplesToBeClustered = getClusterRowsInArrangedOrder();
-	        Map<String, Collection<Integer>> splitIndex = 
-	        		MetaOmGraph.getActiveProject().getMetadataHybrid().cluster(samplesToBeClustered, Arrays.asList(colNames));
-	        // Update the heatmap based on new clustering
-	        clusterColumns(samplesToBeClustered, splitIndex);
+	        new AnimatedSwingWorker("Sorting by cluster...") {
+				
+				@Override
+				public Object construct() {
+			        List<String> samplesToBeClustered = getClusterRowsInArrangedOrder();
+			        Map<String, Collection<Integer>> splitIndex = 
+			        		MetaOmGraph.getActiveProject().getMetadataHybrid().cluster(samplesToBeClustered, Arrays.asList(colNames));
+			        // Update the heatmap based on new clustering
+			        clusterColumns(samplesToBeClustered, splitIndex);
+					return null;
+				}
+			}.start();
 	    }
 
 	    @Override
