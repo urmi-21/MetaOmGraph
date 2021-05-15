@@ -87,6 +87,7 @@ public class HeatMapPanel extends JPanel{
 		this.colNames = colNames;
 		this.heatMapTableUpdating = false;
 		this.sampleDataOnRow = false;
+		this.textFont = new Font(null, Font.BOLD, 10);
 		clusterRowNames = new ArrayList<String>();
 		clusterRowNames.add("Data column");
 		// Java 9 -> change it to new TreeMap<>(Arrays::compare);
@@ -197,12 +198,15 @@ public class HeatMapPanel extends JPanel{
 				int colIndex = columnAtPoint(p);
 				if(rowIndex == -1 || colIndex == -1 || colIndex == 0)
 					return "";
+				if(sampleDataOnRow && rowIndex == 0) {
+					return "";
+				}
 				DecimalFormat df = new DecimalFormat("####0.0000");
 				// If clustering is enabled
 				if(columnClusterMap != null) {
 					String dataColName = colNames[columnIndexColNamesMap[colIndex]];
 					String value;
-					// "clusterLabel : value" 
+					// key -> "clusterLabel : value" 
 					if(rowIndex < numOfRowsOccupiedByLabels) {
 						String clusterLabel = (String) this.getValueAt(rowIndex, 0);
 						value = clusterLabel + " : " + (String) this.getValueAt(rowIndex, colIndex);
@@ -470,7 +474,7 @@ public class HeatMapPanel extends JPanel{
 			ArrayUtils.reverse(colors);
 			// get the color from the ColorBrewer 
 			int colorIndex = clusterLabelsInRowTillNow[rowIndex]++;
-			Color color = colors[colorIndex % clusterLabelsInRowTillNow.length];
+			Color color = colors[colorIndex % clusterLabelsInRowTillNow[rowIndex]];
 			// update the label color in map
 			labelColorMap.put(columnClusterLabels[rowIndex] + ":" + rowIndex, color);
 		}
@@ -640,7 +644,7 @@ public class HeatMapPanel extends JPanel{
 						for(Integer[] range : rangesList) {
 							if(column >= range[0] && column <= range[1]) {
 								// get the middle index of the cluster
-								int midVal = range[0] + range[1] / 2;
+								int midVal = (range[0] + range[1]) / 2;
 								// if current column is not the cluster middle column, skip drawing 
 								// the string
 								if(column != midVal)
@@ -653,7 +657,7 @@ public class HeatMapPanel extends JPanel{
 							Integer[] range = getClusterRange(table, columnLabel, row, column);
 							rangesList.add(range);
 							clusterLabelRangesMap.replace(columnLabel, rangesList);
-							int midVal = range[0] + range[1] / 2;
+							int midVal = (range[0] + range[1]) / 2;
 							if(column != midVal)
 								skipDrawString = true;
 						}
@@ -663,7 +667,7 @@ public class HeatMapPanel extends JPanel{
 						Integer[] range = getClusterRange(table, columnLabel, row, column);
 						rangesList.add(range);
 						clusterLabelRangesMap.put(columnLabel, rangesList);
-						int midVal = range[0] + range[1] / 2;
+						int midVal = (range[0] + range[1]) / 2;
 						if(column != midVal)
 							skipDrawString = true;
 					}
@@ -714,8 +718,7 @@ public class HeatMapPanel extends JPanel{
 				}
 				if(!skipDrawString) {
 					g2.setColor(labelColor);
-					//g2.setFont(textFont);
-					g2.setFont(new Font(null, Font.BOLD, 10));
+					g2.setFont(textFont.deriveFont(Font.BOLD, 10));
 					g2.drawString(stringLabel, 1, 10);
 				}
 			}
