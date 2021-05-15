@@ -4574,7 +4574,7 @@ public class MetaOmProject {
 	 * @throws IOException
 	 */
 	public double[][] getSelectedListOnlyRowData(int[] selectedCols, String selectedList) throws IOException{
-		int[]  rowNums = getGeneListRowNumbers(selectedList);
+		int[] rowNums = getGeneListRowNumbers(selectedList);
 
 		double[][] result = new double[selectedCols.length][];
 		for (int i = 0; i < selectedCols.length; i++) {
