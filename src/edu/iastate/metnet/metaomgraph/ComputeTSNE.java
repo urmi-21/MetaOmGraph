@@ -5,6 +5,7 @@ package edu.iastate.metnet.metaomgraph;
 
 import javax.swing.JOptionPane;
 
+import com.jujutsu.tsne.TSne;
 import com.jujutsu.tsne.TSneConfiguration;
 import com.jujutsu.tsne.barneshut.BHTSne;
 import com.jujutsu.tsne.barneshut.BarnesHutTSne;
@@ -78,10 +79,22 @@ public class ComputeTSNE {
 		try {
 			return tsne.tsne(tsneConfig);
 		}
+		catch(IllegalArgumentException badArguments) {
+			abortTsne();
+			String error = badArguments.getMessage();
+			if(error.contains("Perplexity too large")) {
+				String errorMessage = error;
+				errorMessage += "Please set it low, check the user guide for optimal values";
+				JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), errorMessage, "Tsne error", JOptionPane.ERROR_MESSAGE);
+			}
+			else if(error.contains("theta")) {
+				String errorMessage = "Please set theta more than 0.0";
+				JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), errorMessage, "Tsne error", JOptionPane.ERROR_MESSAGE);
+			}
+		}
 		catch(Exception e) {
 			abortTsne();
-			String error = e.getMessage();
-			JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), error, "Tsne error", JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
 		}
 		return null;
 	}

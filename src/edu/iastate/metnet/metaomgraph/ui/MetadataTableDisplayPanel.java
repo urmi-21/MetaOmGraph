@@ -2611,6 +2611,9 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 	 * @param selectedGeneList selected gene list
 	 */
 	public void computeTSNE(String[] selectedDataCols, String selectedGeneList) {
+		if(selectedGeneList == null) {
+			return;
+		}
 		// for the selected runs find their index in the data file and get data by the
 		// index in data file
 		try {
