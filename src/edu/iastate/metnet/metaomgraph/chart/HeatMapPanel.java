@@ -77,9 +77,9 @@ public class HeatMapPanel extends JPanel{
 			
 	/**
 	 * Constructor
-	 * @param data heatmap 2d data
-	 * @param rowNames the row labels
-	 * @param colNames the column labels
+	 * @param data 2d heatmap data
+	 * @param rowNames row labels to be displayed on the rows (left), length should be same as data.length
+	 * @param columnNames column labels to be displayed on the columns (top), length should be same as data[0].length
 	 */
 	public HeatMapPanel(double[][] data, String[] rowNames, String[] colNames) {
 		this.heatMapData = data;
