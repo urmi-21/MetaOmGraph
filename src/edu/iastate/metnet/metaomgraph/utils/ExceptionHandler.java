@@ -1,5 +1,6 @@
 package edu.iastate.metnet.metaomgraph.utils;
 
+import edu.iastate.metnet.metaomgraph.ComputeTSNE;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.ui.CustomFileSaveDialog;
@@ -308,9 +309,33 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 		}
 	}
 
+	private void displayOutOfMemoryException() {
+		JEditorPane editorPane = new JEditorPane();
+		editorPane.setContentType("text/html");
+		String message = "<body>" + "Not enough memory to perform the operation" + "<br>" + 
+				"Please run the MetaOmGraph by providing more memory. This can be done by following the steps:" 
+				+ "</br>" +	"<br>1. Open the Command/Terminal window</br>" + 
+				"<br>2. Navigate to the directory of MetaOmGraph</br>"  +
+				"<br>3. Execute the command: <b>java -Xms4g -Xmx6g -jar mogV.V.V.jar</b></br>" +
+				"<br>Note: In mogV.V.V.jar, V.V.V represents the version number, for ex: mog1.8.2.jar" +
+				"<br>-Xms4g -Xmx6g: -Xms sets the initial memory and -Xmx sets the maximum memory.</br>" +
+				"<br>4g represents 4 GB of initial memory, 6g represents 6 GB of maximum memory.</br>" +
+				"<br>Specify the initial and maximum memory based on your system RAM memory.</br>" + "</body>";
+		editorPane.setText(message);
+		editorPane.setEditable(false);
+		JOptionPane.showConfirmDialog(MetaOmGraph.getMainWindow(), editorPane, 
+				"Out of memory", JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE);	
+	}
+	
 	@Override
 	public void uncaughtException(Thread t, Throwable e) {
-
+		if(e instanceof OutOfMemoryError) {
+			// Hack to clear tsne data, if present
+			ComputeTSNE.abortTsne();
+			displayOutOfMemoryException();
+			notifyListeners(e);
+			return;
+		}
 		e.printStackTrace();
 		JLabel message = new JLabel(
 				"<html>MetaOmGraph has encountered an error.<br>Click \"Notify\" to send the error information to the developers.  No personal information will be sent.</html>");
