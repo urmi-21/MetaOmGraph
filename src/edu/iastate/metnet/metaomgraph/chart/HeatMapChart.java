@@ -67,8 +67,8 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 	/**
 	 * Constructor
 	 * @param data 2d heatmap data
-	 * @param rowNames row labels
-	 * @param columnNames column labels
+	 * @param rowNames row labels to be displayed on the rows (left), length should be same as data.length
+	 * @param columnNames column labels to be displayed on the columns (top), length should be same as data[0].length
 	 * @param transposeData transpose rows and columns?
 	 */
 	public HeatMapChart(double[][] data, String[] rowNames, String[] columnNames, boolean transposeData) {
