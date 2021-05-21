@@ -168,8 +168,15 @@ public class ScatterPlotDimReduction extends TaskbarInternalFrame implements Cha
 	private JSplitPane splitPane;
 	private SelectedSampleMetaDataDisplayTable selectedPointsDisplayTableObj;
 	private ArrayList<Rectangle2D> selectedRectangles;
+
 	/**
-	 * Create the frame.
+	 * Constructor
+	 * @param data 2d data for scatter plot
+	 * @param rowNames the names aginst which scatter plot is drawn (PCA1, PCA2 (PCA1 vs PCA 2))
+	 * @param selectedDataCols the selected data columns, used for tooltip and split dataset
+	 * @param xLabel the x-axis label
+	 * @param yLabel the y-axis label
+	 * @param isPlayback if its called from reproducibilty or not
 	 */
 	public ScatterPlotDimReduction(double[][] data, String[] rowNames, String[] selectedDataCols,
 			String xLabel, String yLabel, boolean isPlayback) {
@@ -435,6 +442,11 @@ public class ScatterPlotDimReduction extends TaskbarInternalFrame implements Cha
 		return menuBar;
 	}
 
+	/**
+	 * 
+	 * @return the chartpanel with scatter plot
+	 * @throws IOException
+	 */
 	public ChartPanel makeScatterPlot() throws IOException {
 		
 		// Create dataset
@@ -946,7 +958,6 @@ public class ScatterPlotDimReduction extends TaskbarInternalFrame implements Cha
 
 	/**
 	 * create a map of name to indices
-	 * 
 	 * @param collList
 	 * @param names
 	 * @return
@@ -1282,8 +1293,8 @@ public class ScatterPlotDimReduction extends TaskbarInternalFrame implements Cha
 	/** 
 	 * Get the rectangle in chart plane based on start and end diagonal points.
 	 * 
-	 * @param startPoint
-	 * @param endPoint
+	 * @param startPoint top left point
+	 * @param endPoint bottom right point
 	 * @return Rectangle2D
 	 */
 	private Rectangle2D getRectangleInChartPanel(Point startPoint, Point endPoint) {
