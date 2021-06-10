@@ -108,7 +108,11 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 		TreeSet<Integer> hits = new TreeSet();
 		try {
 			for (String findMe : values) {
-
+				boolean notFlag = false;
+				if(findMe.charAt(0) == '!') {
+					notFlag = true;
+					findMe = findMe.substring(1);
+				}
 				boolean colFlag = false;
 				int colInt = -1;
 				// delim should be present and should have values on both sides
@@ -150,7 +154,11 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 							thisValue = thisValue.toLowerCase();
 							findMe = findMe.toLowerCase();
 						}
-						if (thisValue.indexOf(findMe) >= 0) {
+						if(notFlag) {
+							if(thisValue.indexOf(findMe) < 0)
+								hits.add(Integer.valueOf(row));
+						}
+						else if (thisValue.indexOf(findMe) >= 0) {
 							hits.add(Integer.valueOf(row));
 						}
 
@@ -169,8 +177,11 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 								thisValue = thisValue.toLowerCase();
 								findMe = findMe.toLowerCase();
 							}
-
-							if (thisValue.indexOf(findMe) >= 0) {
+							if(notFlag) {
+								if(thisValue.indexOf(findMe) < 0)
+									hits.add(Integer.valueOf(row));
+							}
+							else if (thisValue.indexOf(findMe) >= 0) {
 								hits.add(Integer.valueOf(row));
 							}
 
