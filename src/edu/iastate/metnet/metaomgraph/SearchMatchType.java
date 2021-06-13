@@ -10,6 +10,7 @@ package edu.iastate.metnet.metaomgraph;
 public enum SearchMatchType {
 	CONTAINS,
 	IS,
-	NOT
+	NOT,
+	DOES_NOT_CONTAIN
 }
 

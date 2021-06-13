@@ -702,8 +702,10 @@ public class MetadataCollection {
 			fa = Filters.regex(searchCol, caseFlag + "^" + toSearch + "$");
 		} else if (matchType == SearchMatchType.CONTAINS) {
 			fa = Filters.regex(searchCol, caseFlag + toSearch);
-		} else {
+		} else if(matchType == SearchMatchType.NOT){
 			fa = Filters.regex(searchCol, caseFlag + "^(?!" + toSearch + "$).*$");
+		} else {
+			fa = Filters.regex(searchCol, caseFlag + "^(?!" + toSearch + ").*$");
 		}
 		return getDatabyAttributes(fa, targetCol, uniqueFlag);
 	}
@@ -743,12 +745,11 @@ public class MetadataCollection {
 						fa[i] = Filters.regex(this.getHeaders()[i], caseFlag + "^" + toSearch + "$");
 					} else if (matchType == SearchMatchType.CONTAINS) {
 						fa[i] = Filters.regex(this.getHeaders()[i], caseFlag + toSearch);
-					} else {
+					} else if(matchType == SearchMatchType.NOT){
 						// exactly not
 						fa[i] = Filters.regex(this.getHeaders()[i], caseFlag + "^(?!" + toSearch + "$).*$");
-						// not like
-						// fa[i] = Filters.regex(this.getHeaders()[i], caseFlag + "^(?!" + toSearch +
-						// ").*$");
+					} else {
+						 fa[i] = Filters.regex(this.getHeaders()[i], caseFlag + "^(?!" + toSearch + ").*$");
 					}
 				}
 				if (AND) {

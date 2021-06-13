@@ -614,12 +614,9 @@ public class MetadataHybrid {
 			}
 
 			if (field[i] == "All Fields") {
-
-				// List<String> res2 = new ArrayList<>();
 				specialCaseRes.add(searchByValue(toSearch[i], toReturn, matchType[i], true, matchCase[i]));
 
 			} else if (field[i] == "Any Field") {
-
 				specialCaseRes.add(searchByValue(toSearch[i], toReturn, matchType[i], false, matchCase[i]));
 
 			} else {
@@ -629,11 +626,11 @@ public class MetadataHybrid {
 
 				} else if(matchType[i] == SearchMatchType.CONTAINS) {
 					filterList.add(Filters.regex(field[i], caseFlag + toSearch[i]));
-				} else {
+				} else if(matchType[i] == SearchMatchType.NOT){
 					// exactly not
 					filterList.add(Filters.regex(field[i], caseFlag + "^(?!" + toSearch[i] + "$).*$"));
-					// not like
-					//filterList.add(Filters.regex(field[i], caseFlag + "^((?!" + toSearch[i] + ").)*$"));
+				} else {
+					filterList.add(Filters.regex(field[i], caseFlag + "^(?!" + toSearch[i] + ").*$"));
 				}
 			}
 		}

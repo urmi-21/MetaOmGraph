@@ -270,9 +270,6 @@ public class DualTablePanel extends JPanel implements ActionListener {
 				model.addSelectionInterval(i, i);
 			}
 		}
-		
-		//setSelectedToTop(tab);  not working
-		
 	}
 
 	private java.util.List<Integer> getMatchingRow(String colName, String val, JTable tab, SearchMatchType matchType) {
@@ -280,19 +277,17 @@ public class DualTablePanel extends JPanel implements ActionListener {
 
 		// special case
 		if (colName.equals("All Fields")) {
-			// JOptionPane.showMessageDialog(null, "case all");
 			boolean breakFlag = false;
 			for (int i = 0; i < tab.getRowCount(); i++) {
 				breakFlag = false;
 				for (int j = 1; j < tab.getColumnCount(); j++) {
 					String valAtij = "";
-					// value can be null for correlations in list which has values for only some
-					// rows
+					// value can be null for correlations in list which has values for only some rows
 					if (tab.getModel().getValueAt(i, j) != null) {
 						valAtij = tab.getModel().getValueAt(i, j).toString();
 					}
 					if (matchType == SearchMatchType.IS) {
-						if (!valAtij.equals(val)) {
+						if (!valAtij.contentEquals(val)) {
 							breakFlag = true;
 							break;
 						}
@@ -301,8 +296,14 @@ public class DualTablePanel extends JPanel implements ActionListener {
 							breakFlag = true;
 							break;
 						}
-					} else {
-						if(valAtij.equals(val)) {
+					} else if(matchType == SearchMatchType.NOT){
+						if(valAtij.contentEquals(val)) {
+							breakFlag = true;
+							break;
+						}
+					}
+					else {
+						if(valAtij.contains(val)) {
 							breakFlag = true;
 							break;
 						}
@@ -313,39 +314,38 @@ public class DualTablePanel extends JPanel implements ActionListener {
 				}
 			}
 		} else if (colName.equals("Any Field")) {
-			// JOptionPane.showMessageDialog(null, "case any");
 			boolean foundFlag = false;
 			for (int i = 0; i < tab.getRowCount(); i++) {
 				foundFlag = false;
 				for (int j = 1; j < tab.getColumnCount(); j++) {// For each column in that row
 					String valAtij = "";
-					// value can be null for correlations in list which has values for only some
-					// rows
+					// value can be null for correlations in list which has values for only some rows
 					if (tab.getModel().getValueAt(i, j) != null) {
 						valAtij = tab.getModel().getValueAt(i, j).toString();
 					}
 					if (matchType == SearchMatchType.IS) {
-						if (valAtij.equals(val)) {
+						if (valAtij.contentEquals(val)) {
 							foundFlag = true;
 							break;
 						}
 					} else if(matchType == SearchMatchType.CONTAINS){
 						if (valAtij.contains(val)) {
-							// JOptionPane.showMessageDialog(null, "col" + j + ":" + tab.getColumnName(j) +
-							// " row:" + i);
-							// JOptionPane.showMessageDialog(null, "mval:" + tab.getModel().getValueAt(i,
-							// j).toString());
 							foundFlag = true;
 							break;
 						}
-					} else {
-						if (!valAtij.equals(val)) {
+					} else if(matchType == SearchMatchType.NOT){
+						if (!valAtij.contentEquals(val)) {
+							foundFlag = true;
+							break;
+						}
+					}
+					else {
+						if (!valAtij.contains(val)) {
 							foundFlag = true;
 							break;
 						}
 					}
 				}
-
 				if (foundFlag) {
 					res.add(i);
 				}
@@ -360,15 +360,19 @@ public class DualTablePanel extends JPanel implements ActionListener {
 					valAtij = tab.getModel().getValueAt(i, colIndex).toString();
 				}
 				if (matchType == SearchMatchType.IS) {
-					if (valAtij.equals(val)) {
+					if (valAtij.contentEquals(val)) {
 						res.add(i);
 					}
 				} else if(matchType == SearchMatchType.CONTAINS){
 					if (valAtij.contains(val)) {
 						res.add(i);
 					}
+				} else if(matchType == SearchMatchType.NOT){
+					if (!valAtij.contentEquals(val)) {
+						res.add(i);
+					}
 				} else {
-					if (!valAtij.equals(val)) {
+					if (!valAtij.contains(val)) {
 						res.add(i);
 					}
 				}
