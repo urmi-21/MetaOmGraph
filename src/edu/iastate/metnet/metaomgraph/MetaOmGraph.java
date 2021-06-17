@@ -122,6 +122,7 @@ import edu.iastate.metnet.metaomgraph.ui.SetColTypes;
 import edu.iastate.metnet.metaomgraph.ui.StatisticalResultsFrame;
 import edu.iastate.metnet.metaomgraph.ui.TaskbarInternalFrame;
 import edu.iastate.metnet.metaomgraph.ui.TaskbarPanel;
+import edu.iastate.metnet.metaomgraph.ui.ThirdPartyLibs;
 import edu.iastate.metnet.metaomgraph.ui.WelcomePanel;
 import edu.iastate.metnet.metaomgraph.ui.WelcomePanelWin10;
 import edu.iastate.metnet.metaomgraph.utils.DataNormalizer;
@@ -529,6 +530,7 @@ public class MetaOmGraph implements ActionListener {
 
 	public static final String ABOUT_COMMAND = "show about window";
 	public static final String PLAYBACK_COMMAND = "playback command";
+	private static final String THIRD_PARTY_LIBS_COMMAND = "show third party libs window";
 
 	public static final String RECENT_PROJECT_COMMAND = "open a recent project";
 
@@ -698,7 +700,8 @@ public class MetaOmGraph implements ActionListener {
 
 	/** Items on the Help menu */
 	private static JMenuItem checkUpdateitem, overviewItem, contextItem, tipsItem, aboutItem, contactItem;
-
+	private static JMenuItem thirdPartyLibs;
+	
 	/** An instance of this class created by the main() method */
 	private static MetaOmGraph myself;
 
@@ -1571,7 +1574,12 @@ public class MetaOmGraph implements ActionListener {
 		aboutItem.setActionCommand(ABOUT_COMMAND);
 		aboutItem.addActionListener(myself);
 		helpMenu.add(aboutItem);
-
+		
+		thirdPartyLibs = new JMenuItem("Third party libraries");
+		thirdPartyLibs.setActionCommand(THIRD_PARTY_LIBS_COMMAND);
+		thirdPartyLibs.addActionListener(myself);
+		helpMenu.add(thirdPartyLibs);
+		
 		//historyMenu = new JMenu("Playback");
 		JMenuItem playbackMenu = new JMenuItem("Playback Dashboard");
 		playbackMenu.setMnemonic(KeyEvent.VK_A);
@@ -2905,6 +2913,15 @@ public class MetaOmGraph implements ActionListener {
 
 			}
 			return;
+		}
+		
+		if(THIRD_PARTY_LIBS_COMMAND.equals(e.getActionCommand())) {
+			JDialog dialog = new JDialog(getMainWindow(), "Third party libraries used", true);
+			dialog.add(new ThirdPartyLibs());
+			dialog.pack();
+			dialog.setLocationRelativeTo(MetaOmGraph.getMainWindow());
+			dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
 		}
 
 		if (PLAYBACK_COMMAND.equals(e.getActionCommand())) {
