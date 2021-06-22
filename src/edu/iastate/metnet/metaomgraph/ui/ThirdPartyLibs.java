@@ -90,15 +90,72 @@ public class ThirdPartyLibs extends JPanel{
 		addThirdPartyLibrary(name, websiteUrl, licenseUrl);
 		rangePanel.add(new JSeparator(SwingConstants.HORIZONTAL));
 		
+		// log4j
+		name = "Log4j";
+		websiteUrl = "https://logging.apache.org/log4j/2.x/";
+		licenseUrl = "https://github.com/apache/logging-log4j2/blob/master/LICENSE.txt";
+		addThirdPartyLibrary(name, websiteUrl, licenseUrl);
+		rangePanel.add(new JSeparator(SwingConstants.HORIZONTAL));
+		
+		// gson
+		name = "Gson";
+		websiteUrl = "https://github.com/google/gson";
+		licenseUrl = "https://github.com/google/gson/blob/master/LICENSE";
+		addThirdPartyLibrary(name, websiteUrl, licenseUrl);
+		rangePanel.add(new JSeparator(SwingConstants.HORIZONTAL));
+		
+		// flatlaf
+		name = "FlatLaf";
+		websiteUrl = "https://www.formdev.com/flatlaf/";
+		licenseUrl = "https://www.formdev.com/flatlaf/#license";
+		addThirdPartyLibrary(name, websiteUrl, licenseUrl);
+		rangePanel.add(new JSeparator(SwingConstants.HORIZONTAL));
+		
+		// MigLayout
+		name = "MigLayout";
+		websiteUrl = "https://www.miglayout.com/";
+		licenseUrl = "https://www.miglayout.com/";
+		addThirdPartyLibrary(name, websiteUrl, licenseUrl);
+		rangePanel.add(new JSeparator(SwingConstants.HORIZONTAL));
+		
 		// R-logo
 		websiteUrl = "https://www.r-project.org/logo/";
 		licenseUrl = "https://creativecommons.org/licenses/by-sa/4.0/";
 		addThirdPartyLogo(MetaOmGraph.getIconTheme().getRIcon(), websiteUrl, licenseUrl);
 		rangePanel.add(new JSeparator(SwingConstants.HORIZONTAL));
+		rangePanel.add(new JSeparator(SwingConstants.HORIZONTAL));
+		
+		// footer panel
+		addFooterPanel();
 		
 		rangeViewport.add(rangePanel);
 		mainScrollPane = new JScrollPane(rangeViewport);
 		add(mainScrollPane);
+	}
+	
+	private void addFooterPanel() {
+		JPanel footerPanel = new JPanel();
+		//footerPanel.setLayout();
+		
+		JLabel footerLabel = new JLabel();
+		footerLabel.setText("<html>All dependencies are managed through maven using <a href = \"\">pom.xml</a></html>");
+		footerLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		footerLabel.setHorizontalTextPosition(SwingConstants.CENTER);
+		footerLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+            	try {
+					java.awt.Desktop.getDesktop().browse(new URI("https://github.com/urmi-21/MetaOmGraph/blob/master/pom.xml"));
+				} catch (URISyntaxException e1) {
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+            }
+        });
+		footerPanel.add(footerLabel);
+		
+		rangePanel.add(footerPanel);
 	}
 	
 	private void addHeaderPanel() {
@@ -180,7 +237,8 @@ public class ThirdPartyLibs extends JPanel{
 		JPanel rowPanel = new JPanel();
 		rowPanel.setLayout(new GridLayout(1, 5));
 		
-		JLabel libLabel = new JLabel(thirdPartyImage);
+		JLabel libLabel = new JLabel("R-logo");
+		libLabel.setIcon(thirdPartyImage);
 		
 		JLabel siteLabel = new JLabel();
 		siteLabel.setText("<html><a href = \"\">website</a></html>");
