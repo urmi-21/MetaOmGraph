@@ -2889,19 +2889,29 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				String thisFilter = "";
 				String thisField = queries[i].getField();
 				boolean thismatchCase = queries[i].isCaseSensitive();
-				String thisTerm = queries[i].getTerm();
+				String searchQueryTerm = "";
+				SearchMatchType matchType = queries[i].getMatchType();
+				if(matchType == SearchMatchType.NOT) {
+					searchQueryTerm += "!";
+				} else if(matchType == SearchMatchType.DOES_NOT_CONTAIN) {
+					searchQueryTerm += "~!";
+				} else if(matchType == SearchMatchType.CONTAINS) {
+					searchQueryTerm += "~";
+				}
+				searchQueryTerm += queries[i].getTerm();
 				// JOptionPane.showMessageDialog(null,"F:" + queries[i].getField() + " T:" +
 				// queries[i].getTerm() + " isE:" + queries[i].isExact()+ "mC:"+thismatchCase);
 				if (thismatchCase) {
-					thisTerm += "--C";
+					searchQueryTerm += "--C";
 				}
-				if (thisField.equals("Any Field") || thisField.equals("All Fields")) {
-					thisFilter = thisTerm;
+				if (thisField.equals("Any Field")){
+					thisFilter = searchQueryTerm + ":::" + "ANY";
+				} else if(thisField.equals("All Fields")){
+					thisFilter = searchQueryTerm + ":::" + "ALL";
 				} else {
 					int thisCol = headersList.indexOf(thisField);
-					thisFilter = thisTerm + ":::" + String.valueOf(thisCol);
+					thisFilter = searchQueryTerm + ":::" + String.valueOf(thisCol);
 				}
-
 				allFilter += thisFilter + ";";
 			}
 

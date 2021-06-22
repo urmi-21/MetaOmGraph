@@ -92,6 +92,84 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 		manualFilter = false;
 		fireTableChanged(new TableModelEvent(this));
 	}
+	
+	private TreeSet<Integer> applyAnyColFilter(String value, 
+			boolean isNotFlag, boolean doesNotFlag, boolean containsFlag){
+		
+		TreeSet<Integer> hits = new TreeSet();
+		for (int row = 0; row < model.getRowCount(); row++) {
+			for (int col = 0; col < model.getColumnCount(); col++) {
+				String thisValue = model.getValueAt(row, col) + "";
+				if (!caseSensitive) {
+					thisValue = thisValue.toLowerCase();
+					value = value.toLowerCase();
+				}
+				if(isNotFlag) {
+					if(!thisValue.contentEquals(value)) {
+						hits.add(Integer.valueOf(row));
+						break;
+					}
+				} else if(doesNotFlag) {
+					if(!thisValue.contains(value)) {
+						hits.add(Integer.valueOf(row));
+						break;
+					}
+				}
+				else if(containsFlag) {
+					if(thisValue.contains(value)) {
+						hits.add(Integer.valueOf(row));
+						break;
+					}
+				}
+				else if (thisValue.contentEquals(value)) {
+					hits.add(Integer.valueOf(row));
+					break;
+				}
+			}
+		}
+		return hits;
+	}
+	
+	private TreeSet<Integer> applyAllColsFilter(String value, 
+			boolean isNotFlag, boolean doesNotFlag, boolean containsFlag){
+		
+		TreeSet<Integer> hits = new TreeSet();
+		for (int row = 0; row < model.getRowCount(); row++) {
+			boolean allFields = true;
+			for (int col = 0; col < model.getColumnCount(); col++) {
+				String thisValue = model.getValueAt(row, col) + "";
+				if (!caseSensitive) {
+					thisValue = thisValue.toLowerCase();
+					value = value.toLowerCase();
+				}
+				if(isNotFlag) {
+					if(thisValue.contentEquals(value)) {
+						allFields = false;
+						break;
+					}
+				} else if(doesNotFlag) {
+					if(thisValue.contains(value)) {
+						allFields = false;
+						break;
+					}
+				}
+				else if(containsFlag) {
+					if(!thisValue.contains(value)) {
+						allFields = false;
+						break;
+					}
+				}
+				else if (!thisValue.contentEquals(value)) {
+					allFields = false;
+					break;
+				}
+			}
+			if(allFields) {
+				hits.add(Integer.valueOf(row));
+			}
+		}
+		return hits;
+	}
 
 	/**
 	 * @author urmi modified urmi add columns to query for better searching
@@ -108,25 +186,47 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 		TreeSet<Integer> hits = new TreeSet();
 		try {
 			for (String findMe : values) {
-
+				boolean isNotFlag = false;
+				boolean doesNotFlag = false;
+				boolean containsFlag = false;
+				if(findMe.charAt(0) == '!') {
+					isNotFlag = true;
+					findMe = findMe.substring(1);
+				} else if(findMe.substring(0, 2).contentEquals("~!")) {
+					doesNotFlag = true;
+					findMe = findMe.substring(2);
+				} else if(findMe.charAt(0) == '~') {
+					containsFlag = true;
+					findMe = findMe.substring(1);
+				}
 				boolean colFlag = false;
 				int colInt = -1;
+				boolean allCols = false;
+				boolean anyCol = false;
 				// delim should be present and should have values on both sides
 				if (findMe.indexOf(delim) > -1 && findMe.indexOf(delim) < findMe.length() - delim.length()) {
 					String col = findMe.split(delim)[1];
-					// check if col is a valid integer
-					try {
-						colInt = Integer.parseInt(col);
-						colFlag = true;
+					if(col.contentEquals("ALL")) {
+						allCols = true;
+						findMe = findMe.split(delim)[0];
+					} else if(col.contentEquals("ANY")) {
+						anyCol = true;
+						findMe = findMe.split(delim)[0];
+					} else {
+						// check if col is a valid integer
+						try {
+							colInt = Integer.parseInt(col);
+							colFlag = true;
 
-					} catch (NumberFormatException e) {
-						// not an integer!
-						colFlag = false;
-					}
-					if (colFlag) {
-						// check if col is in range of tables
-						if (colInt < 0 || colInt >= model.getColumnCount()) {
+						} catch (NumberFormatException e) {
+							// not an integer!
 							colFlag = false;
+						}
+						if (colFlag) {
+							// check if col is in range of tables
+							if (colInt < 0 || colInt >= model.getColumnCount()) {
+								colFlag = false;
+							}
 						}
 					}
 
@@ -142,7 +242,7 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 						caseSensitive = true;
 						findMe = findMe.split(caseFlag)[0];
 					}
-
+					
 					for (int row = 0; row < model.getRowCount(); row++) {
 						// for (int col = 0; col <= colInt; col++) {
 						String thisValue = model.getValueAt(row, colInt) + "";
@@ -150,31 +250,32 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 							thisValue = thisValue.toLowerCase();
 							findMe = findMe.toLowerCase();
 						}
-						if (thisValue.indexOf(findMe) >= 0) {
+						if(isNotFlag) {
+							if(!thisValue.contentEquals(findMe)) {
+								hits.add(Integer.valueOf(row));
+							}
+						} else if(doesNotFlag) {
+							if(!thisValue.contains(findMe)) {
+								hits.add(Integer.valueOf(row));
+							}
+						} else if(containsFlag) {
+							if(thisValue.contains(findMe)) {
+								hits.add(Integer.valueOf(row));
+							}
+						}
+						else if (thisValue.contentEquals(findMe)) {
 							hits.add(Integer.valueOf(row));
 						}
-
-						// }
 					}
 				} else {
 					if (findMe.endsWith(caseFlag)) {
 						caseSensitive = true;
 						findMe = findMe.split(caseFlag)[0];
 					}
-					// search all columns
-					for (int row = 0; row < model.getRowCount(); row++) {
-						for (int col = 0; col < model.getColumnCount(); col++) {
-							String thisValue = model.getValueAt(row, col) + "";
-							if (!caseSensitive) {
-								thisValue = thisValue.toLowerCase();
-								findMe = findMe.toLowerCase();
-							}
-
-							if (thisValue.indexOf(findMe) >= 0) {
-								hits.add(Integer.valueOf(row));
-							}
-
-						}
+					if(anyCol) {
+						hits.addAll(applyAnyColFilter(findMe, isNotFlag, doesNotFlag, containsFlag));
+					} else if(allCols) {
+						hits.addAll(applyAllColsFilter(findMe, isNotFlag, doesNotFlag, containsFlag));
 					}
 				}
 			}
