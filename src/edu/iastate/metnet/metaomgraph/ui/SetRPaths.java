@@ -2,23 +2,17 @@ package edu.iastate.metnet.metaomgraph.ui;
 
 import java.awt.EventQueue;
 
-import javax.swing.JInternalFrame;
 import javax.swing.JButton;
 import java.awt.BorderLayout;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-
-import java.awt.GridLayout;
 import javax.swing.JTextField;
 
 import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
-import javax.swing.DefaultComboBoxModel;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.awt.event.ActionEvent;

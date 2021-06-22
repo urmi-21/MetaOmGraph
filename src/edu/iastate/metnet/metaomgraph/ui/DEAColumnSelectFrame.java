@@ -9,32 +9,19 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyVetoException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.BoxLayout;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextPane;
-import javax.swing.ListSelectionModel;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
-
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
-import net.miginfocom.swing.MigLayout;
 
 /**
  * 
