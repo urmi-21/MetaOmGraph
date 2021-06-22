@@ -64,15 +64,10 @@ public class NoneditableTableModel extends AbstractTableModel {
 		String thisHeader=getColumnName(c);
 		result=MetaOmGraph.getActiveProject().getInfoColType(thisHeader);
 		if(result!=null) {
-			//JOptionPane.showMessageDialog(null, " non edi hdr:"+thisHeader+"v:"+result.toString());
 			return result;
-			
 		}
-		//JOptionPane.showMessageDialog(null, "return null noneditable");
-		
 		int index = 0;
 		while ((result == null) && (index < getRowCount())) {
-
 			if ((getValueAt(index, c) != null) && (!"".equals(getValueAt(index, c)))) {
 				result = getValueAt(index, c).getClass();
 			}
@@ -80,7 +75,6 @@ public class NoneditableTableModel extends AbstractTableModel {
 		}
 
 		if (result != null) {
-
 			return result;
 		}
 
