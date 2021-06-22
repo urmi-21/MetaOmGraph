@@ -29,6 +29,7 @@ import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -359,11 +360,14 @@ public class HeatMapPanel extends JPanel{
 		Graphics2D g2 = image.createGraphics();
 		paint(g2);
 		try{
-			return ImageIO.write(image, fileExtension, file);
+			ImageIO.write(image, fileExtension, file);
 		} catch (Exception e) {
+			JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), 
+					"Image not saved", "File save error", JOptionPane.ERROR_MESSAGE);
 			e.printStackTrace();
+			return false;
 		}
-		return false;
+		return true;
 	}
 	
 	/**
@@ -474,7 +478,7 @@ public class HeatMapPanel extends JPanel{
 			ArrayUtils.reverse(colors);
 			// get the color from the ColorBrewer 
 			int colorIndex = clusterLabelsInRowTillNow[rowIndex]++;
-			Color color = colors[colorIndex % clusterLabelsInRowTillNow[rowIndex]];
+			Color color = colors[colorIndex % colors.length];
 			// update the label color in map
 			labelColorMap.put(columnClusterLabels[rowIndex] + ":" + rowIndex, color);
 		}
