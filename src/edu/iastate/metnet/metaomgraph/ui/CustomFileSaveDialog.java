@@ -63,5 +63,21 @@ public class CustomFileSaveDialog {
 		}
 		return savedFile;
 	}
+	
+	/**
+	 * Display file folder selection dialog and returns the directory chosen by the user.
+	 * @return File 
+	 */
+	public static File showDirectoryDialog(File currDirectory) {
+		JFileChooser fileChooser = new JFileChooser(currDirectory);
+		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		fileChooser.setDialogTitle("Select folder");
+		int option = fileChooser.showOpenDialog(MetaOmGraph.getMainWindow());
+		File file = null;
+		if(option == JFileChooser.APPROVE_OPTION){
+			file = fileChooser.getSelectedFile();
+		}
+		return file;
+	}
 
 }

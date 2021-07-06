@@ -6,10 +6,12 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Event;
 import java.awt.EventQueue;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.GridLayout;
 import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.Rectangle;
@@ -26,14 +28,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -47,7 +52,9 @@ import java.util.TreeSet;
 import java.util.Vector;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
 import javax.swing.Box;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
@@ -62,6 +69,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTable;
 import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
@@ -108,6 +116,7 @@ import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.ui.AboutFrame;
 import edu.iastate.metnet.metaomgraph.ui.AboutFrame4;
 import edu.iastate.metnet.metaomgraph.ui.ClickableLabel;
+import edu.iastate.metnet.metaomgraph.ui.CustomFileSaveDialog;
 import edu.iastate.metnet.metaomgraph.ui.ListMergePanel;
 import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel;
 import edu.iastate.metnet.metaomgraph.ui.MetadataFilter;
@@ -511,6 +520,8 @@ public class MetaOmGraph implements ActionListener {
 	public static final String NEW_PROJECT_ARRAYEXPRESS_COMMAND = "New project from ArrayExpress";
 
 	public static final String OPEN_COMMAND = "Open a project";
+	
+	public static final String DOWNLOAD_PROJ_COMMAND = "Download and open sample project";
 
 	public static final String SAVE_COMMAND = "Save the current project";
 
@@ -2628,6 +2639,10 @@ public class MetaOmGraph implements ActionListener {
 			openAnotherProject();
 
 		}
+		
+		if(DOWNLOAD_PROJ_COMMAND.equals(e.getActionCommand())) {
+			downloadAndOpenProject();
+		}
 
 		// Save the active project to a new file
 		if (SAVE_AS_COMMAND.equals(e.getActionCommand())) {
@@ -4065,6 +4080,83 @@ public class MetaOmGraph implements ActionListener {
 		new OpenProjectWorker(source).start();
 
 		return;
+	}
+	
+	
+	private static String downloadProjSelectionPanel(File projDirectory) {
+		JPanel sampleProjsPanel = new JPanel(new GridLayout(3,1));
+		JRadioButton r1 = new JRadioButton("A. thaliana Metabolomics project (0.8 MB)");
+        JRadioButton r2 = new JRadioButton("A. thaliana Microarray project (29.5 MB)");
+        JRadioButton r3 = new JRadioButton("Human Cancer RNA-Seq project (247 MB)");
+        
+        ButtonGroup group = new ButtonGroup();
+        group.add(r1);
+        r1.setSelected(true);
+        group.add(r2);
+        group.add(r3);
+        
+        sampleProjsPanel.add(r1);
+        sampleProjsPanel.add(r2);
+        sampleProjsPanel.add(r3);
+        
+        int selectedButton = JOptionPane.showConfirmDialog(null, sampleProjsPanel, "Select a project to download and open",
+        		JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        String destPath = "";
+        if(selectedButton == 0) {
+    		URL projURL = null;
+        	if(r1.isSelected()) {
+        		try {
+        			projURL = new URL("https://metnetweb.gdcb.iastate.edu/MetaOmGraph/RNASeq/MOG_Athaliana_metabolomics.zip");
+        		} catch (MalformedURLException e) {
+        			e.printStackTrace();
+        		}
+        		destPath = projDirectory.getAbsolutePath();
+        		destPath += File.separator + "MOG_Athaliana_Metabolomics";
+        		if(Utils.downloadFile(projURL, destPath + ".zip")) {
+        			Utils.unZipFile(destPath + ".zip", destPath);
+        		}
+        	}
+        	if(r2.isSelected()) {
+        		try {
+        			projURL = new URL("https://metnetweb.gdcb.iastate.edu/MetaOmGraph/RNASeq/MOG_AthalianaMAProj.zip");
+        		} catch (MalformedURLException e) {
+        			e.printStackTrace();
+        		}
+        		destPath = projDirectory.getAbsolutePath();
+        		destPath += File.separator + "MOG_Athaliana_MicroArray";
+        		if(Utils.downloadFile(projURL, destPath + ".zip")) {
+        			Utils.unZipFile(destPath + ".zip", destPath);
+        		}
+        	}
+        	if(r3.isSelected()) {
+        		try {
+        			projURL = new URL("https://metnetweb.gdcb.iastate.edu/MetaOmGraph/RNASeq/MOG_HumanCancerRNASeqProject.zip");
+        		} catch (MalformedURLException e) {
+        			e.printStackTrace();
+        		}
+        		destPath = projDirectory.getAbsolutePath();
+        		destPath += File.separator + "MOG_HumanCancerRNASeq";
+        		if(Utils.downloadFile(projURL, destPath + ".zip")) {
+        			Utils.unZipFile(destPath + ".zip", destPath);
+        		}
+        	}
+        }
+        return destPath;
+	}
+		
+	private static void downloadAndOpenProject() {
+		File currDir = Utils.getLastDir();
+		File projSelDir = CustomFileSaveDialog.showDirectoryDialog(currDir);		
+		String projDir = downloadProjSelectionPanel(projSelDir);
+		File projDirFile = new File(projDir);
+		File[] mogFiles = projDirFile.listFiles(new FilenameFilter() { 
+			public boolean accept(File dir, String filename)
+			{ return filename.endsWith(".mog"); }
+		} );
+		if(mogFiles.length == 0)
+			return;
+		Utils.setLastDir(projDirFile);
+		new OpenProjectWorker(mogFiles[0]).start();
 	}
 
 	public static void openRecentProject(String name) {
