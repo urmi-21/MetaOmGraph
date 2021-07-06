@@ -157,10 +157,15 @@ public class WelcomePanel extends JPanel {
         openOtherLabel.setActionCommand(MetaOmGraph.OPEN_COMMAND);
         openOtherLabel.addActionListener(MetaOmGraph.getInstance());
         c2.gridy++;
-        openPanel.add(new JLabel(" "), c2);
-        c2.gridy++;
         c2.insets = new Insets(0, 10, 10, 0);
         openPanel.add(openOtherLabel, c2);
+        ClickableLabel downloadSampleProjLabel = new ClickableLabel(
+                "Download and open sample project", openIcon);
+        downloadSampleProjLabel.setActionCommand(MetaOmGraph.DOWNLOAD_PROJ_COMMAND);
+        downloadSampleProjLabel.addActionListener(MetaOmGraph.getInstance());
+        c2.gridy++;
+        c2.insets = new Insets(0, 10, 10, 0);
+        openPanel.add(downloadSampleProjLabel, c2);
         openPanel.setBorder(BorderFactory.createEtchedBorder());
         c.gridy = 0;
         c.gridx = 1;

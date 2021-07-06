@@ -130,6 +130,7 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 	private JMenuItem singleSelectionMenu;
 	private JMenuItem multiSelectionMenu;
 	private JMenuItem zoomMenu;
+	private JMenuItem clearSelectionMenu;
 
 	// bottom toolbar
 	private JButton btnNewButton_1;
@@ -341,6 +342,11 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 		zoomMenu.setIcon(theme.getDefaultZoom());
 		zoomMenu.setActionCommand("zoom tool");
 		zoomMenu.addActionListener(this);
+		
+		clearSelectionMenu = new JMenuItem("Clear selection tool");
+		clearSelectionMenu.setIcon(theme.getDefaultZoom());
+		clearSelectionMenu.setActionCommand("clear selection");
+		clearSelectionMenu.addActionListener(this);
 
 		selectionPopUpMenu.add(singleSelectionMenu);
 		selectionPopUpMenu.add(multiSelectionMenu);
@@ -822,6 +828,7 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 			setSelectionToolActive();
 			singleSelection = false;
 			multiSelection = true;
+			selectedRectangles.clear();
 		}
 		
 		if("zoom tool".equals(e.getActionCommand())) {
@@ -829,6 +836,13 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 			setZoomToolActive();
 			singleSelection = false;
 			multiSelection = false;
+		}
+		
+		if("clear selection".equals(e.getActionCommand())) {
+			singleSelection = false;
+			multiSelection = false;
+			selectedRectangles.clear();
+			selectedPointsDisplayTableObj.clearMetaDataCols();
 		}
 		
 		if("create list".equals(e.getActionCommand())) {

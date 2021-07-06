@@ -132,6 +132,7 @@ public class ScatterPlotDimReduction extends TaskbarInternalFrame implements Cha
 	private JMenuItem singleSelectionMenu;
 	private JMenuItem multiSelectionMenu;
 	private JMenuItem zoomMenu;
+	private JMenuItem clearSelectionMenu;
 	
 	private JPanel chartButtonsPanel;
 
@@ -299,6 +300,11 @@ public class ScatterPlotDimReduction extends TaskbarInternalFrame implements Cha
 		zoomMenu.setIcon(theme.getDefaultZoom());
 		zoomMenu.setActionCommand("zoom tool");
 		zoomMenu.addActionListener(this);
+		
+		clearSelectionMenu = new JMenuItem("Clear selection tool");
+		clearSelectionMenu.setIcon(theme.getDefaultZoom());
+		clearSelectionMenu.setActionCommand("clear selection");
+		clearSelectionMenu.addActionListener(this);
 		
 		selectionPopUpMenu.add(singleSelectionMenu);
 		selectionPopUpMenu.add(multiSelectionMenu);
@@ -754,6 +760,7 @@ public class ScatterPlotDimReduction extends TaskbarInternalFrame implements Cha
 			setSelectionToolActive();
 			singleSelection = false;
 			multiSelection = true;
+			selectedRectangles.clear();
 		}
 		
 		if("zoom tool".equals(e.getActionCommand())) {
@@ -761,6 +768,13 @@ public class ScatterPlotDimReduction extends TaskbarInternalFrame implements Cha
 			setZoomToolActive();
 			singleSelection = false;
 			multiSelection = false;
+		}
+		
+		if("clear selection".equals(e.getActionCommand())) {
+			singleSelection = false;
+			multiSelection = false;
+			selectedRectangles.clear();
+			selectedPointsDisplayTableObj.clearMetaDataCols();
 		}
 		
 		if("create list".equals(e.getActionCommand())) {
