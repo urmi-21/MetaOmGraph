@@ -23,11 +23,14 @@ Eclipse IDE is suggested to open the MetaOmGraph project.
 See this [link](https://stackoverflow.com/questions/13635563/setting-jdk-in-eclipse) for help.
 * All dependencies are handeled through Maven (see [pom.xml](https://github.com/urmi-21/MetaOmGraph/blob/master/pom.xml))
 * Download `l2fprod-common-all.jar` from [here](http://www.java2s.com/Code/Jar/l/Downloadl2fprodcommonalljar.htm)
+* Download 'hierarchical-clustering-1.2.0.jar' from [here](https://github.com/lbehnke/hierarchical-clustering-java/releases/tag/v1.2.0)
 * Add [src/lib/CustomBrowserLauncher.jar](https://github.com/urmi-21/MetaOmGraph/tree/master/src/lib) and `l2fprod-common-all.jar` locally to maven by running:
 ```
 mvn install:install-file -Dfile='l2fprod-common-all.jar' -DgroupId='com.l2fprod' -DartifactId='l2fprod-common-all' -Dversion='0.1' -Dpackaging=jar -DgeneratePom=true
 
 mvn install:install-file -Dfile='CustomBrowserLauncher.jar' -DgroupId='edu.iastate.metnet' -DartifactId='custombrowserlauncher' -Dversion='0.0.1' -Dpackaging=jar -DgeneratePom=true
+
+mvn install:install-file -Dfile='hierarchical-clustering-1.2.0.jar' -DgroupId='com.apporiented' -DartifactId='hierarchical-clustering' -Dversion='1.2.0' -Dpackaging=jar -DgeneratePom=true
 ```
 #### NOTE: If using Windows CMD remove the `'`(single quotes) from the above `mvn install` commands
  
