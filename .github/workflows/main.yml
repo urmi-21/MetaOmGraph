@@ -14,7 +14,6 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
-        #os: [windows-latest]
 
     steps:
     - uses: actions/checkout@v2
@@ -51,6 +50,17 @@ jobs:
     - name: Installing CustomBrowserLauncher dependency windows
       if: ${{ matrix.os == 'windows-latest'}}
       run: mvn install:install-file `-Dfile=src/lib/CustomBrowserLauncher.jar `-DgroupId=edu.iastate.metnet `-DartifactId=custombrowserlauncher `-Dversion=0.0.1 `-Dpackaging=jar `-DgeneratePom=true
+    
+    - name: Downloading hierarchical-clustering zip file
+      run: curl -LJO https://github.com/lbehnke/hierarchical-clustering-java/releases/download/v1.2.0/hierarchical-clustering-1.2.0.jar
+
+    - name: Installing hierarchical-clustering dependency
+      if: ${{ matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest' }}
+      run: mvn install:install-file -Dfile=hierarchical-clustering-1.2.0.jar -DgroupId=com.apporiented -DartifactId=hierarchical-clustering -Dversion=1.2.0 -Dpackaging=jar -DgeneratePom=true
+
+    - name: Installing hierarchical-clustering dependency windows
+      if: ${{ matrix.os == 'windows-latest' }}
+      run: mvn install:install-file `-Dfile=hierarchical-clustering-1.2.0.jar `-DgroupId=com.apporiented `-DartifactId=hierarchical-clustering `-Dversion=1.2.0 `-Dpackaging=jar `-DgeneratePom=true
 
     - name: Build with Maven
       run: mvn -B package --file pom.xml
