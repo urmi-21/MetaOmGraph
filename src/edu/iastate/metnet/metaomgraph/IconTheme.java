@@ -52,6 +52,8 @@ public interface IconTheme {
     ImageIcon getExternalSource();
 
     ImageIcon getSort();
+    
+    ImageIcon getClusterIcon();
 
     ImageIcon getExcel();
 

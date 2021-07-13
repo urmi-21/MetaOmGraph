@@ -32,7 +32,6 @@ import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
@@ -428,6 +427,14 @@ public class HeatMapPanel extends JPanel{
 	public Map<String, ColorBrewer> getClusterRowColorMap(){
 		return this.clusterRowColorMap;
 	}
+	
+	public void setHeatMapData(double[][] heatMapData) {
+		this.heatMapData = heatMapData;
+	}
+	
+	public void setRowNames(String[] rowNames) {
+		this.rowNames = rowNames;
+	}
 
 	/**
 	 * Do the clustering on the heatmap columns using columnClusterMap
@@ -485,7 +492,7 @@ public class HeatMapPanel extends JPanel{
 	}
 	
 	// Updates the heatmap table with clusters
-	private void updateHeatMapTableWithClusters() {
+	public void updateHeatMapTableWithClusters() {
 		heatMapTableUpdating = true;
 		// reset the existing table first
 		DefaultTableModel tablemodel = (DefaultTableModel) heatMapTable.getModel();
