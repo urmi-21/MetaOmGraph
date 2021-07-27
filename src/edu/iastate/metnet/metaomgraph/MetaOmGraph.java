@@ -176,7 +176,12 @@ public class MetaOmGraph implements ActionListener {
 	private static StatisticalResultsFrame DCResultsFrame;
 	private static JButton plbbutton;
 	private static JPanel playbackForMac;
-
+	
+	private enum DownloadSampleProject{
+		Metabolomics,
+		MicroArray,
+		HumanCancerRNASeq
+	}
 
 	public static StatisticalResultsFrame getDEAResultsFrame() {
 		return DEAResultsFrame;
@@ -521,8 +526,12 @@ public class MetaOmGraph implements ActionListener {
 
 	public static final String OPEN_COMMAND = "Open a project";
 	
-	public static final String DOWNLOAD_PROJ_COMMAND = "Download and open sample project";
+	public static final String DOWNLOAD_METABOLOMICS_PROJ_COMMAND = "Sample MOG project- A. thaliana Metabolomics (0.8 MB) Try me";
 
+	public static final String DOWNLOAD_MICROARRAY_PROJ_COMMAND = "Sample MOG project- A. thaliana Microarray (29.5 MB) Try me";
+	
+	public static final String DOWNLOAD_CANCER_RNASEQ_PROJ_COMMAND = "Sample MOG project- Human Cancer RNA-Seq (247 MB) Try me";
+	
 	public static final String SAVE_COMMAND = "Save the current project";
 
 	public static final String SAVE_AS_COMMAND = "Save as";
@@ -2640,8 +2649,16 @@ public class MetaOmGraph implements ActionListener {
 
 		}
 		
-		if(DOWNLOAD_PROJ_COMMAND.equals(e.getActionCommand())) {
-			downloadAndOpenProject();
+		if(DOWNLOAD_METABOLOMICS_PROJ_COMMAND.equals(e.getActionCommand())) {
+			downloadAndOpenProject(DownloadSampleProject.Metabolomics);
+		}
+		
+		if(DOWNLOAD_MICROARRAY_PROJ_COMMAND.equals(e.getActionCommand())) {
+			downloadAndOpenProject(DownloadSampleProject.MicroArray);
+		}
+		
+		if(DOWNLOAD_CANCER_RNASEQ_PROJ_COMMAND.equals(e.getActionCommand())) {
+			downloadAndOpenProject(DownloadSampleProject.HumanCancerRNASeq);
 		}
 
 		// Save the active project to a new file
@@ -4083,71 +4100,56 @@ public class MetaOmGraph implements ActionListener {
 	}
 	
 	
-	private static String downloadProjSelectionPanel(File projDirectory) {
-		JPanel sampleProjsPanel = new JPanel(new GridLayout(3,1));
-		JRadioButton r1 = new JRadioButton("A. thaliana Metabolomics project (0.8 MB)");
-        JRadioButton r2 = new JRadioButton("A. thaliana Microarray project (29.5 MB)");
-        JRadioButton r3 = new JRadioButton("Human Cancer RNA-Seq project (247 MB)");
-        
-        ButtonGroup group = new ButtonGroup();
-        group.add(r1);
-        r1.setSelected(true);
-        group.add(r2);
-        group.add(r3);
-        
-        sampleProjsPanel.add(r1);
-        sampleProjsPanel.add(r2);
-        sampleProjsPanel.add(r3);
-        
-        int selectedButton = JOptionPane.showConfirmDialog(null, sampleProjsPanel, "Select a project to download and open",
-        		JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+	private static String downloadProjSelectionPanel(File projDirectory, DownloadSampleProject project) {
         String destPath = "";
-        if(selectedButton == 0) {
-    		URL projURL = null;
-        	if(r1.isSelected()) {
-        		try {
-        			projURL = new URL("https://metnetweb.gdcb.iastate.edu/MetaOmGraph/RNASeq/MOG_Athaliana_metabolomics.zip");
-        		} catch (MalformedURLException e) {
-        			e.printStackTrace();
-        		}
-        		destPath = projDirectory.getAbsolutePath();
-        		destPath += File.separator + "MOG_Athaliana_Metabolomics";
-        		if(Utils.downloadFile(projURL, destPath + ".zip")) {
-        			Utils.unZipFile(destPath + ".zip", destPath);
-        		}
+        URL projURL = null;
+        if(project == DownloadSampleProject.Metabolomics) {
+        	try {
+        		projURL = new URL("https://metnetweb.gdcb.iastate.edu/MetaOmGraph/RNASeq/MOG_Athaliana_metabolomics.zip");
+        	} catch (MalformedURLException e) {
+        		e.printStackTrace();
         	}
-        	if(r2.isSelected()) {
-        		try {
-        			projURL = new URL("https://metnetweb.gdcb.iastate.edu/MetaOmGraph/RNASeq/MOG_AthalianaMAProj.zip");
-        		} catch (MalformedURLException e) {
-        			e.printStackTrace();
-        		}
-        		destPath = projDirectory.getAbsolutePath();
-        		destPath += File.separator + "MOG_Athaliana_MicroArray";
-        		if(Utils.downloadFile(projURL, destPath + ".zip")) {
-        			Utils.unZipFile(destPath + ".zip", destPath);
-        		}
+        	destPath = projDirectory.getAbsolutePath();
+        	destPath += File.separator + "MOG_Athaliana_Metabolomics";
+        	if(Utils.downloadFile(projURL, destPath + ".zip")) {
+        		Utils.unZipFile(destPath + ".zip", destPath);
         	}
-        	if(r3.isSelected()) {
-        		try {
-        			projURL = new URL("https://metnetweb.gdcb.iastate.edu/MetaOmGraph/RNASeq/MOG_HumanCancerRNASeqProject.zip");
-        		} catch (MalformedURLException e) {
-        			e.printStackTrace();
-        		}
-        		destPath = projDirectory.getAbsolutePath();
-        		destPath += File.separator + "MOG_HumanCancerRNASeq";
-        		if(Utils.downloadFile(projURL, destPath + ".zip")) {
-        			Utils.unZipFile(destPath + ".zip", destPath);
-        		}
+        } else if (project == DownloadSampleProject.MicroArray) {
+        	try {
+        		projURL = new URL("https://metnetweb.gdcb.iastate.edu/MetaOmGraph/RNASeq/MOG_AthalianaMAProj.zip");
+        	} catch (MalformedURLException e) {
+        		e.printStackTrace();
+        	}
+        	destPath = projDirectory.getAbsolutePath();
+        	destPath += File.separator + "MOG_Athaliana_MicroArray";
+        	if(Utils.downloadFile(projURL, destPath + ".zip")) {
+        		Utils.unZipFile(destPath + ".zip", destPath);
+        	}
+        } else {
+        	try {
+        		projURL = new URL("https://metnetweb.gdcb.iastate.edu/MetaOmGraph/RNASeq/MOG_HumanCancerRNASeqProject.zip");
+        	} catch (MalformedURLException e) {
+        		e.printStackTrace();
+        	}
+        	destPath = projDirectory.getAbsolutePath();
+        	destPath += File.separator + "MOG_HumanCancerRNASeq";
+        	if(Utils.downloadFile(projURL, destPath + ".zip")) {
+        		Utils.unZipFile(destPath + ".zip", destPath);
         	}
         }
         return destPath;
 	}
 		
-	private static void downloadAndOpenProject() {
+	private static void downloadAndOpenProject(DownloadSampleProject project) {
 		File currDir = Utils.getLastDir();
-		File projSelDir = CustomFileSaveDialog.showDirectoryDialog(currDir);		
-		String projDir = downloadProjSelectionPanel(projSelDir);
+		File projSelDir = CustomFileSaveDialog.showDirectoryDialog(currDir);
+		if(projSelDir == null) {
+			return;
+		}
+		String projDir = downloadProjSelectionPanel(projSelDir, project);
+		if(projDir.isEmpty()) {
+			return;
+		}
 		File projDirFile = new File(projDir);
 		File[] mogFiles = projDirFile.listFiles(new FilenameFilter() { 
 			public boolean accept(File dir, String filename)
