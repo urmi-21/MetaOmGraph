@@ -1,6 +1,7 @@
 package edu.iastate.metnet.metaomgraph.ui;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -19,6 +20,7 @@ public class ClickableLabel extends JLabel implements java.awt.event.MouseListen
     private String text;
     private String htmlText;
     private String pressedText;
+    private String textColor = "blue";
     private javax.swing.border.Border pressedBorder;
 
     public static void main(String[] args) {
@@ -64,11 +66,19 @@ public class ClickableLabel extends JLabel implements java.awt.event.MouseListen
         super(text, icon, 2);
         init();
     }
+    
+    public ClickableLabel(String text, String textColor, Icon icon) {
+    	super(text, icon, 2);
+        this.textColor = textColor;
+        init();
+        this.text = htmlText;
+        setText(this.text);
+    }
 
     private void init() {
         text = getText();
         htmlText =
-                ("<html><u><font color=#0000ff>" + text + "</font></u></html>");
+                ("<html><u><font color="+ textColor + ">" + text + "</font></u></html>");
 
         pressedText =
                 ("<html><u><font color=#ff0000>" + text + "</font></u></html>");

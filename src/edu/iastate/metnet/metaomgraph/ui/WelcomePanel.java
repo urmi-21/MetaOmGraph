@@ -157,10 +157,29 @@ public class WelcomePanel extends JPanel {
         openOtherLabel.setActionCommand(MetaOmGraph.OPEN_COMMAND);
         openOtherLabel.addActionListener(MetaOmGraph.getInstance());
         c2.gridy++;
-        openPanel.add(new JLabel(" "), c2);
-        c2.gridy++;
         c2.insets = new Insets(0, 10, 10, 0);
         openPanel.add(openOtherLabel, c2);
+        ClickableLabel downloadMetabolomicsProjLabel = new ClickableLabel(
+        		MetaOmGraph.DOWNLOAD_METABOLOMICS_PROJ_COMMAND, "red", openIcon);
+        downloadMetabolomicsProjLabel.setActionCommand(MetaOmGraph.DOWNLOAD_METABOLOMICS_PROJ_COMMAND);
+        downloadMetabolomicsProjLabel.addActionListener(MetaOmGraph.getInstance());
+        c2.gridy++;
+        c2.insets = new Insets(0, 10, 10, 0);
+        openPanel.add(downloadMetabolomicsProjLabel, c2);
+        ClickableLabel downloadMicroarrayProjLabel = new ClickableLabel(
+                MetaOmGraph.DOWNLOAD_MICROARRAY_PROJ_COMMAND, "red", openIcon);
+        downloadMicroarrayProjLabel.setActionCommand(MetaOmGraph.DOWNLOAD_MICROARRAY_PROJ_COMMAND);
+        downloadMicroarrayProjLabel.addActionListener(MetaOmGraph.getInstance());
+        c2.gridy++;
+        c2.insets = new Insets(0, 10, 10, 0);
+        openPanel.add(downloadMicroarrayProjLabel, c2);
+        ClickableLabel downloadRNASeqProjLabel = new ClickableLabel(
+        		MetaOmGraph.DOWNLOAD_CANCER_RNASEQ_PROJ_COMMAND, "red", openIcon);
+        downloadRNASeqProjLabel.setActionCommand(MetaOmGraph.DOWNLOAD_CANCER_RNASEQ_PROJ_COMMAND);
+        downloadRNASeqProjLabel.addActionListener(MetaOmGraph.getInstance());
+        c2.gridy++;
+        c2.insets = new Insets(0, 10, 10, 0);
+        openPanel.add(downloadRNASeqProjLabel, c2);
         openPanel.setBorder(BorderFactory.createEtchedBorder());
         c.gridy = 0;
         c.gridx = 1;
