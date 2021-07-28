@@ -73,6 +73,7 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
+import edu.iastate.metnet.metaomgraph.CorrelationCalc;
 import edu.iastate.metnet.metaomgraph.GraphFileFilter;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
@@ -1576,6 +1577,56 @@ public class Utils {
 		}
 		
 		return pairWiseEuclidianDistance;
+	}
+	
+	/**
+	 * Calculate the pair wise pearson correlations from the given matrix
+	 * @param data 2d array representing the matrix
+	 * @return pair wise distance matrix
+	 */
+	public static double[][] computePairWisePearsonCorrelations(double[][] data){
+		double[][] pairWisePearsonCorrelation = new double[data.length][data.length];
+		// The distance pairs are symmetric.
+		// calculate for the lower triangular part
+		for(int i = 0; i < data.length; i++) {
+			for(int j = 0; j < i; j++) {
+				pairWisePearsonCorrelation[i][j] = CorrelationCalc.pearsonCorrelationStandard(data[i], data[j]);
+			}
+		}
+		
+		// Now, use the lower triangular part to fill the upper triangular part
+		for(int i = 0; i < data.length; i++) {
+			for(int j = i + 1; j < data.length; j++) {
+				pairWisePearsonCorrelation[i][j] = pairWisePearsonCorrelation[j][i];
+			}
+		}
+		
+		return pairWisePearsonCorrelation;
+	}
+	
+	/**
+	 * Calculate the pair wise spearman correlations from the given matrix
+	 * @param data 2d array representing the matrix
+	 * @return pair wise distance matrix
+	 */
+	public static double[][] computePairWiseSpearmanCorrelations(double[][] data){
+		double[][] pairWiseSpearmanCorrelation = new double[data.length][data.length];
+		// The distance pairs are symmetric.
+		// calculate for the lower triangular part
+		for(int i = 0; i < data.length; i++) {
+			for(int j = 0; j < i; j++) {
+				pairWiseSpearmanCorrelation[i][j] = CorrelationCalc.spearmanCorrelation(data[i], data[j]);
+			}
+		}
+		
+		// Now, use the lower triangular part to fill the upper triangular part
+		for(int i = 0; i < data.length; i++) {
+			for(int j = i + 1; j < data.length; j++) {
+				pairWiseSpearmanCorrelation[i][j] = pairWiseSpearmanCorrelation[j][i];
+			}
+		}
+		
+		return pairWiseSpearmanCorrelation;
 	}
 	
 	

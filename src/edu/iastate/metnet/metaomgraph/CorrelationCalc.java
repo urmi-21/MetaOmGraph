@@ -61,7 +61,7 @@ public class CorrelationCalc {
 		}*/
 	}
 
-	private double[] calcRank(double[] data) {
+	private static double[] calcRank(double[] data) {
 		SortableData[] myData = new SortableData[data.length];
 		for (int i = 0; i < myData.length; i++) {
 			myData[i] = new SortableData(data[i], i);
@@ -118,7 +118,8 @@ public class CorrelationCalc {
 	public double pearsonCorrelationStandard(double[] b) {
 		return pearsonCorrelationStandard(a, b);
 	}
-	public double pearsonCorrelationStandard(double[] a,double[] b) {
+	
+	public static double pearsonCorrelationStandard(double[] a,double[] b) {
 
 		if (b.length != a.length) {
 			JOptionPane.showMessageDialog(null, "Unequal lengths", "Error", JOptionPane.ERROR_MESSAGE);
@@ -162,8 +163,13 @@ public class CorrelationCalc {
 		return corr;
 
 	}
-
 	
+	
+	public static double spearmanCorrelation(double[] a, double[] b) {
+		double[] rankA = calcRank(a);
+		double[] rankB = calcRank(b);
+		return pearsonCorrelationStandard(rankA,rankB);
+	}
 
 	// using apache
 	public double newSpearmanCorrelation(double[] b) {
@@ -193,13 +199,6 @@ public class CorrelationCalc {
 		double[] rankB=calcRank(b);
 		return pearsonCorrelationStandard(this.rank,rankB);
 	}
-	
-
-	
-
-	
-
-	
 	
 
 	public double euclideanDistance(Object[] b, boolean hasSkips, Double blankValue) {

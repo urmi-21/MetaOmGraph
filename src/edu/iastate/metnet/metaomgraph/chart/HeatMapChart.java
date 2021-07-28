@@ -133,7 +133,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 		splitDataset.addActionListener(this);
 		
 		clusterDataBtn = new JButton(theme.getClusterIcon());
-		clusterDataBtn.setToolTipText("Sort rows by euclidian distance");
+		clusterDataBtn.setToolTipText("Sort/group rows");
 		clusterDataBtn.setActionCommand("clusterDataSet");
 		clusterDataBtn.addActionListener(this);
 
@@ -346,7 +346,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 		}
 		
 		if("clusterDataSet".equals(e.getActionCommand())) {
-			String[] options = {"By rows (Hierachical clustering using euclidian distance)", "Reset"};	
+			String[] options = {"Euclidian distance", "Pearson correlation", "Spearman correlation", "Reset"};	
 
 			String col_val = (String) JOptionPane.showInputDialog(null, "Choose the column:\n", "Please choose",
 					JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
@@ -373,7 +373,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 				}.start();
 				return;
 			}
-			else {
+			else if(col_val.equals("Euclidian distance")){
 				if (heatMapData.length >= 1000) {
 					int result = JOptionPane.showInternalConfirmDialog(MetaOmGraph.getDesktop(), "You are trying to cluster "
 							+ heatMapData.length + " rows.  This can be very slow, and\n"
@@ -382,11 +382,75 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 					if (result != JOptionPane.YES_OPTION)
 						return;
 				}
-				new AnimatedSwingWorker("Clustering rows...", true) {
+				new AnimatedSwingWorker("Clustering rows using euclidian distance...", true) {
 					@Override
 					public Object construct() {
 						double[][] pairWiseEuclidianDistance = Utils.computePairWiseEuclidianDistances(heatMapData);
 						HierarchicalClusterData clusteredData = new HierarchicalClusterData(rowNames, pairWiseEuclidianDistance);
+						List<String> clusteredOrderedData = clusteredData.getClusteredOrderedData();
+						String[] clusterOrderedRowNames = clusteredOrderedData.stream().toArray(String[]::new);
+						heatMapData = rearrangeHeatMapDataBasedOnClusters(clusterOrderedRowNames);
+						if(splitIndex != null) {
+							heatMap.setHeatMapData(heatMapData);
+							heatMap.setRowNames(clusterOrderedRowNames);
+							heatMap.updateHeatMapTableWithClusters();
+						}
+						else {
+							heatMap = new HeatMapPanel(heatMapData, clusterOrderedRowNames, columnNames);
+						}
+						rowNames = clusterOrderedRowNames;
+						scrollPane.setViewportView(heatMap);
+						return null;
+					}
+				}.start();
+			} else if(col_val.equals("Pearson correlation")){
+				if (heatMapData.length >= 1000) {
+					int result = JOptionPane.showInternalConfirmDialog(MetaOmGraph.getDesktop(), "You are trying to cluster "
+							+ heatMapData.length + " rows.  This can be very slow, and\n"
+							+ "can cause the program to run out of memory.  Are you sure " + "you want to cluster this data?",
+							"Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+					if (result != JOptionPane.YES_OPTION)
+						return;
+				}
+				this.heatMapData = originalData;
+				this.rowNames = originalRowNames;
+				new AnimatedSwingWorker("Clustering rows using pearson correlation...", true) {
+					@Override
+					public Object construct() {
+						double[][] pairWisePearsonCorrelation = Utils.computePairWisePearsonCorrelations(heatMapData);
+						HierarchicalClusterData clusteredData = new HierarchicalClusterData(rowNames, pairWisePearsonCorrelation);
+						List<String> clusteredOrderedData = clusteredData.getClusteredOrderedData();
+						String[] clusterOrderedRowNames = clusteredOrderedData.stream().toArray(String[]::new);
+						heatMapData = rearrangeHeatMapDataBasedOnClusters(clusterOrderedRowNames);
+						if(splitIndex != null) {
+							heatMap.setHeatMapData(heatMapData);
+							heatMap.setRowNames(clusterOrderedRowNames);
+							heatMap.updateHeatMapTableWithClusters();
+						}
+						else {
+							heatMap = new HeatMapPanel(heatMapData, clusterOrderedRowNames, columnNames);
+						}
+						rowNames = clusterOrderedRowNames;
+						scrollPane.setViewportView(heatMap);
+						return null;
+					}
+				}.start();
+			} else {
+				if (heatMapData.length >= 1000) {
+					int result = JOptionPane.showInternalConfirmDialog(MetaOmGraph.getDesktop(), "You are trying to cluster "
+							+ heatMapData.length + " rows.  This can be very slow, and\n"
+							+ "can cause the program to run out of memory.  Are you sure " + "you want to cluster this data?",
+							"Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+					if (result != JOptionPane.YES_OPTION)
+						return;
+				}
+				this.heatMapData = originalData;
+				this.rowNames = originalRowNames;
+				new AnimatedSwingWorker("Clustering rows using spearman correlation...", true) {
+					@Override
+					public Object construct() {
+						double[][] pairWiseSpearmanCorrelation = Utils.computePairWiseSpearmanCorrelations(heatMapData);
+						HierarchicalClusterData clusteredData = new HierarchicalClusterData(rowNames, pairWiseSpearmanCorrelation);
 						List<String> clusteredOrderedData = clusteredData.getClusteredOrderedData();
 						String[] clusterOrderedRowNames = clusteredOrderedData.stream().toArray(String[]::new);
 						heatMapData = rearrangeHeatMapDataBasedOnClusters(clusterOrderedRowNames);
