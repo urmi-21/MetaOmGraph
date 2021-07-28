@@ -494,6 +494,8 @@ public class HeatMapPanel extends JPanel{
 	// Updates the heatmap table with clusters
 	public void updateHeatMapTableWithClusters() {
 		heatMapTableUpdating = true;
+		setVisible(false);
+		this.remove(heatMapTable);
 		// reset the existing table first
 		DefaultTableModel tablemodel = (DefaultTableModel) heatMapTable.getModel();
 		tablemodel.setRowCount(0);
@@ -547,8 +549,9 @@ public class HeatMapPanel extends JPanel{
 		for(int i = 1; i <= colLen; i++) {
 			heatMapTable.getColumnModel().getColumn(i).setPreferredWidth(1);
 		}
+		setVisible(true);
+		add(heatMapTable, 0);
 		heatMapTableUpdating = false;
-		heatMapTable.repaint();
 	}
 	
 	/**
@@ -783,6 +786,7 @@ public class HeatMapPanel extends JPanel{
 	public class MouseHandler implements MouseListener, MouseMotionListener {
 
 	    private Integer row = null;
+	    private boolean mouseDragged = false;
 	    // Using weak reference so that, entire table won't be copied and maintained in the memory
 	    private final WeakReference<JTable> table;
 	    private final WeakReference<DefaultTableModel> tableModel;
@@ -813,6 +817,9 @@ public class HeatMapPanel extends JPanel{
 
 	    @Override
 	    public void mouseReleased(MouseEvent event) {
+	    	if(!mouseDragged) {
+	    		return;
+	    	}
 	        row = null;
 	        JTable table;
 	        if((table = this.table.get()) == null) {
@@ -826,7 +833,7 @@ public class HeatMapPanel extends JPanel{
 	        if(!(viewRowIndex == 0 || 
 					(columnClusterMap != null)))
 	        	return;
-	        new AnimatedSwingWorker("Sorting by cluster...") {
+	        new AnimatedSwingWorker("Sorting by cluster...", true) {
 				
 				@Override
 				public Object construct() {
@@ -838,6 +845,7 @@ public class HeatMapPanel extends JPanel{
 					return null;
 				}
 			}.start();
+			mouseDragged = false;
 	    }
 
 	    @Override
@@ -865,7 +873,7 @@ public class HeatMapPanel extends JPanel{
 	        if(row == null || currentRow == row || currentRow < 0) {
 	            return;
 	        }
-
+	        mouseDragged = true;
 	        tableModel.moveRow(row, row, currentRow);
 	        row = currentRow;
 	        table.setRowSelectionInterval(viewRowIndex, viewRowIndex);        

@@ -195,7 +195,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 				splitDataset.setEnabled(true);
 				clusterDataBtn.setEnabled(true);
 			}
-			new AnimatedSwingWorker("Transposing rows and columns") {
+			new AnimatedSwingWorker("Transposing rows and columns", true) {
 				
 				@Override
 				public Object construct() {
@@ -222,15 +222,22 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 			JFileChooser fileSave = new JFileChooser();
 			FileNameExtensionFilter filter = new FileNameExtensionFilter("PNG files", "png");
 			fileSave.addChoosableFileFilter(filter);
-			
+
 			if(fileSave.showSaveDialog(MetaOmGraph.getMainWindow()) == JFileChooser.APPROVE_OPTION){
-				
-				File fileToSave = fileSave.getSelectedFile();
-				if (!fileToSave.getName().toLowerCase().endsWith(".png")) {
-					fileToSave = new File(fileToSave.getParentFile(), fileToSave.getName() + ".png");
-			      }
-				if(heatMap.saveImage(fileToSave, "png"))
-					JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Image Saved");
+				new AnimatedSwingWorker("Saving image...", true) {
+
+					@Override
+					public Object construct() {
+						File fileToSave = fileSave.getSelectedFile();
+						if (!fileToSave.getName().toLowerCase().endsWith(".png")) {
+							fileToSave = new File(fileToSave.getParentFile(), fileToSave.getName() + ".png");
+						}
+						if(heatMap.saveImage(fileToSave, "png")) {
+							JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Image Saved");
+						}
+						return null;
+					}
+				}.start();
 			}				
 		}
 		
@@ -300,7 +307,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 				transposeData = false;
 				this.heatMapData = originalData;
 				bottomPanelButton.setEnabled(true);
-				new AnimatedSwingWorker("Resetting..") {
+				new AnimatedSwingWorker("Resetting..", true) {
 					
 					@Override
 					public Object construct() {
@@ -333,7 +340,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 					return;
 				}
 				List<String> dataCols = Arrays.asList(selectedDataCols);
-				new AnimatedSwingWorker("Clustering...") {
+				new AnimatedSwingWorker("Clustering...", true) {
 					
 					@Override
 					public Object construct() {
