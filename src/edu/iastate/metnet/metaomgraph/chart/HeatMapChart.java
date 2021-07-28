@@ -190,8 +190,10 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 			if(sampleDataOnRow) {
 				splitDataset.setEnabled(false);
 				changePalette.setEnabled(false);
+				clusterDataBtn.setEnabled(false);
 			}else {
 				splitDataset.setEnabled(true);
+				clusterDataBtn.setEnabled(true);
 			}
 			new AnimatedSwingWorker("Transposing rows and columns") {
 				
