@@ -1594,6 +1594,11 @@ public class Utils {
 			}
 		}
 		
+		// fill the diagonals with 1
+		for(int i = 0; i < data.length; i++) {
+			pairWisePearsonCorrelation[i][i] = 1;
+		}
+		
 		// Now, use the lower triangular part to fill the upper triangular part
 		for(int i = 0; i < data.length; i++) {
 			for(int j = i + 1; j < data.length; j++) {
@@ -1617,6 +1622,11 @@ public class Utils {
 			for(int j = 0; j < i; j++) {
 				pairWiseSpearmanCorrelation[i][j] = CorrelationCalc.spearmanCorrelation(data[i], data[j]);
 			}
+		}
+		
+		// fill the diagonals with 1
+		for(int i = 0; i < data.length; i++) {
+			pairWiseSpearmanCorrelation[i][i] = 1;
 		}
 		
 		// Now, use the lower triangular part to fill the upper triangular part

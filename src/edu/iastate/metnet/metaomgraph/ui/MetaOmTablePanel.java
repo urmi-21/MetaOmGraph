@@ -714,6 +714,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			}
 		});
 		filterField.getDocument().addDocumentListener(new FilterFieldListener());
+		filterField.setToolTipText("Prefix search text with '~' for \"contains\", '!' for \"is not\", and '~!' for \"does not contain\".");
 		filterField.setDefaultText("Use semicolon (;) for multiple filters");
 		filterField.setColumns(20);
 		searchPanel.add(filterField, "Center");

@@ -1099,6 +1099,7 @@ public class DiffCorrResultsTable extends StatisticalResultsPanel {
 				}
 			});
 			filterField.getDocument().addDocumentListener(new FilterFieldListener());
+			filterField.setToolTipText("Prefix search text with '~' for \"contains\", '!' for \"is not\", and '~!' for \"does not contain\".");
 			filterField.setDefaultText("Use semicolon (;) for multiple filters");
 			filterField.setColumns(30);
 			searchPanel.add(filterField, "Center");

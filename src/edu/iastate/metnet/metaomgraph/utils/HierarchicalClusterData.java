@@ -6,6 +6,8 @@ package edu.iastate.metnet.metaomgraph.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import com.apporiented.algorithm.clustering.AverageLinkageStrategy;
 import com.apporiented.algorithm.clustering.Cluster;
 import com.apporiented.algorithm.clustering.ClusteringAlgorithm;
@@ -30,9 +32,14 @@ public class HierarchicalClusterData {
 	
 	// do the heirarchical clustering
 	private void doClustering(double[][] data, String[] names) {
-		ClusteringAlgorithm algorithm = new DefaultClusteringAlgorithm();
-		Cluster cluster = algorithm.performClustering(data, names, new AverageLinkageStrategy());
-		fillClusteredOrderedDataFromChildren(cluster);
+		try {
+			ClusteringAlgorithm algorithm = new DefaultClusteringAlgorithm();
+			Cluster cluster = algorithm.performClustering(data, names, new AverageLinkageStrategy());
+			fillClusteredOrderedDataFromChildren(cluster);
+		}catch(Exception e){
+			JOptionPane.showMessageDialog(null, "Duplicate identifiers found, the feature names should be unique", "Clustering error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
 	}
 	
 	// Fill clustered data recursively
