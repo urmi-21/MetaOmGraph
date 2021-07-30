@@ -2885,11 +2885,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				String searchQueryTerm = "";
 				SearchMatchType matchType = queries[i].getMatchType();
 				if(matchType == SearchMatchType.NOT) {
-					searchQueryTerm += "!";
+					searchQueryTerm += "!=";
 				} else if(matchType == SearchMatchType.DOES_NOT_CONTAIN) {
-					searchQueryTerm += "~!";
-				} else if(matchType == SearchMatchType.CONTAINS) {
-					searchQueryTerm += "~";
+					searchQueryTerm += "!";
+				} else if(matchType == SearchMatchType.IS) {
+					searchQueryTerm += "=";
 				}
 				searchQueryTerm += queries[i].getTerm();
 				// JOptionPane.showMessageDialog(null,"F:" + queries[i].getField() + " T:" +
