@@ -397,6 +397,9 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 						double[][] pairWiseEuclidianDistance = Utils.computePairWiseEuclidianDistances(heatMapData);
 						HierarchicalClusterData clusteredData = new HierarchicalClusterData(rowNames, pairWiseEuclidianDistance);
 						List<String> clusteredOrderedData = clusteredData.getClusteredOrderedData();
+						if(clusteredOrderedData == null || clusteredOrderedData.isEmpty()) {
+							return null;
+						}
 						String[] clusterOrderedRowNames = clusteredOrderedData.stream().toArray(String[]::new);
 						heatMapData = rearrangeHeatMapDataBasedOnClusters(clusterOrderedRowNames);
 						if(splitIndex != null) {
@@ -429,6 +432,9 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 						double[][] pairWisePearsonCorrelation = Utils.computePairWisePearsonCorrelations(heatMapData);
 						HierarchicalClusterData clusteredData = new HierarchicalClusterData(rowNames, pairWisePearsonCorrelation);
 						List<String> clusteredOrderedData = clusteredData.getClusteredOrderedData();
+						if(clusteredOrderedData == null || clusteredOrderedData.isEmpty()) {
+							return null;
+						}
 						String[] clusterOrderedRowNames = clusteredOrderedData.stream().toArray(String[]::new);
 						heatMapData = rearrangeHeatMapDataBasedOnClusters(clusterOrderedRowNames);
 						if(splitIndex != null) {
@@ -461,6 +467,9 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 						double[][] pairWiseSpearmanCorrelation = Utils.computePairWiseSpearmanCorrelations(heatMapData);
 						HierarchicalClusterData clusteredData = new HierarchicalClusterData(rowNames, pairWiseSpearmanCorrelation);
 						List<String> clusteredOrderedData = clusteredData.getClusteredOrderedData();
+						if(clusteredOrderedData == null || clusteredOrderedData.isEmpty()) {
+							return null;
+						}
 						String[] clusterOrderedRowNames = clusteredOrderedData.stream().toArray(String[]::new);
 						heatMapData = rearrangeHeatMapDataBasedOnClusters(clusterOrderedRowNames);
 						if(splitIndex != null) {
