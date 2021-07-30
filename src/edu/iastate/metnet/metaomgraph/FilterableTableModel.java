@@ -189,19 +189,21 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 				boolean isNotFlag = false;
 				boolean doesNotFlag = false;
 				boolean containsFlag = false;
-				if(findMe.charAt(0) == '!') {
-					isNotFlag = true;
-					findMe = findMe.substring(1);
-				} else if(findMe.substring(0, 2).contentEquals("~!")) {
-					doesNotFlag = true;
-					findMe = findMe.substring(2);
-				} else if(findMe.charAt(0) == '~') {
-					containsFlag = true;
-					findMe = findMe.substring(1);
+				if(findMe.length() > 1) {
+					if(findMe.charAt(0) == '!') {
+						isNotFlag = true;
+						findMe = findMe.substring(1);
+					} else if(findMe.substring(0, 2).contentEquals("~!")) {
+						doesNotFlag = true;
+						findMe = findMe.substring(2);
+					} else if(findMe.charAt(0) == '~') {
+						containsFlag = true;
+						findMe = findMe.substring(1);
+					}
 				}
 				boolean colFlag = false;
 				int colInt = -1;
-				boolean allCols = false;
+				boolean allCols = true;
 				boolean anyCol = false;
 				// delim should be present and should have values on both sides
 				if (findMe.indexOf(delim) > -1 && findMe.indexOf(delim) < findMe.length() - delim.length()) {
