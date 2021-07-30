@@ -203,8 +203,8 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 				}
 				boolean colFlag = false;
 				int colInt = -1;
-				boolean allCols = true;
-				boolean anyCol = false;
+				boolean allCols = false;
+				boolean anyCol = true;
 				// delim should be present and should have values on both sides
 				if (findMe.indexOf(delim) > -1 && findMe.indexOf(delim) < findMe.length() - delim.length()) {
 					String col = findMe.split(delim)[1];
