@@ -94,7 +94,7 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 	}
 	
 	private TreeSet<Integer> applyAnyColFilter(String value, 
-			boolean isNotFlag, boolean doesNotFlag, boolean containsFlag){
+			boolean isNotFlag, boolean doesNotFlag, boolean isFlag){
 		
 		TreeSet<Integer> hits = new TreeSet();
 		for (int row = 0; row < model.getRowCount(); row++) {
@@ -115,13 +115,13 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 						break;
 					}
 				}
-				else if(containsFlag) {
-					if(thisValue.contains(value)) {
+				else if(isFlag) {
+					if (thisValue.contentEquals(value)) {
 						hits.add(Integer.valueOf(row));
 						break;
 					}
 				}
-				else if (thisValue.contentEquals(value)) {
+				else if(thisValue.contains(value)) {
 					hits.add(Integer.valueOf(row));
 					break;
 				}
@@ -131,7 +131,7 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 	}
 	
 	private TreeSet<Integer> applyAllColsFilter(String value, 
-			boolean isNotFlag, boolean doesNotFlag, boolean containsFlag){
+			boolean isNotFlag, boolean doesNotFlag, boolean isFlag){
 		
 		TreeSet<Integer> hits = new TreeSet();
 		for (int row = 0; row < model.getRowCount(); row++) {
@@ -153,13 +153,13 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 						break;
 					}
 				}
-				else if(containsFlag) {
-					if(!thisValue.contains(value)) {
-						allFields = false;
-						break;
+				else if(isFlag) {
+					if (!thisValue.contentEquals(value)) {
+							allFields = false;
+							break;
 					}
 				}
-				else if (!thisValue.contentEquals(value)) {
+				else if(!thisValue.contains(value)) {
 					allFields = false;
 					break;
 				}
@@ -188,16 +188,16 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 			for (String findMe : values) {
 				boolean isNotFlag = false;
 				boolean doesNotFlag = false;
-				boolean containsFlag = false;
+				boolean isFlag = false;
 				if(findMe.length() > 1) {
 					if(findMe.charAt(0) == '!') {
-						isNotFlag = true;
-						findMe = findMe.substring(1);
-					} else if(findMe.substring(0, 2).contentEquals("~!")) {
 						doesNotFlag = true;
+						findMe = findMe.substring(1);
+					} else if(findMe.substring(0, 2).contentEquals("!=")) {
+						isNotFlag = true;
 						findMe = findMe.substring(2);
-					} else if(findMe.charAt(0) == '~') {
-						containsFlag = true;
+					} else if(findMe.charAt(0) == '=') {
+						isFlag = true;
 						findMe = findMe.substring(1);
 					}
 				}
@@ -262,12 +262,12 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 							if(!thisValue.contains(findMe)) {
 								hits.add(Integer.valueOf(row));
 							}
-						} else if(containsFlag) {
-							if(thisValue.contains(findMe)) {
+						} else if(isFlag) {
+							if (thisValue.contentEquals(findMe)) {
 								hits.add(Integer.valueOf(row));
 							}
 						}
-						else if (thisValue.contentEquals(findMe)) {
+						else if(thisValue.contains(findMe)) {
 							hits.add(Integer.valueOf(row));
 						}
 					}
@@ -277,9 +277,9 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 						findMe = findMe.split(caseFlag)[0];
 					}
 					if(anyCol) {
-						hits.addAll(applyAnyColFilter(findMe, isNotFlag, doesNotFlag, containsFlag));
+						hits.addAll(applyAnyColFilter(findMe, isNotFlag, doesNotFlag, isFlag));
 					} else if(allCols) {
-						hits.addAll(applyAllColsFilter(findMe, isNotFlag, doesNotFlag, containsFlag));
+						hits.addAll(applyAllColsFilter(findMe, isNotFlag, doesNotFlag, isFlag));
 					}
 				}
 			}
