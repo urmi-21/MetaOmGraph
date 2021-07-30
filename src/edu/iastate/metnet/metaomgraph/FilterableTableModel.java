@@ -210,9 +210,11 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 					String col = findMe.split(delim)[1];
 					if(col.contentEquals("ALL")) {
 						allCols = true;
+						anyCol = false;
 						findMe = findMe.split(delim)[0];
 					} else if(col.contentEquals("ANY")) {
 						anyCol = true;
+						allCols = false;
 						findMe = findMe.split(delim)[0];
 					} else {
 						// check if col is a valid integer
