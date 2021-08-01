@@ -4113,6 +4113,8 @@ public class MetaOmGraph implements ActionListener {
         	destPath += File.separator + "MOG_Athaliana_Metabolomics";
         	if(Utils.downloadFile(projURL, destPath + ".zip")) {
         		Utils.unZipFile(destPath + ".zip", destPath);
+        	} else {
+        		destPath = "";
         	}
         } else if (project == DownloadSampleProject.MicroArray) {
         	try {
@@ -4124,6 +4126,8 @@ public class MetaOmGraph implements ActionListener {
         	destPath += File.separator + "MOG_Athaliana_MicroArray";
         	if(Utils.downloadFile(projURL, destPath + ".zip")) {
         		Utils.unZipFile(destPath + ".zip", destPath);
+        	} else {
+        		destPath = "";
         	}
         } else {
         	try {
@@ -4135,6 +4139,8 @@ public class MetaOmGraph implements ActionListener {
         	destPath += File.separator + "MOG_HumanCancerRNASeq";
         	if(Utils.downloadFile(projURL, destPath + ".zip")) {
         		Utils.unZipFile(destPath + ".zip", destPath);
+        	} else {
+        		destPath = "";
         	}
         }
         return destPath;

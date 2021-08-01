@@ -1659,7 +1659,7 @@ public class Utils {
 				} catch (MalformedURLException e) {
 					return false;
 				} catch (IOException e) {
-					JOptionPane.showInternalMessageDialog(null, "Cannot download file, Please check your Internet connection",
+					JOptionPane.showMessageDialog(null, "Cannot download file, Please check your Internet connection",
 							"Download error", JOptionPane.ERROR_MESSAGE);
 					return false;
 				}
