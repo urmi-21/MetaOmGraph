@@ -86,6 +86,7 @@ public class Utils {
 	public static final int NONE = -1;
 	private static File lastDir;
 	private static Long startTime;
+	private static boolean downloadError = false;
 
 	public Utils() {
 	}
@@ -1648,20 +1649,24 @@ public class Utils {
 	 * note: if the destination directory doesn't exist, the directory will be created.
 	 */
 	public static boolean downloadFile(URL url, String destinationDirectory) {
+		downloadError = false;
 		new AnimatedSwingWorker("Downloading...", true) {
 			@Override
 			public Object construct() {
 				try {
 					FileUtils.copyURLToFile(url, new File(destinationDirectory));
+					downloadError = true;
 				} catch (MalformedURLException e) {
 					return false;
 				} catch (IOException e) {
+					JOptionPane.showInternalMessageDialog(null, "Cannot download file, Please check your Internet connection",
+							"Download error", JOptionPane.ERROR_MESSAGE);
 					return false;
 				}
 				return true;
 			}
 		}.start();
-		return true;
+		return downloadError;
 	}
 	
 	/**
