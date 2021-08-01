@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
@@ -494,12 +495,19 @@ public class HeatMapPanel extends JPanel{
 	// Updates the heatmap table with clusters
 	public void updateHeatMapTableWithClusters() {
 		heatMapTableUpdating = true;
-		setVisible(false);
 		this.remove(heatMapTable);
+		setVisible(false);
+		
 		// reset the existing table first
 		DefaultTableModel tablemodel = (DefaultTableModel) heatMapTable.getModel();
+		try {
+			TimeUnit.SECONDS.sleep(1);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		tablemodel.setRowCount(0);
 		tablemodel.setColumnCount(0);
+		
 		
 		// get the set of cluster ex: abc;def;ghi
 		Set<String> clusterColumnLabelsSet = columnClusterMap.keySet();
