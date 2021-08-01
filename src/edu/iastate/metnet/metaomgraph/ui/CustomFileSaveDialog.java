@@ -72,7 +72,7 @@ public class CustomFileSaveDialog {
 		JFileChooser fileChooser = new JFileChooser(currDirectory);
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		fileChooser.setDialogTitle("Select folder");
-		int option = fileChooser.showOpenDialog(MetaOmGraph.getMainWindow());
+		int option = fileChooser.showOpenDialog(null);
 		File file = null;
 		if(option == JFileChooser.APPROVE_OPTION){
 			file = fileChooser.getSelectedFile();
