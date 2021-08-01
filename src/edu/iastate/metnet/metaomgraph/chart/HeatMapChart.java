@@ -147,7 +147,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 		changePalette.setBorderPainted(true);
 		changePalette.setEnabled(false);
 
-		chartButtonsPanel.add(properties);
+		//chartButtonsPanel.add(properties);
 		chartButtonsPanel.add(save);
 		chartButtonsPanel.add(splitDataset);
 		chartButtonsPanel.add(clusterDataBtn);
