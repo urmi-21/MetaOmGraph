@@ -60,7 +60,8 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 	private JScrollPane scrollPane;
 	private JButton bottomPanelButton;
 	
-	private double minValue;
+	private boolean clusteredRows;
+	private HierarchicalClusterData clusteredData;
 	private boolean transposeData;
 	private boolean sampleDataOnRow;
 	private Map<String, Collection<Integer>> splitIndex;
@@ -395,7 +396,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 					@Override
 					public Object construct() {
 						double[][] pairWiseEuclidianDistance = Utils.computePairWiseEuclidianDistances(heatMapData);
-						HierarchicalClusterData clusteredData = new HierarchicalClusterData(rowNames, pairWiseEuclidianDistance);
+						clusteredData = new HierarchicalClusterData(rowNames, pairWiseEuclidianDistance);
 						List<String> clusteredOrderedData = clusteredData.getClusteredOrderedData();
 						if(clusteredOrderedData == null || clusteredOrderedData.isEmpty()) {
 							return null;
@@ -412,9 +413,26 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 						}
 						rowNames = clusterOrderedRowNames;
 						scrollPane.setViewportView(heatMap);
+						clusteredRows = true;
 						return null;
 					}
 				}.start();
+				if(clusteredRows) {
+					int result = JOptionPane.showInternalConfirmDialog(null, 
+							"Do you want to see the Dendrogram", "Display dendrogram",
+							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+					if(result != JOptionPane.YES_OPTION) {
+						return;
+					}
+					new AnimatedSwingWorker("Creating Dendrogram...", true) {
+						@Override
+						public Object construct() {
+							clusteredData.DisplayDendrogram();
+							clusteredRows = false;
+							return null;
+						}
+					}.start();
+				}
 			} else if(col_val.equals("Pearson correlation")){
 				if (heatMapData.length >= 1000) {
 					int result = JOptionPane.showInternalConfirmDialog(MetaOmGraph.getDesktop(), "You are trying to cluster "
@@ -430,7 +448,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 					@Override
 					public Object construct() {
 						double[][] pairWisePearsonCorrelation = Utils.computePairWisePearsonCorrelations(heatMapData);
-						HierarchicalClusterData clusteredData = new HierarchicalClusterData(rowNames, pairWisePearsonCorrelation);
+						clusteredData = new HierarchicalClusterData(rowNames, pairWisePearsonCorrelation);
 						List<String> clusteredOrderedData = clusteredData.getClusteredOrderedData();
 						if(clusteredOrderedData == null || clusteredOrderedData.isEmpty()) {
 							return null;
@@ -447,9 +465,20 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 						}
 						rowNames = clusterOrderedRowNames;
 						scrollPane.setViewportView(heatMap);
+						clusteredRows = true;
 						return null;
 					}
 				}.start();
+				if(clusteredRows) {
+					int result = JOptionPane.showInternalConfirmDialog(null, 
+							"Do you want to see the Dendrogram", "Display dendrogram",
+							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+					if(result != JOptionPane.YES_OPTION) {
+						return;
+					}
+					clusteredData.DisplayDendrogram();
+					clusteredRows = false;
+				}
 			} else {
 				if (heatMapData.length >= 1000) {
 					int result = JOptionPane.showInternalConfirmDialog(MetaOmGraph.getDesktop(), "You are trying to cluster "
@@ -465,7 +494,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 					@Override
 					public Object construct() {
 						double[][] pairWiseSpearmanCorrelation = Utils.computePairWiseSpearmanCorrelations(heatMapData);
-						HierarchicalClusterData clusteredData = new HierarchicalClusterData(rowNames, pairWiseSpearmanCorrelation);
+						clusteredData = new HierarchicalClusterData(rowNames, pairWiseSpearmanCorrelation);
 						List<String> clusteredOrderedData = clusteredData.getClusteredOrderedData();
 						if(clusteredOrderedData == null || clusteredOrderedData.isEmpty()) {
 							return null;
@@ -482,9 +511,20 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 						}
 						rowNames = clusterOrderedRowNames;
 						scrollPane.setViewportView(heatMap);
+						clusteredRows = true;
 						return null;
 					}
 				}.start();
+				if(clusteredRows) {
+					int result = JOptionPane.showInternalConfirmDialog(null, 
+							"Do you want to see the Dendrogram", "Display dendrogram",
+							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+					if(result != JOptionPane.YES_OPTION) {
+						return;
+					}
+					clusteredData.DisplayDendrogram();
+					clusteredRows = false;
+				}
 			}
 		}
 	}
