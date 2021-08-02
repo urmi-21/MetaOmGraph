@@ -235,8 +235,7 @@ public class DualTablePanel extends JPanel implements ActionListener {
 			for (int i = 0; i < queries.length; i++) {
 
 				matchingRows.addAll(
-						getMatchingRow(queries[i].getField(), queries[i].getTerm(), queries[i].isCaseSensitive(),
-								inactiveTable, queries[i].getMatchType()));
+						getMatchingRow(queries[i].getField(), queries[i].getTerm(), inactiveTable, queries[i].getMatchType()));
 			}
 
 		} else {
@@ -244,8 +243,7 @@ public class DualTablePanel extends JPanel implements ActionListener {
 			for (int i = 0; i < queries.length; i++) {
 				java.util.List<Integer> temp = new ArrayList<>();
 				temp.addAll(
-						getMatchingRow(queries[i].getField(), queries[i].getTerm(), queries[i].isCaseSensitive(),
-								inactiveTable, queries[i].getMatchType()));
+						getMatchingRow(queries[i].getField(), queries[i].getTerm(), inactiveTable, queries[i].getMatchType()));
 				tempList.add(temp);
 			}
 
@@ -274,27 +272,19 @@ public class DualTablePanel extends JPanel implements ActionListener {
 		}
 	}
 
-	private java.util.List<Integer> getMatchingRow(String colName, String val, boolean matchCase,
-			JTable tab, SearchMatchType matchType) {
+	private java.util.List<Integer> getMatchingRow(String colName, String val, JTable tab, SearchMatchType matchType) {
 		java.util.List<Integer> res = new ArrayList<>();
-		
-		if(!matchCase) {
-			val = val.toLowerCase();
-		}
-		
+
 		// special case
 		if (colName.equals("All Fields")) {
 			boolean breakFlag = false;
 			for (int i = 0; i < tab.getRowCount(); i++) {
 				breakFlag = false;
-				for (int j = 1; j < tab.getModel().getColumnCount(); j++) {
+				for (int j = 1; j < tab.getColumnCount(); j++) {
 					String valAtij = "";
 					// value can be null for correlations in list which has values for only some rows
 					if (tab.getModel().getValueAt(i, j) != null) {
 						valAtij = tab.getModel().getValueAt(i, j).toString();
-						if(!matchCase) {
-							valAtij = valAtij.toLowerCase();
-						}
 					}
 					if (matchType == SearchMatchType.IS) {
 						if (!valAtij.contentEquals(val)) {
@@ -327,14 +317,11 @@ public class DualTablePanel extends JPanel implements ActionListener {
 			boolean foundFlag = false;
 			for (int i = 0; i < tab.getRowCount(); i++) {
 				foundFlag = false;
-				for (int j = 1; j < tab.getModel().getColumnCount(); j++) {// For each column in that row
+				for (int j = 1; j < tab.getColumnCount(); j++) {// For each column in that row
 					String valAtij = "";
 					// value can be null for correlations in list which has values for only some rows
 					if (tab.getModel().getValueAt(i, j) != null) {
 						valAtij = tab.getModel().getValueAt(i, j).toString();
-						if(!matchCase) {
-							valAtij = valAtij.toLowerCase();
-						}
 					}
 					if (matchType == SearchMatchType.IS) {
 						if (valAtij.contentEquals(val)) {
@@ -371,9 +358,6 @@ public class DualTablePanel extends JPanel implements ActionListener {
 				// rows
 				if (tab.getModel().getValueAt(i, colIndex) != null) {
 					valAtij = tab.getModel().getValueAt(i, colIndex).toString();
-					if(!matchCase) {
-						valAtij = valAtij.toLowerCase();
-					}
 				}
 				if (matchType == SearchMatchType.IS) {
 					if (valAtij.contentEquals(val)) {
@@ -419,8 +403,7 @@ public class DualTablePanel extends JPanel implements ActionListener {
 			for (int i = 0; i < queries.length; i++) {
 
 				matchingRows.addAll(
-						getMatchingRow(queries[i].getField(), queries[i].getTerm(), queries[i].isCaseSensitive(),
-								activeTable, queries[i].getMatchType()));
+						getMatchingRow(queries[i].getField(), queries[i].getTerm(), activeTable, queries[i].getMatchType()));
 			}
 
 		} else {
@@ -428,8 +411,7 @@ public class DualTablePanel extends JPanel implements ActionListener {
 			for (int i = 0; i < queries.length; i++) {
 				java.util.List<Integer> temp = new ArrayList<>();
 				temp.addAll(
-						getMatchingRow(queries[i].getField(), queries[i].getTerm(), queries[i].isCaseSensitive(),
-								activeTable, queries[i].getMatchType()));
+						getMatchingRow(queries[i].getField(), queries[i].getTerm(), activeTable, queries[i].getMatchType()));
 				tempList.add(temp);
 			}
 
