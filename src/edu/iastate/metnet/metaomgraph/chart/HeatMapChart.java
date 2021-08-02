@@ -234,7 +234,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 							fileToSave = new File(fileToSave.getParentFile(), fileToSave.getName() + ".png");
 						}
 						if(heatMap.saveImage(fileToSave, "png")) {
-							JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Image Saved");
+							JOptionPane.showMessageDialog(null, "Image Saved");
 						}
 						return null;
 					}
