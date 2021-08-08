@@ -4148,7 +4148,7 @@ public class MetaOmGraph implements ActionListener {
 		
 	private static void downloadAndOpenProject(DownloadSampleProject project) {
 		File currDir = Utils.getLastDir();
-		File projSelDir = CustomFileSaveDialog.showDirectoryDialog(currDir);
+		File projSelDir = CustomFileSaveDialog.showDirectoryDialog(currDir, "Save sample project to");
 		if(projSelDir == null) {
 			return;
 		}

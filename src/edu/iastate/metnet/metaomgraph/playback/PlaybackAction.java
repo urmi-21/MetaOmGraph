@@ -51,7 +51,9 @@ public class PlaybackAction {
 	private static final String CORRELATION_COLUMN_PROPERTY = "Correlation Column";
 	private static final String PLAYABLE_PROPERTY = "Playable";
 	private static final String TRANSFORMATION_PROPERTY = "Data Transformation";
-	private static final String COMPUTE_PCA = "Compute PCA";
+	private static final String COMPUTE_PCA = "PCA";
+	private static final String COMPUTE_TSNE = "t-SNE";
+	private static final String HEAT_MAP = "heat map";
 
 
 	/**
@@ -77,12 +79,27 @@ public class PlaybackAction {
 				
 				if(ltn.getCommandName().equalsIgnoreCase(COMPUTE_PCA)) {
 					Map<String, Object> dataMap = playedAction.getDataParameters();
-					ArrayList<String> dataCol = (ArrayList<String>)dataMap.get("Selected samples");
+					List<String> dataCol = (List<String>) dataMap.get("Selected samples");
 					String selectedGeneList = (String)dataMap.get("Selected feature list");
 					Boolean normalizeData = (Boolean)dataMap.get("Normalization");
 					String[] selectedDataCols = new String[dataCol.size()];
 					selectedDataCols = dataCol.toArray(selectedDataCols);
 					MetaOmGraph.getActiveTablePanel().getMetadataTableDisplay().computePCA(selectedDataCols, selectedGeneList, normalizeData);
+				}
+				
+				if(ltn.getCommandName().equalsIgnoreCase(COMPUTE_TSNE)) {
+					Map<String, Object> dataMap = playedAction.getDataParameters();
+					List<String> dataCol = (List<String>) dataMap.get("Selected samples");
+					String selectedGeneList = (String)dataMap.get("Selected feature list");
+					double perplexity = (Double)dataMap.get("Perplexity");
+					double maxIter = (Double)dataMap.get("MaxIter");
+					double theta = (Double)dataMap.get("Theta");
+					Boolean usePCA = (Boolean)dataMap.get("UsePCA");
+					Boolean parallel = (Boolean)dataMap.get("Parallel");
+					String[] selectedDataCols = new String[dataCol.size()];
+					selectedDataCols = dataCol.toArray(selectedDataCols);
+					MetaOmGraph.getActiveTablePanel().getMetadataTableDisplay().computeTSNE(selectedDataCols, 
+							selectedGeneList, perplexity, (int)maxIter, theta, usePCA, parallel);
 				}
 
 				if(playedAction.getOtherParameters().get(PLAYABLE_PROPERTY)!=null) {
@@ -177,6 +194,8 @@ public class PlaybackAction {
 								playChart(playedAction, BAR_CHART_COMMAND, includedSamples, excludedSamples);
 							} else if (ltn.getCommandName().equalsIgnoreCase(CORRELATION_HISTOGRAM_COMMAND)) {
 								playChart(playedAction, CORRELATION_HISTOGRAM_COMMAND, includedSamples, excludedSamples);
+							} else if (ltn.getCommandName().equalsIgnoreCase(HEAT_MAP)) {
+								playChart(playedAction, HEAT_MAP, includedSamples, excludedSamples);
 							}
 						
 					}
@@ -352,6 +371,20 @@ public class PlaybackAction {
 			else if(chartName == CORRELATION_HISTOGRAM_COMMAND) {
 				String correlationCol = (String)chartAction.getDataParameters().get(CORRELATION_COLUMN_PROPERTY);
 				mp.plotCorrHist(correlationCol, true);
+			}
+			else if(chartName == HEAT_MAP) {
+				//for line chart
+				mcol.setIncluded(includedSamples);
+				mcol.setExcluded(excludedSamples);
+				//update the excluded samples
+				MetaOmAnalyzer.updateExcluded(excludedSamples, false);
+
+				mp.plotHeatMap(val2);
+
+				//reset samples to current
+				mcol.setIncluded(currentProjectIncludedSamples);
+				mcol.setExcluded(currentProjectExcludedSamples);
+				MetaOmAnalyzer.updateExcluded(currentProjectExcludedSamples, false);
 			}
 
 
