@@ -234,7 +234,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 							fileToSave = new File(fileToSave.getParentFile(), fileToSave.getName() + ".png");
 						}
 						if(heatMap.saveImage(fileToSave, "png")) {
-							JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Image Saved");
+							JOptionPane.showMessageDialog(null, "Image Saved");
 						}
 						return null;
 					}
@@ -385,7 +385,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 			}
 			else if(col_val.equals("Euclidian distance")){
 				if (heatMapData.length >= 1000) {
-					int result = JOptionPane.showInternalConfirmDialog(MetaOmGraph.getDesktop(), "You are trying to cluster "
+					int result = JOptionPane.showConfirmDialog(MetaOmGraph.getDesktop(), "You are trying to cluster "
 							+ heatMapData.length + " rows.  This can be very slow, and\n"
 							+ "can cause the program to run out of memory.  Are you sure " + "you want to cluster this data?",
 							"Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
@@ -418,7 +418,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 					}
 				}.start();
 				if(clusteredRows) {
-					int result = JOptionPane.showInternalConfirmDialog(null, 
+					int result = JOptionPane.showConfirmDialog(null, 
 							"Do you want to see the Dendrogram", "Display dendrogram",
 							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 					if(result != JOptionPane.YES_OPTION) {
@@ -435,7 +435,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 				}
 			} else if(col_val.equals("Pearson correlation")){
 				if (heatMapData.length >= 1000) {
-					int result = JOptionPane.showInternalConfirmDialog(MetaOmGraph.getDesktop(), "You are trying to cluster "
+					int result = JOptionPane.showConfirmDialog(MetaOmGraph.getDesktop(), "You are trying to cluster "
 							+ heatMapData.length + " rows.  This can be very slow, and\n"
 							+ "can cause the program to run out of memory.  Are you sure " + "you want to cluster this data?",
 							"Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
@@ -470,7 +470,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 					}
 				}.start();
 				if(clusteredRows) {
-					int result = JOptionPane.showInternalConfirmDialog(null, 
+					int result = JOptionPane.showConfirmDialog(null, 
 							"Do you want to see the Dendrogram", "Display dendrogram",
 							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 					if(result != JOptionPane.YES_OPTION) {
@@ -481,7 +481,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 				}
 			} else {
 				if (heatMapData.length >= 1000) {
-					int result = JOptionPane.showInternalConfirmDialog(MetaOmGraph.getDesktop(), "You are trying to cluster "
+					int result = JOptionPane.showConfirmDialog(MetaOmGraph.getDesktop(), "You are trying to cluster "
 							+ heatMapData.length + " rows.  This can be very slow, and\n"
 							+ "can cause the program to run out of memory.  Are you sure " + "you want to cluster this data?",
 							"Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
@@ -516,7 +516,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 					}
 				}.start();
 				if(clusteredRows) {
-					int result = JOptionPane.showInternalConfirmDialog(null, 
+					int result = JOptionPane.showConfirmDialog(null, 
 							"Do you want to see the Dendrogram", "Display dendrogram",
 							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 					if(result != JOptionPane.YES_OPTION) {

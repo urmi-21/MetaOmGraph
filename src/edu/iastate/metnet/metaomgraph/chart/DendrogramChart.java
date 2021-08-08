@@ -100,10 +100,10 @@ public class DendrogramChart extends TaskbarInternalFrame{
 					dendrogramPanel.paint(g2);
 					try{
 						ImageIO.write(image, "png", fileToSave);
-						JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), 
+						JOptionPane.showMessageDialog(null, 
 								"Image saved", "File saved", JOptionPane.INFORMATION_MESSAGE);
 					} catch (Exception e) {
-						JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), 
+						JOptionPane.showMessageDialog(null, 
 								"Image not saved", "File save error", JOptionPane.ERROR_MESSAGE);
 						e.printStackTrace();
 						return false;

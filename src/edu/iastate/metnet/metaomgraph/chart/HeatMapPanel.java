@@ -363,7 +363,7 @@ public class HeatMapPanel extends JPanel{
 		try{
 			ImageIO.write(image, fileExtension, file);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), 
+			JOptionPane.showMessageDialog(null, 
 					"Image not saved", "File save error", JOptionPane.ERROR_MESSAGE);
 			e.printStackTrace();
 			return false;
