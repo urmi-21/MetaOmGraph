@@ -129,7 +129,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 		save.addActionListener(this);
 
 		splitDataset = new JButton(theme.getSort());
-		splitDataset.setToolTipText("Split by categories");
+		splitDataset.setToolTipText("Split by meatadata");
 		splitDataset.setActionCommand("splitDataset");
 		splitDataset.addActionListener(this);
 		

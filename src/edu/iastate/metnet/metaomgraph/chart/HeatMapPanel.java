@@ -106,6 +106,7 @@ public class HeatMapPanel extends JPanel{
 		
 		this.setLayout(new GridLayout(2, 0));
 		createTable();
+		repaint();
 	}
 	
 	// Tool tip text
