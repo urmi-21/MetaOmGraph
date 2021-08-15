@@ -71,6 +71,7 @@ public class CustomFileSaveDialog {
 	public static File showDirectoryDialog(File currDirectory, String title) {
 		JFileChooser fileChooser = new JFileChooser(currDirectory);
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		fileChooser.setApproveButtonText("Save");
 		fileChooser.setDialogTitle(title);
 		int option = fileChooser.showOpenDialog(null);
 		File file = null;

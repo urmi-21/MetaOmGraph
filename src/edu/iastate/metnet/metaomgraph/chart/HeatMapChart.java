@@ -340,6 +340,9 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 				} else {
 					return;
 				}
+				if(selectedVals.isEmpty()) {
+					return;
+				}
 				List<String> dataCols = Arrays.asList(selectedDataCols);
 				new AnimatedSwingWorker("Clustering...", true) {
 					

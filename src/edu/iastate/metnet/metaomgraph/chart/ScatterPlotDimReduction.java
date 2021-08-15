@@ -890,6 +890,9 @@ public class ScatterPlotDimReduction extends TaskbarInternalFrame implements Cha
 				} else {
 					return;
 				}
+				if(selectedVals.isEmpty()) {
+					return;
+				}
 				List<String> dataCols = Arrays.asList(selectedDataCols);
 				splitIndex = MetaOmGraph.getActiveProject().getMetadataHybrid().cluster(selectedVals, dataCols);
 
