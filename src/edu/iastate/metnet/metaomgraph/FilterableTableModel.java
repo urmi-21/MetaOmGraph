@@ -190,12 +190,12 @@ public class FilterableTableModel extends AbstractTableModel implements Document
 				boolean doesNotFlag = false;
 				boolean isFlag = false;
 				if(findMe.length() > 1) {
-					if(findMe.charAt(0) == '!') {
-						doesNotFlag = true;
-						findMe = findMe.substring(1);
-					} else if(findMe.substring(0, 2).contentEquals("!=")) {
+					if(findMe.substring(0, 2).contentEquals("!=")) {
 						isNotFlag = true;
 						findMe = findMe.substring(2);
+					} else if(findMe.charAt(0) == '!') {
+						doesNotFlag = true;
+						findMe = findMe.substring(1);
 					} else if(findMe.charAt(0) == '=') {
 						isFlag = true;
 						findMe = findMe.substring(1);
