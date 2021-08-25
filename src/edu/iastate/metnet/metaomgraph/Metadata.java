@@ -607,7 +607,7 @@ public class Metadata {
 		@Override
 		public MetadataQuery fromXML(SimpleXMLElement source) {
 			matchType = SearchMatchType.CONTAINS;
-			try {
+			try {			
 				matchType = SearchMatchType.valueOf(source.getAttributeValue("matchType").toUpperCase());
 			}
 			// to make compatible with older versions of mog.
@@ -645,10 +645,13 @@ public class Metadata {
 					if (value.toLowerCase().contains(term.toLowerCase()))
 						return true;
 				}
-				else {
+				else if(getMatchType() == SearchMatchType.NOT){
 					if (!value.equalsIgnoreCase(term)) {
 						return true;
 					}
+				}else {
+					if (!value.toLowerCase().contains(term.toLowerCase()))
+						return true;
 				}
 			}
 
