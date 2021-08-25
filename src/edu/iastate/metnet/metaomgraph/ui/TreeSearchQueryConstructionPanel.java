@@ -254,7 +254,7 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 		public SearchTermPanel(String field, SearchMatchType matchType, String term,boolean matchCase) {
 			fieldBox = new JComboBox(fieldBoxTerms);
 			fieldBox.setSelectedItem(field);
-			matchBox = new JComboBox(new String[] { "contains", "is", "not" });
+			matchBox = new JComboBox(new String[] { "contains", "is", "is not", "does not contain" });
 			matchBox.setSelectedIndex(matchType.ordinal());
 			searchTermField = new JTextField(term);
 			searchTermField.setColumns(20);
@@ -296,8 +296,16 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 		}
 		
 		public SearchMatchType getMatchType() {
-			String test = matchBox.getSelectedItem().toString();
-			return SearchMatchType.valueOf(matchBox.getSelectedItem().toString().toUpperCase());
+			String selectedVal = matchBox.getSelectedItem().toString();
+			if(selectedVal.equalsIgnoreCase("is")) {
+				return SearchMatchType.IS;
+			}else if(selectedVal.equalsIgnoreCase("contains")) {
+				return SearchMatchType.CONTAINS;
+			}else if(selectedVal.equalsIgnoreCase("is not")) {
+				return SearchMatchType.NOT;
+			}else {
+				return SearchMatchType.DOES_NOT_CONTAIN;
+			}
 		}
 
 		public String getSearchTerm() {
