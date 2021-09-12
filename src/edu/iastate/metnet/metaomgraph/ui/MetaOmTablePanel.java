@@ -29,6 +29,7 @@ import javax.swing.border.Border;
 import javax.swing.event.*;
 import javax.swing.plaf.ColorUIResource;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -873,6 +874,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		int[] oldWidths = new int[listDisplay.getColumnCount()];
 		for (int x = 0; x < oldWidths.length; x++)
 			oldWidths[x] = listDisplay.getColumnModel().getColumn(x).getPreferredWidth();
+		
 		try {
 			mainModel = new NoneditableTableModel(
 					myProject.getGeneListRowNames(geneLists.getSelectedValue().toString()),
@@ -882,15 +884,14 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 		filterModel = new FilterableTableModel(mainModel);
 		sorter = new TableSorter(filterModel);
-		if(listDisplay != null && listDisplay.getMetadata() != null) {
-			listDisplay = new StripedTable(sorter,listDisplay.getMetadata());
-		}
-		else {
-			listDisplay = new StripedTable(sorter);
-		}
+		
+		listDisplay = new StripedTable(sorter);
+
 		
 		listDisplay.hideColumns();
 		listDisplay.setAutoResizeMode(0);
+		
+		
 		sorter.setTableHeader(listDisplay.getTableHeader());
 
 		/*
@@ -3186,6 +3187,17 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 										break;
 
 								} while (!progress.isCanceled());
+								
+								if (MetaOmGraph.getActiveProject().getShowWarning()) {
+									String message = "Found missing/non-number values in data file. This may affect the analysis. Please check the data file";
+									if (MetaOmGraph.getActiveProject().getBlankValue() != null) {
+										message += "\n\n Treating missing value as " + MetaOmGraph.getActiveProject().getBlankValue();
+									}
+									JOptionPane.showMessageDialog(null, message, "Found missing/non-number values",
+											JOptionPane.WARNING_MESSAGE);
+									
+									MetaOmGraph.getActiveProject().setShowWarning(false);
+								}
 
 							} catch (IOException ioe) {
 								JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Error reading project data",
@@ -3339,6 +3351,17 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 									if (j >= entries.length)
 										break;
 								} while (!progress.isCanceled());
+								
+								if (MetaOmGraph.getActiveProject().getShowWarning()) {
+									String message = "Found missing/non-number values in data file. This may affect the analysis. Please check the data file";
+									if (MetaOmGraph.getActiveProject().getBlankValue() != null) {
+										message += "\n\n Treating missing value as " + MetaOmGraph.getActiveProject().getBlankValue();
+									}
+									JOptionPane.showMessageDialog(null, message, "Found missing/non-number values",
+											JOptionPane.WARNING_MESSAGE);
+									
+									MetaOmGraph.getActiveProject().setShowWarning(false);
+								}
 
 							} catch (IOException ioe) {
 								JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Error reading project data",
@@ -3451,6 +3474,17 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 									if (j >= entries.length)
 										break;
 								} while (!progress.isCanceled());
+								
+								if (MetaOmGraph.getActiveProject().getShowWarning()) {
+									String message = "Found missing/non-number values in data file. This may affect the analysis. Please check the data file";
+									if (MetaOmGraph.getActiveProject().getBlankValue() != null) {
+										message += "\n\n Treating missing value as " + MetaOmGraph.getActiveProject().getBlankValue();
+									}
+									JOptionPane.showMessageDialog(null, message, "Found missing/non-number values",
+											JOptionPane.WARNING_MESSAGE);
+									
+									MetaOmGraph.getActiveProject().setShowWarning(false);
+								}
 
 							} catch (IOException ioe) {
 								JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Error reading project data",
@@ -3575,6 +3609,17 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 									if (j >= entries.length)
 										break;
 								} while (!progress.isCanceled());
+								
+								if (MetaOmGraph.getActiveProject().getShowWarning()) {
+									String message = "Found missing/non-number values in data file. This may affect the analysis. Please check the data file";
+									if (MetaOmGraph.getActiveProject().getBlankValue() != null) {
+										message += "\n\n Treating missing value as " + MetaOmGraph.getActiveProject().getBlankValue();
+									}
+									JOptionPane.showMessageDialog(null, message, "Found missing/non-number values",
+											JOptionPane.WARNING_MESSAGE);
+									
+									MetaOmGraph.getActiveProject().setShowWarning(false);
+								}
 
 								// following code runs out of memory as it stores all the double matrices
 								// after getting all wtMat compute Entropies execute in parallel
@@ -3780,6 +3825,17 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 										break;
 								} while (!progress.isCanceled());
 
+								if (MetaOmGraph.getActiveProject().getShowWarning()) {
+									String message = "Found missing/non-number values in data file. This may affect the analysis. Please check the data file";
+									if (MetaOmGraph.getActiveProject().getBlankValue() != null) {
+										message += "\n\n Treating missing value as " + MetaOmGraph.getActiveProject().getBlankValue();
+									}
+									JOptionPane.showMessageDialog(null, message, "Found missing/non-number values",
+											JOptionPane.WARNING_MESSAGE);
+									
+									MetaOmGraph.getActiveProject().setShowWarning(false);
+								}
+								
 							} catch (IOException ioe) {
 								JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Error reading project data",
 										"IOException", 0);
@@ -3990,6 +4046,17 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 										break;
 								} while (!progress.isCanceled());
 
+								if (MetaOmGraph.getActiveProject().getShowWarning()) {
+									String message = "Found missing/non-number values in data file. This may affect the analysis. Please check the data file";
+									if (MetaOmGraph.getActiveProject().getBlankValue() != null) {
+										message += "\n\n Treating missing value as " + MetaOmGraph.getActiveProject().getBlankValue();
+									}
+									JOptionPane.showMessageDialog(null, message, "Found missing/non-number values",
+											JOptionPane.WARNING_MESSAGE);
+									
+									MetaOmGraph.getActiveProject().setShowWarning(false);
+								}
+								
 							} catch (IOException ioe) {
 								JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Error reading project data",
 										"IOException", 0);
@@ -4134,6 +4201,17 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 									if (j >= entries.length)
 										break;
 								} while (!progress.isCanceled());
+								
+								if (MetaOmGraph.getActiveProject().getShowWarning()) {
+									String message = "Found missing/non-number values in data file. This may affect the analysis. Please check the data file";
+									if (MetaOmGraph.getActiveProject().getBlankValue() != null) {
+										message += "\n\n Treating missing value as " + MetaOmGraph.getActiveProject().getBlankValue();
+									}
+									JOptionPane.showMessageDialog(null, message, "Found missing/non-number values",
+											JOptionPane.WARNING_MESSAGE);
+									
+									MetaOmGraph.getActiveProject().setShowWarning(false);
+								}
 
 							} catch (IOException ioe) {
 								JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Error reading project data",
@@ -4253,6 +4331,17 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 										break;
 								} while (!progress.isCanceled());
 
+								if (MetaOmGraph.getActiveProject().getShowWarning()) {
+									String message = "Found missing/non-number values in data file. This may affect the analysis. Please check the data file";
+									if (MetaOmGraph.getActiveProject().getBlankValue() != null) {
+										message += "\n\n Treating missing value as " + MetaOmGraph.getActiveProject().getBlankValue();
+									}
+									JOptionPane.showMessageDialog(null, message, "Found missing/non-number values",
+											JOptionPane.WARNING_MESSAGE);
+									
+									MetaOmGraph.getActiveProject().setShowWarning(false);
+								}
+								
 							} catch (IOException ioe) {
 								JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Error reading project data",
 										"IOException", 0);
