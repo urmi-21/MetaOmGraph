@@ -215,9 +215,9 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 		    }
 		});
 
-		allowBlanksBox = new JCheckBox("Source file contains \"blank\" values", false);
-		ignoreBlanksButton = new JRadioButton("Skip blank values");
-		replaceBlanksButton = new JRadioButton("Treat blank values as: ");
+		allowBlanksBox = new JCheckBox("Source file contains \"non numeric\" values", false);
+		ignoreBlanksButton = new JRadioButton("Skip non numeric values");
+		replaceBlanksButton = new JRadioButton("Treat non numeric values as: ");
 		ignoreBlanksButton.setEnabled(false);
 		replaceBlanksButton.setEnabled(false);
 		replaceBlanksButton.addItemListener(this);
@@ -230,6 +230,7 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 		ignoreBlanksButton.setSelected(false);
 		replaceBlanksButton.setSelected(true);
 		allowBlanksBox.addItemListener(this);
+		allowBlanksBox.setSelected(true);
 		JPanel delimiterPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx = 0;
