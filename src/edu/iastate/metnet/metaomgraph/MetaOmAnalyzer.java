@@ -319,6 +319,15 @@ public class MetaOmAnalyzer {
 						if (i >= entries.length)
 							break;
 					} while (!progress.isCanceled());
+					
+					if (project.getShowWarning()) {
+					String message = "Found missing/non-number values in data file. This may affect the analysis. Please check the data file";
+					if (project.getBlankValue() != null) {
+						message += "\n\n Treating missing value as " + project.getBlankValue();
+					}
+					JOptionPane.showMessageDialog(null, message, "Found missing/non-number values",
+							JOptionPane.WARNING_MESSAGE);
+				}
 
 				} catch (IOException ioe) {
 					JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Error reading project data",
@@ -1250,7 +1259,7 @@ public class MetaOmAnalyzer {
 			}
 
 			xMLStreamWriter.writeAttribute("sampleCount", exclude.length + "");
-			xMLStreamWriter.writeCharacters(excludeString);
+			xMLStreamWriter.writeCharacters(excludeString.replace("\0", ""));
 
 
 			xMLStreamWriter.writeEndElement();

@@ -30,10 +30,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -165,6 +169,8 @@ public class MetaOmProject {
 	private HashMap<Integer, Integer> memoryMap;
 
 	private boolean includeMetNet;
+	
+	private boolean showWarning = false;
 
 	// urmi
 	// metadataCollection oject to read csv file
@@ -581,11 +587,11 @@ public class MetaOmProject {
 			xMLStreamWriter.writeStartElement("projectInfo");
 
 			xMLStreamWriter.writeStartElement("sourcePath");
-			xMLStreamWriter.writeCharacters(source.getParent());
+			xMLStreamWriter.writeCharacters(source.getParent().replace("\0", ""));
 			xMLStreamWriter.writeEndElement();
 
 			xMLStreamWriter.writeStartElement("sourceFile");
-			xMLStreamWriter.writeCharacters(source.getName());
+			xMLStreamWriter.writeCharacters(source.getName().replace("\0", ""));
 			xMLStreamWriter.writeEndElement();
 
 			xMLStreamWriter.writeStartElement("delimiter");
@@ -599,53 +605,53 @@ public class MetaOmProject {
 
 
 			xMLStreamWriter.writeStartElement("ignoreConsecutiveDelimiters");
-			xMLStreamWriter.writeCharacters(ignoreConsecutiveDelimiters + "");
+			xMLStreamWriter.writeCharacters((String)(ignoreConsecutiveDelimiters + "").replace("\0", ""));
 			xMLStreamWriter.writeEndElement();
 
 
 			if (getBlankValue() != null) {
 
 				xMLStreamWriter.writeStartElement("blankValue");
-				xMLStreamWriter.writeCharacters(getBlankValue() + "");
+				xMLStreamWriter.writeCharacters((String)(getBlankValue() + "").replace("\0", ""));
 				xMLStreamWriter.writeEndElement();
 
 			}
 
 
 			xMLStreamWriter.writeStartElement("xLabel");
-			xMLStreamWriter.writeCharacters(getDefaultXAxis());
+			xMLStreamWriter.writeCharacters(getDefaultXAxis().replace("\0", ""));
 			xMLStreamWriter.writeEndElement();
 
 
 			xMLStreamWriter.writeStartElement("yLabel");
-			xMLStreamWriter.writeCharacters(getDefaultYAxis());
+			xMLStreamWriter.writeCharacters(getDefaultYAxis().replace("\0", ""));
 			xMLStreamWriter.writeEndElement();
 
 
 			xMLStreamWriter.writeStartElement("title");
-			xMLStreamWriter.writeCharacters(getDefaultTitle());
+			xMLStreamWriter.writeCharacters(getDefaultTitle().replace("\0", ""));
 			xMLStreamWriter.writeEndElement();
 
 
 			xMLStreamWriter.writeStartElement("color1");
-			xMLStreamWriter.writeCharacters(getColor1().getRGB() + "");
+			xMLStreamWriter.writeCharacters((String)(getColor1().getRGB() + "").replace("\0", ""));
 			xMLStreamWriter.writeEndElement();
 
 
 			xMLStreamWriter.writeStartElement("color2");
-			xMLStreamWriter.writeCharacters(getColor2().getRGB() + "");
+			xMLStreamWriter.writeCharacters((String)(getColor2().getRGB() + "").replace("\0", ""));
 			xMLStreamWriter.writeEndElement();
 
 
 			xMLStreamWriter.writeStartElement("defaultColumn");
-			xMLStreamWriter.writeCharacters(defaultColumn + "");
+			xMLStreamWriter.writeCharacters((String)(defaultColumn + "").replace("\0", ""));
 			xMLStreamWriter.writeEndElement();
 
 
 			for (int x = 0; x < infoColumns; x++) {
 
 				xMLStreamWriter.writeStartElement("infoColumn");
-				xMLStreamWriter.writeCharacters(columnHeaders[x]);
+				xMLStreamWriter.writeCharacters(columnHeaders[x].replace("\0", ""));
 				xMLStreamWriter.writeEndElement();
 
 			}
@@ -659,7 +665,7 @@ public class MetaOmProject {
 			for (int x = 0; x < getDataColumnCount(); x++) {
 
 				xMLStreamWriter.writeStartElement("column");
-				xMLStreamWriter.writeCharacters(getDataColumnHeader(x));
+				xMLStreamWriter.writeCharacters(getDataColumnHeader(x).replace("\0", ""));
 				xMLStreamWriter.writeEndElement();
 
 			}
@@ -692,13 +698,13 @@ public class MetaOmProject {
 								xMLStreamWriter.writeAttribute("asPercent", "false");
 							}
 						}
-						xMLStreamWriter.writeCharacters(rowNames[x][y].toString());
+						xMLStreamWriter.writeCharacters(rowNames[x][y].toString().replace("\0", ""));
 						xMLStreamWriter.writeEndElement();
 					}
 
 				}
 				xMLStreamWriter.writeStartElement("location");
-				xMLStreamWriter.writeCharacters(fileIndex[x] + "");
+				xMLStreamWriter.writeCharacters((String)(fileIndex[x] + "").replace("\0", ""));
 				xMLStreamWriter.writeEndElement();
 
 
@@ -720,7 +726,7 @@ public class MetaOmProject {
 				for (int x = 0; x < entries.length; x++) {
 
 					xMLStreamWriter.writeStartElement("entry");
-					xMLStreamWriter.writeCharacters(entries[x] + "");
+					xMLStreamWriter.writeCharacters((String)(entries[x] + "").replace("\0", ""));
 					xMLStreamWriter.writeEndElement();
 				}
 
@@ -738,7 +744,7 @@ public class MetaOmProject {
 				for (int index = 0; index < values.size(); index++) {
 
 					xMLStreamWriter.writeStartElement("entry");
-					xMLStreamWriter.writeCharacters(values.get(index) + "");
+					xMLStreamWriter.writeCharacters((String)(values.get(index) + "").replace("\0", ""));
 					xMLStreamWriter.writeEndElement();
 
 				}
@@ -955,6 +961,47 @@ public class MetaOmProject {
 		setInfoColTypes(map);
 
 	}
+	
+	
+	/**
+	 * @author Harsha
+	 * Method to clean an xml file of all the invalid characters
+	 */
+	private void cleanXML(InputStream instream, File projectFile, String tempFileName) throws UnsupportedEncodingException, IOException {
+		
+		String xml10pattern = "[^"
+                + "\u0009\r\n"
+                + "\u0020-\uD7FF"
+                + "\uE000-\uFFFD"
+                + "\ud800\udc00-\udbff\udfff"
+                + "]";
+		
+		InputStreamReader isr = new InputStreamReader(instream);
+
+		String dirPath = projectFile.getParent();
+		File tmpPath = new File(dirPath+"/tmp/");
+		tmpPath.mkdirs();
+		
+		 try (FileOutputStream fos = new FileOutputStream(dirPath+"/tmp/"+tempFileName);
+				 OutputStreamWriter osw = new OutputStreamWriter(fos,"UTF-8");
+				 
+				 ) {
+
+                int len;
+                while ((len = isr.read()) > 0) {
+                	
+                	
+                	String buf = String.valueOf((char)len);
+                	
+                	buf = buf.replaceAll(xml10pattern, "");
+                	
+                	osw.write(buf);
+                	
+                    
+                }
+            }
+		 
+	}
 
 	/**
 	 * open a new project edited: urmi
@@ -991,12 +1038,26 @@ public class MetaOmProject {
 		List<String> removedMDCols = null;
 		try {
 
-			ZipInputStream instream = new ZipInputStream(new FileInputStream(projectFile));
+			char[] buffer = new char[2048];
+			
+			FileInputStream fis = new FileInputStream(projectFile);
+			BufferedInputStream bis = new BufferedInputStream(fis);
+			
+			ZipInputStream instream = new ZipInputStream(bis);
+			
 			ZipEntry thisEntry = instream.getNextEntry();
 			while ((allsWell) && (thisEntry != null)) {
 				if ((thisEntry.getName().equals("ProjectFile.xml")) && (!projectFileFound)) {
 
-					allsWell = loadProjectFile(instream, projectFile);
+					String tempXMLFile = "ProjectFile.xml";
+					
+					String dirPath = projectFile.getParent();
+					
+					cleanXML(instream, projectFile, tempXMLFile);
+					 
+					FileInputStream tempProjectXML = new FileInputStream(new File(dirPath+"/tmp/"+tempXMLFile));
+					 
+					allsWell = loadProjectFile(tempProjectXML, projectFile);
 					if (!allsWell) {
 						System.out.println("Failure at project file load");
 						// JOptionPane.showMessageDialog(null, "Error occured");
@@ -1008,8 +1069,16 @@ public class MetaOmProject {
 					String fpath = "";
 					String delim = "";
 					String datacol = "";
+					
+					String tempXMLFile = "metadataFile.xml";
+					
+					String dirPath = projectFile.getParent();
+					
+					cleanXML(instream, projectFile, tempXMLFile);
+					 
+					FileInputStream tempProjectXML = new FileInputStream(new File(dirPath+"/tmp/"+tempXMLFile));
 
-					inputReader = new BufferedReader(new InputStreamReader(instream));
+					inputReader = new BufferedReader(new InputStreamReader(tempProjectXML));
 
 					XMLInputFactory factory = XMLInputFactory.newInstance();
 					XMLEventReader eventReader = factory.createXMLEventReader(inputReader);
@@ -1087,7 +1156,17 @@ public class MetaOmProject {
 					extendedFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				} else if ((thisEntry.getName().equals("metadataTree.xml")) && (!treeFound)) {
-					inputReader = new BufferedReader(new InputStreamReader(instream));
+					
+					String tempXMLFile = "metadataTree.xml";
+					
+					String dirPath = projectFile.getParent();
+					
+					cleanXML(instream, projectFile, tempXMLFile);
+					 
+					FileInputStream tempProjectXML = new FileInputStream(new File(dirPath+"/tmp/"+tempXMLFile));
+
+					
+					inputReader = new BufferedReader(new InputStreamReader(tempProjectXML));
 					sb = new StringBuilder();
 					inline = "";
 					while ((inline = inputReader.readLine()) != null) {
@@ -1111,7 +1190,17 @@ public class MetaOmProject {
 					treeFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				} else if ((thisEntry.getName().equals("correlations.xml")) && (!corrFound)) {
-					inputReader = new BufferedReader(new InputStreamReader(instream));
+					
+					String tempXMLFile = "correlations.xml";
+					
+					String dirPath = projectFile.getParent();
+					
+					cleanXML(instream, projectFile, tempXMLFile);
+					 
+					FileInputStream tempProjectXML = new FileInputStream(new File(dirPath+"/tmp/"+tempXMLFile));
+
+					
+					inputReader = new BufferedReader(new InputStreamReader(tempProjectXML));
 					sb = new StringBuilder();
 					inline = "";
 					while ((inline = inputReader.readLine()) != null) {
@@ -1180,7 +1269,16 @@ public class MetaOmProject {
 					corrFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				} else if ((thisEntry.getName().equals("params.xml")) && (!paramsFound)) {
-					inputReader = new BufferedReader(new InputStreamReader(instream));
+					
+					String tempXMLFile = "params.xml";
+					
+					String dirPath = projectFile.getParent();
+					
+					cleanXML(instream, projectFile, tempXMLFile);
+					 
+					FileInputStream tempProjectXML = new FileInputStream(new File(dirPath+"/tmp/"+tempXMLFile));
+					
+					inputReader = new BufferedReader(new InputStreamReader(tempProjectXML));
 
 
 					XMLInputFactory factory = XMLInputFactory.newInstance();
@@ -1263,7 +1361,16 @@ public class MetaOmProject {
 					paramsFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				} else if ((thisEntry.getName().equals("excludedMD.xml")) && (!excludedFound)) {
-					inputReader = new BufferedReader(new InputStreamReader(instream));
+					
+					String tempXMLFile = "excludedMD.xml";
+					
+					String dirPath = projectFile.getParent();
+					
+					cleanXML(instream, projectFile, tempXMLFile);
+					 
+					FileInputStream tempProjectXML = new FileInputStream(new File(dirPath+"/tmp/"+tempXMLFile));
+					
+					inputReader = new BufferedReader(new InputStreamReader(tempProjectXML));
 
 					XMLInputFactory factory = XMLInputFactory.newInstance();
 					XMLEventReader eventReader = factory.createXMLEventReader(inputReader);
@@ -1292,7 +1399,16 @@ public class MetaOmProject {
 					excludedFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				} else if ((thisEntry.getName().equals("missingMD.xml")) && (!missingFound)) {
-					inputReader = new BufferedReader(new InputStreamReader(instream));
+					
+					String tempXMLFile = "missingMD.xml";
+					
+					String dirPath = projectFile.getParent();
+					
+					cleanXML(instream, projectFile, tempXMLFile);
+					 
+					FileInputStream tempProjectXML = new FileInputStream(new File(dirPath+"/tmp/"+tempXMLFile));
+					
+					inputReader = new BufferedReader(new InputStreamReader(tempProjectXML));
 
 					XMLInputFactory factory = XMLInputFactory.newInstance();
 					XMLEventReader eventReader = factory.createXMLEventReader(inputReader);
@@ -1321,7 +1437,16 @@ public class MetaOmProject {
 					missingFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				} else if ((thisEntry.getName().equals("removedMDCols.xml")) && (!removedMDColsFound)) {
-					inputReader = new BufferedReader(new InputStreamReader(instream));
+					
+					String tempXMLFile = "removedMDCols.xml";
+					
+					String dirPath = projectFile.getParent();
+					
+					cleanXML(instream, projectFile, tempXMLFile);
+					 
+					FileInputStream tempProjectXML = new FileInputStream(new File(dirPath+"/tmp/"+tempXMLFile));
+					
+					inputReader = new BufferedReader(new InputStreamReader(tempProjectXML));
 
 					XMLInputFactory factory = XMLInputFactory.newInstance();
 					XMLEventReader eventReader = factory.createXMLEventReader(inputReader);
@@ -1355,7 +1480,15 @@ public class MetaOmProject {
 				// read diffexpresults
 				else if ((thisEntry.getName().equals("diffexpresults.xml")) && (!diffExpResfound)) {
 					// JOptionPane.showMessageDialog(null, "reading DE");
-					inputReader = new BufferedReader(new InputStreamReader(instream));
+					String tempXMLFile = "diffexpresults.xml";
+					
+					String dirPath = projectFile.getParent();
+					
+					cleanXML(instream, projectFile, tempXMLFile);
+					 
+					FileInputStream tempProjectXML = new FileInputStream(new File(dirPath+"/tmp/"+tempXMLFile));
+					
+					inputReader = new BufferedReader(new InputStreamReader(tempProjectXML));
 
 					XMLInputFactory factory = XMLInputFactory.newInstance();
 					XMLEventReader eventReader = factory.createXMLEventReader(inputReader);
@@ -1578,7 +1711,15 @@ public class MetaOmProject {
 				// read diffcorr results diffcorrresults.xml
 				else if ((thisEntry.getName().equals("diffcorrresults.xml")) && (!diffCorrResfound)) {
 					// JOptionPane.showMessageDialog(null, "reading DE");
-					inputReader = new BufferedReader(new InputStreamReader(instream));
+					String tempXMLFile = "diffcorrresults.xml";
+					
+					String dirPath = projectFile.getParent();
+					
+					cleanXML(instream, projectFile, tempXMLFile);
+					 
+					FileInputStream tempProjectXML = new FileInputStream(new File(dirPath+"/tmp/"+tempXMLFile));
+					
+					inputReader = new BufferedReader(new InputStreamReader(tempProjectXML));
 
 
 
@@ -4416,7 +4557,7 @@ public class MetaOmProject {
 	}
 
 	private double[] getDataFromFile(int row) throws IOException {
-		boolean showWarning = false;
+		
 		if (row > getRowCount())
 			throw new IllegalArgumentException("Row " + row + " does not exist!");
 		if ((memoryMap != null) && (memoryMap.containsKey(Integer.valueOf(row)))) {
@@ -4447,15 +4588,15 @@ public class MetaOmProject {
 
 			}
 		}
-		if (showWarning) {
-			String message = "Found missing/non-number values in data file. This may affect the analysis. Please check the data file. \n\n\t\t Acessing Row name: "
-					+ getGeneName(row)[defaultColumn];
-			if (getBlankValue() != null) {
-				message += "\n\n Treating missing value as " + getBlankValue();
-			}
-			JOptionPane.showMessageDialog(null, message, "Found missing/non-number values",
-					JOptionPane.WARNING_MESSAGE);
-		}
+//		if (showWarning) {
+//			String message = "Found missing/non-number values in data file. This may affect the analysis. Please check the data file. \n\n\t\t Acessing Row name: "
+//					+ getGeneName(row)[defaultColumn];
+//			if (getBlankValue() != null) {
+//				message += "\n\n Treating missing value as " + getBlankValue();
+//			}
+//			JOptionPane.showMessageDialog(null, message, "Found missing/non-number values",
+//					JOptionPane.WARNING_MESSAGE);
+//		}
 		return thisData;
 	}
 
@@ -5706,6 +5847,14 @@ public class MetaOmProject {
 
 		// JOptionPane.showMessageDialog(null, "null for:"+colName);
 		return null;
+	}
+	
+	public boolean getShowWarning() {
+		return this.showWarning;
+	}
+	
+	public void setShowWarning(boolean val) {
+		this.showWarning = val;
 	}
 
 }
