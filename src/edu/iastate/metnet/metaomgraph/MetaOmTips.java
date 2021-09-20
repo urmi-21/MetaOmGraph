@@ -42,7 +42,7 @@ public class MetaOmTips implements TipModel, HyperlinkListener {
         tips = new ArrayList();
         addTip(
                 "Welcome to MetaOmGraph!",
-                "<html><p style=\"color:9ACD32\">You can press F1 at any time to get help with whatever you're working on.\n\nOn some laptops (especially Mac laptops), you may need to press Fn-F1.</p></html>");
+                "<html><p style=\"color:3335FF\">You can press F1 at any time to get help with whatever you're working on.\n\nOn some laptops (especially Mac laptops), you may need to press Fn-F1.</p></html>");
 
         tipPane = new JTextPane();
         tipPane.setEditable(false);
@@ -62,7 +62,7 @@ public class MetaOmTips implements TipModel, HyperlinkListener {
         addTip("Properties", 
         		"<html><p style=\"color:FF00FF\">Plot defaults (axis titles, background gradient), as well as row and column names, can be edited by selecting Project->Properties from the menu bar.</p></html>");
         addTip("Saving Metadata sorts", 
-        		"<html><p style=\"color:7FFF00\">To quickly re-order any plot to the result of a metadata sort, save the result as a custom sort.  Run the metadata sort, then select the custom sort option, then click the Save button.</p></html>");
+        		"<html><p style=\"color:FF4C33\">To quickly re-order any plot to the result of a metadata sort, save the result as a custom sort.  Run the metadata sort, then select the custom sort option, then click the Save button.</p></html>");
         
         
         createTipPanel();

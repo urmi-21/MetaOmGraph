@@ -344,13 +344,13 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 		zoomMenu.addActionListener(this);
 		
 		clearSelectionMenu = new JMenuItem("Clear selection tool");
-		clearSelectionMenu.setIcon(theme.getDefaultZoom());
 		clearSelectionMenu.setActionCommand("clear selection");
 		clearSelectionMenu.addActionListener(this);
 
 		selectionPopUpMenu.add(singleSelectionMenu);
 		selectionPopUpMenu.add(multiSelectionMenu);
 		selectionPopUpMenu.add(zoomMenu);
+		//selectionPopUpMenu.add(clearSelectionMenu);
 
 		selectionButton.addActionListener(new ActionListener() {
 
@@ -826,6 +826,8 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 		if("multi selection".equals(e.getActionCommand())) {
 			selectionButton.setIcon(MetaOmGraph.getIconTheme().getSelectIcon());
 			setSelectionToolActive();
+			if(singleSelection)
+				selectedPointsDisplayTableObj.clearMetaDataCols();
 			singleSelection = false;
 			multiSelection = true;
 			selectedRectangles.clear();
@@ -839,10 +841,12 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 		}
 		
 		if("clear selection".equals(e.getActionCommand())) {
-			singleSelection = false;
-			multiSelection = false;
 			selectedRectangles.clear();
 			selectedPointsDisplayTableObj.clearMetaDataCols();
+			
+			selectedPointsTable.repaint();
+			singleSelection = false;
+			multiSelection = false;
 		}
 		
 		if("create list".equals(e.getActionCommand())) {
