@@ -593,12 +593,12 @@ public class Metadata {
 			
 			if (field != null) {
 				xMLStreamWriter.writeStartElement("field");
-				xMLStreamWriter.writeCharacters(field);
+				xMLStreamWriter.writeCharacters(field.replace("\0", ""));
 				xMLStreamWriter.writeEndElement();
 			}
 			
 			xMLStreamWriter.writeStartElement("term");
-			xMLStreamWriter.writeCharacters(term);
+			xMLStreamWriter.writeCharacters(term.replace("\0", ""));
 			xMLStreamWriter.writeEndElement();
 			
 			xMLStreamWriter.writeEndElement();
