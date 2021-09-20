@@ -55,6 +55,7 @@ public class HeatMapRangeColorSelector extends JPanel implements ActionListener{
 		JPanel addRangeButtonPanel = new JPanel();
 		// Add button to add a range
 		addRangeButton = new JButton(MetaOmGraph.getIconTheme().getListAdd());
+		addRangeButton.setToolTipText("Click to add a new range");
 		addRangeButton.setActionCommand("Add");
 		addRangeButton.addActionListener(this);
 		addRangeButtonPanel.add(addRangeButton);

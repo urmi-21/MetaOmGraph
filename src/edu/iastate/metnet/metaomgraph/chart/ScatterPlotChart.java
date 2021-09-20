@@ -130,6 +130,7 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 	private JMenuItem singleSelectionMenu;
 	private JMenuItem multiSelectionMenu;
 	private JMenuItem zoomMenu;
+	private JMenuItem clearSelectionMenu;
 
 	// bottom toolbar
 	private JButton btnNewButton_1;
@@ -341,10 +342,15 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 		zoomMenu.setIcon(theme.getDefaultZoom());
 		zoomMenu.setActionCommand("zoom tool");
 		zoomMenu.addActionListener(this);
+		
+		clearSelectionMenu = new JMenuItem("Clear selection tool");
+		clearSelectionMenu.setActionCommand("clear selection");
+		clearSelectionMenu.addActionListener(this);
 
 		selectionPopUpMenu.add(singleSelectionMenu);
 		selectionPopUpMenu.add(multiSelectionMenu);
 		selectionPopUpMenu.add(zoomMenu);
+		//selectionPopUpMenu.add(clearSelectionMenu);
 
 		selectionButton.addActionListener(new ActionListener() {
 
@@ -820,13 +826,25 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 		if("multi selection".equals(e.getActionCommand())) {
 			selectionButton.setIcon(MetaOmGraph.getIconTheme().getSelectIcon());
 			setSelectionToolActive();
+			if(singleSelection)
+				selectedPointsDisplayTableObj.clearMetaDataCols();
 			singleSelection = false;
 			multiSelection = true;
+			selectedRectangles.clear();
 		}
 		
 		if("zoom tool".equals(e.getActionCommand())) {
 			selectionButton.setIcon(MetaOmGraph.getIconTheme().getDefaultZoom());
 			setZoomToolActive();
+			singleSelection = false;
+			multiSelection = false;
+		}
+		
+		if("clear selection".equals(e.getActionCommand())) {
+			selectedRectangles.clear();
+			selectedPointsDisplayTableObj.clearMetaDataCols();
+			
+			selectedPointsTable.repaint();
 			singleSelection = false;
 			multiSelection = false;
 		}

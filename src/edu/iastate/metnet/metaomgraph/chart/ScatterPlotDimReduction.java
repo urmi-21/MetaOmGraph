@@ -132,6 +132,7 @@ public class ScatterPlotDimReduction extends TaskbarInternalFrame implements Cha
 	private JMenuItem singleSelectionMenu;
 	private JMenuItem multiSelectionMenu;
 	private JMenuItem zoomMenu;
+	private JMenuItem clearSelectionMenu;
 	
 	private JPanel chartButtonsPanel;
 
@@ -207,6 +208,11 @@ public class ScatterPlotDimReduction extends TaskbarInternalFrame implements Cha
 
 		chartButtonsPanel = new JPanel();
 		chartButtonsPanel.setLayout(new FlowLayout());
+		
+		// create scatter plot
+		try {
+			chartPanel = makeScatterPlot();
+		} catch (IOException e) {}
 
 		// add buttons to top panel
 		IconTheme theme = MetaOmGraph.getIconTheme();
@@ -300,10 +306,14 @@ public class ScatterPlotDimReduction extends TaskbarInternalFrame implements Cha
 		zoomMenu.setActionCommand("zoom tool");
 		zoomMenu.addActionListener(this);
 		
+		clearSelectionMenu = new JMenuItem("Clear selection tool");
+		clearSelectionMenu.setActionCommand("clear selection");
+		clearSelectionMenu.addActionListener(this);
+		
 		selectionPopUpMenu.add(singleSelectionMenu);
 		selectionPopUpMenu.add(multiSelectionMenu);
 		selectionPopUpMenu.add(zoomMenu);
-				
+		//selectionPopUpMenu.add(clearSelectionMenu);
 		
 		selectionButton.addActionListener(new ActionListener() {
 			
@@ -336,10 +346,6 @@ public class ScatterPlotDimReduction extends TaskbarInternalFrame implements Cha
 		chartDisplayPanel.add(chartButtonsPanel, BorderLayout.NORTH);
 		
 		scrollPane = new JScrollPane();
-		// create scatter plot
-		try {
-			chartPanel = makeScatterPlot();
-		} catch (IOException e) {}
 		
 		scrollPane.setViewportView(chartPanel);
 		
@@ -752,13 +758,25 @@ public class ScatterPlotDimReduction extends TaskbarInternalFrame implements Cha
 		if("multi selection".equals(e.getActionCommand())) {
 			selectionButton.setIcon(MetaOmGraph.getIconTheme().getSelectIcon());
 			setSelectionToolActive();
+			if(singleSelection)
+				selectedPointsDisplayTableObj.clearMetaDataCols();
 			singleSelection = false;
 			multiSelection = true;
+			selectedRectangles.clear();
 		}
 		
 		if("zoom tool".equals(e.getActionCommand())) {
 			selectionButton.setIcon(MetaOmGraph.getIconTheme().getDefaultZoom());
 			setZoomToolActive();
+			singleSelection = false;
+			multiSelection = false;
+		}
+		
+		if("clear selection".equals(e.getActionCommand())) {
+			selectedRectangles.clear();
+			selectedPointsDisplayTableObj.clearMetaDataCols();
+			
+			selectedPointsTable.repaint();
 			singleSelection = false;
 			multiSelection = false;
 		}
@@ -870,6 +888,9 @@ public class ScatterPlotDimReduction extends TaskbarInternalFrame implements Cha
 					}
 					splitCol = col_val;
 				} else {
+					return;
+				}
+				if(selectedVals.isEmpty()) {
 					return;
 				}
 				List<String> dataCols = Arrays.asList(selectedDataCols);

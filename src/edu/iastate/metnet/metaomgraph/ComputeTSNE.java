@@ -85,11 +85,11 @@ public class ComputeTSNE {
 			if(error.contains("Perplexity too large")) {
 				String errorMessage = error;
 				errorMessage += "Please set it low, check the user guide for optimal values";
-				JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), errorMessage, "Tsne error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, errorMessage, "Tsne error", JOptionPane.ERROR_MESSAGE);
 			}
 			else if(error.contains("theta")) {
 				String errorMessage = "Please set theta more than 0.0";
-				JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), errorMessage, "Tsne error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, errorMessage, "Tsne error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 		catch(Exception e) {

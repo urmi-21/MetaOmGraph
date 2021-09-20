@@ -6,10 +6,12 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Event;
 import java.awt.EventQueue;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.GridLayout;
 import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.Rectangle;
@@ -26,14 +28,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -47,7 +52,9 @@ import java.util.TreeSet;
 import java.util.Vector;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
 import javax.swing.Box;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
@@ -62,6 +69,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTable;
 import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
@@ -108,6 +116,7 @@ import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.ui.AboutFrame;
 import edu.iastate.metnet.metaomgraph.ui.AboutFrame4;
 import edu.iastate.metnet.metaomgraph.ui.ClickableLabel;
+import edu.iastate.metnet.metaomgraph.ui.CustomFileSaveDialog;
 import edu.iastate.metnet.metaomgraph.ui.ListMergePanel;
 import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel;
 import edu.iastate.metnet.metaomgraph.ui.MetadataFilter;
@@ -167,7 +176,12 @@ public class MetaOmGraph implements ActionListener {
 	private static StatisticalResultsFrame DCResultsFrame;
 	private static JButton plbbutton;
 	private static JPanel playbackForMac;
-
+	
+	private enum DownloadSampleProject{
+		Metabolomics,
+		MicroArray,
+		HumanCancerRNASeq
+	}
 
 	public static StatisticalResultsFrame getDEAResultsFrame() {
 		return DEAResultsFrame;
@@ -511,7 +525,13 @@ public class MetaOmGraph implements ActionListener {
 	public static final String NEW_PROJECT_ARRAYEXPRESS_COMMAND = "New project from ArrayExpress";
 
 	public static final String OPEN_COMMAND = "Open a project";
+	
+	public static final String DOWNLOAD_METABOLOMICS_PROJ_COMMAND = "Sample MOG project- A. thaliana Metabolomics (0.8 MB) Try me";
 
+	public static final String DOWNLOAD_MICROARRAY_PROJ_COMMAND = "Sample MOG project- A. thaliana Microarray (29.5 MB) Try me";
+	
+	public static final String DOWNLOAD_CANCER_RNASEQ_PROJ_COMMAND = "Sample MOG project- Human Cancer RNA-Seq (247 MB) Try me";
+	
 	public static final String SAVE_COMMAND = "Save the current project";
 
 	public static final String SAVE_AS_COMMAND = "Save as";
@@ -2628,6 +2648,18 @@ public class MetaOmGraph implements ActionListener {
 			openAnotherProject();
 
 		}
+		
+		if(DOWNLOAD_METABOLOMICS_PROJ_COMMAND.equals(e.getActionCommand())) {
+			downloadAndOpenProject(DownloadSampleProject.Metabolomics);
+		}
+		
+		if(DOWNLOAD_MICROARRAY_PROJ_COMMAND.equals(e.getActionCommand())) {
+			downloadAndOpenProject(DownloadSampleProject.MicroArray);
+		}
+		
+		if(DOWNLOAD_CANCER_RNASEQ_PROJ_COMMAND.equals(e.getActionCommand())) {
+			downloadAndOpenProject(DownloadSampleProject.HumanCancerRNASeq);
+		}
 
 		// Save the active project to a new file
 		if (SAVE_AS_COMMAND.equals(e.getActionCommand())) {
@@ -4065,6 +4097,74 @@ public class MetaOmGraph implements ActionListener {
 		new OpenProjectWorker(source).start();
 
 		return;
+	}
+	
+	
+	private static String downloadProjSelectionPanel(File projDirectory, DownloadSampleProject project) {
+        String destPath = "";
+        URL projURL = null;
+        if(project == DownloadSampleProject.Metabolomics) {
+        	try {
+        		projURL = new URL("https://metnetweb.gdcb.iastate.edu/MetaOmGraph/RNASeq/MOG_Athaliana_metabolomics.zip");
+        	} catch (MalformedURLException e) {
+        		e.printStackTrace();
+        	}
+        	destPath = projDirectory.getAbsolutePath();
+        	destPath += File.separator + "MOG_Athaliana_Metabolomics";
+        	if(Utils.downloadFile(projURL, destPath + ".zip")) {
+        		Utils.unZipFile(destPath + ".zip", destPath);
+        	} else {
+        		destPath = "";
+        	}
+        } else if (project == DownloadSampleProject.MicroArray) {
+        	try {
+        		projURL = new URL("https://metnetweb.gdcb.iastate.edu/MetaOmGraph/RNASeq/MOG_AthalianaMAProj.zip");
+        	} catch (MalformedURLException e) {
+        		e.printStackTrace();
+        	}
+        	destPath = projDirectory.getAbsolutePath();
+        	destPath += File.separator + "MOG_Athaliana_MicroArray";
+        	if(Utils.downloadFile(projURL, destPath + ".zip")) {
+        		Utils.unZipFile(destPath + ".zip", destPath);
+        	} else {
+        		destPath = "";
+        	}
+        } else {
+        	try {
+        		projURL = new URL("https://metnetweb.gdcb.iastate.edu/MetaOmGraph/RNASeq/MOG_HumanCancerRNASeqProject.zip");
+        	} catch (MalformedURLException e) {
+        		e.printStackTrace();
+        	}
+        	destPath = projDirectory.getAbsolutePath();
+        	destPath += File.separator + "MOG_HumanCancerRNASeq";
+        	if(Utils.downloadFile(projURL, destPath + ".zip")) {
+        		Utils.unZipFile(destPath + ".zip", destPath);
+        	} else {
+        		destPath = "";
+        	}
+        }
+        return destPath;
+	}
+		
+	private static void downloadAndOpenProject(DownloadSampleProject project) {
+		File currDir = Utils.getLastDir();
+		File projSelDir = CustomFileSaveDialog.showDirectoryDialog(currDir, "Save sample project to");
+		if(projSelDir == null) {
+			return;
+		}
+		String projDir = downloadProjSelectionPanel(projSelDir, project);
+		if(projDir.isEmpty()) {
+			return;
+		}
+		File projDirFile = new File(projDir);
+		File[] mogFiles = projDirFile.listFiles(new FilenameFilter() { 
+			public boolean accept(File dir, String filename)
+			{ return filename.endsWith(".mog"); }
+		} );
+		if(mogFiles.length == 0)
+			return;
+		Utils.setLastDir(projDirFile);
+		new OpenProjectWorker(mogFiles[0]).start();
 	}
 
 	public static void openRecentProject(String name) {

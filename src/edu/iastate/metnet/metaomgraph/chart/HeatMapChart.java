@@ -8,6 +8,7 @@ import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.IconTheme;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.ui.TaskbarInternalFrame;
+import edu.iastate.metnet.metaomgraph.utils.HierarchicalClusterData;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 import java.awt.BorderLayout;
@@ -33,6 +34,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.jcolorbrewer.ColorBrewer;
 import org.jcolorbrewer.ui.ColorPaletteChooserDialog;
 
@@ -46,6 +48,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 	private double[][] originalData;
 	private double[][] heatMapData;
 	private String[] rowNames;
+	private String[] originalRowNames;
 	private String[] columnNames;
 	private String[] selectedDataCols;
 	
@@ -53,10 +56,12 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 	private JButton save;
 	private JButton changePalette;
 	private JButton splitDataset;
+	private JButton clusterDataBtn;
 	private JScrollPane scrollPane;
 	private JButton bottomPanelButton;
 	
-	private double minValue;
+	private boolean clusteredRows;
+	private HierarchicalClusterData clusteredData;
 	private boolean transposeData;
 	private boolean sampleDataOnRow;
 	private Map<String, Collection<Integer>> splitIndex;
@@ -76,6 +81,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 		this.originalData = data;
 		this.heatMapData = data;
 		this.rowNames = rowNames;
+		this.originalRowNames = rowNames;
 		this.columnNames = columnNames;
 		this.transposeData = transposeData;
 		this.sampleDataOnRow = transposeData;
@@ -123,9 +129,14 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 		save.addActionListener(this);
 
 		splitDataset = new JButton(theme.getSort());
-		splitDataset.setToolTipText("Split by categories");
+		splitDataset.setToolTipText("Split by meatadata");
 		splitDataset.setActionCommand("splitDataset");
 		splitDataset.addActionListener(this);
+		
+		clusterDataBtn = new JButton(theme.getClusterIcon());
+		clusterDataBtn.setToolTipText("Sort/group rows");
+		clusterDataBtn.setActionCommand("clusterDataSet");
+		clusterDataBtn.addActionListener(this);
 
 		changePalette = new JButton(theme.getPalette());
 		changePalette.setToolTipText("Color Palette");
@@ -136,9 +147,10 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 		changePalette.setBorderPainted(true);
 		changePalette.setEnabled(false);
 
-		chartButtonsPanel.add(properties);
+		//chartButtonsPanel.add(properties);
 		chartButtonsPanel.add(save);
 		chartButtonsPanel.add(splitDataset);
+		chartButtonsPanel.add(clusterDataBtn);
 		chartButtonsPanel.add(changePalette);
 
 		getContentPane().add(chartButtonsPanel, BorderLayout.NORTH);
@@ -179,10 +191,12 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 			if(sampleDataOnRow) {
 				splitDataset.setEnabled(false);
 				changePalette.setEnabled(false);
+				clusterDataBtn.setEnabled(false);
 			}else {
 				splitDataset.setEnabled(true);
+				clusterDataBtn.setEnabled(true);
 			}
-			new AnimatedSwingWorker("Transposing rows and columns") {
+			new AnimatedSwingWorker("Transposing rows and columns", true) {
 				
 				@Override
 				public Object construct() {
@@ -209,15 +223,22 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 			JFileChooser fileSave = new JFileChooser();
 			FileNameExtensionFilter filter = new FileNameExtensionFilter("PNG files", "png");
 			fileSave.addChoosableFileFilter(filter);
-			
+
 			if(fileSave.showSaveDialog(MetaOmGraph.getMainWindow()) == JFileChooser.APPROVE_OPTION){
-				
-				File fileToSave = fileSave.getSelectedFile();
-				if (!fileToSave.getName().toLowerCase().endsWith(".png")) {
-					fileToSave = new File(fileToSave.getParentFile(), fileToSave.getName() + ".png");
-			      }
-				if(heatMap.saveImage(fileToSave, "png"))
-					JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Image Saved");
+				new AnimatedSwingWorker("Saving image...", true) {
+
+					@Override
+					public Object construct() {
+						File fileToSave = fileSave.getSelectedFile();
+						if (!fileToSave.getName().toLowerCase().endsWith(".png")) {
+							fileToSave = new File(fileToSave.getParentFile(), fileToSave.getName() + ".png");
+						}
+						if(heatMap.saveImage(fileToSave, "png")) {
+							JOptionPane.showMessageDialog(null, "Image Saved");
+						}
+						return null;
+					}
+				}.start();
 			}				
 		}
 		
@@ -287,7 +308,7 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 				transposeData = false;
 				this.heatMapData = originalData;
 				bottomPanelButton.setEnabled(true);
-				new AnimatedSwingWorker("Resetting..") {
+				new AnimatedSwingWorker("Resetting..", true) {
 					
 					@Override
 					public Object construct() {
@@ -319,8 +340,11 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 				} else {
 					return;
 				}
+				if(selectedVals.isEmpty()) {
+					return;
+				}
 				List<String> dataCols = Arrays.asList(selectedDataCols);
-				new AnimatedSwingWorker("Clustering...") {
+				new AnimatedSwingWorker("Clustering...", true) {
 					
 					@Override
 					public Object construct() {
@@ -333,5 +357,187 @@ public class HeatMapChart extends TaskbarInternalFrame implements ActionListener
 				bottomPanelButton.setEnabled(false);
 			}
 		}
+		
+		if("clusterDataSet".equals(e.getActionCommand())) {
+			String[] options = {"Euclidian distance", "Pearson correlation", "Spearman correlation", "Reset"};	
+
+			String col_val = (String) JOptionPane.showInputDialog(null, "Choose the column:\n", "Please choose",
+					JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+			if (col_val == null) {
+				return;
+			}
+			
+			if (col_val.equals("Reset")) {
+				this.heatMapData = originalData;
+				this.rowNames = originalRowNames;
+				new AnimatedSwingWorker("Resetting..", true) {
+					@Override
+					public Object construct() {
+						if(splitIndex != null) {
+							heatMap.setHeatMapData(heatMapData);
+							heatMap.setRowNames(rowNames);
+							heatMap.updateHeatMapTableWithClusters();
+						}
+						else {
+							createHeatMapPanel();
+						}
+						return null;
+					}
+				}.start();
+				return;
+			}
+			else if(col_val.equals("Euclidian distance")){
+				if (heatMapData.length >= 1000) {
+					int result = JOptionPane.showConfirmDialog(MetaOmGraph.getDesktop(), "You are trying to cluster "
+							+ heatMapData.length + " rows.  This can be very slow, and\n"
+							+ "can cause the program to run out of memory.  Are you sure " + "you want to cluster this data?",
+							"Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+					if (result != JOptionPane.YES_OPTION)
+						return;
+				}
+				new AnimatedSwingWorker("Clustering rows using euclidian distance...", true) {
+					@Override
+					public Object construct() {
+						double[][] pairWiseEuclidianDistance = Utils.computePairWiseEuclidianDistances(heatMapData);
+						clusteredData = new HierarchicalClusterData(rowNames, pairWiseEuclidianDistance);
+						List<String> clusteredOrderedData = clusteredData.getClusteredOrderedData();
+						if(clusteredOrderedData == null || clusteredOrderedData.isEmpty()) {
+							return null;
+						}
+						String[] clusterOrderedRowNames = clusteredOrderedData.stream().toArray(String[]::new);
+						heatMapData = rearrangeHeatMapDataBasedOnClusters(clusterOrderedRowNames);
+						if(splitIndex != null) {
+							heatMap.setHeatMapData(heatMapData);
+							heatMap.setRowNames(clusterOrderedRowNames);
+							heatMap.updateHeatMapTableWithClusters();
+						}
+						else {
+							heatMap = new HeatMapPanel(heatMapData, clusterOrderedRowNames, columnNames);
+						}
+						rowNames = clusterOrderedRowNames;
+						scrollPane.setViewportView(heatMap);
+						clusteredRows = true;
+						return null;
+					}
+				}.start();
+				if(clusteredRows) {
+					int result = JOptionPane.showConfirmDialog(null, 
+							"Do you want to see the Dendrogram", "Display dendrogram",
+							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+					if(result != JOptionPane.YES_OPTION) {
+						return;
+					}
+					new AnimatedSwingWorker("Creating Dendrogram...", true) {
+						@Override
+						public Object construct() {
+							clusteredData.DisplayDendrogram();
+							clusteredRows = false;
+							return null;
+						}
+					}.start();
+				}
+			} else if(col_val.equals("Pearson correlation")){
+				if (heatMapData.length >= 1000) {
+					int result = JOptionPane.showConfirmDialog(MetaOmGraph.getDesktop(), "You are trying to cluster "
+							+ heatMapData.length + " rows.  This can be very slow, and\n"
+							+ "can cause the program to run out of memory.  Are you sure " + "you want to cluster this data?",
+							"Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+					if (result != JOptionPane.YES_OPTION)
+						return;
+				}
+				this.heatMapData = originalData;
+				this.rowNames = originalRowNames;
+				new AnimatedSwingWorker("Clustering rows using pearson correlation...", true) {
+					@Override
+					public Object construct() {
+						double[][] pairWisePearsonCorrelation = Utils.computePairWisePearsonCorrelations(heatMapData);
+						clusteredData = new HierarchicalClusterData(rowNames, pairWisePearsonCorrelation);
+						List<String> clusteredOrderedData = clusteredData.getClusteredOrderedData();
+						if(clusteredOrderedData == null || clusteredOrderedData.isEmpty()) {
+							return null;
+						}
+						String[] clusterOrderedRowNames = clusteredOrderedData.stream().toArray(String[]::new);
+						heatMapData = rearrangeHeatMapDataBasedOnClusters(clusterOrderedRowNames);
+						if(splitIndex != null) {
+							heatMap.setHeatMapData(heatMapData);
+							heatMap.setRowNames(clusterOrderedRowNames);
+							heatMap.updateHeatMapTableWithClusters();
+						}
+						else {
+							heatMap = new HeatMapPanel(heatMapData, clusterOrderedRowNames, columnNames);
+						}
+						rowNames = clusterOrderedRowNames;
+						scrollPane.setViewportView(heatMap);
+						clusteredRows = true;
+						return null;
+					}
+				}.start();
+				if(clusteredRows) {
+					int result = JOptionPane.showConfirmDialog(null, 
+							"Do you want to see the Dendrogram", "Display dendrogram",
+							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+					if(result != JOptionPane.YES_OPTION) {
+						return;
+					}
+					clusteredData.DisplayDendrogram();
+					clusteredRows = false;
+				}
+			} else {
+				if (heatMapData.length >= 1000) {
+					int result = JOptionPane.showConfirmDialog(MetaOmGraph.getDesktop(), "You are trying to cluster "
+							+ heatMapData.length + " rows.  This can be very slow, and\n"
+							+ "can cause the program to run out of memory.  Are you sure " + "you want to cluster this data?",
+							"Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+					if (result != JOptionPane.YES_OPTION)
+						return;
+				}
+				this.heatMapData = originalData;
+				this.rowNames = originalRowNames;
+				new AnimatedSwingWorker("Clustering rows using spearman correlation...", true) {
+					@Override
+					public Object construct() {
+						double[][] pairWiseSpearmanCorrelation = Utils.computePairWiseSpearmanCorrelations(heatMapData);
+						clusteredData = new HierarchicalClusterData(rowNames, pairWiseSpearmanCorrelation);
+						List<String> clusteredOrderedData = clusteredData.getClusteredOrderedData();
+						if(clusteredOrderedData == null || clusteredOrderedData.isEmpty()) {
+							return null;
+						}
+						String[] clusterOrderedRowNames = clusteredOrderedData.stream().toArray(String[]::new);
+						heatMapData = rearrangeHeatMapDataBasedOnClusters(clusterOrderedRowNames);
+						if(splitIndex != null) {
+							heatMap.setHeatMapData(heatMapData);
+							heatMap.setRowNames(clusterOrderedRowNames);
+							heatMap.updateHeatMapTableWithClusters();
+						}
+						else {
+							heatMap = new HeatMapPanel(heatMapData, clusterOrderedRowNames, columnNames);
+						}
+						rowNames = clusterOrderedRowNames;
+						scrollPane.setViewportView(heatMap);
+						clusteredRows = true;
+						return null;
+					}
+				}.start();
+				if(clusteredRows) {
+					int result = JOptionPane.showConfirmDialog(null, 
+							"Do you want to see the Dendrogram", "Display dendrogram",
+							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+					if(result != JOptionPane.YES_OPTION) {
+						return;
+					}
+					clusteredData.DisplayDendrogram();
+					clusteredRows = false;
+				}
+			}
+		}
+	}
+	
+	private double[][] rearrangeHeatMapDataBasedOnClusters(String[] clusterOrderedRowNames){
+		double[][] reorderedData = new double[heatMapData.length][];
+		for(int i = 0; i < clusterOrderedRowNames.length; i++) {
+			int rowIndex = ArrayUtils.indexOf(rowNames, clusterOrderedRowNames[i]);
+			reorderedData[i] = heatMapData[rowIndex];
+		}
+		return reorderedData;
 	}
 }
