@@ -1297,12 +1297,12 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		});
 		mnAnalyze.add(mntmSpearmanCorrelation);
 		
-		JMenuItem pcaComputation = new JMenuItem("Compute PCA");
+		JMenuItem pcaComputation = new JMenuItem("PCA");
 		pcaComputation.setActionCommand("Compute PCA");
 		pcaComputation.addActionListener(this);
 		mnAnalyze.add(pcaComputation);
 		
-		JMenuItem tsneComputation = new JMenuItem("Compute t-SNE");
+		JMenuItem tsneComputation = new JMenuItem("t-SNE");
 		tsneComputation.setActionCommand("Compute TSNE");
 		tsneComputation.addActionListener(this);
 		mnAnalyze.add(tsneComputation);
@@ -2495,7 +2495,7 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 			createPCAPanel(geneList);
 			if(selectedGeneListDimRed == null || selectedGeneListDimRed.isEmpty())
 				return;
-			
+			String tempGeneList = selectedGeneListDimRed;
 			new AnimatedSwingWorker("Computing PCA...", true) {
 				@Override
 				public Object construct() {
@@ -2512,13 +2512,13 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 			HashMap<String, Object> dataMap = new HashMap<String, Object>();
 			
 			dataMap.put("Selected samples", Arrays.asList(selectedDataCols));
-			dataMap.put("Selected feature list", selectedGeneListDimRed);
+			dataMap.put("Selected feature list", tempGeneList);
 			dataMap.put("Normalization", normalizeData);
 
 			HashMap<String, Object> resultLog = new HashMap<String, Object>();
 			resultLog.put("result", "OK");
 
-			ActionProperties computePCAAction = new ActionProperties("Compute PCA", actionMap,
+			ActionProperties computePCAAction = new ActionProperties("PCA", actionMap,
 					dataMap, resultLog, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 			computePCAAction.logActionProperties();		
 			return;
@@ -2535,10 +2535,11 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 			if(selectedGeneListDimRed == null || selectedGeneListDimRed.isEmpty())
 				return;
 			
+			String tempGeneList = selectedGeneListDimRed;
 			new AnimatedSwingWorker("Computing t-SNE...", true) {
 				@Override
 				public Object construct() {
-					computeTSNE(selectedDataCols, selectedGeneListDimRed);
+					computeTSNE(selectedDataCols, selectedGeneListDimRed, perplexity, maxIter, theta, usePCA, parallel);
 					return false;
 				}
 			}.start();
@@ -2551,13 +2552,17 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 			HashMap<String, Object> dataMap = new HashMap<String, Object>();
 			
 			dataMap.put("Selected samples", Arrays.asList(selectedDataCols));
-			dataMap.put("Selected feature list", selectedGeneListDimRed);
-			dataMap.put("Normalization", normalizeData);
+			dataMap.put("Selected feature list", tempGeneList);
+			dataMap.put("Perplexity", perplexity);
+			dataMap.put("MaxIter", maxIter);
+			dataMap.put("Theta", theta);
+			dataMap.put("UsePCA", usePCA);
+			dataMap.put("Parallel", parallel);
 
 			HashMap<String, Object> resultLog = new HashMap<String, Object>();
 			resultLog.put("result", "OK");
 
-			ActionProperties computePCAAction = new ActionProperties("Compute t-SNE", actionMap,
+			ActionProperties computePCAAction = new ActionProperties("t-SNE", actionMap,
 					dataMap, resultLog, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 			computePCAAction.logActionProperties();		
 			return;
@@ -2610,7 +2615,8 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 	 * @param selectedDataCols selected samples
 	 * @param selectedGeneList selected gene list
 	 */
-	public void computeTSNE(String[] selectedDataCols, String selectedGeneList) {
+	public void computeTSNE(String[] selectedDataCols, String selectedGeneList, 
+			double perplexity, int maxIter, double theta, boolean usePCA, boolean parallel) {
 		if(selectedGeneList == null) {
 			return;
 		}
