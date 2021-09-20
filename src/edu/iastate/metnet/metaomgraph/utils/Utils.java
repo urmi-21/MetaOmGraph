@@ -8,6 +8,7 @@ import java.awt.Frame;
 import java.awt.Paint;
 import java.awt.event.ActionEvent;
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -18,13 +19,14 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.InvalidParameterException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -38,6 +40,8 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
+
 import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -51,34 +55,28 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.TableColumn;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.math3.analysis.function.Atanh;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+import org.apache.commons.math3.ml.distance.EuclideanDistance;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.xssf.streaming.SXSSFCell;
 import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
+import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
+import edu.iastate.metnet.metaomgraph.CorrelationCalc;
 import edu.iastate.metnet.metaomgraph.GraphFileFilter;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
-import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel;
 import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
 
 public class Utils {
@@ -88,6 +86,7 @@ public class Utils {
 	public static final int NONE = -1;
 	private static File lastDir;
 	private static Long startTime;
+	private static boolean downloadError = false;
 
 	public Utils() {
 	}
@@ -1554,10 +1553,203 @@ public class Utils {
         return transposedMatrix;
 	}
 	
+	
+	/**
+	 * Calculate the pair wise euclidian distances from the given matrix
+	 * @param data 2d array representing the matrix
+	 * @return pair wise distance matrix
+	 */
+	public static double[][] computePairWiseEuclidianDistances(double[][] data){
+		double[][] pairWiseEuclidianDistance = new double[data.length][data.length];
+		EuclideanDistance ed = new EuclideanDistance();
+		// The distance pairs are symmetric.
+		// calculate for the lower triangular part
+		for(int i = 0; i < data.length; i++) {
+			for(int j = 0; j < i; j++) {
+				pairWiseEuclidianDistance[i][j] = ed.compute(data[i], data[j]);
+			}
+		}
+		
+		// Now, use the lower triangular part to fill the upper triangular part
+		for(int i = 0; i < data.length; i++) {
+			for(int j = i + 1; j < data.length; j++) {
+				pairWiseEuclidianDistance[i][j] = pairWiseEuclidianDistance[j][i];
+			}
+		}
+		
+		return pairWiseEuclidianDistance;
+	}
+	
+	/**
+	 * Calculate the pair wise pearson correlations from the given matrix
+	 * @param data 2d array representing the matrix
+	 * @return pair wise distance matrix
+	 */
+	public static double[][] computePairWisePearsonCorrelations(double[][] data){
+		double[][] pairWisePearsonCorrelation = new double[data.length][data.length];
+		// The distance pairs are symmetric.
+		// calculate for the lower triangular part
+		for(int i = 0; i < data.length; i++) {
+			for(int j = 0; j < i; j++) {
+				pairWisePearsonCorrelation[i][j] = CorrelationCalc.pearsonCorrelationStandard(data[i], data[j]);
+			}
+		}
+		
+		// fill the diagonals with 1
+		for(int i = 0; i < data.length; i++) {
+			pairWisePearsonCorrelation[i][i] = 1;
+		}
+		
+		// Now, use the lower triangular part to fill the upper triangular part
+		for(int i = 0; i < data.length; i++) {
+			for(int j = i + 1; j < data.length; j++) {
+				pairWisePearsonCorrelation[i][j] = pairWisePearsonCorrelation[j][i];
+			}
+		}
+		
+		return pairWisePearsonCorrelation;
+	}
+	
+	/**
+	 * Calculate the pair wise spearman correlations from the given matrix
+	 * @param data 2d array representing the matrix
+	 * @return pair wise distance matrix
+	 */
+	public static double[][] computePairWiseSpearmanCorrelations(double[][] data){
+		double[][] pairWiseSpearmanCorrelation = new double[data.length][data.length];
+		// The distance pairs are symmetric.
+		// calculate for the lower triangular part
+		for(int i = 0; i < data.length; i++) {
+			for(int j = 0; j < i; j++) {
+				pairWiseSpearmanCorrelation[i][j] = CorrelationCalc.spearmanCorrelation(data[i], data[j]);
+			}
+		}
+		
+		// fill the diagonals with 1
+		for(int i = 0; i < data.length; i++) {
+			pairWiseSpearmanCorrelation[i][i] = 1;
+		}
+		
+		// Now, use the lower triangular part to fill the upper triangular part
+		for(int i = 0; i < data.length; i++) {
+			for(int j = i + 1; j < data.length; j++) {
+				pairWiseSpearmanCorrelation[i][j] = pairWiseSpearmanCorrelation[j][i];
+			}
+		}
+		
+		return pairWiseSpearmanCorrelation;
+	}
+	
+	
+	/**
+	 * Download the contents of the url to the destination directory
+	 * @param url url from which to download
+	 * @param destinationDirectory directory to which the contents needs to be downloaded
+	 * @return bool indicating whether success or failure
+	 * note: if the destination directory doesn't exist, the directory will be created.
+	 */
+	public static boolean downloadFile(URL url, String destinationDirectory) {
+		downloadError = false;
+		new AnimatedSwingWorker("Downloading...", true) {
+			@Override
+			public Object construct() {
+				try {
+					FileUtils.copyURLToFile(url, new File(destinationDirectory));
+					downloadError = true;
+				} catch (MalformedURLException e) {
+					return false;
+				} catch (IOException e) {
+					JOptionPane.showMessageDialog(null, "Cannot download file, Please check your Internet connection",
+							"Download error", JOptionPane.ERROR_MESSAGE);
+					return false;
+				}
+				return true;
+			}
+		}.start();
+		return downloadError;
+	}
+	
+	/**
+	 * unzip the contents of the zipfile to the destination directory
+	 * @param zipFileDirectory the zipfile which is compressed
+	 * @param destinationDirectory directory to which the contents needs to be extracted
+	 * @return bool indicating whether success or failure
+	 */
+	public static boolean unZipFile(String zipFileDirectory, String destinationDirectory) {
+		new AnimatedSwingWorker("Extracting...", true) {
+			@Override
+			public Object construct() {
+				UnzipUtility unzipper = new UnzipUtility();
+		        try {
+		            unzipper.unzip(zipFileDirectory, destinationDirectory);
+		        } catch (Exception ex) {
+		            return false;
+		        }
+				return true;
+			}
+		}.start();
+		return true;
+	}
+	
+	/**
+	 * This utility extracts files and directories of a standard zip file to
+	 * a destination directory.
+	 *
+	 */
+	private static class UnzipUtility {
+	    /**
+	     * Size of the buffer to read/write data
+	     */
+	    private static final int BUFFER_SIZE = 4096;
+	    /**
+	     * Extracts a zip file specified by the zipFilePath to a directory specified by
+	     * destDirectory (will be created if does not exists)
+	     * @param zipFilePath
+	     * @param destDirectory
+	     * @throws IOException
+	     */
+	    public void unzip(String zipFilePath, String destDirectory) throws IOException {
+	        File destDir = new File(destDirectory);
+	        if (!destDir.exists()) {
+	            destDir.mkdir();
+	        }
+	        ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFilePath));
+	        ZipEntry entry = zipIn.getNextEntry();
+	        // iterates over entries in the zip file
+	        while (entry != null) {
+	        	File filePath = new File(destDirectory, new File(entry.getName()).getName());
+	            if (!entry.isDirectory()) {
+	                // if the entry is a file, extracts it
+	                extractFile(zipIn, filePath);
+	            } else {
+	                // if the entry is a directory, make the directory
+	            	filePath.mkdirs();
+	            }
+	            zipIn.closeEntry();
+	            entry = zipIn.getNextEntry();
+	        }
+	        zipIn.close();
+	    }
+	    
+	    /**
+	     * Extracts a zip entry (file entry)
+	     * @param zipIn
+	     * @param filePath
+	     * @throws IOException
+	     */
+	    private void extractFile(ZipInputStream zipIn, File file) throws IOException {
+	        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
+	        byte[] bytesIn = new byte[BUFFER_SIZE];
+	        int read = 0;
+	        while ((read = zipIn.read(bytesIn)) != -1) {
+	            bos.write(bytesIn, 0, read);
+	        }
+	        bos.close();
+	    }
+	}
 
 	public static void main(String args[]) {
 		String s = "a b/c  $%^a  a*.";
 		System.out.println(s + "-->" + removeSpecialChars(s));
 	}
-
 }
