@@ -27,7 +27,6 @@ import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -56,7 +55,6 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.TableColumn;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -65,27 +63,20 @@ import javax.swing.tree.TreeNode;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.math3.analysis.function.Atanh;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+import org.apache.commons.math3.ml.distance.EuclideanDistance;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.xssf.streaming.SXSSFCell;
 import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
+import edu.iastate.metnet.metaomgraph.CorrelationCalc;
 import edu.iastate.metnet.metaomgraph.GraphFileFilter;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
-import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel;
 import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
 
 public class Utils {
@@ -95,6 +86,7 @@ public class Utils {
 	public static final int NONE = -1;
 	private static File lastDir;
 	private static Long startTime;
+	private static boolean downloadError = false;
 
 	public Utils() {
 	}
@@ -1561,6 +1553,94 @@ public class Utils {
         return transposedMatrix;
 	}
 	
+	
+	/**
+	 * Calculate the pair wise euclidian distances from the given matrix
+	 * @param data 2d array representing the matrix
+	 * @return pair wise distance matrix
+	 */
+	public static double[][] computePairWiseEuclidianDistances(double[][] data){
+		double[][] pairWiseEuclidianDistance = new double[data.length][data.length];
+		EuclideanDistance ed = new EuclideanDistance();
+		// The distance pairs are symmetric.
+		// calculate for the lower triangular part
+		for(int i = 0; i < data.length; i++) {
+			for(int j = 0; j < i; j++) {
+				pairWiseEuclidianDistance[i][j] = ed.compute(data[i], data[j]);
+			}
+		}
+		
+		// Now, use the lower triangular part to fill the upper triangular part
+		for(int i = 0; i < data.length; i++) {
+			for(int j = i + 1; j < data.length; j++) {
+				pairWiseEuclidianDistance[i][j] = pairWiseEuclidianDistance[j][i];
+			}
+		}
+		
+		return pairWiseEuclidianDistance;
+	}
+	
+	/**
+	 * Calculate the pair wise pearson correlations from the given matrix
+	 * @param data 2d array representing the matrix
+	 * @return pair wise distance matrix
+	 */
+	public static double[][] computePairWisePearsonCorrelations(double[][] data){
+		double[][] pairWisePearsonCorrelation = new double[data.length][data.length];
+		// The distance pairs are symmetric.
+		// calculate for the lower triangular part
+		for(int i = 0; i < data.length; i++) {
+			for(int j = 0; j < i; j++) {
+				pairWisePearsonCorrelation[i][j] = CorrelationCalc.pearsonCorrelationStandard(data[i], data[j]);
+			}
+		}
+		
+		// fill the diagonals with 1
+		for(int i = 0; i < data.length; i++) {
+			pairWisePearsonCorrelation[i][i] = 1;
+		}
+		
+		// Now, use the lower triangular part to fill the upper triangular part
+		for(int i = 0; i < data.length; i++) {
+			for(int j = i + 1; j < data.length; j++) {
+				pairWisePearsonCorrelation[i][j] = pairWisePearsonCorrelation[j][i];
+			}
+		}
+		
+		return pairWisePearsonCorrelation;
+	}
+	
+	/**
+	 * Calculate the pair wise spearman correlations from the given matrix
+	 * @param data 2d array representing the matrix
+	 * @return pair wise distance matrix
+	 */
+	public static double[][] computePairWiseSpearmanCorrelations(double[][] data){
+		double[][] pairWiseSpearmanCorrelation = new double[data.length][data.length];
+		// The distance pairs are symmetric.
+		// calculate for the lower triangular part
+		for(int i = 0; i < data.length; i++) {
+			for(int j = 0; j < i; j++) {
+				pairWiseSpearmanCorrelation[i][j] = CorrelationCalc.spearmanCorrelation(data[i], data[j]);
+			}
+		}
+		
+		// fill the diagonals with 1
+		for(int i = 0; i < data.length; i++) {
+			pairWiseSpearmanCorrelation[i][i] = 1;
+		}
+		
+		// Now, use the lower triangular part to fill the upper triangular part
+		for(int i = 0; i < data.length; i++) {
+			for(int j = i + 1; j < data.length; j++) {
+				pairWiseSpearmanCorrelation[i][j] = pairWiseSpearmanCorrelation[j][i];
+			}
+		}
+		
+		return pairWiseSpearmanCorrelation;
+	}
+	
+	
 	/**
 	 * Download the contents of the url to the destination directory
 	 * @param url url from which to download
@@ -1569,20 +1649,24 @@ public class Utils {
 	 * note: if the destination directory doesn't exist, the directory will be created.
 	 */
 	public static boolean downloadFile(URL url, String destinationDirectory) {
+		downloadError = false;
 		new AnimatedSwingWorker("Downloading...", true) {
 			@Override
 			public Object construct() {
 				try {
 					FileUtils.copyURLToFile(url, new File(destinationDirectory));
+					downloadError = true;
 				} catch (MalformedURLException e) {
 					return false;
 				} catch (IOException e) {
+					JOptionPane.showMessageDialog(null, "Cannot download file, Please check your Internet connection",
+							"Download error", JOptionPane.ERROR_MESSAGE);
 					return false;
 				}
 				return true;
 			}
 		}.start();
-		return true;
+		return downloadError;
 	}
 	
 	/**
@@ -1668,5 +1752,4 @@ public class Utils {
 		String s = "a b/c  $%^a  a*.";
 		System.out.println(s + "-->" + removeSpecialChars(s));
 	}
-
 }

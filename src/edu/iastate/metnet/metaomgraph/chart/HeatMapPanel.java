@@ -26,13 +26,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
@@ -106,6 +106,7 @@ public class HeatMapPanel extends JPanel{
 		
 		this.setLayout(new GridLayout(2, 0));
 		createTable();
+		repaint();
 	}
 	
 	// Tool tip text
@@ -362,7 +363,7 @@ public class HeatMapPanel extends JPanel{
 		try{
 			ImageIO.write(image, fileExtension, file);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), 
+			JOptionPane.showMessageDialog(null, 
 					"Image not saved", "File save error", JOptionPane.ERROR_MESSAGE);
 			e.printStackTrace();
 			return false;
@@ -428,6 +429,14 @@ public class HeatMapPanel extends JPanel{
 	public Map<String, ColorBrewer> getClusterRowColorMap(){
 		return this.clusterRowColorMap;
 	}
+	
+	public void setHeatMapData(double[][] heatMapData) {
+		this.heatMapData = heatMapData;
+	}
+	
+	public void setRowNames(String[] rowNames) {
+		this.rowNames = rowNames;
+	}
 
 	/**
 	 * Do the clustering on the heatmap columns using columnClusterMap
@@ -485,12 +494,21 @@ public class HeatMapPanel extends JPanel{
 	}
 	
 	// Updates the heatmap table with clusters
-	private void updateHeatMapTableWithClusters() {
+	public void updateHeatMapTableWithClusters() {
 		heatMapTableUpdating = true;
+		this.remove(heatMapTable);
+		setVisible(false);
+		
 		// reset the existing table first
 		DefaultTableModel tablemodel = (DefaultTableModel) heatMapTable.getModel();
+		try {
+			TimeUnit.SECONDS.sleep(1);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		tablemodel.setRowCount(0);
 		tablemodel.setColumnCount(0);
+		
 		
 		// get the set of cluster ex: abc;def;ghi
 		Set<String> clusterColumnLabelsSet = columnClusterMap.keySet();
@@ -540,8 +558,9 @@ public class HeatMapPanel extends JPanel{
 		for(int i = 1; i <= colLen; i++) {
 			heatMapTable.getColumnModel().getColumn(i).setPreferredWidth(1);
 		}
+		setVisible(true);
+		add(heatMapTable, 0);
 		heatMapTableUpdating = false;
-		heatMapTable.repaint();
 	}
 	
 	/**
@@ -776,6 +795,7 @@ public class HeatMapPanel extends JPanel{
 	public class MouseHandler implements MouseListener, MouseMotionListener {
 
 	    private Integer row = null;
+	    private boolean mouseDragged = false;
 	    // Using weak reference so that, entire table won't be copied and maintained in the memory
 	    private final WeakReference<JTable> table;
 	    private final WeakReference<DefaultTableModel> tableModel;
@@ -806,6 +826,9 @@ public class HeatMapPanel extends JPanel{
 
 	    @Override
 	    public void mouseReleased(MouseEvent event) {
+	    	if(!mouseDragged) {
+	    		return;
+	    	}
 	        row = null;
 	        JTable table;
 	        if((table = this.table.get()) == null) {
@@ -819,7 +842,7 @@ public class HeatMapPanel extends JPanel{
 	        if(!(viewRowIndex == 0 || 
 					(columnClusterMap != null)))
 	        	return;
-	        new AnimatedSwingWorker("Sorting by cluster...") {
+	        new AnimatedSwingWorker("Sorting by cluster...", true) {
 				
 				@Override
 				public Object construct() {
@@ -831,6 +854,7 @@ public class HeatMapPanel extends JPanel{
 					return null;
 				}
 			}.start();
+			mouseDragged = false;
 	    }
 
 	    @Override
@@ -858,7 +882,7 @@ public class HeatMapPanel extends JPanel{
 	        if(row == null || currentRow == row || currentRow < 0) {
 	            return;
 	        }
-
+	        mouseDragged = true;
 	        tableModel.moveRow(row, row, currentRow);
 	        row = currentRow;
 	        table.setRowSelectionInterval(viewRowIndex, viewRowIndex);        

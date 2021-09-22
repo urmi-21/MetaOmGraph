@@ -489,19 +489,19 @@ public class NewCustomSortDialog extends JDialog implements ActionListener, Hash
                     xMLStreamWriter.writeAttribute("style", thisMarker.getStyle() == RangeMarker.HORIZONTAL ? "horizontal" : "vertical");
                     
                     xMLStreamWriter.writeStartElement("start");
-                    xMLStreamWriter.writeCharacters(thisMarker.getStart() + "");
+                    xMLStreamWriter.writeCharacters((String)(thisMarker.getStart() + "").replace("\0", ""));
         			xMLStreamWriter.writeEndElement();
                     
         			xMLStreamWriter.writeStartElement("end");
-                    xMLStreamWriter.writeCharacters(thisMarker.getEnd() + "");
+                    xMLStreamWriter.writeCharacters((String)(thisMarker.getEnd() + "").replace("\0", ""));
         			xMLStreamWriter.writeEndElement();
         			
         			xMLStreamWriter.writeStartElement("label");
-                    xMLStreamWriter.writeCharacters(thisMarker.getLabel());
+                    xMLStreamWriter.writeCharacters(thisMarker.getLabel().replace("\0", ""));
         			xMLStreamWriter.writeEndElement();
         			
         			xMLStreamWriter.writeStartElement("color");
-                    xMLStreamWriter.writeCharacters(thisMarker.getColor().getRGB() + "");
+                    xMLStreamWriter.writeCharacters((String)(thisMarker.getColor().getRGB() + "").replace("\0", ""));
         			xMLStreamWriter.writeEndElement();
         			
                     xMLStreamWriter.writeEndElement();
