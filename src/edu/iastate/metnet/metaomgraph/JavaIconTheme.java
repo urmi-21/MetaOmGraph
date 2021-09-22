@@ -27,6 +27,7 @@ public class JavaIconTheme implements IconTheme {
 	private ImageIcon zoomIn;
 	private ImageIcon zoomOut;
 	private ImageIcon sort;
+	private ImageIcon cluster;
 	private ImageIcon excel;
 	private ImageIcon report;
 	private ImageIcon groupBy;
@@ -95,6 +96,8 @@ public class JavaIconTheme implements IconTheme {
 	private String rIconPath =  "/resource/customicon/r_logoIcon16.png";
 	
 	private String selectIconPath = "/resource/customicon/select16.png";
+	
+	private final String clusterIconPath = "/resource/customicon/cluster16.png";
 
 	@Override
 	public ImageIcon getProperties() {
@@ -294,6 +297,14 @@ public class JavaIconTheme implements IconTheme {
 			sort = new ImageIcon(getClass().getResource(sortPath));
 		}
 		return sort;
+	}
+	
+	@Override
+	public ImageIcon getClusterIcon() {
+		if (cluster == null) {
+			cluster = new ImageIcon(getClass().getResource(clusterIconPath));
+		}
+		return cluster;
 	}
 
 	@Override
