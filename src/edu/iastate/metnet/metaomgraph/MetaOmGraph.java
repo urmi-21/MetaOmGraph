@@ -2757,9 +2757,18 @@ public class MetaOmGraph implements ActionListener {
 
 									final ReadMetadata readMetadataframe = new ReadMetadata(source.getAbsolutePath(),
 											delim);
+				
+									MetaOmGraph.getDesktop().add(readMetadataframe);
+									
+									FrameModel importMetadataModel = new FrameModel("Import Metadata", "Read metadata file", 40);
+									readMetadataframe.setModel(importMetadataModel);
+									
 									readMetadataframe.setVisible(true);
+									readMetadataframe.setResizable(false);
+									
 									readMetadataframe.toFront();
-
+									
+									
 									//Harsha - reproducibility log
 									HashMap<String,Object> actionMap = new HashMap<String,Object>();
 									actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());

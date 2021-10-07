@@ -9,6 +9,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JMenu;
 import javax.swing.JFileChooser;
+import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JButton;
 import javax.swing.JSplitPane;
@@ -39,6 +40,8 @@ import javax.swing.table.TableModel;
 
 import org.dizitart.no2.Document;
 
+import edu.iastate.metnet.metaomgraph.FrameModel;
+
 //import com.sun.deploy.uitoolkit.impl.fx.Utils;
 //import com.sun.glass.events.WindowEvent;
 
@@ -49,7 +52,7 @@ import java.awt.ComponentOrientation;
 import javax.swing.DefaultComboBoxModel;
 import java.awt.Dimension;
 
-public class ReadMetadata extends JDialog {
+public class ReadMetadata extends TaskbarInternalFrame {
 
 	private JPanel contentPane;
 	private JTextField textField;
@@ -110,10 +113,22 @@ public class ReadMetadata extends JDialog {
 		if(!this.loadMetadata(dataObj, delim)) {
 			return;
 		}
-		this.setIconImage(Toolkit.getDefaultToolkit()
-				.getImage(MetadataImportWizard.class.getResource("/resource/MetaOmicon16.png")));
+//		this.setIconImage(Toolkit.getDefaultToolkit()
+//				.getImage(MetadataImportWizard.class.getResource("/resource/MetaOmicon16.png")));
 		this.setTitle("Import Metadata");
+		
+		this.setVisible(true);
+		setResizable(false);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		
+		this.pack();
+
+		setClosable(true);
+		setMaximizable(false);
+		setIconifiable(true);
+		
 		this.toFront();
+		
 	}
 
 	/*
@@ -123,11 +138,21 @@ public class ReadMetadata extends JDialog {
 		this();
 		this.loadMetadata(path, delim);
 		this.textField.setText(path);
-		this.setIconImage(Toolkit.getDefaultToolkit()
-				.getImage(MetadataImportWizard.class.getResource("/resource/MetaOmicon16.png")));
+//		this.setIconImage(Toolkit.getDefaultToolkit()
+//				.getImage(MetadataImportWizard.class.getResource("/resource/MetaOmicon16.png")));
 		this.setTitle("Read metadata file");
-		this.toFront();
+		
+		setResizable(false);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		
+		
 		this.pack();
+		
+		setClosable(true);
+		setMaximizable(false);
+		setIconifiable(true);
+		
+		this.toFront();
 		
 	}
 
@@ -135,10 +160,8 @@ public class ReadMetadata extends JDialog {
 	 * Create the frame.
 	 */
 	public ReadMetadata() {
-		this.toFront();
-		setModal(true);
-		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
+
+		setBounds(50, 50, 450, 300);
 		comboBox_1 = new JComboBox();
 
 		comboBox_1.addActionListener(new ActionListener() {
@@ -172,23 +195,23 @@ public class ReadMetadata extends JDialog {
 		/*JMenu mnHelp = new JMenu("Help");
 		menuBar.add(mnHelp);*/
 		contentPane = new JPanel();
-		contentPane.setBackground(Color.DARK_GRAY);
+//		contentPane.setBackground(Color.GRAY);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
 
 		JPanel panel = new JPanel();
-		panel.setBackground(Color.DARK_GRAY);
+//		panel.setBackground(Color.GRAY);
 		contentPane.add(panel, BorderLayout.NORTH);
 
-		JLabel lblReadMetadataFile = new JLabel("Read metadata file");
-		lblReadMetadataFile.setForeground(Color.GREEN);
-		lblReadMetadataFile.setFont(new Font("Garamond", Font.BOLD, 18));
-		lblReadMetadataFile.setHorizontalAlignment(SwingConstants.CENTER);
-		panel.add(lblReadMetadataFile);
+//		JLabel lblReadMetadataFile = new JLabel("Read metadata file");
+//		lblReadMetadataFile.setForeground(Color.GREEN);
+//		lblReadMetadataFile.setFont(new Font("Garamond", Font.BOLD, 18));
+//		lblReadMetadataFile.setHorizontalAlignment(SwingConstants.CENTER);
+//		panel.add(lblReadMetadataFile);
 
 		JPanel panel_1 = new JPanel();
-		panel_1.setBackground(Color.GRAY);
+//		panel_1.setBackground(Color.GRAY);
 		contentPane.add(panel_1, BorderLayout.SOUTH);
 
 		JPanel panel_2 = new JPanel();
@@ -243,7 +266,16 @@ public class ReadMetadata extends JDialog {
 														
 							MetadataImportWizard frame = new MetadataImportWizard(obj, headers, getThisFrame().getSize(), getThisFrame().getLocationOnScreen(), getThisFrame(),
 									missingDC, extraDC, null, true, removedCols);
+							
+							MetaOmGraph.getDesktop().add(frame);
+							
+							FrameModel metadataColumnModel = new FrameModel("Import Metadata", "Metadata column selection", 41);
+							frame.setModel(metadataColumnModel);
+
 							frame.setVisible(true);
+							
+							frame.toFront();
+							
 							
 							//urmi moved this block to MetadataImportWizard
 							//urmi dispose this frame doesnt work after changing to internal frame
@@ -272,16 +304,16 @@ public class ReadMetadata extends JDialog {
 
 		JPanel panel_3 = new JPanel();
 		JPanel topButtonPanel = new JPanel();
-		panel_3.setBackground(Color.DARK_GRAY);
+//		panel_3.setBackground(Color.DARK_GRAY);
 		splitPane.setLeftComponent(panel_3);
 		panel_3.setLayout(new BorderLayout(1, 1));
 
 		// create top button panel
-		topButtonPanel.setBackground(Color.DARK_GRAY);
+//		topButtonPanel.setBackground(Color.DARK_GRAY);
 		topButtonPanel.setLayout(new FlowLayout());
 
 		JLabel lblMetadataFile = new JLabel("Metadata file");
-		lblMetadataFile.setForeground(Color.ORANGE);
+		lblMetadataFile.setForeground(Color.ORANGE.darker().darker());
 		lblMetadataFile.setFont(new Font("Garamond", Font.PLAIN, 15));
 		topButtonPanel.add(lblMetadataFile);
 
@@ -308,7 +340,7 @@ public class ReadMetadata extends JDialog {
 		topButtonPanel.add(btnBrowse);
 
 		JLabel lblSelectDelimiter = new JLabel("Select Delimiter");
-		lblSelectDelimiter.setForeground(Color.ORANGE);
+		lblSelectDelimiter.setForeground(Color.ORANGE.darker().darker());
 		lblSelectDelimiter.setFont(new Font("Garamond", Font.PLAIN, 15));
 		topButtonPanel.add(lblSelectDelimiter);
 
@@ -317,11 +349,11 @@ public class ReadMetadata extends JDialog {
 		comboBox.setModel(
 				new DefaultComboBoxModel(new String[] { "Tab (\\t)", "Comma (,)", "Semicolon (;)", "Space" }));
 		comboBox.setForeground(Color.BLACK);
-		comboBox.setBackground(Color.GRAY);
+//		comboBox.setBackground(Color.GRAY);
 		topButtonPanel.add(comboBox);
 
 		JPanel panel_4 = new JPanel();
-		panel_4.setBackground(Color.DARK_GRAY);
+//		panel_4.setBackground(Color.DARK_GRAY);
 		topButtonPanel.add(panel_4);
 
 		btnPriview = new JButton("Preview");
@@ -353,25 +385,26 @@ public class ReadMetadata extends JDialog {
 
 		JLabel lblChooseDataColumn = new JLabel("Choose Sample Id Column");
 		lblChooseDataColumn.setFont(new Font("Garamond", Font.PLAIN, 15));
-		lblChooseDataColumn.setForeground(Color.ORANGE);
+		lblChooseDataColumn.setForeground(Color.ORANGE.darker().darker());
 		topButtonPanel.add(lblChooseDataColumn);
 
 		topButtonPanel.add(comboBox_1);
 		panel_3.add(topButtonPanel, BorderLayout.NORTH);
+		
 
 		JPanel panel_6 = new JPanel();
-		panel_6.setBackground(Color.DARK_GRAY);
+//		panel_6.setBackground(Color.DARK_GRAY);
 		panel_3.add(panel_6, BorderLayout.CENTER);
 		panel_6.setLayout(new BorderLayout(0, 0));
 
 		JLabel lblMetadataFileStats = new JLabel("Metadata file stats");
 		lblMetadataFileStats.setHorizontalAlignment(SwingConstants.CENTER);
-		lblMetadataFileStats.setForeground(Color.GREEN);
+		lblMetadataFileStats.setForeground(Color.GREEN.darker().darker());
 		lblMetadataFileStats.setFont(new Font("Garamond", Font.BOLD, 18));
 		panel_6.add(lblMetadataFileStats, BorderLayout.NORTH);
 
 		JPanel panel_7 = new JPanel();
-		panel_7.setBackground(Color.GRAY);
+//		panel_7.setBackground(Color.GRAY);
 		panel_6.add(panel_7, BorderLayout.CENTER);
 		panel_7.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 
@@ -428,13 +461,13 @@ public class ReadMetadata extends JDialog {
 		splitPane_1.setEnabled(false);
 		splitPane_1.setDividerSize(1);
 		splitPane_1.setBorder(new LineBorder(new Color(0, 0, 0)));
-		splitPane_1.setBackground(Color.DARK_GRAY);
+//		splitPane_1.setBackground(Color.DARK_GRAY);
 		splitPane_1.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		splitPane_1.setResizeWeight(.051d);
 		splitPane.setRightComponent(splitPane_1);
 
 		JPanel panel_5 = new JPanel();
-		panel_5.setBackground(Color.DARK_GRAY);
+//		panel_5.setBackground(Color.DARK_GRAY);
 		splitPane_1.setLeftComponent(panel_5);
 
 		btnBut = new JButton("Rename headers");
@@ -567,7 +600,7 @@ public class ReadMetadata extends JDialog {
 		scrollPane.setFont(new Font("Times New Roman", Font.PLAIN, 13));
 		scrollPane.setBackground(Color.BLACK);
 		scrollPane.setBorder(null);
-		scrollPane.setForeground(Color.GREEN);
+		scrollPane.setForeground(Color.GREEN.darker().darker());
 		splitPane_1.setRightComponent(scrollPane);
 
 		table = new JTable();
@@ -580,9 +613,9 @@ public class ReadMetadata extends JDialog {
 		table.setRowHeight(25);
 		table.setGridColor(Color.PINK);
 		table.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-		table.setForeground(Color.GREEN);
+		table.setForeground(Color.GREEN.darker().darker());
 		table.setFont(new Font("Times New Roman", Font.PLAIN, 16));
-		table.setBackground(Color.BLACK);
+//		table.setBackground(Color.BLACK);
 		table.setModel(new DefaultTableModel(
 			new Object[][] {
 				{},
@@ -604,7 +637,9 @@ public class ReadMetadata extends JDialog {
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		scrollPane.setViewportView(table);
 
-		this.setSize(900, 600);
+//		this.setSize(1100, 500);
+		
+		this.pack();
 	}
 
 	public void updateHeaders() {
