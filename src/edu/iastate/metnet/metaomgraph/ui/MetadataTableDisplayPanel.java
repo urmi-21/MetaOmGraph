@@ -587,7 +587,6 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 				// update exclude list
 				MetaOmAnalyzer.updateExcluded(obj.getExcluded(),true);
 				updateTable();
-				MetaOmGraph.getActiveTable().updateMetadataTree();
 
 				// Harsha - reproducibility log
 				HashMap<String, Object> actionMap = new HashMap<String, Object>();
@@ -1636,7 +1635,6 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 			obj.setIncluded(rowsInList);
 			obj.setExcluded(excluded);
 			MetaOmAnalyzer.updateExcluded(excluded, true);
-			MetaOmGraph.getActiveTable().updateMetadataTree();
 		}
 		
 		table.initializeVisibilityMap();
@@ -1853,7 +1851,6 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		// remove selected rows from search result
 		removeFromtoHighlight(removedList);
 		updateTable();
-		MetaOmGraph.getActiveTable().updateMetadataTree();
 
 	}
 
@@ -1896,7 +1893,6 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		MetaOmAnalyzer.updateExcluded(exc, true);
 		// after filtering
 		updateTable();
-		MetaOmGraph.getActiveTable().updateMetadataTree();
 		// clear last search
 		toHighlight = new HashMap<Integer, List<String>>();
 		// initialize with garbage value for alternate coloring to take effect via

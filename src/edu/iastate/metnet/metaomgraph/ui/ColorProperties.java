@@ -458,7 +458,7 @@ public class ColorProperties extends TaskbarInternalFrame {
 	private void applyTheme(MOGColorThemes newTheme) {
 		MetaOmGraph.setCurrentTheme(newTheme.getThemeName());
 		MetaOmGraph.getActiveTable().getMetadataTableDisplay().updateColors();
-		MetaOmGraph.getActiveTable().getMetadataTreeDisplay().updateColors();
+//		MetaOmGraph.getActiveTable().getMetadataTreeDisplay().updateColors();
 		MetaOmGraph.getActiveTable().getStripedTable().updateColors();
 		//apply gui theme to activate default colors
 		MetaOmGraph.setTheme(MetaOmGraph.getActiveTheme());

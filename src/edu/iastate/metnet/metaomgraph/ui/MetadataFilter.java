@@ -216,7 +216,7 @@ public class MetadataFilter extends TaskbarInternalFrame {
 					MetaOmAnalyzer.updateExcluded(metadataCollection.getExcluded(), true);
 				}
 				MetaOmGraph.getActiveTable().updateMetadataTable();
-				MetaOmGraph.getActiveTable().updateMetadataTree();
+				
 				if(chartPanel!=null) {
 					chartPanel.updateChartAfterFilter();
 				}

@@ -4287,8 +4287,15 @@ public class MetaOmProject {
 
 							readMetadataframe = new ReadMetadata(source.getAbsolutePath(), metadataDelim);
 							// JOptionPane.showMessageDialog(null, "delimP:"+metadataDelim);
-							readMetadataframe.toFront();
+							MetaOmGraph.getDesktop().add(readMetadataframe);
+							
+							FrameModel importMetadataModel = new FrameModel("Import Metadata", "Read metadata file", 40);
+							readMetadataframe.setModel(importMetadataModel);
+
 							readMetadataframe.setVisible(true);
+							readMetadataframe.setResizable(false);
+							
+							readMetadataframe.toFront();
 
 						} catch (Exception e) {
 							e.printStackTrace();

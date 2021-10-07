@@ -176,7 +176,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	private StripedTable listDisplay;
 	// private MetadataPanel extInfoPanel;
 	// urmi
-	private MetadataTreeDisplayPanel extInfoPanel2;
+//	private MetadataTreeDisplayPanel extInfoPanel2;
 	private MetadataTableDisplayPanel mdtablepanel;
 	private JToolBar dataToolbar;
 	private JToolBar listToolbar;
@@ -2472,8 +2472,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 		MetadataHybrid mdhObj = MetaOmGraph.getActiveProject().getMetadataHybrid();
 		if (mdhObj != null) {
-			extInfoPanel2 = new MetadataTreeDisplayPanel(mdhObj);
-			tabby.addTab("Sample Metadata Tree", extInfoPanel2);
+//			extInfoPanel2 = new MetadataTreeDisplayPanel(mdhObj);
+//			tabby.addTab("Sample Metadata Tree", extInfoPanel2);
 			// build the treemap to map data col index to nodes in Jtree displaying data
 			// extInfoPanel2.buildTreemaptoNode();
 			mdtablepanel = new MetadataTableDisplayPanel(mdhObj.getMetadataCollection());
@@ -2511,39 +2511,39 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 		TreeNode[] pathNodes = null;
 		if (parent) {
-			if (extInfoPanel2.getColstoTreeMap().containsKey(col)) {
-				DefaultMutableTreeNode p = (DefaultMutableTreeNode) extInfoPanel2.getColstoTreeMap().get(col)
-						.getParent();
-				pathNodes = p.getPath();
-			} else {
+//			if (extInfoPanel2.getColstoTreeMap().containsKey(col)) {
+//				DefaultMutableTreeNode p = (DefaultMutableTreeNode) extInfoPanel2.getColstoTreeMap().get(col)
+//						.getParent();
+//				pathNodes = p.getPath();
+//			} else {
 				return;
-			}
+//			}
 
 		} else {
-			if (extInfoPanel2.getColstoTreeMap().containsKey(col)) {
-				pathNodes = extInfoPanel2.getColstoTreeMap().get(col).getPath();
-			} else {
+//			if (extInfoPanel2.getColstoTreeMap().containsKey(col)) {
+//				pathNodes = extInfoPanel2.getColstoTreeMap().get(col).getPath();
+//			} else {
 				return;
-			}
+//			}
 
 		}
-		if (pathNodes != null) {
-			// JTree tree = extInfoPanel.getTree();
-			JTree tree = extInfoPanel2.getTree();
-			TreePath path = new TreePath(pathNodes);
-			tree.setSelectionPath(path);
-			Rectangle rect = tree.getPathBounds(path);
-
-			if (rect == null) {
-				// JOptionPane.showMessageDialog(null, "Please remove a text on the search text
-				// field.", "MetaOmGraph", JOptionPane.INFORMATION_MESSAGE);
-				return;
-			}
-			rect.width += rect.x;
-			rect.x = 0;
-			tree.scrollRectToVisible(rect);
-			tabby.setSelectedComponent(extInfoPanel2);
-		}
+//		if (pathNodes != null) {
+//			// JTree tree = extInfoPanel.getTree();
+////			JTree tree = extInfoPanel2.getTree();
+//			TreePath path = new TreePath(pathNodes);
+//			tree.setSelectionPath(path);
+//			Rectangle rect = tree.getPathBounds(path);
+//
+//			if (rect == null) {
+//				// JOptionPane.showMessageDialog(null, "Please remove a text on the search text
+//				// field.", "MetaOmGraph", JOptionPane.INFORMATION_MESSAGE);
+//				return;
+//			}
+//			rect.width += rect.x;
+//			rect.x = 0;
+//			tree.scrollRectToVisible(rect);
+//			tabby.setSelectedComponent(extInfoPanel2);
+//		}
 	}
 
 	public void selecTabRow(String value) {
@@ -2562,9 +2562,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	}
 
 	public void setExtInfoDividerPos(double pos) {
-		if (extInfoPanel2 != null) {
-			extInfoPanel2.getSplitPane().setDividerLocation(pos);
-		}
+//		if (extInfoPanel2 != null) {
+//			extInfoPanel2.getSplitPane().setDividerLocation(pos);
+//		}
 	}
 
 	public class ListNameComparator implements Comparator<String> {
@@ -5849,23 +5849,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 	}
 
-	public void updateMetadataTree() {
-		if (extInfoPanel2 != null) {
-			extInfoPanel2.updateTree();
-			// JTree tr=extInfoPanel2.getTree();
-			// DefaultTreeModel model = (DefaultTreeModel)tr.getModel();
-			// DefaultMutableTreeNode root = (DefaultMutableTreeNode)model.getRoot();
-			// model.reload(root);
-		}
-	}
 
 	public MetadataTableDisplayPanel getMetadataTableDisplay() {
 		return this.mdtablepanel;
 	}
 
-	public MetadataTreeDisplayPanel getMetadataTreeDisplay() {
-		return this.extInfoPanel2;
-	}
 
 	public String getMainTableItemat(int r, int c) {
 		if (r < 0 || r > listDisplay.getRowCount()) {
