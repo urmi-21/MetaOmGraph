@@ -62,6 +62,7 @@ public class MetadataImportWizard extends TaskbarInternalFrame {
 
 	private JPanel contentPane;
 	private JTable table;
+	private JTree tree;
 	private JTree tree_1;
 	private JCheckBox[] cBoxes;
 	private int treePreviewSize = 5;
@@ -185,6 +186,18 @@ public class MetadataImportWizard extends TaskbarInternalFrame {
 		panel.add(btnBack);
 
 
+		tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Root") {
+			{
+			}
+		}));
+		tree.setBackground(Color.BLACK);
+		tree.setFont(new Font("Times New Roman", Font.PLAIN, 20));
+		scrollPaneTree.setViewportView(tree);
+		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
+		tree.setDropMode(DropMode.USE_SELECTION);
+		tree.setDragEnabled(true);
+		tree.setTransferHandler(new MogTreeTransferHandler());
+		
 
 		JButton btnImport = new JButton("Next");
 		btnImport.addActionListener(new ActionListener() {
@@ -219,6 +232,9 @@ public class MetadataImportWizard extends TaskbarInternalFrame {
 					public Object construct() {
 						// return if data column has repeated names
 
+						ParseTableTree ob = new ParseTableTree(obj, tree, dataColumnName);
+						// org.jdom.Document res = ob.tableToTree(obj, tree);
+						org.jdom.Document res = ob.tableToTree();
 						
 						if (!(MetaOmGraph.getActiveProject() == null)) {
 							try {
