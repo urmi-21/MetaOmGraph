@@ -185,11 +185,15 @@ public class MetadataImportWizard extends TaskbarInternalFrame {
 		});
 		panel.add(btnBack);
 
+		tree = treeStructure;
+		if (tree == null) {
+			tree = new JTree();
+			tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Root") {
+				{
+				}
+			}));
+		}
 
-		tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Root") {
-			{
-			}
-		}));
 		tree.setBackground(Color.BLACK);
 		tree.setFont(new Font("Times New Roman", Font.PLAIN, 20));
 		scrollPaneTree.setViewportView(tree);
@@ -204,6 +208,8 @@ public class MetadataImportWizard extends TaskbarInternalFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				finish.setEnabled(false);
+				
+				
 
 				// which headers were not used in metadata
 				List<String> remainingCols = new ArrayList();
@@ -212,14 +218,39 @@ public class MetadataImportWizard extends TaskbarInternalFrame {
 				for (int i = 0; i < cBoxes.length; i++) {
 					if(!(cBoxes[i] == null)){
 						if(!cBoxes[i].isSelected()){
-							String item = cBoxes[i].getName();
+							String item = cBoxes[i].getText();
 							remainingCols.add(item);
 						}
 						else {
-							String item = cBoxes[i].getName();
+							String item = cBoxes[i].getText();
 							selectedCols.add(item);
 						}
 					}
+				}
+				
+
+				if (tree == null) {
+					tree = new JTree();
+					tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Root") {
+						{
+						}
+					}));
+				}
+				
+				DefaultTreeModel tree_model = (DefaultTreeModel)tree.getModel();
+
+				DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree_model.getRoot();
+
+				DefaultMutableTreeNode identifier = new DefaultMutableTreeNode(dataColumnName);
+				
+				root.add(identifier);
+				
+				for(String col : selectedCols) {
+					if(!col.equals(dataColumnName)) {
+						DefaultMutableTreeNode child = new DefaultMutableTreeNode(col);
+						identifier.add(child);
+					}
+
 				}
 
 				
@@ -239,9 +270,9 @@ public class MetadataImportWizard extends TaskbarInternalFrame {
 						if (!(MetaOmGraph.getActiveProject() == null)) {
 							try {
 
-								MetaOmGraph.getActiveProject().loadMetadataHybrid(obj, null,
-										null, dataColumnName, selectedCols.toArray(new String[0]), null,
-										null, null, missingDC, extraDC, removedCols);
+								MetaOmGraph.getActiveProject().loadMetadataHybrid(obj, res.getRootElement(),
+										ob.getTreeMap(), dataColumnName, ob.getMetadataHeaders(), tree,
+										ob.getDefaultRepMap(), ob.getDefaultRepCol(), missingDC, extraDC, removedCols);
 								// JOptionPane.showMessageDialog(null, "total child of
 								// root:"+res.getRootElement().getChildren().size());
 								MetaOmGraph.updateWindow();
