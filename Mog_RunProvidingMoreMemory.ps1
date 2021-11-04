@@ -3,7 +3,9 @@ $maxMemory = Read-Host -Prompt "Enter the maximum memory(RAM) MOG can use in GB 
 $minMemory = $minMemory + 'g'
 $maxMemory = $maxMemory + 'g'
 
-$mogJarFile = Get-ChildItem -Path $PSScriptRoot -Filter *.jar | Select-Object -First 1
+$mogJarFile = Get-ChildItem -Path $PSScriptRoot -Filter *.jar | Select Name
 
-$javaRunCommand = "java -Xms" + $minMemory + " -Xmx" + $maxMemory + " -jar " + $PSScriptRoot + "\" + $mogJarFile
+$jarPath = Join-Path -Path $PSScriptRoot -ChildPath $mogJarFile.name
+
+$javaRunCommand = "java -Xms" + $minMemory + " -Xmx" + $maxMemory + " -jar " + $jarPath
 Invoke-Expression $javaRunCommand
