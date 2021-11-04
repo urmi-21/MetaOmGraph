@@ -68,7 +68,7 @@ jobs:
     - name: Copy File
       run: |
         mkdir MOG
-        cp ${{github.workspace}}/todo.txt ${{github.workspace}}/MOG/
+        cp ${{github.workspace}}/Mog_RunProvidingMoreMemory.ps1 ${{github.workspace}}/MOG/
         cp ${{github.workspace}}/target/*.jar ${{github.workspace}}/MOG/
 
     - name: Upload Jar - macOS
