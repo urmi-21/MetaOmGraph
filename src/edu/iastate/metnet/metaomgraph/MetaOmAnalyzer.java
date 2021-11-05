@@ -1,6 +1,7 @@
 package edu.iastate.metnet.metaomgraph;
 
 import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
+import edu.iastate.metnet.metaomgraph.model.ExcludesModel;
 import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
 import edu.iastate.metnet.metaomgraph.ui.ClearableTextField;
 import edu.iastate.metnet.metaomgraph.ui.DualTablePanel;
@@ -1265,6 +1266,34 @@ public class MetaOmAnalyzer {
 			xMLStreamWriter.writeEndElement();
 		}
 
+		
+		/**
+		 * 
+		 * Method to write excludes to an ExcludesModel object in order to convert it to JSON
+		 * 
+		 */
+		public ExcludesModel convertToObject(String name) {
+
+			ExcludesModel em = new ExcludesModel();
+			
+			em.setName(name);
+			
+			String excludeString = null;
+			for (int i = 0; i < exclude.length; i++) {
+				if (exclude[i]) {
+					if (excludeString == null) {
+						excludeString = i + "";
+					} else {
+						excludeString = excludeString + "," + i;
+					}
+				}
+			}
+			
+			em.setSampleCount(exclude.length + "");
+			em.setExcludeString(excludeString.replace("\0", ""));
+			
+			return em;
+		}
 
 
 		public static String getXMLElementName() {

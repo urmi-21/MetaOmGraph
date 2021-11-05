@@ -1,5 +1,6 @@
 package edu.iastate.metnet.metaomgraph;
 
+import edu.iastate.metnet.metaomgraph.model.QueryModel;
 import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
 import edu.iastate.metnet.metaomgraph.utils.MetadataUpdater;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
@@ -602,6 +603,27 @@ public class Metadata {
 			xMLStreamWriter.writeEndElement();
 			
 			xMLStreamWriter.writeEndElement();
+		}
+		
+		
+		/**
+		 * 
+		 * Method to write metadata to an Object in order to write it to a JSON file
+		 * 
+		 */
+		public QueryModel convertToObject(){
+			
+			QueryModel qm = new QueryModel();
+			
+			qm.setMatchAll(matchType.toString());
+			
+			if (field != null) {
+				qm.setField(field.replace("\0", ""));
+			}
+			
+			qm.setTerm(term.replace("\0", ""));
+
+			return qm;
 		}
 
 		@Override

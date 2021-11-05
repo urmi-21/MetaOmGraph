@@ -26,7 +26,12 @@ import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonWriter;
+
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
+import edu.iastate.metnet.metaomgraph.model.MetadataModel;
+import edu.iastate.metnet.metaomgraph.model.MetadataTreeModel;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 /*
@@ -203,6 +208,46 @@ public class MetadataHybrid {
 			xMLStreamWriter.writeEndElement();
 		}
 
+	}
+	
+	/**
+	 * write JTree to XML structure to save to file
+	 * 
+	 * @param tree
+	 * @return
+	 * @throws XMLStreamException 
+	 */
+	public void writeJtreetoJSON(JTree tree, JsonWriter writer) {
+
+		DefaultTreeModel tmodel = (DefaultTreeModel) tree.getModel();
+		DefaultMutableTreeNode treeRoot = (DefaultMutableTreeNode) tmodel.getRoot();
+		List<String> treeChildren = new ArrayList<String>();
+
+		int numchild = treeRoot.getChildCount();
+		for (int i = 0; i < numchild; i++) {
+			DefaultMutableTreeNode thisNode = (DefaultMutableTreeNode) treeRoot.getChildAt(i);
+			treeChildren.add(thisNode.toString());
+		}
+		
+		try {
+			
+			MetadataTreeModel mtm = new MetadataTreeModel(treeRoot.toString(), treeChildren);
+			
+			Gson gson = new Gson();
+			
+			gson.toJson(mtm, MetadataTreeModel.class, writer);
+			
+
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			JOptionPane.showInternalMessageDialog(MetaOmGraph.getDesktop(),
+					"Unable to save the project file.  Make sure the destination file is not write-protected.",
+					"Error saving project", 0);
+		}
+
+
+		
 	}
 	
 	
@@ -949,6 +994,34 @@ public class MetadataHybrid {
 		}
 
 	}
+	
+	
+	/**
+	 * Used for saving current project as a JSON
+	 * 
+	 * @return
+	 */
+	public void generateFileInfoJSON(JsonWriter writer) {
+		
+		try {
+			
+			MetadataModel mm = new MetadataModel(this.mogCollection.getfilepath(), this.mogCollection.getdelimiter(), this.mogCollection.getDatacol());
+			
+			Gson gson = new Gson();
+			
+			gson.toJson(mm, MetadataModel.class, writer);
+			
+
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			JOptionPane.showInternalMessageDialog(MetaOmGraph.getDesktop(),
+					"Unable to save the project file.  Make sure the destination file is not write-protected.",
+					"Error saving project", 0);
+		}
+
+	}
+	
 
 	/**
 	 * Get the metadata file path in the project
@@ -1148,6 +1221,33 @@ public class MetadataHybrid {
 			}
 		}
 		xMLStreamWriter.writeEndElement();
+
+	}
+	
+	
+	/**
+	 * Method that writes a list to the .mog file using GSON
+	 * 
+	 * @param list
+	 * @return
+	 */
+	public void writeListToJSON(Set<String> list, JsonWriter writer) {
+		
+		
+		try {
+
+			Gson gson = new Gson();
+
+			gson.toJson(list, Set.class, writer);
+
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			JOptionPane.showInternalMessageDialog(MetaOmGraph.getDesktop(),
+					"Unable to save the project file.  Make sure the destination file is not write-protected.",
+					"Error saving project", 0);
+		}
+
 
 	}
 
