@@ -7,6 +7,8 @@ import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.Metadata;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.SearchMatchType;
+import edu.iastate.metnet.metaomgraph.model.QueryModel;
+import edu.iastate.metnet.metaomgraph.model.QuerySetModel;
 import edu.iastate.metnet.metaomgraph.utils.qdxml.SimpleXMLElement;
 import edu.iastate.metnet.metaomgraph.utils.qdxml.SimpleXMLizable;
 
@@ -376,6 +378,30 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 				queries[x].writeToXML(xMLStreamWriter);
 			}
 			xMLStreamWriter.writeEndElement();
+		}
+		
+		
+		/**
+		 * 
+		 * 
+		 * Method to write Advanced Search queries to the QueryModel object in order to convert it to JSON
+		 * 
+		 */
+		public QuerySetModel convertToObject(String name){
+			
+			QuerySetModel qsm = new QuerySetModel();
+			
+			qsm.setName(name);
+			qsm.setMatchAll(matchAll ? "true" : "false");
+			
+			List<QueryModel> allQueries = new ArrayList<QueryModel>();
+			
+			for (int x = 0; x < queries.length; x++) {
+				allQueries.add(queries[x].convertToObject());
+			}
+			qsm.setQueries(allQueries);
+			
+			return qsm;
 		}
 
 		@Override

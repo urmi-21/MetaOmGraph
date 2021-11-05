@@ -5,6 +5,8 @@ import edu.iastate.metnet.metaomgraph.HashtableSavePanel;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.XMLizable;
+import edu.iastate.metnet.metaomgraph.model.RangeMarkerModel;
+import edu.iastate.metnet.metaomgraph.model.SortModel;
 import edu.iastate.metnet.metaomgraph.ui.ColorChooseButton;
 import edu.iastate.metnet.metaomgraph.ui.NoneditableTableModel;
 import edu.iastate.metnet.metaomgraph.ui.StripedTable;
@@ -17,6 +19,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.Serializable;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -513,6 +516,51 @@ public class NewCustomSortDialog extends JDialog implements ActionListener, Hash
             
         }
         
+		
+        /**
+         * 
+         * Method that writes the custom sort info to the SortModel object in order to convert it to JSON
+         * 
+         */
+        
+		public SortModel convertToObject(String name){
+			
+			SortModel sm = new SortModel();
+			
+			sm.setName(name);
+
+            String orderString = sortOrder[0] + "";
+            for (int x = 1; x < sortOrder.length; x++) {
+                orderString = orderString + "," + sortOrder[x];
+            }
+            
+            sm.setOrder(orderString);
+			
+            List<RangeMarkerModel> allRangeMarkers = new ArrayList<RangeMarkerModel>();
+            
+            if (rangeMarkers != null) {
+                for (int x = 0; x < rangeMarkers.size(); x++) {
+                	RangeMarkerModel rmm = new RangeMarkerModel();
+                	
+                    RangeMarker thisMarker = rangeMarkers.get(x);
+                    
+                    rmm.setStyle(thisMarker.getStyle() == RangeMarker.HORIZONTAL ? "horizontal" : "vertical");
+                    rmm.setStart((String)(thisMarker.getStart() + "").replace("\0", ""));
+                    rmm.setEnd((String)(thisMarker.getEnd() + "").replace("\0", ""));
+                    rmm.setLabel(thisMarker.getLabel().replace("\0", ""));
+                    rmm.setColor((String)(thisMarker.getColor().getRGB() + "").replace("\0", ""));
+
+                    allRangeMarkers.add(rmm);
+                    
+                }
+            }
+            
+            sm.setRangeMarkers(allRangeMarkers);
+            
+            return sm;
+            
+        }
+		
 
         @Override
 		public void fromXML(Element source) {

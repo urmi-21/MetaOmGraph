@@ -5,6 +5,24 @@ import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.chart.NewCustomSortDialog;
 import edu.iastate.metnet.metaomgraph.chart.RangeMarker;
 import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
+import edu.iastate.metnet.metaomgraph.model.CorrelationMetadataModel;
+import edu.iastate.metnet.metaomgraph.model.CorrelationMetadataModelType0;
+import edu.iastate.metnet.metaomgraph.model.CorrelationNodeModel;
+import edu.iastate.metnet.metaomgraph.model.CorrelationsModel;
+import edu.iastate.metnet.metaomgraph.model.DataModel;
+import edu.iastate.metnet.metaomgraph.model.DiffCorrModel;
+import edu.iastate.metnet.metaomgraph.model.DiffExpModel;
+import edu.iastate.metnet.metaomgraph.model.ExcludesModel;
+import edu.iastate.metnet.metaomgraph.model.InfoModel;
+import edu.iastate.metnet.metaomgraph.model.ListModel;
+import edu.iastate.metnet.metaomgraph.model.MetadataModel;
+import edu.iastate.metnet.metaomgraph.model.MetadataTreeModel;
+import edu.iastate.metnet.metaomgraph.model.ParamsModel;
+import edu.iastate.metnet.metaomgraph.model.ProjectFileModel;
+import edu.iastate.metnet.metaomgraph.model.QueryModel;
+import edu.iastate.metnet.metaomgraph.model.QuerySetModel;
+import edu.iastate.metnet.metaomgraph.model.SampleDataListModel;
+import edu.iastate.metnet.metaomgraph.model.SortModel;
 import edu.iastate.metnet.metaomgraph.ui.BlockingProgressDialog;
 import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel;
 import edu.iastate.metnet.metaomgraph.ui.MetadataEditor;
@@ -84,6 +102,10 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -543,6 +565,8 @@ public class MetaOmProject {
 		String extension = Utils.getExtension(destination);
 		File saveHere;
 		String mogPathToSave = "";
+		JsonWriter writer = null;
+		
 		if ((extension != null) && ((extension.equals("mog")) || (extension.equals("mcg")))) {
 			saveHere = new File(destination.getAbsolutePath() + ".tmp");
 			mogPathToSave = destination.getAbsolutePath();
@@ -578,308 +602,324 @@ public class MetaOmProject {
 
 		try {
 			ZipOutputStream myZipOut = new ZipOutputStream(new FileOutputStream(saveHere));
-			myZipOut.putNextEntry(new ZipEntry("ProjectFile.xml"));
-			XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
-			XMLStreamWriter xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(new BufferedOutputStream(myZipOut));
+			
+			myZipOut.putNextEntry(new ZipEntry("ProjectFile.json"));
+	
+			writer = new JsonWriter(new OutputStreamWriter(myZipOut, "UTF-8"));
+			
+			ProjectFileModel pfm = new ProjectFileModel();
+			
+			pfm.setSourcePath(source.getParent().replace("\0", ""));
+			pfm.setSourceFile(source.getName().replace("\0", ""));
 
-			xMLStreamWriter.writeStartDocument();
-			xMLStreamWriter.writeStartElement("MetaOmProject");
-			xMLStreamWriter.writeStartElement("projectInfo");
-
-			xMLStreamWriter.writeStartElement("sourcePath");
-			xMLStreamWriter.writeCharacters(source.getParent().replace("\0", ""));
-			xMLStreamWriter.writeEndElement();
-
-			xMLStreamWriter.writeStartElement("sourceFile");
-			xMLStreamWriter.writeCharacters(source.getName().replace("\0", ""));
-			xMLStreamWriter.writeEndElement();
-
-			xMLStreamWriter.writeStartElement("delimiter");
 			if (delimiter == '\t') {
-				xMLStreamWriter.writeCharacters("\\t");
+				pfm.setDelimiter("\\t");
 			}
 			else {
-				xMLStreamWriter.writeCharacters(delimiter + "");
+				pfm.setDelimiter(delimiter + "");
 			}
-			xMLStreamWriter.writeEndElement();
-
-
-			xMLStreamWriter.writeStartElement("ignoreConsecutiveDelimiters");
-			xMLStreamWriter.writeCharacters((String)(ignoreConsecutiveDelimiters + "").replace("\0", ""));
-			xMLStreamWriter.writeEndElement();
-
+			
+			pfm.setIgnoreConsecutiveDelimiters((String)(ignoreConsecutiveDelimiters + "").replace("\0", ""));
 
 			if (getBlankValue() != null) {
-
-				xMLStreamWriter.writeStartElement("blankValue");
-				xMLStreamWriter.writeCharacters((String)(getBlankValue() + "").replace("\0", ""));
-				xMLStreamWriter.writeEndElement();
+				
+				pfm.setBlankValue((String)(getBlankValue() + "").replace("\0", ""));
 
 			}
 
+			pfm.setxLabel(getDefaultXAxis().replace("\0", ""));
+			pfm.setyLabel(getDefaultYAxis().replace("\0", ""));
+			pfm.setTitle(getDefaultTitle().replace("\0", ""));
+			pfm.setColor1((String)(getColor1().getRGB() + "").replace("\0", ""));
+			pfm.setColor2((String)(getColor2().getRGB() + "").replace("\0", ""));
+			pfm.setDefaultColumn((String)(defaultColumn + "").replace("\0", ""));
 
-			xMLStreamWriter.writeStartElement("xLabel");
-			xMLStreamWriter.writeCharacters(getDefaultXAxis().replace("\0", ""));
-			xMLStreamWriter.writeEndElement();
-
-
-			xMLStreamWriter.writeStartElement("yLabel");
-			xMLStreamWriter.writeCharacters(getDefaultYAxis().replace("\0", ""));
-			xMLStreamWriter.writeEndElement();
-
-
-			xMLStreamWriter.writeStartElement("title");
-			xMLStreamWriter.writeCharacters(getDefaultTitle().replace("\0", ""));
-			xMLStreamWriter.writeEndElement();
-
-
-			xMLStreamWriter.writeStartElement("color1");
-			xMLStreamWriter.writeCharacters((String)(getColor1().getRGB() + "").replace("\0", ""));
-			xMLStreamWriter.writeEndElement();
-
-
-			xMLStreamWriter.writeStartElement("color2");
-			xMLStreamWriter.writeCharacters((String)(getColor2().getRGB() + "").replace("\0", ""));
-			xMLStreamWriter.writeEndElement();
-
-
-			xMLStreamWriter.writeStartElement("defaultColumn");
-			xMLStreamWriter.writeCharacters((String)(defaultColumn + "").replace("\0", ""));
-			xMLStreamWriter.writeEndElement();
-
-
+			List<String> informationCols = new ArrayList<String>();
+			
 			for (int x = 0; x < infoColumns; x++) {
-
-				xMLStreamWriter.writeStartElement("infoColumn");
-				xMLStreamWriter.writeCharacters(columnHeaders[x].replace("\0", ""));
-				xMLStreamWriter.writeEndElement();
-
+				informationCols.add(columnHeaders[x].replace("\0", ""));
 			}
 
-			xMLStreamWriter.writeEndElement();
+			pfm.setInfoColumns(informationCols);
 
+			List<String> columns = new ArrayList<String>();
 
-			//columns
-			xMLStreamWriter.writeStartElement("columns");
-
+			
 			for (int x = 0; x < getDataColumnCount(); x++) {
-
-				xMLStreamWriter.writeStartElement("column");
-				xMLStreamWriter.writeCharacters(getDataColumnHeader(x).replace("\0", ""));
-				xMLStreamWriter.writeEndElement();
-
+				columns.add(getDataColumnHeader(x).replace("\0", ""));
 			}
 
-			xMLStreamWriter.writeEndElement();
+			pfm.setColumns(columns);
 
-
-
+			List<DataModel> allData = new ArrayList<DataModel>();
+			
 			//data
 			boolean savedLast = false;
 			for (int x = 0; x < rowNames.length; x++) {
-				xMLStreamWriter.writeStartElement("data");
-
+				DataModel data = new DataModel();
+				
+				List<InfoModel> infolist = new ArrayList<InfoModel>();
+				
 				for (int y = 0; y < infoColumns; y++) {
 
 					if (rowNames[x][y] == null) {
-						xMLStreamWriter.writeStartElement("info");
-						xMLStreamWriter.writeCharacters("");
-						xMLStreamWriter.writeEndElement();
+						InfoModel inf = new InfoModel();
+						inf.setValue("");
+						infolist.add(inf);
 
 					} else {
-						xMLStreamWriter.writeStartElement("info");
+						InfoModel inf = new InfoModel();
 						if ((rowNames[x][y] instanceof CorrelationValue)) {
-							xMLStreamWriter.writeAttribute("type", "correlation");
+							inf.setType("correlation");
+							
 							if ((hasLastCorrelation()) && (!savedLast)) {
-								xMLStreamWriter.writeAttribute("last", "true");
+								inf.setLast("true");
 								savedLast = true;
 							}
 							if (!((CorrelationValue) rowNames[x][y]).isAsPercent()) {
-								xMLStreamWriter.writeAttribute("asPercent", "false");
+								inf.setAsPercent("false");
+								
 							}
 						}
-						xMLStreamWriter.writeCharacters(rowNames[x][y].toString().replace("\0", ""));
-						xMLStreamWriter.writeEndElement();
+						inf.setValue(rowNames[x][y].toString().replace("\0", ""));
+						infolist.add(inf);
 					}
 
 				}
-				xMLStreamWriter.writeStartElement("location");
-				xMLStreamWriter.writeCharacters((String)(fileIndex[x] + "").replace("\0", ""));
-				xMLStreamWriter.writeEndElement();
+				data.setInfo(infolist);
+				data.setLocation((String)(fileIndex[x] + "").replace("\0", ""));
 
-
-				xMLStreamWriter.writeEndElement();
+				allData.add(data);
 			}
+			
+			pfm.setData(allData);
 
-
-
+			List<ListModel> allLists = new ArrayList<ListModel>();
 
 			Enumeration enumer = geneLists.keys();
 
 			while (enumer.hasMoreElements()) {
+				
+				ListModel lm = new ListModel();
+				
 				String name = enumer.nextElement().toString();
-				xMLStreamWriter.writeStartElement("list");
-				xMLStreamWriter.writeAttribute("name", name);
-
-
+				lm.setName(name);
+				
+				List<String> allEntries = new ArrayList<String>();
+				
 				int[] entries = geneLists.get(name);
 				for (int x = 0; x < entries.length; x++) {
-
-					xMLStreamWriter.writeStartElement("entry");
-					xMLStreamWriter.writeCharacters((String)(entries[x] + "").replace("\0", ""));
-					xMLStreamWriter.writeEndElement();
+					allEntries.add((String)(entries[x] + "").replace("\0", ""));
 				}
+				
+				lm.setEntries(allEntries);
 
-
-				xMLStreamWriter.writeEndElement();
+				allLists.add(lm);
 
 			}
 
+			pfm.setLists(allLists);
+			
+			List<SampleDataListModel> allSampleDataLists = new ArrayList<SampleDataListModel>();
+			
 			for (Map.Entry<String, ArrayList<String>> entry : sampleDataLists.entrySet()) {
+				
+				SampleDataListModel sdlm = new SampleDataListModel();
+				
 				String listName = entry.getKey();
-				xMLStreamWriter.writeStartElement("sampleDataList");
-				xMLStreamWriter.writeAttribute("name", listName);
+				sdlm.setName(listName);
+				
+				List<String> allEntries = new ArrayList<String>();
 
 				ArrayList<String> values = entry.getValue();
 				for (int index = 0; index < values.size(); index++) {
-
-					xMLStreamWriter.writeStartElement("entry");
-					xMLStreamWriter.writeCharacters((String)(values.get(index) + "").replace("\0", ""));
-					xMLStreamWriter.writeEndElement();
+					allEntries.add((String)(values.get(index) + "").replace("\0", ""));
 
 				}
+				sdlm.setEntries(allEntries);
 
-				xMLStreamWriter.writeEndElement();
+				allSampleDataLists.add(sdlm);
 			}
-
+			
+			pfm.setSampleDataLists(allSampleDataLists);
+			
+			List<SortModel> allSorts = new ArrayList<SortModel>();
+			
 			if (savedSorts != null) {
 				enumer = savedSorts.keys();
 				while (enumer.hasMoreElements()) {
 					String name = enumer.nextElement().toString();
 					NewCustomSortDialog.CustomSortObject cso = getSavedSorts().get(name);
-					cso.writeToXML(xMLStreamWriter, name);
+					SortModel sm = cso.convertToObject(name);
+					allSorts.add(sm);
 				}
 			}
+			
+			pfm.setSorts(allSorts);
 
+			List<QuerySetModel> allQueries = new ArrayList<QuerySetModel>();
+			
 			if (savedQueries != null) {
 				enumer = savedQueries.keys();
 				while (enumer.hasMoreElements()) {
 					String name = enumer.nextElement().toString();
 					TreeSearchQueryConstructionPanel.QuerySet thisQuerySet = getSavedQueries().get(name);
-					thisQuerySet.writeToXML(xMLStreamWriter, name);
+					QuerySetModel qsm = thisQuerySet.convertToObject(name);
+					allQueries.add(qsm);
 				}
 			}
+			
+			pfm.setQueries(allQueries);
 
-
+			List<ExcludesModel> allExcludes = new ArrayList<ExcludesModel>();
+			
 			if (savedExcludes != null) {
 				enumer = savedExcludes.keys();
 				while (enumer.hasMoreElements()) {
 					String name = enumer.nextElement().toString();
 					MetaOmAnalyzer.ExcludeData thisData = savedExcludes.get(name);
-					thisData.writeToXML(xMLStreamWriter, name);
+					ExcludesModel em = thisData.convertToObject(name);
+					allExcludes.add(em);
 				}
 			}
+			
+			pfm.setExcludes(allExcludes);
 
-			xMLStreamWriter.writeEndElement();
-
-			xMLStreamWriter.close();
+			try {
+				Gson gson = new Gson();
+				gson.toJson(pfm, ProjectFileModel.class, writer);
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+				JOptionPane.showInternalMessageDialog(MetaOmGraph.getDesktop(),
+						"Unable to save the project file.  Make sure the destination file is not write-protected.",
+						"Error saving project", 0);
+			}
+			
+			writer.flush();
 			myZipOut.closeEntry();
 
 
 			if (this.getMetadataHybrid() != null) {
 				// write metadata
-				myZipOut.putNextEntry(new ZipEntry("metadataFile.xml"));
-				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(new BufferedOutputStream(myZipOut));
-
-				this.getMetadataHybrid().generateFileInfo(xMLStreamWriter);
-				xMLStreamWriter.close();
+			
+				myZipOut.putNextEntry(new ZipEntry("metadataFile.json"));
+				writer = new JsonWriter(new OutputStreamWriter(myZipOut, "UTF-8"));
+				
+				this.getMetadataHybrid().generateFileInfoJSON(writer);
+				
+				writer.flush();
 				myZipOut.closeEntry();
-
-
+				
 
 				// write removed cols from md file
-				myZipOut.putNextEntry(new ZipEntry("removedMDCols.xml"));
-				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(new BufferedOutputStream(myZipOut));
 
-				this.getMetadataHybrid().writeListToXML(this.getMetadataHybrid().getRemovedMDCols(), xMLStreamWriter);
-				xMLStreamWriter.close();
+				myZipOut.putNextEntry(new ZipEntry("removedMDCols.json"));
+				writer = new JsonWriter(new OutputStreamWriter(myZipOut, "UTF-8"));
+				
+				this.getMetadataHybrid().writeListToJSON(this.getMetadataHybrid().getRemovedMDCols(), writer);
+				writer.flush();
+
 				myZipOut.closeEntry();
-
 
 
 
 				// write exluded and missing rows from metadata
-				myZipOut.putNextEntry(new ZipEntry("excludedMD.xml"));
-				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(new BufferedOutputStream(myZipOut));
-				this.getMetadataHybrid().writeListToXML(this.getMetadataHybrid().getExcludedMDRows(), xMLStreamWriter);
-				xMLStreamWriter.close();
+				myZipOut.putNextEntry(new ZipEntry("excludedMD.json"));
+				writer = new JsonWriter(new OutputStreamWriter(myZipOut, "UTF-8"));
+				
+				this.getMetadataHybrid().writeListToJSON(this.getMetadataHybrid().getExcludedMDRows(), writer);
+				writer.flush();
+				
 				myZipOut.closeEntry();
 
 
 
 
-				myZipOut.putNextEntry(new ZipEntry("missingMD.xml"));
-				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(new BufferedOutputStream(myZipOut));
-				this.getMetadataHybrid().writeListToXML(this.getMetadataHybrid().getMissingMDRows(), xMLStreamWriter);
-				xMLStreamWriter.close();
+				myZipOut.putNextEntry(new ZipEntry("missingMD.json"));
+				writer = new JsonWriter(new OutputStreamWriter(myZipOut, "UTF-8"));
+				
+				this.getMetadataHybrid().writeListToJSON(this.getMetadataHybrid().getMissingMDRows(), writer);
+				writer.flush();
+				
 				myZipOut.closeEntry();
 
 
-
-
+				
 				// write tree
-				myZipOut.putNextEntry(new ZipEntry("metadataTree.xml"));
-				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(new BufferedOutputStream(myZipOut));
-				this.getMetadataHybrid().writeJtreetoXML(this.getMetadataHybrid().getTreeStucture(), xMLStreamWriter);
-				xMLStreamWriter.close();
+				myZipOut.putNextEntry(new ZipEntry("metadataTree.json"));
+				writer = new JsonWriter(new OutputStreamWriter(myZipOut, "UTF-8"));
+				
+				this.getMetadataHybrid().writeJtreetoJSON(this.getMetadataHybrid().getTreeStucture(), writer);
+				writer.flush();
+				
 				myZipOut.closeEntry();
 
 
 
 
+				try {
 				// write saved correlations
-				myZipOut.putNextEntry(new ZipEntry("correlations.xml"));
-				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(new BufferedOutputStream(myZipOut));
-				writeMetaCorrResasXML(xMLStreamWriter);
-				xMLStreamWriter.close();
+				myZipOut.putNextEntry(new ZipEntry("correlations.json"));
+				writer = new JsonWriter(new OutputStreamWriter(myZipOut, "UTF-8"));
+				
+				writeMetaCorrResasJSON(writer);
+				
+				writer.flush();
+				
 				myZipOut.closeEntry();
+				
+				}
+				catch(Exception e) {
+					e.printStackTrace();
+				}
 
 
 
 
 				// write MOG parameters
-				myZipOut.putNextEntry(new ZipEntry("params.xml"));
-				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(new BufferedOutputStream(myZipOut));
-				writeParamsasXML(xMLStreamWriter);
-				xMLStreamWriter.close();
+				myZipOut.putNextEntry(new ZipEntry("params.json"));
+				writer = new JsonWriter(new OutputStreamWriter(myZipOut, "UTF-8"));
+				
+				writeParamsasJSON(writer);
+				
+				writer.flush();
 				myZipOut.closeEntry();
 
 
 
 
 				//write diff exp results
-				myZipOut.putNextEntry(new ZipEntry("diffexpresults.xml"));
-				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(new BufferedOutputStream(myZipOut));
-				writeDEResAsXML(xMLStreamWriter);
-				xMLStreamWriter.close();
+				myZipOut.putNextEntry(new ZipEntry("diffexpresults.json"));
+				writer = new JsonWriter(new OutputStreamWriter(myZipOut, "UTF-8"));
+				
+				writeDEResAsJSON(writer);
+				
+				writer.flush();
 				myZipOut.closeEntry();
 
 
 
 
 				// write diff corr results
-				myZipOut.putNextEntry(new ZipEntry("diffcorrresults.xml"));
-				xMLStreamWriter = xmlOutputFactory.createXMLStreamWriter(new BufferedOutputStream(myZipOut));
-				writeDiffCorrResAsXML(xMLStreamWriter);
-				xMLStreamWriter.close();
+				myZipOut.putNextEntry(new ZipEntry("diffcorrresults.json"));
+				writer = new JsonWriter(new OutputStreamWriter(myZipOut, "UTF-8"));
+				
+				writeDiffCorrResAsJSON(writer);
+				
+				writer.flush();
 				myZipOut.closeEntry();
 
 			}
 
+			
 			myZipOut.finish();
 			myZipOut.close();
-
-
+			
+			if(writer!= null) {
+				writer.close();
+			}
+			
 			//Move the temporary file to the actual mog project
 
 			Path from = saveHere.toPath(); 
@@ -893,16 +933,9 @@ public class MetaOmProject {
 					"Unable to save the project file.  Make sure the destination file is not write-protected.",
 					"Error saving project", 0);
 			return false;
-		} catch (XMLStreamException e) {
-			// TODO Auto-generated catch block
-			StringWriter sw = new StringWriter();
-			PrintWriter pw = new PrintWriter(sw);
-			e.printStackTrace(pw);
-
-			JOptionPane.showInternalMessageDialog(MetaOmGraph.getDesktop(),
-					sw.toString(),
-					"Error saving project", 0);
-			return false;
+		} 
+		catch(Exception e2) {
+			
 		}
 		setChanged(false);
 
@@ -1064,7 +1097,26 @@ public class MetaOmProject {
 					}
 					projectFileFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
-				} else if ((thisEntry.getName().equals("metadataFile.xml")) && (!extendedFound)) {
+				} 
+				
+				else if ((thisEntry.getName().equals("ProjectFile.json")) && (!projectFileFound)) {
+
+					JsonReader reader = new JsonReader((new InputStreamReader(instream)));
+					Gson gson = new Gson();
+					
+					ProjectFileModel projectFileModel = gson.fromJson(reader, ProjectFileModel.class);
+					
+					allsWell = loadProjectFileJSON(projectFileModel);
+					
+					if (!allsWell) {
+						System.out.println("Failure at project file load");
+						// JOptionPane.showMessageDialog(null, "Error occured");
+					}
+					projectFileFound = true;
+					instream = new ZipInputStream(new FileInputStream(projectFile));
+				}
+				
+				else if ((thisEntry.getName().equals("metadataFile.xml")) && (!extendedFound)) {
 
 					String fpath = "";
 					String delim = "";
@@ -1155,7 +1207,67 @@ public class MetaOmProject {
 
 					extendedFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
-				} else if ((thisEntry.getName().equals("metadataTree.xml")) && (!treeFound)) {
+				}
+				
+				else if ((thisEntry.getName().equals("metadataFile.json")) && (!extendedFound)) {
+
+					String fpath = "";
+					String delim = "";
+					String datacol = "";
+					
+
+					JsonReader reader = new JsonReader((new InputStreamReader(instream)));
+					Gson gson = new Gson();
+					
+					MetadataModel metadataModel = gson.fromJson(reader, MetadataModel.class);
+
+					fpath = metadataModel.getFILEPATH();
+					delim = metadataModel.getDELIMITER();
+					datacol = metadataModel.getDATACOL();
+					
+
+					if (MetaOmGraph.getOsName().indexOf("win") >= 0 || MetaOmGraph.getOsName().indexOf("Win") >= 0) {
+						fpath = FilenameUtils.separatorsToWindows(fpath);
+					} else {
+						fpath = FilenameUtils.separatorsToUnix(fpath);
+					}
+
+					File mdFile = new File(fpath);
+					if (mdFile.exists()) {
+						metaDataCollection = new MetadataCollection(fpath, delim, datacol);
+					} else {
+
+						// try only file name in current directory
+						String thisName = mdFile.getName();
+						String projFilePath = projectFile.getAbsolutePath().substring(0,
+								projectFile.getAbsolutePath().lastIndexOf(File.separator));
+						fpath = projFilePath + File.separator + thisName;
+						mdFile = new File(fpath);
+						// JOptionPane.showMessageDialog(null, "New file path:" +
+						// mdFile.getAbsolutePath());
+						if (mdFile.exists()) {
+							metaDataCollection = new MetadataCollection(fpath, delim, datacol);
+						} else {
+							JOptionPane.showMessageDialog(null,
+									"Please locate the metadata file. Click OK. " + mdFile.getName());
+							JFileChooser fChooser = new JFileChooser(
+									edu.iastate.metnet.metaomgraph.utils.Utils.getLastDir());
+							int rVal = fChooser.showOpenDialog(MetaOmGraph.getMainWindow());
+							if (rVal == JFileChooser.APPROVE_OPTION) {
+								File source = fChooser.getSelectedFile();
+								metaDataCollection = new MetadataCollection(source.getAbsolutePath(), delim, datacol);
+
+							}
+
+						}
+					}
+
+
+					extendedFound = true;
+					instream = new ZipInputStream(new FileInputStream(projectFile));
+				}
+				
+				else if ((thisEntry.getName().equals("metadataTree.xml")) && (!treeFound)) {
 					
 					String tempXMLFile = "metadataTree.xml";
 					
@@ -1189,7 +1301,9 @@ public class MetaOmProject {
 					
 					treeFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
-				} else if ((thisEntry.getName().equals("correlations.xml")) && (!corrFound)) {
+				} 
+				
+				else if ((thisEntry.getName().equals("correlations.xml")) && (!corrFound)) {
 					
 					String tempXMLFile = "correlations.xml";
 					
@@ -1268,7 +1382,81 @@ public class MetaOmProject {
 					}
 					corrFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
-				} else if ((thisEntry.getName().equals("params.xml")) && (!paramsFound)) {
+				} 
+				
+				else if ((thisEntry.getName().equals("correlations.json")) && (!corrFound)) {
+					
+					JsonReader reader = new JsonReader((new InputStreamReader(instream)));
+					Gson gson = new Gson();
+					
+					CorrelationsModel correlationsModel = gson.fromJson(reader, CorrelationsModel.class);
+					List<CorrelationNodeModel> correlationNodeModelList = correlationsModel.getCorrelations();
+
+					for (int i = 0; i < correlationNodeModelList.size(); i++) {
+						CorrelationNodeModel thisCorrElement = correlationNodeModelList.get(i);
+						
+						String thisCorrName = thisCorrElement.getCorrName();
+						int thisCorrtype = Integer.parseInt(thisCorrElement.getCorrtype());
+						String thisCorrModel = thisCorrElement.getCorrmodel();
+						String thisCorrVar = thisCorrElement.getCorrvar();
+						// for MI
+						int thisCorrBins = -1;
+						int thisCorrOrder = -1;
+						if (thisCorrtype == 3) {
+							thisCorrBins = Integer.parseInt(thisCorrElement.getBins());
+							thisCorrOrder = Integer.parseInt(thisCorrElement.getOrder());
+						}
+
+						
+						List<CorrelationMetadataModel> correlationMetadataList = thisCorrElement.getCorrList();
+						
+
+						List<CorrelationMeta> correlationMetaList = new ArrayList<>();
+						for (int j = 0; j < correlationMetadataList.size(); j++) {
+							CorrelationMetadataModel thisRowElement = correlationMetadataList.get(j);
+							CorrelationMeta temp = null;
+							String thisRowName = thisRowElement.getName();
+							double thisRowVal = Double.parseDouble(thisRowElement.getValue());
+							double thisRowPval = Double.parseDouble(thisRowElement.getPvalue());
+							if (thisCorrtype == 0) {
+
+								CorrelationMetadataModelType0 thisRowElement0 = (CorrelationMetadataModelType0)thisRowElement;
+								
+								double thisRowZval = Double.parseDouble(thisRowElement0.getZval());
+								double thisRowQval = Double.parseDouble(thisRowElement0.getQval());
+								double thisRowPooledzr = Double
+										.parseDouble(thisRowElement0.getPooledzr());
+								double thisRowstdErr = Double.parseDouble(thisRowElement0.getStderr());
+								
+								temp = new CorrelationMeta(thisRowVal, thisRowPval, thisRowZval, thisRowQval,
+										thisRowPooledzr, thisRowstdErr);
+
+							} else {
+								temp = new CorrelationMeta(thisRowVal, thisRowPval);
+							}
+							// add to list
+							temp.settargetName(thisRowName);
+							correlationMetaList.add(temp);
+						}
+
+						// create CorrelationMetaCollection obj and add to myProject
+						CorrelationMetaCollection cmcObj = null;
+						if (thisCorrtype == 3) {
+							cmcObj = new CorrelationMetaCollection(thisCorrName, thisCorrtype, thisCorrModel,
+									thisCorrVar, correlationMetaList, thisCorrBins, thisCorrOrder);
+						} else {
+							cmcObj = new CorrelationMetaCollection(thisCorrName, thisCorrtype, thisCorrModel,
+									thisCorrVar, correlationMetaList);
+						}
+						addMetaCorrRes(thisCorrName, cmcObj);
+
+					}
+					corrFound = true;
+					instream = new ZipInputStream(new FileInputStream(projectFile));
+				}
+				
+				
+				else if ((thisEntry.getName().equals("params.xml")) && (!paramsFound)) {
 					
 					String tempXMLFile = "params.xml";
 					
@@ -1360,7 +1548,37 @@ public class MetaOmProject {
 
 					paramsFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
-				} else if ((thisEntry.getName().equals("excludedMD.xml")) && (!excludedFound)) {
+				} 
+				
+				else if ((thisEntry.getName().equals("params.json")) && (!paramsFound)) {
+					
+					JsonReader reader = new JsonReader((new InputStreamReader(instream)));
+					Gson gson = new Gson();
+					
+					ParamsModel paramsModel = gson.fromJson(reader, ParamsModel.class);
+
+					MetaOmGraph.setNumPermutations(Integer.parseInt(paramsModel.getPermutations()));
+							
+					MetaOmGraph.setNumThreads(Integer.parseInt(paramsModel.getThreads()));
+					
+					MetaOmGraph._SRR = Integer.parseInt(paramsModel.getSrrColumn());
+					
+					MetaOmGraph._SRP = Integer.parseInt(paramsModel.getSrpColumn());
+					
+					MetaOmGraph._SRX = Integer.parseInt(paramsModel.getSrxColumn());
+					
+					MetaOmGraph._SRS = Integer.parseInt(paramsModel.getSrsColumn());
+					
+					MetaOmGraph._GSE = Integer.parseInt(paramsModel.getGseColumn());
+					
+					MetaOmGraph._GSM = Integer.parseInt(paramsModel.getGsmColumn());
+									
+					
+					paramsFound = true;
+					instream = new ZipInputStream(new FileInputStream(projectFile));
+				}
+				
+				else if ((thisEntry.getName().equals("excludedMD.xml")) && (!excludedFound)) {
 					
 					String tempXMLFile = "excludedMD.xml";
 					
@@ -1398,7 +1616,22 @@ public class MetaOmProject {
 
 					excludedFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
-				} else if ((thisEntry.getName().equals("missingMD.xml")) && (!missingFound)) {
+				} 
+				
+				else if ((thisEntry.getName().equals("excludedMD.json")) && (!excludedFound)) {
+					
+					JsonReader reader = new JsonReader((new InputStreamReader(instream)));
+					Gson gson = new Gson();
+					
+					Set<String> excludes = gson.fromJson(reader, Set.class);
+					
+					excluded = new ArrayList<>(excludes);
+
+					excludedFound = true;
+					instream = new ZipInputStream(new FileInputStream(projectFile));
+				}
+				
+				else if ((thisEntry.getName().equals("missingMD.xml")) && (!missingFound)) {
 					
 					String tempXMLFile = "missingMD.xml";
 					
@@ -1436,7 +1669,24 @@ public class MetaOmProject {
 
 					missingFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
-				} else if ((thisEntry.getName().equals("removedMDCols.xml")) && (!removedMDColsFound)) {
+				} 
+				
+				
+				else if ((thisEntry.getName().equals("missingMD.json")) && (!missingFound)) {
+					
+					JsonReader reader = new JsonReader((new InputStreamReader(instream)));
+					Gson gson = new Gson();
+					
+					Set<String> missings = gson.fromJson(reader, Set.class);
+					
+					missing = new ArrayList<>(missings);
+
+					missingFound = true;
+					instream = new ZipInputStream(new FileInputStream(projectFile));
+				}
+				
+				
+				else if ((thisEntry.getName().equals("removedMDCols.xml")) && (!removedMDColsFound)) {
 					
 					String tempXMLFile = "removedMDCols.xml";
 					
@@ -1471,6 +1721,21 @@ public class MetaOmProject {
 
 						} 
 					}
+
+					removedMDColsFound = true;
+					instream = new ZipInputStream(new FileInputStream(projectFile));
+
+				}
+				
+				
+				else if ((thisEntry.getName().equals("removedMDCols.json")) && (!removedMDColsFound)) {
+					
+					JsonReader reader = new JsonReader((new InputStreamReader(instream)));
+					Gson gson = new Gson();
+					
+					Set<String> removed = gson.fromJson(reader, Set.class);
+					
+					removedMDCols = new ArrayList<>(removed);
 
 					removedMDColsFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
@@ -1708,6 +1973,35 @@ public class MetaOmProject {
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				}
 
+				
+				// read diffexpresults
+				else if ((thisEntry.getName().equals("diffexpresults.json")) && (!diffExpResfound)) {
+					// JOptionPane.showMessageDialog(null, "reading DE");
+					
+					JsonReader reader = new JsonReader((new InputStreamReader(instream)));
+					Gson gson = new Gson();
+					
+					DiffExpModel diffexpmodel = gson.fromJson(reader, DiffExpModel.class);
+					
+					removedMDCols = new ArrayList<>();
+
+					
+					List<DifferentialExpResults> diffExpResults = diffexpmodel.getDeResults();
+					
+					for(int i=0; i<diffExpResults.size(); i++) {
+						
+						DifferentialExpResults der = diffExpResults.get(i);
+						
+						// add this ob to saved DE
+						addDiffExpRes(der.getID(), der);
+					
+					}
+
+					diffExpResfound = true;
+					instream = new ZipInputStream(new FileInputStream(projectFile));
+				}
+				
+				
 				// read diffcorr results diffcorrresults.xml
 				else if ((thisEntry.getName().equals("diffcorrresults.xml")) && (!diffCorrResfound)) {
 					// JOptionPane.showMessageDialog(null, "reading DE");
@@ -1983,6 +2277,34 @@ public class MetaOmProject {
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				}
 
+				
+				// read diffcorr results diffcorrresults.xml
+				else if ((thisEntry.getName().equals("diffcorrresults.json")) && (!diffCorrResfound)) {
+					
+					JsonReader reader = new JsonReader((new InputStreamReader(instream)));
+					Gson gson = new Gson();
+					
+					DiffCorrModel diffcorrmodel = gson.fromJson(reader, DiffCorrModel.class);
+					
+					removedMDCols = new ArrayList<>();
+
+					
+					List<DifferentialCorrResults> diffCorrResults = diffcorrmodel.getDcResults();
+					
+					for(int i=0; i<diffCorrResults.size(); i++) {
+						
+						DifferentialCorrResults dcr = diffCorrResults.get(i);
+						
+						// add this ob to saved DE
+						addDiffCorrRes(dcr.getID(), dcr);
+					
+					}
+					
+					diffCorrResfound = true;
+					instream = new ZipInputStream(new FileInputStream(projectFile));
+				}
+
+				
 				try {
 					thisEntry = instream.getNextEntry();
 				} catch (IOException e) {
@@ -3222,6 +3544,488 @@ public class MetaOmProject {
 
 		return true;
 	}
+	
+	
+	
+	
+	/**
+	 * 
+	 * Method that loads the project.json file in the .mog file using GSON.
+	 * 
+	 * @param instream
+	 * @param projectFile
+	 * @return
+	 */
+	private boolean loadProjectFileJSON(ProjectFileModel projectFileModel,  File projectFile) {
+		try {
+			maxNameLength = 0;
+
+			boolean isprojectInfo = false;
+			boolean issourcePath = false;
+			boolean issourceFile = false;
+			boolean isdelimiter = false;
+			boolean isignoreConsecutiveDelimiters = false;
+			boolean isblankValue = false;
+			boolean isxLabel = false;
+			boolean isyLabel = false;
+			boolean istitle = false;
+			boolean iscolor1 = false;
+			boolean iscolor2 = false;
+			boolean isdefaultColumn = false;
+			boolean isinfoColumn = false;
+			boolean isColumns = false;
+			boolean isColumn = false;
+			boolean isData = false;
+			boolean isInfo = false;
+			boolean isCorrelation = false;
+			boolean isAsPercentFalse = false;
+			boolean isLastTrue = false;
+			boolean isList = false;
+			boolean isLocation = false;
+			boolean issampleDataList = false;
+			boolean isCustomSort = false;
+			boolean isOrder = false;
+			boolean isMarker = false;
+			boolean isStart = false;
+			boolean isEnd = false;
+			boolean isLabel = false;
+			boolean isColor = false;
+			boolean isQuerySet = false;
+			boolean isQuery = false;
+			boolean isField = false;
+			boolean isTerm = false;
+			boolean isExcludeList = false;
+			boolean isEntry = false;
+
+			String sourcePath = "";
+			String sourceFile = "";
+			String delimiterVal = "";
+			String ignoreConsecutiveDelimitersVal = "";
+			String blankValueVal = "";
+			String xLabelVal = "";
+			String yLabelVal = "";
+			String titleVal = "";
+			String color1Val = "";
+			String color2Val = "";
+			String defaultColumnVal = "";
+			List infoColumnVal = new ArrayList();
+			List columnsVal = new ArrayList();
+			List<List> dataInfoList = new ArrayList<List>();
+			List infoList = null;
+			List<Long> fileIndexList = new ArrayList<Long>();
+			String infoData = "";
+			String listName = "";
+			String dataListName = "";
+			String savedSortName = "";
+			String orderVal = "";
+			String markerStyle = "";
+			int startMarker = 0;
+			int endMarker = 0;
+			String labelMarker = "";
+			Color colorMarker = null;
+			String savedQueryName = "";
+			boolean querySetMatchAll = false;
+			SearchMatchType queryMatchType = SearchMatchType.CONTAINS;
+			String queryField = "";
+			String queryTerm = "";
+			String savedExcludeName = "";
+			List<Integer> entryList = null;
+			ArrayList<String> dataListValues = null;
+			ArrayList<RangeMarker> markerList = null;
+			RangeMarker rangeMarker = null;
+			ArrayList<MetadataQuery> queryList = null;
+			MetadataQuery currentQuery = null;
+
+			StringBuilder orderValSB = null;
+			StringBuilder sampleColumnSB = null;
+			StringBuilder infoDataSB = null;
+			StringBuilder sourcePathSB = null;
+			StringBuilder sourceFileSB = null;
+			StringBuilder delimiterValSB = null;
+			StringBuilder ignoreConsecutiveDelimitersValSB = null;
+			StringBuilder blankValueValSB = null;
+			StringBuilder xLabelValSB = null;
+			StringBuilder yLabelValSB = null;
+			StringBuilder titleValSB = null;
+			StringBuilder color1ValSB = null;
+			StringBuilder color2ValSB = null;
+			StringBuilder defaultColumnValSB = null;
+			StringBuilder infoColumnSB = null;
+			StringBuilder labelMarkerSB = null;
+			StringBuilder queryFieldSB = null;
+			StringBuilder queryTermSB = null;
+			
+			
+			
+
+			geneLists = new Hashtable();
+			sampleDataLists = new HashMap<String, ArrayList<String>>();
+			savedSorts = new Hashtable();
+			savedQueries = new Hashtable();
+			savedExcludes = new Hashtable();
+
+
+			NewCustomSortDialog.CustomSortObject cso = null;
+			TreeSearchQueryConstructionPanel.QuerySet thisQuerySet = null;
+			MetaOmAnalyzer.ExcludeData thisExcludeData = null;
+
+			
+
+			sourcePath = projectFileModel.getSourcePath();
+			sourceFile = projectFileModel.getSourceFile();
+			delimiterVal = projectFileModel.getDelimiter();
+			ignoreConsecutiveDelimitersVal = projectFileModel.getIgnoreConsecutiveDelimiters();
+			blankValueVal = projectFileModel.getBlankValue();
+			xLabelVal = projectFileModel.getxLabel();
+			yLabelVal = projectFileModel.getyLabel();
+			titleVal = projectFileModel.getTitle();
+			color1Val = projectFileModel.getColor1();
+			color2Val = projectFileModel.getColor2();
+			defaultColumnVal = projectFileModel.getDefaultColumn();
+			infoColumnVal = projectFileModel.getInfoColumns();
+			
+			source = new File(sourcePath + File.separator + sourceFile);
+
+			if (!source.exists()) {
+
+				source = new File(projectFile.getParentFile().getAbsolutePath() + File.separator
+						+ sourceFile);
+				if (!source.exists()) {
+					int result = JOptionPane.showConfirmDialog(MetaOmGraph.getMainWindow(),
+							"The file " + source.getName() + " was not found.\nWould you like to locate it yourself?",
+							"File not found", 0);
+					if (result == 1)
+						return false;
+					JFileChooser chooser = new JFileChooser(projectFile.getParentFile());
+					chooser.setFileFilter(new FileFilter() {
+						@Override
+						public boolean accept(File f) {
+							return (f.isDirectory()) || (f.getName().equals(source.getName()));
+						}
+
+						@Override
+						public String getDescription() {
+							return source.getName();
+						}
+
+					});
+					result = 0;
+					while ((!source.exists()) && (result == 0)) {
+						result = chooser.showOpenDialog(MetaOmGraph.getMainWindow());
+						source = chooser.getSelectedFile();
+					}
+					if (result != 0)
+						return false;
+					Utils.setLastDir(source.getParentFile());
+				}
+			}
+
+
+			//delimiter
+
+			if (delimiterVal.equals("")) {
+				delimiter = ' ';
+			} else if (delimiterVal.equals("\\t")) {
+				delimiter = '\t';
+			} else
+				delimiter = delimiterVal.charAt(0);
+
+
+
+			//populate ignoreConsecutiveDelimiters
+
+			if (!ignoreConsecutiveDelimitersVal.equals("")) {
+				ignoreConsecutiveDelimiters = Boolean.parseBoolean(ignoreConsecutiveDelimitersVal);
+			} else {
+				ignoreConsecutiveDelimiters = true;
+			}
+
+
+
+			//populate blankValue
+
+			if (!blankValueVal.equals("")) {
+				blankValue = Double.valueOf(Double.parseDouble(blankValueVal));
+			}
+
+
+			//populate other values
+			defaultXAxis = xLabelVal;
+			defaultYAxis = yLabelVal;
+			defaultTitle = titleVal;
+			color1 = new Color(Integer.parseInt(color1Val));
+			color2 = new Color(Integer.parseInt(color2Val));
+
+
+			//populate defaultColumn
+			if (defaultColumnVal.equals("")) {
+				defaultColumn = 0;
+			} else {
+				defaultColumn = Integer.parseInt(defaultColumnVal);
+			}
+
+
+			infoColumns = infoColumnVal.size();
+
+
+
+
+		
+			
+			columnsVal = projectFileModel.getColumns();
+			columnHeaders = new String[infoColumns + columnsVal.size()];
+			Iterator iter = infoColumnVal.iterator();
+			int index = 0;
+			while (iter.hasNext()) {
+				columnHeaders[index] = (String)iter.next();
+				index++;
+			}
+			System.out.println(columnsVal.size() + " columns");
+			iter = columnsVal.iterator();
+			while (iter.hasNext()) {
+				columnHeaders[index] = (String)iter.next();
+				if (columnHeaders[index].length() > maxNameLength)
+					maxNameLength = columnHeaders[index].length();
+				index++;
+			}
+			
+			List<DataModel> dataModel = projectFileModel.getData();
+			
+			for(int i=0; i<dataModel.size(); i++) {
+				
+				DataModel thisDataModel = dataModel.get(i);
+				List<InfoModel> infoModel = thisDataModel.getInfo();
+				infoList = new ArrayList();
+				
+				for(int j=0; j<infoModel.size(); j++) {
+					
+					InfoModel thisInfoModel = infoModel.get(j);
+					
+					if(thisInfoModel.getValue() != null) {
+						infoData = thisInfoModel.getValue().toString();
+					}
+
+					if(thisInfoModel.getType()!= null && thisInfoModel.getType().equalsIgnoreCase("correlation")) {
+
+						CorrelationValue thisValue;
+
+						if(thisInfoModel.getAsPercent()!=null && thisInfoModel.getAsPercent().equalsIgnoreCase("false")) {
+							if (infoData != null && infoData.length() > 0) {
+								thisValue = new CorrelationValue(Double.parseDouble(infoData));
+							} else {
+								thisValue = null;
+							}
+							thisValue.setAsPercent(false);
+						}
+						else {
+
+							if (infoData != null && infoData.length() > 0) {
+								thisValue = new CorrelationValue(
+										Double.parseDouble(infoData.substring(0, infoData.length() - 1)) / 100.0D);
+							} else {
+								thisValue = null;
+							}
+						}
+						infoList.add(thisValue);
+
+
+						if (thisInfoModel.getLast()!=null && thisInfoModel.getLast().equalsIgnoreCase("true")) {
+							hasLastCorrelation = true;
+						}
+
+					}
+					else if (infoData != null && infoData.length() > 0) {
+						infoList.add(infoData);
+
+					} else {
+						infoList.add(null);
+
+					}
+					
+					
+				}
+				
+				dataInfoList.add(infoList);
+				
+				fileIndexList.add(new Long(thisDataModel.getLocation()));
+				
+			}
+			
+			List<ListModel> listModel = projectFileModel.getLists();
+			
+			for(int i=0; i<listModel.size(); i++) {
+				
+				ListModel thisList = listModel.get(i);
+				
+				List<String> entries = thisList.getEntries();
+				
+				int [] entryArr = new int[entries.size()];
+
+				for(int j=0; j<entries.size(); j++) {
+					entryArr[j] = Integer.parseInt(entries.get(j));
+				}
+
+				geneLists.put(thisList.getName(), entryArr);
+				
+				
+			}
+			
+			
+			List<SampleDataListModel> sampleDataListModel = projectFileModel.getSampleDataLists();
+			
+			for(int i=0; i<sampleDataListModel.size(); i++) {
+				
+				SampleDataListModel thisSampleDataListModel = sampleDataListModel.get(i);
+				
+				sampleDataLists.put(thisSampleDataListModel.getName(), (ArrayList)thisSampleDataListModel.getEntries());
+				
+			}
+			
+			
+
+
+					
+					else if(endName.equals("order")) {
+						isOrder = false;
+					}
+					else if(endName.equals("marker")) {
+						isMarker = false;
+
+						int style = "horizontal".equals(markerStyle) ? RangeMarker.HORIZONTAL : RangeMarker.VERTICAL;
+
+						rangeMarker = new RangeMarker(startMarker, endMarker, labelMarker, style, colorMarker);
+
+						markerList.add(rangeMarker);
+
+					}
+					else if(endName.equals(NewCustomSortDialog.CustomSortObject.getXMLElementName())) {
+						isCustomSort = false;
+
+						if(orderValSB != null) {
+							orderVal = orderValSB.toString();
+						}
+
+						cso.readFromXML(orderVal, markerList);
+						savedSorts.put(savedSortName, cso);
+
+					}
+					else if(endName.equals("start")) {
+
+						isStart = false;
+					}
+					else if(endName.equals("end")) {
+
+						isEnd = false;
+					}
+					else if(endName.equals("label")) {
+
+						isLabel = false;
+						
+						if(labelMarkerSB != null) {
+							labelMarker = labelMarkerSB.toString();
+						}
+						
+						labelMarkerSB = null;
+						
+					}	
+					else if(endName.equals("color")) {
+
+						isColor = false;
+					}
+
+					else if(endName.equals(TreeSearchQueryConstructionPanel.QuerySet.getXMLElementName())) {
+
+						isQuerySet = false;
+
+						thisQuerySet.initializeQuerySet(querySetMatchAll, queryList);
+
+						savedQueries.put(savedQueryName, thisQuerySet);
+
+					}
+					else if(endName.equals("query")) {
+						isQuery = false;
+
+						currentQuery = new MetadataQuery(queryField, queryTerm, queryMatchType, false);
+						queryList.add(currentQuery);
+
+					}
+					else if(endName.equals("field")) {
+						isField = false;
+						
+						if(queryFieldSB != null) {
+							queryField = queryFieldSB.toString();
+						}
+						
+						queryFieldSB = null;
+						
+					}
+					else if(endName.equals("term")) {
+						isTerm = false;
+						
+						if(queryTermSB != null) {
+							queryTerm = queryTermSB.toString();
+						}
+						
+						queryTermSB = null;
+						
+					}
+					else if(endName.equals("MetaOmProject")) {
+
+						rowNames = new Object[dataInfoList.size()][infoColumns];
+						fileIndex = new Long[dataInfoList.size()];
+
+
+
+						for(int i=0; i<dataInfoList.size(); i++) {
+							List currentDataList = dataInfoList.get(i);
+
+							for(int j=0; j< currentDataList.size(); j++) {
+
+								rowNames[i][j] = currentDataList.get(j);
+							}
+						}
+
+
+						for(int i=0; i<fileIndexList.size(); i++) {
+							fileIndex[i] = fileIndexList.get(i);
+						}
+
+
+					}
+
+					
+		}
+
+
+		catch (NullPointerException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "The file " + projectFile.getName()
+			+ " is either not a MetaOmGraph project " + "file, or it is missing required data.");
+
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			e.printStackTrace(pw);
+
+			JOptionPane.showMessageDialog(null, sw.toString());
+
+			return false;
+		} 
+		catch (XMLStreamException e) {
+			// TODO Auto-generated catch block
+
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			e.printStackTrace(pw);
+
+			JOptionPane.showMessageDialog(null, sw.toString());
+
+			e.printStackTrace();
+		}
+
+		return true;
+	}
+	
+	
 
 	public boolean isChanged() {
 		return changed;
@@ -5553,6 +6357,43 @@ public class MetaOmProject {
 		xMLStreamWriter.writeEndElement();
 
 	}
+	
+	
+	/**
+	 * write correlation data as JSON
+	 * 
+	 * @return
+	 */
+	public void writeMetaCorrResasJSON(JsonWriter writer) {
+
+		List<CorrelationNodeModel> correlations = new ArrayList<CorrelationNodeModel>();
+		
+		CorrelationsModel cm = new CorrelationsModel("Root", correlations);
+		
+		if (metaCorrs != null) {
+
+			// add each saved corr to Root
+			for (String s : metaCorrs.keySet()) {
+				writeCorrJSONNode(s, cm);
+			}
+
+		}
+
+		try {
+
+			Gson gson = new Gson();
+			
+			gson.toJson(cm, CorrelationsModel.class, writer);
+
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			JOptionPane.showInternalMessageDialog(MetaOmGraph.getDesktop(),
+					"Unable to save the project file.  Make sure the destination file is not write-protected.",
+					"Error saving project", 0);
+		}
+
+	}
 
 	public Element createCorrXMLNode(String s) {
 		Element thisNode = new Element("Corr");
@@ -5686,6 +6527,70 @@ public class MetaOmProject {
 		xMLStreamWriter.writeEndElement();
 	}
 
+	
+	
+	public void writeCorrJSONNode(String s, CorrelationsModel cm){
+
+		CorrelationNodeModel correlationNode = new CorrelationNodeModel();
+		
+		correlationNode.setCorrName(s);
+
+		CorrelationMetaCollection cmcObj = metaCorrs.get(s);
+
+		// check values of table depending on cmcObj and populate the table
+		int corrTypeId = cmcObj.getCorrTypeId();
+		correlationNode.setCorrtype(String.valueOf(corrTypeId));
+		correlationNode.setCorrmodel(cmcObj.getCorrModel());
+		correlationNode.setCorrvar(cmcObj.getCorrAgainst());
+
+
+		// for MI
+		if (corrTypeId == 3) {
+			correlationNode.setBins(String.valueOf(cmcObj.getBins()));
+			correlationNode.setOrder(String.valueOf(cmcObj.getOrder()));
+			
+		}
+
+		List<CorrelationMeta> corrList = cmcObj.getCorrList();
+		
+		List<CorrelationMetadataModel> corrMetadataModelList = new ArrayList<CorrelationMetadataModel>();
+		
+		if (metaCorrs != null) {
+			if (corrTypeId == 0) {
+				
+				for (int i = 0; i < corrList.size(); i++) {
+					CorrelationMeta thisObj = corrList.get(i);
+
+					CorrelationMetadataModel cmt0 = new CorrelationMetadataModelType0(thisObj.getName(),
+							String.valueOf(thisObj.getrVal()), String.valueOf(thisObj.getpVal()),
+							String.valueOf(thisObj.getzVal()), String.valueOf(thisObj.getqVal()),
+							String.valueOf(thisObj.getpooledzr()), String.valueOf(thisObj.getstdErr()));
+					
+
+					corrMetadataModelList.add(cmt0);
+				}
+				
+			}
+			else {
+				for (int i = 0; i < corrList.size(); i++) {
+					CorrelationMeta thisObj = corrList.get(i);
+					
+					CorrelationMetadataModel cmt = new CorrelationMetadataModel(thisObj.getName(),
+							String.valueOf(thisObj.getrVal()), String.valueOf(thisObj.getpVal()));
+					
+					corrMetadataModelList.add(cmt);
+					
+				}
+				
+			}
+			correlationNode.setCorrList(corrMetadataModelList);
+		}
+
+		
+		cm.getCorrelations().add(correlationNode);
+		
+	}
+
 
 
 	/**
@@ -5728,9 +6633,45 @@ public class MetaOmProject {
 		xMLStreamWriter.writeEndElement();
 
 	}
+	
+	
+	public void writeDEResAsJSON(JsonWriter writer) {
+
+		DiffExpModel dem = new DiffExpModel();
+		
+		dem.setName("Root");
+		
+		List<DifferentialExpResults> deResults = new ArrayList<DifferentialExpResults>();
+
+		if (diffExpRes != null) {
+			String[] savedDE = getSavedDiffExpResNames();
+			for (String id : savedDE) {
+				DifferentialExpResults thisOB = getDiffExpResObj(id);
+				deResults.add(thisOB);
+			}
+		}
+		
+
+		dem.setDeResults(deResults);
+		
+		try {
+
+			Gson gson = new Gson();
+			
+			gson.toJson(dem, DiffExpModel.class, writer);
+
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			JOptionPane.showInternalMessageDialog(MetaOmGraph.getDesktop(),
+					"Unable to save the project file.  Make sure the destination file is not write-protected.",
+					"Error saving project", 0);
+		}
+
+	}
 
 	/**
-	 * get saved differential expression results as XML
+	 * get saved differential correlation results as XML
 	 * 
 	 * @return
 	 */
@@ -5748,6 +6689,48 @@ public class MetaOmProject {
 			}
 		}
 		xMLStreamWriter.writeEndElement();
+		
+
+	}
+	
+	
+	/**
+	 * get saved differential correlation results as JSON
+	 * 
+	 * @return
+	 */
+	public void writeDiffCorrResAsJSON(JsonWriter writer){
+
+		DiffCorrModel dcm = new DiffCorrModel();
+		
+		dcm.setName("Root");
+		
+		List<DifferentialCorrResults> dcResults = new ArrayList<DifferentialCorrResults>();
+
+		
+		if (diffCorrRes != null) {
+			String[] savedDC = getSavedDiffCorrResNames();
+			for (String id : savedDC) {
+				DifferentialCorrResults thisOB = getDiffCorrResObj(id);
+				dcResults.add(thisOB);
+			}
+		}
+		
+		dcm.setDcResults(dcResults);
+		
+		try {
+
+			Gson gson = new Gson();
+			
+			gson.toJson(dcm, DiffCorrModel.class, writer);
+
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			JOptionPane.showInternalMessageDialog(MetaOmGraph.getDesktop(),
+					"Unable to save the project file.  Make sure the destination file is not write-protected.",
+					"Error saving project", 0);
+		}
 
 	}
 
@@ -5821,6 +6804,42 @@ public class MetaOmProject {
 		xMLStreamWriter.writeEndElement();
 
 	}
+	
+	
+	/**
+	 * return MOG parameters as JSON
+	 * 
+	 * @return
+	 */
+	public void writeParamsasJSON(JsonWriter writer){
+		
+		try {
+
+			ParamsModel mm = new ParamsModel("Root", String.valueOf(MetaOmGraph.getNumPermutations()), 
+					String.valueOf(MetaOmGraph.getNumThreads()),
+					String.valueOf(MetaOmGraph.getActiveTable().getMetadataTableDisplay().getsrrColumn()),
+					String.valueOf(MetaOmGraph.getActiveTable().getMetadataTableDisplay().getsrpColumn()),
+					String.valueOf(MetaOmGraph.getActiveTable().getMetadataTableDisplay().getsrxColumn()),
+					String.valueOf(MetaOmGraph.getActiveTable().getMetadataTableDisplay().getsrsColumn()),
+					String.valueOf(MetaOmGraph.getActiveTable().getMetadataTableDisplay().getgseColumn()),
+					String.valueOf(MetaOmGraph.getActiveTable().getMetadataTableDisplay().getgsmColumn()));
+
+			Gson gson = new Gson();
+
+			gson.toJson(mm, ParamsModel.class, writer);
+
+
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			JOptionPane.showInternalMessageDialog(MetaOmGraph.getDesktop(),
+					"Unable to save the project file.  Make sure the destination file is not write-protected.",
+					"Error saving project", 0);
+		}
+
+	}
+	
+	
 
 
 	public boolean setInfoColTypes(HashMap<String, Class> map) {

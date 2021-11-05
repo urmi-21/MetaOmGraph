@@ -91,6 +91,8 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyVetoException;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -2582,6 +2584,37 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 			if (data == null) {
 				return;
 			}
+			
+			
+			int rows = data.length;
+			int cols = data[0].length;
+			try {
+				BufferedWriter br = new BufferedWriter(new FileWriter("/Users/harshavk/Documents/Harsha/Fall2021/Thesis/Human-Cancer-Prediction/data-to-pca.csv"));
+				StringBuilder sb = new StringBuilder();
+
+
+				for(int i=0; i<rows; i++) {
+					for(int j=0; j<cols; j++) {
+//						System.out.print(plotData[i][j]+ " ");
+						sb.append(data[i][j]);
+						if(j != cols-1)
+							sb.append(",");
+					}
+					sb.append("\n");
+//					System.out.println();
+				}
+
+
+
+				br.write(sb.toString());
+				br.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+			
 			ComputePCA pca = new ComputePCA(data);
 			double[][] pcaData = pca.projectData(numDims, normalizeData);
 			double[][] transposedData = Utils.getTransposeMatrix(pcaData);
