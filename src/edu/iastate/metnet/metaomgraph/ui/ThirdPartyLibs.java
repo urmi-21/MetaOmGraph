@@ -76,10 +76,10 @@ public class ThirdPartyLibs extends JPanel{
 		addThirdPartyLibrary(name, websiteUrl, licenseUrl);
 		rangePanel.add(new JSeparator(SwingConstants.HORIZONTAL));
 		
-		// nd4j
-		name = "nd4j";
-		websiteUrl = "https://github.com/deeplearning4j/nd4j";
-		licenseUrl = "https://github.com/deeplearning4j/nd4j/blob/master/LICENSE";
+		// Renjin
+		name = "Renjin";
+		websiteUrl = "https://www.renjin.org/";
+		licenseUrl = "https://github.com/bedatadriven/renjin/blob/master/LICENSE.txt";
 		addThirdPartyLibrary(name, websiteUrl, licenseUrl);
 		rangePanel.add(new JSeparator(SwingConstants.HORIZONTAL));
 		
