@@ -3,65 +3,54 @@
  */
 package edu.iastate.metnet.metaomgraph;
 
-import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.dimensionalityreduction.PCA;
-import org.nd4j.linalg.factory.Nd4j;
+import org.renjin.primitives.matrix.Matrix;
+import org.renjin.script.*;
+import org.renjin.sexp.Vector;
+
+import edu.iastate.metnet.metaomgraph.utils.RenjinUtils;
+
+import javax.script.*;
 
 /**
  * @author sumanth
  *	
  * Class to compute the PCA
- * uses the library nd4j to compute the PCA
+ * uses the R packages to compute the PCA
  */
 public class ComputePCA {
-	private INDArray dataArray;
+	private double[][] data;
 	/**
 	 * Constructor
 	 * @param data 2d array with m rows(selected samples) and n columns(selected feature/gene list)
 	 */
 	public ComputePCA(double[][] data) {
-		dataArray = Nd4j.createFromArray(data);
+		this.data = data;
 	}
 	
 	/**
-     * Calculates pca reduced value of a matrix, for a given variance. A larger variance (99%)
-     * will result in a higher order feature set.
-     * The returned matrix is a projection of A onto principal components
-     * 
-     * If PCA is computed directly, the library is somehow modifying the original data, hence
-     * compute the pca factors first and multiply the factors with the data to get the
-     * reduced dimensions.
-     *
-     * @param variance the amount of variance to preserve as a float 0 - 1
-     * @param normalize whether to normalize (set features to have zero mean)
-     * @return the matrix representing  a reduced feature set
-     */
-	public double[][] projectData(double variance, boolean normalize){
-		INDArray tempArr = dataArray.dup();
-		INDArray pcaFactors = PCA.pca_factor(dataArray, variance, normalize);
-		INDArray reducedDimensions = tempArr.mmul(pcaFactors);
-		double[][] plotData = reducedDimensions.toDoubleMatrix();
-		return plotData;
-	}
-	
-	/**
-     * Calculates pca vectors of a matrix, for a flags number of reduced features
-     * returns the reduced feature set
-     * The return is a projection of A onto principal nDims components
-     *
-     * If PCA is computed directly, the library is somehow modifying the original data, hence
-     * compute the pca factors first and multiply the factors with the data to get the
-     * reduced dimensions.
-     *  
+     * Calculates pca vectors of the given matrix by reducing it into the number of dimensions.
      * @param numOfDims the number of components on which to project the features 
      * @param normalize whether to normalize (set features to have zero mean)
      * @return the reduced parameters of the data
      */
 	public double[][] projectData(int numOfDims, boolean normalize){
-		INDArray tempArr = dataArray.dup();
-		INDArray pcaFactors = PCA.pca_factor(dataArray, numOfDims, normalize);
-		INDArray reducedDimensions = tempArr.mmul(pcaFactors);
-		double[][] plotData = reducedDimensions.toDoubleMatrix();
+		ScriptEngine engine = RenjinUtils.getScriptEngine();
+		
+		String dataRMatrix = RenjinUtils.fillRMatrixFrom2DArray("dataRMatrix", data, engine);
+		String center = "TRUE";
+		if(!normalize) {
+			center = "FALSE";
+		}
+		Vector pcaRVector = null;
+		try {
+			engine.eval("pca <- prcomp(" + dataRMatrix + ", scale. = TRUE, center = " + center + ")");
+			pcaRVector = (Vector)engine.eval("pca$x");
+		} catch (ScriptException e) {
+			e.printStackTrace();
+		}
+		
+		double[][] plotData = RenjinUtils.get2DArrayFromRenjinVector(pcaRVector, data.length, numOfDims);
+
 		return plotData;
 	}
 }
