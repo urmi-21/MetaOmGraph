@@ -65,6 +65,11 @@
 			<id>jitpack.io</id>
 			<url>https://jitpack.io</url>
 		</repository>
+		<repository>
+			<id>bedatadriven</id>
+			<name>bedatadriven public repo</name>
+			<url>https://nexus.bedatadriven.com/content/groups/public/</url>
+		</repository>
 	</repositories>
 
 	<dependencies>
@@ -186,45 +191,6 @@
 			<version>0.42</version>
 		</dependency>
 		<dependency>
-      		<groupId>org.nd4j</groupId>
-      		<artifactId>nd4j-native</artifactId>
-      		<version>1.0.0-beta7</version>
-      		<exclusions>
-      			<exclusion>
-      				<groupId>org.bytedeco</groupId>
-      				<artifactId>mkl-platform</artifactId>
-      			</exclusion>
-      			<exclusion>
-      				<groupId>org.nd4j</groupId>
-      				<artifactId>jackson</artifactId>
-      			</exclusion>
-      			<exclusion>
-      				<groupId>com.github.oshi</groupId>
-      				<artifactId>oshi-core</artifactId>
-      			</exclusion>
-      			<exclusion>
-      				<groupId>net.ericaro</groupId>
-      				<artifactId>neoitertools</artifactId>
-      			</exclusion>
-      			<exclusion>
-      				<groupId>commons-net</groupId>
-      				<artifactId>commons-net</artifactId>
-      			</exclusion>
-      			<exclusion>
-      				<groupId>org.nd4j</groupId>
-      				<artifactId>protobuf</artifactId>
-      			</exclusion>
-      			<exclusion>
-      				<groupId>com.google.flatbuffers</groupId>
-      				<artifactId>flatbuffers-java</artifactId>
-      			</exclusion>
-      			<exclusion>
-      				<groupId>com.jakewharton.byteunits</groupId>
-      				<artifactId>byteunits</artifactId>
-      			</exclusion>
-      		</exclusions>
-		</dependency>
-		<dependency>
 			<groupId>com.github.lejon.T-SNE-Java</groupId>
 			<artifactId>tsne</artifactId>
 			<version>v2.6.3</version>
@@ -233,6 +199,11 @@
 			<groupId>com.apporiented</groupId>
 			<artifactId>hierarchical-clustering</artifactId>
 			<version>1.2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.renjin</groupId>
+			<artifactId>renjin-script-engine</artifactId>
+			<version>RELEASE</version>
 		</dependency>
 	</dependencies>
 
