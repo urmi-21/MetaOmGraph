@@ -2458,7 +2458,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 
 		for (int x = 0; x < tabby.getTabCount(); x++) {
-			if (tabby.getTitleAt(x).equals("Sample Metadata Table")) {
+			if (tabby.getTitleAt(x).equals("Sample Metadata")) {
 				tabby.remove(x);
 				break;
 			}
@@ -2484,7 +2484,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			mdtablepanel.setsrsColumn(MetaOmGraph._SRS);
 			mdtablepanel.setgseColumn(MetaOmGraph._GSE);
 			mdtablepanel.setgsmColumn(MetaOmGraph._GSM);
-			tabby.addTab("Sample Metadata Table", mdtablepanel);
+			tabby.addTab("Sample Metadata", mdtablepanel);
 			mdtablepanel.updateTable();
 		}
 

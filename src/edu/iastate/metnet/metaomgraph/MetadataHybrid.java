@@ -226,7 +226,15 @@ public class MetadataHybrid {
 		int numchild = treeRoot.getChildCount();
 		for (int i = 0; i < numchild; i++) {
 			DefaultMutableTreeNode thisNode = (DefaultMutableTreeNode) treeRoot.getChildAt(i);
+		
+			if(thisNode != null) {
 			treeChildren.add(thisNode.toString());
+			
+			if(thisNode.getChildCount() > 0){
+				addSampleColumnToList(thisNode, treeChildren);
+            } 
+			
+			}
 		}
 		
 		try {
@@ -250,6 +258,25 @@ public class MetadataHybrid {
 		
 	}
 	
+	
+	public void addSampleColumnToList(DefaultMutableTreeNode node, List<String> treeChildren) {
+		
+		int numchild = node.getChildCount();
+		
+		for (int i = 0; i < numchild; i++) {
+			DefaultMutableTreeNode thisNode = (DefaultMutableTreeNode) node.getChildAt(i);
+		
+			if(thisNode != null) {
+			treeChildren.add(thisNode.toString());
+			
+			if(thisNode.getChildCount() > 0){
+				addSampleColumnToList(thisNode, treeChildren);
+            } 
+			
+			}
+		}
+		
+	}
 	
 
 	public void setXMLroot(Element root) {

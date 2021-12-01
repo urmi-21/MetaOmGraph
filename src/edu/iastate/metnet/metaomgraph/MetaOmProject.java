@@ -1106,7 +1106,7 @@ public class MetaOmProject {
 					
 					ProjectFileModel projectFileModel = gson.fromJson(reader, ProjectFileModel.class);
 					
-					allsWell = loadProjectFileJSON(projectFileModel);
+					allsWell = loadProjectFileJSON(projectFileModel, projectFile);
 					
 					if (!allsWell) {
 						System.out.println("Failure at project file load");
@@ -1298,6 +1298,49 @@ public class MetaOmProject {
 					// get Jtree structure
 					Element xmlRoot = mdTreeStruc.getRootElement();
 					tree.setModel(xmltoJtree(xmlRoot));
+					
+					treeFound = true;
+					instream = new ZipInputStream(new FileInputStream(projectFile));
+				} 
+				
+				else if ((thisEntry.getName().equals("metadataTree.json")) && (!treeFound)) {
+					
+					JsonReader reader = new JsonReader((new InputStreamReader(instream)));
+					Gson gson = new Gson();
+					
+					MetadataTreeModel metadataTreeModel = gson.fromJson(reader, MetadataTreeModel.class);
+
+					
+					// call parse object
+					if (metaDataCollection == null) {
+						
+						return false;
+					}
+					tree = new JTree();
+					
+					tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Root") {
+						{
+						}
+					}));
+					
+					DefaultTreeModel tree_model = (DefaultTreeModel)tree.getModel();
+
+					DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree_model.getRoot();
+
+					if(metadataTreeModel.getChildren() != null && metadataTreeModel.getChildren().size() > 0) {
+					DefaultMutableTreeNode identifier = new DefaultMutableTreeNode(metaDataCollection.getDatacol());
+					root.add(identifier);
+					
+					for(String col : metaDataCollection.getHeaders()) {
+						if(!col.equals(metaDataCollection.getDatacol())) {
+							DefaultMutableTreeNode child = new DefaultMutableTreeNode(col);
+							identifier.add(child);
+						}
+
+					}
+					
+					}
+					
 					
 					treeFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
@@ -3560,42 +3603,6 @@ public class MetaOmProject {
 		try {
 			maxNameLength = 0;
 
-			boolean isprojectInfo = false;
-			boolean issourcePath = false;
-			boolean issourceFile = false;
-			boolean isdelimiter = false;
-			boolean isignoreConsecutiveDelimiters = false;
-			boolean isblankValue = false;
-			boolean isxLabel = false;
-			boolean isyLabel = false;
-			boolean istitle = false;
-			boolean iscolor1 = false;
-			boolean iscolor2 = false;
-			boolean isdefaultColumn = false;
-			boolean isinfoColumn = false;
-			boolean isColumns = false;
-			boolean isColumn = false;
-			boolean isData = false;
-			boolean isInfo = false;
-			boolean isCorrelation = false;
-			boolean isAsPercentFalse = false;
-			boolean isLastTrue = false;
-			boolean isList = false;
-			boolean isLocation = false;
-			boolean issampleDataList = false;
-			boolean isCustomSort = false;
-			boolean isOrder = false;
-			boolean isMarker = false;
-			boolean isStart = false;
-			boolean isEnd = false;
-			boolean isLabel = false;
-			boolean isColor = false;
-			boolean isQuerySet = false;
-			boolean isQuery = false;
-			boolean isField = false;
-			boolean isTerm = false;
-			boolean isExcludeList = false;
-			boolean isEntry = false;
 
 			String sourcePath = "";
 			String sourceFile = "";
@@ -3614,47 +3621,9 @@ public class MetaOmProject {
 			List infoList = null;
 			List<Long> fileIndexList = new ArrayList<Long>();
 			String infoData = "";
-			String listName = "";
-			String dataListName = "";
-			String savedSortName = "";
-			String orderVal = "";
-			String markerStyle = "";
-			int startMarker = 0;
-			int endMarker = 0;
-			String labelMarker = "";
-			Color colorMarker = null;
-			String savedQueryName = "";
-			boolean querySetMatchAll = false;
 			SearchMatchType queryMatchType = SearchMatchType.CONTAINS;
-			String queryField = "";
-			String queryTerm = "";
-			String savedExcludeName = "";
-			List<Integer> entryList = null;
-			ArrayList<String> dataListValues = null;
-			ArrayList<RangeMarker> markerList = null;
-			RangeMarker rangeMarker = null;
 			ArrayList<MetadataQuery> queryList = null;
 			MetadataQuery currentQuery = null;
-
-			StringBuilder orderValSB = null;
-			StringBuilder sampleColumnSB = null;
-			StringBuilder infoDataSB = null;
-			StringBuilder sourcePathSB = null;
-			StringBuilder sourceFileSB = null;
-			StringBuilder delimiterValSB = null;
-			StringBuilder ignoreConsecutiveDelimitersValSB = null;
-			StringBuilder blankValueValSB = null;
-			StringBuilder xLabelValSB = null;
-			StringBuilder yLabelValSB = null;
-			StringBuilder titleValSB = null;
-			StringBuilder color1ValSB = null;
-			StringBuilder color2ValSB = null;
-			StringBuilder defaultColumnValSB = null;
-			StringBuilder infoColumnSB = null;
-			StringBuilder labelMarkerSB = null;
-			StringBuilder queryFieldSB = null;
-			StringBuilder queryTermSB = null;
-			
 			
 			
 
@@ -3883,115 +3852,81 @@ public class MetaOmProject {
 			
 			
 
+			List<SortModel> sortModel = projectFileModel.getSorts();
+			
+			for(int i=0; i<sortModel.size(); i++) {
+				
+				cso = new NewCustomSortDialog.CustomSortObject();
+				
+				SortModel thisSortModel = sortModel.get(i);
+				ArrayList<RangeMarker> thisMarkerList = new ArrayList(thisSortModel.getRangeMarkers());
+				
+				cso.readFromXML(thisSortModel.getOrder(), thisMarkerList);
+				savedSorts.put(thisSortModel.getName(), cso);
+				
+			}
 
+
+			List<QuerySetModel> querySetModel = projectFileModel.getQueries();
+			
+			
+			for(int i=0; i<querySetModel.size(); i++) {
+				
+				QuerySetModel thisQuerySetModel = querySetModel.get(i);
+				
+				thisQuerySet = new TreeSearchQueryConstructionPanel.QuerySet();
+				
+				List<QueryModel> queryModel = thisQuerySetModel.getQueries();
+				queryList = new ArrayList<MetadataQuery>();
+				
+				for(int j=0; j<queryModel.size(); j++) {
 					
-					else if(endName.equals("order")) {
-						isOrder = false;
+					QueryModel thisQueryModel = queryModel.get(j);
+					
+					if(thisQueryModel.getMatchAll().equalsIgnoreCase("is")) {
+						queryMatchType = SearchMatchType.IS;
 					}
-					else if(endName.equals("marker")) {
-						isMarker = false;
-
-						int style = "horizontal".equals(markerStyle) ? RangeMarker.HORIZONTAL : RangeMarker.VERTICAL;
-
-						rangeMarker = new RangeMarker(startMarker, endMarker, labelMarker, style, colorMarker);
-
-						markerList.add(rangeMarker);
-
+					else if(thisQueryModel.getMatchAll().equalsIgnoreCase("contains")) {
+						queryMatchType = SearchMatchType.CONTAINS;
 					}
-					else if(endName.equals(NewCustomSortDialog.CustomSortObject.getXMLElementName())) {
-						isCustomSort = false;
-
-						if(orderValSB != null) {
-							orderVal = orderValSB.toString();
-						}
-
-						cso.readFromXML(orderVal, markerList);
-						savedSorts.put(savedSortName, cso);
-
+					else if(thisQueryModel.getMatchAll().equalsIgnoreCase("not")) {
+						queryMatchType = SearchMatchType.NOT;
 					}
-					else if(endName.equals("start")) {
-
-						isStart = false;
+					else if(thisQueryModel.getMatchAll().equalsIgnoreCase("does_not_contain")) {
+						queryMatchType = SearchMatchType.DOES_NOT_CONTAIN;
 					}
-					else if(endName.equals("end")) {
+					
+					currentQuery = new MetadataQuery(thisQueryModel.getField(), thisQueryModel.getTerm(),queryMatchType, false);
+					queryList.add(currentQuery);
+				}
+				
+				thisQuerySet.initializeQuerySet(Boolean.parseBoolean(thisQuerySetModel.getMatchAll()), (List<Metadata.MetadataQuery>)queryList);
 
-						isEnd = false;
-					}
-					else if(endName.equals("label")) {
+				savedQueries.put(thisQuerySetModel.getName(), thisQuerySet);
+				
+			}
+			
+			
 
-						isLabel = false;
-						
-						if(labelMarkerSB != null) {
-							labelMarker = labelMarkerSB.toString();
-						}
-						
-						labelMarkerSB = null;
-						
-					}	
-					else if(endName.equals("color")) {
 
-						isColor = false;
-					}
-
-					else if(endName.equals(TreeSearchQueryConstructionPanel.QuerySet.getXMLElementName())) {
-
-						isQuerySet = false;
-
-						thisQuerySet.initializeQuerySet(querySetMatchAll, queryList);
-
-						savedQueries.put(savedQueryName, thisQuerySet);
-
-					}
-					else if(endName.equals("query")) {
-						isQuery = false;
-
-						currentQuery = new MetadataQuery(queryField, queryTerm, queryMatchType, false);
-						queryList.add(currentQuery);
-
-					}
-					else if(endName.equals("field")) {
-						isField = false;
-						
-						if(queryFieldSB != null) {
-							queryField = queryFieldSB.toString();
-						}
-						
-						queryFieldSB = null;
-						
-					}
-					else if(endName.equals("term")) {
-						isTerm = false;
-						
-						if(queryTermSB != null) {
-							queryTerm = queryTermSB.toString();
-						}
-						
-						queryTermSB = null;
-						
-					}
-					else if(endName.equals("MetaOmProject")) {
-
-						rowNames = new Object[dataInfoList.size()][infoColumns];
-						fileIndex = new Long[dataInfoList.size()];
+			rowNames = new Object[dataInfoList.size()][infoColumns];
+			fileIndex = new Long[dataInfoList.size()];
 
 
 
-						for(int i=0; i<dataInfoList.size(); i++) {
-							List currentDataList = dataInfoList.get(i);
+			for(int i=0; i<dataInfoList.size(); i++) {
+				List currentDataList = dataInfoList.get(i);
 
-							for(int j=0; j< currentDataList.size(); j++) {
+				for(int j=0; j< currentDataList.size(); j++) {
 
-								rowNames[i][j] = currentDataList.get(j);
-							}
-						}
-
-
-						for(int i=0; i<fileIndexList.size(); i++) {
-							fileIndex[i] = fileIndexList.get(i);
-						}
+					rowNames[i][j] = currentDataList.get(j);
+				}
+			}
 
 
-					}
+			for(int i=0; i<fileIndexList.size(); i++) {
+				fileIndex[i] = fileIndexList.get(i);
+			}
 
 					
 		}
@@ -4010,17 +3945,6 @@ public class MetaOmProject {
 
 			return false;
 		} 
-		catch (XMLStreamException e) {
-			// TODO Auto-generated catch block
-
-			StringWriter sw = new StringWriter();
-			PrintWriter pw = new PrintWriter(sw);
-			e.printStackTrace(pw);
-
-			JOptionPane.showMessageDialog(null, sw.toString());
-
-			e.printStackTrace();
-		}
 
 		return true;
 	}

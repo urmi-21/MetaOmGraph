@@ -88,13 +88,15 @@ public class ParseTableTree {
 		/////////////////
 		long startTime = System.currentTimeMillis();
 		try {
-			buildTree(root, XMLroot);
+//			buildTree(root, XMLroot);
 		}
 		catch(Exception ex) {
 			JOptionPane.showMessageDialog(null,"Error building tree from table","Error",JOptionPane.ERROR_MESSAGE);
 		}
 		long stopTime = System.currentTimeMillis();
 		long elapsedTime = stopTime - startTime;
+		
+		importedHeaders = Arrays.asList(this.obj.getHeaders());
 
 		XMLOutputter outter = new XMLOutputter();
 		outter.setFormat(Format.getPrettyFormat());
