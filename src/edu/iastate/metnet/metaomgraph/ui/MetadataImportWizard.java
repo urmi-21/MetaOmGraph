@@ -62,7 +62,6 @@ public class MetadataImportWizard extends TaskbarInternalFrame {
 
 	private JPanel contentPane;
 	private JTable table;
-	private JTree tree;
 	private JTree tree_1;
 	private JCheckBox[] cBoxes;
 	private int treePreviewSize = 5;
@@ -111,7 +110,7 @@ public class MetadataImportWizard extends TaskbarInternalFrame {
 	 */
 	public MetadataImportWizard(MetadataCollection obj, String[] headers, Dimension frameDimension,
 			Point locationOnScreen) {
-		this(obj, headers, frameDimension, locationOnScreen, null, null, null, null, false, null);
+		this(obj, headers, frameDimension, locationOnScreen, null, null, null, false, null);
 	}
 
 	/**
@@ -121,9 +120,9 @@ public class MetadataImportWizard extends TaskbarInternalFrame {
 	 * @param treeStruct
 	 * @param removeCols
 	 */
-	public MetadataImportWizard(MetadataHybrid mdobj, JTree treeStruct, boolean removeCols) {
-		this(mdobj.getMetadataCollection(), mdobj.getColumnsNotinTree(), new Dimension(800, 600), new Point(500, 100),
-				null, new ArrayList<>(mdobj.getMissingMDRows()), new ArrayList<>(mdobj.getExcludedMDRows()), treeStruct, removeCols,
+	public MetadataImportWizard(MetadataHybrid mdobj, boolean removeCols) {
+		this(mdobj.getMetadataCollection(), mdobj.getMetadataHeaders(), new Dimension(800, 600), new Point(500, 100),
+				null, new ArrayList<>(mdobj.getMissingMDRows()), new ArrayList<>(mdobj.getExcludedMDRows()), removeCols,
 				new ArrayList<>(mdobj.getRemovedMDCols()) );
 	}
 
@@ -131,8 +130,7 @@ public class MetadataImportWizard extends TaskbarInternalFrame {
 	 * @wbp.parser.constructor
 	 */
 	public MetadataImportWizard(MetadataCollection obj, String[] headers, Dimension frameDimension,
-			Point locationOnScreen, ReadMetadata parent, List<String> missingDC, List<String> extraDC,
-			JTree treeStructure, boolean removeCols, List<String> mdrmCols) {
+			Point locationOnScreen, ReadMetadata parent, List<String> missingDC, List<String> extraDC, boolean removeCols, List<String> mdrmCols) {
 		
 		//urmi dispose the parent (frame which called this frame; used in  order to go back to previous step) internal frame
 		if(parent != null)
@@ -185,23 +183,6 @@ public class MetadataImportWizard extends TaskbarInternalFrame {
 		});
 		panel.add(btnBack);
 
-		tree = treeStructure;
-		if (tree == null) {
-			tree = new JTree();
-			tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Root") {
-				{
-				}
-			}));
-		}
-
-		tree.setBackground(Color.BLACK);
-		tree.setFont(new Font("Times New Roman", Font.PLAIN, 20));
-		scrollPaneTree.setViewportView(tree);
-		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
-		tree.setDropMode(DropMode.USE_SELECTION);
-		tree.setDragEnabled(true);
-		tree.setTransferHandler(new MogTreeTransferHandler());
-		
 
 		JButton btnImport = new JButton("Next");
 		btnImport.addActionListener(new ActionListener() {
@@ -229,29 +210,6 @@ public class MetadataImportWizard extends TaskbarInternalFrame {
 				}
 				
 
-				if (tree == null) {
-					tree = new JTree();
-					tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Root") {
-						{
-						}
-					}));
-				}
-				
-				DefaultTreeModel tree_model = (DefaultTreeModel)tree.getModel();
-
-				DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree_model.getRoot();
-
-				DefaultMutableTreeNode identifier = new DefaultMutableTreeNode(dataColumnName);
-				
-				root.add(identifier);
-				
-				for(String col : selectedCols) {
-					if(!col.equals(dataColumnName)) {
-						DefaultMutableTreeNode child = new DefaultMutableTreeNode(col);
-						identifier.add(child);
-					}
-
-				}
 
 				
 				obj.setRemoveCols(remainingCols);
@@ -263,16 +221,16 @@ public class MetadataImportWizard extends TaskbarInternalFrame {
 					public Object construct() {
 						// return if data column has repeated names
 
-						ParseTableTree ob = new ParseTableTree(obj, tree, dataColumnName);
+						ParseTableTree ob = new ParseTableTree(obj, obj.getAllDataCols(), dataColumnName);
 						// org.jdom.Document res = ob.tableToTree(obj, tree);
-						org.jdom.Document res = ob.tableToTree();
+						ob.tableToTree();
 						
 						if (!(MetaOmGraph.getActiveProject() == null)) {
 							try {
 
-								MetaOmGraph.getActiveProject().loadMetadataHybrid(obj, res.getRootElement(),
-										ob.getTreeMap(), dataColumnName, ob.getMetadataHeaders(), tree,
-										ob.getDefaultRepMap(), ob.getDefaultRepCol(), missingDC, extraDC, removedCols);
+								MetaOmGraph.getActiveProject().loadMetadataHybrid(obj, 
+										ob.getMetadataMap(), dataColumnName, ob.getMetadataHeaders(),
+										ob.getDefaultRepCol(), missingDC, extraDC, removedCols);
 								// JOptionPane.showMessageDialog(null, "total child of
 								// root:"+res.getRootElement().getChildren().size());
 								MetaOmGraph.updateWindow();

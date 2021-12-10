@@ -527,7 +527,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 						int thisSampIndex = getProject().getMetadataHybrid().getColIndexbyName(thisSampname);
 						// get all metadata for this Gname
 						String[][] tableData = getProject().getMetadataHybrid()
-								.getNodeMetadata(getProject().getMetadataHybrid().getParentNodeForCol(thisSampIndex));
+								.getNodeMetadata(thisSampIndex);
 						// if nothing is returned. this should not happen.
 						if (tableData == null) {
 							return "Error. Metadata not found!!";

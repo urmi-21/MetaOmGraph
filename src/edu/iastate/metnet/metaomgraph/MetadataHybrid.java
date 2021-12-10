@@ -44,9 +44,6 @@ import edu.iastate.metnet.metaomgraph.utils.Utils;
  */
 public class MetadataHybrid {
 	private MetadataCollection mogCollection;
-	private Element XMLroot;
-	private JTree treeStructure; // tree structure created by user
-	// private List<Document> metadata;
 	private String dataColumn;
 	private String[] metadataHeaders; // only those columns imported in tree structure subset of metadata headers from
 	// MOGcollection object
@@ -60,10 +57,6 @@ public class MetadataHybrid {
 	// removed columns from metadata file, not in tree structure
 	private Set<String> removedColsfromMD;
 
-	/**
-	 * @author urmi defaultrepsMap maps a "Rep-name" (parent name of data col by
-	 *         default) to a list of columns which are in that rep.
-	 */
 	private TreeMap<String, List<Integer>> defaultrepsMap; // default reps
 	private String defaultrepsColumn;
 
@@ -77,7 +70,7 @@ public class MetadataHybrid {
 	 * fields: maps colnames to int
 	 * 
 	 */
-	public TreeMap<Integer, Element> knownCols;
+	public TreeMap<Integer, Map<String,String>> knownCols;
 	// public LinkedHashMap<String, Integer> fields;
 
 	// HashMap<String, Class> mdColType;
@@ -87,22 +80,18 @@ public class MetadataHybrid {
 
 	}
 
-	public MetadataHybrid(MetadataCollection mogCollection, Element XMLroot, TreeMap<Integer, Element> tm,
-			String colName, String[] mdheaders, JTree treeStructure, TreeMap<String, List<Integer>> defaultrepsMap,
+	public MetadataHybrid(MetadataCollection mogCollection, TreeMap<Integer, Map<String,String>> tm,
+			String colName, String[] mdheaders,
 			String defaultrepsCol, List<String> missingDC, List<String> extraDC, List<String> removedColsfromMD) {
 		this.mogCollection = mogCollection;
-		this.XMLroot = XMLroot;
 		// this.metadata = this.mogCollection.getAllData();
 		this.knownCols = tm;
 		this.dataColumn = colName;
 		this.metadataHeaders = mdheaders;
-		// treestructure is the tree created by the user that defines the structure
-		this.treeStructure = treeStructure;
-		this.defaultrepsMap = defaultrepsMap;
+
 		this.defaultrepsColumn = defaultrepsCol;
 		// build default reps map
-		this.defaultrepsMap = buildRepsMap(defaultrepsCol);
-
+		
 		if (extraDC != null) {
 			this.excludedMDRows = new HashSet<>(extraDC);
 		} else {
@@ -126,13 +115,6 @@ public class MetadataHybrid {
 
 	}
 
-	public JTree getTreeStucture() {
-		return this.treeStructure;
-	}
-
-	public void setTreeStucture(JTree tree) {
-		this.treeStructure = tree;
-	}
 
 	public String getDefaultRepCol() {
 		return this.defaultrepsColumn;
@@ -279,9 +261,6 @@ public class MetadataHybrid {
 	}
 	
 
-	public void setXMLroot(Element root) {
-		this.XMLroot = root;
-	}
 
 	public void setmogCollection(MetadataCollection obj) {
 		this.mogCollection = obj;
@@ -336,9 +315,6 @@ public class MetadataHybrid {
 		return mogCollection.getAllData();
 	}
 
-	public Element getXMLRoot() {
-		return this.XMLroot;
-	}
 
 	/**
 	 * This function returns metadata assocoated with a column
@@ -403,22 +379,6 @@ public class MetadataHybrid {
 		return getNodeMetadata(thisDC);
 	}
 
-	public String[][] getNodeMetadata(Element node) {
-		if (node == null) {
-			return new String[0][0];
-		}
-		int thisKey = -1;
-		MetaOmProject myProj = MetaOmGraph.getActiveProject();
-		for (Map.Entry<Integer, Element> entry : knownCols.entrySet()) {
-			Integer key = entry.getKey();
-			Element e = entry.getValue();
-			if (node == e) {
-				thisKey = key;
-				break;
-			}
-		}
-		return getNodeMetadata(thisKey);
-	}
 
 	/**
 	 * @author urmi This function takes a node and returns metadata of all the
@@ -449,13 +409,10 @@ public class MetadataHybrid {
 
 	}
 
-	public Element getNodeForCol(int col) {
+	public Map<String,String> getNodeForCol(int col) {
 		return knownCols.get(Integer.valueOf(col));
 	}
 
-	public Element getParentNodeForCol(int col) {
-		return knownCols.get(Integer.valueOf(col)).getParentElement();
-	}
 
 	/**
 	 * cluster the indices by values together
@@ -593,16 +550,12 @@ public class MetadataHybrid {
 		// JOptionPane.showMessageDialog(null, "knownCols:" + knownCols.toString());
 
 		// find all keys with value in colVals
-		for (Entry<Integer, Element> entry : knownCols.entrySet()) {
+		for (Entry<Integer, Map<String,String>> entry : knownCols.entrySet()) {
 			Integer key = entry.getKey();
-			Element value = entry.getValue();
+			Map<String,String> value = entry.getValue();
 			String thisName = null;
-			if (value.getChildren().size() > 0) {
-				thisName = value.getAttributeValue("name").toString();
-
-			} else {
-				thisName = value.getContent(0).getValue().toString();
-			}
+			
+			thisName = value.get(this.dataColumn);
 
 			if (colVals.contains(thisName) && key >= 0) {
 				if (!result.contains(key)) {
@@ -776,24 +729,7 @@ public class MetadataHybrid {
 
 	}
 
-	/**
-	 * return all columns in a rep
-	 * 
-	 * @param repName
-	 * @return
-	 */
-	public List<Integer> getColumnsinRep(String repName) {
-		List<Integer> res = new ArrayList<>();
-		List<Integer> temp = this.defaultrepsMap.get(repName);
 
-		for (int i = 0; i < temp.size(); i++) {
-			if (temp.get(i) >= 0) {
-				res.add(temp.get(i));
-			}
-		}
-		// JOptionPane.showMessageDialog(null, "Fount "+res.size()+" cols in:"+repName);
-		return res;
-	}
 
 	/**
 	 * return all columns in a given rep
@@ -863,47 +799,7 @@ public class MetadataHybrid {
 		return names.toArray(new String[0]);
 	}
 
-	/**
-	 * use default reps
-	 * 
-	 * @param repName
-	 * @param reps
-	 * @return
-	 */
-	public String[] getAllColumnNameRep(String repName) {
-		// JOptionPane.showMessageDialog(null, "Finding xth col in"+repName);
-		List<Integer> res = getColumnsinRep(repName);
-		if (res.size() == 0) {
-			return null;
-		}
-		List<String> names = new ArrayList<>();
-		for (int i = 0; i < res.size(); i++) {
-			if (res.get(i) >= 0) {
-				names.add(getColnamebyIndex(res.get(i)));
-			}
-		}
-		return names.toArray(new String[0]);
-	}
-
-	public String[] getIncludedColumnNameRep(String repName) {
-		boolean[] excluded = MetaOmAnalyzer.getExclude();
-		if (excluded == null) {
-			return getAllColumnNameRep(repName);
-		}
-		List<Integer> res = getColumnsinRep(repName);
-		if (res.size() == 0) {
-			return null;
-		}
-		List<String> names = new ArrayList<>();
-		for (int i = 0; i < res.size(); i++) {
-			// add positive and included cols only
-			if (res.get(i) >= 0 && !excluded[res.get(i)]) {
-				names.add(getColnamebyIndex(res.get(i)));
-			}
-		}
-		return names.toArray(new String[0]);
-	}
-
+	
 	public String[] getIncludedColumnNameRep(String repName, TreeMap<String, List<Integer>> reps) {
 		boolean[] excluded = MetaOmAnalyzer.getExclude();
 		if (excluded == null) {
@@ -1049,6 +945,9 @@ public class MetadataHybrid {
 
 	}
 	
+	public void setDefaultRepsMap(TreeMap<String, List<Integer>> repsMap) {
+		this.defaultrepsMap = repsMap;
+	}
 
 	/**
 	 * Get the metadata file path in the project
@@ -1058,9 +957,6 @@ public class MetadataHybrid {
 		return this.mogCollection.getfilepath();
 	}
 
-	public void setDefaultRepsMap(TreeMap<String, List<Integer>> repsMap) {
-		this.defaultrepsMap = repsMap;
-	}
 
 	/**
 	 * Function to build custom reps map.
@@ -1172,25 +1068,6 @@ public class MetadataHybrid {
 
 	public void setRemovedMDCols(List<String> mdCols) {
 		removedColsfromMD = new HashSet<>(mdCols);
-	}
-
-	// return columns in metadataheader which are not included in the tree
-	// structure.
-	public String[] getColumnsNotinTree() {
-		List<String> resList = new ArrayList<>();
-		List<String> inTree = new ArrayList<>();
-		// get headers included in tree
-		Enumeration en = ((DefaultMutableTreeNode) treeStructure.getModel().getRoot()).preorderEnumeration();
-		String[] allHeaders = mogCollection.getHeaders();
-		while (en.hasMoreElements()) {
-			inTree.add(en.nextElement().toString());
-		}
-		for (int i = 0; i < allHeaders.length; i++) {
-			if (!inTree.contains(allHeaders[i])) {
-				resList.add(allHeaders[i]);
-			}
-		}
-		return resList.toArray(new String[0]);
 	}
 
 	public void removeExcludedMDRows() {

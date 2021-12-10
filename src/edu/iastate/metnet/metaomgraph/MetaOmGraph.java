@@ -1943,6 +1943,8 @@ public class MetaOmGraph implements ActionListener {
 			welcomeDialog.dispose();
 			welcomeDialog = null;
 		}
+		
+		
 		// getActiveProject().showMeansDialog();
 		projectTableFrame = new TaskbarInternalFrame("Project Data");
 		FrameModel fm = new FrameModel("Project Data","Project Data",1);
@@ -2831,8 +2833,7 @@ public class MetaOmGraph implements ActionListener {
 				// DisplayMetadataEditor obj = new DisplayMetadataEditor();
 				// obj.setVisible(true);
 
-				MetadataImportWizard frame = new MetadataImportWizard(getActiveProject().getMetadataHybrid(),
-						getActiveProject().getMetadataHybrid().getTreeStucture(), false);
+				MetadataImportWizard frame = new MetadataImportWizard(getActiveProject().getMetadataHybrid(), false);
 				frame.setVisible(true);
 			} catch (NullPointerException ne) {
 				JOptionPane.showMessageDialog(null, "No metadata found. ERROR");
