@@ -846,14 +846,14 @@ public class MetaOmProject {
 
 
 				
-				// write tree
-				myZipOut.putNextEntry(new ZipEntry("metadataTree.json"));
-				writer = new JsonWriter(new OutputStreamWriter(myZipOut, "UTF-8"));
-				
-				this.getMetadataHybrid().writeJtreetoJSON(this.getMetadataHybrid().getTreeStucture(), writer);
-				writer.flush();
-				
-				myZipOut.closeEntry();
+//				// write tree
+//				myZipOut.putNextEntry(new ZipEntry("metadataTree.json"));
+//				writer = new JsonWriter(new OutputStreamWriter(myZipOut, "UTF-8"));
+//				
+//				this.getMetadataHybrid().writeJtreetoJSON(this.getMetadataHybrid().getTreeStucture(), writer);
+//				writer.flush();
+//				
+//				myZipOut.closeEntry();
 
 
 
@@ -1065,7 +1065,7 @@ public class MetaOmProject {
 		String inline;
 		SAXBuilder builder;
 		XMLOutputter outter;
-		JTree tree = null;
+		List<String> allMetadataCols = null;
 		List<String> excluded = null;
 		List<String> missing = null;
 		List<String> removedMDCols = null;
@@ -1294,10 +1294,8 @@ public class MetaOmProject {
 						
 						return false;
 					}
-					tree = new JTree();
-					// get Jtree structure
-					Element xmlRoot = mdTreeStruc.getRootElement();
-					tree.setModel(xmltoJtree(xmlRoot));
+
+					allMetadataCols = metaDataCollection.getAllDataCols();
 					
 					treeFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
@@ -1316,32 +1314,10 @@ public class MetaOmProject {
 						
 						return false;
 					}
-					tree = new JTree();
-					
-					tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("Root") {
-						{
-						}
-					}));
-					
-					DefaultTreeModel tree_model = (DefaultTreeModel)tree.getModel();
 
-					DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree_model.getRoot();
+					allMetadataCols = metaDataCollection.getAllDataCols();
 
-					if(metadataTreeModel.getChildren() != null && metadataTreeModel.getChildren().size() > 0) {
-					DefaultMutableTreeNode identifier = new DefaultMutableTreeNode(metaDataCollection.getDatacol());
-					root.add(identifier);
-					
-					for(String col : metaDataCollection.getHeaders()) {
-						if(!col.equals(metaDataCollection.getDatacol())) {
-							DefaultMutableTreeNode child = new DefaultMutableTreeNode(col);
-							identifier.add(child);
-						}
-
-					}
-					
-					}
-					
-					
+				
 					treeFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				} 
@@ -2397,17 +2373,17 @@ public class MetaOmProject {
 
 				metaDataCollection.addNullData(missing);
 
-				ParseTableTree ob = new ParseTableTree(metaDataCollection, tree, metaDataCollection.getDatacol(),
+				ParseTableTree ob = new ParseTableTree(metaDataCollection, allMetadataCols, metaDataCollection.getDatacol(),
 						this.getDataColumnHeaders());
 				// JOptionPane.showMessageDialog(null, "to table tree");
-				org.jdom.Document res = ob.tableToTree();
+				ob.tableToTree();
 
 				// save and read repscolname
 				// add
 				// JOptionPane.showMessageDialog(null, "Creating MDH");
 
-				loadMetadataHybrid(metaDataCollection, res.getRootElement(), ob.getTreeMap(),
-						metaDataCollection.getDatacol(), ob.getMetadataHeaders(), tree, ob.getDefaultRepMap(),
+				loadMetadataHybrid(metaDataCollection, ob.getMetadataMap(),
+						metaDataCollection.getDatacol(), ob.getMetadataHeaders(),
 						ob.getDefaultRepCol(), missing, excluded, removedMDCols);
 
 			} catch (NullPointerException | IOException e) {
@@ -5091,9 +5067,9 @@ public class MetaOmProject {
 	 * @return status changed
 	 * @throws IOException
 	 */
-	public boolean loadMetadataHybrid(MetadataCollection ob, Element XMLroot, TreeMap<Integer, Element> tm,
-			String dataCol, String[] mdheaders, JTree treeStructure, TreeMap<String, List<Integer>> defaultrepsMap,
-			String defaultrepscol, List<String> missingDC, List<String> extraDC, List<String> removedCols)
+	public boolean loadMetadataHybrid(MetadataCollection ob, TreeMap<Integer, Map<String,String>> tm,
+			String dataCol, String[] mdheaders, String defaultrepscol, List<String> missingDC, 
+			List<String> extraDC, List<String> removedCols)
 					throws IOException {
 		if (source == null) {
 			// metadataH = new MetadataHybrid();
@@ -5102,8 +5078,7 @@ public class MetaOmProject {
 			// JOptionPane.showMessageDialog(null, "loading null stream");
 		} else {
 			// JOptionPane.showMessageDialog(null, "loading stream");
-			metadataH = new MetadataHybrid(ob, XMLroot, tm, dataCol, mdheaders, treeStructure, defaultrepsMap,
-					defaultrepscol, missingDC, extraDC, removedCols);
+			metadataH = new MetadataHybrid(ob, tm, dataCol, mdheaders, defaultrepscol, missingDC, extraDC, removedCols);
 			metaDataCollection = metadataH.getMetadataCollection();
 		}
 		this.defaultXAxis = dataCol;

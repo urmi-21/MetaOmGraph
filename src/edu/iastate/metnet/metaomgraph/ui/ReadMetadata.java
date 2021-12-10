@@ -265,7 +265,7 @@ public class ReadMetadata extends TaskbarInternalFrame {
 									JOptionPane.INFORMATION_MESSAGE);
 														
 							MetadataImportWizard frame = new MetadataImportWizard(obj, headers, getThisFrame().getSize(), getThisFrame().getLocationOnScreen(), getThisFrame(),
-									missingDC, extraDC, null, true, removedCols);
+									missingDC, extraDC, true, removedCols);
 							
 							MetaOmGraph.getDesktop().add(frame);
 							
