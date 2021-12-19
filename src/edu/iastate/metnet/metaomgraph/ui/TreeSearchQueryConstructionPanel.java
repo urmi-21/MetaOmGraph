@@ -10,10 +10,7 @@ import edu.iastate.metnet.metaomgraph.SearchMatchType;
 import edu.iastate.metnet.metaomgraph.utils.qdxml.SimpleXMLElement;
 import edu.iastate.metnet.metaomgraph.utils.qdxml.SimpleXMLizable;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serializable;
@@ -21,20 +18,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
-import javax.swing.InputMap;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
@@ -51,6 +37,10 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 	private boolean isOK;
 	private JRadioButton allButton;
 	private JRadioButton anyButton;
+	private JRadioButton invisibleButton;
+	private ButtonGroup groupBtnRadio;
+	private List<SearchTermPanel> searchTermPanels;
+	private JTextField queryDisplay;
 
 	private int queryCount;
 	private boolean matchAll;
@@ -72,7 +62,8 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 	 */
 	public TreeSearchQueryConstructionPanel(MetaOmProject project, boolean searchFeatureMetaDataTable) {
 		myProject = project;
-		setLayout(new BorderLayout());
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		searchTermPanels = new ArrayList<>();
 		queryPanel = new JPanel();
 		queryPanel.setLayout(new BoxLayout(queryPanel, 1));
 		JPanel queryButtonPanel = new JPanel();
@@ -84,6 +75,10 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 		fewerButton.addActionListener(this);
 		queryButtonPanel.add(moreButton);
 		queryButtonPanel.add(fewerButton);
+		queryDisplay = new JTextField(" Complete Query for Preview ");
+		queryDisplay.setEditable(false);
+		queryDisplay.setToolTipText("A preview of the logic that will be applied when using this filter");
+		queryDisplay.setMaximumSize(new Dimension(getWidth(), queryDisplay.getHeight()));
 		// String[] fields = myProject.getMetadata().getFields();
 
 		String[] fields=null;
@@ -114,42 +109,85 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 		c.gridy = 1;
 		c.weighty = 1.0D;
 		queryViewport.add(new JPanel(), c);
-		queryPanel.add(new SearchTermPanel());
+		searchTermPanels.add(new SearchTermPanel());
+		queryPanel.add(searchTermPanels.get(searchTermPanels.size() - 1));
 		mainScrollPane = new JScrollPane(queryViewport);
 
 		allButton = new JRadioButton("Match all of the following");
 		anyButton = new JRadioButton("Match any of the following");
+		invisibleButton = new JRadioButton("");
+		invisibleButton.setVisible(false);
 		//urmi make only one selectable add to group
-		ButtonGroup groupBtnRadio = new ButtonGroup();
+		groupBtnRadio = new ButtonGroup();
 		groupBtnRadio.add(allButton);
 		groupBtnRadio.add(anyButton);
+		groupBtnRadio.add(invisibleButton);
 		//caseButton = new JRadioButton("Match case");
 		
 		allButton.setSelected(true);
+
+		allButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				for (SearchTermPanel panel : searchTermPanels) {
+					panel.setMatchAsAND();
+				}
+				groupBtnRadio.setSelected(allButton.getModel(), true);
+			}
+		});
+		anyButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				for (SearchTermPanel panel : searchTermPanels) {
+					panel.setMatchAsOR();
+				}
+				groupBtnRadio.setSelected(anyButton.getModel(), true);
+			}
+		});
+
 		JPanel allAnyPanel = new JPanel();
 		//allAnyPanel.add(caseButton);
 		allAnyPanel.add(allButton);
 		allAnyPanel.add(anyButton);
-		add(allAnyPanel, "First");
-		add(mainScrollPane, "Center");
-
+		add(allAnyPanel, 0);
+		JPanel queryDisplayPanel = new JPanel();
+		queryDisplayPanel.add(queryDisplay);
+		add(queryDisplayPanel, 1);
+		JPanel queryPanel = new JPanel();
+		queryPanel.setLayout(new BoxLayout(queryPanel, BoxLayout.X_AXIS));
 		HashtableSavePanel savePanel = new HashtableSavePanel(myProject.getSavedQueries(), this);
-		add(savePanel, "Before");
-		add(queryButtonPanel, "Last");
+		savePanel.setSize(queryPanel.getWidth() / 6, queryPanel.getHeight());
+		queryPanel.add(savePanel, 0);
+		queryPanel.add(mainScrollPane, 1);
+		add(queryPanel, 2);
+		add(queryButtonPanel, 3);
 		setBorder(BorderFactory.createEtchedBorder());
 	}
 
 	private void addQueryField() {
-		queryPanel.add(new SearchTermPanel());
+		searchTermPanels.get(searchTermPanels.size() - 1).getAndOrBox().setVisible(true);
+		searchTermPanels.get(searchTermPanels.size() - 1).validate();
+		queryDisplay.setText("Complete Query for Preview");
+		queryDisplay.setToolTipText("A preview of the logic that will be applied when using this filter");
+		queryDisplay.setColumns(16);
+		SearchTermPanel stp = new SearchTermPanel();
+		searchTermPanels.add(stp);
+		queryPanel.add(stp);
 		fewerButton.setEnabled(true);
 		mainScrollPane.setViewportView(queryViewport);
+		revalidate();
 	}
 
 	private void removeQueryField() {
+		searchTermPanels.remove(searchTermPanels.size() - 1);
+		searchTermPanels.get(searchTermPanels.size() - 1).getAndOrBox().setVisible(false);
+		searchTermPanels.get(searchTermPanels.size() - 1).validate();
+		searchTermPanels.get(0).searchTermField.setText(searchTermPanels.get(0).searchTermField.getText());
 		queryPanel.remove(queryPanel.getComponentCount() - 1);
 		if (queryPanel.getComponentCount() == 1)
 			fewerButton.setEnabled(false);
 		mainScrollPane.setViewportView(queryViewport);
+		revalidate();
 	}
 
 	public Metadata.MetadataQuery[] showSearchDialog() {
@@ -181,8 +219,8 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 		buttonPanel.add(okButton);
 		buttonPanel.add(cancelButton);
 		myDialog.getContentPane().add(buttonPanel, "Last");
-		myDialog.setSize(640, 480);
-		myDialog.pack();
+		myDialog.setSize(1000, 300);
+		//myDialog.pack();
 		int width = MetaOmGraph.getMainWindow().getWidth();
 		int height = MetaOmGraph.getMainWindow().getHeight();
 		myDialog.setLocation((width - myDialog.getWidth()) / 2, (height - myDialog.getHeight()) / 2);
@@ -240,8 +278,10 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 	private class SearchTermPanel extends JPanel {
 		private JComboBox fieldBox;
 		private JComboBox matchBox;
+		private JComboBox andOrBox;
 		private JTextField searchTermField;
 		private JCheckBox matchCasebox;
+		private boolean populated = false;
 
 		public SearchTermPanel() {
 			this("Any field", SearchMatchType.CONTAINS, "",false);
@@ -258,6 +298,93 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 			matchBox.setSelectedIndex(matchType.ordinal());
 			searchTermField = new JTextField(term);
 			searchTermField.setColumns(20);
+			searchTermField.getDocument().addDocumentListener(new DocumentListener() {
+				@Override
+				public void insertUpdate(DocumentEvent e) {
+					changedUpdate(e);
+				}
+				@Override
+				public void removeUpdate(DocumentEvent e) {
+					changedUpdate(e);
+				}
+				@Override
+				public void changedUpdate(DocumentEvent e) {
+					if (searchTermField.getText() != null && !searchTermField.getText().trim().equals("")) {
+						populated = true;
+					} else {
+						populated = false;
+					}
+					boolean shouldDisplayQuery = true;
+					boolean lastWasOr = false;
+					String result = "";
+					for (int i = 0; i < searchTermPanels.size(); i++) {
+						SearchTermPanel panel = searchTermPanels.get(i);
+						if (!panel.isPopulated()) {
+							shouldDisplayQuery = false;
+							queryDisplay.setText("Complete Query for Preview");
+							queryDisplay.setToolTipText("A preview of the logic that will be applied when using this filter");
+							queryDisplay.setColumns(16);
+							TreeSearchQueryConstructionPanel.this.revalidate();
+							break;
+						} else {
+							if (panel.isMatchAND()) {
+								if (lastWasOr) {
+									result += panel.getColString() + " " + panel.getMatchString() + " " + panel.getSearchTerm() + ")" + " and ";
+								} else {
+									result += panel.getColString() + " " + panel.getMatchString() + " " + panel.getSearchTerm() + " and ";
+								}
+								lastWasOr = false;
+							} else if (panel.isMatchOR()) {
+								if (lastWasOr) {
+									result += panel.getColString() + " " + panel.getMatchString() + " " + panel.getSearchTerm() + " or ";
+								} else {
+									result += "(" + panel.getColString() + " " + panel.getMatchString() + " " + panel.getSearchTerm() + " or ";
+								}
+								lastWasOr = true;
+							} else {
+								if (lastWasOr) {
+									result += panel.getColString() + " " + panel.getMatchString() + " " + panel.getSearchTerm() + ")";
+								} else {
+									result += panel.getColString() + " " + panel.getMatchString() + " " + panel.getSearchTerm();
+								}
+							}
+						}
+					}
+					if (shouldDisplayQuery) {
+						if (result.length() > 150) {
+							queryDisplay.setText("Hover mouse here to display query");
+							queryDisplay.setColumns(19);
+						} else {
+							queryDisplay.setText(result);
+							queryDisplay.setColumns((int) (result.length() / 1.7));
+
+						}
+						queryDisplay.setToolTipText(result);
+						TreeSearchQueryConstructionPanel.this.revalidate();
+					}
+				}
+			});
+			andOrBox = new JComboBox(new String[] { "AND", "OR" });
+			andOrBox.setToolTipText("For results to be included:\nAll queries marked with AND must be true\nOr any query marked with OR can be true");
+			andOrBox.setVisible(false);
+			andOrBox.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					searchTermField.setText(searchTermField.getText());
+				}
+			});
+			matchBox.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					searchTermField.setText(searchTermField.getText());
+				}
+			});
+			fieldBox.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					searchTermField.setText(searchTermField.getText());
+				}
+			});
 			matchCasebox = new JCheckBox("Match case");
 			if(matchCase) {
 				matchCasebox.setSelected(true);
@@ -277,22 +404,56 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 			c.weightx = 1.0D;
 			c.fill = 1;
 			add(searchTermField, c);
+			c.fill = 0;
 			c.gridx = 3;
+			add(andOrBox, c);
+			c.gridx = 4;
 			c.weightx = 0.0D;
 			c.fill = 1;
 			add(matchCasebox, c);
-			
+
+			andOrBox.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					groupBtnRadio.setSelected(invisibleButton.getModel(), true);
+				}
+			});
+		}
+
+		public void setMatchAsAND() {
+			andOrBox.setSelectedIndex(0);
+		}
+
+		public void setMatchAsOR() {
+			andOrBox.setSelectedIndex(1);
+		}
+
+		public boolean isMatchAND() {
+			return andOrBox.isVisible() && andOrBox.getSelectedIndex() == 0;
+		}
+
+		public boolean isMatchOR() {
+			return andOrBox.isVisible() && andOrBox.getSelectedIndex() == 1;
+		}
+
+		public JComboBox getAndOrBox() {
+			return andOrBox;
 		}
 
 		public String getField() {
-			// changed //urmi
-			// if (fieldBox.getSelectedIndex() == 0) return "";
-
 			return fieldBox.getSelectedItem().toString().trim();
 		}
 		
 		public boolean matchCase() {
 			return matchCasebox.isSelected();
+		}
+
+		public boolean isPopulated() {
+			return populated;
+		}
+
+		public JTextField getSearchTermField() {
+			return searchTermField;
 		}
 		
 		public SearchMatchType getMatchType() {
@@ -308,12 +469,22 @@ public class TreeSearchQueryConstructionPanel extends JPanel
 			}
 		}
 
+		public String getMatchString() {
+			return matchBox.getSelectedItem().toString();
+		}
+
+		public String getColString() {
+			return fieldBox.getSelectedItem().toString();
+		}
+
 		public String getSearchTerm() {
 			return searchTermField.getText().trim();
 		}
 
 		public Metadata.MetadataQuery getQuery() {
 			Metadata.MetadataQuery result = new Metadata.MetadataQuery();
+			result.setAND(isMatchAND());
+			result.setOR(isMatchOR());
 			result.setField(getField());
 			result.setTerm(getSearchTerm());
 			result.setMatchType(getMatchType());

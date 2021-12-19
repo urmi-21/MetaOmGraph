@@ -308,7 +308,7 @@ public class MetaOmProject {
 			if (infoColumns <= 0) {
 				rowNames = new Object[rowNameVector.size()][1];
 				for (int x = 0; x < rowNames.length; x++) {
-					rowNames[x][0] = new Integer(x);
+					rowNames[x][0] = x;
 				}
 			} else {
 				rowNames = new Object[rowNameVector.size()][infoColumns];
@@ -425,7 +425,7 @@ public class MetaOmProject {
 					if (okToAdd) {
 						if (infoColumns > 0)
 							thisLinePointer = dataIn.getFilePointer();
-						thisData[0] = new Long(thisLinePointer);
+						thisData[0] = Long.valueOf(thisLinePointer);
 						resultNames.add(thisData);
 					}
 				}
@@ -557,7 +557,7 @@ public class MetaOmProject {
 			try {
 				RandomAccessFile dataOut = new RandomAccessFile(source, "rw");
 				for (int x = 0; x < this.data.length; x++) {
-					fileIndex[x] = new Long(dataOut.getFilePointer());
+					fileIndex[x] = dataOut.getFilePointer();
 					for (int y = 0; y < this.data[x].length; y++) {
 						if (y != 0) {
 							dataOut.write(delimiter);
@@ -2708,7 +2708,7 @@ public class MetaOmProject {
 
 					}
 					else if(isLocation) {
-						fileIndexList.add(new Long(characters.getData()));
+						fileIndexList.add(Long.valueOf(characters.getData()));
 					}
 					else if(isCustomSort && isOrder) {
 

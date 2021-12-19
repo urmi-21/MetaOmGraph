@@ -196,7 +196,7 @@ public class CustomSortDialog extends JDialog implements ActionListener, HashLoa
         String[] headers = {"Entry", myChartPanel.getChart().getXYPlot().getDomainAxis().getLabel()};
         String[] sampleNames = myChartPanel.getSampleNames();
         for (int x = 0; x < data.length; x++) {
-            data[x][0] = new Integer(order[x]);
+            data[x][0] = order[x];
             data[x][1] = sampleNames[order[x]];
         }
         sortTableModel = new NoneditableTableModel(data, headers);
@@ -211,8 +211,8 @@ public class CustomSortDialog extends JDialog implements ActionListener, HashLoa
                 data[x][0] = thisMarker.getLabel();
                 data[x][1] = (thisMarker.getStyle() == RangeMarker.HORIZONTAL ? "Horizontal" :
                         "Vertical");
-                data[x][3] = new Integer(thisMarker.getStart());
-                data[x][4] = new Integer(thisMarker.getEnd());
+                data[x][3] = thisMarker.getStart();
+                data[x][4] = thisMarker.getEnd();
                 data[x][2] = thisMarker.getColor();
             }
         }
@@ -352,8 +352,8 @@ public class CustomSortDialog extends JDialog implements ActionListener, HashLoa
         String label = labelField.getText();
         String orientation = verticalButton.isSelected() ? "Vertical" : "Horizontal";
         Object[] data = new Object[5];
-        data[3] = new Integer(start);
-        data[4] = new Integer(end);
+        data[3] = start;
+        data[4] = end;
         data[0] = label;
         data[1] = orientation;
         data[2] = cButton.getColor();

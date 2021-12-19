@@ -70,14 +70,14 @@ public class QDParser {
 
                 if (mode == 1) {
                     if (c == 60) {
-                        st.push(new Integer(mode));
+                        st.push(mode);
                         mode = 5;
                         if (sb.length() > 0) {
                             doc.text(sb.toString());
                             sb.setLength(0);
                         }
                     } else if (c == 38) {
-                        st.push(new Integer(mode));
+                        st.push(mode);
                         mode = 2;
                         etag.setLength(0);
                     } else {
@@ -116,7 +116,7 @@ public class QDParser {
                 } else if (mode == 15) {
                     if (c == 60) {
                         mode = 1;
-                        st.push(new Integer(mode));
+                        st.push(mode);
                         mode = 5;
                     }
 
@@ -133,12 +133,12 @@ public class QDParser {
                 } else if (mode == 5) {
                     mode = popMode(st);
                     if (c == 47) {
-                        st.push(new Integer(mode));
+                        st.push(mode);
                         mode = 4;
                     } else if (c == 63) {
                         mode = 14;
                     } else {
-                        st.push(new Integer(mode));
+                        st.push(mode);
                         mode = 3;
                         tagName = null;
                         attrs = new java.util.Hashtable();
@@ -228,7 +228,7 @@ public class QDParser {
                     } else if (" \r\n\t".indexOf(c) >= 0) {
                         sb.append(' ');
                     } else if (c == 38) {
-                        st.push(new Integer(mode));
+                        st.push(mode);
                         mode = 2;
                         etag.setLength(0);
                     } else {

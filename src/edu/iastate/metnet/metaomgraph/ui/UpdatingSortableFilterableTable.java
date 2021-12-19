@@ -39,7 +39,7 @@ public class UpdatingSortableFilterableTable extends SortableFilterableTable {
 
         try {
             final UpdatingSortableFilterableTable table = new UpdatingSortableFilterableTable(
-                    model, "Testing...", new Long(0L), new Long(100L));
+                    model, "Testing...", 0L, 100L);
             JFrame f = new JFrame("Table test");
             javax.swing.JPanel buttonPanel = new javax.swing.JPanel();
             final JButton toggleButton = new JButton("Empty");

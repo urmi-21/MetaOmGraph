@@ -1,0 +1,29 @@
+[Desktop Entry]
+
+# The type as listed above
+Type=Application
+
+# The version of the desktop entry specification to which this file complies
+Version=1.0
+
+# The name of the application
+Name=MetaOmGraph4
+
+# A comment which can/will be used as a tooltip
+Comment=A Java workbench for interactive exploratory data analysis of large expression datasets.
+
+# The path to the folder in which the executable is run
+Path=/opt/MOG4
+
+# The executable of the application, possibly with arguments.
+Exec=java -jar launcher.jar
+
+# The name of the icon that will be used to display this entry
+Icon=metaomgraph4
+
+# Describes whether this application needs to be run in a terminal or not
+Terminal=false
+
+# Describes the categories in which this entry should be shown
+Categories=Java;Statistics;Research;Data;Utilities;R;Analysis
+

@@ -267,7 +267,7 @@ public class MetadataPanel extends JPanel {
                     unknownCols.add("-- Remove this sample association");
                     Integer oldCol;
                     try {
-                        oldCol = new Integer(clickedNode.getAttributeValue("col"));
+                        oldCol = Integer.valueOf(clickedNode.getAttributeValue("col"));
                     } catch (NumberFormatException nfe) {
                         oldCol = null;
                     }
@@ -304,7 +304,7 @@ public class MetadataPanel extends JPanel {
                         return;
                     }
                     String selected = comboBox.getSelectedItem().toString();
-                    Integer newCol = new Integer(selected.substring(0, selected.indexOf(":") - 1));
+                    Integer newCol = Integer.valueOf(selected.substring(0, selected.indexOf(":") - 1));
                     myMetadata.associate(clickedNode, newCol);
 
                 }
@@ -816,7 +816,7 @@ public class MetadataPanel extends JPanel {
             } else if ("Sample".equals(name)) {
                 Integer col = null;
                 try {
-                    col = new Integer(((SimpleXMLElement) value).getAttributeValue("col"));
+                    col = Integer.valueOf(((SimpleXMLElement) value).getAttributeValue("col"));
                 } catch (NumberFormatException nfe) {
 
                 }

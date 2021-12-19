@@ -125,7 +125,7 @@ public class AEImportDialog
         NoneditableTableModel model = new NoneditableTableModel(
                 new Object[][]{{"Please choose an array and click Search"}},
                 new String[]{"Loading..."});
-        expTable = new UpdatingSortableFilterableTable(model, "Working...", new Long(0L), new Long(100L)) {
+        expTable = new UpdatingSortableFilterableTable(model, "Working...", 0L, 100L) {
 
             private Color[] myColors = {new Color(215, 25, 28), new Color(253, 174, 97),
                     new Color(255, 255, 191), new Color(166, 217, 106), new Color(26, 150, 65)};
@@ -202,7 +202,7 @@ public class AEImportDialog
         JComboBox expTypeBox = new JComboBox(expTypes);
         JCheckBox wholeWordsBox = new JCheckBox("Match Whole Words");
         normalizeBox = new JCheckBox("Normalize selected experiments to:");
-        normalizeSpinModel = new SpinnerNumberModel(new Double(100.0D), null, null, new Double(1.0D));
+        normalizeSpinModel = new SpinnerNumberModel(100.0D, null, null, 1.0D);
         JSpinner spinner = new JSpinner(normalizeSpinModel);
         searchButton = new JButton(searchAction);
 

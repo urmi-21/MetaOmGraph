@@ -18,14 +18,7 @@ import java.util.Collection;
 import java.util.Date;
 
 import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 
 import com.l2fprod.common.swing.JDirectoryChooser;
@@ -78,7 +71,7 @@ public class WelcomePanel extends JPanel {
         newPanel
                 .add(
                         new WelcomeHeader(
-                                "Create a New Project",
+                                "New Project",
                                 ImageIO
                                         .read(this
                                                 .getClass()
@@ -228,7 +221,7 @@ public class WelcomePanel extends JPanel {
         helpPanel.setLayout(new GridBagLayout());
         c2.gridy = 0;
         c2.insets = new Insets(0, 0, 0, 0);
-        helpPanel.add(new WelcomeHeader("Get Information", ImageIO.read(this
+        helpPanel.add(new WelcomeHeader("Information", ImageIO.read(this
                 .getClass().getResourceAsStream(
                         "/resource/tango/32x32/apps/help-browser.png"))), c2);
         c2.insets = new Insets(0, 10, 0, 0);
@@ -248,6 +241,15 @@ public class WelcomePanel extends JPanel {
         c.gridx = 0;
         c.gridheight = 1;
         this.add(helpPanel, c);
+
+//        // aorgler - allow users to run project with extra memory
+//        JCheckBox extraMemory = new JCheckBox("Run with extra memory");
+//        //extraMemory.setActionCommand();
+//        c.gridy++;
+//        c.gridx = 0;
+//        c.gridwidth = 2;
+//        this.add(extraMemory, c);
+
         JButton exitButton = new JButton("Exit MetaOmGraph", new ImageIcon(this
                 .getClass().getResource(
                         "/resource/tango/32x32/actions/system-log-out.png")));
@@ -287,7 +289,7 @@ public class WelcomePanel extends JPanel {
         newPanel
                 .add(
                         new WelcomeHeader(
-                                "Create a New Project",
+                                "New Project",
                                 ImageIO
                                         .read(this
                                                 .getClass()

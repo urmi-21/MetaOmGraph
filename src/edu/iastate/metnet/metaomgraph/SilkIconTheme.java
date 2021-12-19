@@ -35,30 +35,30 @@ public class SilkIconTheme implements IconTheme {
     private ImageIcon selectIcon;
     private ImageIcon clusterIcon;
     
-    private String defaultZoomPath = "/resource/silkicon/zoom.png";
+    private String defaultZoomPath = "/resource/silkicons/zoom.png";
 
-    private String externalSourcePath = "/resource/silkicon/world_link.png";
+    private String externalSourcePath = "/resource/silkicons/world_link.png";
 
     private String legendPath = "/resource/customicon/legend16.gif";
 
-    private String listAddPath = "/resource/silkicon/add.png";
+    private String listAddPath = "/resource/silkicons/add.png";
 
-    private String listDeletePath = "/resource/silkicon/delete.png";
+    private String listDeletePath = "/resource/silkicons/delete.png";
 
     public SilkIconTheme() {
     }
 
-    private String listEditPath = "/resource/silkicon/pencil.png";
+    private String listEditPath = "/resource/silkicons/pencil.png";
 
-    private String listLoadPath = "/resource/silkicon/accept.png";
+    private String listLoadPath = "/resource/silkicons/accept.png";
 
-    private String listRenamePath = "/resource/silkicon/textfield_rename.png";
+    private String listRenamePath = "/resource/silkicons/textfield_rename.png";
 
-    private String listSavePath = "/resource/silkicon/disk.png";
+    private String listSavePath = "/resource/silkicons/disk.png";
 
-    private String mathPath = "/resource/silkicon/calculator.png";
+    private String mathPath = "/resource/silkicons/calculator.png";
 
-    private String plotPath = "/resource/silkicon/chart_line.png";
+    private String plotPath = "/resource/silkicons/chart_line.png";
 
     private String popupClosePath = "/resource/customicon/yellow_close_icon.gif";
 
@@ -66,13 +66,13 @@ public class SilkIconTheme implements IconTheme {
 
     private String popupsPath = "/resource/customicon/popup16.png";
 
-    private String printPath = "/resource/silkicon/printer.png";
+    private String printPath = "/resource/silkicons/printer.png";
 
-    private String propertiesPath = "/resource/silkicon/page_white_wrench.png";
+    private String propertiesPath = "/resource/silkicons/page_white_wrench.png";
 
-    private String saveAsPath = "/resource/silkicon/disk.png";
+    private String saveAsPath = "/resource/silkicons/disk.png";
 
-    private String shapesPath = "/resource/silkicon/silkshapes.png";
+    private String shapesPath = "/resource/silkicons/silkshapes.png";
 
     private String textFieldClearPath = "/resource/customicon/light_grey_close_icon.gif";
 
@@ -80,15 +80,15 @@ public class SilkIconTheme implements IconTheme {
 
     private String textFieldClearPressPath = "/resource/customicon/dark_yellow_close_icon.gif";
 
-    private String zoomInPath = "/resource/silkicon/zoom_in.png";
+    private String zoomInPath = "/resource/silkicons/zoom_in.png";
 
-    private String zoomOutPath = "/resource/silkicon/zoom_out.png";
+    private String zoomOutPath = "/resource/silkicons/zoom_out.png";
 
     private String sortPath = "/resource/customicon/sorticon16.png";
 
     private String excelPath = "/resource/customicon/excel16.gif";
 
-    private String reportPath = "/resource/silkicon/newspaper.png";
+    private String reportPath = "/resource/silkicons/newspaper.png";
     
     private String groupByPath = "/resource/customicon/categorizeIcon16.png";
     
@@ -366,8 +366,13 @@ public class SilkIconTheme implements IconTheme {
 		}
 		return selectIcon;
 	}
-	
-	public ImageIcon getClusterIcon() {
+
+    @Override
+    public ImageIcon getReset() {
+        return null;
+    }
+
+    public ImageIcon getClusterIcon() {
 		if(clusterIcon == null) {
 			clusterIcon = new ImageIcon(getClass().getResource(clusterIconPath));
 		}

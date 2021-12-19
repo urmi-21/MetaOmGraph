@@ -1,0 +1,8 @@
+Package: metaomgraph4
+Version: 1.0
+Priority: optional
+Architecture: all
+Essential: no
+Maintainer: github.com/urmi-21/MetaOmGraph
+Description: MetaOmGraph (MOG) is a Java workbench for interactive exploratory data analysis of large expression datasets.
+Depends: openjdk-17-jdk (>= 17+35)
