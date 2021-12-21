@@ -40,8 +40,6 @@ import javax.swing.tree.TreePath;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.text.DefaultCaret;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
@@ -50,7 +48,6 @@ import org.jdom.output.XMLOutputter;
 
 import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.GraphFileFilter;
-import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
 import edu.iastate.metnet.metaomgraph.MetadataHybrid;
@@ -113,8 +110,8 @@ public class MetadataTreeDisplayPanel extends JPanel {
 	private HashMap<DefaultMutableTreeNode, String> jtreeMetadata;
 
 	private Color SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
-	private Color BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
-	private Color BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
+	private Color BCKGRNDCOLOR1 = MetaOmGraph.getTableColorEven();
+	private Color BCKGRNDCOLOR2 = MetaOmGraph.getTableColorOdd();
 	private Color HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
 	private Color HYPERLINKCOLOR = MetaOmGraph.getTableHyperlinkColor();
 	private boolean USEDEFAULTCOLORS = true;
@@ -1034,8 +1031,8 @@ public class MetadataTreeDisplayPanel extends JPanel {
 		} else {
 			USEDEFAULTCOLORS = false;
 			SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
-			BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
-			BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
+			BCKGRNDCOLOR1 = MetaOmGraph.getTableColorEven();
+			BCKGRNDCOLOR2 = MetaOmGraph.getTableColorOdd();
 			HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
 			HYPERLINKCOLOR = MetaOmGraph.getTableHyperlinkColor();
 		}

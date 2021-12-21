@@ -36,6 +36,7 @@ public class TangoIconTheme implements IconTheme {
     private ImageIcon groupBy;
     private ImageIcon rIcon;
     private ImageIcon selectIcon;
+    private ImageIcon resetIcon;
     private ImageIcon clusterIcon;
     
     private String dir = "/resource/tango/16x16/";
@@ -54,13 +55,13 @@ public class TangoIconTheme implements IconTheme {
 
     private String listLoadPath = dir + "actions/document-open.png";
 
-    private String listRenamePath = "/resource/silkicon/textfield_rename.png";
+    private String listRenamePath = "/resource/silkicons/textfield_rename.png";
 
     private String listSavePath = dir + "actions/document-save.png";
 
     private String mathPath = dir + "apps/accessories-calculator.png";
 
-    private String plotPath = "/resource/silkicon/chart_line.png";
+    private String plotPath = "/resource/silkicons/chart_line.png";
 
     private String popupClosePath = "/resource/customicon/yellow_close_icon.gif";
 
@@ -78,7 +79,7 @@ public class TangoIconTheme implements IconTheme {
     
     private String saveAsPath = dir + "actions/document-save-as.png";
 
-    private String shapesPath = "/resource/silkicon/silkshapes.png";
+    private String shapesPath = "/resource/silkicons/silkshapes.png";
 
     private String textFieldClearPath = "/resource/customicon/light_grey_close_icon.gif";
 
@@ -103,6 +104,8 @@ public class TangoIconTheme implements IconTheme {
     private String rIconPath =  "/resource/customicon/r_logoIcon16.png";
     
     private String selectIconPath = "/resource/customicon/select16.png";
+
+    private String resetPath = dir + "actions/view-refresh.png";
     
     private final String clusterIconPath = "/resource/customicon/cluster16.png";
     
@@ -353,6 +356,13 @@ public class TangoIconTheme implements IconTheme {
             metadata = new ImageIcon(getClass().getResource(metadataPath));
         }
         return metadata;
+    }
+
+    public ImageIcon getReset() {
+        if (resetIcon == null) {
+            resetIcon = new ImageIcon(getClass().getResource(resetPath));
+        }
+        return resetIcon;
     }
 
     public ImageIcon getGroupBy() {

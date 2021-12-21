@@ -757,7 +757,7 @@ public class Utils {
 					if (Character.toLowerCase(s1[i].charValue()) == Character.toLowerCase(s2.charAt(i))) {
 						matches += 1.0D;
 					}
-				} else if (s1[i].equals(new Character(s2.charAt(i)))) {
+				} else if (s1[i].equals(s2.charAt(i))) {
 					matches += 1.0D;
 				}
 			}
@@ -1263,8 +1263,14 @@ public class Utils {
 			return 1;
 
 		//Harsha - reproducibility log
+		int actionNumber = MetaOmGraph.getCurrentProjectActionId();
 		HashMap<String,Object> actionMap = new HashMap<String,Object>();
-		actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+		if ("Diff Correlation Table".equals(section)) {
+			actionNumber = MetaOmGraph.getDCResultsFrame().getSelectedTabActionNumber();
+		} else if ("LogFCResults Frame".equals(section)) {
+			actionNumber = MetaOmGraph.getDEAResultsFrame().getSelectedTabActionNumber();
+		}
+		actionMap.put("parent",actionNumber);
 		HashMap<String,Object> dataMap = new HashMap<String,Object>();
 		dataMap.put("section", section);
 		dataMap.put("File Name", destination.getAbsolutePath());

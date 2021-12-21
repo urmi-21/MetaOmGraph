@@ -202,7 +202,7 @@ public class RepInfo implements XMLizable {
                 if (e.getColumn() == GNAME_COL) {
                     Integer treatment;
                     try {
-                        treatment = new Integer(model.getValueAt(e.getFirstRow(), TREATMENT_COL) + "");
+                        treatment = Integer.valueOf(model.getValueAt(e.getFirstRow(), TREATMENT_COL) + "");
                     } catch (NumberFormatException nfe) {
                         nfe.printStackTrace();
                         return;
@@ -212,7 +212,7 @@ public class RepInfo implements XMLizable {
                     update = false;
                     for (int i = 0; i < model.getRowCount(); i++) {
                         try {
-                            Integer thisTreatment = new Integer(model.getValueAt(i, TREATMENT_COL) + "");
+                            Integer thisTreatment = Integer.valueOf(model.getValueAt(i, TREATMENT_COL) + "");
                             if (thisTreatment.equals(treatment)) {
                                 model.setValueAt(newName, i, GNAME_COL);
                                 // table.setValueAt(newName, i, GNAME_COL);
@@ -482,7 +482,7 @@ public class RepInfo implements XMLizable {
         List groups = source.getChildren();
         for (Object o : groups) {
             Element groupElement = (Element) o;
-            Integer groupID = new Integer(groupElement.getAttributeValue("id"));
+            Integer groupID = Integer.valueOf(groupElement.getAttributeValue("id"));
             String groupName = groupElement.getAttributeValue("name");
             ArrayList<Sample> memberList = new ArrayList();
             List members = groupElement.getChildren();
@@ -781,7 +781,7 @@ public class RepInfo implements XMLizable {
 
                     System.out.println("No need!");
                     for (Sample s : members) {
-                        cols.remove(new Integer(col));
+                        cols.remove(Integer.valueOf(col));
                     }
                     currentGroup++;
                 } else {
@@ -807,7 +807,7 @@ public class RepInfo implements XMLizable {
 
                     for (Sample s : members) {
                         System.out.print("Removing " + col + " ");
-                        System.out.println(cols.remove(new Integer(col)));
+                        System.out.println(cols.remove(Integer.valueOf(col)));
                     }
                 }
             }

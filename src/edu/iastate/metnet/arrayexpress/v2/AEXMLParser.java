@@ -116,7 +116,7 @@ public class AEXMLParser
             System.out.println(h.get("total") + " exps found");
             if (progressMe != null) {
                 progressMe.setMin(Long.valueOf(0L));
-                progressMe.setMax(new Long(h.get("total") + ""));
+                progressMe.setMax(Long.valueOf(h.get("total") + ""));
                 progressMe.setProgress(Long.valueOf(0L));
                 progressMe.setText("Reading " + progressMe.getMax() + " experiments");
             }

@@ -20,7 +20,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
@@ -62,7 +61,6 @@ import edu.iastate.metnet.metaomgraph.IconTheme;
 import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
-import edu.iastate.metnet.metaomgraph.MetadataHybrid;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.chart.BarChart;
 import edu.iastate.metnet.metaomgraph.chart.BoxPlot;
@@ -77,8 +75,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JInternalFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -147,8 +143,8 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 	 */
 
 	private Color SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
-	private Color BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
-	private Color BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
+	private Color BCKGRNDCOLOR1 = MetaOmGraph.getTableColorEven();
+	private Color BCKGRNDCOLOR2 = MetaOmGraph.getTableColorOdd();
 	private Color HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
 	private Color HYPERLINKCOLOR = MetaOmGraph.getTableHyperlinkColor();
 	private boolean USEDEFAULTCOLORS = true;
@@ -551,6 +547,30 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 			}
 		});
 		mnByRow.add(mntmFilterLastSearched);
+
+		JMenuItem expressionFilter = new JMenuItem("Expression Filter");
+		expressionFilter.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				EventQueue.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							MetadataFilter frame = new MetadataFilter(obj);
+							FrameModel fm = new FrameModel("Metadata Filter","Metadata Filter",31);
+							frame.setModel(fm);
+							MetaOmGraph.getDesktop().add(frame);
+							frame.setVisible(true);
+							frame.show();
+							frame.moveToFront();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				});
+			}
+		});
+		mnByRow.add(expressionFilter);
 
 		JMenuItem mntmAdvanceFilter = new JMenuItem("Advance filter");
 		mntmAdvanceFilter.addActionListener(new ActionListener() {
@@ -2312,8 +2332,8 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		} else {
 			USEDEFAULTCOLORS = false;
 			SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
-			BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
-			BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
+			BCKGRNDCOLOR1 = MetaOmGraph.getTableColorEven();
+			BCKGRNDCOLOR2 = MetaOmGraph.getTableColorOdd();
 			HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
 			HYPERLINKCOLOR = MetaOmGraph.getTableHyperlinkColor();
 		}

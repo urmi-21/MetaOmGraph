@@ -68,4 +68,6 @@ public interface IconTheme {
     ImageIcon getRIcon();
     
     ImageIcon getSelectIcon();
+
+    ImageIcon getReset();
 }

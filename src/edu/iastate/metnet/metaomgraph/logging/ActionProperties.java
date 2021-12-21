@@ -125,6 +125,8 @@ public class ActionProperties {
 		this.dataParameters = dataParameters;
 		this.otherParameters = otherParameters;
 		this.timestamp = timestamp;
+		counter++;
+		this.actionNumber=counter;
 	}
 
 	
@@ -209,8 +211,6 @@ public class ActionProperties {
 
 		if(MetaOmGraph.getLoggingRequired()) {
 			try {
-				counter++;
-				this.actionNumber=counter;
 				logger = MetaOmGraph.getLogger();
 				if(!this.getActionCommand().equalsIgnoreCase("general-properties")) {
 					logger.info(",");

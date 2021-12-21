@@ -99,7 +99,7 @@ public class ImportListDialog
                int thisInd= myProject.getRowIndexbyName(thisToken,false);
                if(thisInd>=0) {
             	  // JOptionPane.showMessageDialog(null, "thisInd:"+thisInd);
-            	   result.add(new Integer(thisInd));
+            	   result.add(thisInd);
             	   totalMatches++;
                }else {
             	   notFound.add(thisToken);

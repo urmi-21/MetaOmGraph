@@ -125,16 +125,16 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 		infoColumnLabel.setToolTipText(
 				"The data file can have additional columns containg feature metadata. \nChoose how many columns in the data file have the additional feature metadata.");
 		infoColumnSpinner = new JSpinner(
-				new SpinnerNumberModel(new Integer(-1), new Integer(-1), null, new Integer(1)));
+				new SpinnerNumberModel(-1, -1, null, 1));
 		final JComponent origEditor = infoColumnSpinner.getEditor();
 		JFormattedTextField.AbstractFormatter af = new JFormattedTextField.AbstractFormatter() {
 
 			@Override
 			public Object stringToValue(String text) throws ParseException {
 				try {
-					return new Integer(text);
+					return Integer.valueOf(text);
 				} catch (NumberFormatException nfe) {
-					return new Integer(-1);
+					return -1;
 				}
 			}
 
@@ -221,7 +221,7 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 		ignoreBlanksButton.setEnabled(false);
 		replaceBlanksButton.setEnabled(false);
 		replaceBlanksButton.addItemListener(this);
-		blankValueField = new JFormattedTextField(new Double(0));
+		blankValueField = new JFormattedTextField((double) 0);
 		blankValueField.setEnabled(false);
 		blankValueField.setPreferredSize(new Dimension(35, 20));
 		blanksGroup = new ButtonGroup();
@@ -1040,7 +1040,7 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 				RandomAccessFile dataIn = new RandomAccessFile(source, "r");
 				if (!dataIn.nextLine()) {
 					Enumeration enumer = delimiterGroup.getElements();
-					infoColumnSpinner.setValue(new Integer(-1));
+					infoColumnSpinner.setValue(-1);
 					while (enumer.hasMoreElements()) {
 						((JRadioButton) enumer.nextElement()).setSelected(false);
 					}
@@ -1057,7 +1057,7 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 				System.out.println(secondLine);
 				if ((firstLine == null) || (secondLine == null)) {
 					Enumeration enumer = delimiterGroup.getElements();
-					infoColumnSpinner.setValue(new Integer(-1));
+					infoColumnSpinner.setValue(-1);
 					while (enumer.hasMoreElements()) {
 						((JRadioButton) enumer.nextElement()).setSelected(false);
 					}
@@ -1070,7 +1070,7 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 					return null;
 				} else if ((firstLine.equals("")) || (secondLine.equals(""))) {
 					Enumeration enumer = delimiterGroup.getElements();
-					infoColumnSpinner.setValue(new Integer(-1));
+					infoColumnSpinner.setValue(-1);
 					while (enumer.hasMoreElements()) {
 						((JRadioButton) enumer.nextElement()).setSelected(false);
 					}
@@ -1187,7 +1187,7 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 								i = -1;
 							}
 						}
-						infoColumnSpinner.setValue(new Integer(infoColumns));
+						infoColumnSpinner.setValue(infoColumns);
 						dataIn.seek(0);
 						String thisValue;
 						boolean blankFound = false;
@@ -1211,7 +1211,7 @@ public class NewProjectDialog extends JDialog implements ActionListener, ItemLis
 								"<html><font size=-2 color=\"#FF0000\">Delimiter and feature metadata columns automatically detected.</font></html>");
 					} else {
 						Enumeration enumer = delimiterGroup.getElements();
-						infoColumnSpinner.setValue(new Integer(-1));
+						infoColumnSpinner.setValue(-1);
 						while (enumer.hasMoreElements()) {
 							((JRadioButton) enumer.nextElement()).setSelected(false);
 						}

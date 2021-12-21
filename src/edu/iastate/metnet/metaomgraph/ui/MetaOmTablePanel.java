@@ -16,10 +16,8 @@ import edu.iastate.metnet.metaomgraph.throbber.MetaOmThrobber;
 import edu.iastate.metnet.metaomgraph.throbber.MultiFrameImageThrobber;
 import edu.iastate.metnet.metaomgraph.throbber.Throbber;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
-import edu.stanford.ejalbert.BrowserLauncher;
-import edu.stanford.ejalbert.BrowserLauncherRunner;
-import edu.stanford.ejalbert.exceptionhandler.BrowserLauncherDefaultErrorHandler;
-import edu.stanford.ejalbert.exceptionhandler.BrowserLauncherErrorHandler;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -28,10 +26,6 @@ import javax.swing.Timer;
 import javax.swing.border.Border;
 import javax.swing.event.*;
 import javax.swing.plaf.ColorUIResource;
-
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableCellRenderer;
 
 import javax.swing.table.TableColumn;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -42,6 +36,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -109,6 +104,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	private JMenu selectedColsMenu;
 	private JMenuItem plotCorrHistItem;
 	private JMenuItem plotBarChartItem;
+
+	//violin plot
+	private JMenuItem plotviolin;
+
 	// urmi
 	private JMenuItem runOtherScript;
 	private MenuButton analyzeMenuButton;
@@ -147,16 +146,17 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	private JMenu removeCorrelationMenu;
 	private JMenu selectedRowsMenu;
 	private MenuButton infoButton;
-	
+
 	//Harsha
 	private static JMenu diffExpMenu;
 	private static JMenuItem logChange;
 	private static JMenuItem loadDiffExpResults;
 	private static JMenuItem removeDiffExpResults;
-	
+
 	// urmi
 	private JButton metabutton;
 	private JMenuItem viewCorrStats;
+	private JButton expFilterButton;
 	private JButton advFilterButton;
 
 	private JMenuItem atgsItem;
@@ -233,6 +233,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		plotRowsItem = new JMenuItem("Line Chart");
 		plotFilterItem = new JMenuItem("Filtered List");
 		plotPairRowsItem = new JMenuItem("Scatter Plot");
+		plotviolin = new JMenuItem("Violin Plot");
 
 		JMenu plotRepsMenu = new JMenu("Line Chart with Averaged Replicates");
 		plotRepsItem = new JMenuItem("Default grouping");
@@ -242,7 +243,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		plotBoxColItem = new JMenuItem("Box Plot Samples");
 
 		plotHistogramItem = new JMenuItem("Histogram");
-		
+
 		plotHeatMapItem = new JMenuItem("HeatMap");
 
 		// urmi
@@ -271,7 +272,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				refreshRPlotMenu();
 			}
 		});
-		
+
 		JPopupMenu rPopupMenu = new JPopupMenu();
 		rPopupMenu.add(plotRMenu);
 		runWithRButton = new MenuButton("Run R", theme.getRIcon(), null);
@@ -309,6 +310,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		plotPairRowsItem.setActionCommand("scatterplot");
 		plotPairRowsItem.addActionListener(this);
 
+		plotviolin.setActionCommand("make violin");
+		plotviolin.addActionListener(this);
+
 		plotRepsItem.setActionCommand("plot reps");
 		plotRepsItem.addActionListener(this);
 		plotRepsChoose.setActionCommand("choose reps");
@@ -322,7 +326,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		plotHistogramItem.addActionListener(this);
 		plotHeatMapItem.setActionCommand("plot heatmap");
 		plotHeatMapItem.addActionListener(this);
-		
+
 
 		JPopupMenu plotPopupMenu = new JPopupMenu();
 		selectedRowsMenu.add(plotRowsItem);
@@ -333,6 +337,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		selectedRowsMenu.add(plotBoxRowItem);
 		selectedRowsMenu.add(plotHistogramItem);
 		selectedRowsMenu.add(plotHeatMapItem);
+		selectedRowsMenu.add(plotviolin);
+
 		plotPopupMenu.add(selectedRowsMenu);
 
 		plotPopupMenu.add(plotFilterItem);
@@ -353,23 +359,23 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		plotPopupMenu.add(selectedColsMenu);
 
 		plotButton.setMenu(plotPopupMenu);
-		
+
 		plotButton.addMouseListener(new MouseListener() {
-			
+
 			@Override
 			public void mouseReleased(MouseEvent e) {}
-			
+
 			@Override
 			public void mousePressed(MouseEvent e) {}
-			
+
 			@Override
 			public void mouseExited(MouseEvent e) {}
-			
+
 			@Override
 			public void mouseEntered(MouseEvent e) {
 				selectedRowsMenu.setEnabled(listDisplay.getSelectedRowCount() > 0);
 			}
-			
+
 			@Override
 			public void mouseClicked(MouseEvent e) {}
 		});
@@ -392,10 +398,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		JMenu pcorrMenu = new JMenu("Pearson's");
 		JMenu scorrMenu = new JMenu("Spearman's");
 		JMenu poolcorrMenu = new JMenu("Meta-analysis");
-		JMenu diffcorrMenu = new JMenu("Differntial Correlation");
+		JMenu diffcorrMenu = new JMenu("Differential Correlation");
 		JMenu informationMenu = new JMenu("Mutual Information");
 		diffExpMenu = new JMenu("Differential Expression Analysis");
-		
+
 		JMenu distMenu = new JMenu("Distance");
 
 		//////////////////////////
@@ -484,11 +490,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		diffCorrelation.setActionCommand("DiffCorrelation");
 		diffCorrelation.addActionListener(this);
 
-		diffCorrelationWizard = new JMenuItem("New  Differential Correlation");
+		diffCorrelationWizard = new JMenuItem("New Differential Correlation");
 		diffCorrelationWizard.setActionCommand("NewDiffCorrelation");
 		diffCorrelationWizard.addActionListener(this);
 
-		loaddiffCorrResults = new JMenuItem("Load  Differential Correlation Results");
+		loaddiffCorrResults = new JMenuItem("Load Differential Correlation Results");
 		loaddiffCorrResults.setActionCommand("LoadDiffCorrelation");
 		loaddiffCorrResults.addActionListener(this);
 
@@ -542,7 +548,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		distMenu.add(manhattanItem);
 		distMenu.add(weightedEuclideanItem);
 		distMenu.add(weightedManhattanItem);
-		
+
 		//Harsha
 		logChange = new JMenuItem("Perform DEA");
 		logChange.setActionCommand("logChange");
@@ -558,13 +564,13 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		removeDiffExpResults.setActionCommand("removeDiffExp");
 		removeDiffExpResults.addActionListener(this);
 		removeDiffExpResults.setToolTipText("Remove saved differential expression results from the project");
-		
+
 		diffExpMenu.add(logChange);
 		diffExpMenu.add(loadDiffExpResults);
 		diffExpMenu.add(removeDiffExpResults);
-		
+
 		analyzePopupMenu.add(diffExpMenu);
-		
+
 		analyzePopupMenu.add(distMenu);
 
 		analyzePopupMenu.addSeparator();
@@ -574,24 +580,24 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		analyzePopupMenu.add(removeCorrelationMenu);
 
 		analyzeMenuButton = new MenuButton("Statistical analysis", theme.getMath(), analyzePopupMenu);
-		
+
 		analyzeMenuButton.addMouseListener(new MouseListener() {
-			
+
 			@Override
 			public void mouseReleased(MouseEvent e) {}
-			
+
 			@Override
 			public void mousePressed(MouseEvent e) {}
-			
+
 			@Override
 			public void mouseExited(MouseEvent e) {}
-			
+
 			@Override
 			public void mouseEntered(MouseEvent e) {
 				saveCorrelationItem.setEnabled(myProject.hasLastCorrelation());
 				MetaOmTablePanel.this.populateRemoveCorrelationMenu();
 			}
-			
+
 			@Override
 			public void mouseClicked(MouseEvent e) {}
 		});
@@ -599,7 +605,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		analyzeMenuButton.setToolTipText(
 				"Statistically analyze the selected data set against the other sets in the selected list");
 		dataToolbar.add(analyzeMenuButton);
-		
+
 		dataToolbar.add(runWithRButton);
 
 		dataToolbar.add(new Separator());
@@ -740,7 +746,15 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		dataToolbar.add(new Separator());
 		dataToolbar.add(searchPanel);
 		dataToolbar.add(listFromFilterButton);
-		
+
+		// add advance filter button
+		// s
+		expFilterButton = new JButton("Expression filter");
+		expFilterButton.setActionCommand("expressionfilter");
+		expFilterButton.addActionListener(this);
+		expFilterButton.setToolTipText("Filter the table with a range of expression values");
+		dataToolbar.add(expFilterButton);
+
 		// add advance filter button
 		// s
 		advFilterButton = new JButton("Advance filter");
@@ -748,7 +762,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		advFilterButton.addActionListener(this);
 		advFilterButton.setToolTipText("Filter/search the table with multiple queries");
 		dataToolbar.add(advFilterButton);
-		
+
 		geneListPanel.setMinimumSize(listToolbar.getPreferredSize());
 		listSplitPane = new JSplitPane(1, true, geneListPanel, geneListDisplayPane);
 		listSplitPane.setDividerSize(1);
@@ -763,6 +777,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		listDisplay.setAutoResizeMode(0);
 		sizeColumnsToFit();
 		sorter.setSortingStatus(myProject.getDefaultColumn(), 1);
+	}
+
+	public ClearableTextField getFilterField() {
+		return filterField;
 	}
 
 	private void updateList() {
@@ -871,7 +889,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		int[] oldWidths = new int[listDisplay.getColumnCount()];
 		for (int x = 0; x < oldWidths.length; x++)
 			oldWidths[x] = listDisplay.getColumnModel().getColumn(x).getPreferredWidth();
-		
+
 		try {
 			mainModel = new NoneditableTableModel(
 					myProject.getGeneListRowNames(geneLists.getSelectedValue().toString()),
@@ -881,14 +899,14 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 		filterModel = new FilterableTableModel(mainModel);
 		sorter = new TableSorter(filterModel);
-		
+
 		listDisplay = new StripedTable(sorter);
 
-		
+
 		listDisplay.hideColumns();
 		listDisplay.setAutoResizeMode(0);
-		
-		
+
+
 		sorter.setTableHeader(listDisplay.getTableHeader());
 
 		/*
@@ -1168,12 +1186,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 		} catch (Exception e) {
 			try {
-				BrowserLauncher launcher = new BrowserLauncher(null);
-				BrowserLauncherErrorHandler errorHandler = new BrowserLauncherDefaultErrorHandler();
-				launcher.openURLinBrowser(urlString);
-				BrowserLauncherRunner runner = new BrowserLauncherRunner(launcher, urlString, errorHandler);
-				Thread launcherThread = new Thread(runner);
-				launcherThread.start();
+				if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+					Desktop.getDesktop().browse(new URI(urlString));
+				}
 
 				resultLog.put("result", "OK");
 				ActionProperties launchExternalSiteAction = new ActionProperties(site, actionMap, dataMap, resultLog,
@@ -1237,12 +1252,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			launchTairAction.logActionProperties();
 		} catch (Exception e) {
 			try {
-				BrowserLauncher launcher = new BrowserLauncher(null);
-				BrowserLauncherErrorHandler errorHandler = new BrowserLauncherDefaultErrorHandler();
-				launcher.openURLinBrowser(urlString);
-				BrowserLauncherRunner runner = new BrowserLauncherRunner(launcher, urlString, errorHandler);
-				Thread launcherThread = new Thread(runner);
-				launcherThread.start();
+				if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+					Desktop.getDesktop().browse(new URI(urlString));
+				}
 				resultLog.put("result", "OK");
 				ActionProperties launchTairAction = new ActionProperties("launch-tair", actionMap, dataMap, resultLog,
 						new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
@@ -1269,7 +1281,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		JPanel optionPanel = new JPanel();
 		JSpinner spinner = new JSpinner();
 		spinner.setValue(Integer.valueOf(100));
-		JFormattedTextField valueField = new JFormattedTextField(new Double(100.0D));
+		JFormattedTextField valueField = new JFormattedTextField(100.0D);
 		valueField.setColumns(7);
 		JLabel label = new JLabel("Find all chips with expression level over:");
 		optionPanel.add(label);
@@ -1337,7 +1349,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 		new MetaOmChartPanel(getSelectedRowsInList(), myProject.getDefaultXAxis(), myProject.getDefaultYAxis(),
 				myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject)
-						.createInternalFrame();
+				.createInternalFrame();
 	}
 
 	/**
@@ -1350,7 +1362,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		ColorUIResource oldActiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.activeTitleBackground");
 		ColorUIResource oldInactiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.inactiveTitleBackground");
 		Font oldFont = UIManager.getFont("InternalFrame.titleFont");
-		
+
 		MetadataHybrid mhyb = MetaOmGraph.getActiveProject().getMetadataHybrid();
 		if (mhyb != null) {
 			MetadataCollection mcol = mhyb.getMetadataCollection();
@@ -1363,10 +1375,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				UIManager.put("InternalFrame.activeTitleBackground", new ColorUIResource(new Color(240,128,128)));
 				UIManager.put("InternalFrame.inactiveTitleBackground", new ColorUIResource(new Color(240,128,128)));
 				UIManager.put("InternalFrame.titleFont", new Font("SansSerif", Font.BOLD,12));
-				
+
 				new MetaOmChartPanel(selectedRows, myProject.getDefaultXAxis(), myProject.getDefaultYAxis(),
 						myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject)
-								.createInternalFrame(true);
+						.createInternalFrame(true);
 
 				mcol.setIncluded(currentProjectIncludedSamples);
 				mcol.setExcluded(currentProjectExcludedSamples);
@@ -1379,8 +1391,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
 		UIManager.put("InternalFrame.titleFont", oldFont);
 	}
-	
-	
+
+
 	/**
 	 * This is the playback method for heat-map action. It takes the selected
 	 * row ids, and produces the heat-map, mimicking the historically produced
@@ -1392,14 +1404,14 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		ColorUIResource oldActiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.activeTitleBackground");
 		ColorUIResource oldInactiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.inactiveTitleBackground");
 		Font oldFont = UIManager.getFont("InternalFrame.titleFont");
-		
+
 		EventQueue.invokeLater(new Runnable() {
 			@Override
 			public void run() {
 				try {// get data for selected rows
 					String[] rowNames = myProject.getDefaultRowNames(selected);
 					String[] columnNames = myProject.getIncludedDataColumnHeaders();
-					
+
 					double[][] heatMapData = new double[selected.length][];
 					int rowIndex = 0;
 					for(int selectedIndex : selected) {
@@ -1408,9 +1420,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 							heatMapData[rowIndex++] = rowData;
 						} catch (IOException e) {
 							e.printStackTrace();
-						}	
+						}
 					}
-					
+
 					HeatMapChart f = new HeatMapChart(heatMapData, rowNames, columnNames, false);
 
 					UIManager.put("InternalFrame.activeTitleBackground", new ColorUIResource(new Color(240, 128, 128)));
@@ -1430,7 +1442,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					f.setSize(1000, 700);
 					f.setVisible(true);
 					f.toFront();
-					
+
 					UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
 					UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
 					UIManager.put("InternalFrame.titleFont", oldFont);
@@ -1441,7 +1453,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
 					UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
 					UIManager.put("InternalFrame.titleFont", oldFont);
-					
+
 					e.printStackTrace();
 					return;
 				}
@@ -1450,13 +1462,13 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 		return;
 	}
-	
+
 	// HeatMap
 	private void createHeatMap() {
 		int[] selected = getSelectedRowsInList();
 		String[] rowNames = myProject.getDefaultRowNames(selected);
 		String[] columnNames = myProject.getIncludedDataColumnHeaders();
-		
+
 		double[][] heatMapData = new double[selected.length][];
 		int rowIndex = 0;
 		for(int selectedIndex : selected) {
@@ -1465,9 +1477,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				heatMapData[rowIndex++] = rowData;
 			} catch (IOException e) {
 				e.printStackTrace();
-			}	
+			}
 		}
-		
+
 		HashMap<String, Object> actionMap = new HashMap<String, Object>();
 		HashMap<String, Object> dataMap = new HashMap<String, Object>();
 		HashMap<String, Object> result = new HashMap<String, Object>();
@@ -1490,8 +1502,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 		ActionProperties heatMapAction = new ActionProperties("heat map", actionMap, dataMap, result,
 				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-		
-		
+
+
 		HeatMapChart heatMapChart = new HeatMapChart(heatMapData, rowNames, columnNames, false);
 		MetaOmGraph.getDesktop().add(heatMapChart);
 		heatMapChart.setDefaultCloseOperation(2);
@@ -1501,7 +1513,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		heatMapChart.setSize(1000, 700);
 		heatMapChart.setVisible(true);
 		heatMapChart.toFront();
-		
+
 		try {
 			heatMapAction.logActionProperties();
 		} catch (Exception e1) {
@@ -1564,7 +1576,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				} catch (Exception e) {
 					JOptionPane.showMessageDialog(null, "Histogram: Error occured while reading data!!!" + e, "Error",
 							JOptionPane.ERROR_MESSAGE);
-					
+
 					result.put("result", "Error");
 					result.put("resultComments", "Error occured while reading data!!!");
 					histogramAction.logActionProperties();
@@ -1591,7 +1603,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		ColorUIResource oldActiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.activeTitleBackground");
 		ColorUIResource oldInactiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.inactiveTitleBackground");
 		Font oldFont = UIManager.getFont("InternalFrame.titleFont");
-		
+
 		EventQueue.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -1623,7 +1635,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					f.setSize(1000, 700);
 					f.setVisible(true);
 					f.toFront();
-					
+
 					UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
 					UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
 					UIManager.put("InternalFrame.titleFont", oldFont);
@@ -1645,6 +1657,93 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 		return;
 
+	}
+
+	public void makeViolinPlot() {
+		// Exports selected data as json to a javascript file
+		int[] selected = getSelectedRowsInList();
+
+		// Create JSON array from selected data
+		JSONArray jsonData = new JSONArray();
+		for (int i2 = 0; i2 < selected.length; i2++) {
+			double[] dataY = null;
+			try {
+				dataY = myProject.getIncludedData(selected[i2]);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			String rowName = myProject.getRowName(selected[i2])[myProject.getDefaultColumn()].toString();
+			for (int j = 0; j < dataY.length; j++){
+				JSONObject obj = new JSONObject();
+				obj.put("output", dataY[j]);
+				obj.put("rowName", rowName);
+				jsonData.put(obj);
+			}
+		}
+
+		// Write data to JS file and Open Web browser
+		try {
+			FileWriter myWriter = new FileWriter("violin-data.js");
+			myWriter.write("var rows = ");
+			myWriter.write(jsonData.toString());
+			myWriter.close();
+			String myOS = System.getProperty("os.name").toLowerCase();
+
+			String url = "file://" + System.getProperty("user.dir").replace("\\", "/") + "/violin/violin.html";
+//			if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+//
+//				Desktop.getDesktop().browse(new URI(url));
+//			}
+			if(Desktop.isDesktopSupported()) { // Probably Windows
+				Desktop desktop = Desktop.getDesktop();
+				desktop.browse(new URI(url));
+			} else { // Definitely Non-windows
+				Runtime runtime = Runtime.getRuntime();
+				if(myOS.contains("mac")) { // Apples
+					runtime.exec("open " + url);
+				}
+				else if(myOS.contains("nix") || myOS.contains("nux")) { // Linux flavours
+					runtime.exec("xdg-open " + url);
+				}
+				else{
+					System.out.println("Could not open browser with url: " +  url);
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch(URISyntaxException e){
+
+		}
+
+		HashMap<String, Object> actionMap = new HashMap<String, Object>();
+		HashMap<String, Object> dataMap = new HashMap<String, Object>();
+		HashMap<String, Object> result = new HashMap<String, Object>();
+
+		try {
+			actionMap.put("parent", MetaOmGraph.getCurrentProjectActionId());
+			actionMap.put("section", "Feature Metadata");
+
+			String selList = geneLists.getSelectedValue().toString();
+			dataMap.put("Selected List", selList);
+			dataMap.put("Selected Features", getSelectedRowsInList());
+			dataMap.put("Data Transformation", MetaOmGraph.getInstance().getTransform());
+			dataMap.put("XAxis", myProject.getDefaultXAxis());
+			dataMap.put("YAxis", myProject.getDefaultYAxis());
+			dataMap.put("Chart Title", myProject.getDefaultTitle());
+
+			result.put("Color 1", myProject.getColor1());
+			result.put("Color 2", myProject.getColor2());
+			result.put("Sample Action", MetaOmGraph.getCurrentSamplesActionId());
+			result.put("Playable", "true");
+			result.put("result", "OK");
+		} catch (Exception e1) {
+
+		}
+
+		ActionProperties boxPlotAction = new ActionProperties("violin-plot", actionMap, dataMap, result,
+				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+
+		boxPlotAction.logActionProperties();
 	}
 
 	public void makeBoxPlot() {
@@ -1761,7 +1860,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		ColorUIResource oldInactiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.inactiveTitleBackground");
 		Font oldFont = UIManager.getFont("InternalFrame.titleFont");
 
-		
+
 		// get data for box plot as hasmap
 		HashMap<Integer, double[]> plotData = new HashMap<>();
 		for (int i = 0; i < selected.length; i++) {
@@ -1784,7 +1883,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				try {// get data for selected rows
 
 					BoxPlot f = new BoxPlot(plotData, 0, myProject, excludedSamples,true); //pass excluded samples from log
-					
+
 					UIManager.put("InternalFrame.activeTitleBackground", new ColorUIResource(new Color(240, 128, 128)));
 					UIManager.put("InternalFrame.inactiveTitleBackground",
 							new ColorUIResource(new Color(240, 128, 128)));
@@ -1801,7 +1900,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					f.setSize(1000, 700);
 					f.setVisible(true);
 					f.toFront();
-					
+
 					UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
 					UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
 					UIManager.put("InternalFrame.titleFont", oldFont);
@@ -1809,7 +1908,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				} catch (Exception e) {
 					JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
 							JOptionPane.ERROR_MESSAGE);
-					
+
 					UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
 					UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
 					UIManager.put("InternalFrame.titleFont", oldFont);
@@ -1925,7 +2024,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		ColorUIResource oldActiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.activeTitleBackground");
 		ColorUIResource oldInactiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.inactiveTitleBackground");
 		Font oldFont = UIManager.getFont("InternalFrame.titleFont");
-		
+
 		EventQueue.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -1950,7 +2049,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					f.setSize(1000, 700);
 					f.setVisible(true);
 					f.toFront();
-					
+
 					UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
 					UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
 					UIManager.put("InternalFrame.titleFont", oldFont);
@@ -1961,7 +2060,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
 					UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
 					UIManager.put("InternalFrame.titleFont", oldFont);
-					
+
 					e.printStackTrace();
 					return;
 				}
@@ -1975,7 +2074,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		int[] selected = myProject.getGeneListRowNumbers((String) geneLists.getSelectedValue());
 		new MetaOmChartPanel(selected, myProject.getDefaultXAxis(), myProject.getDefaultYAxis(),
 				myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject)
-						.createInternalFrame();
+				.createInternalFrame();
 
 		HashMap<String, Object> actionMap = new HashMap<String, Object>();
 		HashMap<String, Object> dataMap = new HashMap<String, Object>();
@@ -2030,7 +2129,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		if (geneLists.getSelectedValue().equals("Complete List")) {
 			new MetaOmChartPanel(trueRows, myProject.getDefaultXAxis(), myProject.getDefaultYAxis(),
 					myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject)
-							.createInternalFrame();
+					.createInternalFrame();
 
 			dataMap.put("Selected Features", new HashMap<Integer, String>().put(1, "Complete List"));
 
@@ -2044,7 +2143,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 			new MetaOmChartPanel(selected, myProject.getDefaultXAxis(), myProject.getDefaultYAxis(),
 					myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject)
-							.createInternalFrame();
+					.createInternalFrame();
 
 			dataMap.put("Selected Features", geneNames);
 		}
@@ -2166,11 +2265,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "No data to calculate rep information...");
 			return;
 		}
-		
+
 		ColorUIResource oldActiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.activeTitleBackground");
 		ColorUIResource oldInactiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.inactiveTitleBackground");
 		Font oldFont = UIManager.getFont("InternalFrame.titleFont");
-		
+
 		// plot reps
 		int[] selected = selectedRows;
 		// JOptionPane.showMessageDialog(null, "Selected rows:" +
@@ -2195,7 +2294,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				return;
 			}
 		}
-		
+
 		UIManager.put("InternalFrame.activeTitleBackground", new ColorUIResource(new Color(240,128,128)));
 		UIManager.put("InternalFrame.inactiveTitleBackground", new ColorUIResource(new Color(240,128,128)));
 		UIManager.put("InternalFrame.titleFont", new Font("SansSerif", Font.BOLD,12));
@@ -2210,7 +2309,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
 		UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
 		UIManager.put("InternalFrame.titleFont", oldFont);
-		
+
 		return;
 
 	}
@@ -2336,7 +2435,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "No data to calculate rep information...");
 			return;
 		}
-		
+
 		ColorUIResource oldActiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.activeTitleBackground");
 		ColorUIResource oldInactiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.inactiveTitleBackground");
 		Font oldFont = UIManager.getFont("InternalFrame.titleFont");
@@ -2375,7 +2474,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				return;
 			}
 		}
-		
+
 		UIManager.put("InternalFrame.activeTitleBackground", new ColorUIResource(new Color(240,128,128)));
 		UIManager.put("InternalFrame.inactiveTitleBackground", new ColorUIResource(new Color(240,128,128)));
 		UIManager.put("InternalFrame.titleFont", new Font("SansSerif", Font.BOLD,12));
@@ -2388,7 +2487,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
 		UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
 		UIManager.put("InternalFrame.titleFont", oldFont);
-		
+
 		return;
 
 	}
@@ -2413,7 +2512,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		if (listDisplay.getSelectedRow() != -1) {
 			return myProject.getRowNames()[myProject
 					.getGeneListRowNumbers(geneLists.getSelectedValue().toString())[getTrueSelectedRow()]][myProject
-							.getDefaultColumn()].toString();
+					.getDefaultColumn()].toString();
 		}
 		return null;
 	}
@@ -2493,7 +2592,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 	/**
 	 * Added boolean param to select parent node urmi
-	 * 
+	 *
 	 * @param col
 	 * @param parent
 	 */
@@ -2732,6 +2831,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			return;
 		}
 
+		if ("make violin".equals(e.getActionCommand())) {
+			makeViolinPlot();
+			return;
+		}
+
 		if ("col boxplot".equals(e.getActionCommand())) {
 			// MetaOmGraph.addInternalFrame(BoxPlotter.getColumnBoxPlot(myProject),"colBP");
 			return;
@@ -2739,10 +2843,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		if ("create histogram".equals(e.getActionCommand())) {
 			createHistogram();
 		}
-		
+
 		if("plot heatmap".equals(e.getActionCommand())) {
 			new AnimatedSwingWorker("Creating heatmap") {
-				
+
 				@Override
 				public Object construct() {
 					createHeatMap();
@@ -2750,7 +2854,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				}
 			}.start();
 		}
-		
+
 		if ("create heatmap".equals(e.getActionCommand())) {
 			// create heat map for selected rows over all included columns
 			// temp solution
@@ -2957,6 +3061,25 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			return;
 		}
 
+		if ("expressionfilter".equals(e.getActionCommand())) {
+			// Harsha - reproducibility log
+			HashMap<String, Object> dataMap = new HashMap<String, Object>();
+			HashMap<String, Object> result = new HashMap<String, Object>();
+			result.put("result", "OK");
+
+			MetaOmProject project = MetaOmGraph.getActiveProject();
+			final ExpressionFilterConstructionPanel efc =
+					new ExpressionFilterConstructionPanel(project);
+			MetadataQuery query = efc.showQuery();
+			String filter = "";
+			if (query != null) {
+				filter = query.getField();
+			}
+			filterField.setText(filter);
+			dataMap.put("exprFilter", filter);
+			return;
+		}
+
 		if ("advancefilter".equals(e.getActionCommand())) {
 
 			// Harsha - reproducibility log
@@ -2970,7 +3093,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			final MetadataQuery[] queries;
 			queries = tsp.showSearchDialog();
 			// boolean matchCase=tsp.matchCase();
-			boolean matchAll = tsp.matchAll();
 			if (tsp.getQueryCount() <= 0) {
 				// System.out.println("Search dialog cancelled");
 				// User didn't enter any queries
@@ -3011,6 +3133,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				} else {
 					int thisCol = headersList.indexOf(thisField);
 					thisFilter = searchQueryTerm + ":::" + String.valueOf(thisCol);
+				}
+				if (queries[i].isAND()) {
+					thisFilter += ":::AND";
+				} else if (queries[i].isOR()) {
+					thisFilter += ":::OR";
 				}
 				allFilter += thisFilter + ";";
 			}
@@ -3286,7 +3413,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 										break;
 
 								} while (!progress.isCanceled());
-								
+
 								if (MetaOmGraph.getActiveProject().getShowWarning()) {
 									String message = "Found missing/non-number values in data file. This may affect the analysis. Please check the data file";
 									if (MetaOmGraph.getActiveProject().getBlankValue() != null) {
@@ -3294,7 +3421,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 									}
 									JOptionPane.showMessageDialog(null, message, "Found missing/non-number values",
 											JOptionPane.WARNING_MESSAGE);
-									
+
 									MetaOmGraph.getActiveProject().setShowWarning(false);
 								}
 
@@ -3450,7 +3577,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 									if (j >= entries.length)
 										break;
 								} while (!progress.isCanceled());
-								
+
 								if (MetaOmGraph.getActiveProject().getShowWarning()) {
 									String message = "Found missing/non-number values in data file. This may affect the analysis. Please check the data file";
 									if (MetaOmGraph.getActiveProject().getBlankValue() != null) {
@@ -3458,7 +3585,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 									}
 									JOptionPane.showMessageDialog(null, message, "Found missing/non-number values",
 											JOptionPane.WARNING_MESSAGE);
-									
+
 									MetaOmGraph.getActiveProject().setShowWarning(false);
 								}
 
@@ -3573,7 +3700,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 									if (j >= entries.length)
 										break;
 								} while (!progress.isCanceled());
-								
+
 								if (MetaOmGraph.getActiveProject().getShowWarning()) {
 									String message = "Found missing/non-number values in data file. This may affect the analysis. Please check the data file";
 									if (MetaOmGraph.getActiveProject().getBlankValue() != null) {
@@ -3581,7 +3708,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 									}
 									JOptionPane.showMessageDialog(null, message, "Found missing/non-number values",
 											JOptionPane.WARNING_MESSAGE);
-									
+
 									MetaOmGraph.getActiveProject().setShowWarning(false);
 								}
 
@@ -3708,7 +3835,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 									if (j >= entries.length)
 										break;
 								} while (!progress.isCanceled());
-								
+
 								if (MetaOmGraph.getActiveProject().getShowWarning()) {
 									String message = "Found missing/non-number values in data file. This may affect the analysis. Please check the data file";
 									if (MetaOmGraph.getActiveProject().getBlankValue() != null) {
@@ -3716,7 +3843,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 									}
 									JOptionPane.showMessageDialog(null, message, "Found missing/non-number values",
 											JOptionPane.WARNING_MESSAGE);
-									
+
 									MetaOmGraph.getActiveProject().setShowWarning(false);
 								}
 
@@ -3931,10 +4058,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 									}
 									JOptionPane.showMessageDialog(null, message, "Found missing/non-number values",
 											JOptionPane.WARNING_MESSAGE);
-									
+
 									MetaOmGraph.getActiveProject().setShowWarning(false);
 								}
-								
+
 							} catch (IOException ioe) {
 								JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Error reading project data",
 										"IOException", 0);
@@ -4152,10 +4279,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 									}
 									JOptionPane.showMessageDialog(null, message, "Found missing/non-number values",
 											JOptionPane.WARNING_MESSAGE);
-									
+
 									MetaOmGraph.getActiveProject().setShowWarning(false);
 								}
-								
+
 							} catch (IOException ioe) {
 								JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Error reading project data",
 										"IOException", 0);
@@ -4300,7 +4427,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 									if (j >= entries.length)
 										break;
 								} while (!progress.isCanceled());
-								
+
 								if (MetaOmGraph.getActiveProject().getShowWarning()) {
 									String message = "Found missing/non-number values in data file. This may affect the analysis. Please check the data file";
 									if (MetaOmGraph.getActiveProject().getBlankValue() != null) {
@@ -4308,7 +4435,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 									}
 									JOptionPane.showMessageDialog(null, message, "Found missing/non-number values",
 											JOptionPane.WARNING_MESSAGE);
-									
+
 									MetaOmGraph.getActiveProject().setShowWarning(false);
 								}
 
@@ -4437,10 +4564,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 									}
 									JOptionPane.showMessageDialog(null, message, "Found missing/non-number values",
 											JOptionPane.WARNING_MESSAGE);
-									
+
 									MetaOmGraph.getActiveProject().setShowWarning(false);
 								}
-								
+
 							} catch (IOException ioe) {
 								JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Error reading project data",
 										"IOException", 0);
@@ -4499,7 +4626,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				}
 			} catch (
 
-			IOException ioe) {
+					IOException ioe) {
 				JOptionPane.showMessageDialog(MetaOmGraph.getMainWindow(), "Error reading project data", "IOException",
 						0);
 				result.put("result", "Error");
@@ -4524,9 +4651,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			// multiSelectAction.logActionProperties();
 			return;
 		}
-		
+
 		//Harsha - Diff exp
-		
+
 		if ("logChange".equals(e.getActionCommand())) {
 			if (MetaOmGraph.getActiveProject().getMetadataHybrid() == null) {
 				JOptionPane.showMessageDialog(null, "No metadata read", "No metadata", JOptionPane.ERROR_MESSAGE);
@@ -4535,7 +4662,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 			DifferentialExpFrame lframe = new DifferentialExpFrame();
 			lframe.setSize(lframe.getWidth(), MetaOmGraph.getMainWindow().getHeight() / 2);
-			
+
 			MetaOmGraph.getDesktop().add(lframe);
 			lframe.setVisible(true);
 
@@ -4543,6 +4670,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 
 		if ("loadDiffExp".equals(e.getActionCommand())) {
+			HashMap<String,Object> actionMap = new HashMap<String,Object>();
+			HashMap<String,Object> dataMap = new HashMap<String,Object>();
+			HashMap<String,Object> result = new HashMap<String,Object>();
+			ActionProperties deaAction = new ActionProperties("differential-expression-analysis",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 
 			String[] listOfDE = MetaOmGraph.getActiveProject().getSavedDiffExpResNames();
 			if (listOfDE == null || listOfDE.length < 1) {
@@ -4576,7 +4707,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 
 								if(MetaOmGraph.getDEAResultsFrame()!=null && !MetaOmGraph.getDEAResultsFrame().isClosed()) {
-									MetaOmGraph.getDEAResultsFrame().addTabToFrame(frame, diffExpObj.getID());
+									MetaOmGraph.getDEAResultsFrame().addTabToFrame(frame, diffExpObj.getID(), deaAction.getActionNumber());
 									MetaOmGraph.getDEAResultsFrame().addTabListToFrame(frame.getGeneLists(), diffExpObj.getID());
 									MetaOmGraph.getDEAResultsFrame().getDesktopPane().getDesktopManager().maximizeFrame(MetaOmGraph.getDEAResultsFrame());
 									MetaOmGraph.getDEAResultsFrame().getDesktopPane().getDesktopManager().minimizeFrame(MetaOmGraph.getDEAResultsFrame());
@@ -4584,7 +4715,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 								}
 								else {
 									MetaOmGraph.setDEAResultsFrame(new StatisticalResultsFrame("DEA","DEA Results"));
-									MetaOmGraph.getDEAResultsFrame().addTabToFrame(frame, diffExpObj.getID());
+									MetaOmGraph.getDEAResultsFrame().addTabToFrame(frame, diffExpObj.getID(), deaAction.getActionNumber());
 									MetaOmGraph.getDEAResultsFrame().addTabListToFrame(frame.getGeneLists(), diffExpObj.getID());
 									MetaOmGraph.getDEAResultsFrame().setTitle("DE results");
 									MetaOmGraph.getDesktop().add(MetaOmGraph.getDEAResultsFrame());
@@ -4599,7 +4730,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 							} catch (Exception e) {
 
-								
+
 							}
 						}
 					});
@@ -4611,10 +4742,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 			//Harsha - reproducibility log
 
-			HashMap<String,Object> actionMap = new HashMap<String,Object>();
-			HashMap<String,Object> dataMap = new HashMap<String,Object>();
-			HashMap<String,Object> result = new HashMap<String,Object>();
-
 			try {
 
 				actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
@@ -4625,8 +4752,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 				result.put("result", "OK");
 
-				ActionProperties loadDeaAction = new ActionProperties("load-DEA",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				loadDeaAction.logActionProperties();
+				deaAction.logActionProperties();
 
 			}
 			catch(Exception e1) {
@@ -4674,7 +4800,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 				dataMap.put("Removed DEA", chosenVal);
 
-
 				result.put("result", "OK");
 
 				ActionProperties removeDeaAction = new ActionProperties("remove-saved-DEA",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
@@ -4687,8 +4812,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 			return;
 		}
-		
-		
+
+
 		if ("save correlation".equals(e.getActionCommand())) {
 			keepLastCorrelation(true);
 			return;
@@ -5020,6 +5145,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			dataMap.put("correlationColumn1", col1);
 
 			resultLog.put("result", "OK");
+			ActionProperties existingDifferentialAction = new ActionProperties(
+					"differential-correlation-with-existing-columns", actionMap, dataMap, resultLog,
+					new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 			try {
 				n1 = Integer.parseInt((String) JOptionPane.showInputDialog(null,
 						"Please Enter the sample size for selected correlation (N1)", "Input N1",
@@ -5058,9 +5186,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						JOptionPane.ERROR_MESSAGE);
 				resultLog.put("result", "Error");
 				resultLog.put("resultLog", "Invalid integer entered. Please try again.");
-				ActionProperties existingDifferentialAction = new ActionProperties(
-						"differential-correlation-with-existing-columns", actionMap, dataMap, resultLog,
-						new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 				existingDifferentialAction.logActionProperties();
 				return;
 			}
@@ -5100,7 +5225,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 								if (MetaOmGraph.getDCResultsFrame() != null
 										&& !MetaOmGraph.getDCResultsFrame().isClosed()) {
-									MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, "Fold Change Results");
+									MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, "Fold Change Results", existingDifferentialAction.getActionNumber());
 									MetaOmGraph.getDCResultsFrame().addTabListToFrame(frame.getGeneLists(),
 											"Fold Change Results");
 									MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager()
@@ -5113,7 +5238,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 											.setDCResultsFrame(new StatisticalResultsFrame("Differential Correlation",
 													"Differential Correlation Results [" + featureNames.get(0) + "] ("
 															+ featureNames.size() + " features)"));
-									MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, "Fold Change Results");
+									MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, "Fold Change Results", existingDifferentialAction.getActionNumber());
 									MetaOmGraph.getDCResultsFrame().addTabListToFrame(frame.getGeneLists(),
 											"Fold Change Results");
 									MetaOmGraph.getDCResultsFrame().setTitle("Differential Correlation Results");
@@ -5140,9 +5265,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			// MetaOmGraph.getDesktop().add(frame);
 			// frame.setVisible(true);
 
-			ActionProperties existingDifferentialAction = new ActionProperties(
-					"differential-correlation-with-existing-columns", actionMap, dataMap, resultLog,
-					new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 			existingDifferentialAction.logActionProperties();
 
 		}
@@ -5156,6 +5278,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			HashMap<String, Object> resultLog = new HashMap<String, Object>();
 			HashMap<String, Object> dataMap = new HashMap<String, Object>();
 
+			ActionProperties newDifferentialAction = new ActionProperties("new-differential-correlation", actionMap,
+					dataMap, resultLog, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+
 			if (myProject.getMetadataHybrid() == null) {
 				JOptionPane.showMessageDialog(null, "No metadata read", "No metadata", JOptionPane.ERROR_MESSAGE);
 				resultLog.put("result", "Error");
@@ -5168,8 +5293,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				resultLog.put("result", "Error");
 				resultLog.put("resultComments", "Please select a row to analyze!");
 
-				ActionProperties newDifferentialAction = new ActionProperties("new-differential-correlation", actionMap,
-						dataMap, resultLog, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 				newDifferentialAction.logActionProperties();
 				return;
 			}
@@ -5180,8 +5303,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				resultLog.put("result", "Error");
 				resultLog.put("resultComments", "Please select only one row to analyze!");
 
-				ActionProperties newDifferentialAction = new ActionProperties("new-differential-correlation", actionMap,
-						dataMap, resultLog, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 				newDifferentialAction.logActionProperties();
 				return;
 			}
@@ -5189,7 +5310,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			int selectedInd = getTrueSelectedRow();
 			String rowName = getSelectedGeneName();
 			DifferentialCorrFrame lframe = new DifferentialCorrFrame(geneLists.getSelectedValue().toString(), rowName,
-					selectedInd);
+					selectedInd, newDifferentialAction.getActionNumber());
 			lframe.setSize(lframe.getWidth(), MetaOmGraph.getMainWindow().getHeight() / 2);
 			MetaOmGraph.getDesktop().add(lframe);
 			lframe.setVisible(true);
@@ -5202,8 +5323,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 			resultLog.put("result", "OK");
 
-			ActionProperties newDifferentialAction = new ActionProperties("new-differential-correlation", actionMap,
-					dataMap, resultLog, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 			newDifferentialAction.logActionProperties();
 
 			return;
@@ -5218,6 +5337,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 			HashMap<String, Object> resultLog = new HashMap<String, Object>();
 			HashMap<String, Object> dataMap = new HashMap<String, Object>();
+			ActionProperties loadDifferentialAction = new ActionProperties("load-differential-correlation",
+					actionMap, dataMap, resultLog,
+					new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 
 			String[] listOfDC = myProject.getSavedDiffCorrResNames();
 			if (listOfDC == null || listOfDC.length < 1) {
@@ -5225,9 +5347,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						JOptionPane.INFORMATION_MESSAGE);
 				resultLog.put("result", "Error");
 				resultLog.put("resultComments", "No saved results found");
-				ActionProperties loadDifferentialAction = new ActionProperties("load-differential-correlation",
-						actionMap, dataMap, resultLog,
-						new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+
 				loadDifferentialAction.logActionProperties();
 				return;
 			}
@@ -5264,7 +5384,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 								if (MetaOmGraph.getDCResultsFrame() != null
 										&& !MetaOmGraph.getDCResultsFrame().isClosed()) {
-									MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, chosenVal);
+									MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, chosenVal, loadDifferentialAction.getActionNumber());
 									MetaOmGraph.getDCResultsFrame().addTabListToFrame(frame.getGeneLists(), chosenVal);
 									MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager()
 											.maximizeFrame(MetaOmGraph.getDCResultsFrame());
@@ -5278,7 +5398,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 													"Differential Correlation Results ["
 															+ diffcorrresOB.getFeatureNames().get(0) + "] ("
 															+ diffcorrresOB.getFeatureNames().size() + " features)"));
-									MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, chosenVal);
+									MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, chosenVal, loadDifferentialAction.getActionNumber());
 									MetaOmGraph.getDCResultsFrame().addTabListToFrame(frame.getGeneLists(), chosenVal);
 									MetaOmGraph.getDCResultsFrame().setTitle("Differential Correlation Results");
 									MetaOmGraph.getDesktop().add(MetaOmGraph.getDCResultsFrame());
@@ -5308,8 +5428,6 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 			resultLog.put("result", "OK");
 
-			ActionProperties loadDifferentialAction = new ActionProperties("load-differential-correlation", actionMap,
-					dataMap, resultLog, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 			loadDifferentialAction.logActionProperties();
 
 			return;
@@ -5480,7 +5598,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 	/**
 	 * create a map of name to indices
-	 * 
+	 *
 	 * @param collList
 	 * @param names
 	 * @return
@@ -5701,7 +5819,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	// }
 	/*
 	 * private class MyComparator implements Comparator { private MyComparator() { }
-	 * 
+	 *
 	 * public int compare(Object o1, Object o2) { if ((o1 == null) && (o2 == null))
 	 * return 0; if (o1 == null) return 1; if (o2 == null) return -1; if
 	 * (("".equals(o1)) && ("".equals(o2))) return 0; if ("".equals(o1)) return 1;
@@ -5710,10 +5828,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	 * o1).compareTo(o2); return result; } if (((o1 instanceof String)) && ((o2
 	 * instanceof String))) { return ((String) o1).toLowerCase().compareTo(((String)
 	 * o2).toLowerCase()); }
-	 * 
+	 *
 	 * if (((o1 instanceof Double)) && ((o2 instanceof Double))) { return ((Double)
 	 * o1).compareTo((Double) o2); }
-	 * 
+	 *
 	 * return (o1 + "").compareTo(o2 + ""); } }
 	 */
 
@@ -5881,14 +5999,14 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	/**
 	 * Group data into arrays and return a list of these arrays. Grouping is based
 	 * on default rep column
-	 * 
+	 *
 	 * @param groupsMap
 	 * @param sourceDataAll
 	 * @param exclude
 	 * @return
 	 */
 	public List<double[]> groupDatabyRepColumn(TreeMap<String, List<Integer>> groupsMap, double[] sourceDataAll,
-			boolean[] exclude) {
+											   boolean[] exclude) {
 		List<double[]> sourceGrouped = new ArrayList<double[]>();
 
 		for (Map.Entry<String, List<Integer>> entry : groupsMap.entrySet()) {
@@ -5944,7 +6062,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	 * @author urmi Group indices of data columns and create a list. Grouping is
 	 *         based on default rep column. Return a list of shuffled indices to be
 	 *         used on data or wt matrix
-	 * 
+	 *
 	 * @param groupsMap
 	 * @param exclude
 	 * @param sourceDataColNumbers
@@ -5952,7 +6070,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	 * @return
 	 */
 	public List<int[]> groupDataIndexbyRepColumn(TreeMap<String, List<Integer>> groupsMap, boolean[] exclude,
-			int[] sourceDataColNumbers, int _N) {
+												 int[] sourceDataColNumbers, int _N) {
 		List<int[]> res = new ArrayList<>();
 		// get datacolindex in order of source data
 		int y = 0;
@@ -6053,7 +6171,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 	/**
 	 * Choose a correlation column and return that column
-	 * 
+	 *
 	 * @return
 	 */
 	public String selectCorrColumn() {
@@ -6082,7 +6200,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 	/**
 	 * Choose a feature column and return that column
-	 * 
+	 *
 	 * @return
 	 */
 	public String selectFeatureColumn() {
@@ -6210,7 +6328,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		ColorUIResource oldActiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.activeTitleBackground");
 		ColorUIResource oldInactiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.inactiveTitleBackground");
 		Font oldFont = UIManager.getFont("InternalFrame.titleFont");
-		
+
 		List<Double> corrVals = getCorrData(col_val);
 
 		// create histogram
@@ -6223,7 +6341,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 						nBins = 100;
 					}
 					double[] data = corrVals.stream().mapToDouble(d -> d).toArray();
-					
+
 					HistogramChart f = new HistogramChart(null, nBins, null, 2, data, false);
 
 					UIManager.put("InternalFrame.activeTitleBackground", new ColorUIResource(new Color(240, 128, 128)));
@@ -6243,11 +6361,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					f.setSize(1000, 700);
 					f.setVisible(true);
 					f.toFront();
-		
+
 					UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
 					UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
 					UIManager.put("InternalFrame.titleFont", oldFont);
-					
+
 
 				} catch (Exception e) {
 					JOptionPane.showMessageDialog(null, "Error occured while reading data!!!", "Error",
@@ -6267,7 +6385,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 	/**
 	 * Plot frequency barchart with selected columns
-	 * 
+	 *
 	 * @param colValue
 	 */
 	public void plotBarChart(String colValue) {
@@ -6343,7 +6461,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		ColorUIResource oldActiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.activeTitleBackground");
 		ColorUIResource oldInactiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.inactiveTitleBackground");
 		Font oldFont = UIManager.getFont("InternalFrame.titleFont");
-		
+
 		BarChart f2 = new BarChart(myProject, colValue, chartData, 1);
 
 		UIManager.put("InternalFrame.activeTitleBackground", new ColorUIResource(new Color(240, 128, 128)));
@@ -6363,7 +6481,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		f2.setSize(1000, 700);
 		f2.setVisible(true);
 		f2.toFront();
-		
+
 		UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
 		UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
 		UIManager.put("InternalFrame.titleFont", oldFont);
@@ -6372,7 +6490,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 	/**
 	 * get values in a given correlation column
-	 * 
+	 *
 	 * @param colName
 	 * @return
 	 */
@@ -6393,7 +6511,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 	/**
 	 * get values in a given correlation column
-	 * 
+	 *
 	 * @param colName
 	 * @return
 	 */
