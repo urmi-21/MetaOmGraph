@@ -1,6 +1,6 @@
 package edu.iastate.metnet.metaomgraph;
 
-import com.sun.source.tree.Tree;
+//import com.sun.source.tree.Tree;
 import edu.iastate.metnet.metaomgraph.ui.NoneditableTableModel;
 import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import java.awt.event.ActionEvent;

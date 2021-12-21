@@ -954,8 +954,8 @@ public class MetaOmGraph implements ActionListener {
             mainWindow.setIconImage(myIcon);
 
             // macOS taskbar icon
-            Taskbar macTaskBar = Taskbar.getTaskbar();
-            macTaskBar.setIconImage(myIcon);
+//            Taskbar macTaskBar = Taskbar.getTaskbar();
+//            macTaskBar.setIconImage(myIcon);
         } catch (final UnsupportedOperationException e) {
             System.out.println("macOS does not support 'taskbar.setIconImage'");
         } catch (final SecurityException e) {
@@ -3887,7 +3887,7 @@ public class MetaOmGraph implements ActionListener {
      * Returns an instance of <code>MetaOmApplicationListener</code>
      */
     private static void doMacStuff() {
-        new MetaOmApplicationListener();
+//        new MetaOmApplicationListener();
     }
 
     /**
