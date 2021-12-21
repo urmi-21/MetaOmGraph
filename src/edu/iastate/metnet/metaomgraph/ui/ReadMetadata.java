@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
 import java.awt.event.ActionEvent;
 import javax.swing.JTable;
@@ -36,10 +37,12 @@ import java.awt.Toolkit;
 import javax.swing.border.LineBorder;
 import javax.swing.JScrollPane;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 import org.dizitart.no2.Document;
 
+import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
 import edu.iastate.metnet.metaomgraph.FrameModel;
 
 //import com.sun.deploy.uitoolkit.impl.fx.Utils;
@@ -242,6 +245,27 @@ public class ReadMetadata extends TaskbarInternalFrame {
 					@Override
 					public void run() {
 						try {
+							
+							Enumeration<TableColumn> columnOrder = table.getColumnModel().getColumns();
+							
+							ArrayList<String> colOrder = new ArrayList<String>();
+							
+							while(columnOrder.hasMoreElements()) {
+								TableColumn nextcol = columnOrder.nextElement();
+								
+								colOrder.add((String)nextcol.getHeaderValue());
+							}
+							
+							System.out.println(colOrder);
+							
+							String[] newColumnOrder = new String[colOrder.size()];
+							boolean[] newColumnsToKeep = new boolean[colOrder.size()];
+							
+							for(int i=0; i<newColumnsToKeep.length; i++) {
+								newColumnsToKeep[i] = true;
+							}
+						        
+							obj.setHeaders(colOrder.toArray(newColumnOrder), newColumnsToKeep);
 
 							obj.setDatacol(dataColumnName);
 							// add all data_col values as included
@@ -261,21 +285,66 @@ public class ReadMetadata extends TaskbarInternalFrame {
 							}
 
 							JOptionPane.showMessageDialog(getThisFrame(),
-									"Sample Id column selected is: " + obj.getDatacol(), "Sample Id column",
+									"Unique Sample metadata column selected is: " + obj.getDatacol(), "Sample Id column",
 									JOptionPane.INFORMATION_MESSAGE);
 														
-							MetadataImportWizard frame = new MetadataImportWizard(obj, headers, getThisFrame().getSize(), getThisFrame().getLocationOnScreen(), getThisFrame(),
-									missingDC, extraDC, true, removedCols);
+//							MetadataImportWizard frame = new MetadataImportWizard(obj, headers, getThisFrame().getSize(), getThisFrame().getLocationOnScreen(), getThisFrame(),
+//									missingDC, extraDC, true, removedCols);
+//							
+//							MetaOmGraph.getDesktop().add(frame);
+//							
+//							FrameModel metadataColumnModel = new FrameModel("Import Metadata", "Metadata column selection", 41);
+//							frame.setModel(metadataColumnModel);
+//
+//							frame.setVisible(true);
+//							
+//							frame.toFront();
 							
-							MetaOmGraph.getDesktop().add(frame);
 							
-							FrameModel metadataColumnModel = new FrameModel("Import Metadata", "Metadata column selection", 41);
-							frame.setModel(metadataColumnModel);
 
-							frame.setVisible(true);
-							
-							frame.toFront();
-							
+							new AnimatedSwingWorker("Working...", true) {
+
+								@Override
+								public Object construct() {
+									// return if data column has repeated names
+
+									ParseTableTree ob = new ParseTableTree(obj, obj.getAllDataCols(), dataColumnName);
+									// org.jdom.Document res = ob.tableToTree(obj, tree);
+									ob.tableToTree();
+									
+									if (!(MetaOmGraph.getActiveProject() == null)) {
+										try {
+
+											MetaOmGraph.getActiveProject().loadMetadataHybrid(obj, 
+													ob.getMetadataMap(), dataColumnName, ob.getMetadataHeaders(),
+													ob.getDefaultRepCol(), missingDC, extraDC, removedCols);
+											// JOptionPane.showMessageDialog(null, "total child of
+											// root:"+res.getRootElement().getChildren().size());
+											MetaOmGraph.updateWindow();
+											// update datacolumnName for the current project
+											// MetaOmGraph.getActiveProject().setDataColumn(dataColumnName);
+											// MetaOmGraph.returnprojectTableFrame().setVisible(true);
+										} catch (IOException e1) {
+											// TODO Auto-generated catch block
+											e1.printStackTrace();
+										}
+									}
+									return null;
+								}
+
+								@Override
+								public void finished() {
+									JOptionPane.showMessageDialog(null, "Metadata has been loaded into MetaOmGraph", "Done",
+											JOptionPane.INFORMATION_MESSAGE);
+
+									// sometimes shows error
+//									 dispose();
+									setVisible(false);
+									dispose();
+								}
+
+							}.start();
+
 							
 							//urmi moved this block to MetadataImportWizard
 							//urmi dispose this frame doesnt work after changing to internal frame
@@ -383,7 +452,7 @@ public class ReadMetadata extends TaskbarInternalFrame {
 		btnPriview.setFont(new Font("Times New Roman", Font.PLAIN, 13));
 		panel_4.add(btnPriview);
 
-		JLabel lblChooseDataColumn = new JLabel("Choose Sample Id Column");
+		JLabel lblChooseDataColumn = new JLabel("Unique Sample Metadata Column");
 		lblChooseDataColumn.setFont(new Font("Garamond", Font.PLAIN, 15));
 		lblChooseDataColumn.setForeground(Color.ORANGE.darker().darker());
 		topButtonPanel.add(lblChooseDataColumn);
@@ -517,14 +586,22 @@ public class ReadMetadata extends TaskbarInternalFrame {
 						try {
 							MetadataRemoveCols frame = new MetadataRemoveCols(headers, obj, getThisFrame());
 							setEnabled(false);
-							frame.addWindowListener(new java.awt.event.WindowAdapter() {
-								@Override
-								public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-									setEnabled(true);
-								}
-							});
+//							frame.addWindowListener(new java.awt.event.WindowAdapter() {
+//								@Override
+//								public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+//									setEnabled(true);
+//								}
+//							});
+							
+							FrameModel metadataColumnModel = new FrameModel("Import Metadata", "Remove Metadata Columns", 42);
+							frame.setModel(metadataColumnModel);
+							
 							frame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 							frame.setVisible(true);
+							frame.setResizable(false);
+							MetaOmGraph.getDesktop().add(frame);
+							frame.toFront();
+							
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
