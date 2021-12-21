@@ -3,7 +3,6 @@ package edu.iastate.metnet.metaomgraph.ui;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import java.awt.Color;
@@ -17,6 +16,8 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.WindowConstants;
+
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +31,7 @@ import javax.swing.table.TableColumn;
 
 import org.apache.logging.log4j.Logger;
 
+import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
 import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
@@ -39,7 +41,7 @@ import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.awt.event.ActionEvent;
 
-public class MetadataRemoveCols extends JDialog {
+public class MetadataRemoveCols extends TaskbarInternalFrame {
 
 	private JPanel contentPane;
 	private JTable table;
@@ -71,27 +73,26 @@ public class MetadataRemoveCols extends JDialog {
 	 * Create the frame.
 	 */
 	public MetadataRemoveCols(String[] headervals, MetadataCollection obj, ReadMetadata p) {
-		setModal(true);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
+//		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
-		contentPane.setBackground(Color.DARK_GRAY);
+//		contentPane.setBackground(Color.DARK_GRAY);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
-		setContentPane(contentPane);
+		add(contentPane);
 
 		JPanel panel = new JPanel();
-		panel.setBackground(Color.DARK_GRAY);
+//		panel.setBackground(Color.DARK_GRAY);
 		panel.setFont(new Font("Garamond", Font.BOLD, 16));
 		contentPane.add(panel, BorderLayout.NORTH);
 
 		JLabel lblRemoveColumns = new JLabel("Remove Columns");
-		lblRemoveColumns.setForeground(Color.GREEN);
+		lblRemoveColumns.setForeground(Color.BLUE);
 		lblRemoveColumns.setFont(new Font("Garamond", Font.BOLD, 15));
 		panel.add(lblRemoveColumns);
 
 		JPanel panel_1 = new JPanel();
-		panel_1.setBackground(Color.DARK_GRAY);
+//		panel_1.setBackground(Color.DARK_GRAY);
 		contentPane.add(panel_1, BorderLayout.SOUTH);
 
 		JButton btnDone = new JButton("Done");
@@ -132,7 +133,7 @@ public class MetadataRemoveCols extends JDialog {
 		panel_1.add(btnDone);
 
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBackground(Color.DARK_GRAY);
+//		scrollPane.setBackground(Color.DARK_GRAY);
 		contentPane.add(scrollPane, BorderLayout.CENTER);
 
 		table = new JTable() {
@@ -148,7 +149,7 @@ public class MetadataRemoveCols extends JDialog {
 		table.setRowHeight(25);
 		table.setIntercellSpacing(new Dimension(2, 2));
 		table.setModel(
-				new DefaultTableModel(new Object[][] {}, new String[] { "Column number", "Header", "Keep/Hide" }));
+				new DefaultTableModel(new Object[][] {}, new String[] { "Column number", "Header", "Keep/Remove" }));
 		// set default values
 		DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
 		for (int i = 0; i < headervals.length; i++) {
@@ -158,15 +159,28 @@ public class MetadataRemoveCols extends JDialog {
 		TableColumn optionColumn = table.getColumnModel().getColumn(2);
 		JComboBox comboBox = new JComboBox();
 		comboBox.addItem("Keep");
-		comboBox.addItem("Hide");
+		comboBox.addItem("Remove");
 		comboBox.setSelectedIndex(0);
 		optionColumn.setCellEditor(new DefaultCellEditor(comboBox));
 
 		table.setFont(new Font("Times New Roman", Font.PLAIN, 14));
-		table.setForeground(Color.RED);
-		table.setBackground(Color.BLACK);
+//		table.setForeground(Color.RED);
+//		table.setBackground(Color.BLACK);
 		scrollPane.setViewportView(table);
 		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		
+		
+		
+		setResizable(false);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		
+		this.pack();
+
+		setClosable(true);
+		setMaximizable(false);
+		setIconifiable(true);
+		this.toFront();
+		
 
 	}
 
@@ -181,12 +195,12 @@ public class MetadataRemoveCols extends JDialog {
 		setTitle("Metadata Column Filter");
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
-		contentPane.setBackground(Color.DARK_GRAY);
+//		contentPane.setBackground(Color.DARK_GRAY);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
 		JPanel panel = new JPanel();
-		panel.setBackground(Color.DARK_GRAY);
+//		panel.setBackground(Color.DARK_GRAY);
 		panel.setFont(new Font("Garamond", Font.BOLD, 16));
 		contentPane.add(panel, BorderLayout.NORTH);
 		JLabel lblRemoveColumns;
@@ -195,17 +209,17 @@ public class MetadataRemoveCols extends JDialog {
 		} else {
 			lblRemoveColumns = new JLabel("Filter Columns");
 		}
-		lblRemoveColumns.setForeground(Color.GREEN);
+		lblRemoveColumns.setForeground(Color.BLUE);
 		lblRemoveColumns.setFont(new Font("Garamond", Font.BOLD, 15));
 		panel.add(lblRemoveColumns);
 		JPanel panel_1 = new JPanel();
-		panel_1.setBackground(Color.DARK_GRAY);
+//		panel_1.setBackground(Color.DARK_GRAY);
 		contentPane.add(panel_1, BorderLayout.SOUTH);
 		JButton btnDone = new JButton("Done");
 		panel_1.add(btnDone);
 
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBackground(Color.DARK_GRAY);
+//		scrollPane.setBackground(Color.DARK_GRAY);
 		contentPane.add(scrollPane, BorderLayout.CENTER);
 
 		table = new JTable() {
@@ -221,7 +235,7 @@ public class MetadataRemoveCols extends JDialog {
 		table.setRowHeight(25);
 		table.setIntercellSpacing(new Dimension(2, 2));
 		table.setModel(
-				new DefaultTableModel(new Object[][] {}, new String[] { "Column number", "Header", "Keep/Hide" }));
+				new DefaultTableModel(new Object[][] {}, new String[] { "Column number", "Header", "Keep/Remove" }));
 		// set default values
 		DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
 		java.util.List<String> curr_headers = Arrays.asList(headervals);
@@ -244,20 +258,20 @@ public class MetadataRemoveCols extends JDialog {
 			if (toKeep[i]) {
 				tablemodel.addRow(new String[] { String.valueOf(i + 1), allHeaders[i], "Keep" });
 			} else {
-				tablemodel.addRow(new String[] { String.valueOf(i + 1), allHeaders[i], "Hide" });
+				tablemodel.addRow(new String[] { String.valueOf(i + 1), allHeaders[i], "Remove" });
 			}
 		}
 		
 		TableColumn optionColumn = table.getColumnModel().getColumn(2);
 		JComboBox comboBox = new JComboBox();
 		comboBox.addItem("Keep");
-		comboBox.addItem("Hide");
+		comboBox.addItem("Remove");
 		comboBox.setSelectedIndex(0);
 		optionColumn.setCellEditor(new DefaultCellEditor(comboBox));
 
 		table.setFont(new Font("Times New Roman", Font.PLAIN, 14));
-		table.setForeground(Color.RED);
-		table.setBackground(Color.BLACK);
+//		table.setForeground(Color.RED);
+//		table.setBackground(Color.BLACK);
 		scrollPane.setViewportView(table);
 		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
