@@ -4,7 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
 import javax.swing.JPanel;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JMenu;
@@ -32,6 +34,9 @@ import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 
 import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Toolkit;
 
 import javax.swing.border.LineBorder;
@@ -52,6 +57,8 @@ import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
 
 import java.awt.ComponentOrientation;
+
+import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import java.awt.Dimension;
 
@@ -107,31 +114,36 @@ public class ReadMetadata extends TaskbarInternalFrame {
 		});
 	}
 
+
+	public ReadMetadata getCurrentFrame() {
+		return this;
+	}
+
 	/*
 	 * start from loaded data
 	 */
 	public ReadMetadata(MetadataCollection dataObj, String delim) {
 		this();
-		
+
 		if(!this.loadMetadata(dataObj, delim)) {
 			return;
 		}
-//		this.setIconImage(Toolkit.getDefaultToolkit()
-//				.getImage(MetadataImportWizard.class.getResource("/resource/MetaOmicon16.png")));
+		//		this.setIconImage(Toolkit.getDefaultToolkit()
+		//				.getImage(MetadataImportWizard.class.getResource("/resource/MetaOmicon16.png")));
 		this.setTitle("Import Metadata");
-		
+
 		this.setVisible(true);
 		setResizable(false);
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		
+
 		this.pack();
 
 		setClosable(true);
 		setMaximizable(false);
 		setIconifiable(true);
-		
+
 		this.toFront();
-		
+
 	}
 
 	/*
@@ -141,22 +153,22 @@ public class ReadMetadata extends TaskbarInternalFrame {
 		this();
 		this.loadMetadata(path, delim);
 		this.textField.setText(path);
-//		this.setIconImage(Toolkit.getDefaultToolkit()
-//				.getImage(MetadataImportWizard.class.getResource("/resource/MetaOmicon16.png")));
-		this.setTitle("Read metadata file");
-		
+		//		this.setIconImage(Toolkit.getDefaultToolkit()
+		//				.getImage(MetadataImportWizard.class.getResource("/resource/MetaOmicon16.png")));
+		this.setTitle("Read Metadata File");
+
 		setResizable(false);
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		
-		
+
+
 		this.pack();
-		
+
 		setClosable(true);
 		setMaximizable(false);
 		setIconifiable(true);
-		
+
 		this.toFront();
-		
+
 	}
 
 	/**
@@ -164,7 +176,7 @@ public class ReadMetadata extends TaskbarInternalFrame {
 	 */
 	public ReadMetadata() {
 
-		setBounds(50, 50, 450, 300);
+		setBounds(50, 50, 450, 150);
 		comboBox_1 = new JComboBox();
 
 		comboBox_1.addActionListener(new ActionListener() {
@@ -188,33 +200,29 @@ public class ReadMetadata extends TaskbarInternalFrame {
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 
-		JMenu mnFile = new JMenu("File");
-		menuBar.add(mnFile);
-
-		JMenu mnAdvanceOptions = new JMenu("Advance Options");
-		menuBar.add(mnAdvanceOptions);
+		ReadMetadata thisInternalFrame = getCurrentFrame();
 
 		// @TODO Implement me when help manual is added.
 		/*JMenu mnHelp = new JMenu("Help");
 		menuBar.add(mnHelp);*/
 		contentPane = new JPanel();
-//		contentPane.setBackground(Color.GRAY);
+		//		contentPane.setBackground(Color.GRAY);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
 
 		JPanel panel = new JPanel();
-//		panel.setBackground(Color.GRAY);
+		//		panel.setBackground(Color.GRAY);
 		contentPane.add(panel, BorderLayout.NORTH);
 
-//		JLabel lblReadMetadataFile = new JLabel("Read metadata file");
-//		lblReadMetadataFile.setForeground(Color.GREEN);
-//		lblReadMetadataFile.setFont(new Font("Garamond", Font.BOLD, 18));
-//		lblReadMetadataFile.setHorizontalAlignment(SwingConstants.CENTER);
-//		panel.add(lblReadMetadataFile);
+		//		JLabel lblReadMetadataFile = new JLabel("Read metadata file");
+		//		lblReadMetadataFile.setForeground(Color.GREEN);
+		//		lblReadMetadataFile.setFont(new Font("Garamond", Font.BOLD, 18));
+		//		lblReadMetadataFile.setHorizontalAlignment(SwingConstants.CENTER);
+		//		panel.add(lblReadMetadataFile);
 
 		JPanel panel_1 = new JPanel();
-//		panel_1.setBackground(Color.GRAY);
+		//		panel_1.setBackground(Color.GRAY);
 		contentPane.add(panel_1, BorderLayout.SOUTH);
 
 		JPanel panel_2 = new JPanel();
@@ -245,73 +253,56 @@ public class ReadMetadata extends TaskbarInternalFrame {
 					@Override
 					public void run() {
 						try {
-							
-							Enumeration<TableColumn> columnOrder = table.getColumnModel().getColumns();
-							
-							ArrayList<String> colOrder = new ArrayList<String>();
-							
-							while(columnOrder.hasMoreElements()) {
-								TableColumn nextcol = columnOrder.nextElement();
-								
-								colOrder.add((String)nextcol.getHeaderValue());
-							}
-							
-							System.out.println(colOrder);
-							
-							String[] newColumnOrder = new String[colOrder.size()];
-							boolean[] newColumnsToKeep = new boolean[colOrder.size()];
-							
-							for(int i=0; i<newColumnsToKeep.length; i++) {
-								newColumnsToKeep[i] = true;
-							}
-						        
-							obj.setHeaders(colOrder.toArray(newColumnOrder), newColumnsToKeep);
-
-							obj.setDatacol(dataColumnName);
-							// add all data_col values as included
-							obj.initializeIncludedList();
-							// JOptionPane.showMessageDialog(null, "init:"+obj.getIncluded().toString());
-							// JOptionPane.showMessageDialog(null, "init ex:"+obj.getExcluded().toString());
-
-							if (missinginD > 0) {
-								// JOptionPane.showMessageDialog(null, "removing");
-								removeExtraRowsfromMD();
-							}
-							if (missinginMD > 0) {
-								// removeMissingfromD();
-								// add null metadata for missing cols
-								// add missing Data after making the tree
-								addMissingMD();
-							}
-
-							JOptionPane.showMessageDialog(getThisFrame(),
-									"Unique Sample metadata column selected is: " + obj.getDatacol(), "Sample Id column",
-									JOptionPane.INFORMATION_MESSAGE);
-														
-//							MetadataImportWizard frame = new MetadataImportWizard(obj, headers, getThisFrame().getSize(), getThisFrame().getLocationOnScreen(), getThisFrame(),
-//									missingDC, extraDC, true, removedCols);
-//							
-//							MetaOmGraph.getDesktop().add(frame);
-//							
-//							FrameModel metadataColumnModel = new FrameModel("Import Metadata", "Metadata column selection", 41);
-//							frame.setModel(metadataColumnModel);
-//
-//							frame.setVisible(true);
-//							
-//							frame.toFront();
-							
-							
 
 							new AnimatedSwingWorker("Working...", true) {
 
 								@Override
 								public Object construct() {
+
+									Enumeration<TableColumn> columnOrder = table.getColumnModel().getColumns();
+
+									ArrayList<String> colOrder = new ArrayList<String>();
+
+									while(columnOrder.hasMoreElements()) {
+										TableColumn nextcol = columnOrder.nextElement();
+
+										colOrder.add((String)nextcol.getHeaderValue());
+									}
+
+
+									String[] newColumnOrder = new String[colOrder.size()];
+									boolean[] newColumnsToKeep = new boolean[colOrder.size()];
+
+									for(int i=0; i<newColumnsToKeep.length; i++) {
+										newColumnsToKeep[i] = true;
+									}
+
+									obj.setHeaders(colOrder.toArray(newColumnOrder), newColumnsToKeep);
+
+									obj.setDatacol(dataColumnName);
+									// add all data_col values as included
+									obj.initializeIncludedList();
+									// JOptionPane.showMessageDialog(null, "init:"+obj.getIncluded().toString());
+									// JOptionPane.showMessageDialog(null, "init ex:"+obj.getExcluded().toString());
+
+									if (missinginD > 0) {
+										// JOptionPane.showMessageDialog(null, "removing");
+										removeExtraRowsfromMD();
+									}
+									if (missinginMD > 0) {
+										// removeMissingfromD();
+										// add null metadata for missing cols
+										// add missing Data after making the tree
+										addMissingMD();
+									}
+
+
 									// return if data column has repeated names
 
 									ParseTableTree ob = new ParseTableTree(obj, obj.getAllDataCols(), dataColumnName);
 									// org.jdom.Document res = ob.tableToTree(obj, tree);
 									ob.tableToTree();
-									
+
 									if (!(MetaOmGraph.getActiveProject() == null)) {
 										try {
 
@@ -327,6 +318,8 @@ public class ReadMetadata extends TaskbarInternalFrame {
 										} catch (IOException e1) {
 											// TODO Auto-generated catch block
 											e1.printStackTrace();
+											dispose();
+											MetaOmGraph.getTaskBar().removeFromTaskbar(thisInternalFrame);
 										}
 									}
 									return null;
@@ -334,29 +327,30 @@ public class ReadMetadata extends TaskbarInternalFrame {
 
 								@Override
 								public void finished() {
-									JOptionPane.showMessageDialog(null, "Metadata has been loaded into MetaOmGraph", "Done",
-											JOptionPane.INFORMATION_MESSAGE);
 
 									// sometimes shows error
-//									 dispose();
+									//									 dispose();
 									setVisible(false);
 									dispose();
+									MetaOmGraph.getTaskBar().removeFromTaskbar(thisInternalFrame);
 								}
 
 							}.start();
 
-							
+
 							//urmi moved this block to MetadataImportWizard
 							//urmi dispose this frame doesnt work after changing to internal frame
 							//this block is executed after frame is disposed
 							//JOptionPane.showConfirmDialog(null, "disposing");
 							//getThisFrame().dispose();
 							//JOptionPane.showConfirmDialog(null, "disposing done");
-							
-							
+
+
 						} catch (Exception e) {
 							e.printStackTrace();
 							JOptionPane.showMessageDialog(null, "Error loading metadata....");
+							dispose();
+							MetaOmGraph.getTaskBar().removeFromTaskbar(thisInternalFrame);
 						}
 					}
 				});
@@ -367,24 +361,44 @@ public class ReadMetadata extends TaskbarInternalFrame {
 
 		JSplitPane splitPane = new JSplitPane();
 		splitPane.setBorder(new LineBorder(new Color(0, 0, 0)));
-		splitPane.setDividerSize(1);
+		splitPane.setDividerSize(0);
 		splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		contentPane.add(splitPane, BorderLayout.CENTER);
 
 		JPanel panel_3 = new JPanel();
 		JPanel topButtonPanel = new JPanel();
-//		panel_3.setBackground(Color.DARK_GRAY);
 		splitPane.setLeftComponent(panel_3);
-		panel_3.setLayout(new BorderLayout(1, 1));
+		panel_3.setLayout(new FlowLayout());
+
+		JPanel first_panel = new JPanel();
+		first_panel.setLayout(new BorderLayout(0, 0));
+
+		JPanel panel_header = new JPanel();
+		//		panel_6.setBackground(Color.DARK_GRAY);
+		first_panel.add(panel_header, BorderLayout.NORTH);
+		panel_header.setLayout(new BorderLayout(0, 0));
+
+		HeaderPane lblMetadataFileLoad = new HeaderPane("Update Metadata File");
+		lblMetadataFileLoad.setHorizontalAlignment(SwingConstants.CENTER);
+		lblMetadataFileLoad.setForeground(Color.BLACK.darker().darker());
+		lblMetadataFileLoad.setFont(new Font("Garamond", Font.BOLD, 18));
+		panel_header.add(lblMetadataFileLoad, BorderLayout.NORTH);
+
 
 		// create top button panel
-//		topButtonPanel.setBackground(Color.DARK_GRAY);
-		topButtonPanel.setLayout(new FlowLayout());
+		//		topButtonPanel.setBackground(Color.DARK_GRAY);
+		topButtonPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+		JPanel metadataFileLoadPanel = new JPanel();
+		metadataFileLoadPanel.setLayout(new BorderLayout(1, 1));
 
 		JLabel lblMetadataFile = new JLabel("Metadata file");
+		lblMetadataFile.setBorder(new EmptyBorder(0, 0, 0, 117));
 		lblMetadataFile.setForeground(Color.ORANGE.darker().darker());
-		lblMetadataFile.setFont(new Font("Garamond", Font.PLAIN, 15));
+		lblMetadataFile.setFont(new Font("Garamond", Font.PLAIN, 12));
 		topButtonPanel.add(lblMetadataFile);
+
+
 
 		textField = new JTextField();
 		topButtonPanel.add(textField);
@@ -408,136 +422,223 @@ public class ReadMetadata extends TaskbarInternalFrame {
 		btnBrowse.setFont(new Font("Times New Roman", Font.PLAIN, 11));
 		topButtonPanel.add(btnBrowse);
 
+		metadataFileLoadPanel.add(topButtonPanel, BorderLayout.NORTH);
+
+
+		JPanel selectDelimiterPanel = new JPanel();
+		selectDelimiterPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+
 		JLabel lblSelectDelimiter = new JLabel("Select Delimiter");
+		lblSelectDelimiter.setBorder(new EmptyBorder(0, 0, 0, 105));
 		lblSelectDelimiter.setForeground(Color.ORANGE.darker().darker());
-		lblSelectDelimiter.setFont(new Font("Garamond", Font.PLAIN, 15));
-		topButtonPanel.add(lblSelectDelimiter);
+		lblSelectDelimiter.setFont(new Font("Garamond", Font.PLAIN, 12));
+		selectDelimiterPanel.add(lblSelectDelimiter);
 
 		JComboBox comboBox = new JComboBox();
 		comboBox.setFont(new Font("Times New Roman", Font.PLAIN, 13));
 		comboBox.setModel(
 				new DefaultComboBoxModel(new String[] { "Tab (\\t)", "Comma (,)", "Semicolon (;)", "Space" }));
 		comboBox.setForeground(Color.BLACK);
-//		comboBox.setBackground(Color.GRAY);
-		topButtonPanel.add(comboBox);
+		//		comboBox.setBackground(Color.GRAY);
+		selectDelimiterPanel.add(comboBox);
+
+		metadataFileLoadPanel.add(selectDelimiterPanel, BorderLayout.CENTER);
 
 		JPanel panel_4 = new JPanel();
-//		panel_4.setBackground(Color.DARK_GRAY);
-		topButtonPanel.add(panel_4);
+		//		panel_4.setBackground(Color.DARK_GRAY);
 
-		btnPriview = new JButton("Preview");
+
+		btnPriview = new JButton("Update");
 		btnPriview.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
-				// read metadata file and display in table first 20 lines
-				obj = new MetadataCollection();
-				// read file into obj
+				new AnimatedSwingWorker("Working...", true) {
 
-				metadataDelim = metadatadelims[comboBox.getSelectedIndex()];
-				loadMetadata(textField.getText(), metadataDelim);
-				/*
-				 * try { obj.readMetadataTextFile(metadataFile.getAbsolutePath(), metadataDelim,
-				 * true); } catch (IOException e1) { // TODO Auto-generated catch block
-				 * e1.printStackTrace(); } // comboBox_1.setModel(new
-				 * DefaultComboBoxModel(obj.getHeaders())); updateTable();
-				 * comboBox_1.setSelectedIndex(guessDatacolumnIndex()); // set buttons enabled
-				 * btnNext.setEnabled(true); btnBut.setEnabled(true); btnBut_1.setEnabled(true);
-				 * btnBut_2.setEnabled(true); btnFindAndReplace.setEnabled(true);
-				 * btnTranspose.setEnabled(true);
-				 */
+					@Override
+					public Object construct() {
+
+						// read metadata file and display in table first 20 lines
+						obj = new MetadataCollection();
+						// read file into obj
+
+						metadataDelim = metadatadelims[comboBox.getSelectedIndex()];
+						loadMetadata(textField.getText(), metadataDelim);
+						/*
+						 * try { obj.readMetadataTextFile(metadataFile.getAbsolutePath(), metadataDelim,
+						 * true); } catch (IOException e1) { // TODO Auto-generated catch block
+						 * e1.printStackTrace(); } // comboBox_1.setModel(new
+						 * DefaultComboBoxModel(obj.getHeaders())); updateTable();
+						 * comboBox_1.setSelectedIndex(guessDatacolumnIndex()); // set buttons enabled
+						 * btnNext.setEnabled(true); btnBut.setEnabled(true); btnBut_1.setEnabled(true);
+						 * btnBut_2.setEnabled(true); btnFindAndReplace.setEnabled(true);
+						 * btnTranspose.setEnabled(true);
+						 */
+
+						return null;
+					}
+
+					@Override
+					public void finished() {}
+				}.start();
 
 			}
 		});
 		btnPriview.setFont(new Font("Times New Roman", Font.PLAIN, 13));
 		panel_4.add(btnPriview);
 
-		JLabel lblChooseDataColumn = new JLabel("Unique Sample Metadata Column");
-		lblChooseDataColumn.setFont(new Font("Garamond", Font.PLAIN, 15));
-		lblChooseDataColumn.setForeground(Color.ORANGE.darker().darker());
-		topButtonPanel.add(lblChooseDataColumn);
 
-		topButtonPanel.add(comboBox_1);
-		panel_3.add(topButtonPanel, BorderLayout.NORTH);
-		
+
+
+
+		JPanel finalPanel = new JPanel(new BorderLayout(0,0));
+
+		JPanel uniqueMetadataColumnPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+		JLabel lblChooseDataColumn = new JLabel("Unique Sample Metadata Column");
+		lblChooseDataColumn.setFont(new Font("Garamond", Font.PLAIN, 12));
+		lblChooseDataColumn.setForeground(Color.ORANGE.darker().darker());
+		uniqueMetadataColumnPanel.add(lblChooseDataColumn);
+
+		uniqueMetadataColumnPanel.add(comboBox_1);
+
+		finalPanel.add(uniqueMetadataColumnPanel, BorderLayout.NORTH);
+		finalPanel.add(panel_4, BorderLayout.CENTER);
+
+		metadataFileLoadPanel.add(finalPanel, BorderLayout.SOUTH);
+
+
+
+
+		first_panel.add(metadataFileLoadPanel, BorderLayout.SOUTH);
+
+		Border loweredetched = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
+		first_panel.setBorder(loweredetched);
+
+		panel_3.add(first_panel);
 
 		JPanel panel_6 = new JPanel();
-//		panel_6.setBackground(Color.DARK_GRAY);
-		panel_3.add(panel_6, BorderLayout.CENTER);
+		panel_6.setBorder(loweredetched);
+
+		panel_3.add(panel_6);
 		panel_6.setLayout(new BorderLayout(0, 0));
 
-		JLabel lblMetadataFileStats = new JLabel("Metadata file stats");
+		HeaderPane lblMetadataFileStats = new HeaderPane("Metadata File Stats");
 		lblMetadataFileStats.setHorizontalAlignment(SwingConstants.CENTER);
-		lblMetadataFileStats.setForeground(Color.GREEN.darker().darker());
+		lblMetadataFileStats.setForeground(Color.BLACK.darker().darker());
 		lblMetadataFileStats.setFont(new Font("Garamond", Font.BOLD, 18));
 		panel_6.add(lblMetadataFileStats, BorderLayout.NORTH);
 
-		JPanel panel_7 = new JPanel();
-//		panel_7.setBackground(Color.GRAY);
-		panel_6.add(panel_7, BorderLayout.CENTER);
-		panel_7.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		JPanel panel_7 = new JPanel(new BorderLayout(0,0));
+		//		panel_7.setBackground(Color.GRAY);
+		panel_6.add(panel_7, BorderLayout.SOUTH);
+		panel_7.setLayout(new BorderLayout(0,0));
 
+
+		JPanel panel_8 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		JLabel lblTotalRows = new JLabel("Total Rows");
+		lblTotalRows.setBorder(new EmptyBorder(0, 30, 0, 0));
 		lblTotalRows.setForeground(Color.BLUE);
-		lblTotalRows.setFont(new Font("Garamond", Font.PLAIN, 17));
-		panel_7.add(lblTotalRows);
+		lblTotalRows.setFont(new Font("Garamond", Font.PLAIN, 12));
+		panel_8.add(lblTotalRows);
 
 		textField_1 = new JTextField();
 		textField_1.setForeground(Color.RED);
-		textField_1.setFont(new Font("Times New Roman", Font.PLAIN, 13));
+		textField_1.setFont(new Font("Times New Roman", Font.PLAIN, 12));
 		textField_1.setEditable(false);
-		panel_7.add(textField_1);
+		panel_8.add(textField_1);
 		textField_1.setColumns(5);
 
+		panel_8.setBorder(new EmptyBorder(1, 100, 1, 100));
+
+		panel_7.add(panel_8, BorderLayout.NORTH);
+
+
+		JPanel panel_9 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		JLabel lblTotalColumns = new JLabel("Total Columns");
+		lblTotalColumns.setBorder(new EmptyBorder(0, 10, 0, 0));
 		lblTotalColumns.setForeground(Color.BLUE);
-		lblTotalColumns.setFont(new Font("Garamond", Font.PLAIN, 17));
-		panel_7.add(lblTotalColumns);
+		lblTotalColumns.setFont(new Font("Garamond", Font.PLAIN, 12));
+		panel_9.add(lblTotalColumns);
 
 		textField_2 = new JTextField();
 		textField_2.setForeground(Color.RED);
-		textField_2.setFont(new Font("Times New Roman", Font.PLAIN, 13));
+		textField_2.setFont(new Font("Times New Roman", Font.PLAIN, 12));
 		textField_2.setEditable(false);
-		panel_7.add(textField_2);
+		panel_9.add(textField_2);
 		textField_2.setColumns(5);
 
+		panel_9.setBorder(new EmptyBorder(1, 100, 1, 100));
+
+		panel_7.add(panel_9, BorderLayout.CENTER);
+
+
+
+		JPanel panel_11 = new JPanel(new BorderLayout(0,0));
+
+		JPanel panel_10 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		JLabel lblMissingValues = new JLabel("Extra Samples");
+		lblMissingValues.setBorder(new EmptyBorder(0, 10, 0, 0));
 		lblMissingValues.setForeground(Color.BLUE);
-		lblMissingValues.setFont(new Font("Garamond", Font.PLAIN, 17));
-		panel_7.add(lblMissingValues);
+		lblMissingValues.setFont(new Font("Garamond", Font.PLAIN, 12));
+		panel_10.add(lblMissingValues);
 
 		textField_3 = new JTextField();
 		textField_3.setForeground(Color.RED);
-		textField_3.setFont(new Font("Times New Roman", Font.PLAIN, 13));
+		textField_3.setFont(new Font("Times New Roman", Font.PLAIN, 12));
 		textField_3.setEditable(false);
-		panel_7.add(textField_3);
+		panel_10.add(textField_3);
 		textField_3.setColumns(5);
 
+		panel_10.setBorder(new EmptyBorder(1, 100, 1, 100));
+
+		panel_11.add(panel_10, BorderLayout.NORTH);
+
+		JPanel panel_12 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		JLabel lblMissingDataColumns = new JLabel("Missing Samples");
 		lblMissingDataColumns.setForeground(Color.BLUE);
-		lblMissingDataColumns.setFont(new Font("Garamond", Font.PLAIN, 17));
-		panel_7.add(lblMissingDataColumns);
+		lblMissingDataColumns.setFont(new Font("Garamond", Font.PLAIN, 12));
+		panel_12.add(lblMissingDataColumns);
 
 		textField_4 = new JTextField();
 		textField_4.setForeground(Color.RED);
-		textField_4.setFont(new Font("Times New Roman", Font.PLAIN, 13));
+		textField_4.setFont(new Font("Times New Roman", Font.PLAIN, 12));
 		textField_4.setEditable(false);
-		panel_7.add(textField_4);
+		panel_12.add(textField_4);
 		textField_4.setColumns(5);
-		splitPane.setResizeWeight(.2d);
+
+		panel_12.setBorder(new EmptyBorder(1, 100, 1, 100));
+
+		panel_11.add(panel_12, BorderLayout.CENTER);
+
+		panel_7.add(panel_11, BorderLayout.SOUTH);
+
+		splitPane.setResizeWeight(.08d);
 
 		JSplitPane splitPane_1 = new JSplitPane();
 		splitPane_1.setEnabled(false);
 		splitPane_1.setDividerSize(1);
 		splitPane_1.setBorder(new LineBorder(new Color(0, 0, 0)));
-//		splitPane_1.setBackground(Color.DARK_GRAY);
+		//		splitPane_1.setBackground(Color.DARK_GRAY);
 		splitPane_1.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		splitPane_1.setResizeWeight(.051d);
 		splitPane.setRightComponent(splitPane_1);
 
+
+		JPanel panel_16 = new JPanel(new BorderLayout(0,0));
 		JPanel panel_5 = new JPanel();
-//		panel_5.setBackground(Color.DARK_GRAY);
-		splitPane_1.setLeftComponent(panel_5);
+		//		panel_5.setBackground(Color.DARK_GRAY);
+		splitPane_1.setLeftComponent(panel_16);
+
+
+		HeaderPane lblPreviewMetadata = new HeaderPane("Metadata Preview");
+		lblPreviewMetadata.setHorizontalAlignment(SwingConstants.CENTER);
+		lblPreviewMetadata.setForeground(Color.BLACK.darker().darker());
+		lblPreviewMetadata.setFont(new Font("Garamond", Font.BOLD, 18));
+		panel_16.add(lblPreviewMetadata, BorderLayout.NORTH);
+
+		panel_16.add(panel_5, BorderLayout.CENTER);
 
 		btnBut = new JButton("Rename headers");
 		btnBut.setEnabled(false);
@@ -556,15 +657,16 @@ public class ReadMetadata extends TaskbarInternalFrame {
 					public void run() {
 						try {
 							MetadataHeaderEdit frame = new MetadataHeaderEdit(headers, obj, getThisFrame());
-							setEnabled(false);
-							frame.addWindowListener(new java.awt.event.WindowAdapter() {
-								@Override
-								public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-									setEnabled(true);
-								}
-							});
+
+							FrameModel metadataColumnModel = new FrameModel("Import Metadata", "Rename Metadata Columns", 42);
+							frame.setModel(metadataColumnModel);
+
 							frame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 							frame.setVisible(true);
+							frame.setResizable(false);
+							MetaOmGraph.getDesktop().add(frame);
+							frame.toFront();
+
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -573,7 +675,7 @@ public class ReadMetadata extends TaskbarInternalFrame {
 			}
 		});
 		btnBut.setFont(new Font("Times New Roman", Font.PLAIN, 13));
-		panel_5.add(btnBut);
+//		panel_5.add(btnBut);
 
 		btnBut_1 = new JButton("Remove columns");
 		btnBut_1.setEnabled(false);
@@ -586,22 +688,22 @@ public class ReadMetadata extends TaskbarInternalFrame {
 						try {
 							MetadataRemoveCols frame = new MetadataRemoveCols(headers, obj, getThisFrame());
 							setEnabled(false);
-//							frame.addWindowListener(new java.awt.event.WindowAdapter() {
-//								@Override
-//								public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-//									setEnabled(true);
-//								}
-//							});
-							
+							//							frame.addWindowListener(new java.awt.event.WindowAdapter() {
+							//								@Override
+							//								public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+							//									setEnabled(true);
+							//								}
+							//							});
+
 							FrameModel metadataColumnModel = new FrameModel("Import Metadata", "Remove Metadata Columns", 42);
 							frame.setModel(metadataColumnModel);
-							
+
 							frame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 							frame.setVisible(true);
 							frame.setResizable(false);
 							MetaOmGraph.getDesktop().add(frame);
 							frame.toFront();
-							
+
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -654,7 +756,7 @@ public class ReadMetadata extends TaskbarInternalFrame {
 			}
 		});
 		btnBut_2.setFont(new Font("Times New Roman", Font.PLAIN, 13));
-		panel_5.add(btnBut_2);
+//		panel_5.add(btnBut_2);
 
 		btnTranspose = new JButton("Transpose");
 		btnTranspose.addActionListener(new ActionListener() {
@@ -692,30 +794,33 @@ public class ReadMetadata extends TaskbarInternalFrame {
 		table.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 		table.setForeground(Color.GREEN.darker().darker());
 		table.setFont(new Font("Times New Roman", Font.PLAIN, 16));
-//		table.setBackground(Color.BLACK);
+		//		table.setBackground(Color.BLACK);
 		table.setModel(new DefaultTableModel(
-			new Object[][] {
-				{},
-				{},
-				{},
-				{},
-				{},
-				{},
-				{},
-				{},
-				{},
-				{},
-			},
-			new String[] {
-			}
-		));
+				new Object[][] {
+					{},
+					{},
+					{},
+					{},
+					{},
+					{},
+					{},
+					{},
+					{},
+					{},
+				},
+				new String[] {
+				}
+				));
 		// table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
 		// table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		scrollPane.setViewportView(table);
 
-//		this.setSize(1100, 500);
+		scrollPane.setViewportView(table);
+		scrollPane.setPreferredSize(new Dimension(scrollPane.getPreferredSize().width, (int)(scrollPane.getPreferredSize().height/1.3)));
 		
+
+//				this.setSize(1100, 500);
+
 		this.pack();
 	}
 
@@ -812,7 +917,7 @@ public class ReadMetadata extends TaskbarInternalFrame {
 		missinginMD = missingextra[0];
 		textField_3.setText(String.valueOf(missingextra[1]));
 		textField_4.setText(String.valueOf(missingextra[0]));
-		
+
 		return true;
 
 	}
@@ -854,7 +959,7 @@ public class ReadMetadata extends TaskbarInternalFrame {
 		if (obj.getNumRows() < 1) {
 			JOptionPane.showMessageDialog(null, "Metadata file not loaded or empty.", "Error",
 					JOptionPane.INFORMATION_MESSAGE);
-			
+
 			return false;
 		}
 		// JOptionPane.showMessageDialog(null, "Reading metadata..DONE");
@@ -878,7 +983,7 @@ public class ReadMetadata extends TaskbarInternalFrame {
 		missinginMD = missingextra[0];
 		textField_3.setText(String.valueOf(missinginD));
 		textField_4.setText(String.valueOf(missinginMD));
-		
+
 		return true;
 
 	}
@@ -981,6 +1086,62 @@ public class ReadMetadata extends TaskbarInternalFrame {
 		// TODO Auto-generated method stub
 		btnNext.setEnabled(true);
 
+	}
+
+}
+
+
+class HeaderPane extends JLabel {
+
+	GradientPaint gradientBlue;
+	GradientPaint gradientGreen;
+
+	public HeaderPane(String text) {
+		setText(text);
+		setForeground(Color.WHITE);
+		setHorizontalAlignment(CENTER);
+	}
+
+	protected void paintGradient(Graphics2D g2d) {
+		if (gradientBlue == null) {
+			Color TRANSPARENT = new Color(255, 255, 255, 0);
+			gradientBlue = new GradientPaint(
+					0, 0, new Color(172, 182, 229, 33),
+					0, getHeight(), new Color(172, 182, 229, 166)
+					);
+
+			gradientGreen = new GradientPaint(
+					0, 0, new Color(116, 235, 213),
+					getWidth(), getHeight(), TRANSPARENT
+					);
+		}
+
+		int yPadding = 2;
+		int realHeight = getHeight() - yPadding * 2;
+
+		/* draw gradients */
+		g2d.setPaint(gradientBlue);
+		g2d.fillRect(0, yPadding, getWidth(), realHeight);
+		g2d.setPaint(gradientGreen);
+		g2d.fillRect(0, yPadding, getWidth(), realHeight);
+
+		/* draw borders */
+		g2d.setColor(new Color(0,0,0,30));
+		g2d.fillRect(0, yPadding, getWidth(), 1);
+		g2d.fillRect(0, getHeight() - yPadding - 2, getWidth(), 2);
+
+	}
+
+	@Override
+	protected void paintComponent(Graphics g) {
+
+
+		Graphics2D g2d = (Graphics2D) g;
+
+		this.paintGradient(g2d);
+		g2d.setPaint(Color.BLACK);
+
+		super.paintComponent(g2d);
 	}
 
 }

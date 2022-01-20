@@ -1,45 +1,58 @@
 package edu.iastate.metnet.metaomgraph.ui;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GradientPaint;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import javax.swing.JLabel;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
+import java.awt.*;
 
-public class WelcomeHeader extends javax.swing.JComponent {
-    String text;
-    Image icon;
+public class WelcomeHeader extends Header {
+
+    GradientPaint gradientBlue;
+    GradientPaint gradientGreen;
 
     public WelcomeHeader(String text, Image icon) {
-        this.text = text;
-        this.icon = icon;
-        setFont(new JLabel().getFont().deriveFont(18.0F));
+        super(text);
+        this.setIcon(new ImageIcon(icon));
     }
 
-    @Override
-	public Dimension getPreferredSize() {
-        int width = SwingUtilities.computeStringWidth(this.getFontMetrics(this
-                .getFont()), text)
-                + icon.getWidth(null) + this.getInsets().left + this.getInsets().right + 50;
-        return new Dimension(width, 50);
+    protected void paintGradient(Graphics2D g2d) {
+        if (gradientBlue == null) {
+            Color TRANSPARENT = new Color(255, 255, 255, 0);
+            gradientBlue = new GradientPaint(
+                    0, 0, new Color(172, 182, 229, 33),
+                    0, getHeight(), new Color(172, 182, 229, 166)
+            );
+
+            gradientGreen = new GradientPaint(
+                    0, 0, new Color(116, 235, 213),
+                    getWidth(), getHeight(), TRANSPARENT
+            );
+        }
+
+        int yPadding = 5;
+        int realHeight = getHeight() - yPadding * 2;
+
+        /* draw gradients */
+        g2d.setPaint(gradientBlue);
+        g2d.fillRect(0, yPadding, getWidth(), realHeight);
+        g2d.setPaint(gradientGreen);
+        g2d.fillRect(0, yPadding, getWidth(), realHeight);
+
+        /* draw borders */
+        g2d.setColor(new Color(0,0,0,30));
+        g2d.fillRect(0, yPadding, getWidth(), 1);
+        g2d.fillRect(0, getHeight() - yPadding - 2, getWidth(), 2);
+
     }
 
+
     @Override
-	protected void paintComponent(Graphics g) {
-        GradientPaint gradient = new GradientPaint(0.0F, 0.0F, Color.WHITE, 0.0F,
-                getHeight(), new Color(255, 255, 255, 0));
+    protected void paintComponent(Graphics g) {
 
 
-        Graphics2D g2d = (Graphics2D) g.create();
-        g2d.setPaint(gradient);
-        g2d.fillRect(0, 0, getWidth(), getHeight());
-        g2d.drawImage(icon, 10, getHeight() / 2 - icon.getHeight(null) / 2,
-                null);
+        Graphics2D g2d = (Graphics2D) g;
+
+        this.paintGradient(g2d);
         g2d.setPaint(Color.BLACK);
-        g2d.drawString(text, 15 + icon.getWidth(null), getHeight() / 2 +
-                g2d.getFontMetrics().getAscent() / 2);
+
+        super.paintComponent(g2d);
     }
 }

@@ -19,10 +19,10 @@ public class IntegerSpinner extends JSpinner {
                 @Override
 				public Object stringToValue(String text) throws ParseException {
                     try {
-                        return new Integer(text);
+                        return Integer.valueOf(text);
                     } catch (NumberFormatException nfe) {
                     }
-                    return new Integer(-1);
+                    return -1;
                 }
 
                 @Override
@@ -78,7 +78,7 @@ public class IntegerSpinner extends JSpinner {
 
         @Override
 		public Integer getValue() {
-            return new Integer(value);
+            return value;
         }
 
         @Override
@@ -93,7 +93,7 @@ public class IntegerSpinner extends JSpinner {
 		public void setValue(Object value) {
             Integer newVal;
             try {
-                newVal = new Integer(value + "");
+                newVal = Integer.valueOf(value + "");
             } catch (Exception e) {
                 newVal = this.getValue();
             }

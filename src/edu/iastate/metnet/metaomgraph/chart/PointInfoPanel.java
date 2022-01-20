@@ -5,10 +5,6 @@ import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.ui.MenuButton;
 import edu.iastate.metnet.metaomgraph.utils.Utils;
-import edu.stanford.ejalbert.BrowserLauncher;
-import edu.stanford.ejalbert.BrowserLauncherRunner;
-import edu.stanford.ejalbert.exceptionhandler.BrowserLauncherDefaultErrorHandler;
-import edu.stanford.ejalbert.exceptionhandler.BrowserLauncherErrorHandler;
 
 import java.awt.Desktop;
 import java.awt.Dimension;
@@ -80,11 +76,9 @@ public class PointInfoPanel extends JPanel {
 				}
 				String urlString = "http://www.araport.org/locus/" + target + "/browse";
 				try {
-					BrowserLauncher launcher = new BrowserLauncher(null);
-					BrowserLauncherErrorHandler errorHandler = new BrowserLauncherDefaultErrorHandler();
-					BrowserLauncherRunner runner = new BrowserLauncherRunner(launcher, urlString, errorHandler);
-					Thread launcherThread = new Thread(runner);
-					launcherThread.start();
+					if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+						Desktop.getDesktop().browse(new URI(urlString));
+					}
 				} catch (Exception ex) {
 					JOptionPane.showMessageDialog(null, "Unable to launch web browser", "Error", 0);
 				}
@@ -111,11 +105,9 @@ public class PointInfoPanel extends JPanel {
 				}
 				String urlString = "http://www.araport.org/locus/" + target + "";
 				try {
-					BrowserLauncher launcher = new BrowserLauncher(null);
-					BrowserLauncherErrorHandler errorHandler = new BrowserLauncherDefaultErrorHandler();
-					BrowserLauncherRunner runner = new BrowserLauncherRunner(launcher, urlString, errorHandler);
-					Thread launcherThread = new Thread(runner);
-					launcherThread.start();
+					if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+						Desktop.getDesktop().browse(new URI("http://www.example.com"));
+					}
 				} catch (Exception ex) {
 					JOptionPane.showMessageDialog(null, "Unable to launch web browser", "Error", 0);
 				}
@@ -143,11 +135,9 @@ public class PointInfoPanel extends JPanel {
 				String urlString = "http://www.arabidopsis.org/servlets/Search?type=general&name=" + target
 						+ "&action=detail&method=4&sub_type=gene";
 				try {
-					BrowserLauncher launcher = new BrowserLauncher(null);
-					BrowserLauncherErrorHandler errorHandler = new BrowserLauncherDefaultErrorHandler();
-					BrowserLauncherRunner runner = new BrowserLauncherRunner(launcher, urlString, errorHandler);
-					Thread launcherThread = new Thread(runner);
-					launcherThread.start();
+					if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+						Desktop.getDesktop().browse(new URI(urlString));
+					}
 				} catch (Exception ex) {
 					JOptionPane.showMessageDialog(null, "Unable to launch web browser", "Error", 0);
 				}
@@ -312,12 +302,9 @@ public class PointInfoPanel extends JPanel {
 					System.out.println("Launched a browser using Desktop");
 				} catch (Exception ex) {
 					try {
-						BrowserLauncher launcher = new BrowserLauncher(null);
-						Object errorHandler = new BrowserLauncherDefaultErrorHandler();
-						BrowserLauncherRunner runner = new BrowserLauncherRunner(launcher, urlString,
-								(BrowserLauncherErrorHandler) errorHandler);
-						Thread launcherThread = new Thread(runner);
-						launcherThread.start();
+						if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+							Desktop.getDesktop().browse(new URI(urlString));
+						}
 					} catch (Exception ex2) {
 						JOptionPane.showMessageDialog(myChartPanel, "Unable to launch web browser", "Error", 0);
 						ex2.printStackTrace();
@@ -356,11 +343,9 @@ public class PointInfoPanel extends JPanel {
 					System.out.println("Launched a browser using Desktop");
 				} catch (Exception ex) {
 					try {
-						BrowserLauncher launcher = new BrowserLauncher(null);
-						BrowserLauncherErrorHandler errorHandler = new BrowserLauncherDefaultErrorHandler();
-						BrowserLauncherRunner runner = new BrowserLauncherRunner(launcher, urlString, errorHandler);
-						Thread launcherThread = new Thread(runner);
-						launcherThread.start();
+						if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+							Desktop.getDesktop().browse(new URI(urlString));
+						}
 					} catch (Exception ex2) {
 						JOptionPane.showMessageDialog(myChartPanel, "Unable to launch web browser", "Error", 0);
 						ex2.printStackTrace();
@@ -399,11 +384,9 @@ public class PointInfoPanel extends JPanel {
 					System.out.println("Launched a browser using Desktop");
 				} catch (Exception ex) {
 					try {
-						BrowserLauncher launcher = new BrowserLauncher(null);
-						BrowserLauncherErrorHandler errorHandler = new BrowserLauncherDefaultErrorHandler();
-						BrowserLauncherRunner runner = new BrowserLauncherRunner(launcher, urlString, errorHandler);
-						Thread launcherThread = new Thread(runner);
-						launcherThread.start();
+						if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+							Desktop.getDesktop().browse(new URI(urlString));
+						}
 					} catch (Exception ex2) {
 						JOptionPane.showMessageDialog(myChartPanel, "Unable to launch web browser", "Error", 0);
 						ex2.printStackTrace();
@@ -442,11 +425,9 @@ public class PointInfoPanel extends JPanel {
 					System.out.println("Launched a browser using Desktop");
 				} catch (Exception ex) {
 					try {
-						BrowserLauncher launcher = new BrowserLauncher(null);
-						BrowserLauncherErrorHandler errorHandler = new BrowserLauncherDefaultErrorHandler();
-						BrowserLauncherRunner runner = new BrowserLauncherRunner(launcher, urlString, errorHandler);
-						Thread launcherThread = new Thread(runner);
-						launcherThread.start();
+						if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+							Desktop.getDesktop().browse(new URI(urlString));
+						}
 					} catch (Exception ex2) {
 						JOptionPane.showMessageDialog(myChartPanel, "Unable to launch web browser", "Error", 0);
 						ex2.printStackTrace();

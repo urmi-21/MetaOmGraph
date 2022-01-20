@@ -2,7 +2,6 @@ package edu.iastate.metnet.metaomgraph.ui;
 
 import java.awt.EventQueue;
 
-import javax.swing.JInternalFrame;
 import java.awt.BorderLayout;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
@@ -21,11 +20,8 @@ import javax.swing.JOptionPane;
 import java.awt.GridBagConstraints;
 import javax.swing.JComboBox;
 import java.awt.Insets;
-import java.awt.Color;
 import javax.swing.SwingConstants;
 import java.awt.event.ActionListener;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.awt.event.ActionEvent;
 
 public class ColorProperties extends TaskbarInternalFrame {
@@ -179,7 +175,7 @@ public class ColorProperties extends TaskbarInternalFrame {
 		// gbc_comboBox.gridheight=2;
 		panel_1.add(comboBox, gbc_comboBox);
 
-		JLabel lblTableBackground = new JLabel("Table background color 1");
+		JLabel lblTableBackground = new JLabel("Even rows");
 		lblTableBackground.setHorizontalAlignment(SwingConstants.CENTER);
 		GridBagConstraints gbc_lblTableBackground = new GridBagConstraints();
 		gbc_lblTableBackground.insets = new Insets(0, 0, 5, 5);
@@ -196,7 +192,7 @@ public class ColorProperties extends TaskbarInternalFrame {
 		gbc_tabCol1Button.fill = GridBagConstraints.BOTH;
 		panel_1.add(tabCol1Button, gbc_tabCol1Button);
 
-		JLabel lblTableBackground_1 = new JLabel("Table background color 2");
+		JLabel lblTableBackground_1 = new JLabel("Odd rows");
 		lblTableBackground_1.setHorizontalAlignment(SwingConstants.CENTER);
 		GridBagConstraints gbc_lblTableBackground_1 = new GridBagConstraints();
 		gbc_lblTableBackground_1.insets = new Insets(0, 0, 5, 5);
@@ -307,8 +303,8 @@ public class ColorProperties extends TaskbarInternalFrame {
 	 * save new colors to theme
 	 */
 	public void updateTheme(MOGColorThemes theme) {
-		theme.setTableColor1(tabCol1Button.getColor());
-		theme.setTableColor2(tabCol2Button.getColor());
+		theme.setTableRowEvenColor(tabCol1Button.getColor());
+		theme.setTableRowOddColor(tabCol2Button.getColor());
 		theme.setTableSelectionColor(tabSelButton.getColor());
 		theme.setTableHighlightColor(tabHighlightButton.getColor());
 		theme.setTableHyperlinkColor(tabHyprlnkButton.getColor());
@@ -322,8 +318,8 @@ public class ColorProperties extends TaskbarInternalFrame {
 
 	private void initButtons(MOGColorThemes theme) {
 		this.themeEdited = false;
-		tabCol1Button = new ColorChooseButton(theme.getTableColor1(), "Table background color 1");
-		tabCol1Button.setColor(theme.getTableColor1());
+		tabCol1Button = new ColorChooseButton(theme.getTableColorEven(), "Even rows");
+		tabCol1Button.setColor(theme.getTableColorEven());
 
 		tabCol1Button.addChangeListener(new ChangeListener() {
 			@Override
@@ -333,7 +329,7 @@ public class ColorProperties extends TaskbarInternalFrame {
 
 		});
 
-		tabCol2Button = new ColorChooseButton(theme.getTableColor2(), "Table background color 2");
+		tabCol2Button = new ColorChooseButton(theme.getTableColorOdd(), "Odd rows");
 		tabCol2Button.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
@@ -390,8 +386,8 @@ public class ColorProperties extends TaskbarInternalFrame {
 
 	private void changeButtons(MOGColorThemes theme) {
 		this.themeEdited = false;
-		tabCol1Button.setColor(theme.getTableColor1());
-		tabCol2Button.setColor(theme.getTableColor2());
+		tabCol1Button.setColor(theme.getTableColorEven());
+		tabCol2Button.setColor(theme.getTableColorOdd());
 		tabSelButton.setColor(theme.getTableSelectionColor());
 		tabHyprlnkButton.setColor(theme.getTableHyperlinkColor());
 		tabHighlightButton.setColor(theme.getTableHighlightColor());

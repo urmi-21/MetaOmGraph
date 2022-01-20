@@ -106,6 +106,7 @@ import org.jdom.output.XMLOutputter;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.google.gson.GsonBuilder;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -200,7 +201,7 @@ public class MetaOmProject {
 	private MetadataEditor editor = null;
 	private MetadataTreeStructure mTree = null;
 	private ReadMetadata readMetadataframe = null;
-	private String dataColumnname = null;
+	private String dataColumnName = null;
 
 	// save meta analysis corr values as mapping of name to correlation
 	private HashMap<String, CorrelationMetaCollection> metaCorrs;
@@ -330,7 +331,7 @@ public class MetaOmProject {
 			if (infoColumns <= 0) {
 				rowNames = new Object[rowNameVector.size()][1];
 				for (int x = 0; x < rowNames.length; x++) {
-					rowNames[x][0] = new Integer(x);
+					rowNames[x][0] = x;
 				}
 			} else {
 				rowNames = new Object[rowNameVector.size()][infoColumns];
@@ -447,7 +448,7 @@ public class MetaOmProject {
 					if (okToAdd) {
 						if (infoColumns > 0)
 							thisLinePointer = dataIn.getFilePointer();
-						thisData[0] = new Long(thisLinePointer);
+						thisData[0] = Long.valueOf(thisLinePointer);
 						resultNames.add(thisData);
 					}
 				}
@@ -581,7 +582,7 @@ public class MetaOmProject {
 			try {
 				RandomAccessFile dataOut = new RandomAccessFile(source, "rw");
 				for (int x = 0; x < this.data.length; x++) {
-					fileIndex[x] = new Long(dataOut.getFilePointer());
+					fileIndex[x] = dataOut.getFilePointer();
 					for (int y = 0; y < this.data[x].length; y++) {
 						if (y != 0) {
 							dataOut.write(delimiter);
@@ -632,14 +633,49 @@ public class MetaOmProject {
 			pfm.setTitle(getDefaultTitle().replace("\0", ""));
 			pfm.setColor1((String)(getColor1().getRGB() + "").replace("\0", ""));
 			pfm.setColor2((String)(getColor2().getRGB() + "").replace("\0", ""));
-			pfm.setDefaultColumn((String)(defaultColumn + "").replace("\0", ""));
+			
 
 			List<String> informationCols = new ArrayList<String>();
 			
-			for (int x = 0; x < infoColumns; x++) {
-				informationCols.add(columnHeaders[x].replace("\0", ""));
+			String [] featureColumnOrder = MetaOmGraph.getActiveTable().getFeatureTableHeaders();
+			
+			for (int x = 0; x < featureColumnOrder.length; x++) {
+				
+				if(featureColumnOrder[x].equals(this.dataColumnName)) {
+					defaultColumn = x;
+				}
+			}
+			
+			
+			pfm.setDefaultColumn((String)(getDataColumnName()).replace("\0", ""));
+			
+			for (int x = 0; x < featureColumnOrder.length; x++) {
+				informationCols.add(featureColumnOrder[x].replace("\0", ""));
+			}
+			
+			int[] newColumnIndices = new int[featureColumnOrder.length];
+			
+			for(int i=0; i<featureColumnOrder.length; i++) {
+				
+				for(int j=0; j<columnHeaders.length; j++) {
+					
+					if(featureColumnOrder[i].equals(columnHeaders[j])) {
+						newColumnIndices[i] = j;
+					}
+				}
 			}
 
+			Object [][] reorderedRowNames = new Object[rowNames.length][infoColumns];
+			
+			for(int i=0; i<newColumnIndices.length; i++) {
+				
+				int index = newColumnIndices[i];
+				
+				for(int j=0; j<rowNames.length; j++) {
+					reorderedRowNames[j][i] = rowNames[j][index];
+				}
+			}
+			
 			pfm.setInfoColumns(informationCols);
 
 			List<String> columns = new ArrayList<String>();
@@ -655,33 +691,33 @@ public class MetaOmProject {
 			
 			//data
 			boolean savedLast = false;
-			for (int x = 0; x < rowNames.length; x++) {
+			for (int x = 0; x < reorderedRowNames.length; x++) {
 				DataModel data = new DataModel();
 				
 				List<InfoModel> infolist = new ArrayList<InfoModel>();
 				
 				for (int y = 0; y < infoColumns; y++) {
 
-					if (rowNames[x][y] == null) {
+					if (reorderedRowNames[x][y] == null) {
 						InfoModel inf = new InfoModel();
 						inf.setValue("");
 						infolist.add(inf);
 
 					} else {
 						InfoModel inf = new InfoModel();
-						if ((rowNames[x][y] instanceof CorrelationValue)) {
+						if ((reorderedRowNames[x][y] instanceof CorrelationValue)) {
 							inf.setType("correlation");
 							
 							if ((hasLastCorrelation()) && (!savedLast)) {
 								inf.setLast("true");
 								savedLast = true;
 							}
-							if (!((CorrelationValue) rowNames[x][y]).isAsPercent()) {
+							if (!((CorrelationValue) reorderedRowNames[x][y]).isAsPercent()) {
 								inf.setAsPercent("false");
 								
 							}
 						}
-						inf.setValue(rowNames[x][y].toString().replace("\0", ""));
+						inf.setValue(reorderedRowNames[x][y].toString().replace("\0", ""));
 						infolist.add(inf);
 					}
 
@@ -1224,7 +1260,12 @@ public class MetaOmProject {
 					fpath = metadataModel.getFILEPATH();
 					delim = metadataModel.getDELIMITER();
 					datacol = metadataModel.getDATACOL();
+					String [] colOrder = metadataModel.getCOLORDER();
+					boolean [] colsToKeep = new boolean[colOrder.length];
 					
+					for(int i=0; i<colOrder.length; i++) {
+						colsToKeep[i] = true;
+					}
 
 					if (MetaOmGraph.getOsName().indexOf("win") >= 0 || MetaOmGraph.getOsName().indexOf("Win") >= 0) {
 						fpath = FilenameUtils.separatorsToWindows(fpath);
@@ -1262,7 +1303,8 @@ public class MetaOmProject {
 						}
 					}
 
-
+					metaDataCollection.setHeaders(colOrder, colsToKeep);
+					
 					extendedFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				}
@@ -3049,7 +3091,7 @@ public class MetaOmProject {
 
 					}
 					else if(isLocation) {
-						fileIndexList.add(new Long(characters.getData()));
+						fileIndexList.add(Long.valueOf(characters.getData()));
 					}
 					else if(isCustomSort && isOrder) {
 
@@ -3510,6 +3552,8 @@ public class MetaOmProject {
 						rowNames = new Object[dataInfoList.size()][infoColumns];
 						fileIndex = new Long[dataInfoList.size()];
 
+						
+						setDataColumnName(columnHeaders[defaultColumn]);
 
 
 						for(int i=0; i<dataInfoList.size(); i++) {
@@ -3701,15 +3745,6 @@ public class MetaOmProject {
 			color1 = new Color(Integer.parseInt(color1Val));
 			color2 = new Color(Integer.parseInt(color2Val));
 
-
-			//populate defaultColumn
-			if (defaultColumnVal.equals("")) {
-				defaultColumn = 0;
-			} else {
-				defaultColumn = Integer.parseInt(defaultColumnVal);
-			}
-
-
 			infoColumns = infoColumnVal.size();
 
 
@@ -3734,6 +3769,20 @@ public class MetaOmProject {
 				index++;
 			}
 			
+			this.setDataColumnName(defaultColumnVal);
+			
+			//populate defaultColumn
+			if (defaultColumnVal.equals("")) {
+				defaultColumn = 0;
+			} else {
+				
+				for(int i=0; i< columnHeaders.length; i++) {
+					if(columnHeaders[i].equals(defaultColumnVal)) {
+						defaultColumn = i;
+					}
+				}
+			}
+
 			List<DataModel> dataModel = projectFileModel.getData();
 			
 			for(int i=0; i<dataModel.size(); i++) {
@@ -4993,7 +5042,7 @@ public class MetaOmProject {
 							// JOptionPane.showMessageDialog(null, "delimP:"+metadataDelim);
 							MetaOmGraph.getDesktop().add(readMetadataframe);
 							
-							FrameModel importMetadataModel = new FrameModel("Import Metadata", "Read metadata file", 40);
+							FrameModel importMetadataModel = new FrameModel("Import Sample Metadata", "Read metadata file", 40);
 							readMetadataframe.setModel(importMetadataModel);
 
 							readMetadataframe.setVisible(true);
@@ -6616,20 +6665,13 @@ public class MetaOmProject {
 		}
 		
 		dcm.setDcResults(dcResults);
+
+		GsonBuilder gb = new GsonBuilder();
 		
-		try {
-
-			Gson gson = new Gson();
+		Gson gson = gb.serializeSpecialFloatingPointValues().create();
 			
-			gson.toJson(dcm, DiffCorrModel.class, writer);
+		gson.toJson(dcm, DiffCorrModel.class, writer);
 
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-			JOptionPane.showInternalMessageDialog(MetaOmGraph.getDesktop(),
-					"Unable to save the project file.  Make sure the destination file is not write-protected.",
-					"Error saving project", 0);
-		}
 
 	}
 
@@ -6740,7 +6782,14 @@ public class MetaOmProject {
 	
 	
 
+	public String getDataColumnName() {
+		return this.dataColumnName;
+	}
 
+	public void setDataColumnName(String dataColumnName) {
+		this.dataColumnName = dataColumnName;
+	}
+	
 	public boolean setInfoColTypes(HashMap<String, Class> map) {
 		this.infoColTypes = map;
 		return true;

@@ -87,8 +87,8 @@ public class ChartDataExporter extends TaskbarInternalFrame implements ActionLis
         Object[][] series = new Object[dataset.getSeriesCount()][2];
         for (int i = 0; i < series.length; i++) {
             series[i][0] = dataset.getSeriesKey(i);
-            if (myChartPanel.getSelectedSeries() < 0) series[i][1] = new Boolean(true);
-            else series[i][1] = new Boolean(i == myChartPanel.getSelectedSeries());
+            if (myChartPanel.getSelectedSeries() < 0) series[i][1] = Boolean.TRUE;
+            else series[i][1] = i == myChartPanel.getSelectedSeries();
         }
 
         NoneditableTableModel model = new NoneditableTableModel(series, headers);
@@ -361,7 +361,7 @@ public class ChartDataExporter extends TaskbarInternalFrame implements ActionLis
             for (int x = 0; x < seriesTable.getRowCount(); x++) {
                 Boolean show = (Boolean) seriesTable.getValueAt(x, 1);
                 if (show.booleanValue()) {
-                    selectedSeries.add(new Integer(x));
+                    selectedSeries.add(x);
                 }
             }
             final int[] series = new int[selectedSeries.size()];

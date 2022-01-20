@@ -1,49 +1,40 @@
-package edu.iastate.metnet.metaomgraph;
-
-import com.apple.eawt.Application;
-import com.apple.eawt.ApplicationEvent;
-import com.apple.eawt.ApplicationListener;
-
-import java.awt.event.ActionEvent;
-import javax.swing.JButton;
-
-public class MetaOmApplicationListener implements ApplicationListener {
-    public MetaOmApplicationListener() {
-        Application.getApplication().addApplicationListener(this);
-    }
-
-    @Override
-	public void handleAbout(ApplicationEvent arg0) {
-        new JButton();
-        MetaOmGraph.getInstance()
-                .actionPerformed(
-                        new ActionEvent(arg0.getSource(), 1,
-                                "show about window"));
-        arg0.setHandled(true);
-    }
-
-    @Override
-	public void handleOpenApplication(ApplicationEvent arg0) {
-    }
-
-    @Override
-	public void handleOpenFile(ApplicationEvent arg0) {
-    }
-
-    @Override
-	public void handlePreferences(ApplicationEvent arg0) {
-    }
-
-    @Override
-	public void handlePrintFile(ApplicationEvent arg0) {
-    }
-
-    @Override
-	public void handleQuit(ApplicationEvent arg0) {
-    	MetaOmGraph.shutdown();
-    }
-
-    @Override
-	public void handleReOpenApplication(ApplicationEvent arg0) {
-    }
-}
+//package edu.iastate.metnet.metaomgraph;
+//
+//import java.awt.event.ActionEvent;
+//import javax.swing.JButton;
+//import java.awt.*;
+//
+//import java.awt.desktop.*;
+//
+//public class MetaOmApplicationListener implements SystemEventListener {
+//    public MetaOmApplicationListener() {
+//        Desktop.getDesktop().addAppEventListener(this);
+//    }
+//
+//	public void handleAbout(AppEvent arg0) {
+//        new JButton();
+//        MetaOmGraph.getInstance()
+//                .actionPerformed(
+//                        new ActionEvent(arg0.getSource(), 1,
+//                                "show about window"));
+//    }
+//
+//	public void handleOpenApplication(AppEvent arg0) {
+//    }
+//
+//	public void handleOpenFile(AppEvent arg0) {
+//    }
+//
+//	public void handlePreferences(AppEvent arg0) {
+//    }
+//
+//	public void handlePrintFile(AppEvent arg0) {
+//    }
+//
+//	public void handleQuit(AppEvent arg0) {
+//    	MetaOmGraph.shutdown();
+//    }
+//
+//	public void handleReOpenApplication(AppEvent arg0) {
+//    }
+//}

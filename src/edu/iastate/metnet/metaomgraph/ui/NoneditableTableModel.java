@@ -85,15 +85,15 @@ public class NoneditableTableModel extends AbstractTableModel {
 	public boolean isCellEditable(int row, int col) {
 		if (editableColumns == null)
 			return false;
-		if (editableColumns.get(new Integer(col)) == null)
+		if (editableColumns.get(col) == null)
 			return false;
-		return editableColumns.get(new Integer(col)).booleanValue();
+		return editableColumns.get(col).booleanValue();
 	}
 
 	public void setColumnEditable(int col, boolean isEditable) {
 		if (editableColumns == null)
 			editableColumns = new Hashtable();
-		editableColumns.put(new Integer(col), new Boolean(isEditable));
+		editableColumns.put(col, isEditable);
 	}
 
 	@Override

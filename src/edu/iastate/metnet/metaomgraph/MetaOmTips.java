@@ -2,18 +2,12 @@ package edu.iastate.metnet.metaomgraph;
 
 import com.l2fprod.common.swing.JTipOfTheDay;
 import com.l2fprod.common.swing.TipModel;
-import edu.stanford.ejalbert.BrowserLauncher;
-import edu.stanford.ejalbert.BrowserLauncherRunner;
-import edu.stanford.ejalbert.exceptionhandler.BrowserLauncherDefaultErrorHandler;
-import edu.stanford.ejalbert.exceptionhandler.BrowserLauncherErrorHandler;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.net.URI;
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -28,8 +22,7 @@ import javax.swing.JTextPane;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
-import edu.stanford.ejalbert.launching.IBrowserLaunching;
-import net.sf.wraplog.AbstractLogger;
+//import net.sf.wraplog.AbstractLogger;
 import java.util.List;
 import java.util.Random;
 
@@ -190,12 +183,9 @@ public class MetaOmTips implements TipModel, HyperlinkListener {
         if (HyperlinkEvent.EventType.ACTIVATED.equals(e.getEventType())) {
             String urlString = e.getURL() + "";
             try {
-                BrowserLauncher launcher = new BrowserLauncher(null);
-                BrowserLauncherErrorHandler errorHandler = new BrowserLauncherDefaultErrorHandler();
-                
-                BrowserLauncherRunner runner = new BrowserLauncherRunner(launcher, urlString, errorHandler);
-                Thread launcherThread = new Thread(runner);
-                launcherThread.start();
+                if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                    Desktop.getDesktop().browse(new URI(urlString));
+                }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }

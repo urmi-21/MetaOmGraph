@@ -47,11 +47,11 @@ public class TextAreaRenderer extends javax.swing.JTextArea implements javax.swi
         if (rows == null) {
             cellSizes.put(table, rows = new java.util.HashMap());
         }
-        Map rowheights = (Map) rows.get(new Integer(row));
+        Map rowheights = (Map) rows.get(row);
         if (rowheights == null) {
-            rows.put(new Integer(row), rowheights = new java.util.HashMap());
+            rows.put(row, rowheights = new java.util.HashMap());
         }
-        rowheights.put(new Integer(column), new Integer(height));
+        rowheights.put(column, height);
     }
 
 
@@ -73,7 +73,7 @@ public class TextAreaRenderer extends javax.swing.JTextArea implements javax.swi
     private int findMaximumRowSize(JTable table, int row) {
         Map rows = (Map) cellSizes.get(table);
         if (rows == null) return 0;
-        Map rowheights = (Map) rows.get(new Integer(row));
+        Map rowheights = (Map) rows.get(row);
         if (rowheights == null) return 0;
         int maximum_height = 0;
         for (Iterator it = rowheights.entrySet().iterator();

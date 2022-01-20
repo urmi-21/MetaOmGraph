@@ -20,7 +20,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
@@ -44,10 +43,13 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableColumnModelEvent;
+import javax.swing.event.TableColumnModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
 
 import org.dizitart.no2.Document;
@@ -62,7 +64,7 @@ import edu.iastate.metnet.metaomgraph.IconTheme;
 import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
-import edu.iastate.metnet.metaomgraph.MetadataHybrid;
+import edu.iastate.metnet.metaomgraph.MetadataHeaderRenderer;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 import edu.iastate.metnet.metaomgraph.chart.BarChart;
 import edu.iastate.metnet.metaomgraph.chart.BoxPlot;
@@ -77,8 +79,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JInternalFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -149,8 +149,8 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 	 */
 
 	private Color SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
-	private Color BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
-	private Color BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
+	private Color BCKGRNDCOLOR1 = MetaOmGraph.getTableColorEven();
+	private Color BCKGRNDCOLOR2 = MetaOmGraph.getTableColorOdd();
 	private Color HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
 	private Color HYPERLINKCOLOR = MetaOmGraph.getTableHyperlinkColor();
 	private boolean USEDEFAULTCOLORS = true;
@@ -554,6 +554,30 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		});
 		mnByRow.add(mntmFilterLastSearched);
 
+		JMenuItem expressionFilter = new JMenuItem("Expression Filter");
+		expressionFilter.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				EventQueue.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							MetadataFilter frame = new MetadataFilter(obj);
+							FrameModel fm = new FrameModel("Metadata Filter","Metadata Filter",31);
+							frame.setModel(fm);
+							MetaOmGraph.getDesktop().add(frame);
+							frame.setVisible(true);
+							frame.show();
+							frame.moveToFront();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				});
+			}
+		});
+		mnByRow.add(expressionFilter);
+
 		JMenuItem mntmAdvanceFilter = new JMenuItem("Advance filter");
 		mntmAdvanceFilter.addActionListener(new ActionListener() {
 			@Override
@@ -659,6 +683,15 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 							// remove cols permanently from metadata
 							MetadataRemoveCols frame = new MetadataRemoveCols(headers, obj, getThisPanel(), true);
 							frame.setVisible(true);
+							
+							FrameModel metadataColumnModel = new FrameModel("Import Metadata", "Remove Metadata Columns", 42);
+							frame.setModel(metadataColumnModel);
+							
+							frame.setVisible(true);
+							frame.setResizable(false);
+							MetaOmGraph.getDesktop().add(frame);
+							frame.toFront();
+							
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -1466,10 +1499,37 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 
 			}
 		});
+		
 		// end mouse listner
+		
+		
+		// Start column movement listner
+		
+		TableColumnModel tableColumnModel = table.getColumnModel();
+		
+		tableColumnModel.addColumnModelListener(new TableColumnModelListener() {
 
-		// disable colum drag
-		table.getTableHeader().setReorderingAllowed(false);
+            public void columnAdded(TableColumnModelEvent e) {
+            }
+
+            public void columnRemoved(TableColumnModelEvent e) {
+            }
+
+            public void columnMoved(TableColumnModelEvent e) {
+            	MetaOmGraph.getActiveProject().setChanged(true);
+            }
+
+            public void columnMarginChanged(ChangeEvent e) {
+            }
+
+            public void columnSelectionChanged(ListSelectionEvent e) {
+            }
+        });
+		
+		
+		// End column movement listner
+
+		table.getTableHeader().setReorderingAllowed(true);
 
 		table.setModel(new DefaultTableModel() {
 
@@ -1487,6 +1547,14 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 			}
 
 		});
+		
+		
+		table.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+	        public void valueChanged(ListSelectionEvent event) {
+	            
+	        	MetaOmGraph.getTaskBar().setNumSamples(getNumberofSamplesSelected());
+	        }
+	    });
 
 		DefaultTableModel tablemodel = (DefaultTableModel) table.getModel();
 		// Add column names.
@@ -1533,6 +1601,26 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		table.setPreferredScrollableViewportSize(table.getPreferredSize());
 		table.setFillsViewportHeight(true);
 		table.getTableHeader().setFont(new Font("Garamond", Font.BOLD, 14));
+		
+		
+		MetadataHeaderRenderer customHeaderCellRenderer = 
+				new MetadataHeaderRenderer(Color.white,
+						Color.red,
+						new Font("Consolas",Font.BOLD,12),
+						BorderFactory.createEtchedBorder(),
+						true);
+		
+		int colindex = 0;
+		
+		for(int i=0; i<table.getColumnCount(); i++) {
+			if(table.getColumnName(i).equals(obj.getDatacol())) {
+				colindex = i;
+			}
+		}
+		table.getColumnModel().getColumn(colindex).setHeaderRenderer(customHeaderCellRenderer);
+		
+		
+		
 
 	}
 
@@ -1638,6 +1726,7 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 			obj.setExcluded(excluded);
 			MetaOmAnalyzer.updateExcluded(excluded, true);
 		}
+		
 		
 		table.initializeVisibilityMap();
 		table.hideColumns();
@@ -1763,6 +1852,22 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		return this.headers;
 	}
 
+	public String[] getMetadataTableHeaders() {
+		
+		if(table != null) {
+			int columns = table.getColumnModel().getColumnCount();
+			String [] metadataColumns = new String[columns];
+			
+			for(int i=0; i<columns; i++) {
+				metadataColumns[i] = (String)table.getColumnModel().getColumn(i).getHeaderValue();
+			}
+			
+			return metadataColumns;
+			
+		}
+		
+		return null;
+	}
 	public void resetData() {
 		this.metadata = this.obj.getAllData();
 		this.headers = obj.getHeaders();
@@ -2203,6 +2308,16 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 	 * } } }
 	 */
 
+	public int getNumberofSamplesSelected() {
+		
+		if(table != null) {
+		return table.getSelectedRows().length;
+		}
+		
+		return 0;
+	}
+
+
 	/**
 	 * Search a datacol in table and select it. used to switch from tree.
 	 * 
@@ -2310,8 +2425,8 @@ public class MetadataTableDisplayPanel extends JPanel implements ActionListener,
 		} else {
 			USEDEFAULTCOLORS = false;
 			SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
-			BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
-			BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
+			BCKGRNDCOLOR1 = MetaOmGraph.getTableColorEven();
+			BCKGRNDCOLOR2 = MetaOmGraph.getTableColorOdd();
 			HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
 			HYPERLINKCOLOR = MetaOmGraph.getTableHyperlinkColor();
 		}

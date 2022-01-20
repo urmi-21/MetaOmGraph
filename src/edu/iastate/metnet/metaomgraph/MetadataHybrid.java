@@ -928,7 +928,7 @@ public class MetadataHybrid {
 		
 		try {
 			
-			MetadataModel mm = new MetadataModel(this.mogCollection.getfilepath(), this.mogCollection.getdelimiter(), this.mogCollection.getDatacol());
+			MetadataModel mm = new MetadataModel(this.mogCollection.getfilepath(), this.mogCollection.getdelimiter(), this.mogCollection.getDatacol(), MetaOmGraph.getActiveTable().getMetadataTableDisplay().getMetadataTableHeaders());
 			
 			Gson gson = new Gson();
 			

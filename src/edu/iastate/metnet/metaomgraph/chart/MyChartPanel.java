@@ -64,7 +64,7 @@ public class MyChartPanel extends ChartPanel {
 				@Override
 				public Object stringToValue(String text) throws ParseException {
 					try {
-						return new Integer(text);
+						return Integer.valueOf(text);
 					} catch (NumberFormatException nfe) {
 						return getFormattedTextField().getValue();
 					}
@@ -83,8 +83,8 @@ public class MyChartPanel extends ChartPanel {
 				}
 
 			};
-			widthField = new JFormattedTextField(new DefaultFormatterFactory(af), new Integer(getWidth()));
-			heightField = new JFormattedTextField(new DefaultFormatterFactory(af), new Integer(getHeight()));
+			widthField = new JFormattedTextField(new DefaultFormatterFactory(af), getWidth());
+			heightField = new JFormattedTextField(new DefaultFormatterFactory(af), getHeight());
 			widthField.setColumns(4);
 			heightField.setColumns(4);
 			sizer.setLayout(new GridBagLayout());

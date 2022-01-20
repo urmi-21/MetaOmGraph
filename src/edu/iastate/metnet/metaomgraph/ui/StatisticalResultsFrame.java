@@ -2,24 +2,21 @@ package edu.iastate.metnet.metaomgraph.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import javax.swing.JList;
-import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
-import org.apache.poi.ss.usermodel.Font;
+import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 
 import edu.iastate.metnet.metaomgraph.FrameModel;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
-import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel.ListNameComparator;
 
 
 /**
@@ -42,7 +39,7 @@ public class StatisticalResultsFrame extends TaskbarInternalFrame {
 
 	private ClosableTabbedPane resultTab;
 	private List<JList> allTabsInfo;
-	
+
 	
 	/**
 	 * 
@@ -54,7 +51,7 @@ public class StatisticalResultsFrame extends TaskbarInternalFrame {
 	 * frameName - name of the frame.
 	 */
 	public StatisticalResultsFrame(String taskbarName, String frameName) {
-		
+
 		allTabsInfo = new ArrayList<JList>();
 		setBounds(100, 100, 800, 600);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -66,7 +63,7 @@ public class StatisticalResultsFrame extends TaskbarInternalFrame {
 		UIManager.put("TabbedPane.selectedBackground", Color.white);
 		
 		resultTab = new ClosableTabbedPane();
-		
+
 		add(resultTab);
 		
 		resultTab.updateUI();
@@ -78,7 +75,6 @@ public class StatisticalResultsFrame extends TaskbarInternalFrame {
 		setMaximizable(true);
 		setIconifiable(true);
 		setClosable(true);
-		
 	}
 	
 	
@@ -86,16 +82,16 @@ public class StatisticalResultsFrame extends TaskbarInternalFrame {
 	 * Method that adds a tab (closable if not the first tab) to the frame,
 	 * and selects the newly added tab.
 	 */
-	public void addTabToFrame(JPanel panel, String tabName) {
-		
+	public void addTabToFrame(JPanel panel, String tabName, int parentActionNumber) {
+
+
 		if(resultTab != null && resultTab.getTabCount()==0) {
-			resultTab.addNonClosableTab(tabName,null, panel, tabName);
+			resultTab.addNonClosableTab(tabName,null, panel, tabName, parentActionNumber);
 			resultTab.setSelectedIndex(resultTab.getTabCount()-1);
 
-			
 		}
 		else {
-			resultTab.addTab(tabName,null, panel, tabName);
+			resultTab.addTab(tabName,null, panel, tabName, parentActionNumber);
 			resultTab.setSelectedIndex(resultTab.getTabCount()-1);
 
 		}
@@ -129,5 +125,9 @@ public class StatisticalResultsFrame extends TaskbarInternalFrame {
 			}
 			
 		}
+	}
+
+	public int getSelectedTabActionNumber() {
+		return resultTab.getSelectedTabActionNumber();
 	}
 }

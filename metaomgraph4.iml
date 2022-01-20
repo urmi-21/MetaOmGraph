@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_11">
+
     <output url="file://$MODULE_DIR$/target/classes" />
     <output-test url="file://$MODULE_DIR$/target/test-classes" />
     <content url="file://$MODULE_DIR$">
@@ -9,74 +10,137 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Maven: com.apple:AppleJavaExtensions:1.4" level="project" />
     <orderEntry type="library" name="Maven: org.jdom:jdom:1.1.3" level="project" />
-    <orderEntry type="library" name="Maven: commons-io:commons-io:2.5" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.commons:commons-math3:3.5" level="project" />
-    <orderEntry type="library" name="Maven: org.jfree:jfreechart:1.5.0" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-svg-dom:1.12" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-awt-util:1.12" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:xmlgraphics-commons:2.4" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-css:1.12" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-dom:1.12" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-xml:1.12" level="project" />
+    <orderEntry type="library" name="Maven: commons-io:commons-io:2.11.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.commons:commons-math3:3.6.1" level="project" />
+    <orderEntry type="library" name="Maven: org.jfree:jfreechart:1.5.3" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-svg-dom:1.14" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-awt-util:1.14" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:xmlgraphics-commons:2.6" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-css:1.14" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-dom:1.14" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-xml:1.14" level="project" />
     <orderEntry type="library" name="Maven: xalan:xalan:2.7.2" level="project" />
     <orderEntry type="library" name="Maven: xalan:serializer:2.7.2" level="project" />
     <orderEntry type="library" name="Maven: xml-apis:xml-apis:1.4.01" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-ext:1.12" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-parser:1.12" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-util:1.12" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-constants:1.12" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-i18n:1.12" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-ext:1.14" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-parser:1.14" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-shared-resources:1.14" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-util:1.14" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-constants:1.14" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-i18n:1.14" level="project" />
     <orderEntry type="library" name="Maven: xml-apis:xml-apis-ext:1.3.04" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-svggen:1.12" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.5.12" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-svggen:1.14" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.5.13" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore:4.4.13" level="project" />
     <orderEntry type="library" name="Maven: commons-logging:commons-logging:1.2" level="project" />
     <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.11" level="project" />
-    <orderEntry type="library" name="Maven: org.dizitart:nitrite:3.3.0" level="project" />
-    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.25" level="project" />
+    <orderEntry type="library" name="Maven: org.dizitart:nitrite:3.4.3" level="project" />
+    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.30" level="project" />
     <orderEntry type="library" name="Maven: com.h2database:h2-mvstore:1.4.200" level="project" />
     <orderEntry type="library" name="Maven: org.objenesis:objenesis:2.6" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.9.8" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.9.8" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.9.8" level="project" />
-    <orderEntry type="library" name="Maven: org.jasypt:jasypt:1.9.2" level="project" />
-    <orderEntry type="library" name="Maven: com.squareup.okhttp3:okhttp:3.9.1" level="project" />
-    <orderEntry type="library" name="Maven: com.squareup.okio:okio:1.13.0" level="project" />
-    <orderEntry type="library" name="Maven: uk.co.jemos.podam:podam:7.2.0.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.10.1" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.10.1" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.10.1" level="project" />
+    <orderEntry type="library" name="Maven: org.jasypt:jasypt:1.9.3" level="project" />
+    <orderEntry type="library" name="Maven: com.squareup.okhttp3:okhttp:4.3.1" level="project" />
+    <orderEntry type="library" name="Maven: com.squareup.okio:okio:2.4.1" level="project" />
+    <orderEntry type="library" name="Maven: org.jetbrains.kotlin:kotlin-stdlib-common:1.3.50" level="project" />
+    <orderEntry type="library" name="Maven: org.jetbrains.kotlin:kotlin-stdlib:1.3.61" level="project" />
+    <orderEntry type="library" name="Maven: org.jetbrains:annotations:13.0" level="project" />
+    <orderEntry type="library" name="Maven: uk.co.jemos.podam:podam:7.2.3.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: net.jcip:jcip-annotations:1.0" level="project" />
-    <orderEntry type="library" name="Maven: javax.annotation:jsr250-api:1.0" level="project" />
+    <orderEntry type="library" name="Maven: javax.annotation:javax.annotation-api:1.3.2" level="project" />
     <orderEntry type="library" name="Maven: javax.validation:validation-api:1.1.0.Final" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.6" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.8.1" level="project" />
     <orderEntry type="library" name="Maven: org.biojava:jcolorbrewer:5.2" level="project" />
     <orderEntry type="library" name="Maven: org.jfree:jcommon:1.0.23" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.poi:poi:4.1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.poi:poi:5.0.0" level="project" />
+    <orderEntry type="library" name="Maven: org.slf4j:jcl-over-slf4j:1.7.30" level="project" />
     <orderEntry type="library" name="Maven: org.apache.commons:commons-collections4:4.4" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.poi:poi-ooxml:4.1.1" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.poi:poi-ooxml-schemas:4.1.1" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlbeans:xmlbeans:3.1.0" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.commons:commons-compress:1.19" level="project" />
+    <orderEntry type="library" name="Maven: com.zaxxer:SparseBitSet:1.2" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.poi:poi-ooxml:5.0.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.poi:poi-ooxml-lite:5.0.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlbeans:xmlbeans:4.0.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.commons:commons-compress:1.20" level="project" />
     <orderEntry type="library" name="Maven: com.github.virtuald:curvesapi:1.06" level="project" />
+    <orderEntry type="library" name="Maven: org.bouncycastle:bcpkix-jdk15on:1.68" level="project" />
+    <orderEntry type="library" name="Maven: org.bouncycastle:bcprov-jdk15on:1.68" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.santuario:xmlsec:2.2.1" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.fasterxml.woodstox:woodstox-core:5.2.1" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: org.codehaus.woodstox:stax2-api:4.2" level="project" />
+    <orderEntry type="library" name="Maven: jakarta.xml.bind:jakarta.xml.bind-api:2.3.2" level="project" />
+    <orderEntry type="library" name="Maven: jakarta.activation:jakarta.activation-api:1.2.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-all:1.13" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-anim:1.13" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-bridge:1.13" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-codec:1.13" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-extension:1.13" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-gui-util:1.13" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-gvt:1.13" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-rasterizer-ext:1.13" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-rasterizer:1.13" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-script:1.13" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-slideshow:1.13" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-squiggle-ext:1.13" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-squiggle:1.13" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-svgbrowser:1.13" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-svgpp:1.13" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-svgrasterizer:1.13" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-swing:1.13" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-transcoder:1.13" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-ttf2svg:1.13" level="project" />
+    <orderEntry type="library" name="Maven: de.rototor.pdfbox:graphics2d:0.30" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.pdfbox:pdfbox:2.0.22" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.pdfbox:fontbox:2.0.22" level="project" />
     <orderEntry type="library" name="Maven: com.miglayout:miglayout:3.7.4" level="project" />
-    <orderEntry type="library" name="Maven: javax.mail:javax.mail-api:1.6.0" level="project" />
+    <orderEntry type="library" name="Maven: javax.mail:javax.mail-api:1.6.2" level="project" />
     <orderEntry type="library" name="Maven: com.sun.activation:javax.activation:1.2.0" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.logging.log4j:log4j-api:2.13.0" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.logging.log4j:log4j-core:2.13.3" level="project" />
-    <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.8.6" level="project" />
-    <orderEntry type="library" name="Maven: edu.iastate.metnet:custombrowserlauncher:0.0.1" level="project" />
-    <orderEntry type="library" name="Maven: com.l2fprod:l2fprod-common-all:0.1" level="project" />
-    <orderEntry type="library" name="Maven: com.formdev:flatlaf:0.41" level="project" />
-    <orderEntry type="library" name="Maven: com.formdev:flatlaf-intellij-themes:0.42" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.logging.log4j:log4j-api:2.14.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.logging.log4j:log4j-core:2.14.1" level="project" />
+    <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.8.9" level="project" />
+    <orderEntry type="library" name="Maven: com.l2fprod:l2fprod-common-all:6.9.1" level="project" />
+    <orderEntry type="library" name="Maven: com.formdev:flatlaf:1.6.1" level="project" />
+    <orderEntry type="library" name="Maven: com.formdev:flatlaf-intellij-themes:1.6.1" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:1.0.0-beta7" level="project" />
-    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:macosx-arm64:1.0.0-beta7" level="project" />
+    <orderEntry type="library" name="Maven: org.nd4j:nd4j-native:macosx-x86_64:1.0.0-beta7" level="project" />
     <orderEntry type="library" name="Maven: org.bytedeco:javacpp:1.5.3" level="project" />
-    <orderEntry type="library" name="Maven: org.bytedeco:javacpp:macosx-arm64:1.5.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco:javacpp:macosx-x86_64:1.5.3" level="project" />
     <orderEntry type="library" name="Maven: org.bytedeco:openblas:0.3.9-1-1.5.3" level="project" />
-    <orderEntry type="library" name="Maven: org.bytedeco:openblas:macosx-arm64:0.3.9-1-1.5.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco:openblas:macosx-x86_64:0.3.9-1-1.5.3" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-native-api:1.0.0-beta7" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-api:1.0.0-beta7" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:nd4j-common:1.0.0-beta7" level="project" />
     <orderEntry type="library" name="Maven: org.nd4j:guava:1.0.0-beta7" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco:mkl:2020.1-1.5.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco:mkl:macosx-x86_64:2020.1-1.5.3" level="project" />
+    <orderEntry type="library" name="Maven: com.github.lejon.T-SNE-Java:tsne:v2.6.3" level="project" />
+    <orderEntry type="library" name="Maven: net.sourceforge.f2j:arpack_combined_all:0.1" level="project" />
+    <orderEntry type="library" name="Maven: com.github.fommil.netlib:core:1.1.2" level="project" />
+    <orderEntry type="library" name="Maven: com.github.fommil.netlib:netlib-native_ref-osx-x86_64:natives:1.1" level="project" />
+    <orderEntry type="library" name="Maven: com.github.fommil.netlib:native_ref-java:1.1" level="project" />
+    <orderEntry type="library" name="Maven: com.github.fommil:jniloader:1.1" level="project" />
+    <orderEntry type="library" name="Maven: com.github.fommil.netlib:netlib-native_ref-linux-x86_64:natives:1.1" level="project" />
+    <orderEntry type="library" name="Maven: com.github.fommil.netlib:netlib-native_ref-linux-i686:natives:1.1" level="project" />
+    <orderEntry type="library" name="Maven: com.github.fommil.netlib:netlib-native_ref-win-x86_64:natives:1.1" level="project" />
+    <orderEntry type="library" name="Maven: com.github.fommil.netlib:netlib-native_ref-win-i686:natives:1.1" level="project" />
+    <orderEntry type="library" name="Maven: com.github.fommil.netlib:netlib-native_ref-linux-armhf:natives:1.1" level="project" />
+    <orderEntry type="library" name="Maven: com.github.fommil.netlib:netlib-native_system-osx-x86_64:natives:1.1" level="project" />
+    <orderEntry type="library" name="Maven: com.github.fommil.netlib:native_system-java:1.1" level="project" />
+    <orderEntry type="library" name="Maven: com.github.fommil.netlib:netlib-native_system-linux-x86_64:natives:1.1" level="project" />
+    <orderEntry type="library" name="Maven: com.github.fommil.netlib:netlib-native_system-linux-i686:natives:1.1" level="project" />
+    <orderEntry type="library" name="Maven: com.github.fommil.netlib:netlib-native_system-linux-armhf:natives:1.1" level="project" />
+    <orderEntry type="library" name="Maven: com.github.fommil.netlib:netlib-native_system-win-x86_64:natives:1.1" level="project" />
+    <orderEntry type="library" name="Maven: com.github.fommil.netlib:netlib-native_system-win-i686:natives:1.1" level="project" />
+    <orderEntry type="library" name="Maven: com.apporiented:hierarchical-clustering:1.2.0" level="project" />
+    <orderEntry type="library" name="Maven: org.json:json:20201115" level="project" />
+    <orderEntry type="library" name="Maven: com.github.haifengl:smile-plot:2.6.0" level="project" />
+    <orderEntry type="library" name="Maven: com.github.haifengl:smile-core:2.6.0" level="project" />
+    <orderEntry type="library" name="Maven: com.github.haifengl:smile-data:2.6.0" level="project" />
+    <orderEntry type="library" name="Maven: com.github.haifengl:smile-math:2.6.0" level="project" />
+    <orderEntry type="library" name="Maven: com.github.haifengl:smile-graph:2.6.0" level="project" />
+    <orderEntry type="library" name="Maven: org.swinglabs:swingx:1.6.1" level="project" />
+    <orderEntry type="library" name="Maven: com.jhlabs:filters:2.0.235" level="project" />
+    <orderEntry type="library" name="Maven: org.swinglabs:swing-worker:1.1" level="project" />
   </component>
 </module>

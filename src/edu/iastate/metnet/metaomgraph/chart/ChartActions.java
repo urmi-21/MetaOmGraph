@@ -105,7 +105,7 @@ public class ChartActions{
 			@Override
 			public Object stringToValue(String text) throws ParseException {
 				try {
-					return new Integer(text);
+					return Integer.valueOf(text);
 				} catch (NumberFormatException nfe) {
 					return getFormattedTextField().getValue();
 				}
@@ -123,8 +123,8 @@ public class ChartActions{
 				return null;
 			}
 		};
-		widthField = new JFormattedTextField(new DefaultFormatterFactory(af), new Integer(cpanel.getWidth()));
-		heightField = new JFormattedTextField(new DefaultFormatterFactory(af), new Integer(cpanel.getHeight()));
+		widthField = new JFormattedTextField(new DefaultFormatterFactory(af), cpanel.getWidth());
+		heightField = new JFormattedTextField(new DefaultFormatterFactory(af), cpanel.getHeight());
 		widthField.setColumns(4);
 		heightField.setColumns(4);
 		sizer.setLayout(new GridBagLayout());

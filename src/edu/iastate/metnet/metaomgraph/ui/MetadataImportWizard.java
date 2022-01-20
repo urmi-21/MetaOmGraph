@@ -247,8 +247,7 @@ public class MetadataImportWizard extends TaskbarInternalFrame {
 
 					@Override
 					public void finished() {
-						JOptionPane.showMessageDialog(null, "Metadata has been loaded into MetaOmGraph", "Done",
-								JOptionPane.INFORMATION_MESSAGE);
+						
 						finish.setEnabled(true);
 						finish.addActionListener(new ActionListener() {
 							@Override

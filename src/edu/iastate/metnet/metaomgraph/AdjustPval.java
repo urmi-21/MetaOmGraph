@@ -180,7 +180,7 @@ public class AdjustPval {
 	 * @return
 	 */
 	public static String[] getMethodNames() {
-		return new String[] { "Benjamini–Hochberg", "Holm", "Bonferroni" };
+		return new String[] { "Benjamini-Hochberg", "Holm", "Bonferroni" };
 
 	}
 
@@ -192,7 +192,7 @@ public class AdjustPval {
 	 * @return
 	 */
 	public static List<Double> computeAdjPV(List<Double> pv) {
-		return computeAdjPV(pv, "Benjamini–Hochberg");
+		return computeAdjPV(pv, "Benjamini-Hochberg");
 	}
 
 	public static List<Double> computeAdjPV(List<Double> pv, String methodName) {
@@ -205,7 +205,7 @@ public class AdjustPval {
 		// find adjusted pvalues;default method BH
 		AdjustPval ob = new AdjustPval();
 
-		if (methodName == null || methodName.length() < 1 || methodName == "Benjamini–Hochberg") {
+		if (methodName == null || methodName.length() < 1 || methodName == "Benjamini-Hochberg") {
 			adjPV = ob.getBHAdj(pv.stream().mapToDouble(d -> d).toArray());
 		} else if (methodName == "Bonferroni") {
 			adjPV = ob.getBonferroniAdj(pv.stream().mapToDouble(d -> d).toArray());

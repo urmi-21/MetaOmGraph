@@ -164,7 +164,7 @@ public class Metadata {
 		String col = root.getAttributeValue("col");
 		if ((col != null) && (!"".equals(col))) {
 			try {
-				knownCols.put(new Integer(col), root);
+				knownCols.put(Integer.valueOf(col), root);
 			} catch (NumberFormatException localNumberFormatException) {
 			}
 		}
@@ -430,7 +430,7 @@ public class Metadata {
 						newParent.add(child.fullCopy(true));
 					} else if (child.getAttributeValue("col") != null) {
 						try {
-							Integer colAttribute = new Integer(child.getAttributeValue("col"));
+							Integer colAttribute = Integer.valueOf(child.getAttributeValue("col"));
 							if (colsToKeep.contains(colAttribute)) {
 								System.out.println(
 										"Bringing over " + colAttribute + " - " + child.getAttributeValue("name"));
@@ -516,6 +516,10 @@ public class Metadata {
 	}
 
 	public static class MetadataQuery implements Serializable, SimpleXMLizable<MetadataQuery> {
+
+		private boolean isAND;
+		private boolean isOR;
+
 		private String field;
 
 		private String term;
@@ -532,6 +536,31 @@ public class Metadata {
 			this.term = term.trim();
 			this.matchType = matchType;
 			this.matchCase=matchCase;
+		}
+
+		public MetadataQuery(boolean isAND, boolean isOR, String field, String term, SearchMatchType matchType,boolean matchCase) {
+			this.isAND = isAND;
+			this.isOR = isOR;
+			this.field = field;
+			this.term = term.trim();
+			this.matchType = matchType;
+			this.matchCase=matchCase;
+		}
+
+		public boolean isAND() {
+			return isAND;
+		}
+
+		public void setAND(boolean AND) {
+			isAND = AND;
+		}
+
+		public boolean isOR() {
+			return isOR;
+		}
+
+		public void setOR(boolean OR) {
+			isOR = OR;
 		}
 
 		public String getField() {
@@ -1122,7 +1151,7 @@ public class Metadata {
 				// name:"+child.getAttributeValue("name"));
 				// JOptionPane.showMessageDialog(null,"thisCol name:"+child.toFullString());
 				if ((thisCol != null) && (!"".equals(thisCol))) {
-					thisGroup.cols.add(new Integer(thisCol));
+					thisGroup.cols.add(Integer.valueOf(thisCol));
 				}
 			}
 			if (thisGroup.cols.size() > 0) {
@@ -1140,7 +1169,7 @@ public class Metadata {
 
 	public void associate(SimpleXMLElement node, Integer col) {
 		if ((col == null) && (node.getAttributeValue("col") != null)) {
-			Integer oldCol = new Integer(node.getAttributeValue("col"));
+			Integer oldCol = Integer.valueOf(node.getAttributeValue("col"));
 			knownCols.remove(oldCol);
 			node.setAttribute("col", null);
 			return;
