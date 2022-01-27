@@ -169,6 +169,18 @@ public class MetadataCollection {
 
 					}
 					headers = temp;
+					
+					for(int i=0; i<headers.length; i++) {
+						if(headers[i] == null || headers[i]=="" || headers[i].isEmpty()) {
+							
+							JOptionPane.showMessageDialog(null,
+									"Metadata validation failed. There is an empty header in the metadata file at column number:\n"
+											+ (i+1),
+											"Error", JOptionPane.ERROR_MESSAGE);
+							return;
+							
+						}
+					}
 
 					// check for duplicate headers
 					List<String> headerList = Arrays.asList(headers);

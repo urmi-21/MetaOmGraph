@@ -728,6 +728,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		
 		TableColumnModel tableColumnModel = listDisplay.getColumnModel();
 		
+		
 		tableColumnModel.addColumnModelListener(new TableColumnModelListener() {
 
             public void columnAdded(TableColumnModelEvent e) {
@@ -737,7 +738,40 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
             }
 
             public void columnMoved(TableColumnModelEvent e) {
-            	MetaOmGraph.getActiveProject().setChanged(true);
+            	
+            	List<TableColumn> currentColumns = Collections.list(tableColumnModel.getColumns());
+            	String[] currentColumnNames = new String[currentColumns.size()];
+            	
+            	for(int i=0; i<currentColumns.size(); i++) {
+            		currentColumnNames[i] = currentColumns.get(i).getHeaderValue().toString();
+            	}
+            	
+            	String [] currentColumnHeaders = MetaOmGraph.getActiveProject().getInfoColumnNames();
+            	
+            	if(!Arrays.equals(currentColumnNames, currentColumnHeaders)) {
+            		
+//            		Object[][] allRows = MetaOmGraph.getActiveProject().getRowNames();
+//            		
+//            		Object[][] reorderedRows = new Object[allRows.length][allRows[0].length];
+//            		
+//            		for(int i=0; i< currentColumnNames.length; i++) {
+//            			int currentColIndex = Arrays.asList(currentColumnHeaders).indexOf(currentColumnNames[i]);
+//            			
+//            			for(int j=0; j< allRows.length; j++ ) {
+//            				reorderedRows[j][i] = allRows[j][currentColIndex];
+//            			}
+//            			
+//            		}
+//            		
+//            		MetaOmGraph.getActiveProject().reorderRowNames(reorderedRows);
+            		
+//            		MetaOmGraph.getActiveProject().setInfoColumnNames(currentColumnNames);
+            		
+            		MetaOmGraph.getActiveProject().setChanged(true);
+            	}
+            	
+            	
+            	
             }
 
             public void columnMarginChanged(ChangeEvent e) {
@@ -749,7 +783,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		
 		MetadataHeaderRenderer customHeaderCellRenderer = 
 				new MetadataHeaderRenderer(Color.white,
-						Color.red,
+						new Color(153,0,0),
 						new Font("Consolas",Font.BOLD,12),
 						BorderFactory.createEtchedBorder(),
 						true);
@@ -966,7 +1000,45 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 		sorter.setTableHeader(listDisplay.getTableHeader());
 		
-		listDisplay.setColumnModel(oldColumnModel);
+		
+		TableColumnModel newColumnModel = listDisplay.getColumnModel();
+		
+		
+		List<TableColumn> currentColumns = Collections.list(newColumnModel.getColumns());
+    	String[] currentColumnNames = new String[currentColumns.size()];
+    	
+    	for(int i=0; i<currentColumns.size(); i++) {
+    		currentColumnNames[i] = currentColumns.get(i).getHeaderValue().toString();
+    	}
+    	
+    	
+    	List<TableColumn> oldColumns = Collections.list(oldColumnModel.getColumns());
+    	String[] oldColumnNames = new String[oldColumns.size()];
+    	
+    	for(int i=0; i<oldColumns.size(); i++) {
+    		oldColumnNames[i] = oldColumns.get(i).getHeaderValue().toString();
+    	}
+    	
+		
+    	if(Arrays.equals(currentColumnNames, oldColumnNames)) {
+    		
+    		listDisplay.setColumnModel(oldColumnModel);
+
+    	}
+    	else {
+    		MetadataHeaderRenderer customHeaderCellRenderer = 
+    				new MetadataHeaderRenderer(Color.white,
+    						new Color(153,0,0),
+    						new Font("Consolas",Font.BOLD,12),
+    						BorderFactory.createEtchedBorder(),
+    						true);
+    		
+    		listDisplay.getColumnModel().getColumn(myProject.getDefaultColumn()).setHeaderRenderer(customHeaderCellRenderer);
+    	}
+		
+    	
+		
+		
 		
 		/*
 		 * sorter.setColumnComparator(String.class, new MyComparator()); // urmi add
@@ -1013,6 +1085,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		} catch (Exception e) {
 
 		}
+		
 
 	}
 

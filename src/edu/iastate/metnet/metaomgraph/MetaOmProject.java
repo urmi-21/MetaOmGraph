@@ -3990,6 +3990,12 @@ public class MetaOmProject {
 		return rowNames;
 	}
 
+	public void reorderRowNames(Object[][] newRowNames) {
+		
+		rowNames = newRowNames;
+		
+	}
+	
 	/**
 	 * @author urmi get gene/tx name only
 	 * @param entry
@@ -4074,6 +4080,14 @@ public class MetaOmProject {
 		for (int i = 0; i < infoColumns; i++)
 			result[i] = Utils.clean(columnHeaders[i]);
 		return result;
+	}
+	
+	public void setInfoColumnNames(String[] infoColumnHeaders) {
+		
+		for(int i=0; i<infoColumnHeaders.length; i++) {
+			columnHeaders[i] = infoColumnHeaders[i];
+		}
+		
 	}
 
 	public String[] getColumnHeaders() {
