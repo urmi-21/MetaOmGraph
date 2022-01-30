@@ -3,6 +3,7 @@ package edu.iastate.metnet.metaomgraph.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -32,6 +33,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
+import edu.iastate.metnet.metaomgraph.MetadataHeaderRenderer;
 
 /**
  * A mouse listener class which is used to handle mouse clicking event
@@ -77,11 +79,13 @@ public class StripedTableHeaderMouseListener extends MouseAdapter {
 			JMenuItem hideCol = new JMenuItem("Hide column");
 			JMenuItem selectColHide = new JMenuItem("Select columns to hide...");
 			JMenuItem unHideCol = new JMenuItem("Unhide all columns");
+			JMenuItem makeUniqueIDCol = new JMenuItem("Make column Unique ID");
 			
 
 			popup.add(hideCol);
 			popup.add(selectColHide);
 			popup.add(unHideCol);
+			popup.add(makeUniqueIDCol);
 
 
 			table.setComponentPopupMenu(popup);
@@ -123,6 +127,29 @@ public class StripedTableHeaderMouseListener extends MouseAdapter {
 			selectColHide.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent ev) {
 					table.openColumnSelectorDialog("Current Table");
+				}
+			});
+			
+			
+			makeUniqueIDCol.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent ev) {
+					
+					MetaOmGraph.getActiveTable().getListDisplay().getColumnModel().getColumn(MetaOmGraph.getActiveProject().getDefaultColumn()).setHeaderRenderer(null);
+					
+					MetaOmGraph.getActiveProject().setDefaultColumn(index);
+					
+					MetadataHeaderRenderer customHeaderCellRenderer = 
+							new MetadataHeaderRenderer(Color.white,
+									new Color(153,0,0),
+									new Font("Consolas",Font.BOLD,12),
+									BorderFactory.createEtchedBorder(),
+									true);
+					
+					MetaOmGraph.getActiveTable().getListDisplay().getColumnModel().getColumn(MetaOmGraph.getActiveProject().getDefaultColumn()).setHeaderRenderer(customHeaderCellRenderer);
+					
+					MetaOmGraph.getActiveProject().setDataColumnName(MetaOmGraph.getActiveTable().getListDisplay().getColumnModel().getColumn(MetaOmGraph.getActiveProject().getDefaultColumn()).getHeaderValue().toString());
+					MetaOmGraph.getActiveProject().setChanged(true);
+					MetaOmGraph.getActiveTable().getListDisplay().revalidate();
 				}
 			});
 
