@@ -373,4 +373,9 @@ public class JavaIconTheme implements IconTheme {
 		}
 		return selectIcon;
 	}
+
+	@Override
+	public ImageIcon getReset() {
+		return null;
+	}
 }

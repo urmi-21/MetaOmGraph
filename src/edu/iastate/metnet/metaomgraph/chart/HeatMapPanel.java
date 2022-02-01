@@ -1,12 +1,18 @@
 package edu.iastate.metnet.metaomgraph.chart;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridLayout;
-import java.awt.Point;
+
+import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
+import edu.iastate.metnet.metaomgraph.MetaOmGraph;
+import edu.iastate.metnet.metaomgraph.utils.Utils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.jcolorbrewer.ColorBrewer;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -16,32 +22,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
-
-import javax.imageio.ImageIO;
-import javax.swing.JComponent;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.jcolorbrewer.ColorBrewer;
-
-import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
-import edu.iastate.metnet.metaomgraph.MetaOmGraph;
-import edu.iastate.metnet.metaomgraph.utils.Utils;
 
 /**
  * 
@@ -80,7 +64,11 @@ public class HeatMapPanel extends JPanel{
 	 * Constructor
 	 * @param data 2d heatmap data
 	 * @param rowNames row labels to be displayed on the rows (left), length should be same as data.length
+<<<<<<< HEAD
 	 * @param columnNames column labels to be displayed on the columns (top), length should be same as data[0].length
+=======
+	 * @param colNames column labels to be displayed on the columns (top), length should be same as data[0].length
+>>>>>>> xmlremoved
 	 */
 	public HeatMapPanel(double[][] data, String[] rowNames, String[] colNames) {
 		this.heatMapData = data;
@@ -111,9 +99,10 @@ public class HeatMapPanel extends JPanel{
 	
 	// Tool tip text
 	private String createToolTipTextString(String dataColName, String value) {
-		String bgColor = "#" + Integer.toHexString(MetaOmGraph.getTableColor1().getRGB()).
+
+		String bgColor = "#" + Integer.toHexString(MetaOmGraph.getTableColorEven().getRGB()).
 				substring(2);
-		String bgColorAlt = "#" + Integer.toHexString(MetaOmGraph.getTableColor2().getRGB()).
+		String bgColorAlt = "#" + Integer.toHexString(MetaOmGraph.getTableColorOdd().getRGB()).
 				substring(2);
 		String[] rowColors = { bgColor, bgColorAlt };
 		String text = "<html><head> " + "<style>" + ".scrollit {\n" + "    overflow:scroll;\n" + "    height:100px;\n"
@@ -902,6 +891,125 @@ public class HeatMapPanel extends JPanel{
 	    	
 	    	return rowsInArrangedOrder;
 	    }
+
+	}
+
+
+	class PagingModel extends AbstractTableModel {
+
+		private int rowCount;
+		private int colCount;
+		private double[][] dataSet;
+
+		private int pageSizeRow;
+		private int pageSizeCol;
+		private int pageOffsetRow;
+		private int pageOffsetCol;
+
+		public PagingModel(double[][] dataSet, int rowSize, int colSize) {
+			this.dataSet = dataSet;
+			this.rowCount = dataSet.length;
+			this.colCount = dataSet[0].length;
+			this.pageSizeRow = rowSize;
+			this.pageSizeCol = rowSize;
+		}
+
+		@Override
+		public int getRowCount() {
+			return Math.min(pageSizeRow, rowCount);
+		}
+
+		@Override
+		public int getColumnCount() {
+			return Math.min(pageSizeCol, rowCount);
+		}
+
+		@Override
+		public Object getValueAt(int rowIndex, int columnIndex) {
+			int row = rowIndex + (pageSizeRow * pageOffsetRow);
+			int col = columnIndex + (pageSizeCol * pageOffsetCol);
+			return dataSet[row][col];
+		}
+
+		public int getPageOffsetRow() {
+			return pageOffsetRow;
+		}
+
+		public int getPageOffsetCol() {
+			return pageOffsetCol;
+		}
+
+		public int getPageCountRow() {
+			return (int) Math.ceil((double) rowCount / pageSizeRow);
+		}
+
+		public int getPageCountCol() {
+			return (int) Math.ceil((double) colCount / pageSizeCol);
+		}
+
+		public int getRealRowCount() {
+			return rowCount;
+		}
+
+		public int getRealColCount() {
+			return colCount;
+		}
+
+		public int getPageSizeRow() {
+			return pageSizeRow;
+		}
+
+		public int getPageSizeCol() {
+			return pageSizeCol;
+		}
+
+		public void setPageSizeRow(int size) {
+			if (size == pageSizeRow) {
+				return;
+			}
+			int temp = pageSizeRow;
+			pageSizeRow = size;
+			pageOffsetRow = (temp * pageOffsetRow) / pageSizeRow;
+			fireTableDataChanged();
+		}
+
+		public void setPageSizeCol(int size) {
+			if (size == pageSizeCol) {
+				return;
+			}
+			int temp = pageSizeCol;
+			pageSizeCol = size;
+			pageOffsetCol = (temp * pageOffsetCol) / pageSizeCol;
+			fireTableDataChanged();
+		}
+
+		public void pageDown() {
+			if (pageOffsetRow < getPageCountRow() - 1) {
+				pageOffsetRow++;
+				fireTableDataChanged();
+			}
+		}
+
+		public void pageUp() {
+			if (pageOffsetRow > 0) {
+				pageOffsetRow--;
+				fireTableDataChanged();
+			}
+		}
+
+		public void pageRight() {
+			if (pageOffsetCol < getPageCountCol() - 1) {
+				pageOffsetCol++;
+				fireTableDataChanged();
+			}
+		}
+
+		public void pageLeft() {
+			if (pageOffsetCol > 0) {
+				pageOffsetCol--;
+				fireTableDataChanged();
+			}
+		}
 
 	}
 

@@ -3,29 +3,21 @@
  */
 package edu.iastate.metnet.metaomgraph.chart;
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.Graphics2D;
+import com.apporiented.algorithm.clustering.visualization.DendrogramPanel;
+import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
+import edu.iastate.metnet.metaomgraph.FrameModel;
+import edu.iastate.metnet.metaomgraph.MetaOmGraph;
+import edu.iastate.metnet.metaomgraph.ui.TaskbarInternalFrame;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.HashMap;
-
-import javax.imageio.ImageIO;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
-import com.apporiented.algorithm.clustering.visualization.DendrogramPanel;
-
-import edu.iastate.metnet.metaomgraph.AnimatedSwingWorker;
-import edu.iastate.metnet.metaomgraph.FrameModel;
-import edu.iastate.metnet.metaomgraph.MetaOmGraph;
-import edu.iastate.metnet.metaomgraph.ui.TaskbarInternalFrame;
 
 /**
  * @author sumanth

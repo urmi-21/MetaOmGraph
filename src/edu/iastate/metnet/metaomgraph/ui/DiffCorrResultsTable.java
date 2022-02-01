@@ -240,6 +240,7 @@ public class DiffCorrResultsTable extends StatisticalResultsPanel {
 
 					MetaOmGraph.getDesktop().add(clf);
 					clf.setVisible(true);
+
 					return;
 				}
 			});
@@ -280,6 +281,7 @@ public class DiffCorrResultsTable extends StatisticalResultsPanel {
 					return;
 				}
 			});
+			
 			listCreateButton.setActionCommand("new list");
 			listCreateButton.setToolTipText("Create a new list");
 			listToolbar.add(listCreateButton);
@@ -298,7 +300,6 @@ public class DiffCorrResultsTable extends StatisticalResultsPanel {
 			Border loweredetched = BorderFactory.createEtchedBorder();
 			geneListPanel.setBorder(BorderFactory.createTitledBorder(loweredetched, "Lists"));
 			initTableModel();
-
 
 			geneLists.addListSelectionListener(new ListSelectionListener() {
 
@@ -394,7 +395,7 @@ public class DiffCorrResultsTable extends StatisticalResultsPanel {
 						try {
 							//Harsha - reproducibility log
 							HashMap<String,Object> actionMap = new HashMap<String,Object>();
-							actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
+							actionMap.put("parent",MetaOmGraph.getDCResultsFrame().getSelectedTabActionNumber());
 
 							HashMap<String,Object> dataMap = new HashMap<String,Object>();
 							dataMap.put("Exported List Name", listName);
@@ -562,6 +563,20 @@ public class DiffCorrResultsTable extends StatisticalResultsPanel {
 
 										projectColumns(getSelectedFeatureColumns());
 
+										HashMap<String,Object> actionMap = new HashMap<String,Object>();
+										actionMap.put("parent",MetaOmGraph.getDCResultsFrame().getSelectedTabActionNumber());
+										actionMap.put("section", "P-Value Filter");
+
+										HashMap<String,Object> dataMap = new HashMap<String,Object>();
+										dataMap.put("Selected row indices",getSelectedRowIndices());
+										dataMap.put("Project Columns", getSelectedFeatureColumns());
+
+										HashMap<String,Object> resultLog = new HashMap<String,Object>();
+										resultLog.put("result", "OK");
+
+										ActionProperties action = new ActionProperties("p-value-filter",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+										action.logActionProperties();
+
 									}
 
 									// JOptionPane.showMessageDialog(null, "Done");
@@ -724,6 +739,20 @@ public class DiffCorrResultsTable extends StatisticalResultsPanel {
 
 										projectColumns(getSelectedFeatureColumns());
 
+										HashMap<String,Object> actionMap = new HashMap<String,Object>();
+										actionMap.put("parent",MetaOmGraph.getDCResultsFrame().getSelectedTabActionNumber());
+										actionMap.put("section", "P-Value Correction");
+
+										HashMap<String,Object> dataMap = new HashMap<String,Object>();
+										dataMap.put("Selected row indices",getSelectedRowIndices());
+										dataMap.put("Project Columns", getSelectedFeatureColumns());
+
+										HashMap<String,Object> resultLog = new HashMap<String,Object>();
+										resultLog.put("result", "OK");
+
+										ActionProperties action = new ActionProperties("p-value-correction",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+										action.logActionProperties();
+
 									}
 
 									return null;
@@ -748,6 +777,20 @@ public class DiffCorrResultsTable extends StatisticalResultsPanel {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
+					
+					HashMap<String,Object> actionMap = new HashMap<String,Object>();
+					actionMap.put("parent",MetaOmGraph.getDCResultsFrame().getSelectedTabActionNumber());
+					actionMap.put("section", "Hide/Show DC Result Columns");
+
+					HashMap<String,Object> dataMap = new HashMap<String,Object>();
+					dataMap.put("Project Column Count", table.getColumnCount());
+
+					HashMap<String,Object> resultLog = new HashMap<String,Object>();
+					resultLog.put("result", "OK");
+
+					ActionProperties action = new ActionProperties("hide-show-dc-columns",actionMap,dataMap,resultLog,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+					action.logActionProperties();
+
 					table.openColumnSelectorDialog("DC Result");
 				}
 			});
@@ -769,12 +812,40 @@ public class DiffCorrResultsTable extends StatisticalResultsPanel {
 					Map<TableColumn,Boolean> newMap = new LinkedHashMap<TableColumn,Boolean>();
 					for(Map.Entry<TableColumn, Boolean> entry : backupMap.entrySet()) {
 						newMap.put(entry.getKey(), true);
+
 					}
 					table.getMetadata().setColumnVisibilityMap(newMap);
 					table.hideColumns();
 
 					// get selected rowindex
 					int[] rowIndices = getSelectedRowIndices();
+
+					HashMap<String,Object> actionMap = new HashMap<String,Object>();
+					actionMap.put("parent",MetaOmGraph.getDCResultsFrame().getSelectedTabActionNumber());
+
+					HashMap<String,Object> dataMap = new HashMap<String,Object>();
+					HashMap<String,Object> result = new HashMap<String,Object>();
+
+					actionMap.put("section", "Feature Metadata");
+
+					String selList = geneLists.getSelectedValue().toString();
+					dataMap.put("Selected List", selList);
+					dataMap.put("Selected Features", table.getSelectedRows());
+					dataMap.put("Data Transformation", MetaOmGraph.getInstance().getTransform());
+					dataMap.put("XAxis", myProject.getDefaultXAxis());
+					dataMap.put("YAxis", myProject.getDefaultYAxis());
+					dataMap.put("Chart Title", myProject.getDefaultTitle());
+
+					result.put("Color 1", myProject.getColor1());
+					result.put("Color 2", myProject.getColor2());
+					result.put("Sample Action", MetaOmGraph.getCurrentSamplesActionId());
+					result.put("Playable", "true");
+					result.put("result", "OK");
+
+					ActionProperties lineChartAction = new ActionProperties("line-chart", actionMap, dataMap, result,
+							new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+					lineChartAction.logActionProperties();
+
 					if (rowIndices == null || rowIndices.length == 0) {
 						JOptionPane.showMessageDialog(null, "No rows selected", "Nothing selected",
 								JOptionPane.ERROR_MESSAGE);
@@ -784,6 +855,7 @@ public class DiffCorrResultsTable extends StatisticalResultsPanel {
 
 						return;
 					}
+					
 					new MetaOmChartPanel(rowIndices, myProject.getDefaultXAxis(), myProject.getDefaultYAxis(),
 							myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject)
 					.createInternalFrame();
@@ -811,6 +883,32 @@ public class DiffCorrResultsTable extends StatisticalResultsPanel {
 
 					// get selected rowindex
 					int[] rowIndices = getSelectedRowIndices();
+
+					HashMap<String,Object> actionMap = new HashMap<String,Object>();
+					actionMap.put("parent",MetaOmGraph.getDCResultsFrame().getSelectedTabActionNumber());
+					actionMap.put("section", "Scatter Plot");
+
+					HashMap<String,Object> dataMap = new HashMap<String,Object>();
+
+					HashMap<String,Object> result = new HashMap<String,Object>();
+
+					String selList = geneLists.getSelectedValue().toString();
+					dataMap.put("Selected List", selList);
+					dataMap.put("Selected Features", table.getSelectedRows());
+					dataMap.put("Data Transformation", MetaOmGraph.getInstance().getTransform());
+					dataMap.put("XAxis", myProject.getDefaultXAxis());
+					dataMap.put("YAxis", myProject.getDefaultYAxis());
+					dataMap.put("Chart Title", myProject.getDefaultTitle());
+
+					result.put("Color 1", myProject.getColor1());
+					result.put("Color 2", myProject.getColor2());
+					result.put("Sample Action", MetaOmGraph.getCurrentSamplesActionId());
+					result.put("Playable", "true");
+					result.put("result", "OK");
+					ActionProperties scatterPlotAction = new ActionProperties("scatter-plot", actionMap, dataMap, result,
+							new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+					scatterPlotAction.logActionProperties();
+
 					if (rowIndices == null) {
 						JOptionPane.showMessageDialog(null, "No rows selected", "Nothing selected",
 								JOptionPane.ERROR_MESSAGE);
@@ -884,6 +982,33 @@ public class DiffCorrResultsTable extends StatisticalResultsPanel {
 
 
 					int[] rowIndices = getSelectedRowIndices();
+
+					HashMap<String,Object> actionMap = new HashMap<String,Object>();
+					actionMap.put("parent",MetaOmGraph.getDCResultsFrame().getSelectedTabActionNumber());
+					actionMap.put("section", "Box Plot");
+
+					HashMap<String,Object> dataMap = new HashMap<String,Object>();
+					dataMap.put("Selected row count",rowIndices.length);
+
+					HashMap<String,Object> result = new HashMap<String,Object>();
+
+					String selList = geneLists.getSelectedValue().toString();
+					dataMap.put("Selected List", selList);
+					dataMap.put("Selected Features", table.getSelectedRows());
+					dataMap.put("Data Transformation", MetaOmGraph.getInstance().getTransform());
+					dataMap.put("XAxis", myProject.getDefaultXAxis());
+					dataMap.put("YAxis", myProject.getDefaultYAxis());
+					dataMap.put("Chart Title", myProject.getDefaultTitle());
+
+					result.put("Color 1", myProject.getColor1());
+					result.put("Color 2", myProject.getColor2());
+					result.put("Sample Action", MetaOmGraph.getCurrentSamplesActionId());
+					result.put("Playable", "true");
+					result.put("result", "OK");
+
+					ActionProperties boxPlotAction = new ActionProperties("box-plot", actionMap, dataMap, result,
+							new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+					boxPlotAction.logActionProperties();
 					if (rowIndices == null || rowIndices.length == 0) {
 						JOptionPane.showMessageDialog(null, "No rows selected", "Nothing selected",
 								JOptionPane.ERROR_MESSAGE);
@@ -966,6 +1091,34 @@ public class DiffCorrResultsTable extends StatisticalResultsPanel {
 
 							try {// get data for selected rows
 								int[] selected = getSelectedRowIndices();
+
+								HashMap<String,Object> actionMap = new HashMap<String,Object>();
+								actionMap.put("parent",MetaOmGraph.getDCResultsFrame().getSelectedTabActionNumber());
+								actionMap.put("section", "Histogram");
+
+								HashMap<String,Object> dataMap = new HashMap<String,Object>();
+								dataMap.put("Selected row count",selected.length);
+
+								HashMap<String,Object> result = new HashMap<String,Object>();
+
+								String selList = geneLists.getSelectedValue().toString();
+								dataMap.put("Selected List", selList);
+								dataMap.put("Selected Features", table.getSelectedRows());
+								dataMap.put("Data Transformation", MetaOmGraph.getInstance().getTransform());
+								dataMap.put("XAxis", myProject.getDefaultXAxis());
+								dataMap.put("YAxis", myProject.getDefaultYAxis());
+								dataMap.put("Chart Title", myProject.getDefaultTitle());
+
+								result.put("Color 1", myProject.getColor1());
+								result.put("Color 2", myProject.getColor2());
+								result.put("Sample Action", MetaOmGraph.getCurrentSamplesActionId());
+								result.put("Playable", "true");
+								result.put("result", "OK");
+
+								ActionProperties histogramAction = new ActionProperties("histogram", actionMap, dataMap, result,
+										new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+								histogramAction.logActionProperties();
+
 								if (selected == null || selected.length == 0) {
 									JOptionPane.showMessageDialog(null, "No rows selected", "Nothing selected",
 											JOptionPane.ERROR_MESSAGE);
@@ -1080,11 +1233,6 @@ public class DiffCorrResultsTable extends StatisticalResultsPanel {
 				}
 			});
 			mnPlot.add(mntmHistogramcolumn);
-
-
-
-
-
 
 			JPanel searchPanel = new JPanel(new BorderLayout());
 			searchPanel.add(new JLabel("Filter:"), "Before");
@@ -1300,6 +1448,7 @@ public class DiffCorrResultsTable extends StatisticalResultsPanel {
 	}
 
 
+
 	/**
 	 * Overriden method that formats the Statistical Result Panel table to show the
 	 * DEA columns in Red color and Feature metadata columns in Blue.
@@ -1341,7 +1490,6 @@ public class DiffCorrResultsTable extends StatisticalResultsPanel {
 			table.getColumnModel().getColumn(i).setCellRenderer(new DefaultTableCellRenderer());
 			table.getColumnModel().getColumn(i).setHeaderRenderer(featureMetadataHeaderCellRenderer);
 		}
-
 
 		table.initializeVisibilityMap();
 		table.hideColumns();
@@ -1478,6 +1626,35 @@ public class DiffCorrResultsTable extends StatisticalResultsPanel {
 			@Override
 			public void run() {
 				try {// get data for selected rows
+
+					HashMap<String,Object> actionMap = new HashMap<String,Object>();
+					actionMap.put("parent",MetaOmGraph.getDCResultsFrame().getSelectedTabActionNumber());
+					actionMap.put("section", "Histogram");
+
+					HashMap<String,Object> dataMap = new HashMap<String,Object>();
+
+					HashMap<String,Object> result = new HashMap<String,Object>();
+
+					String selList = geneLists.getSelectedValue().toString();
+					dataMap.put("Selected List", selList);
+					dataMap.put("Selected Features", table.getSelectedRows());
+					dataMap.put("Data Transformation", MetaOmGraph.getInstance().getTransform());
+					dataMap.put("XAxis", myProject.getDefaultXAxis());
+					dataMap.put("YAxis", myProject.getDefaultYAxis());
+					dataMap.put("Chart Title", myProject.getDefaultTitle());
+					dataMap.put("Data", data);
+					dataMap.put("Name", columnName);
+
+					result.put("Color 1", myProject.getColor1());
+					result.put("Color 2", myProject.getColor2());
+					result.put("Sample Action", MetaOmGraph.getCurrentSamplesActionId());
+					result.put("Playable", "true");
+					result.put("result", "OK");
+
+					ActionProperties histogramAction = new ActionProperties("column-histogram", actionMap, dataMap, result,
+							new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+					histogramAction.logActionProperties();
+
 					int nBins = 10;
 					HistogramChart f = new HistogramChart(null, nBins, null, 2, data, false);
 					f.setTitle(columnName + " histogram");

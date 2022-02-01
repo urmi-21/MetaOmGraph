@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
-import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -40,7 +39,6 @@ import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.LegendItemEntity;
 import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.plot.DefaultDrawingSupplier;
-import org.jfree.chart.plot.DrawingSupplier;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.xy.XYDataset;
@@ -504,9 +502,9 @@ public class VolcanoPlot extends TaskbarInternalFrame implements ChartMouseListe
 
 	private String createTooltipTable(String featureName, double x, double y) {
 		DecimalFormat df = new DecimalFormat("####0.0000");
-		String bgColor = "#" + Integer.toHexString(MetaOmGraph.getTableColor1().getRGB()).substring(2);
+		String bgColor = "#" + Integer.toHexString(MetaOmGraph.getTableColorEven().getRGB()).substring(2);
 		;
-		String bgColorAlt = "#" + Integer.toHexString(MetaOmGraph.getTableColor2().getRGB()).substring(2);
+		String bgColorAlt = "#" + Integer.toHexString(MetaOmGraph.getTableColorOdd().getRGB()).substring(2);
 		String[] rowColors = { bgColor, bgColorAlt };
 		String text = "<html><head> " + "<style>" + ".scrollit {\n" + "    overflow:scroll;\n" + "    height:100px;\n"
 				+ "}" + "</style></head><body>"

@@ -106,6 +106,8 @@ import org.jdom.output.XMLOutputter;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.google.gson.GsonBuilder;
+
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -191,7 +193,7 @@ public class MetaOmProject {
 	private HashMap<Integer, Integer> memoryMap;
 
 	private boolean includeMetNet;
-	
+
 	private boolean showWarning = false;
 
 	// urmi
@@ -200,7 +202,7 @@ public class MetaOmProject {
 	private MetadataEditor editor = null;
 	private MetadataTreeStructure mTree = null;
 	private ReadMetadata readMetadataframe = null;
-	private String dataColumnname = null;
+	private String dataColumnName = null;
 
 	// save meta analysis corr values as mapping of name to correlation
 	private HashMap<String, CorrelationMetaCollection> metaCorrs;
@@ -330,7 +332,7 @@ public class MetaOmProject {
 			if (infoColumns <= 0) {
 				rowNames = new Object[rowNameVector.size()][1];
 				for (int x = 0; x < rowNames.length; x++) {
-					rowNames[x][0] = new Integer(x);
+					rowNames[x][0] = x;
 				}
 			} else {
 				rowNames = new Object[rowNameVector.size()][infoColumns];
@@ -447,7 +449,7 @@ public class MetaOmProject {
 					if (okToAdd) {
 						if (infoColumns > 0)
 							thisLinePointer = dataIn.getFilePointer();
-						thisData[0] = new Long(thisLinePointer);
+						thisData[0] = Long.valueOf(thisLinePointer);
 						resultNames.add(thisData);
 					}
 				}
@@ -566,7 +568,7 @@ public class MetaOmProject {
 		File saveHere;
 		String mogPathToSave = "";
 		JsonWriter writer = null;
-		
+
 		if ((extension != null) && ((extension.equals("mog")) || (extension.equals("mcg")))) {
 			saveHere = new File(destination.getAbsolutePath() + ".tmp");
 			mogPathToSave = destination.getAbsolutePath();
@@ -581,7 +583,7 @@ public class MetaOmProject {
 			try {
 				RandomAccessFile dataOut = new RandomAccessFile(source, "rw");
 				for (int x = 0; x < this.data.length; x++) {
-					fileIndex[x] = new Long(dataOut.getFilePointer());
+					fileIndex[x] = dataOut.getFilePointer();
 					for (int y = 0; y < this.data[x].length; y++) {
 						if (y != 0) {
 							dataOut.write(delimiter);
@@ -602,13 +604,13 @@ public class MetaOmProject {
 
 		try {
 			ZipOutputStream myZipOut = new ZipOutputStream(new FileOutputStream(saveHere));
-			
+
 			myZipOut.putNextEntry(new ZipEntry("ProjectFile.json"));
-	
+
 			writer = new JsonWriter(new OutputStreamWriter(myZipOut, "UTF-8"));
-			
+
 			ProjectFileModel pfm = new ProjectFileModel();
-			
+
 			pfm.setSourcePath(source.getParent().replace("\0", ""));
 			pfm.setSourceFile(source.getName().replace("\0", ""));
 
@@ -618,11 +620,11 @@ public class MetaOmProject {
 			else {
 				pfm.setDelimiter(delimiter + "");
 			}
-			
+
 			pfm.setIgnoreConsecutiveDelimiters((String)(ignoreConsecutiveDelimiters + "").replace("\0", ""));
 
 			if (getBlankValue() != null) {
-				
+
 				pfm.setBlankValue((String)(getBlankValue() + "").replace("\0", ""));
 
 			}
@@ -632,19 +634,56 @@ public class MetaOmProject {
 			pfm.setTitle(getDefaultTitle().replace("\0", ""));
 			pfm.setColor1((String)(getColor1().getRGB() + "").replace("\0", ""));
 			pfm.setColor2((String)(getColor2().getRGB() + "").replace("\0", ""));
-			pfm.setDefaultColumn((String)(defaultColumn + "").replace("\0", ""));
+
 
 			List<String> informationCols = new ArrayList<String>();
-			
-			for (int x = 0; x < infoColumns; x++) {
-				informationCols.add(columnHeaders[x].replace("\0", ""));
+
+			String [] featureColumnOrder = MetaOmGraph.getActiveTable().getFeatureTableHeaders();
+
+			for (int x = 0; x < featureColumnOrder.length; x++) {
+
+				if(featureColumnOrder[x].equals(this.dataColumnName)) {
+					defaultColumn = x;
+				}
+			}
+
+
+			pfm.setDefaultColumn((String)(getDataColumnName()).replace("\0", ""));
+
+			for (int x = 0; x < featureColumnOrder.length; x++) {
+				informationCols.add(featureColumnOrder[x].replace("\0", ""));
+			}
+
+			int[] newColumnIndices = new int[featureColumnOrder.length];
+
+			for(int i=0; i<featureColumnOrder.length; i++) {
+
+				for(int j=0; j<columnHeaders.length; j++) {
+
+					if(featureColumnOrder[i].equals(columnHeaders[j])) {
+						newColumnIndices[i] = j;
+					}
+
+				}
+
+			}
+
+			Object [][] reorderedRowNames = new Object[rowNames.length][infoColumns];
+
+			for(int i=0; i<newColumnIndices.length; i++) {
+
+				int index = newColumnIndices[i];
+
+				for(int j=0; j<rowNames.length; j++) {
+					reorderedRowNames[j][i] = rowNames[j][index];
+				}
 			}
 
 			pfm.setInfoColumns(informationCols);
 
 			List<String> columns = new ArrayList<String>();
 
-			
+
 			for (int x = 0; x < getDataColumnCount(); x++) {
 				columns.add(getDataColumnHeader(x).replace("\0", ""));
 			}
@@ -652,36 +691,36 @@ public class MetaOmProject {
 			pfm.setColumns(columns);
 
 			List<DataModel> allData = new ArrayList<DataModel>();
-			
+
 			//data
 			boolean savedLast = false;
-			for (int x = 0; x < rowNames.length; x++) {
+			for (int x = 0; x < reorderedRowNames.length; x++) {
 				DataModel data = new DataModel();
-				
+
 				List<InfoModel> infolist = new ArrayList<InfoModel>();
-				
+
 				for (int y = 0; y < infoColumns; y++) {
 
-					if (rowNames[x][y] == null) {
+					if (reorderedRowNames[x][y] == null) {
 						InfoModel inf = new InfoModel();
 						inf.setValue("");
 						infolist.add(inf);
 
 					} else {
 						InfoModel inf = new InfoModel();
-						if ((rowNames[x][y] instanceof CorrelationValue)) {
+						if ((reorderedRowNames[x][y] instanceof CorrelationValue)) {
 							inf.setType("correlation");
-							
+
 							if ((hasLastCorrelation()) && (!savedLast)) {
 								inf.setLast("true");
 								savedLast = true;
 							}
-							if (!((CorrelationValue) rowNames[x][y]).isAsPercent()) {
+							if (!((CorrelationValue) reorderedRowNames[x][y]).isAsPercent()) {
 								inf.setAsPercent("false");
-								
+
 							}
 						}
-						inf.setValue(rowNames[x][y].toString().replace("\0", ""));
+						inf.setValue(reorderedRowNames[x][y].toString().replace("\0", ""));
 						infolist.add(inf);
 					}
 
@@ -691,7 +730,7 @@ public class MetaOmProject {
 
 				allData.add(data);
 			}
-			
+
 			pfm.setData(allData);
 
 			List<ListModel> allLists = new ArrayList<ListModel>();
@@ -699,19 +738,19 @@ public class MetaOmProject {
 			Enumeration enumer = geneLists.keys();
 
 			while (enumer.hasMoreElements()) {
-				
+
 				ListModel lm = new ListModel();
-				
+
 				String name = enumer.nextElement().toString();
 				lm.setName(name);
-				
+
 				List<String> allEntries = new ArrayList<String>();
-				
+
 				int[] entries = geneLists.get(name);
 				for (int x = 0; x < entries.length; x++) {
 					allEntries.add((String)(entries[x] + "").replace("\0", ""));
 				}
-				
+
 				lm.setEntries(allEntries);
 
 				allLists.add(lm);
@@ -719,16 +758,16 @@ public class MetaOmProject {
 			}
 
 			pfm.setLists(allLists);
-			
+
 			List<SampleDataListModel> allSampleDataLists = new ArrayList<SampleDataListModel>();
-			
+
 			for (Map.Entry<String, ArrayList<String>> entry : sampleDataLists.entrySet()) {
-				
+
 				SampleDataListModel sdlm = new SampleDataListModel();
-				
+
 				String listName = entry.getKey();
 				sdlm.setName(listName);
-				
+
 				List<String> allEntries = new ArrayList<String>();
 
 				ArrayList<String> values = entry.getValue();
@@ -740,11 +779,11 @@ public class MetaOmProject {
 
 				allSampleDataLists.add(sdlm);
 			}
-			
+
 			pfm.setSampleDataLists(allSampleDataLists);
-			
+
 			List<SortModel> allSorts = new ArrayList<SortModel>();
-			
+
 			if (savedSorts != null) {
 				enumer = savedSorts.keys();
 				while (enumer.hasMoreElements()) {
@@ -754,11 +793,11 @@ public class MetaOmProject {
 					allSorts.add(sm);
 				}
 			}
-			
+
 			pfm.setSorts(allSorts);
 
 			List<QuerySetModel> allQueries = new ArrayList<QuerySetModel>();
-			
+
 			if (savedQueries != null) {
 				enumer = savedQueries.keys();
 				while (enumer.hasMoreElements()) {
@@ -768,11 +807,11 @@ public class MetaOmProject {
 					allQueries.add(qsm);
 				}
 			}
-			
+
 			pfm.setQueries(allQueries);
 
 			List<ExcludesModel> allExcludes = new ArrayList<ExcludesModel>();
-			
+
 			if (savedExcludes != null) {
 				enumer = savedExcludes.keys();
 				while (enumer.hasMoreElements()) {
@@ -782,7 +821,7 @@ public class MetaOmProject {
 					allExcludes.add(em);
 				}
 			}
-			
+
 			pfm.setExcludes(allExcludes);
 
 			try {
@@ -795,28 +834,28 @@ public class MetaOmProject {
 						"Unable to save the project file.  Make sure the destination file is not write-protected.",
 						"Error saving project", 0);
 			}
-			
+
 			writer.flush();
 			myZipOut.closeEntry();
 
 
 			if (this.getMetadataHybrid() != null) {
 				// write metadata
-			
+
 				myZipOut.putNextEntry(new ZipEntry("metadataFile.json"));
 				writer = new JsonWriter(new OutputStreamWriter(myZipOut, "UTF-8"));
-				
+
 				this.getMetadataHybrid().generateFileInfoJSON(writer);
-				
+
 				writer.flush();
 				myZipOut.closeEntry();
-				
+
 
 				// write removed cols from md file
 
 				myZipOut.putNextEntry(new ZipEntry("removedMDCols.json"));
 				writer = new JsonWriter(new OutputStreamWriter(myZipOut, "UTF-8"));
-				
+
 				this.getMetadataHybrid().writeListToJSON(this.getMetadataHybrid().getRemovedMDCols(), writer);
 				writer.flush();
 
@@ -827,10 +866,10 @@ public class MetaOmProject {
 				// write exluded and missing rows from metadata
 				myZipOut.putNextEntry(new ZipEntry("excludedMD.json"));
 				writer = new JsonWriter(new OutputStreamWriter(myZipOut, "UTF-8"));
-				
+
 				this.getMetadataHybrid().writeListToJSON(this.getMetadataHybrid().getExcludedMDRows(), writer);
 				writer.flush();
-				
+
 				myZipOut.closeEntry();
 
 
@@ -838,37 +877,33 @@ public class MetaOmProject {
 
 				myZipOut.putNextEntry(new ZipEntry("missingMD.json"));
 				writer = new JsonWriter(new OutputStreamWriter(myZipOut, "UTF-8"));
-				
+
 				this.getMetadataHybrid().writeListToJSON(this.getMetadataHybrid().getMissingMDRows(), writer);
 				writer.flush();
-				
+
 				myZipOut.closeEntry();
 
-
-				
-//				// write tree
-//				myZipOut.putNextEntry(new ZipEntry("metadataTree.json"));
-//				writer = new JsonWriter(new OutputStreamWriter(myZipOut, "UTF-8"));
-//				
-//				this.getMetadataHybrid().writeJtreetoJSON(this.getMetadataHybrid().getTreeStucture(), writer);
-//				writer.flush();
-//				
-//				myZipOut.closeEntry();
-
-
+				//				// write tree
+				//				myZipOut.putNextEntry(new ZipEntry("metadataTree.json"));
+				//				writer = new JsonWriter(new OutputStreamWriter(myZipOut, "UTF-8"));
+				//				
+				//				this.getMetadataHybrid().writeJtreetoJSON(this.getMetadataHybrid().getTreeStucture(), writer);
+				//				writer.flush();
+				//				
+				//				myZipOut.closeEntry();
 
 
 				try {
-				// write saved correlations
-				myZipOut.putNextEntry(new ZipEntry("correlations.json"));
-				writer = new JsonWriter(new OutputStreamWriter(myZipOut, "UTF-8"));
-				
-				writeMetaCorrResasJSON(writer);
-				
-				writer.flush();
-				
-				myZipOut.closeEntry();
-				
+					// write saved correlations
+					myZipOut.putNextEntry(new ZipEntry("correlations.json"));
+					writer = new JsonWriter(new OutputStreamWriter(myZipOut, "UTF-8"));
+
+					writeMetaCorrResasJSON(writer);
+
+					writer.flush();
+
+					myZipOut.closeEntry();
+
 				}
 				catch(Exception e) {
 					e.printStackTrace();
@@ -880,9 +915,9 @@ public class MetaOmProject {
 				// write MOG parameters
 				myZipOut.putNextEntry(new ZipEntry("params.json"));
 				writer = new JsonWriter(new OutputStreamWriter(myZipOut, "UTF-8"));
-				
+
 				writeParamsasJSON(writer);
-				
+
 				writer.flush();
 				myZipOut.closeEntry();
 
@@ -892,9 +927,9 @@ public class MetaOmProject {
 				//write diff exp results
 				myZipOut.putNextEntry(new ZipEntry("diffexpresults.json"));
 				writer = new JsonWriter(new OutputStreamWriter(myZipOut, "UTF-8"));
-				
+
 				writeDEResAsJSON(writer);
-				
+
 				writer.flush();
 				myZipOut.closeEntry();
 
@@ -904,22 +939,22 @@ public class MetaOmProject {
 				// write diff corr results
 				myZipOut.putNextEntry(new ZipEntry("diffcorrresults.json"));
 				writer = new JsonWriter(new OutputStreamWriter(myZipOut, "UTF-8"));
-				
+
 				writeDiffCorrResAsJSON(writer);
-				
+
 				writer.flush();
 				myZipOut.closeEntry();
 
 			}
 
-			
+
 			myZipOut.finish();
 			myZipOut.close();
-			
+
 			if(writer!= null) {
 				writer.close();
 			}
-			
+
 			//Move the temporary file to the actual mog project
 
 			Path from = saveHere.toPath(); 
@@ -935,7 +970,7 @@ public class MetaOmProject {
 			return false;
 		} 
 		catch(Exception e2) {
-			
+
 		}
 		setChanged(false);
 
@@ -994,46 +1029,46 @@ public class MetaOmProject {
 		setInfoColTypes(map);
 
 	}
-	
-	
+
+
 	/**
 	 * @author Harsha
 	 * Method to clean an xml file of all the invalid characters
 	 */
 	private void cleanXML(InputStream instream, File projectFile, String tempFileName) throws UnsupportedEncodingException, IOException {
-		
+
 		String xml10pattern = "[^"
-                + "\u0009\r\n"
-                + "\u0020-\uD7FF"
-                + "\uE000-\uFFFD"
-                + "\ud800\udc00-\udbff\udfff"
-                + "]";
-		
+				+ "\u0009\r\n"
+				+ "\u0020-\uD7FF"
+				+ "\uE000-\uFFFD"
+				+ "\ud800\udc00-\udbff\udfff"
+				+ "]";
+
 		InputStreamReader isr = new InputStreamReader(instream);
 
 		String dirPath = projectFile.getParent();
 		File tmpPath = new File(dirPath+"/tmp/");
 		tmpPath.mkdirs();
-		
-		 try (FileOutputStream fos = new FileOutputStream(dirPath+"/tmp/"+tempFileName);
-				 OutputStreamWriter osw = new OutputStreamWriter(fos,"UTF-8");
-				 
-				 ) {
 
-                int len;
-                while ((len = isr.read()) > 0) {
-                	
-                	
-                	String buf = String.valueOf((char)len);
-                	
-                	buf = buf.replaceAll(xml10pattern, "");
-                	
-                	osw.write(buf);
-                	
-                    
-                }
-            }
-		 
+		try (FileOutputStream fos = new FileOutputStream(dirPath+"/tmp/"+tempFileName);
+				OutputStreamWriter osw = new OutputStreamWriter(fos,"UTF-8");
+
+				) {
+
+			int len;
+			while ((len = isr.read()) > 0) {
+
+
+				String buf = String.valueOf((char)len);
+
+				buf = buf.replaceAll(xml10pattern, "");
+
+				osw.write(buf);
+
+
+			}
+		}
+
 	}
 
 	/**
@@ -1072,24 +1107,24 @@ public class MetaOmProject {
 		try {
 
 			char[] buffer = new char[2048];
-			
+
 			FileInputStream fis = new FileInputStream(projectFile);
 			BufferedInputStream bis = new BufferedInputStream(fis);
-			
+
 			ZipInputStream instream = new ZipInputStream(bis);
-			
+
 			ZipEntry thisEntry = instream.getNextEntry();
 			while ((allsWell) && (thisEntry != null)) {
 				if ((thisEntry.getName().equals("ProjectFile.xml")) && (!projectFileFound)) {
 
 					String tempXMLFile = "ProjectFile.xml";
-					
+
 					String dirPath = projectFile.getParent();
-					
+
 					cleanXML(instream, projectFile, tempXMLFile);
-					 
+
 					FileInputStream tempProjectXML = new FileInputStream(new File(dirPath+"/tmp/"+tempXMLFile));
-					 
+
 					allsWell = loadProjectFile(tempProjectXML, projectFile);
 					if (!allsWell) {
 						System.out.println("Failure at project file load");
@@ -1098,16 +1133,16 @@ public class MetaOmProject {
 					projectFileFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				} 
-				
+
 				else if ((thisEntry.getName().equals("ProjectFile.json")) && (!projectFileFound)) {
 
 					JsonReader reader = new JsonReader((new InputStreamReader(instream)));
 					Gson gson = new Gson();
-					
+
 					ProjectFileModel projectFileModel = gson.fromJson(reader, ProjectFileModel.class);
-					
+
 					allsWell = loadProjectFileJSON(projectFileModel, projectFile);
-					
+
 					if (!allsWell) {
 						System.out.println("Failure at project file load");
 						// JOptionPane.showMessageDialog(null, "Error occured");
@@ -1115,19 +1150,19 @@ public class MetaOmProject {
 					projectFileFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				}
-				
+
 				else if ((thisEntry.getName().equals("metadataFile.xml")) && (!extendedFound)) {
 
 					String fpath = "";
 					String delim = "";
 					String datacol = "";
-					
+
 					String tempXMLFile = "metadataFile.xml";
-					
+
 					String dirPath = projectFile.getParent();
-					
+
 					cleanXML(instream, projectFile, tempXMLFile);
-					 
+
 					FileInputStream tempProjectXML = new FileInputStream(new File(dirPath+"/tmp/"+tempXMLFile));
 
 					inputReader = new BufferedReader(new InputStreamReader(tempProjectXML));
@@ -1177,6 +1212,7 @@ public class MetaOmProject {
 					File mdFile = new File(fpath);
 					if (mdFile.exists()) {
 						metaDataCollection = new MetadataCollection(fpath, delim, datacol);
+
 					} else {
 
 						// try only file name in current directory
@@ -1208,23 +1244,28 @@ public class MetaOmProject {
 					extendedFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				}
-				
+
 				else if ((thisEntry.getName().equals("metadataFile.json")) && (!extendedFound)) {
 
 					String fpath = "";
 					String delim = "";
 					String datacol = "";
-					
+
 
 					JsonReader reader = new JsonReader((new InputStreamReader(instream)));
 					Gson gson = new Gson();
-					
+
 					MetadataModel metadataModel = gson.fromJson(reader, MetadataModel.class);
 
 					fpath = metadataModel.getFILEPATH();
 					delim = metadataModel.getDELIMITER();
 					datacol = metadataModel.getDATACOL();
-					
+					String [] colOrder = metadataModel.getCOLORDER();
+					boolean [] colsToKeep = new boolean[colOrder.length];
+
+					for(int i=0; i<colOrder.length; i++) {
+						colsToKeep[i] = true;
+					}
 
 					if (MetaOmGraph.getOsName().indexOf("win") >= 0 || MetaOmGraph.getOsName().indexOf("Win") >= 0) {
 						fpath = FilenameUtils.separatorsToWindows(fpath);
@@ -1262,22 +1303,23 @@ public class MetaOmProject {
 						}
 					}
 
+					metaDataCollection.setHeaders(colOrder, colsToKeep);
 
 					extendedFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				}
-				
+
 				else if ((thisEntry.getName().equals("metadataTree.xml")) && (!treeFound)) {
-					
+
 					String tempXMLFile = "metadataTree.xml";
-					
+
 					String dirPath = projectFile.getParent();
-					
+
 					cleanXML(instream, projectFile, tempXMLFile);
-					 
+
 					FileInputStream tempProjectXML = new FileInputStream(new File(dirPath+"/tmp/"+tempXMLFile));
 
-					
+
 					inputReader = new BufferedReader(new InputStreamReader(tempProjectXML));
 					sb = new StringBuilder();
 					inline = "";
@@ -1291,48 +1333,48 @@ public class MetaOmProject {
 
 					// call parse object
 					if (metaDataCollection == null) {
-						
+
 						return false;
 					}
 
 					allMetadataCols = metaDataCollection.getAllDataCols();
-					
+
 					treeFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				} 
-				
+
 				else if ((thisEntry.getName().equals("metadataTree.json")) && (!treeFound)) {
-					
+
 					JsonReader reader = new JsonReader((new InputStreamReader(instream)));
 					Gson gson = new Gson();
-					
+
 					MetadataTreeModel metadataTreeModel = gson.fromJson(reader, MetadataTreeModel.class);
 
-					
+
 					// call parse object
 					if (metaDataCollection == null) {
-						
+
 						return false;
 					}
 
 					allMetadataCols = metaDataCollection.getAllDataCols();
 
-				
+
 					treeFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				} 
-				
+
 				else if ((thisEntry.getName().equals("correlations.xml")) && (!corrFound)) {
-					
+
 					String tempXMLFile = "correlations.xml";
-					
+
 					String dirPath = projectFile.getParent();
-					
+
 					cleanXML(instream, projectFile, tempXMLFile);
-					 
+
 					FileInputStream tempProjectXML = new FileInputStream(new File(dirPath+"/tmp/"+tempXMLFile));
 
-					
+
 					inputReader = new BufferedReader(new InputStreamReader(tempProjectXML));
 					sb = new StringBuilder();
 					inline = "";
@@ -1402,18 +1444,18 @@ public class MetaOmProject {
 					corrFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				} 
-				
+
 				else if ((thisEntry.getName().equals("correlations.json")) && (!corrFound)) {
-					
+
 					JsonReader reader = new JsonReader((new InputStreamReader(instream)));
 					Gson gson = new Gson();
-					
+
 					CorrelationsModel correlationsModel = gson.fromJson(reader, CorrelationsModel.class);
 					List<CorrelationNodeModel> correlationNodeModelList = correlationsModel.getCorrelations();
 
 					for (int i = 0; i < correlationNodeModelList.size(); i++) {
 						CorrelationNodeModel thisCorrElement = correlationNodeModelList.get(i);
-						
+
 						String thisCorrName = thisCorrElement.getCorrName();
 						int thisCorrtype = Integer.parseInt(thisCorrElement.getCorrtype());
 						String thisCorrModel = thisCorrElement.getCorrmodel();
@@ -1426,9 +1468,9 @@ public class MetaOmProject {
 							thisCorrOrder = Integer.parseInt(thisCorrElement.getOrder());
 						}
 
-						
+
 						List<CorrelationMetadataModel> correlationMetadataList = thisCorrElement.getCorrList();
-						
+
 
 						List<CorrelationMeta> correlationMetaList = new ArrayList<>();
 						for (int j = 0; j < correlationMetadataList.size(); j++) {
@@ -1440,13 +1482,13 @@ public class MetaOmProject {
 							if (thisCorrtype == 0) {
 
 								CorrelationMetadataModelType0 thisRowElement0 = (CorrelationMetadataModelType0)thisRowElement;
-								
+
 								double thisRowZval = Double.parseDouble(thisRowElement0.getZval());
 								double thisRowQval = Double.parseDouble(thisRowElement0.getQval());
 								double thisRowPooledzr = Double
 										.parseDouble(thisRowElement0.getPooledzr());
 								double thisRowstdErr = Double.parseDouble(thisRowElement0.getStderr());
-								
+
 								temp = new CorrelationMeta(thisRowVal, thisRowPval, thisRowZval, thisRowQval,
 										thisRowPooledzr, thisRowstdErr);
 
@@ -1473,18 +1515,18 @@ public class MetaOmProject {
 					corrFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				}
-				
-				
+
+
 				else if ((thisEntry.getName().equals("params.xml")) && (!paramsFound)) {
-					
+
 					String tempXMLFile = "params.xml";
-					
+
 					String dirPath = projectFile.getParent();
-					
+
 					cleanXML(instream, projectFile, tempXMLFile);
-					 
+
 					FileInputStream tempProjectXML = new FileInputStream(new File(dirPath+"/tmp/"+tempXMLFile));
-					
+
 					inputReader = new BufferedReader(new InputStreamReader(tempProjectXML));
 
 
@@ -1568,45 +1610,45 @@ public class MetaOmProject {
 					paramsFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				} 
-				
+
 				else if ((thisEntry.getName().equals("params.json")) && (!paramsFound)) {
-					
+
 					JsonReader reader = new JsonReader((new InputStreamReader(instream)));
 					Gson gson = new Gson();
-					
+
 					ParamsModel paramsModel = gson.fromJson(reader, ParamsModel.class);
 
 					MetaOmGraph.setNumPermutations(Integer.parseInt(paramsModel.getPermutations()));
-							
+
 					MetaOmGraph.setNumThreads(Integer.parseInt(paramsModel.getThreads()));
-					
+
 					MetaOmGraph._SRR = Integer.parseInt(paramsModel.getSrrColumn());
-					
+
 					MetaOmGraph._SRP = Integer.parseInt(paramsModel.getSrpColumn());
-					
+
 					MetaOmGraph._SRX = Integer.parseInt(paramsModel.getSrxColumn());
-					
+
 					MetaOmGraph._SRS = Integer.parseInt(paramsModel.getSrsColumn());
-					
+
 					MetaOmGraph._GSE = Integer.parseInt(paramsModel.getGseColumn());
-					
+
 					MetaOmGraph._GSM = Integer.parseInt(paramsModel.getGsmColumn());
-									
-					
+
+
 					paramsFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				}
-				
+
 				else if ((thisEntry.getName().equals("excludedMD.xml")) && (!excludedFound)) {
-					
+
 					String tempXMLFile = "excludedMD.xml";
-					
+
 					String dirPath = projectFile.getParent();
-					
+
 					cleanXML(instream, projectFile, tempXMLFile);
-					 
+
 					FileInputStream tempProjectXML = new FileInputStream(new File(dirPath+"/tmp/"+tempXMLFile));
-					
+
 					inputReader = new BufferedReader(new InputStreamReader(tempProjectXML));
 
 					XMLInputFactory factory = XMLInputFactory.newInstance();
@@ -1636,30 +1678,30 @@ public class MetaOmProject {
 					excludedFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				} 
-				
+
 				else if ((thisEntry.getName().equals("excludedMD.json")) && (!excludedFound)) {
-					
+
 					JsonReader reader = new JsonReader((new InputStreamReader(instream)));
 					Gson gson = new Gson();
-					
+
 					Set<String> excludes = gson.fromJson(reader, Set.class);
-					
+
 					excluded = new ArrayList<>(excludes);
 
 					excludedFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				}
-				
+
 				else if ((thisEntry.getName().equals("missingMD.xml")) && (!missingFound)) {
-					
+
 					String tempXMLFile = "missingMD.xml";
-					
+
 					String dirPath = projectFile.getParent();
-					
+
 					cleanXML(instream, projectFile, tempXMLFile);
-					 
+
 					FileInputStream tempProjectXML = new FileInputStream(new File(dirPath+"/tmp/"+tempXMLFile));
-					
+
 					inputReader = new BufferedReader(new InputStreamReader(tempProjectXML));
 
 					XMLInputFactory factory = XMLInputFactory.newInstance();
@@ -1689,32 +1731,32 @@ public class MetaOmProject {
 					missingFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				} 
-				
-				
+
+
 				else if ((thisEntry.getName().equals("missingMD.json")) && (!missingFound)) {
-					
+
 					JsonReader reader = new JsonReader((new InputStreamReader(instream)));
 					Gson gson = new Gson();
-					
+
 					Set<String> missings = gson.fromJson(reader, Set.class);
-					
+
 					missing = new ArrayList<>(missings);
 
 					missingFound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				}
-				
-				
+
+
 				else if ((thisEntry.getName().equals("removedMDCols.xml")) && (!removedMDColsFound)) {
-					
+
 					String tempXMLFile = "removedMDCols.xml";
-					
+
 					String dirPath = projectFile.getParent();
-					
+
 					cleanXML(instream, projectFile, tempXMLFile);
-					 
+
 					FileInputStream tempProjectXML = new FileInputStream(new File(dirPath+"/tmp/"+tempXMLFile));
-					
+
 					inputReader = new BufferedReader(new InputStreamReader(tempProjectXML));
 
 					XMLInputFactory factory = XMLInputFactory.newInstance();
@@ -1745,15 +1787,15 @@ public class MetaOmProject {
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 
 				}
-				
-				
+
+
 				else if ((thisEntry.getName().equals("removedMDCols.json")) && (!removedMDColsFound)) {
-					
+
 					JsonReader reader = new JsonReader((new InputStreamReader(instream)));
 					Gson gson = new Gson();
-					
+
 					Set<String> removed = gson.fromJson(reader, Set.class);
-					
+
 					removedMDCols = new ArrayList<>(removed);
 
 					removedMDColsFound = true;
@@ -1765,13 +1807,13 @@ public class MetaOmProject {
 				else if ((thisEntry.getName().equals("diffexpresults.xml")) && (!diffExpResfound)) {
 					// JOptionPane.showMessageDialog(null, "reading DE");
 					String tempXMLFile = "diffexpresults.xml";
-					
+
 					String dirPath = projectFile.getParent();
-					
+
 					cleanXML(instream, projectFile, tempXMLFile);
-					 
+
 					FileInputStream tempProjectXML = new FileInputStream(new File(dirPath+"/tmp/"+tempXMLFile));
-					
+
 					inputReader = new BufferedReader(new InputStreamReader(tempProjectXML));
 
 					XMLInputFactory factory = XMLInputFactory.newInstance();
@@ -1992,46 +2034,46 @@ public class MetaOmProject {
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				}
 
-				
+
 				// read diffexpresults
 				else if ((thisEntry.getName().equals("diffexpresults.json")) && (!diffExpResfound)) {
 					// JOptionPane.showMessageDialog(null, "reading DE");
-					
+
 					JsonReader reader = new JsonReader((new InputStreamReader(instream)));
 					Gson gson = new Gson();
-					
+
 					DiffExpModel diffexpmodel = gson.fromJson(reader, DiffExpModel.class);
-					
+
 					removedMDCols = new ArrayList<>();
 
-					
+
 					List<DifferentialExpResults> diffExpResults = diffexpmodel.getDeResults();
-					
+
 					for(int i=0; i<diffExpResults.size(); i++) {
-						
+
 						DifferentialExpResults der = diffExpResults.get(i);
-						
+
 						// add this ob to saved DE
 						addDiffExpRes(der.getID(), der);
-					
+
 					}
 
 					diffExpResfound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				}
-				
-				
+
+
 				// read diffcorr results diffcorrresults.xml
 				else if ((thisEntry.getName().equals("diffcorrresults.xml")) && (!diffCorrResfound)) {
 					// JOptionPane.showMessageDialog(null, "reading DE");
 					String tempXMLFile = "diffcorrresults.xml";
-					
+
 					String dirPath = projectFile.getParent();
-					
+
 					cleanXML(instream, projectFile, tempXMLFile);
-					 
+
 					FileInputStream tempProjectXML = new FileInputStream(new File(dirPath+"/tmp/"+tempXMLFile));
-					
+
 					inputReader = new BufferedReader(new InputStreamReader(tempProjectXML));
 
 
@@ -2296,34 +2338,34 @@ public class MetaOmProject {
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				}
 
-				
+
 				// read diffcorr results diffcorrresults.xml
 				else if ((thisEntry.getName().equals("diffcorrresults.json")) && (!diffCorrResfound)) {
-					
+
 					JsonReader reader = new JsonReader((new InputStreamReader(instream)));
 					Gson gson = new Gson();
-					
+
 					DiffCorrModel diffcorrmodel = gson.fromJson(reader, DiffCorrModel.class);
-					
+
 					removedMDCols = new ArrayList<>();
 
-					
+
 					List<DifferentialCorrResults> diffCorrResults = diffcorrmodel.getDcResults();
-					
+
 					for(int i=0; i<diffCorrResults.size(); i++) {
-						
+
 						DifferentialCorrResults dcr = diffCorrResults.get(i);
-						
+
 						// add this ob to saved DE
 						addDiffCorrRes(dcr.getID(), dcr);
-					
+
 					}
-					
+
 					diffCorrResfound = true;
 					instream = new ZipInputStream(new FileInputStream(projectFile));
 				}
 
-				
+
 				try {
 					thisEntry = instream.getNextEntry();
 				} catch (IOException e) {
@@ -2512,7 +2554,7 @@ public class MetaOmProject {
 		return (allsWell) && (projectFileFound);
 	}
 
-	
+
 	/**
 	 * 
 	 * Method that loads the project.xml file in the .mog file using StAX parser.
@@ -2521,6 +2563,7 @@ public class MetaOmProject {
 	 * @param projectFile
 	 * @return
 	 */
+	
 	private boolean loadProjectFile(InputStream instream, File projectFile) {
 		try {
 			maxNameLength = 0;
@@ -3049,7 +3092,7 @@ public class MetaOmProject {
 
 					}
 					else if(isLocation) {
-						fileIndexList.add(new Long(characters.getData()));
+						fileIndexList.add(Long.valueOf(characters.getData()));
 					}
 					else if(isCustomSort && isOrder) {
 
@@ -3510,6 +3553,8 @@ public class MetaOmProject {
 						rowNames = new Object[dataInfoList.size()][infoColumns];
 						fileIndex = new Long[dataInfoList.size()];
 
+						
+						setDataColumnName(columnHeaders[defaultColumn]);
 
 
 						for(int i=0; i<dataInfoList.size(); i++) {
@@ -3564,9 +3609,10 @@ public class MetaOmProject {
 		return true;
 	}
 	
-	
-	
-	
+
+
+
+
 	/**
 	 * 
 	 * Method that loads the project.json file in the .mog file using GSON.
@@ -3600,8 +3646,8 @@ public class MetaOmProject {
 			SearchMatchType queryMatchType = SearchMatchType.CONTAINS;
 			ArrayList<MetadataQuery> queryList = null;
 			MetadataQuery currentQuery = null;
-			
-			
+
+
 
 			geneLists = new Hashtable();
 			sampleDataLists = new HashMap<String, ArrayList<String>>();
@@ -3614,7 +3660,7 @@ public class MetaOmProject {
 			TreeSearchQueryConstructionPanel.QuerySet thisQuerySet = null;
 			MetaOmAnalyzer.ExcludeData thisExcludeData = null;
 
-			
+
 
 			sourcePath = projectFileModel.getSourcePath();
 			sourceFile = projectFileModel.getSourceFile();
@@ -3628,7 +3674,7 @@ public class MetaOmProject {
 			color2Val = projectFileModel.getColor2();
 			defaultColumnVal = projectFileModel.getDefaultColumn();
 			infoColumnVal = projectFileModel.getInfoColumns();
-			
+
 			source = new File(sourcePath + File.separator + sourceFile);
 
 			if (!source.exists()) {
@@ -3691,6 +3737,7 @@ public class MetaOmProject {
 
 			if (!blankValueVal.equals("")) {
 				blankValue = Double.valueOf(Double.parseDouble(blankValueVal));
+
 			}
 
 
@@ -3701,22 +3748,13 @@ public class MetaOmProject {
 			color1 = new Color(Integer.parseInt(color1Val));
 			color2 = new Color(Integer.parseInt(color2Val));
 
-
-			//populate defaultColumn
-			if (defaultColumnVal.equals("")) {
-				defaultColumn = 0;
-			} else {
-				defaultColumn = Integer.parseInt(defaultColumnVal);
-			}
-
-
 			infoColumns = infoColumnVal.size();
 
 
 
 
-		
-			
+
+
 			columnsVal = projectFileModel.getColumns();
 			columnHeaders = new String[infoColumns + columnsVal.size()];
 			Iterator iter = infoColumnVal.iterator();
@@ -3733,19 +3771,33 @@ public class MetaOmProject {
 					maxNameLength = columnHeaders[index].length();
 				index++;
 			}
-			
+
+			this.setDataColumnName(defaultColumnVal);
+
+			//populate defaultColumn
+			if (defaultColumnVal.equals("")) {
+				defaultColumn = 0;
+			} else {
+
+				for(int i=0; i< columnHeaders.length; i++) {
+					if(columnHeaders[i].equals(defaultColumnVal)) {
+						defaultColumn = i;
+					}
+				}
+			}
+
 			List<DataModel> dataModel = projectFileModel.getData();
-			
+
 			for(int i=0; i<dataModel.size(); i++) {
-				
+
 				DataModel thisDataModel = dataModel.get(i);
 				List<InfoModel> infoModel = thisDataModel.getInfo();
 				infoList = new ArrayList();
-				
+
 				for(int j=0; j<infoModel.size(); j++) {
-					
+
 					InfoModel thisInfoModel = infoModel.get(j);
-					
+
 					if(thisInfoModel.getValue() != null) {
 						infoData = thisInfoModel.getValue().toString();
 					}
@@ -3786,24 +3838,24 @@ public class MetaOmProject {
 						infoList.add(null);
 
 					}
-					
-					
+
+
 				}
-				
+
 				dataInfoList.add(infoList);
-				
+
 				fileIndexList.add(new Long(thisDataModel.getLocation()));
-				
+
 			}
-			
+
 			List<ListModel> listModel = projectFileModel.getLists();
-			
+
 			for(int i=0; i<listModel.size(); i++) {
-				
+
 				ListModel thisList = listModel.get(i);
-				
+
 				List<String> entries = thisList.getEntries();
-				
+
 				int [] entryArr = new int[entries.size()];
 
 				for(int j=0; j<entries.size(); j++) {
@@ -3811,54 +3863,54 @@ public class MetaOmProject {
 				}
 
 				geneLists.put(thisList.getName(), entryArr);
-				
-				
+
+
 			}
-			
-			
+
+
 			List<SampleDataListModel> sampleDataListModel = projectFileModel.getSampleDataLists();
-			
+
 			for(int i=0; i<sampleDataListModel.size(); i++) {
-				
+
 				SampleDataListModel thisSampleDataListModel = sampleDataListModel.get(i);
-				
+
 				sampleDataLists.put(thisSampleDataListModel.getName(), (ArrayList)thisSampleDataListModel.getEntries());
-				
+
 			}
-			
-			
+
+
 
 			List<SortModel> sortModel = projectFileModel.getSorts();
-			
+
 			for(int i=0; i<sortModel.size(); i++) {
-				
+
 				cso = new NewCustomSortDialog.CustomSortObject();
-				
+
 				SortModel thisSortModel = sortModel.get(i);
 				ArrayList<RangeMarker> thisMarkerList = new ArrayList(thisSortModel.getRangeMarkers());
-				
+
 				cso.readFromXML(thisSortModel.getOrder(), thisMarkerList);
 				savedSorts.put(thisSortModel.getName(), cso);
-				
+
 			}
 
 
 			List<QuerySetModel> querySetModel = projectFileModel.getQueries();
-			
-			
+
+
 			for(int i=0; i<querySetModel.size(); i++) {
-				
+
 				QuerySetModel thisQuerySetModel = querySetModel.get(i);
-				
+
 				thisQuerySet = new TreeSearchQueryConstructionPanel.QuerySet();
-				
+
 				List<QueryModel> queryModel = thisQuerySetModel.getQueries();
 				queryList = new ArrayList<MetadataQuery>();
-				
+
 				for(int j=0; j<queryModel.size(); j++) {
-					
+
 					QueryModel thisQueryModel = queryModel.get(j);
-					
+
 					if(thisQueryModel.getMatchAll().equalsIgnoreCase("is")) {
 						queryMatchType = SearchMatchType.IS;
 					}
@@ -3871,18 +3923,18 @@ public class MetaOmProject {
 					else if(thisQueryModel.getMatchAll().equalsIgnoreCase("does_not_contain")) {
 						queryMatchType = SearchMatchType.DOES_NOT_CONTAIN;
 					}
-					
+
 					currentQuery = new MetadataQuery(thisQueryModel.getField(), thisQueryModel.getTerm(),queryMatchType, false);
 					queryList.add(currentQuery);
 				}
-				
+
 				thisQuerySet.initializeQuerySet(Boolean.parseBoolean(thisQuerySetModel.getMatchAll()), (List<Metadata.MetadataQuery>)queryList);
 
 				savedQueries.put(thisQuerySetModel.getName(), thisQuerySet);
-				
+
 			}
-			
-			
+
+
 
 
 			rowNames = new Object[dataInfoList.size()][infoColumns];
@@ -3904,7 +3956,7 @@ public class MetaOmProject {
 				fileIndex[i] = fileIndexList.get(i);
 			}
 
-					
+
 		}
 
 
@@ -3924,8 +3976,8 @@ public class MetaOmProject {
 
 		return true;
 	}
-	
-	
+
+
 
 	public boolean isChanged() {
 		return changed;
@@ -3939,6 +3991,12 @@ public class MetaOmProject {
 			return result;
 		}
 		return rowNames;
+	}
+
+	public void reorderRowNames(Object[][] newRowNames) {
+
+		rowNames = newRowNames;
+
 	}
 
 	/**
@@ -4025,6 +4083,14 @@ public class MetaOmProject {
 		for (int i = 0; i < infoColumns; i++)
 			result[i] = Utils.clean(columnHeaders[i]);
 		return result;
+	}
+
+	public void setInfoColumnNames(String[] infoColumnHeaders) {
+
+		for(int i=0; i<infoColumnHeaders.length; i++) {
+			columnHeaders[i] = infoColumnHeaders[i];
+		}
+
 	}
 
 	public String[] getColumnHeaders() {
@@ -4992,13 +5058,13 @@ public class MetaOmProject {
 							readMetadataframe = new ReadMetadata(source.getAbsolutePath(), metadataDelim);
 							// JOptionPane.showMessageDialog(null, "delimP:"+metadataDelim);
 							MetaOmGraph.getDesktop().add(readMetadataframe);
-							
-							FrameModel importMetadataModel = new FrameModel("Import Metadata", "Read metadata file", 40);
+
+							FrameModel importMetadataModel = new FrameModel("Import Sample Metadata", "Read metadata file", 40);
 							readMetadataframe.setModel(importMetadataModel);
 
 							readMetadataframe.setVisible(true);
 							readMetadataframe.setResizable(false);
-							
+
 							readMetadataframe.toFront();
 
 						} catch (Exception e) {
@@ -5267,7 +5333,7 @@ public class MetaOmProject {
 	}
 
 	private double[] getDataFromFile(int row) throws IOException {
-		
+
 		if (row > getRowCount())
 			throw new IllegalArgumentException("Row " + row + " does not exist!");
 		if ((memoryMap != null) && (memoryMap.containsKey(Integer.valueOf(row)))) {
@@ -5298,15 +5364,15 @@ public class MetaOmProject {
 
 			}
 		}
-//		if (showWarning) {
-//			String message = "Found missing/non-number values in data file. This may affect the analysis. Please check the data file. \n\n\t\t Acessing Row name: "
-//					+ getGeneName(row)[defaultColumn];
-//			if (getBlankValue() != null) {
-//				message += "\n\n Treating missing value as " + getBlankValue();
-//			}
-//			JOptionPane.showMessageDialog(null, message, "Found missing/non-number values",
-//					JOptionPane.WARNING_MESSAGE);
-//		}
+		//		if (showWarning) {
+		//			String message = "Found missing/non-number values in data file. This may affect the analysis. Please check the data file. \n\n\t\t Acessing Row name: "
+		//					+ getGeneName(row)[defaultColumn];
+		//			if (getBlankValue() != null) {
+		//				message += "\n\n Treating missing value as " + getBlankValue();
+		//			}
+		//			JOptionPane.showMessageDialog(null, message, "Found missing/non-number values",
+		//					JOptionPane.WARNING_MESSAGE);
+		//		}
 		return thisData;
 	}
 
@@ -5414,7 +5480,7 @@ public class MetaOmProject {
 
 		return data;
 	}
-	
+
 	/**
 	 * this function will return data of all rows for the given columns e.g. get data
 	 * for all genes for a given run
@@ -6256,8 +6322,8 @@ public class MetaOmProject {
 		xMLStreamWriter.writeEndElement();
 
 	}
-	
-	
+
+
 	/**
 	 * write correlation data as JSON
 	 * 
@@ -6266,9 +6332,9 @@ public class MetaOmProject {
 	public void writeMetaCorrResasJSON(JsonWriter writer) {
 
 		List<CorrelationNodeModel> correlations = new ArrayList<CorrelationNodeModel>();
-		
+
 		CorrelationsModel cm = new CorrelationsModel("Root", correlations);
-		
+
 		if (metaCorrs != null) {
 
 			// add each saved corr to Root
@@ -6281,7 +6347,7 @@ public class MetaOmProject {
 		try {
 
 			Gson gson = new Gson();
-			
+
 			gson.toJson(cm, CorrelationsModel.class, writer);
 
 		}
@@ -6426,12 +6492,12 @@ public class MetaOmProject {
 		xMLStreamWriter.writeEndElement();
 	}
 
-	
-	
+
+
 	public void writeCorrJSONNode(String s, CorrelationsModel cm){
 
 		CorrelationNodeModel correlationNode = new CorrelationNodeModel();
-		
+
 		correlationNode.setCorrName(s);
 
 		CorrelationMetaCollection cmcObj = metaCorrs.get(s);
@@ -6447,16 +6513,16 @@ public class MetaOmProject {
 		if (corrTypeId == 3) {
 			correlationNode.setBins(String.valueOf(cmcObj.getBins()));
 			correlationNode.setOrder(String.valueOf(cmcObj.getOrder()));
-			
+
 		}
 
 		List<CorrelationMeta> corrList = cmcObj.getCorrList();
-		
+
 		List<CorrelationMetadataModel> corrMetadataModelList = new ArrayList<CorrelationMetadataModel>();
-		
+
 		if (metaCorrs != null) {
 			if (corrTypeId == 0) {
-				
+
 				for (int i = 0; i < corrList.size(); i++) {
 					CorrelationMeta thisObj = corrList.get(i);
 
@@ -6464,30 +6530,30 @@ public class MetaOmProject {
 							String.valueOf(thisObj.getrVal()), String.valueOf(thisObj.getpVal()),
 							String.valueOf(thisObj.getzVal()), String.valueOf(thisObj.getqVal()),
 							String.valueOf(thisObj.getpooledzr()), String.valueOf(thisObj.getstdErr()));
-					
+
 
 					corrMetadataModelList.add(cmt0);
 				}
-				
+
 			}
 			else {
 				for (int i = 0; i < corrList.size(); i++) {
 					CorrelationMeta thisObj = corrList.get(i);
-					
+
 					CorrelationMetadataModel cmt = new CorrelationMetadataModel(thisObj.getName(),
 							String.valueOf(thisObj.getrVal()), String.valueOf(thisObj.getpVal()));
-					
+
 					corrMetadataModelList.add(cmt);
-					
+
 				}
-				
+
 			}
 			correlationNode.setCorrList(corrMetadataModelList);
 		}
 
-		
+
 		cm.getCorrelations().add(correlationNode);
-		
+
 	}
 
 
@@ -6532,14 +6598,14 @@ public class MetaOmProject {
 		xMLStreamWriter.writeEndElement();
 
 	}
-	
-	
+
+
 	public void writeDEResAsJSON(JsonWriter writer) {
 
 		DiffExpModel dem = new DiffExpModel();
-		
+
 		dem.setName("Root");
-		
+
 		List<DifferentialExpResults> deResults = new ArrayList<DifferentialExpResults>();
 
 		if (diffExpRes != null) {
@@ -6549,14 +6615,14 @@ public class MetaOmProject {
 				deResults.add(thisOB);
 			}
 		}
-		
+
 
 		dem.setDeResults(deResults);
-		
+
 		try {
 
 			Gson gson = new Gson();
-			
+
 			gson.toJson(dem, DiffExpModel.class, writer);
 
 		}
@@ -6588,11 +6654,11 @@ public class MetaOmProject {
 			}
 		}
 		xMLStreamWriter.writeEndElement();
-		
+
 
 	}
-	
-	
+
+
 	/**
 	 * get saved differential correlation results as JSON
 	 * 
@@ -6601,12 +6667,12 @@ public class MetaOmProject {
 	public void writeDiffCorrResAsJSON(JsonWriter writer){
 
 		DiffCorrModel dcm = new DiffCorrModel();
-		
+
 		dcm.setName("Root");
-		
+
 		List<DifferentialCorrResults> dcResults = new ArrayList<DifferentialCorrResults>();
 
-		
+
 		if (diffCorrRes != null) {
 			String[] savedDC = getSavedDiffCorrResNames();
 			for (String id : savedDC) {
@@ -6614,22 +6680,14 @@ public class MetaOmProject {
 				dcResults.add(thisOB);
 			}
 		}
-		
+
 		dcm.setDcResults(dcResults);
-		
-		try {
 
-			Gson gson = new Gson();
-			
-			gson.toJson(dcm, DiffCorrModel.class, writer);
+		GsonBuilder gb = new GsonBuilder();
 
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-			JOptionPane.showInternalMessageDialog(MetaOmGraph.getDesktop(),
-					"Unable to save the project file.  Make sure the destination file is not write-protected.",
-					"Error saving project", 0);
-		}
+		Gson gson = gb.serializeSpecialFloatingPointValues().create();
+
+		gson.toJson(dcm, DiffCorrModel.class, writer);
 
 	}
 
@@ -6703,15 +6761,15 @@ public class MetaOmProject {
 		xMLStreamWriter.writeEndElement();
 
 	}
-	
-	
+
+
 	/**
 	 * return MOG parameters as JSON
 	 * 
 	 * @return
 	 */
 	public void writeParamsasJSON(JsonWriter writer){
-		
+
 		try {
 
 			ParamsModel mm = new ParamsModel("Root", String.valueOf(MetaOmGraph.getNumPermutations()), 
@@ -6737,9 +6795,14 @@ public class MetaOmProject {
 		}
 
 	}
-	
-	
 
+	public String getDataColumnName() {
+		return this.dataColumnName;
+	}
+
+	public void setDataColumnName(String dataColumnName) {
+		this.dataColumnName = dataColumnName;
+	}
 
 	public boolean setInfoColTypes(HashMap<String, Class> map) {
 		this.infoColTypes = map;
@@ -6773,11 +6836,11 @@ public class MetaOmProject {
 		// JOptionPane.showMessageDialog(null, "null for:"+colName);
 		return null;
 	}
-	
+
 	public boolean getShowWarning() {
 		return this.showWarning;
 	}
-	
+
 	public void setShowWarning(boolean val) {
 		this.showWarning = val;
 	}

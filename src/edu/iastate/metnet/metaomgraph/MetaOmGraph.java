@@ -93,9 +93,6 @@ import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 //import org.biomage.examples.GetToDataExample;
 import org.jdom.JDOMException;
-
-
-import com.apple.eawt.Application;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.formdev.flatlaf.intellijthemes.FlatArcDarkOrangeIJTheme;
@@ -176,11 +173,16 @@ public class MetaOmGraph implements ActionListener {
 	private static StatisticalResultsFrame DCResultsFrame;
 	private static JButton plbbutton;
 	private static JPanel playbackForMac;
-	
+
+
 	private enum DownloadSampleProject{
 		Metabolomics,
 		MicroArray,
 		HumanCancerRNASeq
+	}
+
+	public static Color getTableColorForeground() {
+		return currentTheme.getTableColorForeground();
 	}
 
 	public static StatisticalResultsFrame getDEAResultsFrame() {
@@ -233,12 +235,12 @@ public class MetaOmGraph implements ActionListener {
 		return taskBar;
 	}
 
-	public static Color getTableColor1() {
-		return currentTheme.getTableColor1();
+	public static Color getTableColorEven() {
+		return currentTheme.getTableColorEven();
 	}
 
-	public static Color getTableColor2() {
-		return currentTheme.getTableColor2();
+	public static Color getTableColorOdd() {
+		return currentTheme.getTableColorOdd();
 	}
 
 	public static Color getTableSelectionColor() {
@@ -261,12 +263,12 @@ public class MetaOmGraph implements ActionListener {
 		return currentTheme.getPlotBackgroundColor();
 	}
 
-	public static void setTableColor1(Color col) {
-		currentTheme.setTableColor1(col);
+	public static void setTableColorEven(Color col) {
+		currentTheme.setTableRowEvenColor(col);
 	}
 
-	public static void setTableColor2(Color col) {
-		currentTheme.setTableColor2(col);
+	public static void setTableColorOdd(Color col) {
+		currentTheme.setTableRowOddColor(col);
 	}
 
 	public static void setTableSelectionColor(Color col) {
@@ -287,6 +289,10 @@ public class MetaOmGraph implements ActionListener {
 
 	public static void setPlotBackgroundColor(Color col) {
 		currentTheme.setPlotBackgroundColor(col);
+	}
+	
+	public static JInternalFrame getReproducibilityDashboardFrame() {
+		return ReproducibilityDashboardFrame;
 	}
 
 	// create themes
@@ -529,9 +535,9 @@ public class MetaOmGraph implements ActionListener {
 	public static final String DOWNLOAD_METABOLOMICS_PROJ_COMMAND = "Sample MOG project- A. thaliana Metabolomics (0.8 MB) Try me";
 
 	public static final String DOWNLOAD_MICROARRAY_PROJ_COMMAND = "Sample MOG project- A. thaliana Microarray (29.5 MB) Try me";
-	
+
 	public static final String DOWNLOAD_CANCER_RNASEQ_PROJ_COMMAND = "Sample MOG project- Human Cancer RNA-Seq (247 MB) Try me";
-	
+
 	public static final String SAVE_COMMAND = "Save the current project";
 
 	public static final String SAVE_AS_COMMAND = "Save as";
@@ -602,6 +608,7 @@ public class MetaOmGraph implements ActionListener {
 	
 	public static final String HIDE_SHOW_SAMPLE_METADATA_COLUMNS = "hide/show sample metadata cols";
 
+
 	/** The program's main JFrame */
 	private static JFrame mainWindow;
 
@@ -641,10 +648,6 @@ public class MetaOmGraph implements ActionListener {
 
 	/** The Project menu */
 	private static JMenu projectMenu;
-
-
-	/** Reproducibility log menu */
-	private static JToggleButton ReproducibilityLogMenu;
 
 	// tools menu urmi
 	private static JMenu toolsMenu;
@@ -721,7 +724,7 @@ public class MetaOmGraph implements ActionListener {
 	/** Items on the Help menu */
 	private static JMenuItem checkUpdateitem, overviewItem, contextItem, tipsItem, aboutItem, contactItem;
 	private static JMenuItem thirdPartyLibs;
-	
+
 	/** An instance of this class created by the main() method */
 	private static MetaOmGraph myself;
 
@@ -767,7 +770,6 @@ public class MetaOmGraph implements ActionListener {
 
 	private static JDialog welcomeDialog;
 
-		
 
 	private static Themes activeTheme;
 
@@ -803,7 +805,7 @@ public class MetaOmGraph implements ActionListener {
 			case Carbon :
 				UIManager.setLookAndFeel(new FlatCarbonIJTheme());
 				break;
-			
+				
 			case System:
 				//UIManager.setLookAndFeel(UIManager.get getSystemLookAndFeelClassName());
 				//UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
@@ -815,7 +817,9 @@ public class MetaOmGraph implements ActionListener {
 
 			activeTheme = theme;
 			if (mainWindow!=null) {
-			SwingUtilities.updateComponentTreeUI(mainWindow);
+
+				SwingUtilities.updateComponentTreeUI(mainWindow);
+
 			}
 		}
 		catch (Exception e) {
@@ -850,9 +854,6 @@ public class MetaOmGraph implements ActionListener {
 		init(false);
 	}
 
-	public static JToggleButton getReproducibilityLogMenu() {
-		return ReproducibilityLogMenu;
-	}
 
 	public static MetaOmTablePanel getActiveTablePanel() {
 		return activeTablePanel;
@@ -880,6 +881,9 @@ public class MetaOmGraph implements ActionListener {
 		//setting loggingRequired parameter for reproducibility logging
 		MetaOmGraph.setLoggingRequired(true);
 
+		//setting loggingRequired parameter for reproducibility logging
+		MetaOmGraph.setLoggingRequired(true);
+
 		File homeDir = new File(System.getProperty("user.home"));
 		File prefsFile = new File(homeDir, "metaomgraph.prefs");
 		if ((prefsFile.exists()) && (prefsFile.canRead())) {
@@ -903,17 +907,18 @@ public class MetaOmGraph implements ActionListener {
 				} catch (Exception ex) {
 					setUserRPath("");
 				}
-				
+
+
 				try {
-					
+
 					String prevSessionLafTheme = (String) in.readObject();
 					setTheme(Themes.valueOf(prevSessionLafTheme));
 				}
 				catch (Exception e) {
-					
+
 					setTheme(Themes.Light);
 				}
-								
+
 				// read mog themes
 				try {
 					String lastThemeName = (String) in.readObject();
@@ -932,8 +937,6 @@ public class MetaOmGraph implements ActionListener {
 					setCurrentTheme("sky");
 				}
 
-				
-				
 
 				in.close();
 			} catch (FileNotFoundException e1) {
@@ -950,13 +953,11 @@ public class MetaOmGraph implements ActionListener {
 			setTheme(Themes.Light);
 			initThemes();
 			setCurrentTheme("sky");
-			
-		}
-		
 
-		
+		}
+	
 		mainWindow = new JFrame("MetaOmGraph");
-		
+
 
 		//urmi
 		///////////////enable debug mode//////////////////
@@ -970,8 +971,8 @@ public class MetaOmGraph implements ActionListener {
 		try {
 			myIcon = ImageIO.read(myself.getClass().getResourceAsStream("/resource/MetaOmicon.png"));
 			if (getOsName().indexOf("Mac") >= 0) {
-				Application application = Application.getApplication();
-				application.setDockIconImage(myIcon);
+				//				Application application = Application.getApplication();
+				//				application.setDockIconImage(myIcon);
 			} else {
 				mainWindow.setIconImage(myIcon);
 			}
@@ -1019,7 +1020,7 @@ public class MetaOmGraph implements ActionListener {
 		openProjectItem.setActionCommand(OPEN_COMMAND);
 		openProjectItem.addActionListener(myself);
 		openProjectItem.setMnemonic(KeyEvent.VK_O);
-		openProjectItem.setToolTipText("Open an existing MetaOm project");
+		openProjectItem.setToolTipText("Open an existing MetaOmGraph project");
 		openProjectItem.setAccelerator(
 				KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 		recentProjectsMenu = new JMenu("Recent Projects");
@@ -1118,8 +1119,7 @@ public class MetaOmGraph implements ActionListener {
 		// projectMenu.add(openInfoColTypes);
 
 		projectMenu.addSeparator();
-		
-		
+
 		// metadataViewerItem = new JMenuItem("View metadata");
 		// metadataViewerItem.setActionCommand("viewmetadata");
 		// metadataViewerItem.addActionListener(myself);
@@ -1362,6 +1362,20 @@ public class MetaOmGraph implements ActionListener {
 		projectMenu.add(hideShowFeatureMetadataColumns);
 		projectMenu.add(hideShowSampleMetadataColumns);
 
+
+		projectMenu.addSeparator();
+
+		hideShowFeatureMetadataColumns = new JMenuItem("Hide/Show Feature Metadata columns");
+		hideShowFeatureMetadataColumns.setActionCommand(HIDE_SHOW_FEATURE_METADATA_COLUMNS);
+		hideShowFeatureMetadataColumns.addActionListener(myself);
+
+		hideShowSampleMetadataColumns = new JMenuItem("Hide/Show Sample Metadata columns");
+		hideShowSampleMetadataColumns.setActionCommand(HIDE_SHOW_SAMPLE_METADATA_COLUMNS);
+		hideShowSampleMetadataColumns.addActionListener(myself);
+
+		projectMenu.add(hideShowFeatureMetadataColumns);
+		projectMenu.add(hideShowSampleMetadataColumns);
+
 		mainMenuBar.add(projectMenu);
 
 		// urmi add tools in menu
@@ -1594,12 +1608,11 @@ public class MetaOmGraph implements ActionListener {
 		aboutItem.setActionCommand(ABOUT_COMMAND);
 		aboutItem.addActionListener(myself);
 		helpMenu.add(aboutItem);
-		
 		thirdPartyLibs = new JMenuItem("Third party libraries");
 		thirdPartyLibs.setActionCommand(THIRD_PARTY_LIBS_COMMAND);
 		thirdPartyLibs.addActionListener(myself);
 		helpMenu.add(thirdPartyLibs);
-		
+
 		//historyMenu = new JMenu("Playback");
 		JMenuItem playbackMenu = new JMenuItem("Playback Dashboard");
 		playbackMenu.setMnemonic(KeyEvent.VK_A);
@@ -1608,90 +1621,7 @@ public class MetaOmGraph implements ActionListener {
 
 		mainMenuBar.add(helpMenu);
 
-		if(Utils.isMac()) {
-//			historyMenu.add(playbackMenu);
-//			mainMenuBar.add(historyMenu);
-		}
 
-
-		//Harsha - reproducibility log menu
-
-		ReproducibilityLogMenu = new JToggleButton("Playback");
-		ReproducibilityLogMenu.setForeground(Color.BLUE);
-		ReproducibilityLogMenu.addItemListener(new ItemListener() {
-
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-
-				if ((ReproducibilityDashboardFrame != null) && (ReproducibilityDashboardFrame.isVisible())) {
-					//frame.toFront();
-					ReproducibilityDashboardFrame.setVisible(false);
-					return;
-				}
-				else if ((ReproducibilityDashboardFrame != null) && (!ReproducibilityDashboardFrame.isVisible()) && (!ReproducibilityDashboardFrame.isClosed())) {
-
-					ReproducibilityDashboardFrame.setVisible(true);
-					return;
-				}
-
-				createReproducibilityLoggingFrame();
-
-			}
-
-		});
-
-		mainMenuBar.add(Box.createHorizontalGlue());
-		mainMenuBar.add(ReproducibilityLogMenu);
-		
-		
-		
-		//Harsha - Add a playback button to the top right corner of the window in Mac
-		//Added because mac was not handling JMenu button ReproducibilityLogMenu properly
-		
-		if (Utils.isMac()) {
-		playbackForMac = new JPanel() 
-		{
-            @Override
-            protected void paintComponent(Graphics g) {
-               
-            }
-        };
-        
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-		GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
-		Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
-		
-        plbbutton = new JButton("Playback");
-        playbackForMac.setLayout(null);
-        //plbbutton.setBounds((int)rect.getMaxX()-100, 0, 100, 20);
-        playbackForMac.setLayout (new BorderLayout ());
-        playbackForMac.add(plbbutton, BorderLayout.EAST);
-        playbackForMac.setSize((int)rect.getMaxX(), 30);
-        playbackForMac.setVisible(true);
-        playbackForMac.setBackground(Color.BLACK);
-        
-        plbbutton.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				if ((ReproducibilityDashboardFrame != null) && (ReproducibilityDashboardFrame.isVisible())) {
-					//frame.toFront();
-					ReproducibilityDashboardFrame.setVisible(false);
-					return;
-				}
-				else if ((ReproducibilityDashboardFrame != null) && (!ReproducibilityDashboardFrame.isVisible()) && (!ReproducibilityDashboardFrame.isClosed())) {
-
-					ReproducibilityDashboardFrame.setVisible(true);
-					return;
-				}
-
-				createReproducibilityLoggingFrame();
-			}
-		});
-        desktop.add(playbackForMac);
-        
-		}
 		// Menu bar created
 
 		setMenuIcons();
@@ -1727,7 +1657,7 @@ public class MetaOmGraph implements ActionListener {
 			public void windowClosing(WindowEvent arg0) {
 				shutdown();
 			}
-			
+
 			@Override
 			public void windowStateChanged(WindowEvent e) {
 				// TODO Auto-generated method stub
@@ -1775,9 +1705,6 @@ public class MetaOmGraph implements ActionListener {
 	 * @param args[] - a string variable which helps to determine the exception
 	 * handling in <code>init</code>method
 	 */
-
-	
-
 	
 	public static void main(String[] args) {
 
@@ -1795,8 +1722,6 @@ public class MetaOmGraph implements ActionListener {
 
 		System.setProperty("sun.java2d.renderer.doChecks", "true");
 
-		
-		
 		if (args.length > 0) {
 			if ("nobuffer".equals(args[0])) {
 				init(false);
@@ -1866,7 +1791,6 @@ public class MetaOmGraph implements ActionListener {
 				}
 
 				out.writeObject(rObs);
-				
 				out.writeObject(activeTheme.toString());
 				out.writeObject(currentmogThemeName);
 				out.writeObject(mogThemes);
@@ -1917,7 +1841,7 @@ public class MetaOmGraph implements ActionListener {
 		if ((result == JOptionPane.CANCEL_OPTION) || (result == JOptionPane.CLOSED_OPTION))
 			return false;
 		else if (result == JOptionPane.YES_OPTION) {
-			
+
 			new AnimatedSwingWorker("Saving...", true) {
 
 				@Override
@@ -1930,7 +1854,6 @@ public class MetaOmGraph implements ActionListener {
 				}
 
 			}.start();
-			
 		}
 		return true;
 	}
@@ -1943,8 +1866,7 @@ public class MetaOmGraph implements ActionListener {
 			welcomeDialog.dispose();
 			welcomeDialog = null;
 		}
-		
-		
+
 		// getActiveProject().showMeansDialog();
 		projectTableFrame = new TaskbarInternalFrame("Project Data");
 		FrameModel fm = new FrameModel("Project Data","Project Data",1);
@@ -2284,6 +2206,10 @@ public class MetaOmGraph implements ActionListener {
 
 				}
 
+				if(activeProject.getColumnHeaders() != null) {
+					activeProject.setDataColumnName(activeProject.getColumnHeaders()[0]);
+				}
+
 			} else {
 				// No need to report errors since MetaOmProject does it for
 				// us.
@@ -2372,7 +2298,7 @@ public class MetaOmGraph implements ActionListener {
 				EventQueue.invokeAndWait(new Runnable() {
 					@Override
 					public void run() {
-						
+
 						try{
 							activeProject = new MetaOmProject(source);
 							String projFileName = source.getAbsolutePath();
@@ -2398,7 +2324,6 @@ public class MetaOmGraph implements ActionListener {
 							StringWriter sw = new StringWriter();
 							PrintWriter pw = new PrintWriter(sw);
 							e.printStackTrace(pw);
-							
 							JOptionPane.showMessageDialog(null, sw.toString());
 						}
 
@@ -2406,14 +2331,13 @@ public class MetaOmGraph implements ActionListener {
 				});
 			} catch (InvocationTargetException | InterruptedException e) {
 				// TODO Auto-generated catch block
-				
+
 				StringWriter sw = new StringWriter();
 				PrintWriter pw = new PrintWriter(sw);
 				e.printStackTrace(pw);
-				
+
 				JOptionPane.showMessageDialog(null, sw.toString());
-				
-				
+
 			}
 			// activeProject = new MetaOmProject(source);
 			return null;
@@ -2663,6 +2587,18 @@ public class MetaOmGraph implements ActionListener {
 			downloadAndOpenProject(DownloadSampleProject.HumanCancerRNASeq);
 		}
 
+		if(DOWNLOAD_METABOLOMICS_PROJ_COMMAND.equals(e.getActionCommand())) {
+			downloadAndOpenProject(DownloadSampleProject.Metabolomics);
+		}
+
+		if(DOWNLOAD_MICROARRAY_PROJ_COMMAND.equals(e.getActionCommand())) {
+			downloadAndOpenProject(DownloadSampleProject.MicroArray);
+		}
+
+		if(DOWNLOAD_CANCER_RNASEQ_PROJ_COMMAND.equals(e.getActionCommand())) {
+			downloadAndOpenProject(DownloadSampleProject.HumanCancerRNASeq);
+		}
+
 		// Save the active project to a new file
 		if (SAVE_AS_COMMAND.equals(e.getActionCommand())) {
 			saveAs();
@@ -2759,18 +2695,18 @@ public class MetaOmGraph implements ActionListener {
 
 									final ReadMetadata readMetadataframe = new ReadMetadata(source.getAbsolutePath(),
 											delim);
-				
+
+
 									MetaOmGraph.getDesktop().add(readMetadataframe);
-									
-									FrameModel importMetadataModel = new FrameModel("Import Metadata", "Read metadata file", 40);
-//									readMetadataframe.setModel(importMetadataModel);
-									
+
+									FrameModel importMetadataModel = new FrameModel("Import Sample Metadata", "Read Metadata File", 40);
+									//									readMetadataframe.setModel(importMetadataModel);
+
 									readMetadataframe.setVisible(true);
 									readMetadataframe.setResizable(false);
-									
+
 									readMetadataframe.toFront();
-									
-									
+
 									//Harsha - reproducibility log
 									HashMap<String,Object> actionMap = new HashMap<String,Object>();
 									actionMap.put("parent",MetaOmGraph.getCurrentProjectActionId());
@@ -2957,6 +2893,24 @@ public class MetaOmGraph implements ActionListener {
 			return;
 		}
 		
+		if(THIRD_PARTY_LIBS_COMMAND.equals(e.getActionCommand())) {
+			JDialog dialog = new JDialog(getMainWindow(), "Third party libraries used", true);
+			dialog.add(new ThirdPartyLibs());
+			dialog.pack();
+			dialog.setLocationRelativeTo(MetaOmGraph.getMainWindow());
+			dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+		}
+
+		if (PLAYBACK_COMMAND.equals(e.getActionCommand())) {
+			if(ReproducibilityDashboardFrame == null) {
+				createReproducibilityLoggingFrame();
+				if(ReproducibilityDashboardFrame!= null) {
+					ReproducibilityDashboardFrame.setClosable(true);
+				}
+			}
+		}
+
 		if(THIRD_PARTY_LIBS_COMMAND.equals(e.getActionCommand())) {
 			JDialog dialog = new JDialog(getMainWindow(), "Third party libraries used", true);
 			dialog.add(new ThirdPartyLibs());
@@ -3453,6 +3407,16 @@ public class MetaOmGraph implements ActionListener {
 		}
 
 
+		if(HIDE_SHOW_FEATURE_METADATA_COLUMNS.equals(e.getActionCommand())) {
+			MetaOmGraph.getActiveTablePanel().getStripedTable().openColumnSelectorDialog("Feature Metadata");
+		}
+
+
+		if(HIDE_SHOW_SAMPLE_METADATA_COLUMNS.equals(e.getActionCommand())) {
+			MetaOmGraph.getActiveTablePanel().getMetadataTableDisplay().getStripedTable().openColumnSelectorDialog("Sample Metadata");
+		}
+
+
 		if (GENECARDS_COMMAND.equals(e.getActionCommand())) {
 			// open genecards
 			try {
@@ -3828,8 +3792,6 @@ public class MetaOmGraph implements ActionListener {
 					new ImageIcon(myself.getClass().getResource("/resource/tango/16x16/apps/help-browser.png")));
 			tipsItem.setIcon(new ImageIcon(
 					myself.getClass().getResource("/resource/tango/16x16/status/dialog-information.png")));
-			ReproducibilityLogMenu.setIcon(new ImageIcon(((new ImageIcon(myself.getClass().getResource("/resource/loggingicons/loggingicon2.png")).getImage()).getScaledInstance(14, 14, java.awt.Image.SCALE_SMOOTH))));
-			
 			plbbutton.setIcon(new ImageIcon(((new ImageIcon(myself.getClass().getResource("/resource/loggingicons/loggingicon2.png")).getImage()).getScaledInstance(14, 14, java.awt.Image.SCALE_SMOOTH))));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -3945,7 +3907,7 @@ public class MetaOmGraph implements ActionListener {
 	 * Returns an instance of <code>MetaOmApplicationListener</code>
 	 */
 	private static void doMacStuff() {
-		new MetaOmApplicationListener();
+		//		new MetaOmApplicationListener();
 	}
 
 	/**
@@ -4109,53 +4071,53 @@ public class MetaOmGraph implements ActionListener {
 		return;
 	}
 	
-	
+
 	private static String downloadProjSelectionPanel(File projDirectory, DownloadSampleProject project) {
-        String destPath = "";
-        URL projURL = null;
-        if(project == DownloadSampleProject.Metabolomics) {
-        	try {
-        		projURL = new URL("https://metnetweb.gdcb.iastate.edu/MetaOmGraph/RNASeq/MOG_Athaliana_metabolomics.zip");
-        	} catch (MalformedURLException e) {
-        		e.printStackTrace();
-        	}
-        	destPath = projDirectory.getAbsolutePath();
-        	destPath += File.separator + "MOG_Athaliana_Metabolomics";
-        	if(Utils.downloadFile(projURL, destPath + ".zip")) {
-        		Utils.unZipFile(destPath + ".zip", destPath);
-        	} else {
-        		destPath = "";
-        	}
-        } else if (project == DownloadSampleProject.MicroArray) {
-        	try {
-        		projURL = new URL("https://metnetweb.gdcb.iastate.edu/MetaOmGraph/RNASeq/MOG_AthalianaMAProj.zip");
-        	} catch (MalformedURLException e) {
-        		e.printStackTrace();
-        	}
-        	destPath = projDirectory.getAbsolutePath();
-        	destPath += File.separator + "MOG_Athaliana_MicroArray";
-        	if(Utils.downloadFile(projURL, destPath + ".zip")) {
-        		Utils.unZipFile(destPath + ".zip", destPath);
-        	} else {
-        		destPath = "";
-        	}
-        } else {
-        	try {
-        		projURL = new URL("https://metnetweb.gdcb.iastate.edu/MetaOmGraph/RNASeq/MOG_HumanCancerRNASeqProject.zip");
-        	} catch (MalformedURLException e) {
-        		e.printStackTrace();
-        	}
-        	destPath = projDirectory.getAbsolutePath();
-        	destPath += File.separator + "MOG_HumanCancerRNASeq";
-        	if(Utils.downloadFile(projURL, destPath + ".zip")) {
-        		Utils.unZipFile(destPath + ".zip", destPath);
-        	} else {
-        		destPath = "";
-        	}
-        }
-        return destPath;
+		String destPath = "";
+		URL projURL = null;
+		if(project == DownloadSampleProject.Metabolomics) {
+			try {
+				projURL = new URL("https://metnetweb.gdcb.iastate.edu/MetaOmGraph/RNASeq/MOG_Athaliana_metabolomics.zip");
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
+			destPath = projDirectory.getAbsolutePath();
+			destPath += File.separator + "MOG_Athaliana_Metabolomics";
+			if(Utils.downloadFile(projURL, destPath + ".zip")) {
+				Utils.unZipFile(destPath + ".zip", destPath);
+			} else {
+				destPath = "";
+			}
+		} else if (project == DownloadSampleProject.MicroArray) {
+			try {
+				projURL = new URL("https://metnetweb.gdcb.iastate.edu/MetaOmGraph/RNASeq/MOG_AthalianaMAProj.zip");
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
+			destPath = projDirectory.getAbsolutePath();
+			destPath += File.separator + "MOG_Athaliana_MicroArray";
+			if(Utils.downloadFile(projURL, destPath + ".zip")) {
+				Utils.unZipFile(destPath + ".zip", destPath);
+			} else {
+				destPath = "";
+			}
+		} else {
+			try {
+				projURL = new URL("https://metnetweb.gdcb.iastate.edu/MetaOmGraph/RNASeq/MOG_HumanCancerRNASeqProject.zip");
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
+			destPath = projDirectory.getAbsolutePath();
+			destPath += File.separator + "MOG_HumanCancerRNASeq";
+			if(Utils.downloadFile(projURL, destPath + ".zip")) {
+				Utils.unZipFile(destPath + ".zip", destPath);
+			} else {
+				destPath = "";
+			}
+		}
+		return destPath;
 	}
-		
+
 	private static void downloadAndOpenProject(DownloadSampleProject project) {
 		File currDir = Utils.getLastDir();
 		File projSelDir = CustomFileSaveDialog.showDirectoryDialog(currDir, "Save sample project to");
@@ -4281,12 +4243,12 @@ public class MetaOmGraph implements ActionListener {
 		Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
 
 		ReproducibilityDashboardFrame.setSize(550, (int)rect.getMaxY()-200);
-		
+
 		if(Utils.isMac()) {
-			ReproducibilityDashboardFrame.setLocation((ReproducibilityLogMenu.getX()+ReproducibilityLogMenu.getWidth())-550, 30);
+			ReproducibilityDashboardFrame.setLocation(MetaOmGraph.getDesktop().getWidth()-550, MetaOmGraph.getDesktop().getHeight() - 700);
 		}
 		else {
-		ReproducibilityDashboardFrame.setLocation((ReproducibilityLogMenu.getX()+ReproducibilityLogMenu.getWidth())-550, 0);
+			ReproducibilityDashboardFrame.setLocation(MetaOmGraph.getDesktop().getWidth()-550, MetaOmGraph.getDesktop().getHeight() - 700);
 		}
 		ReproducibilityDashboardFrame.show();    
 
@@ -4374,7 +4336,7 @@ public class MetaOmGraph implements ActionListener {
 			if(MetaOmAnalyzer.getExclude() != null) {
 				boolean [] excludedSamplesBoolean = MetaOmAnalyzer.getExclude();
 				List<Integer> excludedSamplesInteger = new ArrayList<Integer>();
-				
+
 				for(int index=0; index < excludedSamplesBoolean.length; index++) {
 					if(excludedSamplesBoolean[index]) {
 						excludedSamplesInteger.add(index);
@@ -4388,7 +4350,7 @@ public class MetaOmGraph implements ActionListener {
 				dataMap.put("Data Column", mcol.getDatacol());
 			}
 			dataMap.put("Start Timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-		
+
 			result.put("result", "OK");
 
 			ActionProperties generalPropertiesAction = new ActionProperties("general-properties",actionMap,dataMap,result,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));

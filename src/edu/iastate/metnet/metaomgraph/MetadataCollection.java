@@ -39,6 +39,7 @@ public class MetadataCollection {
 	private HashMap<String, String> replaceVals;
 	
 
+
 	public MetadataCollection(String fpath, String delim, String datacol) {
 
 		if (delim.equals("TAB")) {
@@ -169,6 +170,19 @@ public class MetadataCollection {
 
 					}
 					headers = temp;
+
+					
+					for(int i=0; i<headers.length; i++) {
+						if(headers[i] == null || headers[i]=="" || headers[i].isEmpty()) {
+							
+							JOptionPane.showMessageDialog(null,
+									"Metadata validation failed. There is an empty header in the metadata file at column number:\n"
+											+ (i+1),
+											"Error", JOptionPane.ERROR_MESSAGE);
+							return;
+							
+						}
+					}
 
 					// check for duplicate headers
 					List<String> headerList = Arrays.asList(headers);
@@ -346,8 +360,25 @@ public class MetadataCollection {
 
 	public void setHeaders(String[] newHeaders, boolean[] toKeep) {
 		if (newHeaders.length != headers.length) {
-			JOptionPane.showMessageDialog(null, "Error!!! Unequal header sizes...", "Error", JOptionPane.ERROR_MESSAGE);
-			return;
+
+			for(int i=0; i<newHeaders.length; i++){
+
+				boolean isfound = false;
+
+				for(int j=0; j< headers.length; j++) {
+					if(newHeaders[i].equals(headers[j])) {
+						isfound = true;
+					}
+				}
+
+				if(!isfound) {
+					JOptionPane.showMessageDialog(null, "Error!!! Header name does not match...", "Error", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+			}
+
+			headers = newHeaders;
+
 		}
 		// add new headers
 		// get all data
@@ -378,7 +409,7 @@ public class MetadataCollection {
 			for (int j = 0; j < newHeaders.length; j++) {
 				// System.out.println("::" + headers[j]);
 				if (toKeep[j]) {
-					row[ctr++] = data.get(i).get(headers[j]).toString();
+					row[ctr++] = data.get(i).get(newHeaders[j]).toString();
 					// mogCollection.dropIndex(headers[j]);
 				}
 			}
@@ -749,7 +780,7 @@ public class MetadataCollection {
 						// exactly not
 						fa[i] = Filters.regex(this.getHeaders()[i], caseFlag + "^(?!" + toSearch + "$).*$");
 					} else {
-						 fa[i] = Filters.regex(this.getHeaders()[i], caseFlag + "^(?!" + toSearch + ").*$");
+						fa[i] = Filters.regex(this.getHeaders()[i], caseFlag + "^(?!" + toSearch + ").*$");
 					}
 				}
 				if (AND) {

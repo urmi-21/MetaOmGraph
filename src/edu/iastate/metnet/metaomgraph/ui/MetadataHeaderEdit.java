@@ -17,11 +17,12 @@ import java.awt.Color;
 import java.awt.Font;
 import javax.swing.table.DefaultTableModel;
 
+import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-public class MetadataHeaderEdit extends JDialog {
+public class MetadataHeaderEdit extends TaskbarInternalFrame {
 
 	private JPanel contentPane;
 	private JTable table;
@@ -57,7 +58,6 @@ public class MetadataHeaderEdit extends JDialog {
 		this.parent=p;
 		this.mobj=obj;
 		this.headers=headervals;
-		setModal(true);
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
@@ -67,6 +67,8 @@ public class MetadataHeaderEdit extends JDialog {
 		
 		JPanel panel = new JPanel();
 		contentPane.add(panel, BorderLayout.SOUTH);
+		
+		MetadataHeaderEdit thisInternalFrame = getThisframe();
 		
 		JButton btnDone = new JButton("Done");
 		btnDone.addActionListener(new ActionListener() {
@@ -93,6 +95,8 @@ public class MetadataHeaderEdit extends JDialog {
 				getThisframe().dispose();
 				parent.setEnabled(true);
 				parent.toFront();
+				dispose();
+				MetaOmGraph.getTaskBar().removeFromTaskbar(thisInternalFrame);
 			}
 		});
 		panel.add(btnDone);
@@ -119,7 +123,7 @@ public class MetadataHeaderEdit extends JDialog {
 		table.setRowMargin(5);
 		table.setRowHeight(25);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-		table.setForeground(Color.RED);
+		table.setForeground(Color.BLUE);
 		table.setModel(new DefaultTableModel(
 			new Object[][] {
 			},
@@ -135,9 +139,16 @@ public class MetadataHeaderEdit extends JDialog {
 		}
 		
 		table.setFont(new Font("Times New Roman", Font.PLAIN, 14));
-		table.setBackground(Color.BLACK);
 		scrollPane.setViewportView(table);
 		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		setResizable(false);
+		
+		this.pack();
+
+		setClosable(true);
+		setMaximizable(false);
+		setIconifiable(true);
+		this.toFront();
 	}
 
 }

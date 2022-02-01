@@ -73,7 +73,7 @@ public class FileSplitter {
                 do {
                     Integer thisCol;
                     try {
-                        thisCol = new Integer(regexMatcher1.group(1));
+                        thisCol = Integer.valueOf(regexMatcher1.group(1));
                     } catch (NumberFormatException nfe) {
                         thisCol = Integer.valueOf(-1);
                     }
@@ -201,7 +201,7 @@ public class FileSplitter {
                 do {
                     Integer thisCol;
                     try {
-                        thisCol = new Integer(loggedMatcher.group(1));
+                        thisCol = Integer.valueOf(loggedMatcher.group(1));
                     } catch (NumberFormatException nfe) {
                         thisCol = Integer.valueOf(-1);
                     }

@@ -111,14 +111,14 @@ public class CreateListFrameDEA
         Object[][] inactive = new Object[inactiveEntries.length][headers.length];
         for (int x = 0; x < active.length; x++) {
         	//urmi removed
-            active[x][0] = new Integer(activeEntries[x]);
+            active[x][0] = activeEntries[x];
             Object[] thisRowName = myProject.getRowName(activeEntries[x]);
             for (int y = 1; y < active[x].length; y++)
                 active[x][y] = thisRowName[(y - 1)];
         }
         for (int x = 0; x < inactive.length; x++) {
         	//urmi removed
-            inactive[x][0] = new Integer(inactiveEntries[x]);
+            inactive[x][0] = inactiveEntries[x];
             Object[] thisRowName = myProject.getRowName(inactiveEntries[x]);
             for (int y = 1; y < inactive[x].length; y++)
                 inactive[x][y] = thisRowName[(y - 1)];
@@ -208,7 +208,7 @@ public class CreateListFrameDEA
                 for (int y = 0; (y < inactiveValues.length) && (!found); y++) {
                     if (importUs[x] == ((Integer) inactiveValues[y][0])
                             .intValue()) {
-                        v.add(new Integer(y));
+                        v.add(y);
                         found = true;
                     }
                 }

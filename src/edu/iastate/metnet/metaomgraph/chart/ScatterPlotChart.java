@@ -32,10 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
-import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -696,9 +693,9 @@ public class ScatterPlotChart extends TaskbarInternalFrame implements ChartMouse
 
 	private String createTooltipTable(String seriesName, int colIndex, double x, double y) {
 		DecimalFormat df = new DecimalFormat("####0.0000");
-		String bgColor = "#" + Integer.toHexString(MetaOmGraph.getTableColor1().getRGB()).substring(2);
+		String bgColor = "#" + Integer.toHexString(MetaOmGraph.getTableColorEven().getRGB()).substring(2);
 		;
-		String bgColorAlt = "#" + Integer.toHexString(MetaOmGraph.getTableColor2().getRGB()).substring(2);
+		String bgColorAlt = "#" + Integer.toHexString(MetaOmGraph.getTableColorOdd().getRGB()).substring(2);
 		String[] rowColors = { bgColor, bgColorAlt };
 		String text = "<html><head> " + "<style>" + ".scrollit {\n" + "    overflow:scroll;\n" + "    height:100px;\n"
 				+ "}" + "</style></head><body>"

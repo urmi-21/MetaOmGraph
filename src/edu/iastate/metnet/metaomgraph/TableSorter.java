@@ -437,7 +437,7 @@ public class TableSorter extends AbstractTableModel {
 					TableSorter.this.setSortingStatus(column, status);
 					PropertyChangeListener[] listeners = columnModel.getColumn(viewColumn).getPropertyChangeListeners();
 					PropertyChangeEvent evt = new PropertyChangeEvent(columnModel.getColumn(viewColumn), "sort",
-							new Integer(oldstatus), new Integer(status));
+							oldstatus, status);
 
 					for (int x = 0; x < listeners.length;)
 						listeners[x++].propertyChange(evt);

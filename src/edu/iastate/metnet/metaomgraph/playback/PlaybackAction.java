@@ -1,5 +1,6 @@
 package edu.iastate.metnet.metaomgraph.playback;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -10,8 +11,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import javax.swing.JOptionPane;
-import javax.swing.JTree;
+import javax.swing.*;
+import javax.swing.plaf.ColorUIResource;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
@@ -20,6 +21,8 @@ import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.MetadataCollection;
 import edu.iastate.metnet.metaomgraph.MetadataHybrid;
+import edu.iastate.metnet.metaomgraph.chart.HistogramChart;
+import edu.iastate.metnet.metaomgraph.chart.VolcanoPlot;
 import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 import edu.iastate.metnet.metaomgraph.ui.MetaOmTablePanel;
 
@@ -38,10 +41,14 @@ public class PlaybackAction {
 	private static final String SCATTER_PLOT_COMMAND = "scatter-plot";
 	private static final String BOX_PLOT_COMMAND = "box-plot";
 	private static final String HISTOGRAM_COMMAND = "histogram";
+	private static final String COLUMN_HISTOGRAM_COMMAND = "column-histogram";
+	private static final String VOLCANO_COMMAND = "volcano-plot";
+	private static final String ADJ_VOLCANO_COMMAND = "adj-volcano-plot";
 	private static final String LINE_CHART_DEFAULT_GROUPING_COMMAND = "line-chart-default-grouping";
 	private static final String LINE_CHART_CHOOSE_GROUPING_COMMAND = "line-chart-choose-grouping";
 	private static final String BAR_CHART_COMMAND = "bar-chart";
 	private static final String CORRELATION_HISTOGRAM_COMMAND = "correlation-histogram";
+	private static final String FILTER_COMMAND = "filter";
 	private static final String SAMPLE_ACTION_PROPERTY = "Sample Action";
 	private static final String SELECTED_FEATURES_PROPERTY = "Selected Features";
 	private static final String INCLUDED_SAMPLES_PROPERTY = "Included Samples";
@@ -100,6 +107,16 @@ public class PlaybackAction {
 					selectedDataCols = dataCol.toArray(selectedDataCols);
 					MetaOmGraph.getActiveTablePanel().getMetadataTableDisplay().computeTSNE(selectedDataCols, 
 							selectedGeneList, perplexity, (int)maxIter, theta, usePCA, parallel);
+				}
+
+				if (ltn.getCommandName().equalsIgnoreCase(FILTER_COMMAND)) {
+					Map<String, Object> dataMap = playedAction.getDataParameters();
+					String[] filterStrings = (String[]) dataMap.get("Filter Strings");
+					String filterText = "";
+					for (String curr : filterStrings) {
+						filterText += (curr + ";");
+					}
+					MetaOmGraph.getActiveTable().getFilterField().setText(filterText);
 				}
 
 				if(playedAction.getOtherParameters().get(PLAYABLE_PROPERTY)!=null) {
@@ -186,6 +203,8 @@ public class PlaybackAction {
 								playChart(playedAction, BOX_PLOT_COMMAND, includedSamples, excludedSamples);
 							} else if (ltn.getCommandName().equalsIgnoreCase(HISTOGRAM_COMMAND)) {
 								playChart(playedAction, HISTOGRAM_COMMAND, includedSamples, excludedSamples);
+							} else if (ltn.getCommandName().equalsIgnoreCase(COLUMN_HISTOGRAM_COMMAND)) {
+								playChart(playedAction, COLUMN_HISTOGRAM_COMMAND, includedSamples, excludedSamples);
 							} else if (ltn.getCommandName().equalsIgnoreCase(LINE_CHART_DEFAULT_GROUPING_COMMAND)) {
 								playChart(playedAction, LINE_CHART_DEFAULT_GROUPING_COMMAND, includedSamples, excludedSamples);
 							} else if (ltn.getCommandName().equalsIgnoreCase(LINE_CHART_CHOOSE_GROUPING_COMMAND)) {
@@ -196,6 +215,10 @@ public class PlaybackAction {
 								playChart(playedAction, CORRELATION_HISTOGRAM_COMMAND, includedSamples, excludedSamples);
 							} else if (ltn.getCommandName().equalsIgnoreCase(HEAT_MAP)) {
 								playChart(playedAction, HEAT_MAP, includedSamples, excludedSamples);
+							} else if (ltn.getCommandName().equalsIgnoreCase(VOLCANO_COMMAND)) {
+								playChart(playedAction, VOLCANO_COMMAND, includedSamples, excludedSamples);
+							} else if (ltn.getCommandName().equalsIgnoreCase(ADJ_VOLCANO_COMMAND)) {
+								playChart(playedAction, ADJ_VOLCANO_COMMAND, includedSamples, excludedSamples);
 							}
 						
 					}
@@ -333,6 +356,70 @@ public class PlaybackAction {
 			else if(chartName == HISTOGRAM_COMMAND) {
 
 				mp.createHistogram(val2,toExcludeSamples);
+			}
+			else if (chartName == COLUMN_HISTOGRAM_COMMAND) {
+				int nBins = 10;
+				ColorUIResource oldActiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.activeTitleBackground");
+				ColorUIResource oldInactiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.inactiveTitleBackground");
+				Font oldFont = UIManager.getFont("InternalFrame.titleFont");
+				UIManager.put("InternalFrame.activeTitleBackground", new ColorUIResource(new Color(240,128,128)));
+				UIManager.put("InternalFrame.inactiveTitleBackground", new ColorUIResource(new Color(240,128,128)));
+				UIManager.put("InternalFrame.titleFont", new Font("SansSerif", Font.BOLD,12));
+				HistogramChart f = new HistogramChart(null, nBins, null, 2, (double[]) chartAction.getDataParameters().get("Data"), true);
+				f.setTitle(chartAction.getDataParameters().get("Name") + " histogram");
+				MetaOmGraph.getDesktop().add(f);
+				f.setDefaultCloseOperation(2);
+				f.setClosable(true);
+				f.setResizable(true);
+				f.pack();
+				f.setSize(1000, 700);
+				f.setVisible(true);
+				f.toFront();
+				UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
+				UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
+				UIManager.put("InternalFrame.titleFont", oldFont);
+			}
+			else if (chartName == VOLCANO_COMMAND) {
+				Map<String, Object> dataMap = chartAction.getDataParameters();
+				ColorUIResource oldActiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.activeTitleBackground");
+				ColorUIResource oldInactiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.inactiveTitleBackground");
+				Font oldFont = UIManager.getFont("InternalFrame.titleFont");
+				UIManager.put("InternalFrame.activeTitleBackground", new ColorUIResource(new Color(240,128,128)));
+				UIManager.put("InternalFrame.inactiveTitleBackground", new ColorUIResource(new Color(240,128,128)));
+				UIManager.put("InternalFrame.titleFont", new Font("SansSerif", Font.BOLD,12));
+				VolcanoPlot f = new VolcanoPlot((List<String>) dataMap.get("Feature Names"), (List<Double>) dataMap.get("FC"), (List<Double>) dataMap.get("PV"), (String) dataMap.get("Name 1"), (String) dataMap.get("Name 2"), false);
+				MetaOmGraph.getDesktop().add(f);
+				f.setDefaultCloseOperation(2);
+				f.setClosable(true);
+				f.setResizable(true);
+				f.pack();
+				f.setSize(1000, 700);
+				f.setVisible(true);
+				f.toFront();
+				UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
+				UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
+				UIManager.put("InternalFrame.titleFont", oldFont);
+			}
+			else if (chartName == ADJ_VOLCANO_COMMAND) {
+				Map<String, Object> dataMap = chartAction.getDataParameters();
+				ColorUIResource oldActiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.activeTitleBackground");
+				ColorUIResource oldInactiveTitleBackground = (ColorUIResource) UIManager.get("InternalFrame.inactiveTitleBackground");
+				Font oldFont = UIManager.getFont("InternalFrame.titleFont");
+				UIManager.put("InternalFrame.activeTitleBackground", new ColorUIResource(new Color(240,128,128)));
+				UIManager.put("InternalFrame.inactiveTitleBackground", new ColorUIResource(new Color(240,128,128)));
+				UIManager.put("InternalFrame.titleFont", new Font("SansSerif", Font.BOLD,12));
+				VolcanoPlot f = new VolcanoPlot((List<String>) dataMap.get("Feature Names"), (List<Double>) dataMap.get("FC"), (List<Double>) dataMap.get("APV"), (String) dataMap.get("Name 1"), (String) dataMap.get("Name 2"), true);
+				MetaOmGraph.getDesktop().add(f);
+				f.setDefaultCloseOperation(2);
+				f.setClosable(true);
+				f.setResizable(true);
+				f.pack();
+				f.setSize(1000, 700);
+				f.setVisible(true);
+				f.toFront();
+				UIManager.put("InternalFrame.activeTitleBackground", oldActiveTitleBackground);
+				UIManager.put("InternalFrame.inactiveTitleBackground", oldInactiveTitleBackground);
+				UIManager.put("InternalFrame.titleFont", oldFont);
 			}
 			else if(chartName == LINE_CHART_DEFAULT_GROUPING_COMMAND) {
 				//for line chart

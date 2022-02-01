@@ -32,7 +32,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -43,8 +42,6 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.plaf.ColorUIResource;
-import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
@@ -536,10 +533,10 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 						String text = "<html><table bgcolor=\"#FFFFFF\">" + " <tr>\n"
 								+ "            <th>Attribute</th>\n" + "            <th>Value</th>\n" + "        </tr>";
 
-						String bgColor = "#" + Integer.toHexString(MetaOmGraph.getTableColor1().getRGB()).substring(2);
+						String bgColor = "#" + Integer.toHexString(MetaOmGraph.getTableColorEven().getRGB()).substring(2);
 						;
 						String bgColorAlt = "#"
-								+ Integer.toHexString(MetaOmGraph.getTableColor2().getRGB()).substring(2);
+								+ Integer.toHexString(MetaOmGraph.getTableColorOdd().getRGB()).substring(2);
 						text += "<tr bgcolor=" + bgColor + "><td><font size=-2>Group Name</font></td>";
 						text += "<td><font size=-2>" + thisGname + "</font></td></tr>";
 						text += "<tr bgcolor=" + bgColorAlt + "><td><font size=-2>Data columns used</font></td>";
@@ -595,9 +592,9 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 
 							+ "<div class=\"scrollit\"> <table bgcolor=\"#FFFFFF\" width=\"400\">" + " <tr>\n"
 							+ "            <th>Attribute</th>\n" + "            <th >Value</th>\n" + "        </tr>";
-					String bgColor = "#" + Integer.toHexString(MetaOmGraph.getTableColor1().getRGB()).substring(2);
+					String bgColor = "#" + Integer.toHexString(MetaOmGraph.getTableColorEven().getRGB()).substring(2);
 					;
-					String bgColorAlt = "#" + Integer.toHexString(MetaOmGraph.getTableColor2().getRGB()).substring(2);
+					String bgColorAlt = "#" + Integer.toHexString(MetaOmGraph.getTableColorOdd().getRGB()).substring(2);
 					String[] rowColors = { bgColor, bgColorAlt };
 					int colorIndex = 0;
 					for (int i = 0; i < tableData.length; i++) {
@@ -1349,7 +1346,7 @@ public class MetaOmChartPanel extends JPanel implements ChartChangeListener, Cha
 		// Construct the table
 		for (int i = 0; i < isVisible.length; i++) {
 			columnInfo[i][0] = myProject.getDataColumnHeader(i);
-			columnInfo[i][1] = new Boolean(isVisible[i]);
+			columnInfo[i][1] = isVisible[i];
 		}
 		String[] headers = { "Column", "Visible" };
 		NoneditableTableModel model = new NoneditableTableModel(columnInfo, headers);

@@ -30,7 +30,6 @@ import javax.swing.DropMode;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
-import javax.swing.JInternalFrame;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -402,9 +401,9 @@ public class BarChart extends TaskbarInternalFrame implements ChartMouseListener
 
 	private String createTooltipTable(String row, String col, String val) {
 		DecimalFormat df = new DecimalFormat("####0.0000");
-		String bgColor = "#" + Integer.toHexString(MetaOmGraph.getTableColor1().getRGB()).substring(2);
+		String bgColor = "#" + Integer.toHexString(MetaOmGraph.getTableColorEven().getRGB()).substring(2);
 		;
-		String bgColorAlt = "#" + Integer.toHexString(MetaOmGraph.getTableColor2().getRGB()).substring(2);
+		String bgColorAlt = "#" + Integer.toHexString(MetaOmGraph.getTableColorOdd().getRGB()).substring(2);
 		String[] rowColors = { bgColor, bgColorAlt };
 		String text = "<html><head> " + "<style>" + ".scrollit {\n" + "    overflow:scroll;\n" + "    height:100px;\n"
 				+ "}" + "</style></head><body>"

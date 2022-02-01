@@ -111,7 +111,7 @@ public class ListPanel
                     int[] rows = list.getRows();
                     Object[][] tableRows = new Object[rows.length][1];
                     for (int x = 0; x < rows.length; x++) {
-                        tableRows[x][0] = new Integer(rows[x]);
+                        tableRows[x][0] = rows[x];
                     }
                     NoneditableTableModel model = new NoneditableTableModel(
                             tableRows, new String[]{"rows"});

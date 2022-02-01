@@ -27,6 +27,6 @@ public class CountedString implements Comparable<CountedString> {
         if (arg0 == null) {
             return 1;
         }
-        return -new Integer(getCount()).compareTo(Integer.valueOf(arg0.getCount()));
+        return -Integer.valueOf(getCount()).compareTo(Integer.valueOf(arg0.getCount()));
     }
 }

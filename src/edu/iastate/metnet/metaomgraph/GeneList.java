@@ -113,10 +113,10 @@ public class GeneList implements Transferable, Serializable {
         int[] mergeRows = mergeMe.getRows();
         HashMap<Integer, Boolean> rowHash = new HashMap();
         for (int x = 0; x < rows.length; x++) {
-            rowHash.put(new Integer(rows[x]), new Boolean(true));
+            rowHash.put(rows[x], Boolean.TRUE);
         }
         for (int x = 0; x < mergeRows.length; x++) {
-            rowHash.put(new Integer(mergeRows[x]), new Boolean(true));
+            rowHash.put(mergeRows[x], Boolean.TRUE);
         }
         Set newRows = rowHash.keySet();
         rows = new int[newRows.size()];

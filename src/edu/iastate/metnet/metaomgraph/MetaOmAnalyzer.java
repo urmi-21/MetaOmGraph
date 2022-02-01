@@ -891,7 +891,7 @@ public class MetaOmAnalyzer {
 			if (MetaOmAnalyzer.excludeCount == 0) {
 				Object[][] includedData = new Object[myProject.getDataColumnCount()][2];
 				for (int i = 0; i < includedData.length; i++) {
-					includedData[i][0] = new Integer(i);
+					includedData[i][0] = i;
 					includedData[i][1] = myProject.getDataColumnHeader(i);
 				}
 				dtp = new DualTablePanel(includedData, headers, false);
@@ -902,11 +902,11 @@ public class MetaOmAnalyzer {
 				int includeIndex = 0;
 				for (int i = 0; i < myProject.getDataColumnCount(); i++) {
 					if (MetaOmAnalyzer.exclude[i]) {
-						excludedData[excludeIndex][0] = new Integer(i);
+						excludedData[excludeIndex][0] = i;
 						excludedData[excludeIndex][1] = myProject.getDataColumnHeader(i);
 						excludeIndex++;
 					} else {
-						includedData[includeIndex][0] = new Integer(i);
+						includedData[includeIndex][0] = i;
 						includedData[includeIndex][1] = myProject.getDataColumnHeader(i);
 						includeIndex++;
 					}
@@ -1162,11 +1162,11 @@ public class MetaOmAnalyzer {
 			int includeIndex = 0;
 			for (int i = 0; i < myProject.getDataColumnCount(); i++) {
 				if (exclude[i]) {
-					excludedData[excludeIndex][0] = new Integer(i);
+					excludedData[excludeIndex][0] = i;
 					excludedData[excludeIndex][1] = myProject.getDataColumnHeader(i);
 					excludeIndex++;
 				} else {
-					includedData[includeIndex][0] = new Integer(i);
+					includedData[includeIndex][0] = i;
 					includedData[includeIndex][1] = myProject.getDataColumnHeader(i);
 					includeIndex++;
 				}

@@ -62,7 +62,7 @@ public class WiesiaCorrelation {
                         .getIncludedData(hitrows[i]));
                 for (int j = 0; j < project.getRowCount(); j++) {
                     if (hitrows[i] != j) {
-                        double corr = calcy.pearsonCorrelation(project.getIncludedData(j), false, new Double(0.0D));
+                        double corr = calcy.pearsonCorrelation(project.getIncludedData(j), false, 0.0D);
 
                         if (Math.abs(corr) >= 0.7D) {
                             HitVal thisVal = new HitVal();

@@ -5,12 +5,14 @@ public class MetadataModel {
 	private String FILEPATH;
 	private String DELIMITER;
 	private String DATACOL;
+	private String[] COLORDER;
 	
-	public MetadataModel( String fILEPATH, String dELIMITER, String dATACOL) {
+	public MetadataModel( String fILEPATH, String dELIMITER, String dATACOL, String[] ColOrder) {
 		super();
 		FILEPATH = fILEPATH;
 		DELIMITER = dELIMITER;
 		DATACOL = dATACOL;
+		COLORDER = ColOrder;
 	}
 
 	public String getFILEPATH() {
@@ -31,7 +33,14 @@ public class MetadataModel {
 	public void setDATACOL(String dATACOL) {
 		DATACOL = dATACOL;
 	}
-	
+
+	public String[] getCOLORDER() {
+		return COLORDER;
+	}
+
+	public void setCOLORDER(String[] cOLORDER) {
+		COLORDER = cOLORDER;
+	}
 	
 	
 }

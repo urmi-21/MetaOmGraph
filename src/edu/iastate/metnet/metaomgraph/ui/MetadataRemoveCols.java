@@ -38,6 +38,8 @@ import edu.iastate.metnet.metaomgraph.logging.ActionProperties;
 
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.beans.PropertyVetoException;
 import java.text.SimpleDateFormat;
 import java.awt.event.ActionEvent;
 
@@ -80,6 +82,8 @@ public class MetadataRemoveCols extends TaskbarInternalFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
 		add(contentPane);
+		
+		MetadataRemoveCols thisInternalFrame = getThisframe();
 
 		JPanel panel = new JPanel();
 //		panel.setBackground(Color.DARK_GRAY);
@@ -90,6 +94,7 @@ public class MetadataRemoveCols extends TaskbarInternalFrame {
 		lblRemoveColumns.setForeground(Color.BLUE);
 		lblRemoveColumns.setFont(new Font("Garamond", Font.BOLD, 15));
 		panel.add(lblRemoveColumns);
+		
 
 		JPanel panel_1 = new JPanel();
 //		panel_1.setBackground(Color.DARK_GRAY);
@@ -127,6 +132,9 @@ public class MetadataRemoveCols extends TaskbarInternalFrame {
 				p.setEnabled(true);
 				p.toFront();
 				p.updateTable();
+				
+				dispose();
+				MetaOmGraph.getTaskBar().removeFromTaskbar(thisInternalFrame);
 				
 			}
 		});

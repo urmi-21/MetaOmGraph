@@ -3,20 +3,14 @@ package edu.iastate.metnet.metaomgraph.ui;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Point;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
 
-import javax.swing.JInternalFrame;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -27,10 +21,8 @@ import javax.swing.JLabel;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JButton;
-import javax.swing.AbstractListModel;
 import javax.swing.JComboBox;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
@@ -43,14 +35,10 @@ import edu.iastate.metnet.metaomgraph.MetaOmAnalyzer;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.MetaOmProject;
 import edu.iastate.metnet.metaomgraph.MetadataHybrid;
-import edu.iastate.metnet.metaomgraph.CalculateLogFC;
 import edu.iastate.metnet.metaomgraph.DifferentialCorrResults;
-import edu.iastate.metnet.metaomgraph.DifferentialExpResults;
 import edu.iastate.metnet.metaomgraph.FrameModel;
-import edu.iastate.metnet.metaomgraph.utils.Utils;
 import edu.iastate.metnet.metaomgraph.Metadata.MetadataQuery;
 
-import javax.swing.ScrollPaneConstants;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -86,14 +74,16 @@ public class DifferentialCorrFrame extends TaskbarInternalFrame {
 	private boolean[] excludedCopy;
 
 	private JCheckBox chckbxSaveResultsWith;
+	
+	private DifferentialCorrFrame thisInternalFrame;
 
 	/**
 	 * Default Properties
 	 */
 
 	private Color SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
-	private Color BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
-	private Color BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
+	private Color BCKGRNDCOLOR1 = MetaOmGraph.getTableColorEven();
+	private Color BCKGRNDCOLOR2 = MetaOmGraph.getTableColorOdd();
 	private Color HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
 	private Color HYPERLINKCOLOR = MetaOmGraph.getTableHyperlinkColor();
 
@@ -117,10 +107,10 @@ public class DifferentialCorrFrame extends TaskbarInternalFrame {
 	/**
 	 * Create the frame.
 	 */
-	public DifferentialCorrFrame(String geneList, String featureName, int featureInd) {
+	public DifferentialCorrFrame(String geneList, String featureName, int featureInd, int parentActionNumber) {
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(new BorderLayout(0, 0));
-		setTitle("Differential expression analysis");
+		setTitle("Differential Correlation");
 
 		// init objects
 		selectedFeature = new JLabel(featureName);
@@ -139,6 +129,8 @@ public class DifferentialCorrFrame extends TaskbarInternalFrame {
 		}
 
 		initComboBoxes();
+		
+		thisInternalFrame = getCurrentFrame();
 
 		JPanel panel = new JPanel();
 		getContentPane().add(panel, BorderLayout.NORTH);
@@ -293,7 +285,8 @@ public class DifferentialCorrFrame extends TaskbarInternalFrame {
 
 
 									if(MetaOmGraph.getDCResultsFrame()!=null && !MetaOmGraph.getDCResultsFrame().isClosed()) {
-										MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, id_f);
+
+										MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, id_f, parentActionNumber);
 										MetaOmGraph.getDCResultsFrame().addTabListToFrame(frame.getGeneLists(), id_f);
 										MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager().maximizeFrame(MetaOmGraph.getDCResultsFrame());
 										MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager().minimizeFrame(MetaOmGraph.getDCResultsFrame());
@@ -301,7 +294,7 @@ public class DifferentialCorrFrame extends TaskbarInternalFrame {
 									}
 									else {
 										MetaOmGraph.setDCResultsFrame(new StatisticalResultsFrame("Differential Correlation","Differential Correlation Results ["+diffcorrresOB.getFeatureNames().get(0)+"] ("+diffcorrresOB.getFeatureNames().size()+" features)"));
-										MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, id_f);
+										MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, id_f, parentActionNumber);
 										MetaOmGraph.getDCResultsFrame().addTabListToFrame(frame.getGeneLists(), id_f);
 										MetaOmGraph.getDCResultsFrame().setTitle("Differential Correlation Results");
 										MetaOmGraph.getDesktop().add(MetaOmGraph.getDCResultsFrame());
@@ -369,6 +362,23 @@ public class DifferentialCorrFrame extends TaskbarInternalFrame {
 		updateTableData(tableGrp2, null);
 		jscp2.setViewportView(tableGrp2);
 		panel_3.add(jscp2, BorderLayout.CENTER);
+		
+		JButton btnImport2 = new JButton("Import");
+		btnImport2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				ImportSamplesFrame frame = new ImportSamplesFrame(thisInternalFrame, tableGrp2);
+				FrameModel metadataColumnModel = new FrameModel("DC", "Import samples by name", 46);
+				frame.setModel(metadataColumnModel);
+				
+				frame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+				frame.setResizable(false);
+				MetaOmGraph.getDesktop().add(frame);
+				frame.setVisible(true);
+				frame.toFront();
+			}
+		});
 
 		JButton btnAdd2 = new JButton("Add");
 		btnAdd2.addActionListener(new ActionListener() {
@@ -383,6 +393,8 @@ public class DifferentialCorrFrame extends TaskbarInternalFrame {
 			}
 		});
 		JPanel btnPnl2 = new JPanel(new FlowLayout());
+		
+		btnPnl2.add(btnImport2);
 		btnPnl2.add(btnAdd2);
 		JButton btnRem2 = new JButton("Remove");
 		btnRem2.addActionListener(new ActionListener() {
@@ -444,6 +456,23 @@ public class DifferentialCorrFrame extends TaskbarInternalFrame {
 		updateTableData(tableGrp1, null);
 		jscp1.setViewportView(tableGrp1);
 		panel_4.add(jscp1, BorderLayout.CENTER);
+		
+		JButton btnImport1 = new JButton("Import");
+		btnImport1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				ImportSamplesFrame frame = new ImportSamplesFrame(thisInternalFrame, tableGrp1);
+				FrameModel metadataColumnModel = new FrameModel("DC", "Import samples by name", 47);
+				frame.setModel(metadataColumnModel);
+				
+				frame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+				frame.setResizable(false);
+				MetaOmGraph.getDesktop().add(frame);
+				frame.setVisible(true);
+				frame.toFront();
+			}
+		});
 
 		JButton btnAdd1 = new JButton("Add");
 		btnAdd1.addActionListener(new ActionListener() {
@@ -459,6 +488,7 @@ public class DifferentialCorrFrame extends TaskbarInternalFrame {
 			}
 		});
 		JPanel btnPnl1 = new JPanel(new FlowLayout());
+		btnPnl1.add(btnImport1);
 		btnPnl1.add(btnAdd1);
 		JButton btnRem1 = new JButton("Remove");
 		btnRem1.addActionListener(new ActionListener() {
@@ -535,6 +565,13 @@ public class DifferentialCorrFrame extends TaskbarInternalFrame {
 		FrameModel diffCorrFrameModel = new FrameModel("Differential Correlation","Differential Correlation ("+geneList+")",11);
 		setModel(diffCorrFrameModel);
 	}
+	
+	
+	public DifferentialCorrFrame getCurrentFrame() {
+		return this;
+	}
+	
+	
 
 	private JTable initTableModel() {
 		JTable table = new JTable() {
@@ -686,7 +723,7 @@ public class DifferentialCorrFrame extends TaskbarInternalFrame {
 
 	}
 
-	private void addRows(JTable table, List<String> toAdd) {
+	public void addRows(JTable table, List<String> toAdd) {
 		toAdd.addAll(getAllRows(table));
 		// JOptionPane.showMessageDialog(null, "toAdd:" + toAdd.toString());
 		updateTableData(table, toAdd);

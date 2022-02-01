@@ -164,10 +164,10 @@ public class AEXMLNodeInfo {
         }
         Object samples = getData("samples");
         myListing = new Object[6];
-        myListing[0] = new Boolean(false);
+        myListing[0] = Boolean.FALSE;
         myListing[1] = id;
-        myListing[2] = new Integer(samples + "");
-        myListing[3] = new Integer(miameScore);
+        myListing[2] = Integer.valueOf(samples + "");
+        myListing[3] = miameScore;
         myListing[4] = getData("name");
         myListing[5] = date;
         return myListing;

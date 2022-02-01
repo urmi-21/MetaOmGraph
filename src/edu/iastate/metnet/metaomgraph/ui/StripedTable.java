@@ -8,10 +8,8 @@ import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,8 +36,6 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
-import edu.iastate.metnet.metaomgraph.CorrelationMeta;
-import edu.iastate.metnet.metaomgraph.CorrelationMetaCollection;
 import edu.iastate.metnet.metaomgraph.MetaOmGraph;
 import edu.iastate.metnet.metaomgraph.StripedTableMetadata;
 
@@ -47,8 +43,9 @@ public class StripedTable extends JTable {
 	// public static final ColorUIResource alternateRowColor = new
 	// ColorUIResource(216, 236, 213);
 	private Color SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
-	private Color BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
-	private Color BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
+	private Color FOREGROUNDCOLOR = MetaOmGraph.getTableColorForeground();
+	private Color BCKGRNDCOLOR1 = MetaOmGraph.getTableColorEven();
+	private Color BCKGRNDCOLOR2 = MetaOmGraph.getTableColorOdd();
 	private Color HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
 	private Color HYPERLINKCOLOR = MetaOmGraph.getTableHyperlinkColor();
 	private boolean USEDEFAULTCOLORS=true;
@@ -110,18 +107,15 @@ public class StripedTable extends JTable {
 	}
 
 	/*
-
 	// urmi show p value as tool tip
 	@Override
 	public String getToolTipText(MouseEvent e) {
-
 		String text = null;
 		java.awt.Point p = e.getPoint();
 		int rowIndex = rowAtPoint(p);
 		int defaultCol = convertColumnIndexToView(MetaOmGraph.getActiveProject().getDefaultColumn());
 		String rowName ="";
 		//JOptionPane.showMessageDialog(null, "get val at:" + rowIndex + "  col:" + defaultCol);
-
 		// return if column or row doesn't exist
 		if (rowIndex < 0 || defaultCol < 0) {
 			return null;
@@ -131,19 +125,14 @@ public class StripedTable extends JTable {
 		} catch (ArrayIndexOutOfBoundsException ae) {
 			return null;
 		}
-
-
-
 		rowIndex = MetaOmGraph.getActiveProject().getRowIndexbyName(rowName, true);
 		// JOptionPane.showMessageDialog(null, "this rowname:"+rowName+" thisrow
 		// ind:"+rowIndex);
-
 		int colIndex = columnAtPoint(p);
 		String colName = getColumnName(colIndex);
 		// show p value for correlation columns
 		// get name for current column
 		HashMap<String, CorrelationMetaCollection> corrs = MetaOmGraph.getActiveProject().getMetaCorrRes();
-
 		if (corrs == null) {
 			return null;
 		}
@@ -152,30 +141,22 @@ public class StripedTable extends JTable {
 				CorrelationMetaCollection thisCorrColl = corrs.get(colName);
 				List<CorrelationMeta> corrList = thisCorrColl.getCorrList();
 				String thisPval = corrList.get(rowIndex).getpValString();
-
 				text = "<html><table bgcolor=\"#FFFFFF\">" + " <tr>\n" + "            <th>Attribute</th>\n"
 						+ "            <th>Value</th>\n" + "        </tr>";
 				text += "<tr>";
 				text += "<td><font size=-2>" + "P value" + "</font></td>";
 				text += "<td><font size=-2>" + thisPval + "</font></td>";
-
 				text += "</tr>";
-
 				// end table
 				text += "</table> </div> </body></html>";
-
 				// get p value at pth row
-
 			} catch (RuntimeException e1) {
 				// catch null pointer exception if mouse is over an empty line
 			}
-
 			return text;
 		}
-
 		return null;
 	}
-
 	 */
 	public Color colorForRow(int row) {
 		return row % 2 == 0 ? BCKGRNDCOLOR1 : BCKGRNDCOLOR2;
@@ -191,7 +172,7 @@ public class StripedTable extends JTable {
 			if(!USEDEFAULTCOLORS) {
 				c.setBackground(colorForRow(row));
 			}
-			c.setForeground(UIManager.getColor("Table.foreground"));
+			c.setForeground(FOREGROUNDCOLOR);
 		} else {
 			if(!USEDEFAULTCOLORS) {
 				c.setBackground(SELECTIONBCKGRND);
@@ -320,8 +301,8 @@ public class StripedTable extends JTable {
 		} else {
 			USEDEFAULTCOLORS = false;
 			SELECTIONBCKGRND = MetaOmGraph.getTableSelectionColor();
-			BCKGRNDCOLOR1 = MetaOmGraph.getTableColor1();
-			BCKGRNDCOLOR2 = MetaOmGraph.getTableColor2();
+			BCKGRNDCOLOR1 = MetaOmGraph.getTableColorEven();
+			BCKGRNDCOLOR2 = MetaOmGraph.getTableColorOdd();
 			HIGHLIGHTCOLOR = MetaOmGraph.getTableHighlightColor();
 			HYPERLINKCOLOR = MetaOmGraph.getTableHyperlinkColor();
 		}
