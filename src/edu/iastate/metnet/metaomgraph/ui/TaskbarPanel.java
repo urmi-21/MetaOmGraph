@@ -5,6 +5,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -329,15 +331,19 @@ public class TaskbarPanel extends JPanel {
 
                                 try {
                                     if (frame != null) {
-                                        frame.getDesktopPane().getDesktopManager().deiconifyFrame(frame);
-                                        frame.getDesktopPane().getDesktopManager().maximizeFrame(frame);
-                                        frame.getDesktopPane().getDesktopManager().minimizeFrame(frame);
-                                        frame.getDesktopPane().getDesktopManager().deiconifyFrame(frame);
-
+                                    	
+                                    	MetaOmGraph.getDesktop().getDesktopManager().maximizeFrame(frame);
+                                    	MetaOmGraph.getDesktop().getDesktopManager().minimizeFrame(frame);
+                                    	
                                         frame.moveToFront();
                                     }
                                 } catch (Exception e) {
 
+                                	StringWriter sw = new StringWriter();
+                                	PrintWriter pw = new PrintWriter(sw);
+                                	e.printStackTrace(pw);
+                                	JOptionPane.showMessageDialog(null, sw.toString());
+                             
                                 }
                             }
                         });

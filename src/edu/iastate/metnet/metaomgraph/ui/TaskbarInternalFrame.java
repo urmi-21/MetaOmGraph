@@ -63,7 +63,7 @@ public class TaskbarInternalFrame extends JInternalFrame{
             
             @Override
             public void internalFrameIconified(InternalFrameEvent e) {
-                getDesktopIcon().setVisible(false);;
+                getDesktopIcon().setVisible(false);
             }
             
         });

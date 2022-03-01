@@ -2700,9 +2700,11 @@ public class MetaOmGraph implements ActionListener {
 									MetaOmGraph.getDesktop().add(readMetadataframe);
 
 									FrameModel importMetadataModel = new FrameModel("Import Sample Metadata", "Read Metadata File", 40);
-									//									readMetadataframe.setModel(importMetadataModel);
+
+									readMetadataframe.setModel(importMetadataModel);
 
 									readMetadataframe.setVisible(true);
+									
 									readMetadataframe.setResizable(false);
 
 									readMetadataframe.toFront();
