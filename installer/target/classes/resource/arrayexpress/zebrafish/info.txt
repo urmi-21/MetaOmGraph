@@ -1,2 +1,0 @@
-name	Zebrafish Genome Array
-acc	A-AFFY-38

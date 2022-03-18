@@ -1,2 +1,0 @@
-name	Barley Genome Array
-acc	A-AFFY-31

@@ -1,2 +1,0 @@
-name	Yeast Genome (S98)
-acc	A-AFFY-27

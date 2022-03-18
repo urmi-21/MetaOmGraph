@@ -1,2 +1,0 @@
-name	Rice Genome Array
-acc	A-AFFY-126

@@ -1,2 +1,0 @@
-name	Homo Sapiens (HG-U133A)
-acc	A-AFFY-33

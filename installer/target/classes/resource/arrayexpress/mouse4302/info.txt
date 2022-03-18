@@ -1,2 +1,0 @@
-name	Mouse Genome 430 2.0
-acc	A-AFFY-45
