@@ -290,7 +290,7 @@ public class MetaOmGraph implements ActionListener {
 	public static void setPlotBackgroundColor(Color col) {
 		currentTheme.setPlotBackgroundColor(col);
 	}
-	
+
 	public static JInternalFrame getReproducibilityDashboardFrame() {
 		return ReproducibilityDashboardFrame;
 	}
@@ -531,7 +531,7 @@ public class MetaOmGraph implements ActionListener {
 	public static final String NEW_PROJECT_ARRAYEXPRESS_COMMAND = "New project from ArrayExpress";
 
 	public static final String OPEN_COMMAND = "Open a project";
-	
+
 	public static final String DOWNLOAD_METABOLOMICS_PROJ_COMMAND = "Sample MOG project- A. thaliana Metabolomics (0.8 MB) Try me";
 
 	public static final String DOWNLOAD_MICROARRAY_PROJ_COMMAND = "Sample MOG project- A. thaliana Microarray (29.5 MB) Try me";
@@ -603,9 +603,9 @@ public class MetaOmGraph implements ActionListener {
 	public static final String FIND_REPS_COMMAND = "find reps";
 
 	public static final String CONTACT_COMMAND = "send an email";
-	
+
 	public static final String HIDE_SHOW_FEATURE_METADATA_COLUMNS = "hide/show feature metadata cols";
-	
+
 	public static final String HIDE_SHOW_SAMPLE_METADATA_COLUMNS = "hide/show sample metadata cols";
 
 
@@ -805,7 +805,7 @@ public class MetaOmGraph implements ActionListener {
 			case Carbon :
 				UIManager.setLookAndFeel(new FlatCarbonIJTheme());
 				break;
-				
+
 			case System:
 				//UIManager.setLookAndFeel(UIManager.get getSystemLookAndFeelClassName());
 				//UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
@@ -877,7 +877,7 @@ public class MetaOmGraph implements ActionListener {
 		myself = new MetaOmGraph();
 		activeProject = null;
 		recentProjects = new Vector<File>();
-		
+
 		//setting loggingRequired parameter for reproducibility logging
 		MetaOmGraph.setLoggingRequired(true);
 
@@ -955,7 +955,7 @@ public class MetaOmGraph implements ActionListener {
 			setCurrentTheme("sky");
 
 		}
-	
+
 		mainWindow = new JFrame("MetaOmGraph");
 
 
@@ -1347,18 +1347,18 @@ public class MetaOmGraph implements ActionListener {
 		mergeListsItem.addActionListener(myself);
 		mergeListsItem.setToolTipText("Merge existing lists into a new list");
 		projectMenu.add(mergeListsItem);
-		
-		
+
+
 		projectMenu.addSeparator();
-		
+
 		hideShowFeatureMetadataColumns = new JMenuItem("Hide/Show Feature Metadata columns");
 		hideShowFeatureMetadataColumns.setActionCommand(HIDE_SHOW_FEATURE_METADATA_COLUMNS);
 		hideShowFeatureMetadataColumns.addActionListener(myself);
-		
+
 		hideShowSampleMetadataColumns = new JMenuItem("Hide/Show Sample Metadata columns");
 		hideShowSampleMetadataColumns.setActionCommand(HIDE_SHOW_SAMPLE_METADATA_COLUMNS);
 		hideShowSampleMetadataColumns.addActionListener(myself);
-		
+
 		projectMenu.add(hideShowFeatureMetadataColumns);
 		projectMenu.add(hideShowSampleMetadataColumns);
 
@@ -1705,7 +1705,7 @@ public class MetaOmGraph implements ActionListener {
 	 * @param args[] - a string variable which helps to determine the exception
 	 * handling in <code>init</code>method
 	 */
-	
+
 	public static void main(String[] args) {
 
 
@@ -2574,15 +2574,15 @@ public class MetaOmGraph implements ActionListener {
 			openAnotherProject();
 
 		}
-		
+
 		if(DOWNLOAD_METABOLOMICS_PROJ_COMMAND.equals(e.getActionCommand())) {
 			downloadAndOpenProject(DownloadSampleProject.Metabolomics);
 		}
-		
+
 		if(DOWNLOAD_MICROARRAY_PROJ_COMMAND.equals(e.getActionCommand())) {
 			downloadAndOpenProject(DownloadSampleProject.MicroArray);
 		}
-		
+
 		if(DOWNLOAD_CANCER_RNASEQ_PROJ_COMMAND.equals(e.getActionCommand())) {
 			downloadAndOpenProject(DownloadSampleProject.HumanCancerRNASeq);
 		}
@@ -2704,7 +2704,7 @@ public class MetaOmGraph implements ActionListener {
 									readMetadataframe.setModel(importMetadataModel);
 
 									readMetadataframe.setVisible(true);
-									
+
 									readMetadataframe.setResizable(false);
 
 									readMetadataframe.toFront();
@@ -2894,7 +2894,7 @@ public class MetaOmGraph implements ActionListener {
 			}
 			return;
 		}
-		
+
 		if(THIRD_PARTY_LIBS_COMMAND.equals(e.getActionCommand())) {
 			JDialog dialog = new JDialog(getMainWindow(), "Third party libraries used", true);
 			dialog.add(new ThirdPartyLibs());
@@ -3398,12 +3398,12 @@ public class MetaOmGraph implements ActionListener {
 			ListMergePanel.showMergeDialog(getActiveProject());
 			return;
 		}
-		
+
 		if(HIDE_SHOW_FEATURE_METADATA_COLUMNS.equals(e.getActionCommand())) {
 			MetaOmGraph.getActiveTablePanel().getStripedTable().openColumnSelectorDialog("Feature Metadata");
 		}
-		
-		
+
+
 		if(HIDE_SHOW_SAMPLE_METADATA_COLUMNS.equals(e.getActionCommand())) {
 			MetaOmGraph.getActiveTablePanel().getMetadataTableDisplay().getStripedTable().openColumnSelectorDialog("Sample Metadata");
 		}
@@ -4072,7 +4072,7 @@ public class MetaOmGraph implements ActionListener {
 
 		return;
 	}
-	
+
 
 	private static String downloadProjSelectionPanel(File projDirectory, DownloadSampleProject project) {
 		String destPath = "";

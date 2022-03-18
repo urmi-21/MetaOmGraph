@@ -80,6 +80,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	public static final String GRAPH_BOXPLOT_COMMAND = "make boxplot";
 	public static final String GRAPH_BOXPLOT_COLS_COMMAND = "col boxplot";
 	public static final String MAKE_HISTOGRAM_COMMAND = "create histogram";
+	
 	// private static int _N = MetaOmGraph.getNumPermutations();
 	// private static int _T = MetaOmGraph.getNumThreads();
 	private JButton reportButton;
@@ -185,6 +186,18 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	private ClearableTextField filterField;
 	private Throbber throbber;
 	private CorrelationValue[] lastCorrelation;
+	
+	private String[] currentListDisplayColNames;
+	
+	public String[] getCurrentListDisplayColNames() {
+		return currentListDisplayColNames;
+	}
+
+	public void setCurrentListDisplayColNames(String[] currentListDisplayColNames) {
+		this.currentListDisplayColNames = currentListDisplayColNames;
+	}
+
+	private boolean isCorrelationRunning = false;
 
 	JMenu plotRMenu;
 
@@ -730,7 +743,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
             }
 
             public void columnMoved(TableColumnModelEvent e) {
-            	
+            
             	List<TableColumn> currentColumns = Collections.list(tableColumnModel.getColumns());
             	String[] currentColumnNames = new String[currentColumns.size()];
             	
@@ -738,10 +751,18 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
             		currentColumnNames[i] = currentColumns.get(i).getHeaderValue().toString();
             	}
             	
-            	String [] currentColumnHeaders = MetaOmGraph.getActiveProject().getInfoColumnNames();
+            	
+            	String [] currentColumnHeaders;
+            	
+            	if(currentListDisplayColNames == null || currentListDisplayColNames.length == 0) {
+            		currentColumnHeaders = MetaOmGraph.getActiveProject().getInfoColumnNames();
+            	}
+            	else {
+            		currentColumnHeaders = currentListDisplayColNames;
+            	}
             	
             	if(!Arrays.equals(currentColumnNames, currentColumnHeaders)) {
-            		
+//            		
 //            		Object[][] allRows = MetaOmGraph.getActiveProject().getRowNames();
 //            		
 //            		Object[][] reorderedRows = new Object[allRows.length][allRows[0].length];
@@ -756,13 +777,14 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 //            		}
 //            		
 //            		MetaOmGraph.getActiveProject().reorderRowNames(reorderedRows);
-            		
+//            		
 //            		MetaOmGraph.getActiveProject().setInfoColumnNames(currentColumnNames);
-            		
+//            		
             		MetaOmGraph.getActiveProject().setChanged(true);
             	}
-            	
-            	
+//            	
+//            	
+//            	currentListDisplayColNames = currentColumnHeaders;
             	
             }
 
@@ -960,124 +982,169 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 	@Override
 	public void valueChanged(ListSelectionEvent event) {
-		int[] oldWidths = new int[listDisplay.getColumnCount()];
-		for (int x = 0; x < oldWidths.length; x++)
-			oldWidths[x] = listDisplay.getColumnModel().getColumn(x).getPreferredWidth();
-		
-		TableColumnModel oldColumnModel = listDisplay.getColumnModel();
+			
+			int[] oldWidths = new int[listDisplay.getColumnCount()];
+			for (int x = 0; x < oldWidths.length; x++)
+				oldWidths[x] = listDisplay.getColumnModel().getColumn(x).getPreferredWidth();
 
-		try {
-			mainModel = new NoneditableTableModel(
-					myProject.getGeneListRowNames(geneLists.getSelectedValue().toString()),
-					myProject.getInfoColumnNames());
-		} catch (NullPointerException npe) {
-			return;
-		}
-		filterModel = new FilterableTableModel(mainModel);
-		sorter = new TableSorter(filterModel);
+			TableColumnModel oldColumnModel = listDisplay.getColumnModel();
+			
+			TableColumnModel tableColumnModel = listDisplay.getColumnModel();
 
-		listDisplay = new StripedTable(sorter);
+			List<TableColumn> currColumns = Collections.list(tableColumnModel.getColumns());
+			String[] currColumnNames = new String[currColumns.size()];
 
-
-		listDisplay.hideColumns();
-		listDisplay.setAutoResizeMode(0);
-		
-		listDisplay.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
-	        public void valueChanged(ListSelectionEvent event) {
-	            
-	        	MetaOmGraph.getTaskBar().setNumFeatures(getNumberofFeaturesSelected());
-	        }
-	    });
-
-
-		sorter.setTableHeader(listDisplay.getTableHeader());
-		
-		
-		TableColumnModel newColumnModel = listDisplay.getColumnModel();
-		
-		
-		List<TableColumn> currentColumns = Collections.list(newColumnModel.getColumns());
-    	String[] currentColumnNames = new String[currentColumns.size()];
-    	
-    	for(int i=0; i<currentColumns.size(); i++) {
-    		currentColumnNames[i] = currentColumns.get(i).getHeaderValue().toString();
-    	}
-    	
-    	
-    	List<TableColumn> oldColumns = Collections.list(oldColumnModel.getColumns());
-    	String[] oldColumnNames = new String[oldColumns.size()];
-    	
-    	for(int i=0; i<oldColumns.size(); i++) {
-    		oldColumnNames[i] = oldColumns.get(i).getHeaderValue().toString();
-    	}
-    	
-		
-    	if(Arrays.equals(currentColumnNames, oldColumnNames)) {
-    		
-    		listDisplay.setColumnModel(oldColumnModel);
-
-    	}
-    	else {
-    		MetadataHeaderRenderer customHeaderCellRenderer = 
-    				new MetadataHeaderRenderer(Color.white,
-    						new Color(153,0,0),
-    						new Font("Consolas",Font.BOLD,12),
-    						BorderFactory.createEtchedBorder(),
-    						true);
-    		
-    		listDisplay.getColumnModel().getColumn(myProject.getDefaultColumn()).setHeaderRenderer(customHeaderCellRenderer);
-    	}
-		
-    	
-		
-		
-		
-		/*
-		 * sorter.setColumnComparator(String.class, new MyComparator()); // urmi add
-		 * comparator for double when state changed
-		 * sorter.setColumnComparator(CorrelationValue.class, new MyComparator());
-		 * sorter.setColumnComparator(double.class, new AlphanumericComparator());
-		 * sorter.setColumnComparator(null, new MyComparator());
-		 */
-
-		sorter.setSortingStatus(myProject.getDefaultColumn(), 1);
-		geneListDisplayPane.setViewportView(listDisplay);
-		filterField.setText("");
-		for (int x = 0; (x < listDisplay.getColumnCount()) && (x < oldWidths.length); x++) {
-			listDisplay.getColumnModel().getColumn(x).setPreferredWidth(oldWidths[x]);
-		}
-		if (geneLists.getSelectedIndex() != 0) {
-			listDeleteButton.setEnabled(true);
-			listEditButton.setEnabled(true);
-			listRenameButton.setEnabled(true);
-		} else {
-			listDeleteButton.setEnabled(false);
-			listEditButton.setEnabled(false);
-			listRenameButton.setEnabled(false);
-		}
-		getTable().requestFocus();
-
-		try {
-			HashMap<String, Object> actionMap = new HashMap<String, Object>();
-			actionMap.put("parent", MetaOmGraph.getCurrentProjectActionId());
-
-			HashMap<String, Object> dataMap = new HashMap<String, Object>();
-			String selList = geneLists.getSelectedValue().toString();
-			dataMap.put("selectedList", selList);
-			dataMap.put("numElementsInList", myProject.getGeneListRowNumbers(selList).length);
-
-			HashMap<String, Object> result = new HashMap<String, Object>();
-			result.put("result", "OK");
-
-			ActionProperties listSelectAction = new ActionProperties("select-list", actionMap, dataMap, result,
-					new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-			if (previousListItemSelected != selList) {
-				previousListItemSelected = selList;
+			for(int i=0; i<currColumns.size(); i++) {
+				currColumnNames[i] = currColumns.get(i).getHeaderValue().toString();
 			}
-		} catch (Exception e) {
 
-		}
-		
+
+			String [] infoCols = myProject.getInfoColumnNames();
+			
+			if(infoCols.length != currColumnNames.length) {
+				
+				String [] modifiedCurrColumnNames = new String[currColumnNames.length+1];
+
+				modifiedCurrColumnNames[0] = infoCols[0];
+				
+				for(int i=0; i<currColumnNames.length; i++) {
+					modifiedCurrColumnNames[i+1] = currColumnNames[i];
+				}
+				
+				currColumnNames = modifiedCurrColumnNames;
+				
+			}
+			
+			
+//    		Object[][] allRows = MetaOmGraph.getActiveProject().getRowNames();
+//    		
+//    		Object[][] reorderedRows = new Object[allRows.length][allRows[0].length];
+//    		
+//    		for(int i=0; i< infoCols.length; i++) {
+//    			int currentColIndex = Arrays.asList(infoCols).indexOf(currColumnNames[i]);
+//    			
+//    			for(int j=0; j< allRows.length; j++ ) {
+//    				reorderedRows[j][i] = allRows[j][currentColIndex];
+//    			}
+//    			
+//    		}
+//    		
+//    		
+//    		MetaOmGraph.getActiveProject().reorderRowNames(reorderedRows);
+    		
+//			MetaOmGraph.getActiveProject().setInfoColumnNames(currColumnNames);
+			
+			try {
+				mainModel = new NoneditableTableModel(
+						myProject.getGeneListRowNames(geneLists.getSelectedValue().toString()),
+						currColumnNames);
+			} catch (NullPointerException npe) {
+				return;
+			}
+			filterModel = new FilterableTableModel(mainModel);
+			sorter = new TableSorter(filterModel);
+
+			listDisplay = new StripedTable(sorter);
+
+			listDisplay.hideColumns();
+			listDisplay.setAutoResizeMode(0);
+
+			listDisplay.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+				public void valueChanged(ListSelectionEvent event) {
+
+					MetaOmGraph.getTaskBar().setNumFeatures(getNumberofFeaturesSelected());
+				}
+			});
+
+
+			sorter.setTableHeader(listDisplay.getTableHeader());
+
+
+			TableColumnModel newColumnModel = listDisplay.getColumnModel();
+
+
+			List<TableColumn> currentColumns = Collections.list(newColumnModel.getColumns());
+			String[] currentColumnNames = new String[currentColumns.size()];
+
+			for(int i=0; i<currentColumns.size(); i++) {
+				currentColumnNames[i] = currentColumns.get(i).getHeaderValue().toString();
+			}
+
+
+			List<TableColumn> oldColumns = Collections.list(oldColumnModel.getColumns());
+			String[] oldColumnNames = new String[oldColumns.size()];
+
+			for(int i=0; i<oldColumns.size(); i++) {
+				oldColumnNames[i] = oldColumns.get(i).getHeaderValue().toString();
+			}
+
+
+			if(Arrays.equals(currentColumnNames, oldColumnNames)) {
+
+				listDisplay.setColumnModel(oldColumnModel);
+
+			}
+			else {
+				MetadataHeaderRenderer customHeaderCellRenderer = 
+						new MetadataHeaderRenderer(Color.white,
+								new Color(153,0,0),
+								new Font("Consolas",Font.BOLD,12),
+								BorderFactory.createEtchedBorder(),
+								true);
+
+				listDisplay.getColumnModel().getColumn(myProject.getDefaultColumn()).setHeaderRenderer(customHeaderCellRenderer);
+			}
+
+
+
+
+
+			/*
+			 * sorter.setColumnComparator(String.class, new MyComparator()); // urmi add
+			 * comparator for double when state changed
+			 * sorter.setColumnComparator(CorrelationValue.class, new MyComparator());
+			 * sorter.setColumnComparator(double.class, new AlphanumericComparator());
+			 * sorter.setColumnComparator(null, new MyComparator());
+			 */
+
+			sorter.setSortingStatus(myProject.getDefaultColumn(), 1);
+			geneListDisplayPane.setViewportView(listDisplay);
+			filterField.setText("");
+			for (int x = 0; (x < listDisplay.getColumnCount()) && (x < oldWidths.length); x++) {
+				listDisplay.getColumnModel().getColumn(x).setPreferredWidth(oldWidths[x]);
+			}
+			if (geneLists.getSelectedIndex() != 0) {
+				listDeleteButton.setEnabled(true);
+				listEditButton.setEnabled(true);
+				listRenameButton.setEnabled(true);
+			} else {
+				listDeleteButton.setEnabled(false);
+				listEditButton.setEnabled(false);
+				listRenameButton.setEnabled(false);
+			}
+			getTable().requestFocus();
+			
+
+			try {
+				HashMap<String, Object> actionMap = new HashMap<String, Object>();
+				actionMap.put("parent", MetaOmGraph.getCurrentProjectActionId());
+
+				HashMap<String, Object> dataMap = new HashMap<String, Object>();
+				String selList = geneLists.getSelectedValue().toString();
+				dataMap.put("selectedList", selList);
+				dataMap.put("numElementsInList", myProject.getGeneListRowNumbers(selList).length);
+
+				HashMap<String, Object> result = new HashMap<String, Object>();
+				result.put("result", "OK");
+
+				ActionProperties listSelectAction = new ActionProperties("select-list", actionMap, dataMap, result,
+						new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+				if (previousListItemSelected != selList) {
+					previousListItemSelected = selList;
+				}
+			} catch (Exception e) {
+
+			}
 
 	}
 
@@ -3253,6 +3320,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				|| ("manhattan distance".equals(e.getActionCommand()))
 				|| ("weighted euclidean distance".equals(e.getActionCommand()))
 				|| ("weighted manhattan distance".equals(e.getActionCommand()))) {
+			
+			isCorrelationRunning = true;
 
 			// Harsha - reproducibility log
 			HashMap<String, Object> actionMap = new HashMap<String, Object>();
@@ -4699,6 +4768,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			}
 
 			// multiSelectAction.logActionProperties();
+			
+			isCorrelationRunning = false;
+			
 			return;
 		}
 

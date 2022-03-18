@@ -1,0 +1,83 @@
+/0/RMA Normalised Expression
+/6 4Gy 1/MBEI
+/Average Expression Level
+/CHPSignal
+/Control Value
+/dChip
+/dChip Normalized
+/dChip:PM/MM Signal
+/ExprValue
+/Fold Change
+/GCRMA
+/GC-RMA
+/GeneSpring:RMA Signal
+/GEO:VALUE
+/Intensity1
+/Li and Wong:Gene expression index
+/log2
+/log2 RMA
+/LOG2_VALUE
+/Log2TransformedExpressionValue
+/Log2TransformedGCRMAExpressionValue
+/LOH
+/Low/Ratio L/H
+/MAS
+/MAS_VALUE
+/MAS5
+/MAS5 normalized expression level
+/MBEI
+/mean signal
+/mean_normalized_log_ratio
+/MeasuredBioAssay:ATB2007060401Aaa
+/MM Signal
+/normalized
+/Normalized log2 signal intensity
+/Normalized Value
+/PM-only expression value
+/qnorm
+/QT:E-MEXP-296:Signal
+/QT:MEXP:dchip:Call
+/QuantileNormalized
+/ratio
+/RAW
+/RAW_SIGNAL
+/RMA Expression measure
+/RMA normalized
+/RMA normalized value
+/RMA_Signal
+/SC1_RATIO
+/SC2_VALUE
+/SCCOR-MurineLung-SimLPS2-MOE430_2-s1_Signal
+/SCCOR-MurineLung-SimLPS-MOE430_2-s1_Signal
+/SCCOR-MurineLung-SimVeh2-MOE430_2-s1_Signal
+/SCCOR-MurineLung-SimVeh3-MOE430_2-s1_Signal
+/SCCOR-MurineLung-SimVeh-MOE430_2-s1_Signal
+/SCCOR-MurineLung-VehLPS2-MOE430_2-s1_Signal
+/SCCOR-MurineLung-VehLPS3-MOE430_2-s1_Signal
+/SCCOR-MurineLung-VehLPS-MOE430_2-s1_Signal
+/SCCOR-MurineLung-VehVeh2-MOE430_2-s1_Signal
+/SCCOR-MurineLung-VehVeh3-MOE430_2-s1_Signal
+/SCCOR-MurineLung-VehVeh-MOE430_2-s1_Signal
+/SE
+/SEM
+/SI
+/SIG_LOG2
+/Signal
+/Signal Log Ratio Low
+/SIGNAL_Log2
+/TransformedSignal
+/Unified expression value
+/VALUE
+Affymetrix:CHPSignal
+Affymetrix:Quantification
+Affymetrix:Signal
+GCRMA Normalized
+GEO:AFFYMETRIX_VALUE
+Normalized
+RMA
+RMA Normalised
+Signal
+Unknown:log2
+:VALUE
+BioConductor:qnorm
+AFFYMETRIX_VALUE

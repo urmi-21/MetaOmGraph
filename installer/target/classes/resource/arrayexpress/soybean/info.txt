@@ -1,0 +1,2 @@
+name	Soybean Genome Array
+acc	A-AFFY-59

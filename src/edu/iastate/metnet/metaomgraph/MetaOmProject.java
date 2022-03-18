@@ -131,6 +131,7 @@ public class MetaOmProject {
 	public static final String ROW_NAME_CHANGE_CAUSE = "row name change";
 	public static final String DELETE_INFO_COLUMN_CAUSE = "info column deleted";
 	private String[] columnHeaders;
+	private String[] originalFeatureMetadataHeaders;
 	private Object[][] rowNames;
 
 	private int infoColumns;
@@ -473,8 +474,13 @@ public class MetaOmProject {
 
 			rowNames = new Object[resultNames.size()][infoColumns];
 			columnHeaders = new String[tempArray.length];
+			originalFeatureMetadataHeaders = new String[infoColumns];
+			
 			for (int x = 0; x < columnHeaders.length; x++) {
 				columnHeaders[x] = tempArray[x].toString();
+			}
+			for(int x = 0; x < infoColumns; x++) {
+				originalFeatureMetadataHeaders[x] = columnHeaders[x];
 			}
 			for (int x = 0; x < resultNames.size(); x++) {
 				Object[] thisData = resultNames.get(x);
@@ -3374,6 +3380,8 @@ public class MetaOmProject {
 								maxNameLength = columnHeaders[index].length();
 							index++;
 						}
+						
+						
 
 
 					}
