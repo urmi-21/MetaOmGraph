@@ -762,29 +762,10 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
             	}
             	
             	if(!Arrays.equals(currentColumnNames, currentColumnHeaders)) {
-//            		
-//            		Object[][] allRows = MetaOmGraph.getActiveProject().getRowNames();
-//            		
-//            		Object[][] reorderedRows = new Object[allRows.length][allRows[0].length];
-//            		
-//            		for(int i=0; i< currentColumnNames.length; i++) {
-//            			int currentColIndex = Arrays.asList(currentColumnHeaders).indexOf(currentColumnNames[i]);
-//            			
-//            			for(int j=0; j< allRows.length; j++ ) {
-//            				reorderedRows[j][i] = allRows[j][currentColIndex];
-//            			}
-//            			
-//            		}
-//            		
-//            		MetaOmGraph.getActiveProject().reorderRowNames(reorderedRows);
-//            		
-//            		MetaOmGraph.getActiveProject().setInfoColumnNames(currentColumnNames);
-//            		
+       		
             		MetaOmGraph.getActiveProject().setChanged(true);
             	}
-//            	
-//            	
-//            	currentListDisplayColNames = currentColumnHeaders;
+
             	
             }
 
@@ -998,10 +979,15 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				currColumnNames[i] = currColumns.get(i).getHeaderValue().toString();
 			}
 
+			String[] bkpCurrColumnNames = currColumnNames;
 
 			String [] infoCols = myProject.getInfoColumnNames();
 			
-			if(infoCols.length != currColumnNames.length) {
+			String [] infoCols1 = myProject.getInfoColumnNames();
+			
+			int[] reorderedIndices = new int[infoCols.length];
+			
+			if(infoCols.length == currColumnNames.length + 1) {
 				
 				String [] modifiedCurrColumnNames = new String[currColumnNames.length+1];
 
@@ -1016,28 +1002,25 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			}
 			
 			
-//    		Object[][] allRows = MetaOmGraph.getActiveProject().getRowNames();
-//    		
-//    		Object[][] reorderedRows = new Object[allRows.length][allRows[0].length];
-//    		
-//    		for(int i=0; i< infoCols.length; i++) {
-//    			int currentColIndex = Arrays.asList(infoCols).indexOf(currColumnNames[i]);
-//    			
-//    			for(int j=0; j< allRows.length; j++ ) {
-//    				reorderedRows[j][i] = allRows[j][currentColIndex];
-//    			}
-//    			
-//    		}
-//    		
-//    		
-//    		MetaOmGraph.getActiveProject().reorderRowNames(reorderedRows);
-    		
-//			MetaOmGraph.getActiveProject().setInfoColumnNames(currColumnNames);
+			for(int i=0; i<currColumnNames.length; i++) {
+				for(int j=0; j<infoCols.length; j++) {
+					if(currColumnNames[i].equals(infoCols[j])) {
+						
+//						if(previousDefaultColumn == j) {
+//							myProject.setDefaultColumn(i);
+//						}
+						reorderedIndices[i] = j;
+						infoCols[j] = "";
+						break;
+					}
+				}
+			}
+			
 			
 			try {
 				mainModel = new NoneditableTableModel(
 						myProject.getGeneListRowNames(geneLists.getSelectedValue().toString()),
-						currColumnNames);
+						myProject.getInfoColumnNames());
 			} catch (NullPointerException npe) {
 				return;
 			}
@@ -1045,9 +1028,32 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			sorter = new TableSorter(filterModel);
 
 			listDisplay = new StripedTable(sorter);
+//			
+//				if(!(isCorrelationRunning)) {
+					LinkedHashMap<TableColumn,Boolean> columnVisibilityMap = new LinkedHashMap<TableColumn,Boolean>();
+					List<TableColumn> currColumnsNew = Collections.list(listDisplay.getColumnModel().getColumns());
+					
+					
+//						columnVisibilityMap.put(currColumnsNew.get(0), true);
+					
+					for(TableColumn c: currColumns) {
+						columnVisibilityMap.put(c, true);
+					}
+	
+					listDisplay.getMetadata().setColumnVisibilityMap(columnVisibilityMap);
+	
+//				}
 
-			listDisplay.hideColumns();
+			if(!(isCorrelationRunning)) {
+				listDisplay.hideColumns();
+				}
+			
+			TableColumnModel tableColumnModel1 = listDisplay.getColumnModel();
+			System.out.println(tableColumnModel1);
+			
+			
 			listDisplay.setAutoResizeMode(0);
+			
 
 			listDisplay.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
 				public void valueChanged(ListSelectionEvent event) {
@@ -1056,56 +1062,33 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				}
 			});
 
+			
 
-			sorter.setTableHeader(listDisplay.getTableHeader());
+			MetadataHeaderRenderer customHeaderCellRenderer = 
+					new MetadataHeaderRenderer(Color.white,
+							new Color(153,0,0),
+							new Font("Consolas",Font.BOLD,12),
+							BorderFactory.createEtchedBorder(),
+							true);
+					
 
-
+			
+//			listDisplay.getColumnModel().getColumn(myProject.getDefaultColumn()).setHeaderRenderer(customHeaderCellRenderer);
+			
+//			if(currColumnNames.length+1 != infoCols.length) {
+//				sorter.setTableHeader(listDisplay.getTableHeader());
+//			}
+			
+			
 			TableColumnModel newColumnModel = listDisplay.getColumnModel();
+			
+//			if(!(currColumnNames.length < infoCols.length-1)) {
+//				setColumnOrder(reorderedIndices, newColumnModel);
+//			}
+			
+			TableColumnModel tableColumnModel2 = listDisplay.getColumnModel();
+			System.out.println(tableColumnModel2);
 
-
-			List<TableColumn> currentColumns = Collections.list(newColumnModel.getColumns());
-			String[] currentColumnNames = new String[currentColumns.size()];
-
-			for(int i=0; i<currentColumns.size(); i++) {
-				currentColumnNames[i] = currentColumns.get(i).getHeaderValue().toString();
-			}
-
-
-			List<TableColumn> oldColumns = Collections.list(oldColumnModel.getColumns());
-			String[] oldColumnNames = new String[oldColumns.size()];
-
-			for(int i=0; i<oldColumns.size(); i++) {
-				oldColumnNames[i] = oldColumns.get(i).getHeaderValue().toString();
-			}
-
-
-			if(Arrays.equals(currentColumnNames, oldColumnNames)) {
-
-				listDisplay.setColumnModel(oldColumnModel);
-
-			}
-			else {
-				MetadataHeaderRenderer customHeaderCellRenderer = 
-						new MetadataHeaderRenderer(Color.white,
-								new Color(153,0,0),
-								new Font("Consolas",Font.BOLD,12),
-								BorderFactory.createEtchedBorder(),
-								true);
-
-				listDisplay.getColumnModel().getColumn(myProject.getDefaultColumn()).setHeaderRenderer(customHeaderCellRenderer);
-			}
-
-
-
-
-
-			/*
-			 * sorter.setColumnComparator(String.class, new MyComparator()); // urmi add
-			 * comparator for double when state changed
-			 * sorter.setColumnComparator(CorrelationValue.class, new MyComparator());
-			 * sorter.setColumnComparator(double.class, new AlphanumericComparator());
-			 * sorter.setColumnComparator(null, new MyComparator());
-			 */
 
 			sorter.setSortingStatus(myProject.getDefaultColumn(), 1);
 			geneListDisplayPane.setViewportView(listDisplay);
@@ -1123,6 +1106,11 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				listRenameButton.setEnabled(false);
 			}
 			getTable().requestFocus();
+			
+			
+			TableColumnModel tableColumnModelfinal = listDisplay.getColumnModel();
+			System.out.println(tableColumnModelfinal);
+			
 			
 
 			try {
@@ -1148,6 +1136,32 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 	}
 
+	
+	/**
+	 * 
+	 * @param indices
+	 * @param columnModel
+	 * 
+	 * Method to set the column order when a user rearranges the feature metadata table columns
+	 */
+	public static void setColumnOrder(int[] indices, TableColumnModel columnModel) {
+	    TableColumn column[] = new TableColumn[indices.length];
+
+	    for (int i = 0; i < column.length; i++) {
+	        column[i] = columnModel.getColumn(indices[i]);
+	    }
+
+	    while (columnModel.getColumnCount() > 0) {
+	        columnModel.removeColumn(columnModel.getColumn(0));
+	    }
+
+	    for (int i = 0; i < column.length; i++) {
+	        columnModel.addColumn(column[i]);
+	    }
+	}
+	
+	
+	
 	/**
 	 * @author urmi launch ensemble website
 	 * @throws URISyntaxException
@@ -3321,7 +3335,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				|| ("weighted euclidean distance".equals(e.getActionCommand()))
 				|| ("weighted manhattan distance".equals(e.getActionCommand()))) {
 			
-			isCorrelationRunning = true;
+			
 
 			// Harsha - reproducibility log
 			HashMap<String, Object> actionMap = new HashMap<String, Object>();
@@ -3430,6 +3444,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					dataMap, result, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 
 			try {
+				
+				isCorrelationRunning = true;
+				
 				if ("pearson correlation".equals(e.getActionCommand())) {
 					// measure time
 					// long startTime = System.nanoTime();

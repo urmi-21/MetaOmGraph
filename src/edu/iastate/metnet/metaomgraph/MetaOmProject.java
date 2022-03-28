@@ -131,7 +131,8 @@ public class MetaOmProject {
 	public static final String ROW_NAME_CHANGE_CAUSE = "row name change";
 	public static final String DELETE_INFO_COLUMN_CAUSE = "info column deleted";
 	private String[] columnHeaders;
-	private String[] originalFeatureMetadataHeaders;
+	private String[] columnHeadersReordered;
+
 	private Object[][] rowNames;
 
 	private int infoColumns;
@@ -278,6 +279,14 @@ public class MetaOmProject {
 		initialized = createProjectFromStream(instream);
 	}
 
+	public String[] getColumnHeadersReordered() {
+		return columnHeadersReordered;
+	}
+
+	public void setColumnHeadersReordered(String[] columnHeadersReordered) {
+		this.columnHeadersReordered = columnHeadersReordered;
+	}
+	
 	private boolean createProjectFromStream(InputStream instream) {
 		maxNameLength = 0;
 		defaultColumn = 0;
@@ -474,13 +483,9 @@ public class MetaOmProject {
 
 			rowNames = new Object[resultNames.size()][infoColumns];
 			columnHeaders = new String[tempArray.length];
-			originalFeatureMetadataHeaders = new String[infoColumns];
 			
 			for (int x = 0; x < columnHeaders.length; x++) {
 				columnHeaders[x] = tempArray[x].toString();
-			}
-			for(int x = 0; x < infoColumns; x++) {
-				originalFeatureMetadataHeaders[x] = columnHeaders[x];
 			}
 			for (int x = 0; x < resultNames.size(); x++) {
 				Object[] thisData = resultNames.get(x);
@@ -645,6 +650,16 @@ public class MetaOmProject {
 			List<String> informationCols = new ArrayList<String>();
 
 			String [] featureColumnOrder = MetaOmGraph.getActiveTable().getFeatureTableHeaders();
+			
+			if(featureColumnOrder.length < infoColumns) {
+				
+				featureColumnOrder = new String[infoColumns];
+				
+				for(int i=0; i<infoColumns; i++) {
+					featureColumnOrder[i] = columnHeaders[i];
+				}
+				
+			}
 
 			for (int x = 0; x < featureColumnOrder.length; x++) {
 

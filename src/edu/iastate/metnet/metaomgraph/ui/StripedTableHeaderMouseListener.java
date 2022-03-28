@@ -136,6 +136,8 @@ public class StripedTableHeaderMouseListener extends MouseAdapter {
 					
 					MetaOmGraph.getActiveTable().getListDisplay().getColumnModel().getColumn(MetaOmGraph.getActiveProject().getDefaultColumn()).setHeaderRenderer(null);
 					
+					MetaOmGraph.getActiveTable().refresh();
+					
 					MetaOmGraph.getActiveProject().setDefaultColumn(index);
 					
 					MetadataHeaderRenderer customHeaderCellRenderer = 

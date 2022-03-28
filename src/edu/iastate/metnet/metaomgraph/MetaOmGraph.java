@@ -1362,20 +1362,6 @@ public class MetaOmGraph implements ActionListener {
 		projectMenu.add(hideShowFeatureMetadataColumns);
 		projectMenu.add(hideShowSampleMetadataColumns);
 
-
-		projectMenu.addSeparator();
-
-		hideShowFeatureMetadataColumns = new JMenuItem("Hide/Show Feature Metadata columns");
-		hideShowFeatureMetadataColumns.setActionCommand(HIDE_SHOW_FEATURE_METADATA_COLUMNS);
-		hideShowFeatureMetadataColumns.addActionListener(myself);
-
-		hideShowSampleMetadataColumns = new JMenuItem("Hide/Show Sample Metadata columns");
-		hideShowSampleMetadataColumns.setActionCommand(HIDE_SHOW_SAMPLE_METADATA_COLUMNS);
-		hideShowSampleMetadataColumns.addActionListener(myself);
-
-		projectMenu.add(hideShowFeatureMetadataColumns);
-		projectMenu.add(hideShowSampleMetadataColumns);
-
 		mainMenuBar.add(projectMenu);
 
 		// urmi add tools in menu
