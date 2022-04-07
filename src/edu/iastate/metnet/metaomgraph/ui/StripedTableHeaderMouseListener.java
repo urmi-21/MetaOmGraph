@@ -134,24 +134,70 @@ public class StripedTableHeaderMouseListener extends MouseAdapter {
 			makeUniqueIDCol.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent ev) {
 					
-					MetaOmGraph.getActiveTable().getListDisplay().getColumnModel().getColumn(MetaOmGraph.getActiveProject().getDefaultColumn()).setHeaderRenderer(null);
+					TableColumnModel allColumnsModel = MetaOmGraph.getActiveTable().getListDisplay().getColumnModel();
+					
+					for(int i=0; i<allColumnsModel.getColumnCount(); i++) {
+						allColumnsModel.getColumn(i).setHeaderRenderer(null);
+					}
+					
+					String[] headers = MetaOmGraph.getActiveProject().getInfoColumnNames();
 					
 					MetaOmGraph.getActiveTable().refresh();
 					
-					MetaOmGraph.getActiveProject().setDefaultColumn(index);
 					
-					MetadataHeaderRenderer customHeaderCellRenderer = 
-							new MetadataHeaderRenderer(Color.white,
-									new Color(153,0,0),
-									new Font("Consolas",Font.BOLD,12),
-									BorderFactory.createEtchedBorder(),
-									true);
+					String indexVal = (String) allColumnsModel.getColumn(index).getHeaderValue();
+					int defaultColIndex = index;
 					
-					MetaOmGraph.getActiveTable().getListDisplay().getColumnModel().getColumn(MetaOmGraph.getActiveProject().getDefaultColumn()).setHeaderRenderer(customHeaderCellRenderer);
+					for(int j=0; j<headers.length; j++) {
+						if(headers[j].equals(indexVal)) {
+							defaultColIndex = j;
+						}
+					}
 					
-					MetaOmGraph.getActiveProject().setDataColumnName(MetaOmGraph.getActiveTable().getListDisplay().getColumnModel().getColumn(MetaOmGraph.getActiveProject().getDefaultColumn()).getHeaderValue().toString());
-					MetaOmGraph.getActiveProject().setChanged(true);
-					MetaOmGraph.getActiveTable().getListDisplay().revalidate();
+					if(MetaOmGraph.getActiveProject().isUniqueFeatureColumn(defaultColIndex)) {
+						
+						MetaOmGraph.getActiveProject().setDefaultColumn(defaultColIndex);
+						
+						MetadataHeaderRenderer customHeaderCellRenderer = 
+								new MetadataHeaderRenderer(Color.white,
+										new Color(153,0,0),
+										new Font("Consolas",Font.BOLD,12),
+										BorderFactory.createEtchedBorder(),
+										true);
+						
+						MetaOmGraph.getActiveTable().getListDisplay().getColumnModel().getColumn(index).setHeaderRenderer(customHeaderCellRenderer);
+						
+						MetaOmGraph.getActiveProject().setDataColumnName(indexVal);
+						MetaOmGraph.getActiveProject().setChanged(true);
+						MetaOmGraph.getActiveTable().getListDisplay().revalidate();
+						
+					}
+					else {
+						
+						int reply = JOptionPane.showConfirmDialog(null, "The column you selected has duplicate values. Proceed making it the Unique ID column?", "Duplicate values in column", JOptionPane.YES_NO_OPTION);
+						if (reply == JOptionPane.YES_OPTION) {
+
+							MetaOmGraph.getActiveProject().setDefaultColumn(defaultColIndex);
+							
+							MetadataHeaderRenderer customHeaderCellRenderer = 
+									new MetadataHeaderRenderer(Color.white,
+											new Color(153,0,0),
+											new Font("Consolas",Font.BOLD,12),
+											BorderFactory.createEtchedBorder(),
+											true);
+							
+							MetaOmGraph.getActiveTable().getListDisplay().getColumnModel().getColumn(index).setHeaderRenderer(customHeaderCellRenderer);
+							
+							MetaOmGraph.getActiveProject().setDataColumnName(indexVal);
+							MetaOmGraph.getActiveProject().setChanged(true);
+							MetaOmGraph.getActiveTable().getListDisplay().revalidate();
+							
+						} else {
+						    
+						}
+						
+					}
+					
 				}
 			});
 

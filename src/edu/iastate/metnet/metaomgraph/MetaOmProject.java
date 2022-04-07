@@ -161,6 +161,8 @@ public class MetaOmProject {
 	private char metadatadelimiter;
 
 	private int defaultColumn;
+	
+	private String defaultColumnName;
 
 	private int maxNameLength;
 
@@ -4519,6 +4521,27 @@ public class MetaOmProject {
 		}
 		return false;
 	}
+	
+	
+	/**
+	 * Return true if the unique ID column in feature metadata has only unique values
+	 */
+	public boolean isUniqueFeatureColumn(int index) {
+		
+		int numRows = rowNames.length;
+		
+		List<String> colList = new ArrayList<String>();
+		
+		for(int i=0; i<numRows; i++) {
+			colList.add((String)rowNames[i][index]);
+		}
+		Set<String> colSet = new HashSet<String>(colList);
+		if (colSet.size() == colList.size()) {
+			return true;
+		}
+		return false;
+	}
+	
 
 	public Object[][] getRowNames(int[] rows) {
 		if (rows == null)
@@ -4998,6 +5021,14 @@ public class MetaOmProject {
 
 	public void setDefaultColumn(int defaultColumn) {
 		this.defaultColumn = defaultColumn;
+	}
+	
+	public String getDefaultColumnName() {
+		return defaultColumnName;
+	}
+	
+	public void setDefaultColumnName(String defaultColumnName) {
+		this.defaultColumnName = defaultColumnName;
 	}
 
 	public String getDefaultTitle() {

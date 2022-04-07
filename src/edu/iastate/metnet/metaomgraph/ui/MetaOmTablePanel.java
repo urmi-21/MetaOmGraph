@@ -29,6 +29,8 @@ import javax.swing.plaf.ColorUIResource;
 
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
@@ -80,7 +82,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	public static final String GRAPH_BOXPLOT_COMMAND = "make boxplot";
 	public static final String GRAPH_BOXPLOT_COLS_COMMAND = "col boxplot";
 	public static final String MAKE_HISTOGRAM_COMMAND = "create histogram";
-	
+
 	// private static int _N = MetaOmGraph.getNumPermutations();
 	// private static int _T = MetaOmGraph.getNumThreads();
 	private JButton reportButton;
@@ -175,7 +177,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	private StripedTable listDisplay;
 	// private MetadataPanel extInfoPanel;
 	// urmi
-//	private MetadataTreeDisplayPanel extInfoPanel2;
+	//	private MetadataTreeDisplayPanel extInfoPanel2;
 	private MetadataTableDisplayPanel mdtablepanel;
 	private JToolBar dataToolbar;
 	private JToolBar listToolbar;
@@ -186,9 +188,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	private ClearableTextField filterField;
 	private Throbber throbber;
 	private CorrelationValue[] lastCorrelation;
-	
+
 	private String[] currentListDisplayColNames;
-	
+
 	public String[] getCurrentListDisplayColNames() {
 		return currentListDisplayColNames;
 	}
@@ -714,79 +716,79 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		 */
 
 		listDisplay = new StripedTable(sorter);
-		
-		
+
+
 		listDisplay.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
-	        public void valueChanged(ListSelectionEvent event) {
-	            
-	        	MetaOmGraph.getTaskBar().setNumFeatures(getNumberofFeaturesSelected());
-	        }
-	    });
-		
-		
+			public void valueChanged(ListSelectionEvent event) {
+
+				MetaOmGraph.getTaskBar().setNumFeatures(getNumberofFeaturesSelected());
+			}
+		});
+
+
 
 		sorter.setTableHeader(listDisplay.getTableHeader());
-		
-		
+
+
 
 		// Start column movement listner
-		
+
 		TableColumnModel tableColumnModel = listDisplay.getColumnModel();
-		
-		
+
+
 		tableColumnModel.addColumnModelListener(new TableColumnModelListener() {
 
-            public void columnAdded(TableColumnModelEvent e) {
-            }
+			public void columnAdded(TableColumnModelEvent e) {
+			}
 
-            public void columnRemoved(TableColumnModelEvent e) {
-            }
+			public void columnRemoved(TableColumnModelEvent e) {
+			}
 
-            public void columnMoved(TableColumnModelEvent e) {
-            
-            	List<TableColumn> currentColumns = Collections.list(tableColumnModel.getColumns());
-            	String[] currentColumnNames = new String[currentColumns.size()];
-            	
-            	for(int i=0; i<currentColumns.size(); i++) {
-            		currentColumnNames[i] = currentColumns.get(i).getHeaderValue().toString();
-            	}
-            	
-            	
-            	String [] currentColumnHeaders;
-            	
-            	if(currentListDisplayColNames == null || currentListDisplayColNames.length == 0) {
-            		currentColumnHeaders = MetaOmGraph.getActiveProject().getInfoColumnNames();
-            	}
-            	else {
-            		currentColumnHeaders = currentListDisplayColNames;
-            	}
-            	
-            	if(!Arrays.equals(currentColumnNames, currentColumnHeaders)) {
-       		
-            		MetaOmGraph.getActiveProject().setChanged(true);
-            	}
+			public void columnMoved(TableColumnModelEvent e) {
 
-            	
-            }
+				List<TableColumn> currentColumns = Collections.list(tableColumnModel.getColumns());
+				String[] currentColumnNames = new String[currentColumns.size()];
 
-            public void columnMarginChanged(ChangeEvent e) {
-            }
+				for(int i=0; i<currentColumns.size(); i++) {
+					currentColumnNames[i] = currentColumns.get(i).getHeaderValue().toString();
+				}
 
-            public void columnSelectionChanged(ListSelectionEvent e) {
-            }
-        });
-		
+
+				String [] currentColumnHeaders;
+
+				if(currentListDisplayColNames == null || currentListDisplayColNames.length == 0) {
+					currentColumnHeaders = MetaOmGraph.getActiveProject().getInfoColumnNames();
+				}
+				else {
+					currentColumnHeaders = currentListDisplayColNames;
+				}
+
+				if(!Arrays.equals(currentColumnNames, currentColumnHeaders)) {
+
+					MetaOmGraph.getActiveProject().setChanged(true);
+				}
+
+
+			}
+
+			public void columnMarginChanged(ChangeEvent e) {
+			}
+
+			public void columnSelectionChanged(ListSelectionEvent e) {
+			}
+		});
+
 		MetadataHeaderRenderer customHeaderCellRenderer = 
 				new MetadataHeaderRenderer(Color.white,
 						new Color(153,0,0),
 						new Font("Consolas",Font.BOLD,12),
 						BorderFactory.createEtchedBorder(),
 						true);
-		
+
 		listDisplay.getColumnModel().getColumn(myProject.getDefaultColumn()).setHeaderRenderer(customHeaderCellRenderer);
-		
+
 		// End column movement listner
-		
+
 
 		geneListDisplayPane = new JScrollPane(listDisplay);
 		JPanel searchPanel = new JPanel(new BorderLayout());
@@ -963,180 +965,158 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 	@Override
 	public void valueChanged(ListSelectionEvent event) {
-			
-			int[] oldWidths = new int[listDisplay.getColumnCount()];
-			for (int x = 0; x < oldWidths.length; x++)
-				oldWidths[x] = listDisplay.getColumnModel().getColumn(x).getPreferredWidth();
 
-			TableColumnModel oldColumnModel = listDisplay.getColumnModel();
-			
-			TableColumnModel tableColumnModel = listDisplay.getColumnModel();
+		int[] oldWidths = new int[listDisplay.getColumnCount()];
+		for (int x = 0; x < oldWidths.length; x++)
+			oldWidths[x] = listDisplay.getColumnModel().getColumn(x).getPreferredWidth();
 
-			List<TableColumn> currColumns = Collections.list(tableColumnModel.getColumns());
-			String[] currColumnNames = new String[currColumns.size()];
 
-			for(int i=0; i<currColumns.size(); i++) {
-				currColumnNames[i] = currColumns.get(i).getHeaderValue().toString();
-			}
+		TableColumnModel tableColumnModel = listDisplay.getColumnModel();
 
-			String[] bkpCurrColumnNames = currColumnNames;
+		List<TableColumn> currColumns = Collections.list(tableColumnModel.getColumns());
+		String[] currColumnNames = new String[currColumns.size()];
 
-			String [] infoCols = myProject.getInfoColumnNames();
-			
-			String [] infoCols1 = myProject.getInfoColumnNames();
-			
-			int[] reorderedIndices = new int[infoCols.length];
-			
-			if(infoCols.length == currColumnNames.length + 1) {
-				
-				String [] modifiedCurrColumnNames = new String[currColumnNames.length+1];
+		for(int i=0; i<currColumns.size(); i++) {
+			currColumnNames[i] = currColumns.get(i).getHeaderValue().toString();
+		}
 
-				modifiedCurrColumnNames[0] = infoCols[0];
-				
-				for(int i=0; i<currColumnNames.length; i++) {
-					modifiedCurrColumnNames[i+1] = currColumnNames[i];
-				}
-				
-				currColumnNames = modifiedCurrColumnNames;
-				
-			}
-			
-			
+		String[] bkpCurrColumnNames = currColumnNames;
+
+		String [] infoCols = myProject.getInfoColumnNames();
+
+
+		int[] reorderedIndices = new int[infoCols.length];
+
+		if(infoCols.length == currColumnNames.length + 1) {
+
+			String [] modifiedCurrColumnNames = new String[currColumnNames.length+1];
+
+			modifiedCurrColumnNames[0] = infoCols[0];
+
 			for(int i=0; i<currColumnNames.length; i++) {
-				for(int j=0; j<infoCols.length; j++) {
-					if(currColumnNames[i].equals(infoCols[j])) {
-						
-//						if(previousDefaultColumn == j) {
-//							myProject.setDefaultColumn(i);
-//						}
-						reorderedIndices[i] = j;
-						infoCols[j] = "";
-						break;
-					}
+				modifiedCurrColumnNames[i+1] = currColumnNames[i];
+			}
+
+			currColumnNames = modifiedCurrColumnNames;
+
+		}
+
+
+		for(int i=0; i<currColumnNames.length; i++) {
+			for(int j=0; j<infoCols.length; j++) {
+				if(currColumnNames[i].equals(infoCols[j])) {
+
+					reorderedIndices[i] = j;
+					infoCols[j] = "";
+					break;
 				}
 			}
-			
-			
-			try {
-				mainModel = new NoneditableTableModel(
-						myProject.getGeneListRowNames(geneLists.getSelectedValue().toString()),
-						myProject.getInfoColumnNames());
-			} catch (NullPointerException npe) {
-				return;
+		}
+
+
+		try {
+			mainModel = new NoneditableTableModel(
+					myProject.getGeneListRowNames(geneLists.getSelectedValue().toString()),
+					myProject.getInfoColumnNames());
+		} catch (NullPointerException npe) {
+			return;
+		}
+		filterModel = new FilterableTableModel(mainModel);
+		sorter = new TableSorter(filterModel);
+
+		listDisplay = new StripedTable(sorter);
+
+		LinkedHashMap<TableColumn,Boolean> columnVisibilityMap = new LinkedHashMap<TableColumn,Boolean>();
+		List<TableColumn> currColumnsNew = Collections.list(listDisplay.getColumnModel().getColumns());
+
+
+		for(TableColumn c: currColumns) {
+			columnVisibilityMap.put(c, true);
+		}
+
+		listDisplay.getMetadata().setColumnVisibilityMap(columnVisibilityMap);
+
+
+		if(!(isCorrelationRunning)) {
+			listDisplay.hideColumns();
+		}
+
+		TableColumnModel tableColumnModel1 = listDisplay.getColumnModel();
+		System.out.println(tableColumnModel1);
+
+
+		listDisplay.setAutoResizeMode(0);
+
+
+		listDisplay.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+			public void valueChanged(ListSelectionEvent event) {
+
+				MetaOmGraph.getTaskBar().setNumFeatures(getNumberofFeaturesSelected());
 			}
-			filterModel = new FilterableTableModel(mainModel);
-			sorter = new TableSorter(filterModel);
-
-			listDisplay = new StripedTable(sorter);
-//			
-//				if(!(isCorrelationRunning)) {
-					LinkedHashMap<TableColumn,Boolean> columnVisibilityMap = new LinkedHashMap<TableColumn,Boolean>();
-					List<TableColumn> currColumnsNew = Collections.list(listDisplay.getColumnModel().getColumns());
-					
-					
-//						columnVisibilityMap.put(currColumnsNew.get(0), true);
-					
-					for(TableColumn c: currColumns) {
-						columnVisibilityMap.put(c, true);
-					}
-	
-					listDisplay.getMetadata().setColumnVisibilityMap(columnVisibilityMap);
-	
-//				}
-
-			if(!(isCorrelationRunning)) {
-				listDisplay.hideColumns();
-				}
-			
-			TableColumnModel tableColumnModel1 = listDisplay.getColumnModel();
-			System.out.println(tableColumnModel1);
-			
-			
-			listDisplay.setAutoResizeMode(0);
-			
-
-			listDisplay.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
-				public void valueChanged(ListSelectionEvent event) {
-
-					MetaOmGraph.getTaskBar().setNumFeatures(getNumberofFeaturesSelected());
-				}
-			});
-
-			
-
-			MetadataHeaderRenderer customHeaderCellRenderer = 
-					new MetadataHeaderRenderer(Color.white,
-							new Color(153,0,0),
-							new Font("Consolas",Font.BOLD,12),
-							BorderFactory.createEtchedBorder(),
-							true);
-					
-
-			
-//			listDisplay.getColumnModel().getColumn(myProject.getDefaultColumn()).setHeaderRenderer(customHeaderCellRenderer);
-			
-//			if(currColumnNames.length+1 != infoCols.length) {
-//				sorter.setTableHeader(listDisplay.getTableHeader());
-//			}
-			
-			
-			TableColumnModel newColumnModel = listDisplay.getColumnModel();
-			
-//			if(!(currColumnNames.length < infoCols.length-1)) {
-//				setColumnOrder(reorderedIndices, newColumnModel);
-//			}
-			
-			TableColumnModel tableColumnModel2 = listDisplay.getColumnModel();
-			System.out.println(tableColumnModel2);
+		});
 
 
-			sorter.setSortingStatus(myProject.getDefaultColumn(), 1);
-			geneListDisplayPane.setViewportView(listDisplay);
-			filterField.setText("");
-			for (int x = 0; (x < listDisplay.getColumnCount()) && (x < oldWidths.length); x++) {
-				listDisplay.getColumnModel().getColumn(x).setPreferredWidth(oldWidths[x]);
+
+		MetadataHeaderRenderer customHeaderCellRenderer = 
+				new MetadataHeaderRenderer(Color.white,
+						new Color(153,0,0),
+						new Font("Consolas",Font.BOLD,12),
+						BorderFactory.createEtchedBorder(),
+						true);
+
+		if(isCorrelationRunning) {
+			listDisplay.getColumnModel().getColumn(myProject.getDefaultColumn()).setHeaderRenderer(customHeaderCellRenderer);
+		}
+
+		sorter.setSortingStatus(myProject.getDefaultColumn(), 1);
+		
+		TableRowSorter<TableModel> sorter = new TableRowSorter<>(listDisplay.getModel());
+		listDisplay.setRowSorter(sorter);
+		
+		geneListDisplayPane.setViewportView(listDisplay);
+		
+		filterField.setText("");
+		for (int x = 0; (x < listDisplay.getColumnCount()) && (x < oldWidths.length); x++) {
+			listDisplay.getColumnModel().getColumn(x).setPreferredWidth(oldWidths[x]);
+		}
+		if (geneLists.getSelectedIndex() != 0) {
+			listDeleteButton.setEnabled(true);
+			listEditButton.setEnabled(true);
+			listRenameButton.setEnabled(true);
+		} else {
+			listDeleteButton.setEnabled(false);
+			listEditButton.setEnabled(false);
+			listRenameButton.setEnabled(false);
+		}
+		getTable().requestFocus();
+
+
+
+
+		try {
+			HashMap<String, Object> actionMap = new HashMap<String, Object>();
+			actionMap.put("parent", MetaOmGraph.getCurrentProjectActionId());
+
+			HashMap<String, Object> dataMap = new HashMap<String, Object>();
+			String selList = geneLists.getSelectedValue().toString();
+			dataMap.put("selectedList", selList);
+			dataMap.put("numElementsInList", myProject.getGeneListRowNumbers(selList).length);
+
+			HashMap<String, Object> result = new HashMap<String, Object>();
+			result.put("result", "OK");
+
+			ActionProperties listSelectAction = new ActionProperties("select-list", actionMap, dataMap, result,
+					new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+			if (previousListItemSelected != selList) {
+				previousListItemSelected = selList;
 			}
-			if (geneLists.getSelectedIndex() != 0) {
-				listDeleteButton.setEnabled(true);
-				listEditButton.setEnabled(true);
-				listRenameButton.setEnabled(true);
-			} else {
-				listDeleteButton.setEnabled(false);
-				listEditButton.setEnabled(false);
-				listRenameButton.setEnabled(false);
-			}
-			getTable().requestFocus();
-			
-			
-			TableColumnModel tableColumnModelfinal = listDisplay.getColumnModel();
-			System.out.println(tableColumnModelfinal);
-			
-			
+		} catch (Exception e) {
 
-			try {
-				HashMap<String, Object> actionMap = new HashMap<String, Object>();
-				actionMap.put("parent", MetaOmGraph.getCurrentProjectActionId());
-
-				HashMap<String, Object> dataMap = new HashMap<String, Object>();
-				String selList = geneLists.getSelectedValue().toString();
-				dataMap.put("selectedList", selList);
-				dataMap.put("numElementsInList", myProject.getGeneListRowNumbers(selList).length);
-
-				HashMap<String, Object> result = new HashMap<String, Object>();
-				result.put("result", "OK");
-
-				ActionProperties listSelectAction = new ActionProperties("select-list", actionMap, dataMap, result,
-						new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
-				if (previousListItemSelected != selList) {
-					previousListItemSelected = selList;
-				}
-			} catch (Exception e) {
-
-			}
+		}
 
 	}
 
-	
+
 	/**
 	 * 
 	 * @param indices
@@ -1145,23 +1125,23 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	 * Method to set the column order when a user rearranges the feature metadata table columns
 	 */
 	public static void setColumnOrder(int[] indices, TableColumnModel columnModel) {
-	    TableColumn column[] = new TableColumn[indices.length];
+		TableColumn column[] = new TableColumn[indices.length];
 
-	    for (int i = 0; i < column.length; i++) {
-	        column[i] = columnModel.getColumn(indices[i]);
-	    }
+		for (int i = 0; i < column.length; i++) {
+			column[i] = columnModel.getColumn(indices[i]);
+		}
 
-	    while (columnModel.getColumnCount() > 0) {
-	        columnModel.removeColumn(columnModel.getColumn(0));
-	    }
+		while (columnModel.getColumnCount() > 0) {
+			columnModel.removeColumn(columnModel.getColumn(0));
+		}
 
-	    for (int i = 0; i < column.length; i++) {
-	        columnModel.addColumn(column[i]);
-	    }
+		for (int i = 0; i < column.length; i++) {
+			columnModel.addColumn(column[i]);
+		}
 	}
-	
-	
-	
+
+
+
 	/**
 	 * @author urmi launch ensemble website
 	 * @throws URISyntaxException
@@ -1554,7 +1534,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 		new MetaOmChartPanel(getSelectedRowsInList(), myProject.getDefaultXAxis(), myProject.getDefaultYAxis(),
 				myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject)
-				.createInternalFrame();
+		.createInternalFrame();
 	}
 
 	/**
@@ -1583,7 +1563,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 				new MetaOmChartPanel(selectedRows, myProject.getDefaultXAxis(), myProject.getDefaultYAxis(),
 						myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject)
-						.createInternalFrame(true);
+				.createInternalFrame(true);
 
 				mcol.setIncluded(currentProjectIncludedSamples);
 				mcol.setExcluded(currentProjectExcludedSamples);
@@ -1671,61 +1651,61 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	// HeatMap
 	private void createHeatMap() {
 		int[] selected = getSelectedRowsInList();
-		
+
 		if(selected.length > 1) {
-		String[] rowNames = myProject.getDefaultRowNames(selected);
-		String[] columnNames = myProject.getIncludedDataColumnHeaders();
+			String[] rowNames = myProject.getDefaultRowNames(selected);
+			String[] columnNames = myProject.getIncludedDataColumnHeaders();
 
-		double[][] heatMapData = new double[selected.length][];
-		int rowIndex = 0;
-		for(int selectedIndex : selected) {
-			try {
-				double[] rowData = myProject.getIncludedData(selectedIndex);
-				heatMapData[rowIndex++] = rowData;
-			} catch (IOException e) {
-				e.printStackTrace();
+			double[][] heatMapData = new double[selected.length][];
+			int rowIndex = 0;
+			for(int selectedIndex : selected) {
+				try {
+					double[] rowData = myProject.getIncludedData(selectedIndex);
+					heatMapData[rowIndex++] = rowData;
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
-		}
 
-		HashMap<String, Object> actionMap = new HashMap<String, Object>();
-		HashMap<String, Object> dataMap = new HashMap<String, Object>();
-		HashMap<String, Object> result = new HashMap<String, Object>();
+			HashMap<String, Object> actionMap = new HashMap<String, Object>();
+			HashMap<String, Object> dataMap = new HashMap<String, Object>();
+			HashMap<String, Object> result = new HashMap<String, Object>();
 
-		try {
-			actionMap.put("parent", MetaOmGraph.getCurrentProjectActionId());
-			actionMap.put("section", "Feature Metadata");
+			try {
+				actionMap.put("parent", MetaOmGraph.getCurrentProjectActionId());
+				actionMap.put("section", "Feature Metadata");
 
-			String selList = geneLists.getSelectedValue().toString();
-			dataMap.put("Selected List", selList);
-			dataMap.put("Selected Features", getSelectedRowsInList());
-			dataMap.put("Data Transformation", MetaOmGraph.getInstance().getTransform());
-			dataMap.put("Chart Title", "Heat Map");
+				String selList = geneLists.getSelectedValue().toString();
+				dataMap.put("Selected List", selList);
+				dataMap.put("Selected Features", getSelectedRowsInList());
+				dataMap.put("Data Transformation", MetaOmGraph.getInstance().getTransform());
+				dataMap.put("Chart Title", "Heat Map");
 
-			result.put("Sample Action", MetaOmGraph.getCurrentSamplesActionId());
-			result.put("Playable", "true");
-			result.put("result", "OK");
-		} catch (Exception e1) {
+				result.put("Sample Action", MetaOmGraph.getCurrentSamplesActionId());
+				result.put("Playable", "true");
+				result.put("result", "OK");
+			} catch (Exception e1) {
 
-		}
-		ActionProperties heatMapAction = new ActionProperties("heat map", actionMap, dataMap, result,
-				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
+			}
+			ActionProperties heatMapAction = new ActionProperties("heat map", actionMap, dataMap, result,
+					new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 
 
-		HeatMapChart heatMapChart = new HeatMapChart(heatMapData, rowNames, columnNames, false);
-		MetaOmGraph.getDesktop().add(heatMapChart);
-		heatMapChart.setDefaultCloseOperation(2);
-		heatMapChart.setClosable(true);
-		heatMapChart.setResizable(true);
-		heatMapChart.pack();
-		heatMapChart.setSize(1000, 700);
-		heatMapChart.setVisible(true);
-		heatMapChart.toFront();
+			HeatMapChart heatMapChart = new HeatMapChart(heatMapData, rowNames, columnNames, false);
+			MetaOmGraph.getDesktop().add(heatMapChart);
+			heatMapChart.setDefaultCloseOperation(2);
+			heatMapChart.setClosable(true);
+			heatMapChart.setResizable(true);
+			heatMapChart.pack();
+			heatMapChart.setSize(1000, 700);
+			heatMapChart.setVisible(true);
+			heatMapChart.toFront();
 
-		try {
-			heatMapAction.logActionProperties();
-		} catch (Exception e1) {
+			try {
+				heatMapAction.logActionProperties();
+			} catch (Exception e1) {
 
-		}
+			}
 		}
 		else {
 			JOptionPane.showMessageDialog(null, "Please select more than one row to plot heatmap", "Error",
@@ -1870,15 +1850,15 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		return;
 
 	}
-	
-	
-	
+
+
+
 	public int getNumberofFeaturesSelected() {
-		
+
 		if(listDisplay != null) {
-		return listDisplay.getSelectedRows().length;
+			return listDisplay.getSelectedRows().length;
 		}
-		
+
 		return 0;
 	}
 
@@ -2210,7 +2190,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		int[] selected = myProject.getGeneListRowNumbers((String) geneLists.getSelectedValue());
 		new MetaOmChartPanel(selected, myProject.getDefaultXAxis(), myProject.getDefaultYAxis(),
 				myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject)
-				.createInternalFrame();
+		.createInternalFrame();
 
 		HashMap<String, Object> actionMap = new HashMap<String, Object>();
 		HashMap<String, Object> dataMap = new HashMap<String, Object>();
@@ -2265,7 +2245,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		if (geneLists.getSelectedValue().equals("Complete List")) {
 			new MetaOmChartPanel(trueRows, myProject.getDefaultXAxis(), myProject.getDefaultYAxis(),
 					myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject)
-					.createInternalFrame();
+			.createInternalFrame();
 
 			dataMap.put("Selected Features", new HashMap<Integer, String>().put(1, "Complete List"));
 
@@ -2279,7 +2259,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 			new MetaOmChartPanel(selected, myProject.getDefaultXAxis(), myProject.getDefaultYAxis(),
 					myProject.getDefaultTitle(), myProject.getColor1(), myProject.getColor2(), myProject)
-					.createInternalFrame();
+			.createInternalFrame();
 
 			dataMap.put("Selected Features", geneNames);
 		}
@@ -2647,8 +2627,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	public String getSelectedGeneName() {
 		if (listDisplay.getSelectedRow() != -1) {
 			return myProject.getRowNames()[myProject
-					.getGeneListRowNumbers(geneLists.getSelectedValue().toString())[getTrueSelectedRow()]][myProject
-					.getDefaultColumn()].toString();
+			                               .getGeneListRowNumbers(geneLists.getSelectedValue().toString())[getTrueSelectedRow()]][myProject
+			                                                                                                                      .getDefaultColumn()].toString();
 		}
 		return null;
 	}
@@ -2707,8 +2687,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 
 		MetadataHybrid mdhObj = MetaOmGraph.getActiveProject().getMetadataHybrid();
 		if (mdhObj != null) {
-//			extInfoPanel2 = new MetadataTreeDisplayPanel(mdhObj);
-//			tabby.addTab("Sample Metadata Tree", extInfoPanel2);
+			//			extInfoPanel2 = new MetadataTreeDisplayPanel(mdhObj);
+			//			tabby.addTab("Sample Metadata Tree", extInfoPanel2);
 			// build the treemap to map data col index to nodes in Jtree displaying data
 			// extInfoPanel2.buildTreemaptoNode();
 			mdtablepanel = new MetadataTableDisplayPanel(mdhObj.getMetadataCollection());
@@ -2746,39 +2726,39 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		}
 		TreeNode[] pathNodes = null;
 		if (parent) {
-//			if (extInfoPanel2.getColstoTreeMap().containsKey(col)) {
-//				DefaultMutableTreeNode p = (DefaultMutableTreeNode) extInfoPanel2.getColstoTreeMap().get(col)
-//						.getParent();
-//				pathNodes = p.getPath();
-//			} else {
-				return;
-//			}
+			//			if (extInfoPanel2.getColstoTreeMap().containsKey(col)) {
+			//				DefaultMutableTreeNode p = (DefaultMutableTreeNode) extInfoPanel2.getColstoTreeMap().get(col)
+			//						.getParent();
+			//				pathNodes = p.getPath();
+			//			} else {
+			return;
+			//			}
 
 		} else {
-//			if (extInfoPanel2.getColstoTreeMap().containsKey(col)) {
-//				pathNodes = extInfoPanel2.getColstoTreeMap().get(col).getPath();
-//			} else {
-				return;
-//			}
+			//			if (extInfoPanel2.getColstoTreeMap().containsKey(col)) {
+			//				pathNodes = extInfoPanel2.getColstoTreeMap().get(col).getPath();
+			//			} else {
+			return;
+			//			}
 
 		}
-//		if (pathNodes != null) {
-//			// JTree tree = extInfoPanel.getTree();
-////			JTree tree = extInfoPanel2.getTree();
-//			TreePath path = new TreePath(pathNodes);
-//			tree.setSelectionPath(path);
-//			Rectangle rect = tree.getPathBounds(path);
-//
-//			if (rect == null) {
-//				// JOptionPane.showMessageDialog(null, "Please remove a text on the search text
-//				// field.", "MetaOmGraph", JOptionPane.INFORMATION_MESSAGE);
-//				return;
-//			}
-//			rect.width += rect.x;
-//			rect.x = 0;
-//			tree.scrollRectToVisible(rect);
-//			tabby.setSelectedComponent(extInfoPanel2);
-//		}
+		//		if (pathNodes != null) {
+		//			// JTree tree = extInfoPanel.getTree();
+		////			JTree tree = extInfoPanel2.getTree();
+		//			TreePath path = new TreePath(pathNodes);
+		//			tree.setSelectionPath(path);
+		//			Rectangle rect = tree.getPathBounds(path);
+		//
+		//			if (rect == null) {
+		//				// JOptionPane.showMessageDialog(null, "Please remove a text on the search text
+		//				// field.", "MetaOmGraph", JOptionPane.INFORMATION_MESSAGE);
+		//				return;
+		//			}
+		//			rect.width += rect.x;
+		//			rect.x = 0;
+		//			tree.scrollRectToVisible(rect);
+		//			tabby.setSelectedComponent(extInfoPanel2);
+		//		}
 	}
 
 	public void selecTabRow(String value) {
@@ -2797,9 +2777,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	}
 
 	public void setExtInfoDividerPos(double pos) {
-//		if (extInfoPanel2 != null) {
-//			extInfoPanel2.getSplitPane().setDividerLocation(pos);
-//		}
+		//		if (extInfoPanel2 != null) {
+		//			extInfoPanel2.getSplitPane().setDividerLocation(pos);
+		//		}
 	}
 
 	public class ListNameComparator implements Comparator<String> {
@@ -2865,7 +2845,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		if ("delete list".equals(e.getActionCommand())) {
 			int result = JOptionPane.showConfirmDialog(MetaOmGraph.getMainWindow(),
 					"Are you sure you want to delete the selected lists '" + geneLists.getSelectedValue().toString()
-							+ "'?",
+					+ "'?",
 					"Confirm", 0, 3);
 			if (result == 0)
 				deleteSelectedList();
@@ -3334,8 +3314,8 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 				|| ("manhattan distance".equals(e.getActionCommand()))
 				|| ("weighted euclidean distance".equals(e.getActionCommand()))
 				|| ("weighted manhattan distance".equals(e.getActionCommand()))) {
-			
-			
+
+
 
 			// Harsha - reproducibility log
 			HashMap<String, Object> actionMap = new HashMap<String, Object>();
@@ -3444,9 +3424,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 					dataMap, result, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzz").format(new Date()));
 
 			try {
-				
+
 				isCorrelationRunning = true;
-				
+
 				if ("pearson correlation".equals(e.getActionCommand())) {
 					// measure time
 					// long startTime = System.nanoTime();
@@ -3523,7 +3503,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 										// CorrelationMeta temp = ob.doComputation(remFlag);
 										// target gene name to correlation meta object
 										String thisgeneName = myProject.getRowName(entries[j])[myProject
-												.getDefaultColumn()].toString();
+										                                                       .getDefaultColumn()].toString();
 										// JOptionPane.showMessageDialog(null, "this gene name:"+thisgeneName);
 										// add gene name in corrmeta obj
 										temp.settargetName(thisgeneName);
@@ -3694,7 +3674,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 										double thisrVal = 0;
 										CorrelationMeta temp = new CorrelationMeta(pv[0], pv[1]);
 										String thisgeneName = myProject.getRowName(entries[j])[myProject
-												.getDefaultColumn()].toString();
+										                                                       .getDefaultColumn()].toString();
 										temp.settargetName(thisgeneName);
 										corrMetaResList.add(temp);
 										// JOptionPane.showMessageDialog(null, "P val for row:"+j+" is:"+pv);
@@ -3817,7 +3797,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 										double thisrVal = 0;
 										CorrelationMeta temp = new CorrelationMeta(pv[0], pv[1]);
 										String thisgeneName = myProject.getRowName(entries[j])[myProject
-												.getDefaultColumn()].toString();
+										                                                       .getDefaultColumn()].toString();
 										temp.settargetName(thisgeneName);
 										corrMetaResList.add(temp);
 
@@ -4547,7 +4527,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 										// double thisrVal = 0;
 										CorrelationMeta temp = new CorrelationMeta(pv[0], pv[1]);
 										String thisgeneName = myProject.getRowName(entries[j])[myProject
-												.getDefaultColumn()].toString();
+										                                                       .getDefaultColumn()].toString();
 										temp.settargetName(thisgeneName);
 										corrMetaResList.add(temp);
 										// JOptionPane.showMessageDialog(null, "P val for row:"+j+" is:"+pv);
@@ -4673,7 +4653,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 										// double thisrVal = 0;
 										CorrelationMeta temp = new CorrelationMeta(pv[0], pv[1]);
 										String thisgeneName = myProject.getRowName(entries[j])[myProject
-												.getDefaultColumn()].toString();
+										                                                       .getDefaultColumn()].toString();
 										temp.settargetName(thisgeneName);
 										corrMetaResList.add(temp);
 
@@ -4785,9 +4765,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 			}
 
 			// multiSelectAction.logActionProperties();
-			
+
 			isCorrelationRunning = false;
-			
+
 			return;
 		}
 
@@ -5368,15 +5348,15 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 									MetaOmGraph.getDCResultsFrame().addTabListToFrame(frame.getGeneLists(),
 											"Fold Change Results");
 									MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager()
-											.maximizeFrame(MetaOmGraph.getDCResultsFrame());
+									.maximizeFrame(MetaOmGraph.getDCResultsFrame());
 									MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager()
-											.minimizeFrame(MetaOmGraph.getDCResultsFrame());
+									.minimizeFrame(MetaOmGraph.getDCResultsFrame());
 									MetaOmGraph.getDCResultsFrame().moveToFront();
 								} else {
 									MetaOmGraph
-											.setDCResultsFrame(new StatisticalResultsFrame("Differential Correlation",
-													"Differential Correlation Results [" + featureNames.get(0) + "] ("
-															+ featureNames.size() + " features)"));
+									.setDCResultsFrame(new StatisticalResultsFrame("Differential Correlation",
+											"Differential Correlation Results [" + featureNames.get(0) + "] ("
+													+ featureNames.size() + " features)"));
 									MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, "Fold Change Results", existingDifferentialAction.getActionNumber());
 									MetaOmGraph.getDCResultsFrame().addTabListToFrame(frame.getGeneLists(),
 											"Fold Change Results");
@@ -5385,9 +5365,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 									frame.setVisible(true);
 									MetaOmGraph.getDCResultsFrame().setVisible(true);
 									MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager()
-											.maximizeFrame(MetaOmGraph.getDCResultsFrame());
+									.maximizeFrame(MetaOmGraph.getDCResultsFrame());
 									MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager()
-											.minimizeFrame(MetaOmGraph.getDCResultsFrame());
+									.minimizeFrame(MetaOmGraph.getDCResultsFrame());
 									MetaOmGraph.getDCResultsFrame().moveToFront();
 									frame.setEnabled(true);
 								}
@@ -5526,17 +5506,17 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 									MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, chosenVal, loadDifferentialAction.getActionNumber());
 									MetaOmGraph.getDCResultsFrame().addTabListToFrame(frame.getGeneLists(), chosenVal);
 									MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager()
-											.maximizeFrame(MetaOmGraph.getDCResultsFrame());
+									.maximizeFrame(MetaOmGraph.getDCResultsFrame());
 									MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager()
-											.minimizeFrame(MetaOmGraph.getDCResultsFrame());
+									.minimizeFrame(MetaOmGraph.getDCResultsFrame());
 									MetaOmGraph.getDCResultsFrame().moveToFront();
 								} else {
 
 									MetaOmGraph
-											.setDCResultsFrame(new StatisticalResultsFrame("Differential Correlation",
-													"Differential Correlation Results ["
-															+ diffcorrresOB.getFeatureNames().get(0) + "] ("
-															+ diffcorrresOB.getFeatureNames().size() + " features)"));
+									.setDCResultsFrame(new StatisticalResultsFrame("Differential Correlation",
+											"Differential Correlation Results ["
+													+ diffcorrresOB.getFeatureNames().get(0) + "] ("
+													+ diffcorrresOB.getFeatureNames().size() + " features)"));
 									MetaOmGraph.getDCResultsFrame().addTabToFrame(frame, chosenVal, loadDifferentialAction.getActionNumber());
 									MetaOmGraph.getDCResultsFrame().addTabListToFrame(frame.getGeneLists(), chosenVal);
 									MetaOmGraph.getDCResultsFrame().setTitle("Differential Correlation Results");
@@ -5544,9 +5524,9 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 									frame.setVisible(true);
 									MetaOmGraph.getDCResultsFrame().setVisible(true);
 									MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager()
-											.maximizeFrame(MetaOmGraph.getDCResultsFrame());
+									.maximizeFrame(MetaOmGraph.getDCResultsFrame());
 									MetaOmGraph.getDCResultsFrame().getDesktopPane().getDesktopManager()
-											.minimizeFrame(MetaOmGraph.getDCResultsFrame());
+									.minimizeFrame(MetaOmGraph.getDCResultsFrame());
 									MetaOmGraph.getDCResultsFrame().moveToFront();
 									frame.setEnabled(true);
 								}
@@ -5900,21 +5880,21 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 		filterModel.applyFilter(value);
 	}
 
-	
+
 	public String[] getFeatureTableHeaders() {
-		
+
 		if(listDisplay != null) {
 			int columns = listDisplay.getColumnModel().getColumnCount();
 			String [] metadataColumns = new String[columns];
-			
+
 			for(int i=0; i<columns; i++) {
 				metadataColumns[i] = (String)listDisplay.getColumnModel().getColumn(i).getHeaderValue();
 			}
-			
+
 			return metadataColumns;
-			
+
 		}
-		
+
 		return null;
 	}
 
@@ -6152,7 +6132,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	 * @return
 	 */
 	public List<double[]> groupDatabyRepColumn(TreeMap<String, List<Integer>> groupsMap, double[] sourceDataAll,
-											   boolean[] exclude) {
+			boolean[] exclude) {
 		List<double[]> sourceGrouped = new ArrayList<double[]>();
 
 		for (Map.Entry<String, List<Integer>> entry : groupsMap.entrySet()) {
@@ -6216,7 +6196,7 @@ public class MetaOmTablePanel extends JPanel implements ActionListener, ListSele
 	 * @return
 	 */
 	public List<int[]> groupDataIndexbyRepColumn(TreeMap<String, List<Integer>> groupsMap, boolean[] exclude,
-												 int[] sourceDataColNumbers, int _N) {
+			int[] sourceDataColNumbers, int _N) {
 		List<int[]> res = new ArrayList<>();
 		// get datacolindex in order of source data
 		int y = 0;
